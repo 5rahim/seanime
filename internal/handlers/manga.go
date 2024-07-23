@@ -7,38 +7,12 @@ import (
 	"time"
 )
 
-// HandleMangaDONOTUSE1
-//
-//	@summary used to generate typescript types
-//	@returns vendor_hibike_manga.ChapterDetails
-//	@route /api/v1/manga/DONOTUSE
-func HandleMangaDONOTUSE1() {
-}
-
-// HandleMangaDONOTUSE2
-//
-//	@summary used to generate typescript types
-//	@returns vendor_hibike_manga.ChapterPage
-//	@route /api/v1/manga/DONOTUSE
-func HandleMangaDONOTUSE2() {
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
 	baseMangaCache    = result.NewCache[int, *anilist.BaseManga]()
 	mangaDetailsCache = result.NewCache[int, *anilist.MangaDetailsById_Media]()
 )
-
-// HandleGetMangaProviderExtensions
-//
-//	@summary returns the available manga providers.
-//	@route /api/v1/manga/provider-extensions [GET]
-//	@returns []extension.MangaProviderExtensionItem
-func HandleGetMangaProviderExtensions(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.ListMangaProviderExtensions()
-	return c.RespondWithData(extensions)
-}
 
 // HandleGetAnilistMangaCollection
 //

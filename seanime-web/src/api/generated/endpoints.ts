@@ -404,6 +404,13 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/open-in-explorer",
         },
     },
+    EXTENSIONS: {
+        GetMangaProviderExtensions: {
+            key: "EXTENSIONS-get-manga-provider-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/provider-extensions",
+        },
+    },
     FILECACHE: {
         /**
          *  @description
@@ -527,11 +534,6 @@ export const API_ENDPOINTS = {
         },
     },
     MANGA: {
-        GetMangaProviderExtensions: {
-            key: "MANGA-get-manga-provider-extensions",
-            methods: ["GET"],
-            endpoint: "/api/v1/manga/provider-extensions",
-        },
         GetAnilistMangaCollection: {
             key: "MANGA-get-anilist-manga-collection",
             methods: ["GET"],

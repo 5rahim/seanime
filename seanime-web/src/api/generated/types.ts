@@ -2174,8 +2174,8 @@ export type Offline_SnapshotEntry = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/onlinestream/onlinestream.go
- * - Filename: onlinestream.go
+ * - Filepath: internal/onlinestream/repository.go
+ * - Filename: repository.go
  * - Package: onlinestream
  */
 export type Onlinestream_Episode = {
@@ -2186,8 +2186,8 @@ export type Onlinestream_Episode = {
 }
 
 /**
- * - Filepath: internal/onlinestream/onlinestream.go
- * - Filename: onlinestream.go
+ * - Filepath: internal/onlinestream/repository.go
+ * - Filename: repository.go
  * - Package: onlinestream
  */
 export type Onlinestream_EpisodeListResponse = {
@@ -2196,8 +2196,8 @@ export type Onlinestream_EpisodeListResponse = {
 }
 
 /**
- * - Filepath: internal/onlinestream/onlinestream.go
- * - Filename: onlinestream.go
+ * - Filepath: internal/onlinestream/repository.go
+ * - Filename: repository.go
  * - Package: onlinestream
  */
 export type Onlinestream_EpisodeSource = {
@@ -2207,8 +2207,8 @@ export type Onlinestream_EpisodeSource = {
 }
 
 /**
- * - Filepath: internal/onlinestream/onlinestream.go
- * - Filename: onlinestream.go
+ * - Filepath: internal/onlinestream/repository.go
+ * - Filename: repository.go
  * - Package: onlinestream
  */
 export type Onlinestream_Subtitle = {
@@ -2217,8 +2217,8 @@ export type Onlinestream_Subtitle = {
 }
 
 /**
- * - Filepath: internal/onlinestream/onlinestream.go
- * - Filename: onlinestream.go
+ * - Filepath: internal/onlinestream/repository.go
+ * - Filename: repository.go
  * - Package: onlinestream
  */
 export type Onlinestream_VideoSource = {

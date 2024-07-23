@@ -23430,11 +23430,11 @@
         "comments": []
       },
       {
-        "name": "Onlinestream",
-        "jsonName": "Onlinestream",
-        "goType": "onlinestream.OnlineStream",
-        "typescriptType": "Onlinestream_OnlineStream",
-        "usedStructName": "onlinestream.OnlineStream",
+        "name": "OnlinestreamRepository",
+        "jsonName": "OnlinestreamRepository",
+        "goType": "onlinestream.Repository",
+        "typescriptType": "Onlinestream_Repository",
+        "usedStructName": "onlinestream.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -39699,325 +39699,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "OnlineStream",
-    "formattedName": "Onlinestream_OnlineStream",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "gogo",
-        "jsonName": "gogo",
-        "goType": "onlinestream_providers.Gogoanime",
-        "typescriptType": "Onlinestream_Gogoanime",
-        "usedStructName": "onlinestream_providers.Gogoanime",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "zoro",
-        "jsonName": "zoro",
-        "goType": "onlinestream_providers.Zoro",
-        "typescriptType": "Onlinestream_Zoro",
-        "usedStructName": "onlinestream_providers.Zoro",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "fileCacher",
-        "jsonName": "fileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "platform",
-        "jsonName": "platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "anilistBaseAnimeCache",
-        "jsonName": "anilistBaseAnimeCache",
-        "goType": "anilist.BaseAnimeCache",
-        "typescriptType": "AL_BaseAnimeCache",
-        "usedStructName": "anilist.BaseAnimeCache",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "Episode",
-    "formattedName": "Onlinestream_Episode",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "Number",
-        "jsonName": "number",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Image",
-        "jsonName": "image",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "EpisodeSource",
-    "formattedName": "Onlinestream_EpisodeSource",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "Number",
-        "jsonName": "number",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VideoSources",
-        "jsonName": "videoSources",
-        "goType": "[]VideoSource",
-        "typescriptType": "Array\u003cOnlinestream_VideoSource\u003e",
-        "usedStructName": "onlinestream.VideoSource",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Subtitles",
-        "jsonName": "subtitles",
-        "goType": "[]Subtitle",
-        "typescriptType": "Array\u003cOnlinestream_Subtitle\u003e",
-        "usedStructName": "onlinestream.Subtitle",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "VideoSource",
-    "formattedName": "Onlinestream_VideoSource",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "Server",
-        "jsonName": "server",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Headers",
-        "jsonName": "headers",
-        "goType": "map[string]string",
-        "typescriptType": "Record\u003cstring, string\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Quality",
-        "jsonName": "quality",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "EpisodeListResponse",
-    "formattedName": "Onlinestream_EpisodeListResponse",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]Episode",
-        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
-        "usedStructName": "onlinestream.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "Subtitle",
-    "formattedName": "Onlinestream_Subtitle",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Language",
-        "jsonName": "language",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/onlinestream.go",
-    "filename": "onlinestream.go",
-    "name": "NewOnlineStreamOptions",
-    "formattedName": "Onlinestream_NewOnlineStreamOptions",
-    "package": "onlinestream",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FileCacher",
-        "jsonName": "FileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Platform",
-        "jsonName": "Platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/onlinestream/providers/gogoanime.go",
     "filename": "gogoanime.go",
     "name": "Gogoanime",
@@ -40075,230 +39756,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/onlinestream/providers/providers.go",
-    "filename": "providers.go",
-    "name": "SearchResult",
-    "formattedName": "Onlinestream_SearchResult",
-    "package": "onlinestream_providers",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Anime slug"
-        ]
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Anime title"
-        ]
-      },
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Anime page URL"
-        ]
-      },
-      {
-        "name": "SubOrDub",
-        "jsonName": "subOrDub",
-        "goType": "SubOrDub",
-        "typescriptType": "Onlinestream_SubOrDub",
-        "usedStructName": "onlinestream_providers.SubOrDub",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Sub or Dub"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/providers/providers.go",
-    "filename": "providers.go",
-    "name": "EpisodeDetails",
-    "formattedName": "Onlinestream_EpisodeDetails",
-    "package": "onlinestream_providers",
-    "fields": [
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "Provider",
-        "typescriptType": "Onlinestream_Provider",
-        "usedStructName": "onlinestream_providers.Provider",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Episode slug, e.g \"the-apothecary-diaries-18578\""
-        ]
-      },
-      {
-        "name": "Number",
-        "jsonName": "number",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Episode number"
-        ]
-      },
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Watch URL"
-        ]
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Episode title"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/providers/providers.go",
-    "filename": "providers.go",
-    "name": "EpisodeServer",
-    "formattedName": "Onlinestream_EpisodeServer",
-    "package": "onlinestream_providers",
-    "fields": [
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "Provider",
-        "typescriptType": "Onlinestream_Provider",
-        "usedStructName": "onlinestream_providers.Provider",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Server",
-        "jsonName": "server",
-        "goType": "Server",
-        "typescriptType": "Onlinestream_Server",
-        "usedStructName": "onlinestream_providers.Server",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Headers",
-        "jsonName": "headers",
-        "goType": "map[string]string",
-        "typescriptType": "Record\u003cstring, string\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VideoSources",
-        "jsonName": "videoSources",
-        "goType": "[]onlinestream_sources.VideoSource",
-        "typescriptType": "Array\u003cOnlinestream_VideoSource\u003e",
-        "usedStructName": "onlinestream_sources.VideoSource",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/providers/providers.go",
-    "filename": "providers.go",
-    "name": "Server",
-    "formattedName": "Onlinestream_Server",
-    "package": "onlinestream_providers",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"default\"",
-        "\"vidstreaming\"",
-        "\"streamsb\"",
-        "\"gogocdn\"",
-        "\"streamtape\"",
-        "\"vidcloud\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/providers/providers.go",
-    "filename": "providers.go",
-    "name": "SubOrDub",
-    "formattedName": "Onlinestream_SubOrDub",
-    "package": "onlinestream_providers",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"sub\"",
-        "\"dub\"",
-        "\"both\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/providers/providers.go",
-    "filename": "providers.go",
-    "name": "Provider",
-    "formattedName": "Onlinestream_Provider",
-    "package": "onlinestream_providers",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"gogoanime\"",
-        "\"zoro\""
-      ]
-    },
-    "comments": []
-  },
-  {
     "filepath": "../internal/onlinestream/providers/zoro.go",
     "filename": "zoro.go",
     "name": "Zoro",
@@ -40341,6 +39798,325 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "Onlinestream_Repository",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "gogo",
+        "jsonName": "gogo",
+        "goType": "hibikeonlinestream.Provider",
+        "typescriptType": "HibikeOnlinestream_Provider",
+        "usedStructName": "hibikeonlinestream.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "zoro",
+        "jsonName": "zoro",
+        "goType": "hibikeonlinestream.Provider",
+        "typescriptType": "HibikeOnlinestream_Provider",
+        "usedStructName": "hibikeonlinestream.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anizipCache",
+        "jsonName": "anizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistBaseAnimeCache",
+        "jsonName": "anilistBaseAnimeCache",
+        "goType": "anilist.BaseAnimeCache",
+        "typescriptType": "AL_BaseAnimeCache",
+        "usedStructName": "anilist.BaseAnimeCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "Episode",
+    "formattedName": "Onlinestream_Episode",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Number",
+        "jsonName": "number",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "EpisodeSource",
+    "formattedName": "Onlinestream_EpisodeSource",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Number",
+        "jsonName": "number",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "VideoSources",
+        "jsonName": "videoSources",
+        "goType": "[]VideoSource",
+        "typescriptType": "Array\u003cOnlinestream_VideoSource\u003e",
+        "usedStructName": "onlinestream.VideoSource",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Subtitles",
+        "jsonName": "subtitles",
+        "goType": "[]Subtitle",
+        "typescriptType": "Array\u003cOnlinestream_Subtitle\u003e",
+        "usedStructName": "onlinestream.Subtitle",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "VideoSource",
+    "formattedName": "Onlinestream_VideoSource",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Headers",
+        "jsonName": "headers",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Quality",
+        "jsonName": "quality",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "EpisodeListResponse",
+    "formattedName": "Onlinestream_EpisodeListResponse",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cOnlinestream_Episode\u003e",
+        "usedStructName": "onlinestream.Episode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "Subtitle",
+    "formattedName": "Onlinestream_Subtitle",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "Onlinestream_NewRepositoryOptions",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnizipCache",
+        "jsonName": "AnizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -40482,120 +40258,6 @@
         "typescriptType": "Client",
         "usedStructName": "http.Client",
         "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/sources/video_source.go",
-    "filename": "video_source.go",
-    "name": "VideoSource",
-    "formattedName": "Onlinestream_VideoSource",
-    "package": "onlinestream_sources",
-    "fields": [
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "VideoSourceType",
-        "typescriptType": "Onlinestream_VideoSourceType",
-        "usedStructName": "onlinestream_sources.VideoSourceType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Quality",
-        "jsonName": "quality",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Subtitles",
-        "jsonName": "subtitles",
-        "goType": "[]VideoSubtitle",
-        "typescriptType": "Array\u003cOnlinestream_VideoSubtitle\u003e",
-        "usedStructName": "onlinestream_sources.VideoSubtitle",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " VideoSource represents a video source."
-    ]
-  },
-  {
-    "filepath": "../internal/onlinestream/sources/video_source.go",
-    "filename": "video_source.go",
-    "name": "VideoSourceType",
-    "formattedName": "Onlinestream_VideoSourceType",
-    "package": "onlinestream_sources",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"mp4\"",
-        "\"m3u8\"",
-        "\"dash\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/onlinestream/sources/video_source.go",
-    "filename": "video_source.go",
-    "name": "VideoSubtitle",
-    "formattedName": "Onlinestream_VideoSubtitle",
-    "package": "onlinestream_sources",
-    "fields": [
-      {
-        "name": "URL",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Language",
-        "jsonName": "language",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsDefault",
-        "jsonName": "isDefault",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
         "public": true,
         "comments": []
       }

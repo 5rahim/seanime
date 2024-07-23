@@ -15,6 +15,14 @@ const (
 	typescriptFileName = "types.ts"
 )
 
+// Structs that are not directly referenced by the API routes but are needed for the Typescript file.
+var additionalStructNames = []string{
+	"vendor_hibike_manga.ChapterDetails",
+	"vendor_hibike_manga.ChapterPage",
+	"torrentstream.TorrentLoadingStatus",
+	"torrentstream.TorrentStatus",
+}
+
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.
 func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, outDir string, goStructStrs []string) {
 
@@ -24,6 +32,7 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, o
 
 	// e.g. map["models.User"]*GoStruct
 	goStructsMap := make(map[string]*GoStruct)
+
 	for _, goStruct := range goStructs {
 		goStructsMap[goStruct.Package+"."+goStruct.Name] = goStruct
 	}
@@ -117,6 +126,13 @@ func GenerateTypescriptFile(docsFilePath string, publicStructsFilePath string, o
 		// Find the struct
 		goStruct, ok := goStructsMap[structStr]
 		if ok {
+			otherStructs = append(otherStructs, goStruct)
+		}
+	}
+
+	// Add additional structs to otherStructs
+	for _, structName := range additionalStructNames {
+		if goStruct, ok := goStructsMap[structName]; ok {
 			otherStructs = append(otherStructs, goStruct)
 		}
 	}
