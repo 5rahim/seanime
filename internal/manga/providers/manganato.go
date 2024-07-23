@@ -2,6 +2,7 @@ package manga_providers
 
 import (
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"net/http"
@@ -43,8 +44,8 @@ func NewManganato(logger *zerolog.Logger) *Manganato {
 	}
 }
 
-func (mp *Manganato) Search(opts SearchOptions) (ret []*SearchResult, err error) {
-	ret = make([]*SearchResult, 0)
+func (mp *Manganato) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
+	ret = make([]*hibikemanga.SearchResult, 0)
 
 	mp.logger.Debug().Str("query", opts.Query).Msg("manganato: Searching manga")
 
@@ -64,8 +65,8 @@ func (mp *Manganato) Search(opts SearchOptions) (ret []*SearchResult, err error)
 			if r := recover(); r != nil {
 			}
 		}()
-		result := &SearchResult{
-			Provider: ManganatoProvider,
+		result := &hibikemanga.SearchResult{
+			Provider: string(ManganatoProvider),
 		}
 		result.ID = e.DOM.Find("a.item-title").AttrOr("href", "")
 		splitHref := strings.Split(result.ID, "/")
@@ -101,8 +102,8 @@ func (mp *Manganato) Search(opts SearchOptions) (ret []*SearchResult, err error)
 	return ret, nil
 }
 
-func (mp *Manganato) FindChapters(id string) (ret []*ChapterDetails, err error) {
-	ret = make([]*ChapterDetails, 0)
+func (mp *Manganato) FindChapters(id string) (ret []*hibikemanga.ChapterDetails, err error) {
+	ret = make([]*hibikemanga.ChapterDetails, 0)
 
 	mp.logger.Debug().Str("mangaId", id).Msg("manganato: Finding chapters")
 
@@ -137,8 +138,8 @@ func (mp *Manganato) FindChapters(id string) (ret []*ChapterDetails, err error) 
 		chStr = strings.TrimSuffix(chStr, ":")
 		href := e.ChildAttr("a", "href")
 		id := strings.Split(href, "/")[4]
-		chapter := &ChapterDetails{
-			Provider: ManganatoProvider,
+		chapter := &hibikemanga.ChapterDetails{
+			Provider: string(ManganatoProvider),
 			ID:       splitId[1] + "$" + id,
 			URL:      href,
 			Title:    strings.TrimSpace(name),
@@ -168,8 +169,8 @@ func (mp *Manganato) FindChapters(id string) (ret []*ChapterDetails, err error) 
 	return ret, nil
 }
 
-func (mp *Manganato) FindChapterPages(id string) (ret []*ChapterPage, err error) {
-	ret = make([]*ChapterPage, 0)
+func (mp *Manganato) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err error) {
+	ret = make([]*hibikemanga.ChapterPage, 0)
 
 	mp.logger.Debug().Str("chapterId", id).Msg("manganato: Finding chapter pages")
 
@@ -193,8 +194,8 @@ func (mp *Manganato) FindChapterPages(id string) (ret []*ChapterPage, err error)
 		if e.Attr("src") == "" {
 			return
 		}
-		page := &ChapterPage{
-			Provider: ManganatoProvider,
+		page := &hibikemanga.ChapterPage{
+			Provider: string(ManganatoProvider),
 			URL:      e.Attr("src"),
 			Index:    len(ret),
 			Headers: map[string]string{

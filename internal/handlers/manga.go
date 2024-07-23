@@ -2,18 +2,43 @@ package handlers
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/mal"
-	"seanime/internal/events"
 	"seanime/internal/manga"
-	"seanime/internal/manga/providers"
 	"seanime/internal/util/result"
 	"time"
 )
+
+// HandleMangaDONOTUSE1
+//
+//	@summary used to generate typescript types
+//	@returns vendor_hibike_manga.ChapterDetails
+//	@route /api/v1/manga/DONOTUSE
+func HandleMangaDONOTUSE1() {
+}
+
+// HandleMangaDONOTUSE2
+//
+//	@summary used to generate typescript types
+//	@returns vendor_hibike_manga.ChapterPage
+//	@route /api/v1/manga/DONOTUSE
+func HandleMangaDONOTUSE2() {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
 	baseMangaCache    = result.NewCache[int, *anilist.BaseManga]()
 	mangaDetailsCache = result.NewCache[int, *anilist.MangaDetailsById_Media]()
 )
+
+// HandleGetMangaProviderExtensions
+//
+//	@summary returns the available manga providers.
+//	@route /api/v1/manga/provider-extensions [GET]
+//	@returns []extension.MangaProviderExtensionItem
+func HandleGetMangaProviderExtensions(c *RouteCtx) error {
+	extensions := c.App.ExtensionRepository.ListMangaProviderExtensions()
+	return c.RespondWithData(extensions)
+}
 
 // HandleGetAnilistMangaCollection
 //
@@ -185,8 +210,8 @@ func HandleEmptyMangaEntryCache(c *RouteCtx) error {
 func HandleGetMangaEntryChapters(c *RouteCtx) error {
 
 	type body struct {
-		MediaId  int                      `json:"mediaId"`
-		Provider manga_providers.Provider `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+		Provider string `json:"provider"`
 	}
 
 	var b body
@@ -228,10 +253,10 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 func HandleGetMangaEntryPages(c *RouteCtx) error {
 
 	type body struct {
-		MediaId    int                      `json:"mediaId"`
-		Provider   manga_providers.Provider `json:"provider"`
-		ChapterId  string                   `json:"chapterId"`
-		DoublePage bool                     `json:"doublePage"`
+		MediaId    int    `json:"mediaId"`
+		Provider   string `json:"provider"`
+		ChapterId  string `json:"chapterId"`
+		DoublePage bool   `json:"doublePage"`
 	}
 
 	var b body
@@ -363,28 +388,6 @@ func HandleUpdateMangaProgress(c *RouteCtx) error {
 	}
 
 	_, _ = c.App.RefreshMangaCollection() // Refresh the AniList collection
-
-	go func() {
-		// Update the progress on MAL if an account is linked
-		malInfo, _ := c.App.Database.GetMalInfo()
-		if malInfo != nil && malInfo.AccessToken != "" && b.MalId > 0 {
-
-			// Verify MAL auth
-			malInfo, err = mal.VerifyMALAuth(malInfo, c.App.Database, c.App.Logger)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-				return
-			}
-
-			client := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
-			err = client.UpdateMangaProgress(&mal.MangaListProgressParams{
-				NumChaptersRead: &b.ChapterNumber,
-			}, b.MalId)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-			}
-		}
-	}()
 
 	return c.RespondWithData(true)
 }

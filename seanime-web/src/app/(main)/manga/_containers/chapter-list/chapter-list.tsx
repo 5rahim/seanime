@@ -1,10 +1,10 @@
-import { AL_MangaDetailsById_Media, Manga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
-import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
+import { AL_MangaDetailsById_Media, HibikeManga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
+import { useEmptyMangaEntryCache, useGetMangaEntryChapters, useGetMangaProviderExtensions } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
-import { MANGA_PROVIDER_OPTIONS, useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
+import { useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
@@ -39,6 +39,12 @@ export function ChapterList(props: ChapterListProps) {
         downloadDataLoading,
         ...rest
     } = props
+
+    /**
+     * Provider extensions
+     */
+    const { data: providerExtensions } = useGetMangaProviderExtensions()
+
     /**
      * Current provider
      */
@@ -95,7 +101,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Function to filter unread chapters
      */
-    const retainUnreadChapters = React.useCallback((chapter: Manga_ChapterDetails) => {
+    const retainUnreadChapters = React.useCallback((chapter: HibikeManga_ChapterDetails) => {
         if (!entry.listData || !chapterIdToNumbersMap.has(chapter.id) || !entry.listData?.progress) return true
 
         const chapterNumber = chapterIdToNumbersMap.get(chapter.id)
@@ -117,7 +123,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Chapter columns
      */
-    const columns = React.useMemo(() => defineDataGridColumns<Manga_ChapterDetails>(() => [
+    const columns = React.useMemo(() => defineDataGridColumns<HibikeManga_ChapterDetails>(() => [
         {
             accessorKey: "title",
             header: "Name",
@@ -208,11 +214,14 @@ export function ChapterList(props: ChapterListProps) {
             <div className="flex gap-2 items-center">
                 <Select
                     fieldClass="w-fit"
-                    options={MANGA_PROVIDER_OPTIONS}
+                    options={providerExtensions?.map(p => ({
+                        label: p.name,
+                        value: p.id,
+                    })) ?? []}
                     value={provider}
                     onValueChange={v => setProvider({
                         mId: mediaId,
-                        provider: v as Manga_Provider,
+                        provider: v,
                     })}
                     leftAddon="Source"
                     intent="filled"
@@ -290,7 +299,7 @@ export function ChapterList(props: ChapterListProps) {
                                         }}
                                     />
 
-                                    <DataGrid<Manga_ChapterDetails>
+                                    <DataGrid<HibikeManga_ChapterDetails>
                                         columns={columns}
                                         data={chapters}
                                         rowCount={chapters.length}

@@ -13,7 +13,6 @@ import type {
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
-    Manga_Provider,
     Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DiscordSettings,
@@ -557,7 +556,7 @@ export type EmptyMangaEntryCache_Variables = {
  */
 export type GetMangaEntryChapters_Variables = {
     mediaId: number
-    provider: Manga_Provider
+    provider: string
 }
 
 /**
@@ -569,7 +568,7 @@ export type GetMangaEntryChapters_Variables = {
  */
 export type GetMangaEntryPages_Variables = {
     mediaId: number
-    provider: Manga_Provider
+    provider: string
     chapterId: string
     doublePage: boolean
 }
@@ -621,7 +620,7 @@ export type UpdateMangaProgress_Variables = {
  */
 export type DownloadMangaChapters_Variables = {
     mediaId: number
-    provider: Manga_Provider
+    provider: string
     chapterIds: Array<string>
     startNow: boolean
 }

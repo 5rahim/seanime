@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"os"
@@ -30,20 +31,20 @@ type (
 	// ChapterContainer is used to display the list of chapters from a provider in the client.
 	// It is cached in a unique file cache bucket with a key of the format: {provider}${mediaId}
 	ChapterContainer struct {
-		MediaId  int                               `json:"mediaId"`
-		Provider string                            `json:"provider"`
-		Chapters []*manga_providers.ChapterDetails `json:"chapters"`
+		MediaId  int                           `json:"mediaId"`
+		Provider string                        `json:"provider"`
+		Chapters []*hibikemanga.ChapterDetails `json:"chapters"`
 	}
 
 	// PageContainer is used to display the list of pages from a chapter in the client.
 	// It is cached in the file cache bucket with a key of the format: {provider}${mediaId}${chapterId}
 	PageContainer struct {
-		MediaId        int                            `json:"mediaId"`
-		Provider       string                         `json:"provider"`
-		ChapterId      string                         `json:"chapterId"`
-		Pages          []*manga_providers.ChapterPage `json:"pages"`
-		PageDimensions map[int]*PageDimension         `json:"pageDimensions"` // Indexed by page number
-		IsDownloaded   bool                           `json:"isDownloaded"`   // TODO remove
+		MediaId        int                        `json:"mediaId"`
+		Provider       string                     `json:"provider"`
+		ChapterId      string                     `json:"chapterId"`
+		Pages          []*hibikemanga.ChapterPage `json:"pages"`
+		PageDimensions map[int]*PageDimension     `json:"pageDimensions"` // Indexed by page number
+		IsDownloaded   bool                       `json:"isDownloaded"`   // TODO remove
 	}
 
 	// PageDimension is used to store the dimensions of a page.
@@ -56,12 +57,12 @@ type (
 
 // GetMangaChapterContainer returns the ChapterContainer for a manga entry based on the provider.
 // If it isn't cached, it will search for the manga, create a ChapterContainer and cache it.
-func (r *Repository) GetMangaChapterContainer(provider manga_providers.Provider, mediaId int, titles []*string) (*ChapterContainer, error) {
+func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titles []*string) (*ChapterContainer, error) {
 
 	key := fmt.Sprintf("%s$%d", provider, mediaId)
 
 	r.logger.Debug().
-		Str("provider", string(provider)).
+		Str("provider", provider).
 		Int("mediaId", mediaId).
 		Str("key", key).
 		Msgf("manga: getting chapters")
@@ -91,33 +92,21 @@ func (r *Repository) GetMangaChapterContainer(provider manga_providers.Provider,
 		return util.IsMostlyLatinString(*title)
 	})
 
-	var searchRes []*manga_providers.SearchResult
+	var searchRes []*hibikemanga.SearchResult
+
+	providerExtension, ok := r.providerExtensions.Get(provider)
+	if !ok {
+		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
+		return nil, errors.New("manga: Provider not found")
+	}
 
 	var err error
 	for _, title := range titles {
-		var _searchRes []*manga_providers.SearchResult
-		switch provider {
-		case manga_providers.ComickProvider:
-			_searchRes, err = r.comick.Search(manga_providers.SearchOptions{
-				Query: *title,
-			})
-		case manga_providers.MangaseeProvider:
-			_searchRes, err = r.mangasee.Search(manga_providers.SearchOptions{
-				Query: *title,
-			})
-		case manga_providers.MangadexProvider:
-			_searchRes, err = r.mangadex.Search(manga_providers.SearchOptions{
-				Query: *title,
-			})
-		case manga_providers.MangapillProvider:
-			_searchRes, err = r.mangapill.Search(manga_providers.SearchOptions{
-				Query: *title,
-			})
-		case manga_providers.ManganatoProvider:
-			_searchRes, err = r.manganato.Search(manga_providers.SearchOptions{
-				Query: *title,
-			})
-		}
+		var _searchRes []*hibikemanga.SearchResult
+
+		_searchRes, err = providerExtension.GetProvider().Search(hibikemanga.SearchOptions{
+			Query: *title,
+		})
 		if err == nil {
 			searchRes = append(searchRes, _searchRes...)
 		} else {
@@ -141,20 +130,9 @@ func (r *Repository) GetMangaChapterContainer(provider manga_providers.Provider,
 	// |    Get chapters     |
 	// +---------------------+
 
-	var chapterList []*manga_providers.ChapterDetails
+	var chapterList []*hibikemanga.ChapterDetails
 
-	switch provider {
-	case manga_providers.ComickProvider:
-		chapterList, err = r.comick.FindChapters(bestRes.ID)
-	case manga_providers.MangaseeProvider:
-		chapterList, err = r.mangasee.FindChapters(bestRes.ID)
-	case manga_providers.MangadexProvider:
-		chapterList, err = r.mangadex.FindChapters(bestRes.ID)
-	case manga_providers.MangapillProvider:
-		chapterList, err = r.mangapill.FindChapters(bestRes.ID)
-	case manga_providers.ManganatoProvider:
-		chapterList, err = r.manganato.FindChapters(bestRes.ID)
-	}
+	chapterList, err = providerExtension.GetProvider().FindChapters(bestRes.ID)
 
 	if err != nil {
 		r.logger.Error().Err(err).Msg("manga: Failed to get chapters")
@@ -182,7 +160,7 @@ func (r *Repository) GetMangaChapterContainer(provider manga_providers.Provider,
 
 // GetMangaPageContainer returns the PageContainer for a manga chapter based on the provider.
 func (r *Repository) GetMangaPageContainer(
-	provider manga_providers.Provider,
+	provider string,
 	mediaId int,
 	chapterId string,
 	doublePage bool,
@@ -256,7 +234,7 @@ func (r *Repository) GetMangaPageContainer(
 	}
 
 	// Get the chapter from the container
-	var chapter *manga_providers.ChapterDetails
+	var chapter *hibikemanga.ChapterDetails
 	for _, c := range chapterContainer.Chapters {
 		if c.ID == chapterId {
 			chapter = c
@@ -269,22 +247,17 @@ func (r *Repository) GetMangaPageContainer(
 		return nil, ErrChapterNotFound
 	}
 
+	providerExtension, ok := r.providerExtensions.Get(provider)
+	if !ok {
+		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
+		return nil, errors.New("manga: Provider not found")
+	}
+
 	// Get the chapter pages
-	var pageList []*manga_providers.ChapterPage
+	var pageList []*hibikemanga.ChapterPage
 	var err error
 
-	switch provider {
-	case manga_providers.ComickProvider:
-		pageList, err = r.comick.FindChapterPages(chapter.ID)
-	case manga_providers.MangaseeProvider:
-		pageList, err = r.mangasee.FindChapterPages(chapter.ID)
-	case manga_providers.MangadexProvider:
-		pageList, err = r.mangadex.FindChapterPages(chapter.ID)
-	case manga_providers.MangapillProvider:
-		pageList, err = r.mangapill.FindChapterPages(chapter.ID)
-	case manga_providers.ManganatoProvider:
-		pageList, err = r.manganato.FindChapterPages(chapter.ID)
-	}
+	pageList, err = providerExtension.GetProvider().FindChapterPages(chapter.ID)
 
 	if err != nil {
 		r.logger.Error().Err(err).Msg("manga: Could not get chapter pages")
@@ -315,7 +288,7 @@ func (r *Repository) GetMangaPageContainer(
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId int, chapterId string, pages []*manga_providers.ChapterPage) (ret map[int]*PageDimension, err error) {
+func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId int, chapterId string, pages []*hibikemanga.ChapterPage) (ret map[int]*PageDimension, err error) {
 	util.HandlePanicInModuleThen("manga/getPageDimensions", func() {
 		err = fmt.Errorf("failed to get page dimensions")
 	})
@@ -329,7 +302,7 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 	// Page dimensions bucket
 	// e.g., manga_comick_page-dimensions_123
 	//         -> { "comick$123$10010": PageDimensions }, { "comick$123$10011": PageDimensions }
-	bucket := r.getFcProviderBucket(manga_providers.Provider(provider), mediaId, bucketTypePageDimensions)
+	bucket := r.getFcProviderBucket(string(provider), mediaId, bucketTypePageDimensions)
 
 	if found, _ := r.fileCacher.Get(bucket, fmt.Sprintf(key, provider, mediaId), &ret); found {
 		r.logger.Info().Str("key", key).Msg("manga: Page Dimensions Cache HIT")
@@ -344,9 +317,9 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 	wg := sync.WaitGroup{}
 	for _, page := range pages {
 		wg.Add(1)
-		go func(page *manga_providers.ChapterPage) {
+		go func(page *hibikemanga.ChapterPage) {
 			defer wg.Done()
-			buf, err := manga_providers.GetImage(page.URL, page.Headers)
+			buf, err := manga_providers.GetImageByProxy(page.URL, page.Headers)
 			if err != nil {
 				return
 			}
@@ -380,7 +353,7 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 
 // getDownloadedMangaPageContainer returns the PageContainer for a downloaded manga chapter based on the provider.
 func (r *Repository) getDownloadedMangaPageContainer(
-	provider manga_providers.Provider,
+	provider string,
 	mediaId int,
 	chapterId string,
 ) (*PageContainer, error) {
@@ -437,15 +410,15 @@ func (r *Repository) getDownloadedMangaPageContainer(
 		return nil, err
 	}
 
-	pageList := make([]*manga_providers.ChapterPage, 0)
+	pageList := make([]*hibikemanga.ChapterPage, 0)
 	pageDimensions := make(map[int]*PageDimension)
 
 	// Get the downloaded pages
 	for pageIndex, pageInfo := range *pageRegistry {
-		pageList = append(pageList, &manga_providers.ChapterPage{
+		pageList = append(pageList, &hibikemanga.ChapterPage{
 			Index:    pageIndex,
 			URL:      filepath.Join(chapterDir, pageInfo.Filename),
-			Provider: provider,
+			Provider: string(provider),
 		})
 		pageDimensions[pageIndex] = &PageDimension{
 			Width:  pageInfo.Width,
@@ -453,7 +426,7 @@ func (r *Repository) getDownloadedMangaPageContainer(
 		}
 	}
 
-	slices.SortStableFunc(pageList, func(i, j *manga_providers.ChapterPage) int {
+	slices.SortStableFunc(pageList, func(i, j *hibikemanga.ChapterPage) int {
 		return cmp.Compare(i.Index, j.Index)
 	})
 
@@ -535,7 +508,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 
 	// Get the chapter containers
 	for pair := range providerAndMediaIdPairs {
-		provider := manga_providers.Provider(pair.provider)
+		provider := string(pair.provider)
 		mediaId := pair.mediaId
 
 		// Get the manga chapter container (downloaded and non-downloaded)
@@ -561,7 +534,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		}
 
 		// Now that we have the container, we'll filter out the chapters that are not downloaded
-		chapters := make([]*manga_providers.ChapterDetails, 0)
+		chapters := make([]*hibikemanga.ChapterDetails, 0)
 		// Go through each chapter and check if it's downloaded
 		for _, chapter := range container.Chapters {
 			// For each chapter, check if the chapter directory exists

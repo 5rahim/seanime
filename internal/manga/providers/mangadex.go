@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/rs/zerolog"
 	"net/http"
@@ -81,8 +82,8 @@ func NewMangadex(logger *zerolog.Logger) *Mangadex {
 	}
 }
 
-func (md *Mangadex) Search(opts SearchOptions) ([]*SearchResult, error) {
-	ret := make([]*SearchResult, 0)
+func (md *Mangadex) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
+	ret := make([]*hibikemanga.SearchResult, 0)
 
 	retManga := make([]*MangadexManga, 0)
 
@@ -155,14 +156,14 @@ func (md *Mangadex) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 		compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, []*string{&t})
 
-		result := &SearchResult{
+		result := &hibikemanga.SearchResult{
 			ID:           manga.ID,
 			Title:        t,
 			Synonyms:     altTitles,
 			Image:        img,
 			Year:         manga.Attributes.Year,
 			SearchRating: compRes.Rating,
-			Provider:     MangadexProvider,
+			Provider:     string(MangadexProvider),
 		}
 
 		ret = append(ret, result)
@@ -177,8 +178,8 @@ func (md *Mangadex) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 	return ret, nil
 }
-func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
-	ret := make([]*ChapterDetails, 0)
+func (md *Mangadex) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) {
+	ret := make([]*hibikemanga.ChapterDetails, 0)
 
 	md.logger.Debug().Str("mangaId", id).Msg("mangadex: Finding chapters")
 
@@ -211,7 +212,7 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 
 		slices.Reverse(data.Data)
 
-		chapterMap := make(map[string]*ChapterDetails)
+		chapterMap := make(map[string]*hibikemanga.ChapterDetails)
 		idx := uint(len(ret))
 		for _, chapter := range data.Data {
 
@@ -225,23 +226,23 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 				continue
 			}
 
-			chapterMap[chapter.Attributes.Chapter] = &ChapterDetails{
+			chapterMap[chapter.Attributes.Chapter] = &hibikemanga.ChapterDetails{
 				ID:        chapter.ID,
 				Title:     title,
 				Index:     idx,
 				Chapter:   chapter.Attributes.Chapter,
 				UpdatedAt: chapter.Attributes.UpdatedAt,
-				Provider:  MangadexProvider,
+				Provider:  string(MangadexProvider),
 			}
 			idx++
 		}
 
-		chapters := make([]*ChapterDetails, 0, len(chapterMap))
+		chapters := make([]*hibikemanga.ChapterDetails, 0, len(chapterMap))
 		for _, chapter := range chapterMap {
 			chapters = append(chapters, chapter)
 		}
 
-		slices.SortStableFunc(chapters, func(i, j *ChapterDetails) int {
+		slices.SortStableFunc(chapters, func(i, j *hibikemanga.ChapterDetails) int {
 			return cmp.Compare(i.Index, j.Index)
 		})
 
@@ -262,8 +263,8 @@ func (md *Mangadex) FindChapters(id string) ([]*ChapterDetails, error) {
 	return ret, nil
 
 }
-func (md *Mangadex) FindChapterPages(id string) ([]*ChapterPage, error) {
-	ret := make([]*ChapterPage, 0)
+func (md *Mangadex) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error) {
+	ret := make([]*hibikemanga.ChapterPage, 0)
 
 	md.logger.Debug().Str("chapterId", id).Msg("mangadex: Finding chapter pages")
 
@@ -299,8 +300,8 @@ func (md *Mangadex) FindChapterPages(id string) ([]*ChapterPage, error) {
 	}
 
 	for i, page := range data.Chapter.Data {
-		ret = append(ret, &ChapterPage{
-			Provider: MangadexProvider,
+		ret = append(ret, &hibikemanga.ChapterPage{
+			Provider: string(MangadexProvider),
 			URL:      fmt.Sprintf("%s/data/%s/%s", data.BaseUrl, data.Chapter.Hash, page),
 			Index:    i,
 			Headers: map[string]string{

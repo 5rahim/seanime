@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -8,6 +10,14 @@ import (
 	"time"
 	"unicode"
 )
+
+func GenerateCryptoID() string {
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
+}
 
 func IsMostlyLatinString(str string) bool {
 	if len(str) <= 0 {

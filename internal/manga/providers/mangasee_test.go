@@ -1,6 +1,7 @@
 package manga_providers
 
 import (
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/util"
 	"testing"
@@ -28,7 +29,7 @@ func TestMangasee_Search(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			searchRes, err := mangasee.Search(SearchOptions{
+			searchRes, err := mangasee.Search(hibikemanga.SearchOptions{
 				Query: tt.query,
 			})
 			if assert.NoError(t, err, "mangasee.Search() error") {
@@ -126,7 +127,7 @@ func TestMangasee_FindChapterPages(t *testing.T) {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
-				var chapterInfo *ChapterDetails
+				var chapterInfo *hibikemanga.ChapterDetails
 				for _, chapter := range chapters {
 					if chapter.Index == tt.index {
 						chapterInfo = chapter

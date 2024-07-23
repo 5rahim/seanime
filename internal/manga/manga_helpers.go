@@ -1,9 +1,11 @@
 package manga
 
-import "seanime/internal/manga/providers"
+import (
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+)
 
 // GetChapter returns a chapter from the container
-func (cc *ChapterContainer) GetChapter(id string) (ret *manga_providers.ChapterDetails, found bool) {
+func (cc *ChapterContainer) GetChapter(id string) (ret *hibikemanga.ChapterDetails, found bool) {
 	for _, c := range cc.Chapters {
 		if c.ID == id {
 			return c, true

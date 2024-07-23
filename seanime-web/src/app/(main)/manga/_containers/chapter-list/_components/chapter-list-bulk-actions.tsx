@@ -1,11 +1,11 @@
-import { Manga_ChapterDetails } from "@/api/generated/types"
+import { HibikeManga_ChapterDetails } from "@/api/generated/types"
 import { Button } from "@/components/ui/button"
 import React from "react"
 import { FaDownload } from "react-icons/fa"
 
 type ChapterListBulkActionsProps = {
-    rowSelectedChapters: Manga_ChapterDetails[] | undefined
-    onDownloadSelected: (chapters: Manga_ChapterDetails[]) => void
+    rowSelectedChapters: HibikeManga_ChapterDetails[] | undefined
+    onDownloadSelected: (chapters: HibikeManga_ChapterDetails[]) => void
 }
 
 export function ChapterListBulkActions(props: ChapterListBulkActionsProps) {

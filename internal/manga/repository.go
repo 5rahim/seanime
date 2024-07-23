@@ -11,8 +11,9 @@ import (
 	_ "image/png"  // Register PNG format
 	"net/http"
 	"seanime/internal/events"
-	"seanime/internal/manga/providers"
+	"seanime/internal/extension"
 	"seanime/internal/util/filecache"
+	"seanime/internal/util/result"
 	"strconv"
 	"strings"
 	"sync"
@@ -21,17 +22,13 @@ import (
 
 type (
 	Repository struct {
-		logger         *zerolog.Logger
-		fileCacher     *filecache.Cacher
-		comick         *manga_providers.ComicK
-		mangasee       *manga_providers.Mangasee
-		mangadex       *manga_providers.Mangadex
-		mangapill      *manga_providers.Mangapill
-		manganato      *manga_providers.Manganato
-		serverUri      string
-		wsEventManager events.WSEventManagerInterface
-		mu             sync.Mutex
-		downloadDir    string
+		logger             *zerolog.Logger
+		fileCacher         *filecache.Cacher
+		providerExtensions *result.Map[string, extension.MangaProviderExtension]
+		serverUri          string
+		wsEventManager     events.WSEventManagerInterface
+		mu                 sync.Mutex
+		downloadDir        string
 	}
 
 	NewRepositoryOptions struct {
@@ -46,18 +43,24 @@ type (
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:         opts.Logger,
-		fileCacher:     opts.FileCacher,
-		comick:         manga_providers.NewComicK(opts.Logger),
-		mangasee:       manga_providers.NewMangasee(opts.Logger),
-		mangadex:       manga_providers.NewMangadex(opts.Logger),
-		mangapill:      manga_providers.NewMangapill(opts.Logger),
-		manganato:      manga_providers.NewManganato(opts.Logger),
-		serverUri:      opts.ServerURI,
-		wsEventManager: opts.WsEventManager,
-		downloadDir:    opts.DownloadDir,
+		logger:             opts.Logger,
+		fileCacher:         opts.FileCacher,
+		serverUri:          opts.ServerURI,
+		wsEventManager:     opts.WsEventManager,
+		downloadDir:        opts.DownloadDir,
+		providerExtensions: result.NewResultMap[string, extension.MangaProviderExtension](),
 	}
 	return r
+}
+
+func (r *Repository) SetProviderExtensions(exts *result.Map[string, extension.MangaProviderExtension]) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.providerExtensions = exts
+}
+
+func (r *Repository) RemoveProvider(id string) {
+	r.providerExtensions.Delete(id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,8 +80,8 @@ const (
 //	e.g., manga_comick_chapters_123, manga_mangasee_pages_456
 //
 // Note: Each bucket contains only 1 key-value pair.
-func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, mediaId int, bucketType bucketType) filecache.Bucket {
-	return filecache.NewBucket("manga_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
+func (r *Repository) getFcProviderBucket(provider string, mediaId int, bucketType bucketType) filecache.Bucket {
+	return filecache.NewBucket("manga_"+provider+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 // EmptyMangaCache deletes all manga buckets associated with the given mediaId.

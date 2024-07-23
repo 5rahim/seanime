@@ -1,6 +1,6 @@
 "use client"
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { Manga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
+import { HibikeManga_ChapterDetails, Manga_MediaDownloadData } from "@/api/generated/types"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
@@ -46,12 +46,12 @@ export function useMangaReaderUtils() {
 
 export function useMangaDownloadDataUtils(data: Manga_MediaDownloadData | undefined, loading: boolean) {
 
-    const isChapterDownloaded = React.useCallback((chapter: Manga_ChapterDetails | undefined) => {
+    const isChapterDownloaded = React.useCallback((chapter: HibikeManga_ChapterDetails | undefined) => {
         if (!data || !chapter) return false
         return (data?.downloaded[chapter.provider]?.findIndex(n => n.chapterId === chapter.id) ?? -1) !== -1
     }, [data])
 
-    const isChapterQueued = React.useCallback((chapter: Manga_ChapterDetails | undefined) => {
+    const isChapterQueued = React.useCallback((chapter: HibikeManga_ChapterDetails | undefined) => {
         if (!data || !chapter) return false
         return (data?.queued[chapter.provider]?.findIndex(n => n.chapterId === chapter.id) ?? -1) !== -1
     }, [data])
@@ -73,9 +73,9 @@ export function useMangaChapterListRowSelection() {
 
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
-    const [selectedChapters, setSelectedChapters] = React.useState<Manga_ChapterDetails[]>([])
+    const [selectedChapters, setSelectedChapters] = React.useState<HibikeManga_ChapterDetails[]>([])
 
-    const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<Manga_ChapterDetails>) => {
+    const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<HibikeManga_ChapterDetails>) => {
         setSelectedChapters(event.data)
     }, [])
     return {

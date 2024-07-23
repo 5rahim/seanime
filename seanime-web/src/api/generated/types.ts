@@ -1559,6 +1559,20 @@ export type DB_ScanSummaryItem = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extension
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/repository.go
+ * - Filename: repository.go
+ * - Package: extension
+ */
+export type Extension_MangaProviderExtensionItem = {
+    id: string
+    name: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Handlers
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1642,7 +1656,7 @@ export type Status = {
 export type Manga_ChapterContainer = {
     mediaId: number
     provider: string
-    chapters?: Array<Manga_ChapterDetails>
+    chapters?: Array<HibikeManga_ChapterDetails>
 }
 
 /**
@@ -1733,7 +1747,7 @@ export type Manga_PageContainer = {
     mediaId: number
     provider: string
     chapterId: string
-    pages?: Array<Manga_ChapterPage>
+    pages?: Array<HibikeManga_ChapterPage>
     /**
      * Indexed by page number
      */
@@ -1770,56 +1784,6 @@ export type Manga_ProviderDownloadMapChapterInfo = {
     chapterId: string
     chapterNumber: string
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MangaProviders
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/manga/providers/providers.go
- * - Filename: providers.go
- * - Package: manga_providers
- */
-export type Manga_ChapterDetails = {
-    provider: Manga_Provider
-    id: string
-    url: string
-    title: string
-    /**
-     * e.g., "1", "1.5", "2", "3"
-     */
-    chapter: string
-    /**
-     * Index of the chapter in the manga
-     */
-    index: number
-    rating: number
-    updatedAt: string
-}
-
-/**
- * - Filepath: internal/manga/providers/providers.go
- * - Filename: providers.go
- * - Package: manga_providers
- */
-export type Manga_ChapterPage = {
-    provider: Manga_Provider
-    url: string
-    index: number
-    headers?: Record<string, string>
-}
-
-/**
- * - Filepath: internal/manga/providers/providers.go
- * - Filename: providers.go
- * - Package: manga_providers
- */
-export type Manga_Provider = "mangasee" |
-    "mangadex" |
-    "comick" |
-    "mangapill" |
-    "manganato" |
-    "mangafire"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mediastream
@@ -2531,6 +2495,38 @@ export type Updater_ReleaseAsset = {
 export type Updater_Update = {
     release?: Updater_Release
     type: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VendorHibikeManga
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/vendoring/manga/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_manga
+ */
+export type HibikeManga_ChapterDetails = {
+    provider: string
+    id: string
+    url: string
+    title: string
+    chapter: string
+    index: number
+    rating?: number
+    updatedAt?: string
+}
+
+/**
+ * - Filepath: internal/extension/vendoring/manga/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_manga
+ */
+export type HibikeManga_ChapterPage = {
+    provider: string
+    url: string
+    index: number
+    headers?: Record<string, string>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

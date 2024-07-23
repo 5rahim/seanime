@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/mal"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/mediaplayers/mediaplayer"
@@ -466,41 +465,6 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 	pm.refreshAnimeCollectionFunc() // Refresh the AniList collection
 
 	pm.Logger.Info().Msg("playback manager: Updated progress on AniList")
-
-	go func() {
-		defer util.HandlePanicThen(func() {})
-		var malId *int
-		// Get the MAL ID from the current media list entry or the current stream media
-		if pm.currentMediaListEntry.IsPresent() {
-			malId = pm.currentMediaListEntry.MustGet().GetMedia().GetIDMal()
-		}
-		if malId == nil && pm.currentStreamMedia.IsPresent() {
-			malId = pm.currentStreamMedia.MustGet().GetIDMal()
-		}
-		if malId == nil {
-			return
-		}
-		// Update the progress on MAL if an account is linked
-		malInfo, _ := pm.Database.GetMalInfo()
-		if malInfo == nil || malInfo.AccessToken == "" {
-			return
-		}
-		// Verify MAL auth
-		malInfo, err = mal.VerifyMALAuth(malInfo, pm.Database, pm.Logger)
-		if err != nil {
-			pm.Logger.Error().Err(err).Msg("playback manager: Error occurred while verifying MAL auth")
-			return
-		}
-		client := mal.NewWrapper(malInfo.AccessToken, pm.Logger)
-		err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
-			NumEpisodesWatched: &epNum,
-		}, *malId)
-		if err != nil {
-			pm.Logger.Error().Err(err).Msg("playback manager: Error occurred while updating progress on MyAnimeList")
-			return
-		}
-		pm.Logger.Info().Msg("playback manager: Updated progress on MyAnimeList")
-	}()
 
 	return nil
 }

@@ -3,6 +3,7 @@ package manga_providers
 import (
 	"errors"
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
@@ -59,7 +60,7 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 // DEVNOTE: Each chapter has an ID in the format: {slug}${chapter_number} -- e.g. Jujutsu-Kaisen$0001
 // This ID is split by the $ character to reconstruct the chapter URL for subsequent requests
 
-func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
+func (m *Mangasee) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
 
 	m.logger.Debug().Str("query", opts.Query).Msg("mangasee: Searching manga")
 
@@ -85,7 +86,7 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 		return nil, err
 	}
 
-	var searchResults []*SearchResult
+	var searchResults []*hibikemanga.SearchResult
 	for _, item := range result {
 		titles := make([]*string, 0)
 		titles = append(titles, &item.S)
@@ -100,13 +101,13 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 			continue
 		}
 
-		searchResults = append(searchResults, &SearchResult{
+		searchResults = append(searchResults, &hibikemanga.SearchResult{
 			ID:           item.I,
 			Title:        item.S,
 			Synonyms:     item.A,
 			Year:         0,
 			Image:        "",
-			Provider:     MangaseeProvider,
+			Provider:     string(MangaseeProvider),
 			SearchRating: compRes.Rating,
 		})
 	}
@@ -121,7 +122,7 @@ func (m *Mangasee) Search(opts SearchOptions) ([]*SearchResult, error) {
 	return searchResults, nil
 }
 
-func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
+func (m *Mangasee) FindChapters(slug string) ([]*hibikemanga.ChapterDetails, error) {
 
 	m.logger.Debug().Str("mangaId", slug).Msg("mangasee: Fetching chapters")
 
@@ -156,7 +157,7 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 
 	slices.Reverse(chapterData)
 
-	ret := make([]*ChapterDetails, len(chapterData))
+	ret := make([]*hibikemanga.ChapterDetails, len(chapterData))
 	for i, chapter := range chapterData {
 		chStr := getChapterNumber(chapter.Chapter)
 
@@ -165,8 +166,8 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 			unpaddedChStr = "0"
 		}
 
-		ret[i] = &ChapterDetails{
-			Provider: MangaseeProvider,
+		ret[i] = &hibikemanga.ChapterDetails{
+			Provider: string(MangaseeProvider),
 			ID:       slug + "$" + chStr, // e.g. One-Piece
 			Title:    fmt.Sprintf("Chapter %s", unpaddedChStr),
 			URL:      fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chStr),
@@ -185,7 +186,7 @@ func (m *Mangasee) FindChapters(slug string) ([]*ChapterDetails, error) {
 	return ret, nil
 }
 
-func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
+func (m *Mangasee) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error) {
 
 	if !strings.Contains(id, "$") {
 		m.logger.Error().Str("chapterId", id).Msg("mangasee: Invalid chapter id")
@@ -202,7 +203,7 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 	chapter := info[1]
 	uri := fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chapter)
 
-	pages := make([]*ChapterPage, 0)
+	pages := make([]*hibikemanga.ChapterPage, 0)
 
 	c := colly.NewCollector(
 		colly.UserAgent(m.UserAgent),
@@ -249,8 +250,8 @@ func (m *Mangasee) FindChapterPages(id string) ([]*ChapterPage, error) {
 		pageNum := strings.Repeat("0", 3-len(strconv.Itoa(i+1))) + strconv.Itoa(i+1)
 		ch := getChapterForImageUrl(getChapterNumber(curChapter.Chapter))
 
-		pages = append(pages, &ChapterPage{
-			Provider: MangaseeProvider,
+		pages = append(pages, &hibikemanga.ChapterPage{
+			Provider: string(MangaseeProvider),
 			URL:      fmt.Sprintf("https://%s/manga/%s/%s-%s.png", curPathname, slug, ch, pageNum),
 			Index:    i,
 			Headers:  map[string]string{"Referer": m.Url},

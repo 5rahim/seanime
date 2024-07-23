@@ -1,4 +1,4 @@
-import { Manga_ChapterDetails, Manga_MediaDownloadData, Nullish } from "@/api/generated/types"
+import { HibikeManga_ChapterDetails, Manga_MediaDownloadData, Nullish } from "@/api/generated/types"
 import {
     useClearAllChapterDownloadQueue,
     useDownloadMangaChapters,
@@ -93,7 +93,7 @@ export function useHandleDownloadMangaChapter(mediaId: string | undefined | null
     const { mutate, isPending } = useDownloadMangaChapters(mediaId, provider)
 
     return {
-        downloadChapters: (chapters: Manga_ChapterDetails[]) => {
+        downloadChapters: (chapters: HibikeManga_ChapterDetails[]) => {
             mutate({
                 mediaId: Number(mediaId),
                 provider,

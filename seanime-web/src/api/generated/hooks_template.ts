@@ -594,6 +594,15 @@
 // manga
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// export function useGetMangaProviderExtensions() {
+//     return useServerQuery<Array<Extension_MangaProviderExtensionItem>>({
+//         endpoint: API_ENDPOINTS.MANGA.GetMangaProviderExtensions.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetMangaProviderExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.MANGA.GetMangaProviderExtensions.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useGetAnilistMangaCollection() {
 //     return useServerQuery<AL_MangaCollection, GetAnilistMangaCollection_Variables>({
 //         endpoint: API_ENDPOINTS.MANGA.GetAnilistMangaCollection.endpoint,

@@ -1,12 +1,12 @@
 package chapter_downloader
 
 import (
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
-	"seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"sync"
 	"time"
@@ -36,7 +36,7 @@ type (
 	// QueueInfo stores details about the download progress of a chapter.
 	QueueInfo struct {
 		DownloadID
-		Pages          []*manga_providers.ChapterPage
+		Pages          []*hibikemanga.ChapterPage
 		DownloadedUrls []string
 		Status         QueueStatus
 	}
@@ -53,7 +53,7 @@ func NewQueue(db *db.Database, logger *zerolog.Logger, wsEventManager events.WSE
 
 // Add adds a chapter to the download queue.
 // It tells the queue to download the next item if possible.
-func (q *Queue) Add(id DownloadID, pages []*manga_providers.ChapterPage, runNext bool) error {
+func (q *Queue) Add(id DownloadID, pages []*hibikemanga.ChapterPage, runNext bool) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 

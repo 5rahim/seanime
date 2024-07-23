@@ -2,7 +2,10 @@
 
 package util
 
-import "os/exec"
+import (
+	"context"
+	"os/exec"
+)
 
 func NewCmd(arg string, args ...string) *exec.Cmd {
 	if len(args) == 0 {

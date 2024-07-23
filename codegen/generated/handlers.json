@@ -2293,6 +2293,83 @@
     }
   },
   {
+    "name": "HandleMangaDONOTUSE1",
+    "trimmedName": "MangaDONOTUSE1",
+    "comments": [
+      "HandleMangaDONOTUSE1",
+      "",
+      "\t@summary used to generate typescript types",
+      "\t@returns vendor_hibike_manga.ChapterDetails",
+      "\t@route /api/v1/manga/DONOTUSE",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "used to generate typescript types",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "vendor_hibike_manga.ChapterDetails",
+      "returnGoType": "vendor_hibike_manga.ChapterDetails",
+      "returnTypescriptType": "HibikeManga_ChapterDetails"
+    }
+  },
+  {
+    "name": "HandleMangaDONOTUSE2",
+    "trimmedName": "MangaDONOTUSE2",
+    "comments": [
+      "HandleMangaDONOTUSE2",
+      "",
+      "\t@summary used to generate typescript types",
+      "\t@returns vendor_hibike_manga.ChapterPage",
+      "\t@route /api/v1/manga/DONOTUSE",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "used to generate typescript types",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "vendor_hibike_manga.ChapterPage",
+      "returnGoType": "vendor_hibike_manga.ChapterPage",
+      "returnTypescriptType": "HibikeManga_ChapterPage"
+    }
+  },
+  {
+    "name": "HandleGetMangaProviderExtensions",
+    "trimmedName": "GetMangaProviderExtensions",
+    "comments": [
+      "HandleGetMangaProviderExtensions",
+      "",
+      "\t@summary returns the available manga providers.",
+      "\t@route /api/v1/manga/provider-extensions [GET]",
+      "\t@returns []extension.MangaProviderExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the available manga providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/provider-extensions",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension.MangaProviderExtensionItem",
+      "returnGoType": "extension.MangaProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtension_MangaProviderExtensionItem\u003e"
+    }
+  },
+  {
     "name": "HandleGetAnilistMangaCollection",
     "trimmedName": "GetAnilistMangaCollection",
     "comments": [
@@ -2551,9 +2628,9 @@
         {
           "name": "Provider",
           "jsonName": "provider",
-          "goType": "manga_providers.Provider",
-          "usedStructType": "manga_providers.Provider",
-          "typescriptType": "Manga_Provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         }
@@ -2608,9 +2685,9 @@
         {
           "name": "Provider",
           "jsonName": "provider",
-          "goType": "manga_providers.Provider",
-          "usedStructType": "manga_providers.Provider",
-          "typescriptType": "Manga_Provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         },
@@ -2860,9 +2937,9 @@
         {
           "name": "Provider",
           "jsonName": "provider",
-          "goType": "manga_providers.Provider",
-          "usedStructType": "manga_providers.Provider",
-          "typescriptType": "Manga_Provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         },

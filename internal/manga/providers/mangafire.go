@@ -2,6 +2,7 @@ package manga_providers
 
 import (
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"net/http"
@@ -37,8 +38,8 @@ func NewMangafire(logger *zerolog.Logger) *Mangafire {
 	}
 }
 
-func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
-	results := make([]*SearchResult, 0)
+func (mf *Mangafire) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
+	results := make([]*hibikemanga.SearchResult, 0)
 
 	mf.logger.Debug().Str("query", opts.Query).Msg("mangafire: Searching manga")
 
@@ -108,8 +109,8 @@ func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
 
 			c2.WithTransport(mf.Client.Transport)
 
-			result := &SearchResult{
-				Provider: MangafireProvider,
+			result := &hibikemanga.SearchResult{
+				Provider: string(MangafireProvider),
 			}
 
 			// Synonyms
@@ -178,8 +179,8 @@ func (mf *Mangafire) Search(opts SearchOptions) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (mf *Mangafire) FindChapters(id string) ([]*ChapterDetails, error) {
-	ret := make([]*ChapterDetails, 0)
+func (mf *Mangafire) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) {
+	ret := make([]*hibikemanga.ChapterDetails, 0)
 
 	mf.logger.Debug().Str("mangaId", id).Msg("mangafire: Finding chapters")
 
@@ -195,8 +196,8 @@ func (mf *Mangafire) FindChapters(id string) ([]*ChapterDetails, error) {
 	return ret, nil
 }
 
-func (mf *Mangafire) FindChapterPages(id string) ([]*ChapterPage, error) {
-	ret := make([]*ChapterPage, 0)
+func (mf *Mangafire) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error) {
+	ret := make([]*hibikemanga.ChapterPage, 0)
 
 	mf.logger.Debug().Str("chapterId", id).Msg("mangafire: Finding chapter pages")
 

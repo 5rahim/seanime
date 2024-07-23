@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"github.com/fatih/color"
 	"os"
 	"strings"
 	"sync"
@@ -136,10 +135,6 @@ func WriteGlobalLogBufferToFile(file *os.File) {
 		fmt.Print("Failed to write log buffer to file")
 	}
 	logBuffer.Reset()
-}
-
-func colorize(s interface{}, c color.Attribute) string {
-	return color.New(c).Sprint(s)
 }
 
 func colorizeb(s interface{}, c int) string {

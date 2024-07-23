@@ -1,4 +1,4 @@
-import { Manga_ChapterContainer, Manga_ChapterDetails, Offline_MangaEntry } from "@/api/generated/types"
+import { HibikeManga_ChapterDetails, Manga_ChapterContainer, Offline_MangaEntry } from "@/api/generated/types"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
@@ -49,7 +49,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
     const [selectedChapterContainer, setSelectedChapterContainer] = React.useState<Manga_ChapterContainer | undefined>(undefined)
 
-    const columns = React.useMemo(() => defineDataGridColumns<Manga_ChapterDetails>(() => [
+    const columns = React.useMemo(() => defineDataGridColumns<HibikeManga_ChapterDetails>(() => [
         {
             accessorKey: "title",
             header: "Name",
@@ -103,7 +103,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
     const [showUnreadChapter, setShowUnreadChapter] = React.useState(false)
 
-    const retainUnreadChapters = React.useCallback((chapter: Manga_ChapterDetails) => {
+    const retainUnreadChapters = React.useCallback((chapter: HibikeManga_ChapterDetails) => {
         if (!entry?.listData || !chapterNumbersMap.has(chapter.id) || !entry?.listData?.progress) return true
 
         const chapterNumber = chapterNumbersMap.get(chapter.id)
@@ -137,7 +137,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                     />
                 </div>
 
-                <DataGrid<Manga_ChapterDetails>
+                <DataGrid<HibikeManga_ChapterDetails>
                     columns={columns}
                     data={tableChapters}
                     rowCount={tableChapters?.length || 0}

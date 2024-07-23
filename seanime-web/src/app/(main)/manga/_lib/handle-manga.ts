@@ -1,34 +1,23 @@
-import { Manga_Provider, Nullish } from "@/api/generated/types"
+import { Nullish } from "@/api/generated/types"
 import { atom } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
-
-/**
- * All available manga providers
- */
-export const MANGA_PROVIDER_OPTIONS = [
-    { value: "mangasee", label: "Mangasee" },
-    { value: "mangadex", label: "Mangadex" },
-    { value: "mangapill", label: "Mangapill" },
-    { value: "manganato", label: "Manganato" },
-    { value: "comick", label: "ComicK" },
-]
 
 const DEFAULT_MANGA_PROVIDER = "mangapill"
 
 /**
  * Stores the selected provider for each manga entry
  */
-export const __manga_entryProviderAtom = atomWithStorage<Record<string, Manga_Provider>>("sea-manga-entry-provider", {})
+export const __manga_entryProviderAtom = atomWithStorage<Record<string, string>>("sea-manga-entry-provider", {})
 
 // Atom to retrieve the provider for a specific manga entry
-export const __manga_getEntryProviderAtom = atom(get => get(__manga_entryProviderAtom), (get, set, mId: Nullish<string | number>): Manga_Provider => {
+export const __manga_getEntryProviderAtom = atom(get => get(__manga_entryProviderAtom), (get, set, mId: Nullish<string | number>): string => {
     if (!mId) return DEFAULT_MANGA_PROVIDER
     return get(__manga_entryProviderAtom)[String(mId)] || DEFAULT_MANGA_PROVIDER
 })
 // Atom to set the provider for a specific manga entry
-export const __manga_setEntryProviderAtom = atom(null, (get, set, payload: { mId: Nullish<string | number>, provider: Manga_Provider }) => {
+export const __manga_setEntryProviderAtom = atom(null, (get, set, payload: { mId: Nullish<string | number>, provider: string }) => {
     if (!payload.mId) return
     set(__manga_entryProviderAtom, {
         ...get(__manga_entryProviderAtom),
@@ -53,4 +42,3 @@ export function useMangaProvider(mId: Nullish<string | number>) {
         setProvider,
     }
 }
-

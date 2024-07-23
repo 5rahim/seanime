@@ -4,7 +4,6 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/manga"
 	chapter_downloader "seanime/internal/manga/downloader"
-	"seanime/internal/manga/providers"
 	"time"
 )
 
@@ -16,10 +15,10 @@ import (
 func HandleDownloadMangaChapters(c *RouteCtx) error {
 
 	type body struct {
-		MediaId    int                      `json:"mediaId"`
-		Provider   manga_providers.Provider `json:"provider"`
-		ChapterIds []string                 `json:"chapterIds"`
-		StartNow   bool                     `json:"startNow"`
+		MediaId    int      `json:"mediaId"`
+		Provider   string   `json:"provider"`
+		ChapterIds []string `json:"chapterIds"`
+		StartNow   bool     `json:"startNow"`
 	}
 
 	var b body

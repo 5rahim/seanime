@@ -13,6 +13,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
+	"seanime/internal/extension_repo"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
@@ -53,6 +54,7 @@ type (
 		FillerManager           *fillermanager.FillerManager
 		WSEventManager          *events.WSEventManager
 		AutoDownloader          *autodownloader.AutoDownloader
+		ExtensionRepository     *extension_repo.Repository
 		MediaPlayer             struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
@@ -186,6 +188,12 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DownloadDir:    cfg.Manga.DownloadDir,
 	})
 
+	// Extension Repository
+	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
+		Logger:       logger,
+		ExtensionDir: cfg.Extensions.Dir,
+	})
+
 	app := &App{
 		Config:                  cfg,
 		Database:                database,
@@ -202,6 +210,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Onlinestream:            onlineStream,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
+		ExtensionRepository:     extensionRepository,
 		FillerManager:           nil, // Initialized in App.initModulesOnce
 		MangaDownloader:         nil, // Initialized in App.initModulesOnce
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce
@@ -231,6 +240,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Initialize all setting-dependent modules
 	app.InitOrRefreshModules()
+
+	// Load built-in extensions
+	app.LoadBuiltInExtensions()
+	// Load external extensions
+	app.LoadOrRefreshExternalExtensions()
 
 	// Fetch Anilist collection and set account if not offline
 	if !app.IsOffline() {

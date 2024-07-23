@@ -65,7 +65,7 @@ type (
 	}
 
 	DownloadChapterOptions struct {
-		Provider  manga_providers.Provider
+		Provider  string
 		MediaId   int
 		ChapterId string
 		StartNow  bool
@@ -147,7 +147,7 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 			Provider:      string(opts.Provider),
 			MediaId:       opts.MediaId,
 			ChapterId:     opts.ChapterId,
-			ChapterNumber: chapter.GetNormalizedChapter(),
+			ChapterNumber: manga_providers.GetNormalizedChapter(chapter.Chapter),
 		},
 		Pages: pageContainer.Pages,
 	})

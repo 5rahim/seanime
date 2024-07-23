@@ -15,7 +15,6 @@ import (
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/mal"
 	"seanime/internal/database/db_bridge"
-	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
@@ -584,28 +583,6 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 	}
 
 	_, _ = c.App.RefreshAnimeCollection() // Refresh the AniList collection
-
-	go func() {
-		// Update the progress on MAL if an account is linked
-		malInfo, _ := c.App.Database.GetMalInfo()
-		if malInfo != nil && malInfo.AccessToken != "" && b.MalId > 0 {
-
-			// Verify MAL auth
-			malInfo, err = mal.VerifyMALAuth(malInfo, c.App.Database, c.App.Logger)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-				return
-			}
-
-			client := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
-			err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
-				NumEpisodesWatched: &b.EpisodeNumber,
-			}, b.MalId)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-			}
-		}
-	}()
 
 	return c.RespondWithData(true)
 }

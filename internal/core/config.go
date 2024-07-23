@@ -43,6 +43,9 @@ type Config struct {
 		AppDataDir string
 		WorkingDir string
 	}
+	Extensions struct {
+		Dir string
+	}
 	Anilist struct {
 		ClientID string
 	}
@@ -108,6 +111,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("logs.dir", "$SEANIME_DATA_DIR/logs")
 	viper.SetDefault("offline.dir", "$SEANIME_DATA_DIR/offline")
 	viper.SetDefault("offline.assetDir", "$SEANIME_DATA_DIR/offline/assets")
+	viper.SetDefault("extensions.dir", "$SEANIME_DATA_DIR/extensions")
 
 	// Create and populate the config file if it doesn't exist
 	if err = createConfigFile(configPath); err != nil {
@@ -250,6 +254,9 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if cfg.Manga.DownloadDir == "" {
 		return errInvalidConfigValue("manga.downloadDir", "cannot be empty")
 	}
+	if cfg.Extensions.Dir == "" {
+		return errInvalidConfigValue("extensions.dir", "cannot be empty")
+	}
 
 	return nil
 }
@@ -291,6 +298,7 @@ func expandEnvironmentValues(cfg *Config) {
 	cfg.Manga.DownloadDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.DownloadDir))
 	cfg.Offline.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.Dir))
 	cfg.Offline.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.AssetDir))
+	cfg.Extensions.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Extensions.Dir))
 }
 
 // createConfigFile creates a default config file if it doesn't exist

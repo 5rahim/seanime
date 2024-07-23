@@ -1,6 +1,7 @@
 package chapter_downloader
 
 import (
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
@@ -35,8 +36,8 @@ func TestQueue(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		providerName manga_providers.Provider
-		provider     manga_providers.MangaProvider
+		providerName string
+		provider     hibikemanga.Provider
 		mangaId      string
 		mediaId      int
 		chapterIndex uint
@@ -69,7 +70,7 @@ func TestQueue(t *testing.T) {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
-				var chapterInfo *manga_providers.ChapterDetails
+				var chapterInfo *hibikemanga.ChapterDetails
 				for _, chapter := range chapters {
 					if chapter.Index == tt.chapterIndex {
 						chapterInfo = chapter
