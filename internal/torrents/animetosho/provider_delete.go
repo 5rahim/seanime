@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"seanime/internal/util/result"
 	"strings"
 )
 
@@ -15,16 +14,6 @@ const (
 	FeedUrl     = "https://feed.animetosho.org/rss2"
 	JsonFeedUrl = "https://feed.animetosho.org/json"
 )
-
-type (
-	SearchCache struct {
-		*result.Cache[string, []*Torrent]
-	}
-)
-
-func NewSearchCache() *SearchCache {
-	return &SearchCache{result.NewCache[string, []*Torrent]()}
-}
 
 // GetLatest returns all the latest torrents currently visible on the site
 func GetLatest() (torrents []*Torrent, err error) {

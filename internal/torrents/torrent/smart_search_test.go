@@ -7,8 +7,6 @@ import (
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/test_utils"
-	"seanime/internal/torrents/animetosho"
-	"seanime/internal/torrents/nyaa"
 	"seanime/internal/util"
 	"testing"
 )
@@ -94,11 +92,9 @@ func TestSmartTest(t *testing.T) {
 					Resolution:     lo.ToPtr(tt.resolution),
 					Provider:       tt.provider,
 				},
-				NyaaSearchCache:       nyaa.NewSearchCache(),
-				AnimeToshoSearchCache: animetosho.NewSearchCache(),
-				AnizipCache:           anizip.NewCache(),
-				Logger:                util.NewLogger(),
-				MetadataProvider:      metadataProvider,
+				AnizipCache:      anizip.NewCache(),
+				Logger:           util.NewLogger(),
+				MetadataProvider: metadataProvider,
 			})
 			if err != nil {
 				t.Errorf("NewSmartSearch() failed: %v", err)

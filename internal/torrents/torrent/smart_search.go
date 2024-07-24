@@ -36,11 +36,9 @@ type (
 	}
 	SmartSearchOptions struct {
 		SmartSearchQueryOptions
-		NyaaSearchCache       *nyaa.SearchCache
-		AnimeToshoSearchCache *animetosho.SearchCache
-		AnizipCache           *anizip.Cache
-		Logger                *zerolog.Logger
-		MetadataProvider      *metadata.Provider
+		AnizipCache      *anizip.Cache
+		Logger           *zerolog.Logger
+		MetadataProvider *metadata.Provider
 	}
 	// Preview is used to preview a torrent à la anime.AnimeEntryEpisode.
 	Preview struct {
@@ -111,7 +109,7 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 
 		// Use quick search if the user turned it on OR has not specified a query
 		if *opts.SmartSearch || len(*opts.Query) == 0 {
-			queries, ok := nyaa.BuildSearchQuery(&nyaa.BuildSearchQueryOptions{
+			queries, ok := nyaa.BuildSmartSearchQueries(&nyaa.BuildSearchQueryOptions{
 				Media:          opts.Media,
 				Batch:          opts.Batch,
 				EpisodeNumber:  opts.EpisodeNumber,
@@ -128,12 +126,11 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 			// +---------------------+
 
 			res, err := nyaa.SearchMultiple(nyaa.SearchMultipleOptions{
-				Provider: "nyaa",
-				Query:    queries,
-				Category: "anime-eng",
-				SortBy:   "seeders",
-				Filter:   "",
-				Cache:    opts.NyaaSearchCache,
+				animetosho.Provider: "nyaa",
+				Query:               queries,
+				Category:            "anime-eng",
+				SortBy:              "seeders",
+				Filter:              "",
 			})
 			if err != nil {
 				return nil, err
@@ -149,13 +146,12 @@ func NewSmartSearch(opts *SmartSearchOptions) (*SearchData, error) {
 			// |       Query         |
 			// +---------------------+
 
-			res, err := nyaa.Search(nyaa.SearchOptions{
+			res, err := nyaa.Search(nyaa.BuildURLOptions{
 				Provider: "nyaa",
 				Query:    *opts.Query,
 				Category: "anime-eng",
 				SortBy:   "seeders",
 				Filter:   "",
-				Cache:    opts.NyaaSearchCache,
 			})
 			if err != nil {
 				return nil, err

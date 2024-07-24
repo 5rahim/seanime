@@ -12,7 +12,6 @@ import (
 	"seanime/internal/util/comparison"
 	"seanime/seanime-parser"
 	"strings"
-	"time"
 )
 
 type (
@@ -23,7 +22,6 @@ type (
 		EpisodeNumber  *int
 		AbsoluteOffset *int
 		Resolution     *string
-		Cache          *SearchCache
 		Logger         *zerolog.Logger
 	}
 )
@@ -110,16 +108,16 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 		}
 	}
 
-	cacheKey := finalQueryStr + map[bool]string{true: "+batch", false: ""}[*opts.Batch]
+	//cacheKey := finalQueryStr + map[bool]string{true: "+batch", false: ""}[*opts.Batch]
 
 	// Check cache
-	if opts.Cache != nil {
-		cacheRes, found := opts.Cache.Get(cacheKey)
-		if found {
-			opts.Logger.Debug().Str("query", finalQueryStr).Msgf("animetosho: Cache HIT")
-			return cacheRes, nil
-		}
-	}
+	//if opts.Cache != nil {
+	//	cacheRes, found := opts.Cache.Get(cacheKey)
+	//	if found {
+	//		opts.Logger.Debug().Str("query", finalQueryStr).Msgf("animetosho: Cache HIT")
+	//		return cacheRes, nil
+	//	}
+	//}
 
 	opts.Logger.Debug().Str("query", finalQueryStr).Msgf("animetosho: Cache MISS")
 
@@ -176,7 +174,7 @@ func SearchQuery(opts *BuildSearchQueryOptions) (torrents []*Torrent, err error)
 	})
 
 	// Add to the cache
-	opts.Cache.SetT(cacheKey, torrents, time.Minute)
+	//opts.Cache.SetT(cacheKey, torrents, time.Minute)
 
 	return
 }

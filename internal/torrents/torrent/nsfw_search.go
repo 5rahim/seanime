@@ -2,7 +2,7 @@ package torrent
 
 import "seanime/internal/torrents/nyaa"
 
-func NewNsfwSearch(query string, cache *nyaa.SearchCache) (ret *SearchData, err error) {
+func NewNsfwSearch(query string) (ret *SearchData, err error) {
 	ret = &SearchData{
 		Torrents: make([]*AnimeTorrent, 0),
 	}
@@ -15,13 +15,12 @@ func NewNsfwSearch(query string, cache *nyaa.SearchCache) (ret *SearchData, err 
 	// |       Query         |
 	// +---------------------+
 
-	res, err := nyaa.Search(nyaa.SearchOptions{
+	res, err := nyaa.Search(nyaa.BuildURLOptions{
 		Provider: "sukebei",
 		Query:    query,
 		Category: "art-anime",
 		SortBy:   "seeders",
 		Filter:   "",
-		Cache:    cache,
 	})
 	if err != nil {
 		return nil, err

@@ -27,7 +27,7 @@ func (ad *AutoDownloader) getCurrentTorrentsFromNyaa() ([]*NormalizedTorrent, er
 	ad.logger.Debug().Msg("autodownloader: Checking for new episodes from Nyaa")
 
 	// Fetch the RSS feed
-	torrents, err := nyaa.GetTorrentList(nyaa.SearchOptions{
+	torrents, err := nyaa.GetTorrentList(nyaa.BuildURLOptions{
 		Provider: "nyaa",
 		Query:    "",
 		Category: "anime-eng",

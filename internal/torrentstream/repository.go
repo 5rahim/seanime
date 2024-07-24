@@ -14,8 +14,6 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platform"
-	"seanime/internal/torrents/animetosho"
-	"seanime/internal/torrents/nyaa"
 	"seanime/internal/util"
 )
 
@@ -33,8 +31,6 @@ type (
 		completeAnimeCache              *anilist.CompleteAnimeCache
 		platform                        platform.Platform
 		wsEventManager                  events.WSEventManagerInterface
-		nyaaSearchCache                 *nyaa.SearchCache
-		animetoshoSearchCache           *animetosho.SearchCache
 		metadataProvider                *metadata.Provider
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
@@ -47,32 +43,28 @@ type (
 	}
 
 	NewRepositoryOptions struct {
-		Logger                *zerolog.Logger
-		AnizipCache           *anizip.Cache
-		BaseAnimeCache        *anilist.BaseAnimeCache
-		CompleteAnimeCache    *anilist.CompleteAnimeCache
-		Platform              platform.Platform
-		NyaaSearchCache       *nyaa.SearchCache
-		AnimeToshoSearchCache *animetosho.SearchCache
-		MetadataProvider      *metadata.Provider
-		PlaybackManager       *playbackmanager.PlaybackManager
-		WSEventManager        events.WSEventManagerInterface
+		Logger             *zerolog.Logger
+		AnizipCache        *anizip.Cache
+		BaseAnimeCache     *anilist.BaseAnimeCache
+		CompleteAnimeCache *anilist.CompleteAnimeCache
+		Platform           platform.Platform
+		MetadataProvider   *metadata.Provider
+		PlaybackManager    *playbackmanager.PlaybackManager
+		WSEventManager     events.WSEventManagerInterface
 	}
 )
 
 // NewRepository creates a new injectable Repository instance
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
-		logger:                opts.Logger,
-		anizipCache:           opts.AnizipCache,
-		baseAnimeCache:        opts.BaseAnimeCache,
-		completeAnimeCache:    opts.CompleteAnimeCache,
-		platform:              opts.Platform,
-		nyaaSearchCache:       opts.NyaaSearchCache,
-		animetoshoSearchCache: opts.AnimeToshoSearchCache,
-		metadataProvider:      opts.MetadataProvider,
-		playbackManager:       opts.PlaybackManager,
-		wsEventManager:        opts.WSEventManager,
+		logger:             opts.Logger,
+		anizipCache:        opts.AnizipCache,
+		baseAnimeCache:     opts.BaseAnimeCache,
+		completeAnimeCache: opts.CompleteAnimeCache,
+		platform:           opts.Platform,
+		metadataProvider:   opts.MetadataProvider,
+		playbackManager:    opts.PlaybackManager,
+		wsEventManager:     opts.WSEventManager,
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = newServerManager(ret)

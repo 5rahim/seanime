@@ -4,7 +4,7 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
-func GetTorrentList(opts SearchOptions) ([]Torrent, error) {
+func GetTorrentList(opts BuildURLOptions) ([]Torrent, error) {
 
 	fp := gofeed.NewParser()
 

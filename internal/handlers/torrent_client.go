@@ -7,8 +7,8 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/events"
+	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
-	"seanime/internal/torrents/torrent_client"
 	"seanime/internal/util"
 	"strings"
 )

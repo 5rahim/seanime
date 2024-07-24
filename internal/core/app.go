@@ -29,9 +29,7 @@ import (
 	"seanime/internal/offline"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platform"
-	"seanime/internal/torrents/animetosho"
-	"seanime/internal/torrents/nyaa"
-	"seanime/internal/torrents/torrent_client"
+	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrentstream"
 	"seanime/internal/updater"
 	"seanime/internal/util"
@@ -49,8 +47,6 @@ type (
 		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
 		AnilistClient           anilist.AnilistClient
 		AnilistPlatform         platform.Platform
-		NyaaSearchCache         *nyaa.SearchCache
-		AnimeToshoSearchCache   *animetosho.SearchCache
 		FillerManager           *fillermanager.FillerManager
 		WSEventManager          *events.WSEventManager
 		AutoDownloader          *autodownloader.AutoDownloader
@@ -200,8 +196,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		AnilistClient:           anilistCW,
 		AnilistPlatform:         anilistPlatform,
 		AnizipCache:             anizipCache,
-		NyaaSearchCache:         nyaa.NewSearchCache(),
-		AnimeToshoSearchCache:   animetosho.NewSearchCache(),
 		WSEventManager:          wsEventManager,
 		Logger:                  logger,
 		Version:                 constants.Version,

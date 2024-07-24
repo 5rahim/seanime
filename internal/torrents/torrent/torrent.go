@@ -9,7 +9,6 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"seanime/seanime-parser"
-	"strconv"
 	"time"
 )
 
@@ -39,38 +38,6 @@ type (
 		IsBestRelease bool   `json:"isBestRelease"`
 	}
 )
-
-func NewAnimeTorrentFromNyaa(torrent *nyaa.DetailedTorrent) *AnimeTorrent {
-	metadata := seanime_parser.Parse(torrent.Name)
-
-	seeders, _ := strconv.Atoi(torrent.Seeders)
-	leechers, _ := strconv.Atoi(torrent.Leechers)
-	downloads, _ := strconv.Atoi(torrent.Downloads)
-
-	formattedDate := ""
-	parsedDate, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", torrent.Date)
-	if err == nil {
-		formattedDate = parsedDate.Format(time.RFC3339)
-	}
-
-	t := &AnimeTorrent{
-		Name:          torrent.Name,
-		Date:          formattedDate,
-		Size:          torrent.GetSizeInBytes(),
-		FormattedSize: torrent.Size,
-		Seeders:       seeders,
-		Leechers:      leechers,
-		DownloadCount: downloads,
-		Link:          torrent.GUID,
-		DownloadUrl:   torrent.Link,
-		InfoHash:      torrent.InfoHash,
-		Provider:      ProviderNyaa,
-	}
-
-	hydrateMetadata(t, metadata)
-
-	return t
-}
 
 func NewAnimeTorrentFromAnimeTosho(torrent *animetosho.Torrent) *AnimeTorrent {
 	metadata := seanime_parser.Parse(torrent.Title)

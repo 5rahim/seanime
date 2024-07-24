@@ -17,8 +17,8 @@ import (
 	"seanime/internal/mediastream"
 	"seanime/internal/offline"
 	"seanime/internal/torrent_clients/qbittorrent"
+	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
-	"seanime/internal/torrents/torrent_client"
 	"seanime/internal/torrentstream"
 )
 
@@ -155,16 +155,14 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
-		Logger:                a.Logger,
-		AnizipCache:           a.AnizipCache,
-		BaseAnimeCache:        anilist.NewBaseAnimeCache(),
-		CompleteAnimeCache:    anilist.NewCompleteAnimeCache(),
-		NyaaSearchCache:       a.NyaaSearchCache,
-		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
-		MetadataProvider:      a.MetadataProvider,
-		Platform:              a.AnilistPlatform,
-		PlaybackManager:       a.PlaybackManager,
-		WSEventManager:        a.WSEventManager,
+		Logger:             a.Logger,
+		AnizipCache:        a.AnizipCache,
+		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
+		MetadataProvider:   a.MetadataProvider,
+		Platform:           a.AnilistPlatform,
+		PlaybackManager:    a.PlaybackManager,
+		WSEventManager:     a.WSEventManager,
 	})
 
 }

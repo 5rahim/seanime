@@ -88,7 +88,6 @@ func TestSmartSearch(t *testing.T) {
 					EpisodeNumber:  &test.episodeNumber,
 					AbsoluteOffset: &test.absoluteOffset,
 					Resolution:     &test.resolution,
-					Cache:          NewSearchCache(),
 					Logger:         util.NewLogger(),
 				})
 

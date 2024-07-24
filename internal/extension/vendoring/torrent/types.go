@@ -13,9 +13,12 @@ type (
 		// This should just return the magnet link without scraping the torrent page if already available.
 		GetTorrentMagnetLink(torrent *AnimeTorrent) (string, error)
 		// CanSmartSearch returns true if the provider supports smart search.
+		// i.e. Searching related torrents without direct user query, based on the media.
 		CanSmartSearch() bool
 		// CanFindBestRelease returns true if the provider supports finding the best release.
 		CanFindBestRelease() bool
+		// SupportsAdult returns true if the provider supports searching for adult content.
+		SupportsAdult() bool
 	}
 
 	Media struct {
@@ -35,6 +38,8 @@ type (
 		EpisodeCount *int `json:"episodeCount,omitempty"`
 		// StartDate of the media.
 		StartDate *FuzzyDate `json:"startDate,omitempty"`
+		// Whether the media is NSFW.
+		IsAdult bool `json:"isAdult"`
 	}
 
 	FuzzyDate struct {
@@ -43,9 +48,10 @@ type (
 		Day   *int `json:"day"`
 	}
 
+	// SearchOptions represents the options to search for torrents without filters.
 	SearchOptions struct {
 		Media Media
-		// Query to search for.
+		// User query
 		Query string `json:"query"`
 		// Indicates if the search is for a batch torrent.
 		Batch bool `json:"batch"`
@@ -53,7 +59,7 @@ type (
 
 	SmartSearchOptions struct {
 		Media Media `json:"media"`
-		// Query to search for.
+		// Optional user query
 		Query string `json:"query"`
 		// Indicates if the search is for a batch torrent.
 		Batch bool `json:"batch"`
@@ -116,6 +122,7 @@ type (
 		IsBestRelease bool `json:"isBestRelease"`
 		// Indicates if the torrent is certainly related to the media.
 		// i.e. the torrent is not a false positive.
+		// e.g. If the torrent was found using the AniDB anime or episode ID
 		Confirmed bool `json:"confirmed"`
 	}
 )

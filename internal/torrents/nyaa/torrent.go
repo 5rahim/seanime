@@ -2,8 +2,6 @@ package nyaa
 
 import (
 	"seanime/internal/util"
-	"seanime/internal/util/comparison"
-	"seanime/seanime-parser"
 )
 
 type (
@@ -30,29 +28,7 @@ type (
 		Date string `json:"date"`
 		Text string `json:"text"`
 	}
-
-	DetailedTorrent struct {
-		Torrent
-		Resolution string `json:"resolution"`
-		IsBatch    bool   `json:"isBatch"` // /!\ will be true if the torrent is a movie
-	}
 )
-
-func (t *Torrent) toDetailedTorrent() *DetailedTorrent {
-	elements := seanime_parser.Parse(t.Name)
-
-	isBatch := false
-
-	if len(elements.EpisodeNumber) > 1 || comparison.ValueContainsBatchKeywords(t.Name) {
-		isBatch = true
-	}
-
-	return &DetailedTorrent{
-		Torrent:    *t,
-		Resolution: elements.VideoResolution,
-		IsBatch:    isBatch,
-	}
-}
 
 func (t *Torrent) GetSizeInBytes() int64 {
 	bytes, _ := util.StringSizeToBytes(t.Size)

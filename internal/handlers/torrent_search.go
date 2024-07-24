@@ -53,11 +53,9 @@ func HandleSearchTorrent(c *RouteCtx) error {
 			Provider:       c.App.Settings.Library.TorrentProvider,
 			Best:           b.Best,
 		},
-		NyaaSearchCache:       c.App.NyaaSearchCache,
-		AnimeToshoSearchCache: c.App.AnimeToshoSearchCache,
-		AnizipCache:           c.App.AnizipCache,
-		Logger:                c.App.Logger,
-		MetadataProvider:      c.App.MetadataProvider,
+		AnizipCache:      c.App.AnizipCache,
+		Logger:           c.App.Logger,
+		MetadataProvider: c.App.MetadataProvider,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -84,7 +82,7 @@ func HandleSearchNsfwTorrent(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	data, err := torrent.NewNsfwSearch(b.Query, c.App.NyaaSearchCache)
+	data, err := torrent.NewNsfwSearch(b.Query)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

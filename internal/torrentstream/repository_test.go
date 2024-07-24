@@ -14,8 +14,6 @@ import (
 	"seanime/internal/offline"
 	"seanime/internal/platform"
 	"seanime/internal/test_utils"
-	"seanime/internal/torrents/animetosho"
-	"seanime/internal/torrents/nyaa"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"testing"
@@ -68,13 +66,11 @@ func TestTorrentstream(t *testing.T) {
 	playbackManager.SetMediaPlayerRepository(mediaPlayerRepo)
 
 	repo := NewRepository(&NewRepositoryOptions{
-		Logger:                logger,
-		AnizipCache:           anizip.NewCache(),
-		BaseAnimeCache:        anilist.NewBaseAnimeCache(),
-		CompleteAnimeCache:    anilist.NewCompleteAnimeCache(),
-		Platform:              anilistPlatform,
-		AnimeToshoSearchCache: animetosho.NewSearchCache(),
-		NyaaSearchCache:       nyaa.NewSearchCache(),
+		Logger:             logger,
+		AnizipCache:        anizip.NewCache(),
+		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
+		Platform:           anilistPlatform,
 		MetadataProvider: metadata.NewProvider(&metadata.NewProviderOptions{
 			Logger:     logger,
 			FileCacher: filecacher,

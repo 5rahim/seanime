@@ -57,11 +57,9 @@ searchLoop:
 				Provider:       itorrent.ProviderAnimeTosho,
 				Best:           lo.ToPtr(false),
 			},
-			NyaaSearchCache:       r.nyaaSearchCache,
-			AnimeToshoSearchCache: r.animetoshoSearchCache,
-			AnizipCache:           r.anizipCache,
-			Logger:                r.logger,
-			MetadataProvider:      r.metadataProvider,
+			AnizipCache:      r.anizipCache,
+			Logger:           r.logger,
+			MetadataProvider: r.metadataProvider,
 		})
 		// If we are searching for batches, we don't want to return an error if no torrents are found
 		// We will just search again without the batch flag

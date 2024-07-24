@@ -65,7 +65,15 @@ const (
 	categoryRealLifeVideos = "&c=2_2"
 )
 
-func buildURL(opts SearchOptions) (string, error) {
+type BuildURLOptions struct {
+	Provider string
+	Query    string
+	Category string
+	SortBy   string
+	Filter   string
+}
+
+func buildURL(opts BuildURLOptions) (string, error) {
 	var url string
 
 	if opts.Provider == "nyaa" {

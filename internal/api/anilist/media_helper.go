@@ -61,6 +61,20 @@ func (m *BaseAnime) IsMovieOrSingleEpisode() bool {
 	return false
 }
 
+func (m *BaseAnime) GetSynonymsDeref() []string {
+	if m.Synonyms == nil {
+		return nil
+	}
+	return lo.Map(m.Synonyms, func(s *string, i int) string { return *s })
+}
+
+func (m *BaseAnime) GetSynonymsContainingSeason() []string {
+	if m.Synonyms == nil {
+		return nil
+	}
+	return lo.Filter(lo.Map(m.Synonyms, func(s *string, i int) string { return *s }), func(s string, i int) bool { return comparison.ValueContainsSeason(s) })
+}
+
 func (m *BaseAnime) IsMovie() bool {
 	if m == nil {
 		return false
