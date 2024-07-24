@@ -3,7 +3,6 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/mmcdole/gofeed"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -15,31 +14,38 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+)
+
+const (
+	NyaaProviderName = "nyaa"
 )
 
 type Provider struct {
 	logger *zerolog.Logger
 }
 
-func NewProvider(logger *zerolog.Logger) hibiketorrent.Provider {
+func NewProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
 	return &Provider{
 		logger: logger,
 	}
 }
 
-func (n *Provider) Search(opts hibiketorrent.SearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
-	fp := gofeed.NewParser()
+func (n *Provider) GetType() hibiketorrent.AnimeProviderType {
+	return hibiketorrent.AnimeProviderTypeMain
+}
 
-	n.logger.Trace().Str("query", opts.Query).Msg("nyaa: Search query")
+func (n *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
+	fp := gofeed.NewParser()
 
 	url, err := buildURL(BuildURLOptions{
 		Provider: "nyaa",
-		Query:    opts.Query,
+		Query:    "",
 		Category: "anime-eng",
 		SortBy:   "seeders",
 		Filter:   "",
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -53,16 +59,44 @@ func (n *Provider) Search(opts hibiketorrent.SearchOptions) (ret []*hibiketorren
 	// parse content
 	res := convertRSS(feed)
 
-	for _, torrent := range res {
-		ret = append(ret, torrent.toAnimeTorrent())
-	}
+	ret = torrentSliceToAnimeTorrentSlice(res, NyaaProviderName)
 
 	return
 }
 
-func (n *Provider) SmartSearch(opts hibiketorrent.SmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
+func (n *Provider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
+	fp := gofeed.NewParser()
 
-	queries, ok := BuildSmartSearchQueries(&opts)
+	n.logger.Trace().Str("query", opts.Query).Msg("nyaa: Search query")
+
+	url, err := buildURL(BuildURLOptions{
+		Provider: "nyaa",
+		Query:    opts.Query,
+		Category: "anime-eng",
+		SortBy:   "seeders",
+		Filter:   "",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// get content
+	feed, err := fp.ParseURL(url)
+	if err != nil {
+		return nil, err
+	}
+
+	// parse content
+	res := convertRSS(feed)
+
+	ret = torrentSliceToAnimeTorrentSlice(res, NyaaProviderName)
+
+	return
+}
+
+func (n *Provider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
+
+	queries, ok := buildSmartSearchQueries(&opts)
 	if !ok {
 		return nil, fmt.Errorf("could not build queries")
 	}
@@ -93,26 +127,38 @@ func (n *Provider) SmartSearch(opts hibiketorrent.SmartSearchOptions) (ret []*hi
 			}
 			// parse content
 			res := convertRSS(feed)
-			wg2 := sync.WaitGroup{}
-			for _, torrent := range res {
-				wg2.Add(1)
-				go func(torrent Torrent) {
-					defer wg2.Done()
-					mu.Lock()
-					ret = append(ret, torrent.toAnimeTorrent())
-					mu.Unlock()
-				}(torrent)
-			}
-			wg2.Wait()
+
+			mu.Lock()
+			ret = torrentSliceToAnimeTorrentSlice(res, NyaaProviderName)
+			mu.Unlock()
 		}(query)
 	}
 	wg.Wait()
+
+	// remove duplicates
+	lo.UniqBy(ret, func(i *hibiketorrent.AnimeTorrent) string {
+		return i.Link
+	})
+
+	if !opts.Batch {
+		// Single-episode search
+		// If the episode number is provided, we can filter the results
+		ret = lo.Filter(ret, func(i *hibiketorrent.AnimeTorrent, _ int) bool {
+			relEp := i.EpisodeNumber
+			if relEp == -1 {
+				return false
+			}
+			absEp := opts.Media.AbsoluteSeasonOffset + opts.EpisodeNumber
+
+			return opts.EpisodeNumber == relEp || absEp == relEp
+		})
+	}
 
 	return
 }
 
 func (n *Provider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (string, error) {
-	return TorrentHash(torrent.Link)
+	return torrent.MagnetLink, nil
 }
 
 func (n *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (string, error) {
@@ -135,11 +181,11 @@ func (n *Provider) SupportsAdult() bool {
 // ADVANCED SEARCH
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// BuildSmartSearchQueries will return a slice of queries for nyaa.si.
+// buildSmartSearchQueries will return a slice of queries for nyaa.si.
 // The second index of the returned slice is the absolute episode query.
 // If the function returns false, the query could not be built.
 // BuildSearchQueryOptions.Title will override the constructed title query but not other parameters.
-func BuildSmartSearchQueries(opts *hibiketorrent.SmartSearchOptions) ([]string, bool) {
+func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) ([]string, bool) {
 
 	romTitle := opts.Media.RomajiTitle
 	engTitle := opts.Media.EnglishTitle
@@ -251,26 +297,29 @@ func BuildSmartSearchQueries(opts *hibiketorrent.SmartSearchOptions) ([]string, 
 	// 2. If the media is not a movie
 	// 3. If the media is not a single episode
 	batchBuff := bytes.NewBufferString("")
-	if opts.Batch && canBatch && opts.Media.Format != string(anilist.MediaFormatMovie) && opts.Media.EpisodeCount != 1 {
+	if opts.Batch && canBatch && !(opts.Media.Format == string(anilist.MediaFormatMovie) && opts.Media.EpisodeCount == 1) {
 		if season != 0 {
-			batchBuff.WriteString(getSeasonGroup(season))
+			batchBuff.WriteString(buildSeasonString(season))
 		}
 		if part != 0 {
-			batchBuff.WriteString(getPartGroup(part))
+			batchBuff.WriteString(buildPartString(part))
 		}
-		batchBuff.WriteString(getBatchGroup(&opts.Media))
+		batchBuff.WriteString(buildBatchString(&opts.Media))
 
 	} else {
 
-		normalBuff.WriteString(getSeasonGroup(season))
+		normalBuff.WriteString(buildSeasonString(season))
 		if part != 0 {
-			normalBuff.WriteString(getPartGroup(part))
+			normalBuff.WriteString(buildPartString(part))
 		}
-		normalBuff.WriteString(getEpisodeGroup(opts.EpisodeNumber))
+
+		if !(opts.Media.Format == string(anilist.MediaFormatMovie) && opts.Media.EpisodeCount == 1) {
+			normalBuff.WriteString(buildEpisodeString(opts.EpisodeNumber))
+		}
 
 	}
 
-	titleStr := getTitleGroup(titles)
+	titleStr := buildTitleString(titles)
 	batchStr := batchBuff.String()
 	normalStr := normalBuff.String()
 
@@ -281,18 +330,15 @@ func BuildSmartSearchQueries(opts *hibiketorrent.SmartSearchOptions) ([]string, 
 
 	//println(spew.Sdump(titleStr, batchStr, normalStr))
 
-	query := fmt.Sprintf("%s%s%s%s", titleStr, batchStr, normalStr, opts.Resolution)
+	query := fmt.Sprintf("%s%s%s", titleStr, batchStr, normalStr)
+	if opts.Resolution != "" {
+		query = fmt.Sprintf("%s(%s)", query, opts.Resolution)
+	}
 	query2 := ""
 
 	// Absolute episode addition
-	if !opts.Batch && opts.Media.AbsoluteSeasonOffset > 0 {
-		query2 = fmt.Sprintf("%s%s", getAbsoluteGroup(titleStr, opts), opts.Resolution) // e.g. jujutsu kaisen 25
-	}
-
-	// Movie addition
-	// We add this because the first query might be invalid because of inclusion of "ep01" etc...
-	if opts.Media.Format == string(anilist.MediaFormatMovie) {
-		query2 = titleStr
+	if !opts.Batch && opts.Media.AbsoluteSeasonOffset > 0 && !(opts.Media.Format == string(anilist.MediaFormatMovie) && opts.Media.EpisodeCount == 1) {
+		query2 = fmt.Sprintf("%s", buildAbsoluteGroupString(titleStr, opts.Resolution, opts)) // e.g. jujutsu kaisen 25
 	}
 
 	ret := []string{query}
@@ -306,16 +352,18 @@ func BuildSmartSearchQueries(opts *hibiketorrent.SmartSearchOptions) ([]string, 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // (jjk|jujutsu kaisen)
-func getTitleGroup(titles []string) string {
-	return fmt.Sprintf("(%s)", strings.Join(titles, "|"))
+func buildTitleString(titles []string) string {
+	return fmt.Sprintf("(%s)", strings.Join(lo.Map(titles, func(item string, _ int) string {
+		return fmt.Sprintf(`"%s"`, item)
+	}), "|"))
 }
 
-func getAbsoluteGroup(title string, opts *hibiketorrent.SmartSearchOptions) string {
-	return fmt.Sprintf("(%s(%d))", title, opts.EpisodeNumber+opts.Media.AbsoluteSeasonOffset)
+func buildAbsoluteGroupString(title, resolution string, opts *hibiketorrent.AnimeSmartSearchOptions) string {
+	return fmt.Sprintf("%s(%d)(%s)", title, opts.EpisodeNumber+opts.Media.AbsoluteSeasonOffset, resolution)
 }
 
 // (s01e01)
-func getSeasonAndEpisodeGroup(season int, ep int) string {
+func buildSeasonAndEpisodeGroup(season int, ep int) string {
 	if season == 0 {
 		season = 1
 	}
@@ -323,14 +371,14 @@ func getSeasonAndEpisodeGroup(season int, ep int) string {
 }
 
 // (01|e01|e01v|ep01|ep1)
-func getEpisodeGroup(ep int) string {
+func buildEpisodeString(ep int) string {
 	pEp := zeropad(ep)
 	//return fmt.Sprintf(`("%s"|"e%s"|"e%sv"|"%sv"|"ep%s"|"ep%d")`, pEp, pEp, pEp, pEp, pEp, ep)
 	return fmt.Sprintf(`(%s|e%s|e%sv|%sv|ep%s|ep%d)`, pEp, pEp, pEp, pEp, pEp, ep)
 }
 
 // (season 1|season 01|s1|s01)
-func getSeasonGroup(season int) string {
+func buildSeasonString(season int) string {
 	// Season section
 	seasonBuff := bytes.NewBufferString("")
 	// e.g. S1, season 1, season 01
@@ -342,7 +390,8 @@ func getSeasonGroup(season int) string {
 	}
 	return seasonBuff.String()
 }
-func getPartGroup(part int) string {
+
+func buildPartString(part int) string {
 	partBuff := bytes.NewBufferString("")
 	if part != 0 {
 		partBuff.WriteString(fmt.Sprintf(`("%s%d")`, "part ", part))
@@ -350,7 +399,7 @@ func getPartGroup(part int) string {
 	return partBuff.String()
 }
 
-func getBatchGroup(m *hibiketorrent.Media) string {
+func buildBatchString(m *hibiketorrent.Media) string {
 
 	buff := bytes.NewBufferString("")
 	buff.WriteString("(")
@@ -417,7 +466,26 @@ func convertRSS(feed *gofeed.Feed) []Torrent {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (t *Torrent) toAnimeTorrent() *hibiketorrent.AnimeTorrent {
+func torrentSliceToAnimeTorrentSlice(torrents []Torrent, providerName string) []*hibiketorrent.AnimeTorrent {
+	wg := sync.WaitGroup{}
+	mu := sync.Mutex{}
+
+	ret := make([]*hibiketorrent.AnimeTorrent, 0)
+	for _, torrent := range torrents {
+		wg.Add(1)
+		go func(torrent Torrent) {
+			defer wg.Done()
+			mu.Lock()
+			ret = append(ret, torrent.toAnimeTorrent(providerName))
+			mu.Unlock()
+		}(torrent)
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorrent {
 	metadata := seanime_parser.Parse(t.Name)
 
 	seeders, _ := strconv.Atoi(t.Seeders)
@@ -446,7 +514,7 @@ func (t *Torrent) toAnimeTorrent() *hibiketorrent.AnimeTorrent {
 		IsBatch:       false, // Should be parsed
 		EpisodeNumber: -1,    // Should be parsed
 		ReleaseGroup:  "",    // Should be parsed
-		Provider:      "nyaa",
+		Provider:      providerName,
 		IsBestRelease: false,
 		Confirmed:     false,
 	}

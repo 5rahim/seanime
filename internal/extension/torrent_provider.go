@@ -4,63 +4,63 @@ import (
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
-type TorrentProviderExtension interface {
+type AnimeTorrentProviderExtension interface {
 	BaseExtension
-	GetProvider() hibiketorrent.Provider
+	GetProvider() hibiketorrent.AnimeProvider
 }
 
-type TorrentProviderExtensionImpl struct {
+type AnimeTorrentProviderExtensionImpl struct {
 	ext      *Extension
-	provider hibiketorrent.Provider
+	provider hibiketorrent.AnimeProvider
 }
 
-func NewTorrentProviderExtension(ext *Extension, provider hibiketorrent.Provider) TorrentProviderExtension {
-	return &TorrentProviderExtensionImpl{
+func NewAnimeTorrentProviderExtension(ext *Extension, provider hibiketorrent.AnimeProvider) AnimeTorrentProviderExtension {
+	return &AnimeTorrentProviderExtensionImpl{
 		ext:      ext,
 		provider: provider,
 	}
 }
 
-func (m *TorrentProviderExtensionImpl) GetProvider() hibiketorrent.Provider {
+func (m *AnimeTorrentProviderExtensionImpl) GetProvider() hibiketorrent.AnimeProvider {
 	return m.provider
 }
 
-func (m *TorrentProviderExtensionImpl) GetExtension() *Extension {
+func (m *AnimeTorrentProviderExtensionImpl) GetExtension() *Extension {
 	return m.ext
 }
 
-func (m *TorrentProviderExtensionImpl) GetType() Type {
+func (m *AnimeTorrentProviderExtensionImpl) GetType() Type {
 	return TypeMangaProvider
 }
 
-func (m *TorrentProviderExtensionImpl) GetID() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetID() string {
 	return m.ext.ID
 }
 
-func (m *TorrentProviderExtensionImpl) GetName() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetName() string {
 	return m.ext.Name
 }
 
-func (m *TorrentProviderExtensionImpl) GetVersion() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetVersion() string {
 	return m.ext.Version
 }
 
-func (m *TorrentProviderExtensionImpl) GetRepositoryURI() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetRepositoryURI() string {
 	return m.ext.RepositoryURI
 }
 
-func (m *TorrentProviderExtensionImpl) GetLanguage() Language {
+func (m *AnimeTorrentProviderExtensionImpl) GetLanguage() Language {
 	return m.ext.Language
 }
 
-func (m *TorrentProviderExtensionImpl) GetDescription() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }
 
-func (m *TorrentProviderExtensionImpl) GetAuthor() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetAuthor() string {
 	return m.ext.Author
 }
 
-func (m *TorrentProviderExtensionImpl) GetPayload() string {
+func (m *AnimeTorrentProviderExtensionImpl) GetPayload() string {
 	return m.ext.Payload
 }

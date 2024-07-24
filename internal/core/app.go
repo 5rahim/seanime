@@ -30,6 +30,7 @@ import (
 	"seanime/internal/onlinestream"
 	"seanime/internal/platform"
 	"seanime/internal/torrent_clients/torrent_client"
+	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 	"seanime/internal/updater"
 	"seanime/internal/util"
@@ -43,6 +44,7 @@ type (
 		Database                *db.Database
 		Logger                  *zerolog.Logger
 		TorrentClientRepository *torrent_client.Repository
+		TorrentRepository       *torrent.Repository
 		Watcher                 *scanner.Watcher
 		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
 		AnilistClient           anilist.AnilistClient
@@ -205,6 +207,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
 		ExtensionRepository:     extensionRepository,
+		TorrentRepository:       nil, // Initialized in App.initModulesOnce
 		FillerManager:           nil, // Initialized in App.initModulesOnce
 		MangaDownloader:         nil, // Initialized in App.initModulesOnce
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce

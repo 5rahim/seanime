@@ -4,6 +4,9 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/manga/providers"
 	"seanime/internal/onlinestream/providers"
+	"seanime/internal/torrents/animetosho"
+	"seanime/internal/torrents/nyaa"
+	"seanime/internal/torrents/seadex"
 )
 
 func (a *App) LoadBuiltInExtensions() {
@@ -12,6 +15,8 @@ func (a *App) LoadBuiltInExtensions() {
 	a.MangaRepository.SetProviderExtensions(a.ExtensionRepository.GetMangaProviderExtensions())
 	// Load the extensions to the online stream repository
 	a.OnlinestreamRepository.SetProviderExtensions(a.ExtensionRepository.GetOnlinestreamProviderExtensions())
+	// Load the extensions to the torrent repository
+	a.TorrentRepository.SetAnimeProviderExtensions(a.ExtensionRepository.GetTorrentProviderExtensions())
 
 	//
 	// Built-in manga providers
@@ -85,6 +90,46 @@ func (a *App) LoadBuiltInExtensions() {
 		Type:     extension.TypeOnlinestreamProvider,
 		Author:   "Seanime",
 	}, onlinestream_providers.NewZoro(a.Logger))
+
+	//
+	// Built-in torrent providers
+	//
+
+	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+		ID:       "nyaa",
+		Name:     "Nyaa",
+		Version:  "1.0.0",
+		Language: extension.LanguageGo,
+		Type:     extension.TypeTorrentProvider,
+		Author:   "Seanime",
+	}, nyaa.NewProvider(a.Logger))
+
+	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+		ID:       "nyaa-sukebei",
+		Name:     "Nyaa Sukebei",
+		Version:  "1.0.0",
+		Language: extension.LanguageGo,
+		Type:     extension.TypeTorrentProvider,
+		Author:   "Seanime",
+	}, nyaa.NewSukebeiProvider(a.Logger))
+
+	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+		ID:       "animetosho",
+		Name:     "AnimeTosho",
+		Version:  "1.0.0",
+		Language: extension.LanguageGo,
+		Type:     extension.TypeTorrentProvider,
+		Author:   "Seanime",
+	}, animetosho.NewProvider(a.Logger))
+
+	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+		ID:       "seadex",
+		Name:     "SeaDex",
+		Version:  "1.0.0",
+		Language: extension.LanguageGo,
+		Type:     extension.TypeTorrentProvider,
+		Author:   "Seanime",
+	}, seadex.NewProvider(a.Logger))
 
 }
 

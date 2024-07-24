@@ -26473,9 +26473,9 @@
       {
         "name": "provider",
         "jsonName": "provider",
-        "goType": "hibiketorrent.Provider",
+        "goType": "hibiketorrent.AnimeProvider",
         "typescriptType": "HibikeTorrent_Provider",
-        "usedStructName": "hibiketorrent.Provider",
+        "usedStructName": "hibiketorrent.AnimeProvider",
         "required": false,
         "public": false,
         "comments": []

@@ -10,51 +10,62 @@ import (
 func init() {
 	Symbols["github.com/5rahim/hibike/pkg/extension/torrent/torrent"] = map[string]reflect.Value{
 		// function, constant and variable definitions
-		"Resolutions": reflect.ValueOf(&torrent.Resolutions).Elem(),
+		"AnimeProviderTypeMain":    reflect.ValueOf(torrent.AnimeProviderTypeMain),
+		"AnimeProviderTypeSpecial": reflect.ValueOf(torrent.AnimeProviderTypeSpecial),
+		"Resolutions":              reflect.ValueOf(&torrent.Resolutions).Elem(),
 
 		// type definitions
-		"AnimeTorrent":       reflect.ValueOf((*torrent.AnimeTorrent)(nil)),
-		"FuzzyDate":          reflect.ValueOf((*torrent.FuzzyDate)(nil)),
-		"Media":              reflect.ValueOf((*torrent.Media)(nil)),
-		"Provider":           reflect.ValueOf((*torrent.Provider)(nil)),
-		"SearchOptions":      reflect.ValueOf((*torrent.SearchOptions)(nil)),
-		"SmartSearchOptions": reflect.ValueOf((*torrent.SmartSearchOptions)(nil)),
+		"AnimeProvider":           reflect.ValueOf((*torrent.AnimeProvider)(nil)),
+		"AnimeProviderType":       reflect.ValueOf((*torrent.AnimeProviderType)(nil)),
+		"AnimeSearchOptions":      reflect.ValueOf((*torrent.AnimeSearchOptions)(nil)),
+		"AnimeSmartSearchOptions": reflect.ValueOf((*torrent.AnimeSmartSearchOptions)(nil)),
+		"AnimeTorrent":            reflect.ValueOf((*torrent.AnimeTorrent)(nil)),
+		"FuzzyDate":               reflect.ValueOf((*torrent.FuzzyDate)(nil)),
+		"Media":                   reflect.ValueOf((*torrent.Media)(nil)),
 
 		// interface wrapper definitions
-		"_Provider": reflect.ValueOf((*_github_com_5rahim_hibike_pkg_extension_torrent_Provider)(nil)),
+		"_AnimeProvider": reflect.ValueOf((*_github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider)(nil)),
 	}
 }
 
-// _github_com_5rahim_hibike_pkg_extension_torrent_Provider is an interface wrapper for Provider type
-type _github_com_5rahim_hibike_pkg_extension_torrent_Provider struct {
+// _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider is an interface wrapper for AnimeProvider type
+type _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider struct {
 	IValue                interface{}
 	WCanFindBestRelease   func() bool
 	WCanSmartSearch       func() bool
+	WGetLatest            func() ([]*torrent.AnimeTorrent, error)
 	WGetTorrentInfoHash   func(torrent *torrent.AnimeTorrent) (string, error)
 	WGetTorrentMagnetLink func(torrent *torrent.AnimeTorrent) (string, error)
-	WSearch               func(opts torrent.SearchOptions) ([]*torrent.AnimeTorrent, error)
-	WSmartSearch          func(opts torrent.SmartSearchOptions) ([]*torrent.AnimeTorrent, error)
+	WGetType              func() torrent.AnimeProviderType
+	WSearch               func(opts torrent.AnimeSearchOptions) ([]*torrent.AnimeTorrent, error)
+	WSmartSearch          func(opts torrent.AnimeSmartSearchOptions) ([]*torrent.AnimeTorrent, error)
 	WSupportsAdult        func() bool
 }
 
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) CanFindBestRelease() bool {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) CanFindBestRelease() bool {
 	return W.WCanFindBestRelease()
 }
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) CanSmartSearch() bool {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) CanSmartSearch() bool {
 	return W.WCanSmartSearch()
 }
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) GetTorrentInfoHash(torrent *torrent.AnimeTorrent) (string, error) {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) GetLatest() ([]*torrent.AnimeTorrent, error) {
+	return W.WGetLatest()
+}
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) GetTorrentInfoHash(torrent *torrent.AnimeTorrent) (string, error) {
 	return W.WGetTorrentInfoHash(torrent)
 }
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) GetTorrentMagnetLink(torrent *torrent.AnimeTorrent) (string, error) {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) GetTorrentMagnetLink(torrent *torrent.AnimeTorrent) (string, error) {
 	return W.WGetTorrentMagnetLink(torrent)
 }
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) Search(opts torrent.SearchOptions) ([]*torrent.AnimeTorrent, error) {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) GetType() torrent.AnimeProviderType {
+	return W.WGetType()
+}
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) Search(opts torrent.AnimeSearchOptions) ([]*torrent.AnimeTorrent, error) {
 	return W.WSearch(opts)
 }
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) SmartSearch(opts torrent.SmartSearchOptions) ([]*torrent.AnimeTorrent, error) {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) SmartSearch(opts torrent.AnimeSmartSearchOptions) ([]*torrent.AnimeTorrent, error) {
 	return W.WSmartSearch(opts)
 }
-func (W _github_com_5rahim_hibike_pkg_extension_torrent_Provider) SupportsAdult() bool {
+func (W _github_com_5rahim_hibike_pkg_extension_torrent_AnimeProvider) SupportsAdult() bool {
 	return W.WSupportsAdult()
 }

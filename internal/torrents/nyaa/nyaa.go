@@ -2,8 +2,48 @@ package nyaa
 
 import (
 	"fmt"
-	_url "net/url"
+	gourl "net/url"
+	"seanime/internal/util"
 )
+
+type (
+	Torrent struct {
+		Category    string `json:"category"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Date        string `json:"date"`
+		Size        string `json:"size"`
+		Seeders     string `json:"seeders"`
+		Leechers    string `json:"leechers"`
+		Downloads   string `json:"downloads"`
+		IsTrusted   string `json:"isTrusted"`
+		IsRemake    string `json:"isRemake"`
+		Comments    string `json:"comments"`
+		Link        string `json:"link"`
+		GUID        string `json:"guid"`
+		CategoryID  string `json:"categoryID"`
+		InfoHash    string `json:"infoHash"`
+	}
+
+	BuildURLOptions struct {
+		Provider string
+		Query    string
+		Category string
+		SortBy   string
+		Filter   string
+	}
+
+	Comment struct {
+		User string `json:"user"`
+		Date string `json:"date"`
+		Text string `json:"text"`
+	}
+)
+
+func (t *Torrent) GetSizeInBytes() int64 {
+	bytes, _ := util.StringSizeToBytes(t.Size)
+	return bytes
+}
 
 const (
 	nyaaBaseURL    = "https://nyaa.si/?page=rss&q=+"
@@ -15,7 +55,8 @@ const (
 	sortBySeeders   = "&s=seeders&o=desc"
 	sortByLeechers  = "&s=leechers&o=desc"
 	sortByDownloads = "&s=downloads&o=desc"
-	sortBySize      = "&s=size&o=desc"
+	sortBySizeDsc   = "&s=size&o=desc"
+	sortBySizeAsc   = "&s=size&o=asc"
 	sortByDate      = "&s=id&o=desc"
 
 	filterNoFilter    = "&f=0"
@@ -65,14 +106,6 @@ const (
 	categoryRealLifeVideos = "&c=2_2"
 )
 
-type BuildURLOptions struct {
-	Provider string
-	Query    string
-	Category string
-	SortBy   string
-	Filter   string
-}
-
 func buildURL(opts BuildURLOptions) (string, error) {
 	var url string
 
@@ -86,7 +119,7 @@ func buildURL(opts BuildURLOptions) (string, error) {
 	}
 
 	if opts.Query != "" {
-		url += _url.QueryEscape(opts.Query)
+		url += gourl.QueryEscape(opts.Query)
 	}
 
 	if opts.Provider == "nyaa" {
@@ -187,8 +220,10 @@ func buildURL(opts BuildURLOptions) (string, error) {
 			url += sortBySeeders
 		case "leechers":
 			url += sortByLeechers
-		case "size":
-			url += sortBySize
+		case "size-asc":
+			url += sortBySizeAsc
+		case "size-dsc":
+			url += sortBySizeDsc
 		case "date":
 			url += sortByDate
 		default:

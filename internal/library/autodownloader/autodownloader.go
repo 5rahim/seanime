@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
@@ -30,6 +31,7 @@ type (
 	AutoDownloader struct {
 		logger                  *zerolog.Logger
 		torrentClientRepository *torrent_client.Repository
+		torrentRepository       *torrent.Repository
 		database                *db.Database
 		animeCollection         mo.Option[*anilist.AnimeCollection]
 		wsEventManager          events.WSEventManagerInterface
@@ -45,6 +47,7 @@ type (
 	NewAutoDownloaderOptions struct {
 		Logger                  *zerolog.Logger
 		TorrentClientRepository *torrent_client.Repository
+		TorrentRepository       *torrent.Repository
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
 		AnizipCache             *anizip.Cache
@@ -60,6 +63,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 	return &AutoDownloader{
 		logger:                  opts.Logger,
 		torrentClientRepository: opts.TorrentClientRepository,
+		torrentRepository:       opts.TorrentRepository,
 		database:                opts.Database,
 		wsEventManager:          opts.WSEventManager,
 		animeCollection:         mo.None[*anilist.AnimeCollection](),
@@ -206,7 +210,17 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	defer util.HandlePanicInModuleThen("autodownloader/checkForNewEpisodes", func() {})
 
 	ad.mu.Lock()
-	if ad == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
+	if ad == nil || ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
+		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. AutoDownloader is not enabled or provider is not set.")
+		return
+	}
+	providerExt, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
+	if !found {
+		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. Default provider not found.")
+		return
+	}
+	if providerExt.GetProvider().GetType() != hibiketorrent.AnimeProviderTypeMain {
+		ad.logger.Warn().Msgf("autodownloader: Could not check for new episodes. Provider '%s' cannot be used for auto downloading.", providerExt.GetName())
 		return
 	}
 	ad.mu.Unlock()
@@ -229,20 +243,10 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	// Create a LocalFileWrapper
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
-	if ad.settings.Provider == torrent.ProviderNyaa {
-		nyaaTorrents, err := ad.getCurrentTorrentsFromNyaa()
-		if err != nil {
-			ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from Nyaa")
-		} else {
-			torrents = nyaaTorrents
-		}
-	} else if ad.settings.Provider == torrent.ProviderAnimeTosho {
-		toshoTorrents, err := ad.getCurrentTorrentsFromAnimeTosho()
-		if err != nil {
-			ad.logger.Error().Err(err).Msg("autodownloader: Failed to fetch torrents from AnimeTosho")
-		} else {
-			torrents = toshoTorrents
-		}
+	torrents, err = ad.getLatestTorrents()
+	if err != nil {
+		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
+		return
 	}
 
 	// Get existing torrents
@@ -282,7 +286,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 			for _, t := range torrents {
 				// If the torrent is already added, skip it
 				for _, et := range existingTorrents {
-					if et.Hash == t.Hash {
+					if et.Hash == t.InfoHash {
 						continue outer // Skip the torrent
 					}
 				}
@@ -378,6 +382,12 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
 
+	providerExtension, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
+	if !found {
+		ad.logger.Warn().Msg("autodownloader: Could not download torrent. Default provider not found")
+		return
+	}
+
 	if ad.torrentClientRepository == nil {
 		ad.logger.Error().Msg("autodownloader: torrent client not found")
 		return
@@ -390,14 +400,14 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 	}
 
 	// Return if the torrent is already added
-	torrentExists := ad.torrentClientRepository.TorrentExists(t.Hash)
+	torrentExists := ad.torrentClientRepository.TorrentExists(t.InfoHash)
 	if torrentExists {
 		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
 		return
 	}
 
-	magnet, found := t.GetMagnet()
-	if !found {
+	magnet, err := t.GetMagnet(providerExtension.GetProvider())
+	if err != nil {
 		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
 		return
 	}
@@ -428,7 +438,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		MediaID:     rule.MediaId,
 		Episode:     episode,
 		Link:        t.Link,
-		Hash:        t.Hash,
+		Hash:        t.InfoHash,
 		TorrentName: t.Name,
 		Magnet:      magnet,
 		Downloaded:  downloaded,

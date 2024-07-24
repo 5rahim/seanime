@@ -1,22 +1,20 @@
 package torrent
 
 import (
-	"context"
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
-	"seanime/internal/api/metadata"
+	"seanime/internal/platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
 )
 
-func TestSmartTest(t *testing.T) {
+func TestSmartSearch(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
-	metadataProvider := metadata.TestGetMockProvider(t)
+	repo := getTestRepo(t)
 
 	tests := []struct {
 		smartSearch    bool
@@ -43,7 +41,7 @@ func TestSmartTest(t *testing.T) {
 			query:          "",
 			episodeNumber:  1,
 			batch:          true,
-			mediaId:        77,
+			mediaId:        77, // Mahou Shoujo Lyrical Nanoha A's
 			absoluteOffset: 0,
 			resolution:     "1080",
 			provider:       "animetosho",
@@ -73,28 +71,20 @@ func TestSmartTest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.query, func(t *testing.T) {
 
-			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.mediaId)
+			media, err := anilistPlatform.GetAnime(tt.mediaId)
 			if err != nil {
 				t.Fatalf("could not fetch media id %d", tt.mediaId)
 			}
 
-			media := mediaF.GetMedia()
-
-			data, err := NewSmartSearch(&SmartSearchOptions{
-				SmartSearchQueryOptions: SmartSearchQueryOptions{
-					SmartSearch:    lo.ToPtr(tt.smartSearch),
-					Query:          lo.ToPtr(tt.query),
-					EpisodeNumber:  lo.ToPtr(tt.episodeNumber),
-					Batch:          lo.ToPtr(tt.batch),
-					Media:          media,
-					Best:           lo.ToPtr(false),
-					AbsoluteOffset: lo.ToPtr(tt.absoluteOffset),
-					Resolution:     lo.ToPtr(tt.resolution),
-					Provider:       tt.provider,
-				},
-				AnizipCache:      anizip.NewCache(),
-				Logger:           util.NewLogger(),
-				MetadataProvider: metadataProvider,
+			data, err := repo.SearchAnime(AnimeSearchOptions{
+				Provider:      tt.provider,
+				Type:          AnimeSearchTypeSmart,
+				Media:         media,
+				Query:         "",
+				Batch:         tt.batch,
+				EpisodeNumber: tt.episodeNumber,
+				BestReleases:  false,
+				Resolution:    tt.resolution,
 			})
 			if err != nil {
 				t.Errorf("NewSmartSearch() failed: %v", err)

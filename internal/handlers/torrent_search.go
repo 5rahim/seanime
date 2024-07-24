@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/torrents/torrent"
 )
@@ -16,14 +15,16 @@ import (
 func HandleSearchTorrent(c *RouteCtx) error {
 
 	type body struct {
-		SmartSearch    *bool              `json:"smartSearch"`
-		Query          *string            `json:"query"`
-		EpisodeNumber  *int               `json:"episodeNumber"`
-		Batch          *bool              `json:"batch"`
-		Media          *anilist.BaseAnime `json:"media"`
-		AbsoluteOffset *int               `json:"absoluteOffset"`
-		Resolution     *string            `json:"resolution"`
-		Best           *bool              `json:"best"`
+		Provider string `json:"provider,omitempty"`
+		// "smart" or "simple"
+		Type           string            `json:"smartSearch,omitempty"`
+		Query          string            `json:"query,omitempty"`
+		EpisodeNumber  int               `json:"episodeNumber,omitempty"`
+		Batch          bool              `json:"batch,omitempty"`
+		Media          anilist.BaseAnime `json:"media,omitempty"`
+		AbsoluteOffset int               `json:"absoluteOffset,omitempty"`
+		Resolution     string            `json:"resolution,omitempty"`
+		BestRelease    bool              `json:"bestRelease,omitempty"`
 	}
 
 	var b body
@@ -31,58 +32,16 @@ func HandleSearchTorrent(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	if b.SmartSearch == nil ||
-		b.Media == nil ||
-		b.Batch == nil ||
-		b.EpisodeNumber == nil ||
-		b.AbsoluteOffset == nil ||
-		b.Resolution == nil ||
-		b.Query == nil {
-		return c.RespondWithError(errors.New("missing arguments"))
-	}
-
-	data, err := torrent.NewSmartSearch(&torrent.SmartSearchOptions{
-		SmartSearchQueryOptions: torrent.SmartSearchQueryOptions{
-			SmartSearch:    b.SmartSearch,
-			Query:          b.Query,
-			EpisodeNumber:  b.EpisodeNumber,
-			Batch:          b.Batch,
-			Media:          b.Media,
-			AbsoluteOffset: b.AbsoluteOffset,
-			Resolution:     b.Resolution,
-			Provider:       c.App.Settings.Library.TorrentProvider,
-			Best:           b.Best,
-		},
-		AnizipCache:      c.App.AnizipCache,
-		Logger:           c.App.Logger,
-		MetadataProvider: c.App.MetadataProvider,
+	data, err := c.App.TorrentRepository.SearchAnime(torrent.AnimeSearchOptions{
+		Provider:      b.Provider,
+		Type:          torrent.AnimeSearchType(b.Type),
+		Media:         &b.Media,
+		Query:         b.Query,
+		Batch:         b.Batch,
+		EpisodeNumber: b.EpisodeNumber,
+		BestReleases:  b.BestRelease,
+		Resolution:    b.Resolution,
 	})
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	return c.RespondWithData(data)
-
-}
-
-// HandleSearchNsfwTorrent
-//
-//	@summary searches NSFW torrents and returns a list of torrents without previews.
-//	@desc This will search for NSFW torrents and return a list of torrents without previews.
-//	@route /api/v1/torrent/nsfw-search [POST]
-//	@returns torrent.SearchData
-func HandleSearchNsfwTorrent(c *RouteCtx) error {
-
-	type body struct {
-		Query string `json:"query"`
-	}
-
-	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	data, err := torrent.NewNsfwSearch(b.Query)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

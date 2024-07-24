@@ -19,6 +19,7 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
+	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 )
 
@@ -87,12 +88,22 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
+	// |  Torrent Repository |
+	// +---------------------+
+
+	a.TorrentRepository = torrent.NewRepository(&torrent.NewRepositoryOptions{
+		Logger:           a.Logger,
+		MetadataProvider: a.MetadataProvider,
+	})
+
+	// +---------------------+
 	// |   Auto Downloader   |
 	// +---------------------+
 
 	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
 		Logger:                  a.Logger,
 		TorrentClientRepository: a.TorrentClientRepository,
+		TorrentRepository:       a.TorrentRepository,
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		AnizipCache:             a.AnizipCache,
@@ -248,7 +259,7 @@ func (a *App) InitOrRefreshModules() {
 	}
 
 	// +---------------------+
-	// |   Torrent Client    |
+	// |       Torrents      |
 	// +---------------------+
 
 	if settings.Torrent != nil {
@@ -273,13 +284,16 @@ func (a *App) InitOrRefreshModules() {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize transmission client")
 		}
 
-		// Set Repository
+		// Torrent Client Repository
 		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
 			Logger:            a.Logger,
 			QbittorrentClient: qbit,
 			Transmission:      trans,
 			Provider:          settings.Torrent.Default,
 		})
+
+		// Torrent Repository
+		a.TorrentRepository.SetSettings(settings.Torrent)
 
 		// Set AutoDownloader qBittorrent client
 		a.AutoDownloader.SetTorrentClientRepository(a.TorrentClientRepository)

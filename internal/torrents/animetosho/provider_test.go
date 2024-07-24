@@ -1,36 +1,25 @@
-package nyaa
+package animetosho
 
 import (
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
 	"seanime/internal/platform"
+	"seanime/internal/test_utils"
 	"seanime/internal/util"
-	"seanime/internal/util/limiter"
+	"strconv"
 	"testing"
 )
 
-func TestSearch(t *testing.T) {
-
-	nyaaProvider := NewProvider(util.NewLogger())
-
-	torrents, err := nyaaProvider.Search(hibiketorrent.AnimeSearchOptions{
-		Query: "One Piece",
-	})
-	require.NoError(t, err)
-
-	for _, torrent := range torrents {
-		t.Log(torrent.Name)
-	}
-}
-
 func TestSmartSearch(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistLimiter := limiter.NewAnilistLimiter()
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
-	nyaaProvider := NewProvider(util.NewLogger())
+	toshoPlatform := NewProvider(util.NewLogger())
 
 	tests := []struct {
 		name           string
@@ -62,7 +51,7 @@ func TestSmartSearch(t *testing.T) {
 			batch:          false,
 			episodeNumber:  2,
 			absoluteOffset: 24,
-			resolution:     "1080",
+			resolution:     "",
 		},
 		{
 			name:           "Violet Evergarden The Movie",
@@ -92,13 +81,11 @@ func TestSmartSearch(t *testing.T) {
 
 	for _, tt := range tests {
 
-		anilistLimiter.Wait()
-
 		t.Run(tt.name, func(t *testing.T) {
 
 			media, err := anilistPlatform.GetAnime(tt.mId)
+			anizipMedia, err := anizip.FetchAniZipMedia("anilist", media.GetID())
 			require.NoError(t, err)
-			require.NotNil(t, media)
 
 			queryMedia := hibiketorrent.Media{
 				ID:                   media.GetID(),
@@ -118,29 +105,60 @@ func TestSmartSearch(t *testing.T) {
 				},
 			}
 
-			torrents, err := nyaaProvider.SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
-				Media:         queryMedia,
-				Query:         "",
-				Batch:         tt.batch,
-				EpisodeNumber: tt.episodeNumber,
-				Resolution:    tt.resolution,
-				AniDbAID:      0,     // Not supported
-				AniDbEID:      0,     // Not supported
-				BestReleases:  false, // Not supported
-			})
-			require.NoError(t, err, "error searching nyaa")
+			if assert.NoError(t, err) {
 
-			for _, torrent := range torrents {
-				t.Log(torrent.Name)
-				t.Logf("\tMagnet: %s", torrent.MagnetLink)
-				t.Logf("\tEpisodeNumber: %d", torrent.EpisodeNumber)
-				t.Logf("\tResolution: %s", torrent.Resolution)
-				t.Logf("\tIsBatch: %v", torrent.IsBatch)
-				t.Logf("\tConfirmed: %v", torrent.Confirmed)
+				anizipEpisode, ok := anizipMedia.FindEpisode(strconv.Itoa(tt.episodeNumber))
+				require.True(t, ok)
+
+				torrents, err := toshoPlatform.SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
+					Media:         queryMedia,
+					Query:         "",
+					Batch:         tt.batch,
+					EpisodeNumber: tt.episodeNumber,
+					Resolution:    tt.resolution,
+					AniDbAID:      anizipMedia.Mappings.AnidbID,
+					AniDbEID:      anizipEpisode.AnidbEid,
+					BestReleases:  false,
+				})
+
+				require.NoError(t, err)
+				require.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
+
+				for _, torrent := range torrents {
+					t.Log(torrent.Name)
+					t.Logf("\tLink: %s", torrent.Link)
+					t.Logf("\tMagnet: %s", torrent.MagnetLink)
+					t.Logf("\tEpisodeNumber: %d", torrent.EpisodeNumber)
+					t.Logf("\tResolution: %s", torrent.Resolution)
+					t.Logf("\tIsBatch: %v", torrent.IsBatch)
+					t.Logf("\tConfirmed: %v", torrent.Confirmed)
+				}
+
 			}
 
 		})
 
 	}
+}
 
+func TestSearch2(t *testing.T) {
+
+	toshoPlatform := NewProvider(util.NewLogger())
+	torrents, err := toshoPlatform.Search(hibiketorrent.AnimeSearchOptions{
+		Media: hibiketorrent.Media{},
+		Query: "Kusuriya no Hitorigoto 05",
+		Batch: false,
+	})
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
+
+	for _, torrent := range torrents {
+		t.Log(torrent.Name)
+		t.Logf("\tLink: %s", torrent.Link)
+		t.Logf("\tMagnet: %s", torrent.MagnetLink)
+		t.Logf("\tEpisodeNumber: %d", torrent.EpisodeNumber)
+		t.Logf("\tResolution: %s", torrent.Resolution)
+		t.Logf("\tIsBatch: %v", torrent.IsBatch)
+		t.Logf("\tConfirmed: %v", torrent.Confirmed)
+	}
 }

@@ -1,17 +1,21 @@
 package vendor_hibike_torrent
 
 type (
-	Provider interface {
+	AnimeProviderType string
+
+	AnimeProvider interface {
 		// Search for torrents.
-		Search(opts SearchOptions) ([]*AnimeTorrent, error)
+		Search(opts AnimeSearchOptions) ([]*AnimeTorrent, error)
 		// SmartSearch for torrents.
-		SmartSearch(opts SmartSearchOptions) ([]*AnimeTorrent, error)
+		SmartSearch(opts AnimeSmartSearchOptions) ([]*AnimeTorrent, error)
 		// GetTorrentInfoHash returns the info hash of the torrent.
 		// This should just return the info hash without scraping the torrent page if already available.
 		GetTorrentInfoHash(torrent *AnimeTorrent) (string, error)
 		// GetTorrentMagnetLink returns the magnet link of the torrent.
 		// This should just return the magnet link without scraping the torrent page if already available.
 		GetTorrentMagnetLink(torrent *AnimeTorrent) (string, error)
+		// GetLatest returns the latest torrents.
+		GetLatest() ([]*AnimeTorrent, error)
 		// CanSmartSearch returns true if the provider supports smart search.
 		// i.e. Searching related torrents without direct user query, based on the media.
 		CanSmartSearch() bool
@@ -19,6 +23,8 @@ type (
 		CanFindBestRelease() bool
 		// SupportsAdult returns true if the provider supports searching for adult content.
 		SupportsAdult() bool
+		// GetType returns the provider type.
+		GetType() AnimeProviderType
 	}
 
 	Media struct {
@@ -27,19 +33,28 @@ type (
 		// MyAnimeList ID of the media.
 		IDMal *int `json:"idMal,omitempty"`
 		// e.g. "FINISHED", "RELEASING", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"
-		Status *string `json:"status,omitempty"`
+		// This should be set to "NOT_YET_RELEASED" if the status is unknown.
+		Status string `json:"status,omitempty"`
 		// e.g. "TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA", "MUSIC"
-		Format *string `json:"format,omitempty"`
+		// This should be set to "TV" if the format is unknown.
+		Format string `json:"format,omitempty"`
 		// e.g. "Attack on Titan"
 		EnglishTitle *string `json:"englishTitle,omitempty"`
 		// e.g. "Shingeki no Kyojin"
-		RomajiTitle *string `json:"romajiTitle,omitempty"`
+		RomajiTitle string `json:"romajiTitle,omitempty"`
 		// TotalEpisodes returns the total number of episodes of the media.
-		EpisodeCount *int `json:"episodeCount,omitempty"`
-		// StartDate of the media.
-		StartDate *FuzzyDate `json:"startDate,omitempty"`
+		// This should be set to -1 if the total number of episodes is unknown.
+		EpisodeCount int `json:"episodeCount,omitempty"`
+		// Absolute offset of the media's season.
+		// This should be set to 0 if the media is not seasonal or the offset is unknown.
+		AbsoluteSeasonOffset int `json:"absoluteSeasonOffset,omitempty"`
+		// All alternative titles of the media.
+		Synonyms []string `json:"synonyms"`
 		// Whether the media is NSFW.
 		IsAdult bool `json:"isAdult"`
+		// StartDate of the media.
+		// This should be nil if it has no start data.
+		StartDate *FuzzyDate `json:"startDate,omitempty"`
 	}
 
 	FuzzyDate struct {
@@ -48,8 +63,8 @@ type (
 		Day   *int `json:"day"`
 	}
 
-	// SearchOptions represents the options to search for torrents without filters.
-	SearchOptions struct {
+	// AnimeSearchOptions represents the options to search for torrents without filters.
+	AnimeSearchOptions struct {
 		Media Media
 		// User query
 		Query string `json:"query"`
@@ -57,7 +72,7 @@ type (
 		Batch bool `json:"batch"`
 	}
 
-	SmartSearchOptions struct {
+	AnimeSmartSearchOptions struct {
 		Media Media `json:"media"`
 		// Optional user query
 		Query string `json:"query"`
@@ -109,7 +124,7 @@ type (
 		IsBatch bool `json:"isBatch,omitempty"`
 		// Episode number of the torrent.
 		// This can be inferred from the query.
-		// Leave it as 0 if unknown.
+		// Return -1 if unknown.
 		EpisodeNumber int `json:"episodeNumber,omitempty"`
 		// Release group of the torrent.
 		// Leave empty if unknown.

@@ -50,7 +50,7 @@ func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Exten
 		return
 	}
 
-	newProviderFunc, ok := newProviderFuncVal.Interface().(func(logger *zerolog.Logger) hibiketorrent.Provider)
+	newProviderFunc, ok := newProviderFuncVal.Interface().(func(logger *zerolog.Logger) hibiketorrent.AnimeProvider)
 	if !ok {
 		r.logger.Error().Str("id", ext.ID).Msg(MsgYaegiFailedToInstantiateExtension)
 		return
@@ -59,5 +59,5 @@ func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Exten
 	provider := newProviderFunc(r.logger)
 
 	// Add the extension to the map
-	r.torrentProviderExtensions.Set(ext.ID, extension.NewTorrentProviderExtension(ext, provider))
+	r.torrentProviderExtensions.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
 }
