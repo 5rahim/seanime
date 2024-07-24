@@ -93,11 +93,17 @@ func (n *Provider) SmartSearch(opts hibiketorrent.SmartSearchOptions) (ret []*hi
 			}
 			// parse content
 			res := convertRSS(feed)
+			wg2 := sync.WaitGroup{}
 			for _, torrent := range res {
-				mu.Lock()
-				ret = append(ret, torrent.toAnimeTorrent())
-				mu.Unlock()
+				wg2.Add(1)
+				go func(torrent Torrent) {
+					defer wg2.Done()
+					mu.Lock()
+					ret = append(ret, torrent.toAnimeTorrent())
+					mu.Unlock()
+				}(torrent)
 			}
+			wg2.Wait()
 		}(query)
 	}
 	wg.Wait()
