@@ -47,20 +47,18 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 }
 
 func (r *Repository) SetAnimeProviderExtensions(extensions *result.Map[string, extension.AnimeTorrentProviderExtension]) {
-	r.animeProviderExtensions = extensions
-
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	r.animeProviderExtensions = extensions
+}
 
-	// Check if the default provider is in the list of providers
-	if r.settings.DefaultAnimeProvider != "" && r.settings.DefaultAnimeProvider != "none" {
-		if _, ok := r.animeProviderExtensions.Get(r.settings.DefaultAnimeProvider); !ok {
-			r.logger.Error().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Default torrent provider not found in extensions")
-			// Set the default provider to empty
-			r.settings.DefaultAnimeProvider = ""
-		}
-	}
+func (r *Repository) ReloadExtensions() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.reloadExtensions()
+}
 
+func (r *Repository) reloadExtensions() {
 	// Clear the search caches
 	r.animeProviderSearchCaches = result.NewResultMap[string, *result.Cache[string, *SearchData]]()
 	r.animeProviderSmartSearchCaches = result.NewResultMap[string, *result.Cache[string, *SearchData]]()
@@ -76,6 +74,18 @@ func (r *Repository) SetAnimeProviderExtensions(extensions *result.Map[string, e
 func (r *Repository) SetSettings(s *RepositorySettings) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
+	// Check if the default provider is in the list of providers
+	if r.settings.DefaultAnimeProvider != "" && r.settings.DefaultAnimeProvider != "none" {
+		if _, ok := r.animeProviderExtensions.Get(r.settings.DefaultAnimeProvider); !ok {
+			r.logger.Error().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Default torrent provider not found in extensions")
+			// Set the default provider to empty
+			r.settings.DefaultAnimeProvider = ""
+		}
+	}
+
+	// Clear the search caches
+	r.reloadExtensions()
 
 	if s == nil {
 		r.settings = RepositorySettings{

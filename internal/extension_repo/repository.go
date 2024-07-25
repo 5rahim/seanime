@@ -179,7 +179,7 @@ func (r *Repository) GetAnimeTorrentProviderExtensions() *result.Map[string, ext
 	return r.animeTorrentProviderExtensions
 }
 
-func (r *Repository) GetTorrentProviderExtensionByID(id string) (extension.AnimeTorrentProviderExtension, bool) {
+func (r *Repository) GetAnimeTorrentProviderExtensionByID(id string) (extension.AnimeTorrentProviderExtension, bool) {
 	ext, found := r.animeTorrentProviderExtensions.Get(id)
 	return ext, found
 }
