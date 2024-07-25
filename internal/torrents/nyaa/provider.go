@@ -355,10 +355,16 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) ([]str
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// (jjk|jujutsu kaisen)
+// (title)
+// ("jjk"|"jujutsu kaisen")
 func buildTitleString(titles []string) string {
+	// Single titles are not wrapped in quotes
+	if len(titles) == 1 {
+		return fmt.Sprintf(`(%s)`, titles[0])
+	}
+
 	return fmt.Sprintf("(%s)", strings.Join(lo.Map(titles, func(item string, _ int) string {
-		return fmt.Sprintf(`%s`, item)
+		return fmt.Sprintf(`"%s"`, item)
 	}), "|"))
 }
 

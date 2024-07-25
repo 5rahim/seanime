@@ -299,6 +299,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         <div className="pb-1" />
 
                                         <TorrentPreviewList
+                                            entry={entry}
                                             previews={previews}
                                             isLoading={isLoading}
                                             selectedTorrents={selectedTorrents}

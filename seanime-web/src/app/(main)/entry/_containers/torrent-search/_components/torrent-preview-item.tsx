@@ -1,7 +1,8 @@
 import { cn } from "@/components/ui/core/styling"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
-import { FcFolder } from "react-icons/fc"
+import { BsCollectionFill } from "react-icons/bs"
+import { MdVerified } from "react-icons/md"
 
 type TorrentPreviewItemProps = {
     isSelected?: boolean
@@ -15,6 +16,7 @@ type TorrentPreviewItemProps = {
     children?: React.ReactNode
     action?: React.ReactNode
     image?: string | null
+    confirmed?: boolean
 }
 
 export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
@@ -31,12 +33,13 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
         children,
         action,
         image,
+        confirmed,
     } = props
 
     return (
         <div
             className={cn(
-                "border p-3 pr-12 rounded-lg relative transition hover:bg-[var(--hover-from-background-color)] group/episode-list-item",
+                "border p-3 pr-12 rounded-lg relative transition hover:bg-[var(--hover-from-background-color)] group/episode-list-item overflow-hidden",
                 {
                     "border-brand-200": isSelected,
                     "hover:border-gray-500": !isSelected,
@@ -45,38 +48,54 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 }, className,
             )}
         >
+
+            {confirmed && <div className="absolute left-2 top-2">
+                <MdVerified className="text-[--green] text-xl" />
+            </div>}
+
+            <div className="absolute left-0 top-0 w-full h-full max-w-[150px]">
+                {!!image && <img
+                    src={image}
+                    alt="episode image"
+                    className="object-cover object-center absolute w-full h-full blur-xs opacity-20 z-[0] select-none pointer-events-none"
+                    data-src={image}
+                />}
+                <div
+                    className="transition-colors absolute w-full h-full bg-gradient-to-l from-[--background] hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
+                ></div>
+            </div>
+
             <div
                 className={cn(
-                    "flex gap-4 relative",
+                    "flex gap-4 relative z-[2]",
                     { "cursor-pointer": !!onClick },
                 )}
                 onClick={onClick}
             >
+
+
                 <div
                     className={cn(
                         "h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden",
-                        "flex items-center justify-center bg-gray-800",
+                        "flex items-center justify-center",
                         "text-xs px-2",
                     )}
                 >
-                    <p className={cn(
-                        "z-[1] font-bold line-clamp-1",
-                        // {
-                        //     "text-brand-200": releaseGroup.toLowerCase() === "subsplease",
-                        // },
-                    )}>{releaseGroup}</p>
-                    {!!image && <img
-                        src={image}
-                        alt="episode image"
-                        className="object-cover object-center absolute w-full h-full blur-xs opacity-20 z-[0] select-none pointer-events-none"
-                        data-src={image}
-                    />}
-                    {isBatch && <FcFolder className="text-7xl absolute opacity-20"/>}
+                    <p
+                        className={cn(
+                            "z-[1] font-bold line-clamp-1",
+                            // {
+                            //     "text-brand-200": releaseGroup.toLowerCase() === "subsplease",
+                            // },
+                        )}
+                    >{releaseGroup}</p>
+                    {isBatch && <BsCollectionFill className="text-7xl absolute opacity-30" />}
                 </div>
 
                 <div className="relative overflow-hidden">
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
-                        className="text-lg text-red-500"/> Unidentified</p>}
+                        className="text-lg text-red-500"
+                    /> Unidentified</p>}
                     <h4 className={cn("font-medium transition line-clamp-2")}>{isBatch ? "Batch" : title}</h4>
 
                     {!!filename && <p className={cn("text-sm text-[--muted] line-clamp-2 mb-2")}>{filename}</p>}
