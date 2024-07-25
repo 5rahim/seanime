@@ -191,7 +191,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1.Post("/torrent/search", makeHandler(app, HandleSearchTorrent))
-	v1.Post("/torrent/nsfw-search", makeHandler(app, HandleSearchNsfwTorrent))
 	v1.Post("/torrent-client/download", makeHandler(app, HandleTorrentClientDownload))
 	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
 	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))

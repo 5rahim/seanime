@@ -5,22 +5,23 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
-	itorrent "seanime/internal/torrents/torrent"
 	"time"
+
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
 type StartStreamOptions struct {
-	MediaId       int                    `json:"mediaId"`
-	EpisodeNumber int                    `json:"episodeNumber"` // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                 `json:"aniDBEpisode"`  // Anizip episode
-	AutoSelect    bool                   `json:"autoSelect"`    // Automatically select the best file to stream
-	Torrent       *itorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
+	MediaId       int                         `json:"mediaId"`
+	EpisodeNumber int                         `json:"episodeNumber"` // RELATIVE Episode number to identify the file
+	AniDBEpisode  string                      `json:"aniDBEpisode"`  // Anizip episode
+	AutoSelect    bool                        `json:"autoSelect"`    // Automatically select the best file to stream
+	Torrent       *hibiketorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
 }
 
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	// MY DUMBASS SHUT DOWN THE CLIENT BEFORE STARTING THE STREAM
-	// NOT SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
+	// NO SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
 	//r.Shutdown()
 
 	r.logger.Info().Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
@@ -57,7 +58,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		if opts.Torrent == nil {
 			return fmt.Errorf("torrentstream: No torrent provided")
 		}
-		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent.Link, media, anizipEpisode, episodeNumber)
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, anizipEpisode, episodeNumber)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err

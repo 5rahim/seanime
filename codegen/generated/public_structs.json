@@ -23250,6 +23250,16 @@
         "comments": []
       },
       {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Watcher",
         "jsonName": "Watcher",
         "goType": "scanner.Watcher",
@@ -23287,26 +23297,6 @@
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NyaaSearchCache",
-        "jsonName": "NyaaSearchCache",
-        "goType": "nyaa.SearchCache",
-        "typescriptType": "SearchCache",
-        "usedStructName": "nyaa.SearchCache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeToshoSearchCache",
-        "jsonName": "AnimeToshoSearchCache",
-        "goType": "animetosho.SearchCache",
-        "typescriptType": "AnimeTosho_SearchCache",
-        "usedStructName": "animetosho.SearchCache",
         "required": false,
         "public": true,
         "comments": []
@@ -26406,58 +26396,10 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/testdir/mangapill.go",
-    "filename": "mangapill.go",
-    "name": "Mangapill",
-    "formattedName": "Mangapill",
-    "package": "main",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "Url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Client",
-        "jsonName": "Client",
-        "goType": "http.Client",
-        "typescriptType": "Client",
-        "usedStructName": "http.Client",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UserAgent",
-        "jsonName": "UserAgent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/extension/torrent_provider.go",
     "filename": "torrent_provider.go",
-    "name": "TorrentProviderExtensionImpl",
-    "formattedName": "Extension_TorrentProviderExtensionImpl",
+    "name": "AnimeTorrentProviderExtensionImpl",
+    "formattedName": "Extension_AnimeTorrentProviderExtensionImpl",
     "package": "extension",
     "fields": [
       {
@@ -26474,7 +26416,7 @@
         "name": "provider",
         "jsonName": "provider",
         "goType": "hibiketorrent.AnimeProvider",
-        "typescriptType": "HibikeTorrent_Provider",
+        "typescriptType": "HibikeTorrent_AnimeProvider",
         "usedStructName": "hibiketorrent.AnimeProvider",
         "required": false,
         "public": false,
@@ -26994,6 +26936,20 @@
   {
     "filepath": "../internal/extension/vendoring/torrent/types.go",
     "filename": "types.go",
+    "name": "AnimeProviderType",
+    "formattedName": "HibikeTorrent_AnimeProviderType",
+    "package": "vendor_hibike_torrent",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filename": "types.go",
     "name": "Media",
     "formattedName": "HibikeTorrent_Media",
     "package": "vendor_hibike_torrent",
@@ -27062,6 +27018,33 @@
         "comments": []
       },
       {
+        "name": "AbsoluteSeasonOffset",
+        "jsonName": "absoluteSeasonOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAdult",
+        "jsonName": "isAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "StartDate",
         "jsonName": "startDate",
         "goType": "FuzzyDate",
@@ -27114,8 +27097,8 @@
   {
     "filepath": "../internal/extension/vendoring/torrent/types.go",
     "filename": "types.go",
-    "name": "SearchOptions",
-    "formattedName": "HibikeTorrent_SearchOptions",
+    "name": "AnimeSearchOptions",
+    "formattedName": "HibikeTorrent_AnimeSearchOptions",
     "package": "vendor_hibike_torrent",
     "fields": [
       {
@@ -27152,8 +27135,8 @@
   {
     "filepath": "../internal/extension/vendoring/torrent/types.go",
     "filename": "types.go",
-    "name": "SmartSearchOptions",
-    "formattedName": "HibikeTorrent_SmartSearchOptions",
+    "name": "AnimeSmartSearchOptions",
+    "formattedName": "HibikeTorrent_AnimeSmartSearchOptions",
     "package": "vendor_hibike_torrent",
     "fields": [
       {
@@ -27559,6 +27542,33 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "CanSmartSearch",
+        "jsonName": "canSmartSearch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CanFindBestRelease",
+        "jsonName": "canFindBestRelease",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SupportsAdult",
+        "jsonName": "supportsAdult",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -27593,47 +27603,15 @@
     "comments": []
   },
   {
-    "filepath": "../internal/handlers/_nyaa.go",
-    "filename": "_nyaa.go",
-    "name": "TorrentPreview",
-    "formattedName": "TorrentPreview",
-    "package": "handlers",
+    "filepath": "../internal/extension_repo/testdir/_gogoanime.go",
+    "filename": "_gogoanime.go",
+    "name": "Gogoanime",
+    "formattedName": "Gogoanime",
+    "package": "main",
     "fields": [
       {
-        "name": "Episode",
-        "jsonName": "episode",
-        "goType": "anime.AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
-        "required": false,
-        "public": true,
-        "comments": [
-          " nil if batch"
-        ]
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": [
-          " nil if batch"
-        ]
-      },
-      {
-        "name": "IsBatch",
-        "jsonName": "isBatch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "resolution",
+        "name": "BaseURL",
+        "jsonName": "BaseURL",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27641,8 +27619,8 @@
         "comments": []
       },
       {
-        "name": "ReleaseGroup",
-        "jsonName": "releaseGroup",
+        "name": "AjaxURL",
+        "jsonName": "AjaxURL",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27650,12 +27628,116 @@
         "comments": []
       },
       {
-        "name": "Torrent",
-        "jsonName": "torrent",
-        "goType": "nyaa.DetailedTorrent",
-        "typescriptType": "DetailedTorrent",
-        "usedStructName": "nyaa.DetailedTorrent",
+        "name": "Client",
+        "jsonName": "Client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/testdir/_gogoanime.go",
+    "filename": "_gogoanime.go",
+    "name": "GogoCDN",
+    "formattedName": "GogoCDN",
+    "package": "main",
+    "fields": [
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "serverName",
+        "jsonName": "serverName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "keys",
+        "jsonName": "keys",
+        "goType": "cdnKeys",
+        "typescriptType": "cdnKeys",
+        "usedStructName": "main.cdnKeys",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "referrer",
+        "jsonName": "referrer",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/testdir/_gogoanime.go",
+    "filename": "_gogoanime.go",
+    "name": "StreamSB",
+    "formattedName": "StreamSB",
+    "package": "main",
+    "fields": [
+      {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Host2",
+        "jsonName": "Host2",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -27663,35 +27745,49 @@
     "comments": []
   },
   {
-    "filepath": "../internal/handlers/_nyaa.go",
-    "filename": "_nyaa.go",
-    "name": "TorrentSearchData",
-    "formattedName": "TorrentSearchData",
-    "package": "handlers",
+    "filepath": "../internal/extension_repo/testdir/_mangapill.go",
+    "filename": "_mangapill.go",
+    "name": "Mangapill",
+    "formattedName": "Mangapill",
+    "package": "main",
     "fields": [
       {
-        "name": "Torrents",
-        "jsonName": "torrents",
-        "goType": "[]nyaa.DetailedTorrent",
-        "typescriptType": "Array\u003cDetailedTorrent\u003e",
-        "usedStructName": "nyaa.DetailedTorrent",
-        "required": false,
+        "name": "Url",
+        "jsonName": "Url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
-        "comments": [
-          " Torrents found"
-        ]
+        "comments": []
       },
       {
-        "name": "Previews",
-        "jsonName": "previews",
-        "goType": "[]TorrentPreview",
-        "typescriptType": "Array\u003cTorrentPreview\u003e",
-        "usedStructName": "handlers.TorrentPreview",
+        "name": "Client",
+        "jsonName": "Client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
         "required": false,
         "public": true,
-        "comments": [
-          " TorrentPreview for each torrent"
-        ]
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -30208,8 +30304,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/autodownloader/auto_downloader.go",
-    "filename": "auto_downloader.go",
+    "filepath": "../internal/library/autodownloader/autodownloader.go",
+    "filename": "autodownloader.go",
     "name": "AutoDownloader",
     "formattedName": "AutoDownloader",
     "package": "autodownloader",
@@ -30230,6 +30326,16 @@
         "goType": "torrent_client.Repository",
         "typescriptType": "TorrentClient_Repository",
         "usedStructName": "torrent_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentRepository",
+        "jsonName": "torrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
         "required": false,
         "public": false,
         "comments": []
@@ -30333,8 +30439,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/autodownloader/auto_downloader.go",
-    "filename": "auto_downloader.go",
+    "filepath": "../internal/library/autodownloader/autodownloader.go",
+    "filename": "autodownloader.go",
     "name": "NewAutoDownloaderOptions",
     "formattedName": "NewAutoDownloaderOptions",
     "package": "autodownloader",
@@ -30355,6 +30461,16 @@
         "goType": "torrent_client.Repository",
         "typescriptType": "TorrentClient_Repository",
         "usedStructName": "torrent_client.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -30393,57 +30509,12 @@
     "comments": []
   },
   {
-    "filepath": "../internal/library/autodownloader/auto_downloader_torrent.go",
-    "filename": "auto_downloader_torrent.go",
+    "filepath": "../internal/library/autodownloader/autodownloader_torrent.go",
+    "filename": "autodownloader_torrent.go",
     "name": "NormalizedTorrent",
     "formattedName": "NormalizedTorrent",
     "package": "autodownloader",
     "fields": [
-      {
-        "name": "Name",
-        "jsonName": "Name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Link",
-        "jsonName": "Link",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Hash",
-        "jsonName": "Hash",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "Size",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Seeders",
-        "jsonName": "Seeders",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "ParsedData",
         "jsonName": "ParsedData",
@@ -30451,15 +30522,6 @@
         "typescriptType": "Metadata",
         "usedStructName": "seanime_parser.Metadata",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "Provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -30475,7 +30537,10 @@
         ]
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "hibiketorrent.AnimeTorrent"
+    ]
   },
   {
     "filepath": "../internal/library/autoscanner/autoscanner.go",
@@ -40946,959 +41011,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/analyzer/analyzer.go",
-    "filename": "analyzer.go",
-    "name": "Analyzer",
-    "formattedName": "Analyzer",
-    "package": "torrent_analyzer",
-    "fields": [
-      {
-        "name": "files",
-        "jsonName": "files",
-        "goType": "[]File",
-        "typescriptType": "Array\u003cFile\u003e",
-        "usedStructName": "torrent_analyzer.File",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "media",
-        "jsonName": "media",
-        "goType": "anilist.CompleteAnime",
-        "typescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "platform",
-        "jsonName": "platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/analyzer/analyzer.go",
-    "filename": "analyzer.go",
-    "name": "Analysis",
-    "formattedName": "Analysis",
-    "package": "torrent_analyzer",
-    "fields": [
-      {
-        "name": "files",
-        "jsonName": "files",
-        "goType": "[]File",
-        "typescriptType": "Array\u003cFile\u003e",
-        "usedStructName": "torrent_analyzer.File",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Hydrated after scanFiles is called"
-        ]
-      },
-      {
-        "name": "selectedFiles",
-        "jsonName": "selectedFiles",
-        "goType": "[]File",
-        "typescriptType": "Array\u003cFile\u003e",
-        "usedStructName": "torrent_analyzer.File",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Hydrated after findCorrespondingFiles is called"
-        ]
-      },
-      {
-        "name": "media",
-        "jsonName": "media",
-        "goType": "anilist.CompleteAnime",
-        "typescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/analyzer/analyzer.go",
-    "filename": "analyzer.go",
-    "name": "File",
-    "formattedName": "File",
-    "package": "torrent_analyzer",
-    "fields": [
-      {
-        "name": "index",
-        "jsonName": "index",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "path",
-        "jsonName": "path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localFile",
-        "jsonName": "localFile",
-        "goType": "anime.LocalFile",
-        "typescriptType": "Anime_LocalFile",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/analyzer/analyzer.go",
-    "filename": "analyzer.go",
-    "name": "NewAnalyzerOptions",
-    "formattedName": "NewAnalyzerOptions",
-    "package": "torrent_analyzer",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Filepaths",
-        "jsonName": "Filepaths",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Filepath of the torrent files"
-        ]
-      },
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "anilist.CompleteAnime",
-        "typescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
-        "required": false,
-        "public": true,
-        "comments": [
-          " The media to compare the files with"
-        ]
-      },
-      {
-        "name": "Platform",
-        "jsonName": "Platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/animetosho/search.go",
-    "filename": "search.go",
-    "name": "SearchCache",
-    "formattedName": "AnimeTosho_SearchCache",
-    "package": "animetosho",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      ""
-    ]
-  },
-  {
-    "filepath": "../internal/torrents/animetosho/smart_search.go",
-    "filename": "smart_search.go",
-    "name": "BuildSearchQueryOptions",
-    "formattedName": "AnimeTosho_BuildSearchQueryOptions",
-    "package": "animetosho",
-    "fields": [
-      {
-        "name": "Title",
-        "jsonName": "Title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Batch",
-        "jsonName": "Batch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "EpisodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AbsoluteOffset",
-        "jsonName": "AbsoluteOffset",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "Resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Cache",
-        "jsonName": "Cache",
-        "goType": "SearchCache",
-        "typescriptType": "AnimeTosho_SearchCache",
-        "usedStructName": "animetosho.SearchCache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/animetosho/torrent.go",
-    "filename": "torrent.go",
-    "name": "Torrent",
-    "formattedName": "AnimeTosho_Torrent",
-    "package": "animetosho",
-    "fields": [
-      {
-        "name": "Id",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Title",
-        "jsonName": "title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Link",
-        "jsonName": "link",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Timestamp",
-        "jsonName": "timestamp",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ToshoId",
-        "jsonName": "tosho_id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NyaaId",
-        "jsonName": "nyaa_id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NyaaSubdom",
-        "jsonName": "nyaa_subdom",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AniDexId",
-        "jsonName": "anidex_id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TorrentUrl",
-        "jsonName": "torrent_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "InfoHash",
-        "jsonName": "info_hash",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "InfoHashV2",
-        "jsonName": "info_hash_v2",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MagnetUrl",
-        "jsonName": "magnet_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Seeders",
-        "jsonName": "seeders",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Leechers",
-        "jsonName": "leechers",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TorrentDownloadCount",
-        "jsonName": "torrent_download_count",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TrackerUpdated",
-        "jsonName": "tracker_updated",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NzbUrl",
-        "jsonName": "nzb_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TotalSize",
-        "jsonName": "total_size",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NumFiles",
-        "jsonName": "num_files",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AniDbAid",
-        "jsonName": "anidb_aid",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AniDbEid",
-        "jsonName": "anidb_eid",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AniDbFid",
-        "jsonName": "anidb_fid",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ArticleUrl",
-        "jsonName": "article_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ArticleTitle",
-        "jsonName": "article_title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WebsiteUrl",
-        "jsonName": "website_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/search.go",
-    "filename": "search.go",
-    "name": "SearchOptions",
-    "formattedName": "SearchOptions",
-    "package": "nyaa",
-    "fields": [
-      {
-        "name": "Provider",
-        "jsonName": "Provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Query",
-        "jsonName": "Query",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Category",
-        "jsonName": "Category",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SortBy",
-        "jsonName": "SortBy",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Filter",
-        "jsonName": "Filter",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Cache",
-        "jsonName": "Cache",
-        "goType": "SearchCache",
-        "typescriptType": "SearchCache",
-        "usedStructName": "nyaa.SearchCache",
-        "required": false,
-        "public": true,
-        "comments": [
-          " optional"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/search.go",
-    "filename": "search.go",
-    "name": "SearchMultipleOptions",
-    "formattedName": "SearchMultipleOptions",
-    "package": "nyaa",
-    "fields": [
-      {
-        "name": "Provider",
-        "jsonName": "Provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Query",
-        "jsonName": "Query",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Category",
-        "jsonName": "Category",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SortBy",
-        "jsonName": "SortBy",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Filter",
-        "jsonName": "Filter",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Cache",
-        "jsonName": "Cache",
-        "goType": "SearchCache",
-        "typescriptType": "SearchCache",
-        "usedStructName": "nyaa.SearchCache",
-        "required": false,
-        "public": true,
-        "comments": [
-          " optional"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/search.go",
-    "filename": "search.go",
-    "name": "BuildSearchQueryOptions",
-    "formattedName": "BuildSearchQueryOptions",
-    "package": "nyaa",
-    "fields": [
-      {
-        "name": "Title",
-        "jsonName": "Title",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Batch",
-        "jsonName": "Batch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "EpisodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AbsoluteOffset",
-        "jsonName": "AbsoluteOffset",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "Resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/search.go",
-    "filename": "search.go",
-    "name": "SearchCache",
-    "formattedName": "SearchCache",
-    "package": "nyaa",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      ""
-    ]
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/torrent.go",
-    "filename": "torrent.go",
-    "name": "Torrent",
-    "formattedName": "Torrent",
-    "package": "nyaa",
-    "fields": [
-      {
-        "name": "Category",
-        "jsonName": "category",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Date",
-        "jsonName": "date",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "size",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Seeders",
-        "jsonName": "seeders",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Leechers",
-        "jsonName": "leechers",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Downloads",
-        "jsonName": "downloads",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsTrusted",
-        "jsonName": "isTrusted",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsRemake",
-        "jsonName": "isRemake",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Comments",
-        "jsonName": "comments",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Link",
-        "jsonName": "link",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "GUID",
-        "jsonName": "guid",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CategoryID",
-        "jsonName": "categoryID",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "InfoHash",
-        "jsonName": "infoHash",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/torrent.go",
-    "filename": "torrent.go",
-    "name": "Comment",
-    "formattedName": "Comment",
-    "package": "nyaa",
-    "fields": [
-      {
-        "name": "User",
-        "jsonName": "user",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Date",
-        "jsonName": "date",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Text",
-        "jsonName": "text",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/nyaa/torrent.go",
-    "filename": "torrent.go",
-    "name": "DetailedTorrent",
-    "formattedName": "DetailedTorrent",
-    "package": "nyaa",
-    "fields": [
-      {
-        "name": "Resolution",
-        "jsonName": "resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsBatch",
-        "jsonName": "isBatch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": [
-          " /!\\ will be true if the torrent is a movie"
-        ]
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "nyaa.Torrent"
-    ]
-  },
-  {
-    "filepath": "../internal/torrents/qbittorrent/application/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/application/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -41937,7 +41050,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -42100,7 +41213,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/client.go",
     "filename": "client.go",
     "name": "NewClientOptions",
     "formattedName": "NewClientOptions",
@@ -42174,7 +41287,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/log/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/log/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -42213,7 +41326,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/add_torrents_options.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/add_torrents_options.go",
     "filename": "add_torrents_options.go",
     "name": "AddTorrentsOptions",
     "formattedName": "AddTorrentsOptions",
@@ -42331,7 +41444,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/build_info.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/build_info.go",
     "filename": "build_info.go",
     "name": "BuildInfo",
     "formattedName": "BuildInfo",
@@ -42386,7 +41499,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/category.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/category.go",
     "filename": "category.go",
     "name": "Category",
     "formattedName": "Category",
@@ -42414,7 +41527,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/get_log_options.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/get_log_options.go",
     "filename": "get_log_options.go",
     "name": "GetLogOptions",
     "formattedName": "GetLogOptions",
@@ -42469,7 +41582,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/get_torrents_list_options.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/get_torrents_list_options.go",
     "filename": "get_torrents_list_options.go",
     "name": "GetTorrentListOptions",
     "formattedName": "GetTorrentListOptions",
@@ -42543,7 +41656,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/get_torrents_list_options.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/get_torrents_list_options.go",
     "filename": "get_torrents_list_options.go",
     "name": "TorrentListFilter",
     "formattedName": "TorrentListFilter",
@@ -42559,7 +41672,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/log_entry.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/log_entry.go",
     "filename": "log_entry.go",
     "name": "LogEntry",
     "formattedName": "LogEntry",
@@ -42607,7 +41720,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/log_entry.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/log_entry.go",
     "filename": "log_entry.go",
     "name": "LogType",
     "formattedName": "LogType",
@@ -42621,7 +41734,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/peer.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/peer.go",
     "filename": "peer.go",
     "name": "Peer",
     "formattedName": "Peer",
@@ -42766,7 +41879,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/peer_log_entry.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/peer_log_entry.go",
     "filename": "peer_log_entry.go",
     "name": "PeerLogEntry",
     "formattedName": "PeerLogEntry",
@@ -42822,7 +41935,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/preferences.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/preferences.go",
     "filename": "preferences.go",
     "name": "Preferences",
     "formattedName": "Preferences",
@@ -43742,7 +42855,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/preferences.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/preferences.go",
     "filename": "preferences.go",
     "name": "MaxRatioAction",
     "formattedName": "MaxRatioAction",
@@ -43758,7 +42871,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/rule_definition.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/rule_definition.go",
     "filename": "rule_definition.go",
     "name": "RuleDefinition",
     "formattedName": "RuleDefinition",
@@ -43885,7 +42998,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/search_plugin.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/search_plugin.go",
     "filename": "search_plugin.go",
     "name": "SearchPlugin",
     "formattedName": "SearchPlugin",
@@ -43949,7 +43062,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/search_result.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/search_result.go",
     "filename": "search_result.go",
     "name": "SearchResult",
     "formattedName": "SearchResult",
@@ -44022,7 +43135,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/search_results_paging.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/search_results_paging.go",
     "filename": "search_results_paging.go",
     "name": "SearchResultsPaging",
     "formattedName": "SearchResultsPaging",
@@ -44060,7 +43173,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/search_status.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/search_status.go",
     "filename": "search_status.go",
     "name": "SearchStatus",
     "formattedName": "SearchStatus",
@@ -44097,7 +43210,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/server_state.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/server_state.go",
     "filename": "server_state.go",
     "name": "ServerState",
     "formattedName": "ServerState",
@@ -44227,7 +43340,7 @@
     ]
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/sync_main_data.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/sync_main_data.go",
     "filename": "sync_main_data.go",
     "name": "SyncMainData",
     "formattedName": "SyncMainData",
@@ -44313,7 +43426,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/sync_peers_data.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/sync_peers_data.go",
     "filename": "sync_peers_data.go",
     "name": "SyncPeersData",
     "formattedName": "SyncPeersData",
@@ -44360,7 +43473,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent.go",
     "filename": "torrent.go",
     "name": "Torrent",
     "formattedName": "Torrent",
@@ -44812,7 +43925,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent.go",
     "filename": "torrent.go",
     "name": "TorrentState",
     "formattedName": "TorrentState",
@@ -44846,7 +43959,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent_content.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent_content.go",
     "filename": "torrent_content.go",
     "name": "TorrentContent",
     "formattedName": "TorrentContent",
@@ -44920,7 +44033,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent_content.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent_content.go",
     "filename": "torrent_content.go",
     "name": "TorrentPriority",
     "formattedName": "TorrentPriority",
@@ -44936,7 +44049,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent_piece_state.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent_piece_state.go",
     "filename": "torrent_piece_state.go",
     "name": "TorrentPieceState",
     "formattedName": "TorrentPieceState",
@@ -44950,7 +44063,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent_properties.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent_properties.go",
     "filename": "torrent_properties.go",
     "name": "TorrentProperties",
     "formattedName": "TorrentProperties",
@@ -45264,7 +44377,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent_tracker.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent_tracker.go",
     "filename": "torrent_tracker.go",
     "name": "TorrentTracker",
     "formattedName": "TorrentTracker",
@@ -45347,7 +44460,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/torrent_tracker.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/torrent_tracker.go",
     "filename": "torrent_tracker.go",
     "name": "TrackerStatus",
     "formattedName": "TrackerStatus",
@@ -45361,7 +44474,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/transfer_info.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/transfer_info.go",
     "filename": "transfer_info.go",
     "name": "TransferInfo",
     "formattedName": "TransferInfo",
@@ -45471,7 +44584,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/model/transfer_info.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/model/transfer_info.go",
     "filename": "transfer_info.go",
     "name": "ConnectionStatus",
     "formattedName": "ConnectionStatus",
@@ -45487,7 +44600,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/rss/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/rss/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -45526,7 +44639,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/search/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/search/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -45565,7 +44678,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/sync/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/sync/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -45604,7 +44717,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/torrent/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/torrent/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -45643,7 +44756,7 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/qbittorrent/transfer/client.go",
+    "filepath": "../internal/torrent_clients/qbittorrent/transfer/client.go",
     "filename": "client.go",
     "name": "Client",
     "formattedName": "Client",
@@ -45676,6 +44789,1174 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "TorrentClient_Repository",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "qBittorrentClient",
+        "jsonName": "qBittorrentClient",
+        "goType": "qbittorrent.Client",
+        "typescriptType": "Client",
+        "usedStructName": "qbittorrent.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "transmission",
+        "jsonName": "transmission",
+        "goType": "transmission.Transmission",
+        "typescriptType": "Transmission",
+        "usedStructName": "transmission.Transmission",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "torrentRepository",
+        "jsonName": "torrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "TorrentClient_NewRepositoryOptions",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "QbittorrentClient",
+        "jsonName": "QbittorrentClient",
+        "goType": "qbittorrent.Client",
+        "typescriptType": "Client",
+        "usedStructName": "qbittorrent.Client",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Transmission",
+        "jsonName": "Transmission",
+        "goType": "transmission.Transmission",
+        "typescriptType": "Transmission",
+        "usedStructName": "transmission.Transmission",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/smart_select.go",
+    "filename": "smart_select.go",
+    "name": "SmartSelectParams",
+    "formattedName": "TorrentClient_SmartSelectParams",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumbers",
+        "jsonName": "EpisodeNumbers",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.CompleteAnime",
+        "typescriptType": "AL_CompleteAnime",
+        "usedStructName": "anilist.CompleteAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Destination",
+        "jsonName": "Destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShouldAddTorrent",
+        "jsonName": "ShouldAddTorrent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/torrent.go",
+    "filename": "torrent.go",
+    "name": "Torrent",
+    "formattedName": "TorrentClient_Torrent",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeds",
+        "jsonName": "seeds",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpSpeed",
+        "jsonName": "upSpeed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownSpeed",
+        "jsonName": "downSpeed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Eta",
+        "jsonName": "eta",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "TorrentStatus",
+        "typescriptType": "TorrentClient_TorrentStatus",
+        "usedStructName": "torrent_client.TorrentStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentPath",
+        "jsonName": "contentPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/torrent_client/torrent.go",
+    "filename": "torrent.go",
+    "name": "TorrentStatus",
+    "formattedName": "TorrentClient_TorrentStatus",
+    "package": "torrent_client",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"downloading\"",
+        "\"seeding\"",
+        "\"paused\"",
+        "\"other\"",
+        "\"stopped\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/transmission/transmission.go",
+    "filename": "transmission.go",
+    "name": "Transmission",
+    "formattedName": "Transmission",
+    "package": "transmission",
+    "fields": [
+      {
+        "name": "Client",
+        "jsonName": "Client",
+        "goType": "transmissionrpc.Client",
+        "typescriptType": "Client",
+        "usedStructName": "transmissionrpc.Client",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "Path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrent_clients/transmission/transmission.go",
+    "filename": "transmission.go",
+    "name": "NewTransmissionOptions",
+    "formattedName": "NewTransmissionOptions",
+    "package": "transmission",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "Path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Username",
+        "jsonName": "Username",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Password",
+        "jsonName": "Password",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Default: 127.0.0.1"
+        ]
+      },
+      {
+        "name": "Port",
+        "jsonName": "Port",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "Analyzer",
+    "formattedName": "Analyzer",
+    "package": "torrent_analyzer",
+    "fields": [
+      {
+        "name": "files",
+        "jsonName": "files",
+        "goType": "[]File",
+        "typescriptType": "Array\u003cFile\u003e",
+        "usedStructName": "torrent_analyzer.File",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "media",
+        "jsonName": "media",
+        "goType": "anilist.CompleteAnime",
+        "typescriptType": "AL_CompleteAnime",
+        "usedStructName": "anilist.CompleteAnime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "Analysis",
+    "formattedName": "Analysis",
+    "package": "torrent_analyzer",
+    "fields": [
+      {
+        "name": "files",
+        "jsonName": "files",
+        "goType": "[]File",
+        "typescriptType": "Array\u003cFile\u003e",
+        "usedStructName": "torrent_analyzer.File",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Hydrated after scanFiles is called"
+        ]
+      },
+      {
+        "name": "selectedFiles",
+        "jsonName": "selectedFiles",
+        "goType": "[]File",
+        "typescriptType": "Array\u003cFile\u003e",
+        "usedStructName": "torrent_analyzer.File",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Hydrated after findCorrespondingFiles is called"
+        ]
+      },
+      {
+        "name": "media",
+        "jsonName": "media",
+        "goType": "anilist.CompleteAnime",
+        "typescriptType": "AL_CompleteAnime",
+        "usedStructName": "anilist.CompleteAnime",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "File",
+    "formattedName": "File",
+    "package": "torrent_analyzer",
+    "fields": [
+      {
+        "name": "index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localFile",
+        "jsonName": "localFile",
+        "goType": "anime.LocalFile",
+        "typescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "NewAnalyzerOptions",
+    "formattedName": "NewAnalyzerOptions",
+    "package": "torrent_analyzer",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepaths",
+        "jsonName": "Filepaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Filepath of the torrent files"
+        ]
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.CompleteAnime",
+        "typescriptType": "AL_CompleteAnime",
+        "usedStructName": "anilist.CompleteAnime",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The media to compare the files with"
+        ]
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/animetosho/animetosho.go",
+    "filename": "animetosho.go",
+    "name": "Torrent",
+    "formattedName": "AnimeTosho_Torrent",
+    "package": "animetosho",
+    "fields": [
+      {
+        "name": "Id",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Link",
+        "jsonName": "link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ToshoId",
+        "jsonName": "tosho_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NyaaId",
+        "jsonName": "nyaa_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NyaaSubdom",
+        "jsonName": "nyaa_subdom",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDexId",
+        "jsonName": "anidex_id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentUrl",
+        "jsonName": "torrent_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHash",
+        "jsonName": "info_hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHashV2",
+        "jsonName": "info_hash_v2",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MagnetUrl",
+        "jsonName": "magnet_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Leechers",
+        "jsonName": "leechers",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentDownloadCount",
+        "jsonName": "torrent_download_count",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackerUpdated",
+        "jsonName": "tracker_updated",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NzbUrl",
+        "jsonName": "nzb_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalSize",
+        "jsonName": "total_size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NumFiles",
+        "jsonName": "num_files",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDbAid",
+        "jsonName": "anidb_aid",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDbEid",
+        "jsonName": "anidb_eid",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AniDbFid",
+        "jsonName": "anidb_fid",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ArticleUrl",
+        "jsonName": "article_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ArticleTitle",
+        "jsonName": "article_title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WebsiteUrl",
+        "jsonName": "website_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/animetosho/provider.go",
+    "filename": "provider.go",
+    "name": "Provider",
+    "formattedName": "AnimeTosho_Provider",
+    "package": "animetosho",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/nyaa/nyaa.go",
+    "filename": "nyaa.go",
+    "name": "Torrent",
+    "formattedName": "Torrent",
+    "package": "nyaa",
+    "fields": [
+      {
+        "name": "Category",
+        "jsonName": "category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Date",
+        "jsonName": "date",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Leechers",
+        "jsonName": "leechers",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Downloads",
+        "jsonName": "downloads",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsTrusted",
+        "jsonName": "isTrusted",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRemake",
+        "jsonName": "isRemake",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Comments",
+        "jsonName": "comments",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Link",
+        "jsonName": "link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GUID",
+        "jsonName": "guid",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CategoryID",
+        "jsonName": "categoryID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHash",
+        "jsonName": "infoHash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/nyaa/nyaa.go",
+    "filename": "nyaa.go",
+    "name": "BuildURLOptions",
+    "formattedName": "BuildURLOptions",
+    "package": "nyaa",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Query",
+        "jsonName": "Query",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Category",
+        "jsonName": "Category",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SortBy",
+        "jsonName": "SortBy",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filter",
+        "jsonName": "Filter",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/nyaa/nyaa.go",
+    "filename": "nyaa.go",
+    "name": "Comment",
+    "formattedName": "Comment",
+    "package": "nyaa",
+    "fields": [
+      {
+        "name": "User",
+        "jsonName": "user",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Date",
+        "jsonName": "date",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Text",
+        "jsonName": "text",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/nyaa/provider.go",
+    "filename": "provider.go",
+    "name": "Provider",
+    "formattedName": "Provider",
+    "package": "nyaa",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/nyaa/sukebei_provider.go",
+    "filename": "sukebei_provider.go",
+    "name": "SukebeiProvider",
+    "formattedName": "SukebeiProvider",
+    "package": "nyaa",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/seadex/provider.go",
+    "filename": "provider.go",
+    "name": "Provider",
+    "formattedName": "Provider",
+    "package": "seadex",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "seadex",
+        "jsonName": "seadex",
+        "goType": "SeaDex",
+        "typescriptType": "SeaDex",
+        "usedStructName": "seadex.SeaDex",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -46051,134 +46332,120 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/torrent/smart_search.go",
-    "filename": "smart_search.go",
-    "name": "SmartSearchQueryOptions",
-    "formattedName": "Torrent_SmartSearchQueryOptions",
+    "filepath": "../internal/torrents/torrent/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "Torrent_Repository",
     "package": "torrent",
     "fields": [
       {
-        "name": "SmartSearch",
-        "jsonName": "smartSearch",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
       {
-        "name": "Query",
-        "jsonName": "query",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "animeProviderExtensions",
+        "jsonName": "animeProviderExtensions",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
       {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
+        "name": "animeProviderSearchCaches",
+        "jsonName": "animeProviderSearchCaches",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
       {
-        "name": "Batch",
-        "jsonName": "batch",
-        "goType": "bool",
-        "typescriptType": "boolean",
+        "name": "animeProviderSmartSearchCaches",
+        "jsonName": "animeProviderSmartSearchCaches",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
       {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
+        "name": "anizipCache",
+        "jsonName": "anizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
       {
-        "name": "AbsoluteOffset",
-        "jsonName": "absoluteOffset",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Best",
-        "jsonName": "best",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "RepositorySettings",
+        "typescriptType": "Torrent_RepositorySettings",
+        "usedStructName": "torrent.RepositorySettings",
         "required": true,
-        "public": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/torrent/smart_search.go",
-    "filename": "smart_search.go",
-    "name": "SmartSearchOptions",
-    "formattedName": "Torrent_SmartSearchOptions",
+    "filepath": "../internal/torrents/torrent/repository.go",
+    "filename": "repository.go",
+    "name": "RepositorySettings",
+    "formattedName": "Torrent_RepositorySettings",
     "package": "torrent",
     "fields": [
       {
-        "name": "NyaaSearchCache",
-        "jsonName": "NyaaSearchCache",
-        "goType": "nyaa.SearchCache",
-        "typescriptType": "SearchCache",
-        "usedStructName": "nyaa.SearchCache",
-        "required": false,
+        "name": "DefaultAnimeProvider",
+        "jsonName": "DefaultAnimeProvider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeToshoSearchCache",
-        "jsonName": "AnimeToshoSearchCache",
-        "goType": "animetosho.SearchCache",
-        "typescriptType": "AnimeTosho_SearchCache",
-        "usedStructName": "animetosho.SearchCache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
+        "comments": [
+          " Default torrent provider"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/torrent/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "Torrent_NewRepositoryOptions",
+    "package": "torrent",
+    "fields": [
       {
         "name": "Logger",
         "jsonName": "Logger",
@@ -46200,14 +46467,112 @@
         "comments": []
       }
     ],
-    "comments": [],
-    "embeddedStructNames": [
-      "torrent.SmartSearchQueryOptions"
-    ]
+    "comments": []
   },
   {
-    "filepath": "../internal/torrents/torrent/smart_search.go",
-    "filename": "smart_search.go",
+    "filepath": "../internal/torrents/torrent/search.go",
+    "filename": "search.go",
+    "name": "AnimeSearchType",
+    "formattedName": "Torrent_AnimeSearchType",
+    "package": "torrent",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"smart\"",
+        "\"simple\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/torrent/search.go",
+    "filename": "search.go",
+    "name": "AnimeSearchOptions",
+    "formattedName": "Torrent_AnimeSearchOptions",
+    "package": "torrent",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "Type",
+        "goType": "AnimeSearchType",
+        "typescriptType": "Torrent_AnimeSearchType",
+        "usedStructName": "torrent.AnimeSearchType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Query",
+        "jsonName": "Query",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Batch",
+        "jsonName": "Batch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BestReleases",
+        "jsonName": "BestReleases",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Resolution",
+        "jsonName": "Resolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/torrent/search.go",
+    "filename": "search.go",
     "name": "Preview",
     "formattedName": "Torrent_Preview",
     "package": "torrent",
@@ -46227,9 +46592,9 @@
       {
         "name": "Torrent",
         "jsonName": "torrent",
-        "goType": "AnimeTorrent",
-        "typescriptType": "Torrent_AnimeTorrent",
-        "usedStructName": "torrent.AnimeTorrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
         "required": false,
         "public": true,
         "comments": []
@@ -46238,8 +46603,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/torrents/torrent/smart_search.go",
-    "filename": "smart_search.go",
+    "filepath": "../internal/torrents/torrent/search.go",
+    "filename": "search.go",
     "name": "SearchData",
     "formattedName": "Torrent_SearchData",
     "package": "torrent",
@@ -46247,9 +46612,9 @@
       {
         "name": "Torrents",
         "jsonName": "torrents",
-        "goType": "[]AnimeTorrent",
-        "typescriptType": "Array\u003cTorrent_AnimeTorrent\u003e",
-        "usedStructName": "torrent.AnimeTorrent",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
         "required": false,
         "public": true,
         "comments": [
@@ -46267,551 +46632,6 @@
         "comments": [
           " TorrentPreview for each torrent"
         ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/torrent/torrent.go",
-    "filename": "torrent.go",
-    "name": "AnimeTorrent",
-    "formattedName": "Torrent_AnimeTorrent",
-    "package": "torrent",
-    "fields": [
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Date",
-        "jsonName": "date",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "size",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FormattedSize",
-        "jsonName": "formattedSize",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Seeders",
-        "jsonName": "seeders",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Leechers",
-        "jsonName": "leechers",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadCount",
-        "jsonName": "downloadCount",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Link",
-        "jsonName": "link",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadUrl",
-        "jsonName": "downloadUrl",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "InfoHash",
-        "jsonName": "infoHash",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Resolution",
-        "jsonName": "resolution",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsBatch",
-        "jsonName": "isBatch",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumber",
-        "jsonName": "episodeNumber",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ReleaseGroup",
-        "jsonName": "releaseGroup",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsBestRelease",
-        "jsonName": "isBestRelease",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/torrent_client/repository.go",
-    "filename": "repository.go",
-    "name": "Repository",
-    "formattedName": "TorrentClient_Repository",
-    "package": "torrent_client",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "qBittorrentClient",
-        "jsonName": "qBittorrentClient",
-        "goType": "qbittorrent.Client",
-        "typescriptType": "Client",
-        "usedStructName": "qbittorrent.Client",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "transmission",
-        "jsonName": "transmission",
-        "goType": "transmission.Transmission",
-        "typescriptType": "Transmission",
-        "usedStructName": "transmission.Transmission",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/torrent_client/repository.go",
-    "filename": "repository.go",
-    "name": "NewRepositoryOptions",
-    "formattedName": "TorrentClient_NewRepositoryOptions",
-    "package": "torrent_client",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "QbittorrentClient",
-        "jsonName": "QbittorrentClient",
-        "goType": "qbittorrent.Client",
-        "typescriptType": "Client",
-        "usedStructName": "qbittorrent.Client",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Transmission",
-        "jsonName": "Transmission",
-        "goType": "transmission.Transmission",
-        "typescriptType": "Transmission",
-        "usedStructName": "transmission.Transmission",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "Provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/torrent_client/smart_select.go",
-    "filename": "smart_select.go",
-    "name": "SmartSelectParams",
-    "formattedName": "TorrentClient_SmartSelectParams",
-    "package": "torrent_client",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "Url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeNumbers",
-        "jsonName": "EpisodeNumbers",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "Media",
-        "goType": "anilist.CompleteAnime",
-        "typescriptType": "AL_CompleteAnime",
-        "usedStructName": "anilist.CompleteAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Destination",
-        "jsonName": "Destination",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ShouldAddTorrent",
-        "jsonName": "ShouldAddTorrent",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Platform",
-        "jsonName": "Platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/torrent_client/torrent.go",
-    "filename": "torrent.go",
-    "name": "Torrent",
-    "formattedName": "TorrentClient_Torrent",
-    "package": "torrent_client",
-    "fields": [
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Hash",
-        "jsonName": "hash",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Seeds",
-        "jsonName": "seeds",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "UpSpeed",
-        "jsonName": "upSpeed",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownSpeed",
-        "jsonName": "downSpeed",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "size",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Eta",
-        "jsonName": "eta",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "TorrentStatus",
-        "typescriptType": "TorrentClient_TorrentStatus",
-        "usedStructName": "torrent_client.TorrentStatus",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentPath",
-        "jsonName": "contentPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/torrent_client/torrent.go",
-    "filename": "torrent.go",
-    "name": "TorrentStatus",
-    "formattedName": "TorrentClient_TorrentStatus",
-    "package": "torrent_client",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"downloading\"",
-        "\"seeding\"",
-        "\"paused\"",
-        "\"other\"",
-        "\"stopped\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/transmission/transmission.go",
-    "filename": "transmission.go",
-    "name": "Transmission",
-    "formattedName": "Transmission",
-    "package": "transmission",
-    "fields": [
-      {
-        "name": "Client",
-        "jsonName": "Client",
-        "goType": "transmissionrpc.Client",
-        "typescriptType": "Client",
-        "usedStructName": "transmissionrpc.Client",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Path",
-        "jsonName": "Path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/torrents/transmission/transmission.go",
-    "filename": "transmission.go",
-    "name": "NewTransmissionOptions",
-    "formattedName": "NewTransmissionOptions",
-    "package": "transmission",
-    "fields": [
-      {
-        "name": "Path",
-        "jsonName": "Path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Username",
-        "jsonName": "Username",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Password",
-        "jsonName": "Password",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Host",
-        "jsonName": "Host",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Default: 127.0.0.1"
-        ]
-      },
-      {
-        "name": "Port",
-        "jsonName": "Port",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -47148,6 +46968,16 @@
         ]
       },
       {
+        "name": "torrentRepository",
+        "jsonName": "torrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "anizipCache",
         "jsonName": "anizipCache",
         "goType": "anizip.Cache",
@@ -47193,26 +47023,6 @@
         "goType": "events.WSEventManagerInterface",
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "nyaaSearchCache",
-        "jsonName": "nyaaSearchCache",
-        "goType": "nyaa.SearchCache",
-        "typescriptType": "SearchCache",
-        "usedStructName": "nyaa.SearchCache",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animetoshoSearchCache",
-        "jsonName": "animetoshoSearchCache",
-        "goType": "animetosho.SearchCache",
-        "typescriptType": "AnimeTosho_SearchCache",
-        "usedStructName": "animetosho.SearchCache",
         "required": false,
         "public": false,
         "comments": []
@@ -47310,6 +47120,16 @@
         "comments": []
       },
       {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "BaseAnimeCache",
         "jsonName": "BaseAnimeCache",
         "goType": "anilist.BaseAnimeCache",
@@ -47335,26 +47155,6 @@
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NyaaSearchCache",
-        "jsonName": "NyaaSearchCache",
-        "goType": "nyaa.SearchCache",
-        "typescriptType": "SearchCache",
-        "usedStructName": "nyaa.SearchCache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeToshoSearchCache",
-        "jsonName": "AnimeToshoSearchCache",
-        "goType": "animetosho.SearchCache",
-        "typescriptType": "AnimeTosho_SearchCache",
-        "usedStructName": "animetosho.SearchCache",
         "required": false,
         "public": true,
         "comments": []
@@ -47444,9 +47244,9 @@
       {
         "name": "Torrent",
         "jsonName": "torrent",
-        "goType": "itorrent.AnimeTorrent",
-        "typescriptType": "AnimeTorrent",
-        "usedStructName": "itorrent.AnimeTorrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
         "required": false,
         "public": true,
         "comments": [

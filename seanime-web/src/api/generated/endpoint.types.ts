@@ -22,7 +22,6 @@ import type {
     Models_Theme,
     Models_TorrentSettings,
     Models_TorrentstreamSettings,
-    Torrent_AnimeTorrent,
 } from "@/api/generated/types.ts"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1041,7 +1040,7 @@ export type TorrentClientAction_Variables = {
  * Route adds torrents to the torrent client.
  */
 export type TorrentClientDownload_Variables = {
-    urls: Array<string>
+    torrents: Array<HibikeTorrent_AnimeTorrent>
     destination: string
     smartSelect: any
     media?: AL_BaseAnime
@@ -1072,25 +1071,20 @@ export type TorrentClientAddMagnetFromRule_Variables = {
  * Route searches torrents and returns a list of torrents and their previews.
  */
 export type SearchTorrent_Variables = {
-    smartSearch?: boolean
+    provider?: string
+    /**
+     *  "smart" or "simple"
+     *
+     *  "smart" or "simple"
+     */
+    smartSearch?: string
     query?: string
     episodeNumber?: number
     batch?: boolean
     media?: AL_BaseAnime
     absoluteOffset?: number
     resolution?: string
-    best?: boolean
-}
-
-/**
- * - Filepath: internal/handlers/torrent_search.go
- * - Filename: torrent_search.go
- * - Endpoint: /api/v1/torrent/nsfw-search
- * @description
- * Route searches NSFW torrents and returns a list of torrents without previews.
- */
-export type SearchNsfwTorrent_Variables = {
-    query: string
+    bestRelease?: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1134,7 +1128,12 @@ export type TorrentstreamStartStream_Variables = {
     episodeNumber: number
     aniDBEpisode: string
     autoSelect: boolean
-    torrent?: Torrent_AnimeTorrent
+    /**
+     *  Nil if autoSelect is true
+     *
+     *  Nil if autoSelect is true
+     */
+    torrent?: HibikeTorrent_AnimeTorrent
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

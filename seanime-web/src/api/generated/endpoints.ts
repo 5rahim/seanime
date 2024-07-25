@@ -1193,16 +1193,6 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/torrent/search",
         },
-        /**
-         *  @description
-         *  Route searches NSFW torrents and returns a list of torrents without previews.
-         *  This will search for NSFW torrents and return a list of torrents without previews.
-         */
-        SearchNsfwTorrent: {
-            key: "TORRENT-SEARCH-search-nsfw-torrent",
-            methods: ["POST"],
-            endpoint: "/api/v1/torrent/nsfw-search",
-        },
     },
     TORRENTSTREAM: {
         /**

@@ -1591,6 +1591,9 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
 export type ExtensionRepo_TorrentProviderExtensionItem = {
     id: string
     name: string
+    canSmartSearch: boolean
+    canFindBestRelease: boolean
+    supportsAdult: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2323,32 +2326,8 @@ export type Summary_ScanSummaryLog = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/torrents/torrent/torrent.go
- * - Filename: torrent.go
- * - Package: torrent
- */
-export type Torrent_AnimeTorrent = {
-    name: string
-    date: string
-    size: number
-    formattedSize: string
-    seeders: number
-    leechers: number
-    downloadCount: number
-    link: string
-    downloadUrl: string
-    infoHash: string
-    resolution?: string
-    isBatch: boolean
-    episodeNumber: number
-    releaseGroup?: string
-    provider?: string
-    isBestRelease: boolean
-}
-
-/**
- * - Filepath: internal/torrents/torrent/smart_search.go
- * - Filename: smart_search.go
+ * - Filepath: internal/torrents/torrent/search.go
+ * - Filename: search.go
  * - Package: torrent
  */
 export type Torrent_Preview = {
@@ -2356,19 +2335,19 @@ export type Torrent_Preview = {
      * nil if batch
      */
     episode?: Anime_AnimeEntryEpisode
-    torrent?: Torrent_AnimeTorrent
+    torrent?: HibikeTorrent_AnimeTorrent
 }
 
 /**
- * - Filepath: internal/torrents/torrent/smart_search.go
- * - Filename: smart_search.go
+ * - Filepath: internal/torrents/torrent/search.go
+ * - Filename: search.go
  * - Package: torrent
  */
 export type Torrent_SearchData = {
     /**
      * Torrents found
      */
-    torrents?: Array<Torrent_AnimeTorrent>
+    torrents?: Array<HibikeTorrent_AnimeTorrent>
     /**
      * TorrentPreview for each torrent
      */
@@ -2380,7 +2359,7 @@ export type Torrent_SearchData = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/torrents/torrent_client/torrent.go
+ * - Filepath: internal/torrent_clients/torrent_client/torrent.go
  * - Filename: torrent.go
  * - Package: torrent_client
  */
@@ -2398,7 +2377,7 @@ export type TorrentClient_Torrent = {
 }
 
 /**
- * - Filepath: internal/torrents/torrent_client/torrent.go
+ * - Filepath: internal/torrent_clients/torrent_client/torrent.go
  * - Filename: torrent.go
  * - Package: torrent_client
  */
@@ -2548,6 +2527,36 @@ export type HibikeManga_ChapterPage = {
     url: string
     index: number
     headers?: Record<string, string>
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VendorHibikeTorrent
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/vendoring/torrent/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_torrent
+ */
+export type HibikeTorrent_AnimeTorrent = {
+    name: string
+    date: string
+    size: number
+    formattedSize: string
+    seeders: number
+    leechers: number
+    downloadCount: number
+    link: string
+    downloadUrl: string
+    magnetLink?: string
+    infoHash?: string
+    resolution?: string
+    isBatch?: boolean
+    episodeNumber?: number
+    releaseGroup?: string
+    provider?: string
+    isBestRelease: boolean
+    confirmed: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

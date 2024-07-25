@@ -171,6 +171,7 @@ func (a *App) initModulesOnce() {
 		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
 		MetadataProvider:   a.MetadataProvider,
+		TorrentRepository:  a.TorrentRepository,
 		Platform:           a.AnilistPlatform,
 		PlaybackManager:    a.PlaybackManager,
 		WSEventManager:     a.WSEventManager,
@@ -289,6 +290,7 @@ func (a *App) InitOrRefreshModules() {
 			Logger:            a.Logger,
 			QbittorrentClient: qbit,
 			Transmission:      trans,
+			TorrentRepository: a.TorrentRepository,
 			Provider:          settings.Torrent.Default,
 		})
 

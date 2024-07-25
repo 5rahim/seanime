@@ -1,4 +1,5 @@
 "use client"
+import { useListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
@@ -55,6 +56,8 @@ export default function Page() {
     const { mutate, data, isPending } = useSaveSettings()
 
     const [tab, setTab] = useAtom(tabAtom)
+
+    const { data: torrentProviderExtensions } = useListTorrentProviderExtensions()
 
     const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
 
@@ -356,8 +359,10 @@ export default function Page() {
                                 help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results. Select 'None' if you don't need torrent support."
                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                 options={[
-                                    { label: "AnimeTosho (recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
-                                    { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
+                                    ...torrentProviderExtensions?.map(ext => ({
+                                        label: ext.name.replace("AnimeTosho", "AnimeTosho (recommended)"),
+                                        value: ext.id,
+                                    })) ?? [],
                                     { label: "None", value: TORRENT_PROVIDER.NONE },
                                 ]}
                             />

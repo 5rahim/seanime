@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platform"
-	torrent_analyzer "seanime/internal/torrents/analyzer"
-	"seanime/internal/torrents/torrent"
+	"seanime/internal/torrents/analyzer"
 	"time"
+
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
 type (
 	SmartSelectParams struct {
-		Url              string
+		Torrent          *hibiketorrent.AnimeTorrent
 		EpisodeNumbers   []int
 		Media            *anilist.CompleteAnime
 		Destination      string
@@ -25,9 +26,15 @@ type (
 // If the torrent has not been added yet, set SmartSelect.ShouldAddTorrent to true.
 // The torrent will NOT be removed if the selection fails.
 func (r *Repository) SmartSelect(p *SmartSelectParams) error {
-	if p.Media == nil || p.Platform == nil {
+	if p.Media == nil || p.Platform == nil || r.torrentRepository == nil {
 		r.logger.Error().Msg("torrent client: media or platform is nil (smart select)")
 		return errors.New("media or anilist client wrapper is nil")
+	}
+
+	providerExtension, ok := r.torrentRepository.GetAnimeProviderExtension(p.Torrent.Provider)
+	if !ok {
+		r.logger.Error().Str("provider", p.Torrent.Provider).Msg("torrent client: provider extension not found (smart select)")
+		return errors.New("provider extension not found")
 	}
 
 	if p.Media.IsMovieOrSingleEpisode() {
@@ -42,7 +49,7 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 	if p.ShouldAddTorrent {
 		r.logger.Info().Msg("torrent client: adding torrent (smart select)")
 		// Get magnet
-		magnet, err := torrent.ScrapeMagnet(p.Url)
+		magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(p.Torrent)
 		if err != nil {
 			return err
 		}
@@ -53,25 +60,18 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 		}
 	}
 
-	// Get hash
-	hash, err := torrent.ScrapeHash(p.Url)
-	if err != nil {
-		r.logger.Err(err).Msg("torrent client: error scraping hash (smart select)")
-		return fmt.Errorf("error scraping hash: %w", err)
-	}
-
-	filepaths, err := r.GetFiles(hash)
+	filepaths, err := r.GetFiles(p.Torrent.InfoHash)
 	if err != nil {
 		r.logger.Err(err).Msg("torrent client: error getting files (smart select)")
-		_ = r.RemoveTorrents([]string{hash})
+		_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
 		return fmt.Errorf("error getting files, torrent still added: %w", err)
 	}
 
 	// Pause the torrent
-	err = r.PauseTorrents([]string{hash})
+	err = r.PauseTorrents([]string{p.Torrent.InfoHash})
 	if err != nil {
 		r.logger.Err(err).Msg("torrent client: error while pausing torrent (smart select)")
-		_ = r.RemoveTorrents([]string{hash})
+		_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
 		return fmt.Errorf("error while selecting files: %w", err)
 	}
 
@@ -88,7 +88,7 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 	analysis, err := analyzer.AnalyzeTorrentFiles()
 	if err != nil {
 		r.logger.Err(err).Msg("torrent client: error while analyzing torrent files (smart select)")
-		_ = r.RemoveTorrents([]string{hash})
+		_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
 		return fmt.Errorf("error while analyzing torrent files: %w", err)
 	}
 
@@ -112,7 +112,7 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 		}
 	}
 	if dupCount > 2 {
-		_ = r.RemoveTorrents([]string{hash})
+		_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
 		return errors.New("failed to select files, can't tell seasons apart")
 	}
 
@@ -128,7 +128,7 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 	}
 
 	if selectedCount == 0 || selectedCount < len(p.EpisodeNumbers) {
-		_ = r.RemoveTorrents([]string{hash})
+		_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
 		return errors.New("failed to select files, could not find the right season files")
 	}
 
@@ -136,10 +136,10 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 
 	if len(indicesToRemove) > 0 {
 		// Deselect files
-		err = r.DeselectFiles(hash, indicesToRemove)
+		err = r.DeselectFiles(p.Torrent.InfoHash, indicesToRemove)
 		if err != nil {
 			r.logger.Err(err).Msg("torrent client: error while deselecting files (smart select)")
-			_ = r.RemoveTorrents([]string{hash})
+			_ = r.RemoveTorrents([]string{p.Torrent.InfoHash})
 			return fmt.Errorf("error while deselecting files: %w", err)
 		}
 	}
@@ -147,7 +147,7 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 	time.Sleep(1 * time.Second)
 
 	// Resume the torrent
-	_ = r.ResumeTorrents([]string{hash})
+	_ = r.ResumeTorrents([]string{p.Torrent.InfoHash})
 
 	return nil
 }

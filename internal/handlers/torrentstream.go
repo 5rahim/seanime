@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"errors"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	lop "github.com/samber/lo/parallel"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
-	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
 )
 
@@ -86,11 +86,12 @@ func HandleSaveTorrentstreamSettings(c *RouteCtx) error {
 func HandleTorrentstreamStartStream(c *RouteCtx) error {
 
 	type body struct {
-		MediaId       int                   `json:"mediaId"`
-		EpisodeNumber int                   `json:"episodeNumber"`
-		AniDBEpisode  string                `json:"aniDBEpisode"`
-		AutoSelect    bool                  `json:"autoSelect"`
-		Torrent       *torrent.AnimeTorrent `json:"torrent"`
+		MediaId       int    `json:"mediaId"`
+		EpisodeNumber int    `json:"episodeNumber"`
+		AniDBEpisode  string `json:"aniDBEpisode"`
+		AutoSelect    bool   `json:"autoSelect"`
+		// Nil if autoSelect is true
+		Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
 	}
 
 	var b body

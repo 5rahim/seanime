@@ -14,6 +14,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platform"
+	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 )
 
@@ -26,6 +27,7 @@ type (
 		currentEpisodeCollection mo.Option[*EpisodeCollection] // Refreshed in [list.go] when the user opens the streaming page for a media
 
 		// Injected dependencies
+		torrentRepository               *torrent.Repository
 		anizipCache                     *anizip.Cache
 		baseAnimeCache                  *anilist.BaseAnimeCache
 		completeAnimeCache              *anilist.CompleteAnimeCache
@@ -45,6 +47,7 @@ type (
 	NewRepositoryOptions struct {
 		Logger             *zerolog.Logger
 		AnizipCache        *anizip.Cache
+		TorrentRepository  *torrent.Repository
 		BaseAnimeCache     *anilist.BaseAnimeCache
 		CompleteAnimeCache *anilist.CompleteAnimeCache
 		Platform           platform.Platform
@@ -65,6 +68,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		metadataProvider:   opts.MetadataProvider,
 		playbackManager:    opts.PlaybackManager,
 		wsEventManager:     opts.WSEventManager,
+		torrentRepository:  opts.TorrentRepository,
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = newServerManager(ret)

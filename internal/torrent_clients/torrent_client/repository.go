@@ -8,6 +8,7 @@ import (
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/qbittorrent/model"
 	"seanime/internal/torrent_clients/transmission"
+	"seanime/internal/torrents/torrent"
 	"strconv"
 	"time"
 )
@@ -22,6 +23,7 @@ type (
 		logger            *zerolog.Logger
 		qBittorrentClient *qbittorrent.Client
 		transmission      *transmission.Transmission
+		torrentRepository *torrent.Repository
 		provider          string
 	}
 
@@ -29,6 +31,7 @@ type (
 		Logger            *zerolog.Logger
 		QbittorrentClient *qbittorrent.Client
 		Transmission      *transmission.Transmission
+		TorrentRepository *torrent.Repository
 		Provider          string
 	}
 )
@@ -41,6 +44,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:            opts.Logger,
 		qBittorrentClient: opts.QbittorrentClient,
 		transmission:      opts.Transmission,
+		torrentRepository: opts.TorrentRepository,
 		provider:          opts.Provider,
 	}
 }

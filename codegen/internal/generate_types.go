@@ -19,6 +19,8 @@ const (
 var additionalStructNames = []string{
 	"vendor_hibike_manga.ChapterDetails",
 	"vendor_hibike_manga.ChapterPage",
+	"vendor_hibike_torrent.AnimeTorrent",
+	"vendor_hibike_torrent.AnimeTorrentProviderType",
 	"torrentstream.TorrentLoadingStatus",
 	"torrentstream.TorrentStatus",
 }

@@ -5291,11 +5291,11 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "Urls",
-          "jsonName": "urls",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
+          "name": "Torrents",
+          "jsonName": "torrents",
+          "goType": "[]hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
           "required": true,
           "descriptions": []
         },
@@ -5422,13 +5422,26 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "SmartSearch",
-          "jsonName": "smartSearch",
-          "goType": "bool",
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
           "usedStructType": "",
-          "typescriptType": "boolean",
+          "typescriptType": "string",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "Type",
+          "jsonName": "smartSearch",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": [
+            "\"smart\" or \"simple\"",
+            "",
+            "\"smart\" or \"simple\""
+          ]
         },
         {
           "name": "Query",
@@ -5485,52 +5498,12 @@
           "descriptions": []
         },
         {
-          "name": "Best",
-          "jsonName": "best",
+          "name": "BestRelease",
+          "jsonName": "bestRelease",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
           "required": false,
-          "descriptions": []
-        }
-      ],
-      "returns": "torrent.SearchData",
-      "returnGoType": "torrent.SearchData",
-      "returnTypescriptType": "Torrent_SearchData"
-    }
-  },
-  {
-    "name": "HandleSearchNsfwTorrent",
-    "trimmedName": "SearchNsfwTorrent",
-    "comments": [
-      "HandleSearchNsfwTorrent",
-      "",
-      "\t@summary searches NSFW torrents and returns a list of torrents without previews.",
-      "\t@desc This will search for NSFW torrents and return a list of torrents without previews.",
-      "\t@route /api/v1/torrent/nsfw-search [POST]",
-      "\t@returns torrent.SearchData",
-      ""
-    ],
-    "filepath": "internal/handlers/torrent_search.go",
-    "filename": "torrent_search.go",
-    "api": {
-      "summary": "searches NSFW torrents and returns a list of torrents without previews.",
-      "descriptions": [
-        "This will search for NSFW torrents and return a list of torrents without previews."
-      ],
-      "endpoint": "/api/v1/torrent/nsfw-search",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Query",
-          "jsonName": "query",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
           "descriptions": []
         }
       ],
@@ -5718,11 +5691,15 @@
         {
           "name": "Torrent",
           "jsonName": "torrent",
-          "goType": "torrent.AnimeTorrent",
-          "usedStructType": "torrent.AnimeTorrent",
-          "typescriptType": "Torrent_AnimeTorrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
           "required": false,
-          "descriptions": []
+          "descriptions": [
+            "Nil if autoSelect is true",
+            "",
+            "Nil if autoSelect is true"
+          ]
         }
       ],
       "returns": "bool",

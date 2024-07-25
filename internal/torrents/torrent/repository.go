@@ -97,3 +97,7 @@ func (r *Repository) GetDefaultAnimeProviderExtension() (extension.AnimeTorrentP
 	}
 	return r.animeProviderExtensions.Get(r.settings.DefaultAnimeProvider)
 }
+
+func (r *Repository) GetAnimeProviderExtension(id string) (extension.AnimeTorrentProviderExtension, bool) {
+	return r.animeProviderExtensions.Get(id)
+}
