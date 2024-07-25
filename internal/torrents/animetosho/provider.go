@@ -620,9 +620,15 @@ func (t *Torrent) toAnimeTorrent(media *hibiketorrent.Media) *hibiketorrent.Anim
 		DownloadCount: t.TorrentDownloadCount,
 		Link:          t.Link,
 		DownloadUrl:   t.TorrentUrl,
+		MagnetLink:    t.MagnetUri,
 		InfoHash:      t.InfoHash,
-		Provider:      AnimeToshoProviderName,
+		Resolution:    metadata.VideoResolution,
 		IsBatch:       t.NumFiles > 1,
+		EpisodeNumber: 0,
+		ReleaseGroup:  metadata.ReleaseGroup,
+		Provider:      AnimeToshoProviderName,
+		IsBestRelease: false,
+		Confirmed:     false,
 	}
 
 	episode := -1
@@ -630,9 +636,6 @@ func (t *Torrent) toAnimeTorrent(media *hibiketorrent.Media) *hibiketorrent.Anim
 	if len(metadata.EpisodeNumber) == 1 {
 		episode = util.StringToIntMust(metadata.EpisodeNumber[0])
 	}
-
-	ret.Resolution = metadata.VideoResolution
-	ret.ReleaseGroup = metadata.ReleaseGroup
 
 	// Force set episode number to 1 if it's a movie or single-episode and the torrent isn't a batch
 	if !ret.IsBatch && episode == -1 && (media.EpisodeCount == 1 || media.Format == string(anilist.MediaFormatMovie)) {

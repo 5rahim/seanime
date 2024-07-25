@@ -39,6 +39,7 @@ func TestSmartSearch(t *testing.T) {
 		episodeNumber  int
 		absoluteOffset int
 		resolution     string
+		scrapeMagnet   bool
 	}{
 		{
 			name:           "Bungou Stray Dogs 5th Season Episode 11",
@@ -47,6 +48,7 @@ func TestSmartSearch(t *testing.T) {
 			episodeNumber:  11,
 			absoluteOffset: 45,
 			resolution:     "1080",
+			scrapeMagnet:   true,
 		},
 		{
 			name:           "SPY×FAMILY Season 1 Part 2",
@@ -55,6 +57,7 @@ func TestSmartSearch(t *testing.T) {
 			episodeNumber:  12,
 			absoluteOffset: 12,
 			resolution:     "1080",
+			scrapeMagnet:   false,
 		},
 		{
 			name:           "Jujutsu Kaisen Season 2",
@@ -63,6 +66,7 @@ func TestSmartSearch(t *testing.T) {
 			episodeNumber:  2,
 			absoluteOffset: 24,
 			resolution:     "1080",
+			scrapeMagnet:   false,
 		},
 		{
 			name:           "Violet Evergarden The Movie",
@@ -71,6 +75,7 @@ func TestSmartSearch(t *testing.T) {
 			episodeNumber:  1,
 			absoluteOffset: 0,
 			resolution:     "720",
+			scrapeMagnet:   false,
 		},
 		{
 			name:           "Sousou no Frieren",
@@ -79,6 +84,7 @@ func TestSmartSearch(t *testing.T) {
 			episodeNumber:  10,
 			absoluteOffset: 0,
 			resolution:     "1080",
+			scrapeMagnet:   false,
 		},
 		{
 			name:           "Tokubetsu-hen Hibike! Euphonium: Ensemble",
@@ -87,6 +93,7 @@ func TestSmartSearch(t *testing.T) {
 			episodeNumber:  1,
 			absoluteOffset: 0,
 			resolution:     "1080",
+			scrapeMagnet:   false,
 		},
 	}
 
@@ -131,8 +138,20 @@ func TestSmartSearch(t *testing.T) {
 			require.NoError(t, err, "error searching nyaa")
 
 			for _, torrent := range torrents {
+
+				scrapedMagnet := ""
+				if tt.scrapeMagnet {
+					magn, err := nyaaProvider.GetTorrentMagnetLink(torrent)
+					if err == nil {
+						scrapedMagnet = magn
+					}
+				}
+
 				t.Log(torrent.Name)
 				t.Logf("\tMagnet: %s", torrent.MagnetLink)
+				if scrapedMagnet != "" {
+					t.Logf("\tMagnet (Scraped): %s", scrapedMagnet)
+				}
 				t.Logf("\tEpisodeNumber: %d", torrent.EpisodeNumber)
 				t.Logf("\tResolution: %s", torrent.Resolution)
 				t.Logf("\tIsBatch: %v", torrent.IsBatch)

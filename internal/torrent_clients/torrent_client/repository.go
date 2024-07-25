@@ -112,7 +112,12 @@ func (r *Repository) GetActiveTorrents() ([]*Torrent, error) {
 }
 
 func (r *Repository) AddMagnets(magnets []string, dest string) error {
-	r.logger.Debug().Msg("torrent client: Adding magnets")
+	r.logger.Trace().Any("magnets", magnets).Msg("torrent client: Adding magnets")
+
+	if len(magnets) == 0 {
+		r.logger.Debug().Msg("torrent client: No magnets to add")
+		return nil
+	}
 
 	var err error
 	switch r.provider {
@@ -144,6 +149,8 @@ func (r *Repository) AddMagnets(magnets []string, dest string) error {
 }
 
 func (r *Repository) RemoveTorrents(hashes []string) error {
+	r.logger.Trace().Msg("torrent client: Removing torrents")
+
 	var err error
 	switch r.provider {
 	case QbittorrentClient:
@@ -177,6 +184,8 @@ func (r *Repository) RemoveTorrents(hashes []string) error {
 }
 
 func (r *Repository) PauseTorrents(hashes []string) error {
+	r.logger.Trace().Msg("torrent client: Pausing torrents")
+
 	var err error
 	switch r.provider {
 	case QbittorrentClient:
@@ -196,6 +205,8 @@ func (r *Repository) PauseTorrents(hashes []string) error {
 }
 
 func (r *Repository) ResumeTorrents(hashes []string) error {
+	r.logger.Trace().Msg("torrent client: Resuming torrents")
+
 	var err error
 	switch r.provider {
 	case QbittorrentClient:

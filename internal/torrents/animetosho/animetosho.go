@@ -14,7 +14,7 @@ type (
 		TorrentUrl           string      `json:"torrent_url"`
 		InfoHash             string      `json:"info_hash"`
 		InfoHashV2           string      `json:"info_hash_v2,omitempty"`
-		MagnetUrl            string      `json:"magnet_url"`
+		MagnetUri            string      `json:"magnet_uri"`
 		Seeders              int         `json:"seeders"`
 		Leechers             int         `json:"leechers"`
 		TorrentDownloadCount int         `json:"torrent_download_count"`

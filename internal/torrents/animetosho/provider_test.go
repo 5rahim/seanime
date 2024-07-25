@@ -147,7 +147,6 @@ func TestSearch2(t *testing.T) {
 	torrents, err := toshoPlatform.Search(hibiketorrent.AnimeSearchOptions{
 		Media: hibiketorrent.Media{},
 		Query: "Kusuriya no Hitorigoto 05",
-		Batch: false,
 	})
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
