@@ -21,7 +21,7 @@ func (r *Repository) loadExternalTorrentProviderExtension(ext *extension.Extensi
 		// TODO
 	}
 
-	r.logger.Debug().Str("id", ext.ID).Msg("extension repo: Loaded online streaming provider extension")
+	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded online streaming provider extension")
 }
 
 //
@@ -32,7 +32,7 @@ func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Exten
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
-	r.logger.Debug().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extension repo: Loading torrent provider")
+	r.logger.Trace().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extensions: Loading external torrent provider")
 
 	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
 
@@ -59,5 +59,5 @@ func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Exten
 	provider := newProviderFunc(r.logger)
 
 	// Add the extension to the map
-	r.animeTorrentProviderExtensions.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
+	r.animeTorrentProviderExtensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
 }

@@ -389,7 +389,7 @@ func (c *Client) dropTorrents() {
 	if c.torrentClient.IsAbsent() {
 		return
 	}
-	c.repository.logger.Debug().Msg("torrentstream: Dropping all torrents")
+	c.repository.logger.Trace().Msg("torrentstream: Dropping all torrents")
 
 	for _, t := range c.torrentClient.MustGet().Torrents() {
 		t.Drop()

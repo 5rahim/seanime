@@ -58,7 +58,7 @@ func getTestRepo(t *testing.T) *Repository {
 		MetadataProvider: metadataProvider,
 	})
 
-	repo.SetAnimeProviderExtensions(extensions)
+	repo.InitAnimeProviderExtensionBank(extensions)
 
 	repo.SetSettings(&RepositorySettings{
 		DefaultAnimeProvider: ProviderAnimeTosho,

@@ -171,7 +171,7 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *hibikeonlinestream.EpisodeDetails) ([]*hibikeonlinestream.EpisodeServer, error) {
 	var providerServers []*hibikeonlinestream.EpisodeServer
 
-	providerExtension, ok := r.providerExtensions.Get(provider)
+	providerExtension, ok := r.providerExtensionBank.Get(provider)
 	if !ok {
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}
@@ -201,7 +201,7 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []
 		englishTitle = strings.ReplaceAll(*titles[1], ":", "")
 	}
 
-	providerExtension, ok := r.providerExtensions.Get(provider)
+	providerExtension, ok := r.providerExtensionBank.Get(provider)
 	if !ok {
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}

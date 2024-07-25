@@ -15,7 +15,7 @@ func (r *Repository) isValidExtensionID(id string) bool {
 	}
 
 	// Check if the ID is not a reserved built-in extension ID
-	_, found := r.mangaProviderExtensions.Get(id)
+	_, found := r.mangaProviderExtensionBank.Get(id)
 	if found {
 		return false
 	}

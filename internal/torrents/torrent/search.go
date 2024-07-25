@@ -57,7 +57,7 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 	r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Str("query", opts.Query).Msg("torrent repo: Searching for anime torrents")
 
 	// Find the provider by ID
-	providerExtension, ok := r.animeProviderExtensions.Get(opts.Provider)
+	providerExtension, ok := r.animeProviderExtensionBank.Get(opts.Provider)
 	if !ok {
 		// Get the default provider
 		providerExtension, ok = r.GetDefaultAnimeProviderExtension()

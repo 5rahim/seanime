@@ -21,7 +21,7 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 		// TODO
 	}
 
-	r.logger.Debug().Str("id", ext.ID).Msg("extension repo: Loaded online streaming provider extension")
+	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded online streaming provider extension")
 }
 
 //
@@ -32,7 +32,7 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
-	r.logger.Debug().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extension repo: Loading online streaming provider")
+	r.logger.Trace().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extensions: Loading external online streaming provider")
 
 	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
 
@@ -59,5 +59,5 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 	provider := newProviderFunc(r.logger)
 
 	// Add the extension to the map
-	r.onlinestreamProviderExtensions.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))
+	r.onlinestreamProviderExtensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))
 }

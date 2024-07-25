@@ -21,7 +21,7 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) {
 		// TODO
 	}
 
-	r.logger.Debug().Str("id", ext.ID).Msg("extension repo: Loaded manga provider extension")
+	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded manga provider extension")
 }
 
 //
@@ -32,7 +32,7 @@ func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) {
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
-	r.logger.Debug().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extension repo: Loading manga provider")
+	r.logger.Trace().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extensions: Loading external manga provider")
 
 	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
 
@@ -59,5 +59,5 @@ func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) {
 	provider := newProviderFunc(r.logger)
 
 	// Add the extension to the map
-	r.mangaProviderExtensions.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))
+	r.mangaProviderExtensionBank.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))
 }

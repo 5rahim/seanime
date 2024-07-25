@@ -359,7 +359,7 @@ export default function Page() {
                                 help="Used by the search engine and auto downloader. AnimeTosho is recommended for better results. Select 'None' if you don't need torrent support."
                                 leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                                 options={[
-                                    ...(torrentProviderExtensions?.map(ext => ({
+                                    ...(torrentProviderExtensions?.filter(ext => ext.type === "main")?.map(ext => ({
                                         label: ext.name,
                                         value: ext.id,
                                     })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),

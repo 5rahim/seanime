@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	MsgYaegiFailedToEvaluateExtensionCode = "extension repo: Failed to evaluate extension source code"
-	MsgYaegiFailedToInstantiateExtension  = "extension repo: Failed to instantiate extension, the extension is incompatible with the expected interface"
+	MsgYaegiFailedToEvaluateExtensionCode = "extensions: Failed to evaluate extension source code"
+	MsgYaegiFailedToInstantiateExtension  = "extensions: Failed to instantiate extension, the extension is incompatible with the expected interface"
 )
 
 func (r *Repository) yaegiEval(src string) (reflect.Value, error) {

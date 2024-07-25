@@ -13,7 +13,6 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util/filecache"
-	"seanime/internal/util/result"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,13 +21,13 @@ import (
 
 type (
 	Repository struct {
-		logger             *zerolog.Logger
-		fileCacher         *filecache.Cacher
-		providerExtensions *result.Map[string, extension.MangaProviderExtension]
-		serverUri          string
-		wsEventManager     events.WSEventManagerInterface
-		mu                 sync.Mutex
-		downloadDir        string
+		logger                *zerolog.Logger
+		fileCacher            *filecache.Cacher
+		providerExtensionBank *extension.Bank[extension.MangaProviderExtension]
+		serverUri             string
+		wsEventManager        events.WSEventManagerInterface
+		mu                    sync.Mutex
+		downloadDir           string
 	}
 
 	NewRepositoryOptions struct {
@@ -43,24 +42,25 @@ type (
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:             opts.Logger,
-		fileCacher:         opts.FileCacher,
-		serverUri:          opts.ServerURI,
-		wsEventManager:     opts.WsEventManager,
-		downloadDir:        opts.DownloadDir,
-		providerExtensions: result.NewResultMap[string, extension.MangaProviderExtension](),
+		logger:                opts.Logger,
+		fileCacher:            opts.FileCacher,
+		serverUri:             opts.ServerURI,
+		wsEventManager:        opts.WsEventManager,
+		downloadDir:           opts.DownloadDir,
+		providerExtensionBank: extension.NewBank[extension.MangaProviderExtension](),
 	}
 	return r
 }
 
-func (r *Repository) SetProviderExtensions(exts *result.Map[string, extension.MangaProviderExtension]) {
+func (r *Repository) InitProviderExtensionBank(bank *extension.Bank[extension.MangaProviderExtension]) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.providerExtensions = exts
+	r.providerExtensionBank = bank
+	r.logger.Debug().Msg("manga: Initialized provider extension bank")
 }
 
 func (r *Repository) RemoveProvider(id string) {
-	r.providerExtensions.Delete(id)
+	r.providerExtensionBank.Delete(id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

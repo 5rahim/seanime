@@ -94,7 +94,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 
 	var searchRes []*hibikemanga.SearchResult
 
-	providerExtension, ok := r.providerExtensions.Get(provider)
+	providerExtension, ok := r.providerExtensionBank.Get(provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
 		return nil, errors.New("manga: Provider not found")
@@ -247,7 +247,7 @@ func (r *Repository) GetMangaPageContainer(
 		return nil, ErrChapterNotFound
 	}
 
-	providerExtension, ok := r.providerExtensions.Get(provider)
+	providerExtension, ok := r.providerExtensionBank.Get(provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
 		return nil, errors.New("manga: Provider not found")

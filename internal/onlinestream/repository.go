@@ -9,7 +9,6 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/platform"
 	"seanime/internal/util/filecache"
-	"seanime/internal/util/result"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +17,7 @@ import (
 type (
 	Repository struct {
 		logger                *zerolog.Logger
-		providerExtensions    *result.Map[string, extension.OnlinestreamProviderExtension]
+		providerExtensionBank *extension.Bank[extension.OnlinestreamProviderExtension]
 		fileCacher            *filecache.Cacher
 		anizipCache           *anizip.Cache
 		platform              platform.Platform
@@ -76,14 +75,16 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                opts.Logger,
 		anizipCache:           opts.AnizipCache,
 		fileCacher:            opts.FileCacher,
-		providerExtensions:    result.NewResultMap[string, extension.OnlinestreamProviderExtension](),
+		providerExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
 		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
 		platform:              opts.Platform,
 	}
 }
 
-func (r *Repository) SetProviderExtensions(exts *result.Map[string, extension.OnlinestreamProviderExtension]) {
-	r.providerExtensions = exts
+func (r *Repository) InitProviderExtensionBank(bank *extension.Bank[extension.OnlinestreamProviderExtension]) {
+	r.providerExtensionBank = bank
+
+	r.logger.Debug().Msg("onlinestream: Initialized provider extension bank")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

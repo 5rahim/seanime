@@ -16,13 +16,13 @@ type SukebeiProvider struct {
 }
 
 func NewSukebeiProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
-	return &Provider{
+	return &SukebeiProvider{
 		logger: logger,
 	}
 }
 
 func (n *SukebeiProvider) GetType() hibiketorrent.AnimeProviderType {
-	return hibiketorrent.AnimeProviderTypeMain
+	return hibiketorrent.AnimeProviderTypeSpecial
 }
 
 func (n *SukebeiProvider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {

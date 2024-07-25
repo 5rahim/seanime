@@ -32,25 +32,25 @@ var logBufferMutex = &sync.Mutex{}
 
 func NewLogger() *zerolog.Logger {
 
-	timeFormat := fmt.Sprintf("|%s|", time.DateTime)
+	timeFormat := fmt.Sprintf("%s", time.DateTime)
 	formatLevel := func(i interface{}) string {
 		if ll, ok := i.(string); ok {
 			s := strings.ToLower(ll)
 			switch s {
 			case "debug":
-				s = "|DBG|"
+				s = "DBG" + colorizeb(" -", colorDarkGray)
 			case "info":
-				s = "|" + fmt.Sprint(colorizeb("INF", colorBold)) + "|"
+				s = fmt.Sprint(colorizeb("INF", colorBold)) + colorizeb(" -", colorDarkGray)
 			case "warn":
-				s = colorizeb("|WRN|", colorYellow)
+				s = colorizeb("WRN", colorYellow) + colorizeb(" -", colorDarkGray)
 			case "trace":
-				s = colorizeb("|TRC|", colorDarkGray)
+				s = colorizeb("TRC", colorDarkGray) + colorizeb(" -", colorDarkGray)
 			case "error":
-				s = colorizeb("|ERR|", colorRed)
+				s = colorizeb("ERR", colorRed) + colorizeb(" -", colorDarkGray)
 			case "fatal":
-				s = colorizeb("|FTL|", colorRed)
+				s = colorizeb("FTL", colorRed) + colorizeb(" -", colorDarkGray)
 			case "panic":
-				s = colorizeb("|PNC|", colorRed)
+				s = colorizeb("PNC", colorRed) + colorizeb(" -", colorDarkGray)
 			}
 			return fmt.Sprint(s)
 		}
@@ -63,7 +63,7 @@ func NewLogger() *zerolog.Logger {
 			case "debug":
 				s = "|DBG|"
 			case "info":
-				s = "|" + fmt.Sprint("INF") + "|"
+				s = "|INF|"
 			case "warn":
 				s = "|WRN|"
 			case "trace":
@@ -84,7 +84,7 @@ func NewLogger() *zerolog.Logger {
 			if bytes.ContainsRune([]byte(msg), ':') {
 				parts := strings.SplitN(msg, ":", 2)
 				if len(parts) > 1 && len(parts[0]) < len(parts[1]) {
-					return colorizeb(parts[0]+" >", colorCyan) + parts[1]
+					return colorizeb(parts[0], colorCyan) + colorizeb(" >", colorDarkGray) + parts[1]
 				}
 			}
 			return msg

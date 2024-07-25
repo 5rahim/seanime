@@ -15,7 +15,7 @@ import (
 // LoadExternalExtensions loads all external extensions from the extension directory.
 // This should be called after the built-in extensions are loaded.
 func (r *Repository) LoadExternalExtensions() {
-	r.logger.Trace().Msg("extension repo: Loading external extensions")
+	r.logger.Trace().Msg("extensions: Loading external extensions")
 
 	//
 	// Load external extensions
@@ -23,7 +23,7 @@ func (r *Repository) LoadExternalExtensions() {
 
 	err := filepath.WalkDir(r.extensionDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			r.logger.Error().Err(err).Msg("extension repo: Failed to walk directory")
+			r.logger.Error().Err(err).Msg("extensions: Failed to walk directory")
 			return err
 		}
 
@@ -43,11 +43,11 @@ func (r *Repository) LoadExternalExtensions() {
 
 	})
 	if err != nil {
-		r.logger.Error().Err(err).Msg("extension repo: Failed to load extensions")
+		r.logger.Error().Err(err).Msg("extensions: Failed to load extensions")
 		return
 	}
 
-	r.logger.Debug().Msg("extension repo: Loaded external extensions")
+	r.logger.Debug().Msg("extensions: Loaded external extensions")
 }
 
 // Loads an external extension from a file path
@@ -57,25 +57,25 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	// Parse the ext
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
-		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extension repo: Failed to read extension file")
+		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extensions: Failed to read extension file")
 		return
 	}
 
 	err = json.Unmarshal(fileContent, &ext)
 	if err != nil {
-		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extension repo: Failed to parse extension file")
+		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extensions: Failed to parse extension file")
 		return
 	}
 
 	// Sanity check
 	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
-		r.logger.Error().Str("filepath", filePath).Msg("extension repo: Extension is missing required fields")
+		r.logger.Error().Str("filepath", filePath).Msg("extensions: Extension is missing required fields")
 		return
 	}
 
 	// Check the ID
 	if !r.isValidExtensionID(ext.ID) {
-		r.logger.Error().Str("id", ext.ID).Msg("extension repo: Invalid extension ID")
+		r.logger.Error().Str("id", ext.ID).Msg("extensions: Invalid extension ID")
 		return
 	}
 
@@ -91,7 +91,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		// Load torrent provider
 		r.loadExternalTorrentProviderExtension(&ext)
 	default:
-		r.logger.Error().Str("type", string(ext.Type)).Msg("extension repo: Extension type not supported")
+		r.logger.Error().Str("type", string(ext.Type)).Msg("extensions: Extension type not supported")
 	}
 
 }

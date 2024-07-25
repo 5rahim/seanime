@@ -75,11 +75,23 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         extensionDoesNotSupportBestRelease: smartSearchBest && selectedProviderExtension && !selectedProviderExtension.canFindBestRelease,
     }
 
+    // Change fields based on selected provider
+    React.useLayoutEffect(() => {
+        if (searchType === Torrent_SearchType.SMART && warnings.extensionDoesNotSupportSmartSearch) {
+            setSearchType(Torrent_SearchType.SIMPLE)
+        }
+    }, [warnings.extensionDoesNotSupportSmartSearch, selectedProviderExtensionId, searchType])
+    React.useLayoutEffect(() => {
+        if (smartSearchBest && warnings.extensionDoesNotSupportBestRelease) {
+            setSmartSearchBest(false)
+        }
+    }, [warnings.extensionDoesNotSupportBestRelease, selectedProviderExtensionId, smartSearchBest])
+
     /**
      * Fetch torrent search data
      */
     const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
-            query: globalFilter,
+        query: globalFilter.trim(),
             episodeNumber: dSmartSearchEpisode,
             batch: smartSearchBatch,
             media: entry?.media,
@@ -116,6 +128,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
 
     return {
         warnings,
+        hasOneWarning: Object.values(warnings).some(w => w),
         providerExtensions,
         selectedProviderExtension,
         selectedProviderExtensionId,

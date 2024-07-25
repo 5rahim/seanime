@@ -170,7 +170,7 @@ func (n *Provider) CanSmartSearch() bool {
 }
 
 func (n *Provider) CanFindBestRelease() bool {
-	return true
+	return false
 }
 
 func (n *Provider) SupportsAdult() bool {

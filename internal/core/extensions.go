@@ -12,11 +12,11 @@ import (
 func (a *App) LoadBuiltInExtensions() {
 
 	// Load the extensions to the manga repository
-	a.MangaRepository.SetProviderExtensions(a.ExtensionRepository.GetMangaProviderExtensions())
+	a.MangaRepository.InitProviderExtensionBank(a.ExtensionRepository.GetMangaProviderExtensionBank())
 	// Load the extensions to the online stream repository
-	a.OnlinestreamRepository.SetProviderExtensions(a.ExtensionRepository.GetOnlinestreamProviderExtensions())
+	a.OnlinestreamRepository.InitProviderExtensionBank(a.ExtensionRepository.GetOnlinestreamProviderExtensionBank())
 	// Load the extensions to the torrent repository
-	a.TorrentRepository.SetAnimeProviderExtensions(a.ExtensionRepository.GetAnimeTorrentProviderExtensions())
+	a.TorrentRepository.InitAnimeProviderExtensionBank(a.ExtensionRepository.GetAnimeTorrentProviderExtensionBank())
 
 	//
 	// Built-in manga providers
