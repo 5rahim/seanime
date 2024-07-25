@@ -7,7 +7,6 @@ import (
 	"seanime/internal/torrents/nyaa"
 	"seanime/internal/torrents/seadex"
 	"seanime/internal/util"
-	"seanime/internal/util/result"
 	"testing"
 )
 
@@ -15,9 +14,9 @@ func getTestRepo(t *testing.T) *Repository {
 	logger := util.NewLogger()
 	metadataProvider := metadata.TestGetMockProvider(t)
 
-	extensions := result.NewResultMap[string, extension.AnimeTorrentProviderExtension]()
+	extensionBank := extension.NewBank[extension.AnimeTorrentProviderExtension]()
 
-	extensions.Set("nyaa", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
+	extensionBank.Set("nyaa", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
 		ID:       "nyaa",
 		Name:     "Nyaa",
 		Version:  "1.0.0",
@@ -26,7 +25,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Author:   "Seanime",
 	}, nyaa.NewProvider(logger)))
 
-	extensions.Set("nyaa-sukebei", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
+	extensionBank.Set("nyaa-sukebei", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
 		ID:       "nyaa-sukebei",
 		Name:     "Nyaa Sukebei",
 		Version:  "1.0.0",
@@ -35,7 +34,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Author:   "Seanime",
 	}, nyaa.NewSukebeiProvider(logger)))
 
-	extensions.Set("animetosho", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
+	extensionBank.Set("animetosho", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
 		ID:       "animetosho",
 		Name:     "AnimeTosho",
 		Version:  "1.0.0",
@@ -44,7 +43,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Author:   "Seanime",
 	}, animetosho.NewProvider(logger)))
 
-	extensions.Set("seadex", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
+	extensionBank.Set("seadex", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
 		ID:       "seadex",
 		Name:     "SeaDex",
 		Version:  "1.0.0",
@@ -58,7 +57,7 @@ func getTestRepo(t *testing.T) *Repository {
 		MetadataProvider: metadataProvider,
 	})
 
-	repo.InitAnimeProviderExtensionBank(extensions)
+	repo.InitAnimeProviderExtensionBank(extensionBank)
 
 	repo.SetSettings(&RepositorySettings{
 		DefaultAnimeProvider: ProviderAnimeTosho,

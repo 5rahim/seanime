@@ -2,10 +2,12 @@ package extension_repo
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"os"
 	"seanime/internal/extension"
+	vendor_hibike_torrent "seanime/internal/extension/vendoring/torrent"
 	"seanime/internal/yaegi_interp"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
@@ -39,12 +41,9 @@ type (
 	}
 
 	AnimeTorrentProviderExtensionItem struct {
-		ID                 string `json:"id"`
-		Name               string `json:"name"`
-		CanSmartSearch     bool   `json:"canSmartSearch"`
-		CanFindBestRelease bool   `json:"canFindBestRelease"`
-		SupportsAdult      bool   `json:"supportsAdult"`
-		Type               string `json:"type"`
+		ID       string                                      `json:"id"`
+		Name     string                                      `json:"name"`
+		Settings vendor_hibike_torrent.AnimeProviderSettings `json:"settings"`
 	}
 )
 
@@ -120,12 +119,16 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 
 	r.animeTorrentProviderExtensionBank.Range(func(key string, ext extension.AnimeTorrentProviderExtension) bool {
 		ret = append(ret, &AnimeTorrentProviderExtensionItem{
-			ID:                 ext.GetID(),
-			Name:               ext.GetName(),
-			CanSmartSearch:     ext.GetProvider().CanSmartSearch(),
-			CanFindBestRelease: ext.GetProvider().CanFindBestRelease(),
-			SupportsAdult:      ext.GetProvider().SupportsAdult(),
-			Type:               string(ext.GetProvider().GetType()),
+			ID:   ext.GetID(),
+			Name: ext.GetName(),
+			Settings: vendor_hibike_torrent.AnimeProviderSettings{
+				Type:           vendor_hibike_torrent.AnimeProviderType(ext.GetProvider().GetSettings().Type),
+				CanSmartSearch: ext.GetProvider().GetSettings().CanSmartSearch,
+				SupportsAdult:  ext.GetProvider().GetSettings().SupportsAdult,
+				SmartSearchFilters: lo.Map(ext.GetProvider().GetSettings().SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) vendor_hibike_torrent.AnimeProviderSmartSearchFilter {
+					return vendor_hibike_torrent.AnimeProviderSmartSearchFilter(value)
+				}),
+			},
 		})
 		return true
 	})

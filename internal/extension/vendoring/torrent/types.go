@@ -1,7 +1,36 @@
 package vendor_hibike_torrent
 
+// Resolutions represent resolution filters available to the user.
+var Resolutions = []string{"1080", "720", "540", "480"}
+
+const (
+	// AnimeProviderTypeMain providers can be used as default providers.
+	AnimeProviderTypeMain AnimeProviderType = "main"
+	// AnimeProviderTypeSpecial providers cannot be set as default provider.
+	// Providers that return only specific content (e.g. adult content).
+	// These providers should not return anything from "GetLatest".
+	AnimeProviderTypeSpecial AnimeProviderType = "special"
+)
+
+const (
+	AnimeProviderSmartSearchFilterBatch         AnimeProviderSmartSearchFilter = "batch"
+	AnimeProviderSmartSearchFilterEpisodeNumber AnimeProviderSmartSearchFilter = "episodeNumber"
+	AnimeProviderSmartSearchFilterResolution    AnimeProviderSmartSearchFilter = "resolution"
+	AnimeProviderSmartSearchFilterQuery         AnimeProviderSmartSearchFilter = "query"
+	AnimeProviderSmartSearchFilterBestReleases  AnimeProviderSmartSearchFilter = "bestReleases"
+)
+
 type (
 	AnimeProviderType string
+
+	AnimeProviderSmartSearchFilter string
+
+	AnimeProviderSettings struct {
+		CanSmartSearch     bool                             `json:"canSmartSearch"`
+		SmartSearchFilters []AnimeProviderSmartSearchFilter `json:"smartSearchFilters"`
+		SupportsAdult      bool                             `json:"supportsAdult"`
+		Type               AnimeProviderType                `json:"type"`
+	}
 
 	AnimeProvider interface {
 		// Search for torrents.
@@ -16,15 +45,8 @@ type (
 		GetTorrentMagnetLink(torrent *AnimeTorrent) (string, error)
 		// GetLatest returns the latest torrents.
 		GetLatest() ([]*AnimeTorrent, error)
-		// CanSmartSearch returns true if the provider supports smart search.
-		// i.e. Searching related torrents without direct user query, based on the media.
-		CanSmartSearch() bool
-		// CanFindBestRelease returns true if the provider supports finding the best release.
-		CanFindBestRelease() bool
-		// SupportsAdult returns true if the provider supports searching for adult content.
-		SupportsAdult() bool
-		// GetType returns the provider type.
-		GetType() AnimeProviderType
+		// GetSettings returns the provider settings.
+		GetSettings() AnimeProviderSettings
 	}
 
 	Media struct {
@@ -68,8 +90,6 @@ type (
 		Media Media
 		// User query
 		Query string `json:"query"`
-		// Indicates if the search is for a batch torrent.
-		Batch bool `json:"batch"`
 	}
 
 	AnimeSmartSearchOptions struct {

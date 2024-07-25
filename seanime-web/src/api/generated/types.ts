@@ -1570,10 +1570,7 @@ export type DB_ScanSummaryItem = {
 export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
     id: string
     name: string
-    canSmartSearch: boolean
-    canFindBestRelease: boolean
-    supportsAdult: boolean
-    type: string
+    settings?: HibikeTorrent_AnimeProviderSettings
 }
 
 /**
@@ -2533,6 +2530,32 @@ export type HibikeManga_ChapterPage = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // VendorHibikeTorrent
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/vendoring/torrent/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_torrent
+ */
+export type HibikeTorrent_AnimeProviderSettings = {
+    canSmartSearch: boolean
+    smartSearchFilters?: Array<HibikeTorrent_AnimeProviderSmartSearchFilter>
+    supportsAdult: boolean
+    type: HibikeTorrent_AnimeProviderType
+}
+
+/**
+ * - Filepath: internal/extension/vendoring/torrent/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_torrent
+ */
+export type HibikeTorrent_AnimeProviderSmartSearchFilter = "batch" | "episodeNumber" | "resolution" | "query" | "bestReleases"
+
+/**
+ * - Filepath: internal/extension/vendoring/torrent/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_torrent
+ */
+export type HibikeTorrent_AnimeProviderType = "main" | "special"
 
 /**
  * - Filepath: internal/extension/vendoring/torrent/types.go

@@ -28,6 +28,14 @@ func NewProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
 	}
 }
 
+func (n *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
+	return hibiketorrent.AnimeProviderSettings{
+		Type:           hibiketorrent.AnimeProviderTypeSpecial,
+		CanSmartSearch: true, // Setting to true to allow previews
+		SupportsAdult:  false,
+	}
+}
+
 func (n *Provider) GetType() hibiketorrent.AnimeProviderType {
 	return hibiketorrent.AnimeProviderTypeSpecial
 }
@@ -76,18 +84,6 @@ func (n *Provider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (stri
 
 func (n *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (string, error) {
 	return torrent.MagnetLink, nil
-}
-
-func (n *Provider) CanSmartSearch() bool {
-	return true
-}
-
-func (n *Provider) CanFindBestRelease() bool {
-	return false // SeaDex is already special provider for best releases
-}
-
-func (n *Provider) SupportsAdult() bool {
-	return false
 }
 
 func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorrent {

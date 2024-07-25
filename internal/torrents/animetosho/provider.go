@@ -34,8 +34,17 @@ func NewProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
 	}
 }
 
-func (at *Provider) GetType() hibiketorrent.AnimeProviderType {
-	return hibiketorrent.AnimeProviderTypeMain
+func (at *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
+	return hibiketorrent.AnimeProviderSettings{
+		Type:           hibiketorrent.AnimeProviderTypeMain,
+		CanSmartSearch: true,
+		SmartSearchFilters: []hibiketorrent.AnimeProviderSmartSearchFilter{
+			hibiketorrent.AnimeProviderSmartSearchFilterBatch,
+			hibiketorrent.AnimeProviderSmartSearchFilterEpisodeNumber,
+			hibiketorrent.AnimeProviderSmartSearchFilterResolution,
+		},
+		SupportsAdult: false,
+	}
 }
 
 // GetLatest returns all the latest torrents currently visible on the site
@@ -226,19 +235,6 @@ func (at *Provider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (str
 
 func (at *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (string, error) {
 	return torrent.MagnetLink, nil
-}
-
-func (at *Provider) CanSmartSearch() bool {
-	return true
-}
-
-func (at *Provider) CanFindBestRelease() bool {
-	// TODO use sneedex to find best release
-	return false
-}
-
-func (at *Provider) SupportsAdult() bool {
-	return false
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

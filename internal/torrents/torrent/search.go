@@ -66,7 +66,7 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 		}
 	}
 
-	if opts.Type == AnimeSearchTypeSmart && !providerExtension.GetProvider().CanSmartSearch() {
+	if opts.Type == AnimeSearchTypeSmart && !providerExtension.GetProvider().GetSettings().CanSmartSearch {
 		return nil, fmt.Errorf("provider does not support smart search")
 	}
 

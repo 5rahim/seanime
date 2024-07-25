@@ -32,8 +32,18 @@ func NewProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
 	}
 }
 
-func (n *Provider) GetType() hibiketorrent.AnimeProviderType {
-	return hibiketorrent.AnimeProviderTypeMain
+func (n *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
+	return hibiketorrent.AnimeProviderSettings{
+		Type:           hibiketorrent.AnimeProviderTypeMain,
+		CanSmartSearch: true,
+		SmartSearchFilters: []hibiketorrent.AnimeProviderSmartSearchFilter{
+			hibiketorrent.AnimeProviderSmartSearchFilterBatch,
+			hibiketorrent.AnimeProviderSmartSearchFilterEpisodeNumber,
+			hibiketorrent.AnimeProviderSmartSearchFilterResolution,
+			hibiketorrent.AnimeProviderSmartSearchFilterQuery,
+		},
+		SupportsAdult: false,
+	}
 }
 
 func (n *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
@@ -165,18 +175,6 @@ func (n *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (st
 	return TorrentMagnet(torrent.Link)
 }
 
-func (n *Provider) CanSmartSearch() bool {
-	return true
-}
-
-func (n *Provider) CanFindBestRelease() bool {
-	return false
-}
-
-func (n *Provider) SupportsAdult() bool {
-	return false
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ADVANCED SEARCH
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,85 +198,91 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) ([]str
 
 	// create titles by extracting season/part info
 	titles := make([]string, 0)
-	for _, title := range allTitles {
-		if title == nil {
-			continue
-		}
-		s, cTitle := util.ExtractSeasonNumber(*title)
-		p, cTitle := util.ExtractPartNumber(cTitle)
-		if s != 0 { // update season if it got parsed
-			season = s
-		}
-		if p != 0 { // update part if it got parsed
-			part = p
-		}
-		if cTitle != "" { // add "cleaned" titles
-			titles = append(titles, cTitle)
-		}
-	}
 
-	// Check season from synonyms, only update season if it's still 0
-	for _, synonym := range opts.Media.Synonyms {
-		s, _ := util.ExtractSeasonNumber(synonym)
-		if s != 0 && season == 0 {
-			season = s
-		}
-	}
-
-	// no season or part got parsed, meaning there is no "cleaned" title,
-	// add romaji and english titles to the title list
-	if season == 0 && part == 0 {
-		titles = append(titles, romTitle)
-		if engTitle != nil {
-			if len(*engTitle) > 0 {
-				titles = append(titles, *engTitle)
+	// Build titles if no query provided
+	if opts.Query == "" {
+		for _, title := range allTitles {
+			if title == nil {
+				continue
+			}
+			s, cTitle := util.ExtractSeasonNumber(*title)
+			p, cTitle := util.ExtractPartNumber(cTitle)
+			if s != 0 { // update season if it got parsed
+				season = s
+			}
+			if p != 0 { // update part if it got parsed
+				part = p
+			}
+			if cTitle != "" { // add "cleaned" titles
+				titles = append(titles, cTitle)
 			}
 		}
-	}
 
-	// convert III and II to season
-	// these will get cleaned later
-	if season == 0 && (strings.Contains(strings.ToLower(romTitle), " iii")) {
-		season = 3
-	}
-	if season == 0 && (strings.Contains(strings.ToLower(romTitle), " ii")) {
-		season = 2
-	}
-	if engTitle != nil {
-		if season == 0 && (strings.Contains(strings.ToLower(*engTitle), " iii")) {
+		// Check season from synonyms, only update season if it's still 0
+		for _, synonym := range opts.Media.Synonyms {
+			s, _ := util.ExtractSeasonNumber(synonym)
+			if s != 0 && season == 0 {
+				season = s
+			}
+		}
+
+		// no season or part got parsed, meaning there is no "cleaned" title,
+		// add romaji and english titles to the title list
+		if season == 0 && part == 0 {
+			titles = append(titles, romTitle)
+			if engTitle != nil {
+				if len(*engTitle) > 0 {
+					titles = append(titles, *engTitle)
+				}
+			}
+		}
+
+		// convert III and II to season
+		// these will get cleaned later
+		if season == 0 && (strings.Contains(strings.ToLower(romTitle), " iii")) {
 			season = 3
 		}
-		if season == 0 && (strings.Contains(strings.ToLower(*engTitle), " ii")) {
+		if season == 0 && (strings.Contains(strings.ToLower(romTitle), " ii")) {
 			season = 2
 		}
-	}
+		if engTitle != nil {
+			if season == 0 && (strings.Contains(strings.ToLower(*engTitle), " iii")) {
+				season = 3
+			}
+			if season == 0 && (strings.Contains(strings.ToLower(*engTitle), " ii")) {
+				season = 2
+			}
+		}
 
-	// also, split romaji title by colon,
-	// if first part is long enough, add it to the title list
-	// DEVNOTE maybe we should only do that if the season IS found
-	split := strings.Split(romTitle, ":")
-	if len(split) > 1 && len(split[0]) > 8 {
-		titles = append(titles, split[0])
-	}
-	if engTitle != nil {
-		split := strings.Split(*engTitle, ":")
+		// also, split romaji title by colon,
+		// if first part is long enough, add it to the title list
+		// DEVNOTE maybe we should only do that if the season IS found
+		split := strings.Split(romTitle, ":")
 		if len(split) > 1 && len(split[0]) > 8 {
 			titles = append(titles, split[0])
 		}
-	}
-
-	// clean titles
-	for i, title := range titles {
-		titles[i] = strings.TrimSpace(strings.ReplaceAll(title, ":", " "))
-		titles[i] = strings.TrimSpace(strings.ReplaceAll(titles[i], "-", " "))
-		titles[i] = strings.Join(strings.Fields(titles[i]), " ")
-		titles[i] = strings.ToLower(titles[i])
-		if season != 0 {
-			titles[i] = strings.ReplaceAll(titles[i], " iii", "")
-			titles[i] = strings.ReplaceAll(titles[i], " ii", "")
+		if engTitle != nil {
+			split := strings.Split(*engTitle, ":")
+			if len(split) > 1 && len(split[0]) > 8 {
+				titles = append(titles, split[0])
+			}
 		}
+
+		// clean titles
+		for i, title := range titles {
+			titles[i] = strings.TrimSpace(strings.ReplaceAll(title, ":", " "))
+			titles[i] = strings.TrimSpace(strings.ReplaceAll(titles[i], "-", " "))
+			titles[i] = strings.Join(strings.Fields(titles[i]), " ")
+			titles[i] = strings.ToLower(titles[i])
+			if season != 0 {
+				titles[i] = strings.ReplaceAll(titles[i], " iii", "")
+				titles[i] = strings.ReplaceAll(titles[i], " ii", "")
+			}
+		}
+		titles = lo.Uniq(titles)
+	} else {
+		titles = append(titles, strings.ToLower(opts.Query))
 	}
-	titles = lo.Uniq(titles)
 
 	//
 	// Parameters
@@ -354,7 +358,7 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) ([]str
 // (jjk|jujutsu kaisen)
 func buildTitleString(titles []string) string {
 	return fmt.Sprintf("(%s)", strings.Join(lo.Map(titles, func(item string, _ int) string {
-		return fmt.Sprintf(`"%s"`, item)
+		return fmt.Sprintf(`%s`, item)
 	}), "|"))
 }
 

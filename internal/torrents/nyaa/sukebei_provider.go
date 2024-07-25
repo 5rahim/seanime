@@ -21,6 +21,14 @@ func NewSukebeiProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
 	}
 }
 
+func (n *SukebeiProvider) GetSettings() hibiketorrent.AnimeProviderSettings {
+	return hibiketorrent.AnimeProviderSettings{
+		Type:           hibiketorrent.AnimeProviderTypeSpecial,
+		CanSmartSearch: false,
+		SupportsAdult:  true,
+	}
+}
+
 func (n *SukebeiProvider) GetType() hibiketorrent.AnimeProviderType {
 	return hibiketorrent.AnimeProviderTypeSpecial
 }
@@ -119,16 +127,4 @@ func (n *SukebeiProvider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent
 
 func (n *SukebeiProvider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (string, error) {
 	return TorrentMagnet(torrent.Link)
-}
-
-func (n *SukebeiProvider) CanSmartSearch() bool {
-	return false
-}
-
-func (n *SukebeiProvider) CanFindBestRelease() bool {
-	return false
-}
-
-func (n *SukebeiProvider) SupportsAdult() bool {
-	return true
 }

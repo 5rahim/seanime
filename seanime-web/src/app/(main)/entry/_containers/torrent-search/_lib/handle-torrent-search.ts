@@ -70,9 +70,12 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
 
     const warnings = {
         noProvider: !selectedProviderExtension,
-        extensionDoesNotSupportAdult: isAdult && selectedProviderExtension && !selectedProviderExtension.supportsAdult,
-        extensionDoesNotSupportSmartSearch: searchType === Torrent_SearchType.SMART && selectedProviderExtension && !selectedProviderExtension.canSmartSearch,
-        extensionDoesNotSupportBestRelease: smartSearchBest && selectedProviderExtension && !selectedProviderExtension.canFindBestRelease,
+        extensionDoesNotSupportAdult: isAdult && selectedProviderExtension && !selectedProviderExtension?.settings?.supportsAdult,
+        extensionDoesNotSupportSmartSearch: searchType === Torrent_SearchType.SMART && selectedProviderExtension && !selectedProviderExtension?.settings?.canSmartSearch,
+        extensionDoesNotSupportBestRelease: smartSearchBest && selectedProviderExtension && !selectedProviderExtension?.settings?.smartSearchFilters?.includes(
+            "bestReleases"),
+        extensionDoesNotSupportBatchSearch: smartSearchBatch && selectedProviderExtension && !selectedProviderExtension?.settings?.smartSearchFilters?.includes(
+            "batch"),
     }
 
     // Change fields based on selected provider
@@ -86,12 +89,17 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             setSmartSearchBest(false)
         }
     }, [warnings.extensionDoesNotSupportBestRelease, selectedProviderExtensionId, smartSearchBest])
+    React.useLayoutEffect(() => {
+        if (smartSearchBatch && warnings.extensionDoesNotSupportBatchSearch) {
+            setSmartSearchBatch(false)
+        }
+    }, [warnings.extensionDoesNotSupportBatchSearch, selectedProviderExtensionId, smartSearchBatch])
 
     /**
      * Fetch torrent search data
      */
     const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
-        query: globalFilter.trim(),
+        query: globalFilter.trim().toLowerCase(),
             episodeNumber: dSmartSearchEpisode,
             batch: smartSearchBatch,
             media: entry?.media,

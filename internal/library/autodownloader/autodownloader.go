@@ -219,7 +219,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. Default provider not found.")
 		return
 	}
-	if providerExt.GetProvider().GetType() != hibiketorrent.AnimeProviderTypeMain {
+	if providerExt.GetProvider().GetSettings().Type != hibiketorrent.AnimeProviderTypeMain {
 		ad.logger.Warn().Msgf("autodownloader: Could not check for new episodes. Provider '%s' cannot be used for auto downloading.", providerExt.GetName())
 		return
 	}

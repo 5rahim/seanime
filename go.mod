@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/hibike v0.2.1
+	github.com/5rahim/hibike v0.3.1
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.9.2

@@ -210,12 +210,12 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                         <div className="flex w-full justify-between">
                             <Switch
                                 label="Smart search"
-                                help={selectedProviderExtension?.canSmartSearch
+                                help={selectedProviderExtension?.settings?.canSmartSearch
                                     ? "Builds a search query automatically, based on parameters"
                                     : "This provider does not support smart search"}
                                 value={searchType === Torrent_SearchType.SMART}
                                 onValueChange={v => setSearchType(v ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)}
-                                disabled={!selectedProviderExtension?.canSmartSearch}
+                                disabled={!selectedProviderExtension?.settings?.canSmartSearch}
                             />
                             <div className="flex flex-1"></div>
                             <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
@@ -225,9 +225,9 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                             <div className="space-y-2">
                                 <div className="flex flex-col justify-between gap-3 md:flex-row w-full">
 
-                                    <EpisodeNumberInput />
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") && <EpisodeNumberInput />}
 
-                                    <Select
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("resolution") && <Select
                                         label="Resolution"
                                         value={smartSearchResolution || "-"}
                                         onValueChange={v => setSmartSearchResolution(v != "-" ? v : "")}
@@ -246,9 +246,9 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         )}
                                         fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                         className="w-[6rem]"
-                                    />
+                                    />}
 
-                                    {selectedProviderExtension?.canFindBestRelease && <Switch
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch
                                         label="Best releases"
                                         help={!downloadInfo?.canBatch ? "Cannot look for best releases yet" : "Look for the best releases"}
                                         value={smartSearchBest}
@@ -259,7 +259,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         size="sm"
                                     />}
 
-                                    <Switch
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch") && <Switch
                                         label="Batches"
                                         help={!downloadInfo?.canBatch ? "Cannot look for batches yet" : "Look for batches"}
                                         value={smartSearchBatch}
@@ -269,13 +269,13 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
                                         )}
                                         size="sm"
-                                    />
+                                    />}
 
                                 </div>
 
                                 {!hasOneWarning && (
                                     <>
-                                        {serverStatus?.settings?.library?.torrentProvider != "animetosho" && <DataGridSearchInput
+                                        {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") && <DataGridSearchInput
                                             value={globalFilter ?? ""}
                                             onChange={v => setGlobalFilter(v)}
                                             placeholder={searchType == Torrent_SearchType.SMART
