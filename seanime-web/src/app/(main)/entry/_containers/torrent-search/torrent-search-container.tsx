@@ -188,7 +188,6 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     key={key}
                                     intent="warning"
                                     description={<>
-                                        {key === "noEpisodes" && "No episodes found"}
                                         {key === "extensionDoesNotSupportAdult" && "This provider does not support adult content"}
                                         {key === "extensionDoesNotSupportSmartSearch" && "This provider does not support smart search"}
                                         {key === "extensionDoesNotSupportBestRelease" && "This provider does not support best release search"}

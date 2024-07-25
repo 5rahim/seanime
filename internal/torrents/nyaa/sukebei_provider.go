@@ -29,10 +29,6 @@ func (n *SukebeiProvider) GetSettings() hibiketorrent.AnimeProviderSettings {
 	}
 }
 
-func (n *SukebeiProvider) GetType() hibiketorrent.AnimeProviderType {
-	return hibiketorrent.AnimeProviderTypeSpecial
-}
-
 func (n *SukebeiProvider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	fp := gofeed.NewParser()
 
