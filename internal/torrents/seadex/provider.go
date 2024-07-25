@@ -83,7 +83,7 @@ func (n *Provider) CanSmartSearch() bool {
 }
 
 func (n *Provider) CanFindBestRelease() bool {
-	return true
+	return false // SeaDex is already special provider for best releases
 }
 
 func (n *Provider) SupportsAdult() bool {

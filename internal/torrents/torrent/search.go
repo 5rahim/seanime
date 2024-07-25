@@ -66,10 +66,6 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 		}
 	}
 
-	if providerExtension.GetProvider().GetType() != hibiketorrent.AnimeProviderTypeMain {
-		return nil, fmt.Errorf("provider is not an anime provider")
-	}
-
 	if opts.Type == AnimeSearchTypeSmart && !providerExtension.GetProvider().CanSmartSearch() {
 		return nil, fmt.Errorf("provider does not support smart search")
 	}

@@ -164,12 +164,13 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     leftAddon="Torrent Provider"
                     // label="Torrent Provider"
                     value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
+                    onValueChange={setSelectedProviderExtensionId}
                     leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
                     options={[
-                        ...providerExtensions?.map(ext => ({
+                        ...(providerExtensions?.map(ext => ({
                             label: ext.name,
                             value: ext.id,
-                        })) ?? [],
+                        })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
                         { label: "None", value: TORRENT_PROVIDER.NONE },
                     ]}
                 />
