@@ -2392,6 +2392,22 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
  */
 export type Torrentstream_EpisodeCollection = {
     episodes?: Array<Anime_AnimeEntryEpisode>
+    hasMappingError: boolean
+}
+
+/**
+ * - Filepath: internal/torrentstream/previews.go
+ * - Filename: previews.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_FilePreview = {
+    path: string
+    displayPath: string
+    displayTitle: string
+    episodeNumber: number
+    relativeEpisodeNumber: number
+    isLikely: boolean
+    index: number
 }
 
 /**

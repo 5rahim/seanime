@@ -239,7 +239,7 @@ searchLoop:
 }
 
 // findBestTorrentFromManualSelection is like findBestTorrent but no need to search for the best torrent first
-func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, anizipEpisode *anizip.Episode, episodeNumber int) (*playbackTorrent, error) {
+func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, anizipEpisode *anizip.Episode, chosenFileIndex *int) (*playbackTorrent, error) {
 
 	r.logger.Debug().Msgf("torrentstream: Analyzing torrent from %s for %s", t.Link, media.GetTitleSafe())
 
@@ -276,58 +276,71 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 		}, nil
 	}
 
-	// We know the torrent has multiple files, so we'll need to analyze it
-	filepaths := lo.Map(selectedTorrent.Files(), func(f *torrent.File, _ int) string {
-		return f.DisplayPath()
-	})
+	var fileIndex int
 
-	if len(filepaths) == 0 {
-		r.logger.Error().Msg("torrentstream: No files found in the torrent")
-		return nil, fmt.Errorf("no files found in the torrent")
+	// If the file index is already selected
+	if chosenFileIndex != nil {
+
+		fileIndex = *chosenFileIndex
+
+	} else {
+
+		// We know the torrent has multiple files, so we'll need to analyze it
+		filepaths := lo.Map(selectedTorrent.Files(), func(f *torrent.File, _ int) string {
+			return f.DisplayPath()
+		})
+
+		if len(filepaths) == 0 {
+			r.logger.Error().Msg("torrentstream: No files found in the torrent")
+			return nil, fmt.Errorf("no files found in the torrent")
+		}
+
+		// Create a new Torrent Analyzer
+		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
+			Logger:    r.logger,
+			Filepaths: filepaths,
+			Media:     media,
+			Platform:  r.platform,
+		})
+
+		// Analyze torrent files
+		analysis, err := analyzer.AnalyzeTorrentFiles()
+		if err != nil {
+			r.logger.Warn().Err(err).Msg("torrentstream: Error analyzing torrent files")
+			// Remove torrent on failure
+			go func() {
+				_ = r.client.RemoveTorrent(selectedTorrent.InfoHash().AsString())
+			}()
+			return nil, err
+		}
+
+		analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
+		// Check if analyzer found the episode
+		if !found {
+			r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", selectedTorrent.Info().Name)
+			// Remove torrent on failure
+			go func() {
+				_ = r.client.RemoveTorrent(selectedTorrent.InfoHash().AsString())
+			}()
+			return nil, ErrNoEpisodeFound
+		}
+
+		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
+
+		fileIndex = analysisFile.GetIndex()
+
 	}
-
-	// Create a new Torrent Analyzer
-	analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
-		Logger:    r.logger,
-		Filepaths: filepaths,
-		Media:     media,
-		Platform:  r.platform,
-	})
-
-	// Analyze torrent files
-	analysis, err := analyzer.AnalyzeTorrentFiles()
-	if err != nil {
-		r.logger.Warn().Err(err).Msg("torrentstream: Error analyzing torrent files")
-		// Remove torrent on failure
-		go func() {
-			_ = r.client.RemoveTorrent(selectedTorrent.InfoHash().AsString())
-		}()
-		return nil, err
-	}
-
-	analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
-	// Check if analyzer found the episode
-	if !found {
-		r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", selectedTorrent.Info().Name)
-		// Remove torrent on failure
-		go func() {
-			_ = r.client.RemoveTorrent(selectedTorrent.InfoHash().AsString())
-		}()
-		return nil, ErrNoEpisodeFound
-	}
-
-	r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
 
 	// Download the file and unselect the rest
 	for i, f := range selectedTorrent.Files() {
-		if i != analysisFile.GetIndex() {
+		if i != fileIndex {
 			f.SetPriority(torrent.PiecePriorityNone)
 		}
 	}
-	//selectedTorrent.Files()[analysisFile.GetIndex()].SetPriority(torrent.PiecePriorityNormal)
-	r.logger.Debug().Msgf("torrentstream: Selected torrent %s", selectedTorrent.Files()[analysisFile.GetIndex()].DisplayPath())
+	//selectedTorrent.Files()[fileIndex].SetPriority(torrent.PiecePriorityNormal)
+	r.logger.Debug().Msgf("torrentstream: Selected torrent %s", selectedTorrent.Files()[fileIndex].DisplayPath())
 
-	tFile := selectedTorrent.Files()[analysisFile.GetIndex()]
+	tFile := selectedTorrent.Files()[fileIndex]
 	tFile.Download()
 	// Select the first 5% of the pieces
 	firstPieceIdx := tFile.Offset() * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
@@ -338,7 +351,7 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 
 	ret := &playbackTorrent{
 		Torrent: selectedTorrent,
-		File:    selectedTorrent.Files()[analysisFile.GetIndex()],
+		File:    selectedTorrent.Files()[fileIndex],
 	}
 
 	return ret, nil

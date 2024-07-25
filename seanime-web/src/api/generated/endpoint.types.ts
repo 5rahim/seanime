@@ -1120,6 +1120,19 @@ export type SaveTorrentstreamSettings_Variables = {
 /**
  * - Filepath: internal/handlers/torrentstream.go
  * - Filename: torrentstream.go
+ * - Endpoint: /api/v1/torrentstream/torrent-file-previews
+ * @description
+ * Route get list of torrent files from a batch
+ */
+export type GetTorrentstreamTorrentFilePreviews_Variables = {
+    torrent?: HibikeTorrent_AnimeTorrent
+    episodeNumber: number
+    media?: AL_BaseAnime
+}
+
+/**
+ * - Filepath: internal/handlers/torrentstream.go
+ * - Filename: torrentstream.go
  * - Endpoint: /api/v1/torrentstream/start
  * @description
  * Route starts a torrent stream.
@@ -1129,12 +1142,8 @@ export type TorrentstreamStartStream_Variables = {
     episodeNumber: number
     aniDBEpisode: string
     autoSelect: boolean
-    /**
-     *  Nil if autoSelect is true
-     *  
-     *  Nil if autoSelect is true
-     */
     torrent?: HibikeTorrent_AnimeTorrent
+    fileIndex?: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

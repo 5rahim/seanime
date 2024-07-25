@@ -4,6 +4,8 @@ import (
 	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	lop "github.com/samber/lo/parallel"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
@@ -77,6 +79,54 @@ func HandleSaveTorrentstreamSettings(c *RouteCtx) error {
 	return c.RespondWithData(settings)
 }
 
+// HandleGetTorrentstreamTorrentFilePreviews
+//
+//	@summary get list of torrent files from a batch
+//	@desc This returns a list of file previews from the torrent
+//	@returns []torrentstream.FilePreview
+//	@route /api/v1/torrentstream/torrent-file-previews [POST]
+func HandleGetTorrentstreamTorrentFilePreviews(c *RouteCtx) error {
+	type body struct {
+		Torrent       *hibiketorrent.AnimeTorrent `json:"torrent"`
+		EpisodeNumber int                         `json:"episodeNumber"`
+		Media         *anilist.BaseAnime          `json:"media"`
+	}
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	providerExtension, ok := c.App.ExtensionRepository.GetAnimeTorrentProviderExtensionByID(b.Torrent.Provider)
+	if !ok {
+		return c.RespondWithError(errors.New("torrentstream: Torrent provider extension not found"))
+	}
+
+	magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get the media
+	anizipMedia, _ := anizip.FetchAniZipMediaC("anilist", b.Media.GetID(), c.App.AnizipCache)
+	absoluteOffset := 0
+	if anizipMedia != nil {
+		absoluteOffset = anizipMedia.GetOffset()
+	}
+
+	files, err := c.App.TorrentstreamRepository.GetTorrentFilePreviewsFromManualSelection(&torrentstream.GetTorrentFilePreviewsOptions{
+		Torrent:        b.Torrent,
+		Magnet:         magnet,
+		EpisodeNumber:  b.EpisodeNumber,
+		AbsoluteOffset: absoluteOffset,
+		Media:          b.Media,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(files)
+}
+
 // HandleTorrentstreamStartStream
 //
 //	@summary starts a torrent stream.
@@ -86,12 +136,12 @@ func HandleSaveTorrentstreamSettings(c *RouteCtx) error {
 func HandleTorrentstreamStartStream(c *RouteCtx) error {
 
 	type body struct {
-		MediaId       int    `json:"mediaId"`
-		EpisodeNumber int    `json:"episodeNumber"`
-		AniDBEpisode  string `json:"aniDBEpisode"`
-		AutoSelect    bool   `json:"autoSelect"`
-		// Nil if autoSelect is true
-		Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
+		MediaId       int                         `json:"mediaId"`
+		EpisodeNumber int                         `json:"episodeNumber"`
+		AniDBEpisode  string                      `json:"aniDBEpisode"`
+		AutoSelect    bool                        `json:"autoSelect"`
+		Torrent       *hibiketorrent.AnimeTorrent `json:"torrent,omitempty"` // Nil if autoSelect is true
+		FileIndex     *int                        `json:"fileIndex,omitempty"`
 	}
 
 	var b body
@@ -105,6 +155,7 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		AniDBEpisode:  b.AniDBEpisode,
 		AutoSelect:    b.AutoSelect,
 		Torrent:       b.Torrent,
+		FileIndex:     b.FileIndex,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

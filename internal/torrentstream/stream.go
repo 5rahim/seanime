@@ -11,11 +11,12 @@ import (
 )
 
 type StartStreamOptions struct {
-	MediaId       int                         `json:"mediaId"`
-	EpisodeNumber int                         `json:"episodeNumber"` // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                      `json:"aniDBEpisode"`  // Anizip episode
-	AutoSelect    bool                        `json:"autoSelect"`    // Automatically select the best file to stream
-	Torrent       *hibiketorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
+	MediaId       int
+	EpisodeNumber int                         // RELATIVE Episode number to identify the file
+	AniDBEpisode  string                      // Anizip episode
+	AutoSelect    bool                        // Automatically select the best file to stream
+	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
+	FileIndex     *int                        // Index of the file to stream (Manual selection)
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -58,7 +59,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		if opts.Torrent == nil {
 			return fmt.Errorf("torrentstream: No torrent provided")
 		}
-		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, anizipEpisode, episodeNumber)
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, anizipEpisode, opts.FileIndex)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err

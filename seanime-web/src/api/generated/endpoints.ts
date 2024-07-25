@@ -1228,6 +1228,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route get list of torrent files from a batch
+         *  This returns a list of file previews from the torrent
+         */
+        GetTorrentstreamTorrentFilePreviews: {
+            key: "TORRENTSTREAM-get-torrentstream-torrent-file-previews",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/torrent-file-previews",
+        },
+        /**
+         *  @description
          *  Route starts a torrent stream.
          *  This starts the entire streaming process.
          */

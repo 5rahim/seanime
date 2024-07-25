@@ -339,6 +339,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/torrentstream/start", makeHandler(app, HandleTorrentstreamStartStream))
 	v1.Post("/torrentstream/stop", makeHandler(app, HandleTorrentstreamStopStream))
 	v1.Post("/torrentstream/drop", makeHandler(app, HandleTorrentstreamDropTorrent))
+	v1.Post("/torrentstream/torrent-file-previews", makeHandler(app, HandleGetTorrentstreamTorrentFilePreviews))
 
 	//
 	// Extensions

@@ -5628,6 +5628,64 @@
     }
   },
   {
+    "name": "HandleGetTorrentstreamTorrentFilePreviews",
+    "trimmedName": "GetTorrentstreamTorrentFilePreviews",
+    "comments": [
+      "HandleGetTorrentstreamTorrentFilePreviews",
+      "",
+      "\t@summary get list of torrent files from a batch",
+      "\t@desc This returns a list of file previews from the torrent",
+      "\t@returns []torrentstream.FilePreview",
+      "\t@route /api/v1/torrentstream/torrent-file-previews [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "get list of torrent files from a batch",
+      "descriptions": [
+        "This returns a list of file previews from the torrent"
+      ],
+      "endpoint": "/api/v1/torrentstream/torrent-file-previews",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]torrentstream.FilePreview",
+      "returnGoType": "torrentstream.FilePreview",
+      "returnTypescriptType": "Array\u003cTorrentstream_FilePreview\u003e"
+    }
+  },
+  {
     "name": "HandleTorrentstreamStartStream",
     "trimmedName": "TorrentstreamStartStream",
     "comments": [
@@ -5695,11 +5753,16 @@
           "usedStructType": "hibiketorrent.AnimeTorrent",
           "typescriptType": "HibikeTorrent_AnimeTorrent",
           "required": false,
-          "descriptions": [
-            "Nil if autoSelect is true",
-            "",
-            "Nil if autoSelect is true"
-          ]
+          "descriptions": []
+        },
+        {
+          "name": "FileIndex",
+          "jsonName": "fileIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "bool",

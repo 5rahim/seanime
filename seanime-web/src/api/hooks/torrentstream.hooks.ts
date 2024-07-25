@@ -1,7 +1,11 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { SaveTorrentstreamSettings_Variables, TorrentstreamStartStream_Variables } from "@/api/generated/endpoint.types"
+import {
+    GetTorrentstreamTorrentFilePreviews_Variables,
+    SaveTorrentstreamSettings_Variables,
+    TorrentstreamStartStream_Variables,
+} from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Models_TorrentstreamSettings, Torrentstream_EpisodeCollection } from "@/api/generated/types"
+import { Models_TorrentstreamSettings, Torrentstream_EpisodeCollection, Torrentstream_FilePreview } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -69,3 +73,12 @@ export function useTorrentstreamDropTorrent() {
     })
 }
 
+export function useGetTorrentstreamTorrentFilePreviews(variables: Partial<GetTorrentstreamTorrentFilePreviews_Variables>, enabled: boolean) {
+    return useServerQuery<Array<Torrentstream_FilePreview>, GetTorrentstreamTorrentFilePreviews_Variables>({
+        endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.endpoint,
+        method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.methods[0],
+        queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.key, variables],
+        data: variables as GetTorrentstreamTorrentFilePreviews_Variables,
+        enabled: enabled,
+    })
+}

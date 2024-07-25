@@ -11,7 +11,8 @@ import (
 
 type (
 	EpisodeCollection struct {
-		Episodes []*anime.AnimeEntryEpisode `json:"episodes"`
+		Episodes        []*anime.AnimeEntryEpisode `json:"episodes"`
+		HasMappingError bool                       `json:"hasMappingError"`
 	}
 )
 
@@ -29,7 +30,8 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	ec = &EpisodeCollection{
-		Episodes: make([]*anime.AnimeEntryEpisode, 0),
+		HasMappingError: false,
+		Episodes:        make([]*anime.AnimeEntryEpisode, 0),
 	}
 
 	// +---------------------+
@@ -50,8 +52,8 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	if info == nil || info.EpisodesToDownload == nil {
-		r.logger.Error().Msg("torrentstream: could not get media entry info, episodes to download is nil")
-		return nil, fmt.Errorf("could not get media entry info")
+		ec.HasMappingError = true
+		return
 	}
 
 	if len(info.EpisodesToDownload) == 0 {

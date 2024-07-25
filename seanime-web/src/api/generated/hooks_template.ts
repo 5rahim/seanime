@@ -1427,6 +1427,17 @@
 //     })
 // }
 
+// export function useGetTorrentstreamTorrentFilePreviews() {
+//     return useServerMutation<Array<Torrentstream_FilePreview>, GetTorrentstreamTorrentFilePreviews_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useTorrentstreamStartStream() {
 //     return useServerMutation<boolean, TorrentstreamStartStream_Variables>({
 //         endpoint: API_ENDPOINTS.TORRENTSTREAM.TorrentstreamStartStream.endpoint,

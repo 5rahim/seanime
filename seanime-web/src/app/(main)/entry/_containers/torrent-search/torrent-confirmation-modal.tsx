@@ -230,8 +230,7 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
             onClick={() => {
                 if (type === "download") {
                     setter(true)
-                }
-                if (type === "select") {
+                } else {
                     onTorrentValidated()
                 }
             }}

@@ -1,7 +1,10 @@
 import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
+import {
+    __torrentSearch_torrentstreamSelectedTorrentAtom,
+    TorrentstreamFileSelectionModal,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrentstream-file-section-modal"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
 import {
     TorrentConfirmationContinueButton,
@@ -18,7 +21,7 @@ import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
-import { atom } from "jotai"
+import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
 import { RiFolderDownloadFill } from "react-icons/ri"
@@ -26,7 +29,6 @@ import { RiFolderDownloadFill } from "react-icons/ri"
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ type, entry }: { type: TorrentSelectionType, entry: Anime_AnimeEntry }) {
-    const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
 
     const shouldLookForBatches = React.useMemo(() => {
@@ -125,7 +127,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 }
                 return [...prev, t]
             })
-        } else if (type === "select") {
+        } else {
             setSelectedTorrents(prev => {
                 const idx = prev.findIndex(n => n.link === t.link)
                 if (idx !== -1) {
@@ -142,6 +144,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
      */
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
     const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+    const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
     const onTorrentValidated = () => {
         if (type === "select") {
@@ -150,9 +153,19 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     torrent: selectedTorrents[0],
                     entry,
                     aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
-                    episodeNumber: smartSearchEpisode,
+                    episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                    chosenFileIndex: undefined,
                 })
                 setter(undefined)
+                React.startTransition(() => {
+                    setSelectedTorrents([])
+                })
+            }
+        } else if (type === "select-file") {
+            // Open the drawer to select the file
+            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+                // This opens the file selection drawer
+                setTorrentstreamSelectedTorrent(selectedTorrents[0])
                 React.startTransition(() => {
                     setSelectedTorrents([])
                 })
@@ -322,6 +335,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 media={entry.media!!}
                 entry={entry}
             />}
+
+            {type === "select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
         </>
     )
 
