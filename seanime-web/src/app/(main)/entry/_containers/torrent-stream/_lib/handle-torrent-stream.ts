@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import {
     __torrentstream__loadingStateAtom,
@@ -9,7 +9,7 @@ import { useSetAtom } from "jotai/react"
 import React from "react"
 
 type ManualTorrentStreamSelectionProps = {
-    torrent: Torrent_AnimeTorrent
+    torrent: HibikeTorrent_AnimeTorrent
     entry: Anime_AnimeEntry
     episodeNumber: number
     aniDBEpisode: string
@@ -51,6 +51,7 @@ export function useHandleStartTorrentStream() {
             episodeNumber: params.episodeNumber,
             aniDBEpisode: params.aniDBEpisode,
             autoSelect: true,
+            torrent: undefined,
         }, {
             onError: () => {
                 setLoadingState(null)

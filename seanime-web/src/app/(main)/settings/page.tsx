@@ -1,5 +1,5 @@
 "use client"
-import { useListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
+import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
@@ -57,7 +57,7 @@ export default function Page() {
 
     const [tab, setTab] = useAtom(tabAtom)
 
-    const { data: torrentProviderExtensions } = useListTorrentProviderExtensions()
+    const { data: torrentProviderExtensions } = useAnimeListTorrentProviderExtensions()
 
     const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
 

@@ -59,5 +59,5 @@ func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Exten
 	provider := newProviderFunc(r.logger)
 
 	// Add the extension to the map
-	r.torrentProviderExtensions.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
+	r.animeTorrentProviderExtensions.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
 }

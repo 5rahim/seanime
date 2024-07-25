@@ -1858,14 +1858,14 @@
     }
   },
   {
-    "name": "HandleListTorrentProviderExtensions",
-    "trimmedName": "ListTorrentProviderExtensions",
+    "name": "HandleListAnimeTorrentProviderExtensions",
+    "trimmedName": "ListAnimeTorrentProviderExtensions",
     "comments": [
-      "HandleListTorrentProviderExtensions",
+      "HandleListAnimeTorrentProviderExtensions",
       "",
       "\t@summary returns the available manga providers.",
-      "\t@route /api/v1/extensions/list/torrent-provider [GET]",
-      "\t@returns []extension_repo.TorrentProviderExtensionItem",
+      "\t@route /api/v1/extensions/list/anime-torrent-provider [GET]",
+      "\t@returns []extension_repo.AnimeTorrentProviderExtensionItem",
       ""
     ],
     "filepath": "internal/handlers/extensions.go",
@@ -1873,15 +1873,15 @@
     "api": {
       "summary": "returns the available manga providers.",
       "descriptions": [],
-      "endpoint": "/api/v1/extensions/list/torrent-provider",
+      "endpoint": "/api/v1/extensions/list/anime-torrent-provider",
       "methods": [
         "GET"
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "[]extension_repo.TorrentProviderExtensionItem",
-      "returnGoType": "extension_repo.TorrentProviderExtensionItem",
-      "returnTypescriptType": "Array\u003cExtensionRepo_TorrentProviderExtensionItem\u003e"
+      "returns": "[]extension_repo.AnimeTorrentProviderExtensionItem",
+      "returnGoType": "extension_repo.AnimeTorrentProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_AnimeTorrentProviderExtensionItem\u003e"
     }
   },
   {
@@ -5422,17 +5422,8 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "Provider",
-          "jsonName": "provider",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": false,
-          "descriptions": []
-        },
-        {
           "name": "Type",
-          "jsonName": "smartSearch",
+          "jsonName": "type",
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
@@ -5442,6 +5433,15 @@
             "",
             "\"smart\" or \"simple\""
           ]
+        },
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
         },
         {
           "name": "Query",

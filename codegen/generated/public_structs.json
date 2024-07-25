@@ -27433,8 +27433,8 @@
         "comments": []
       },
       {
-        "name": "torrentProviderExtensions",
-        "jsonName": "torrentProviderExtensions",
+        "name": "animeTorrentProviderExtensions",
+        "jsonName": "animeTorrentProviderExtensions",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -27521,8 +27521,8 @@
   {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
-    "name": "TorrentProviderExtensionItem",
-    "formattedName": "ExtensionRepo_TorrentProviderExtensionItem",
+    "name": "AnimeTorrentProviderExtensionItem",
+    "formattedName": "ExtensionRepo_AnimeTorrentProviderExtensionItem",
     "package": "extension_repo",
     "fields": [
       {
@@ -27566,6 +27566,15 @@
         "jsonName": "supportsAdult",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []

@@ -474,11 +474,11 @@
 //     })
 // }
 
-// export function useListTorrentProviderExtensions() {
-//     return useServerQuery<Array<ExtensionRepo_TorrentProviderExtensionItem>>({
-//         endpoint: API_ENDPOINTS.EXTENSIONS.ListTorrentProviderExtensions.endpoint,
-//         method: API_ENDPOINTS.EXTENSIONS.ListTorrentProviderExtensions.methods[0],
-//         queryKey: [API_ENDPOINTS.EXTENSIONS.ListTorrentProviderExtensions.key],
+// export function useListAnimeTorrentProviderExtensions() {
+//     return useServerQuery<Array<ExtensionRepo_AnimeTorrentProviderExtensionItem>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.key],
 //         enabled: true,
 //     })
 // }

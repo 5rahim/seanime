@@ -4,7 +4,6 @@ import (
 	"github.com/rs/zerolog"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
-	"seanime/internal/database/models"
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"sync"
@@ -54,9 +53,9 @@ func (r *Repository) SetAnimeProviderExtensions(extensions *result.Map[string, e
 	defer r.mu.Unlock()
 
 	// Check if the default provider is in the list of providers
-	if r.settings.DefaultAnimeProvider != "" {
+	if r.settings.DefaultAnimeProvider != "" && r.settings.DefaultAnimeProvider != "none" {
 		if _, ok := r.animeProviderExtensions.Get(r.settings.DefaultAnimeProvider); !ok {
-			r.logger.Warn().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Default torrent provider not found in provider extensions")
+			r.logger.Error().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Default torrent provider not found in extensions")
 			// Set the default provider to empty
 			r.settings.DefaultAnimeProvider = ""
 		}
@@ -74,7 +73,7 @@ func (r *Repository) SetAnimeProviderExtensions(extensions *result.Map[string, e
 }
 
 // SetSettings should be called after the repository is created and settings are refreshed
-func (r *Repository) SetSettings(s *models.TorrentSettings) {
+func (r *Repository) SetSettings(s *RepositorySettings) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -83,8 +82,10 @@ func (r *Repository) SetSettings(s *models.TorrentSettings) {
 			DefaultAnimeProvider: "",
 		}
 	}
-	r.settings = RepositorySettings{
-		DefaultAnimeProvider: s.Default,
+	r.settings = *s
+
+	if r.settings.DefaultAnimeProvider == "none" {
+		r.settings.DefaultAnimeProvider = ""
 	}
 }
 

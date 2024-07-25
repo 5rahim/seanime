@@ -1567,6 +1567,20 @@ export type DB_ScanSummaryItem = {
  * - Filename: repository.go
  * - Package: extension_repo
  */
+export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
+    id: string
+    name: string
+    canSmartSearch: boolean
+    canFindBestRelease: boolean
+    supportsAdult: boolean
+    type: string
+}
+
+/**
+ * - Filepath: internal/extension_repo/repository.go
+ * - Filename: repository.go
+ * - Package: extension_repo
+ */
 export type ExtensionRepo_MangaProviderExtensionItem = {
     id: string
     name: string
@@ -1581,19 +1595,6 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
     id: string
     name: string
     episodeServers?: Array<string>
-}
-
-/**
- * - Filepath: internal/extension_repo/repository.go
- * - Filename: repository.go
- * - Package: extension_repo
- */
-export type ExtensionRepo_TorrentProviderExtensionItem = {
-    id: string
-    name: string
-    canSmartSearch: boolean
-    canFindBestRelease: boolean
-    supportsAdult: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

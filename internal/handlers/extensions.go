@@ -20,12 +20,12 @@ func HandleListOnlinestreamProviderExtensions(c *RouteCtx) error {
 	return c.RespondWithData(extensions)
 }
 
-// HandleListTorrentProviderExtensions
+// HandleListAnimeTorrentProviderExtensions
 //
 //	@summary returns the available manga providers.
-//	@route /api/v1/extensions/list/torrent-provider [GET]
-//	@returns []extension_repo.TorrentProviderExtensionItem
-func HandleListTorrentProviderExtensions(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.ListTorrentProviderExtensions()
+//	@route /api/v1/extensions/list/anime-torrent-provider [GET]
+//	@returns []extension_repo.AnimeTorrentProviderExtensionItem
+func HandleListAnimeTorrentProviderExtensions(c *RouteCtx) error {
+	extensions := c.App.ExtensionRepository.ListAnimeTorrentProviderExtensions()
 	return c.RespondWithData(extensions)
 }

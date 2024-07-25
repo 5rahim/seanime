@@ -1,4 +1,4 @@
-import { Torrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
+import { HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { IconButton } from "@/components/ui/button"
@@ -11,8 +11,8 @@ import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 type TorrentPreviewList = {
     previews: Torrent_Preview[],
     isLoading: boolean
-    selectedTorrents: Torrent_AnimeTorrent[]
-    onToggleTorrent: (t: Torrent_AnimeTorrent) => void
+    selectedTorrents: HibikeTorrent_AnimeTorrent[]
+    onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
 }
 
 export const TorrentPreviewList = React.memo((
@@ -35,7 +35,7 @@ export const TorrentPreviewList = React.memo((
                         title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
                         releaseGroup={item.torrent.releaseGroup || ""}
                         filename={item.torrent.name}
-                        isBatch={item.torrent.isBatch}
+                        isBatch={item.torrent.isBatch ?? false}
                         image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large}
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent!)}

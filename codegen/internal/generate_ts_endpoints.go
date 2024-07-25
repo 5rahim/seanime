@@ -17,6 +17,10 @@ const (
 	space                           = "    "
 )
 
+var additionalStructNamesForEndpoints = []string{
+	"vendor_hibike_torrent.AnimeTorrent",
+}
+
 func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir string) []string {
 	handlers := LoadHandlers(docsPath)
 	structs := LoadPublicStructs(structsPath)
@@ -176,6 +180,10 @@ func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir
 		}
 
 		importedTypes = append(importedTypes, goStruct.FormattedName)
+	}
+
+	for _, otherStrctName := range additionalStructNamesForEndpoints {
+		importedTypes = append(importedTypes, stringGoTypeToTypescriptType(otherStrctName))
 	}
 	//
 	slices.SortStableFunc(importedTypes, func(i, j string) int {

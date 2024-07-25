@@ -13,6 +13,7 @@ import type {
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
+    HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
     Models_DiscordSettings,
@@ -1071,13 +1072,13 @@ export type TorrentClientAddMagnetFromRule_Variables = {
  * Route searches torrents and returns a list of torrents and their previews.
  */
 export type SearchTorrent_Variables = {
-    provider?: string
     /**
      *  "smart" or "simple"
-     *
+     *  
      *  "smart" or "simple"
      */
-    smartSearch?: string
+    type?: string
+    provider?: string
     query?: string
     episodeNumber?: number
     batch?: boolean
@@ -1130,7 +1131,7 @@ export type TorrentstreamStartStream_Variables = {
     autoSelect: boolean
     /**
      *  Nil if autoSelect is true
-     *
+     *  
      *  Nil if autoSelect is true
      */
     torrent?: HibikeTorrent_AnimeTorrent

@@ -1,9 +1,9 @@
 import { useServerQuery } from "@/api/client/requests"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
+    ExtensionRepo_AnimeTorrentProviderExtensionItem,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
-    ExtensionRepo_TorrentProviderExtensionItem,
 } from "@/api/generated/types"
 
 export function useListMangaProviderExtensions() {
@@ -24,11 +24,11 @@ export function useListOnlinestreamProviderExtensions() {
     })
 }
 
-export function useListTorrentProviderExtensions() {
-    return useServerQuery<Array<ExtensionRepo_TorrentProviderExtensionItem>>({
-        endpoint: API_ENDPOINTS.EXTENSIONS.ListTorrentProviderExtensions.endpoint,
-        method: API_ENDPOINTS.EXTENSIONS.ListTorrentProviderExtensions.methods[0],
-        queryKey: [API_ENDPOINTS.EXTENSIONS.ListTorrentProviderExtensions.key],
+export function useAnimeListTorrentProviderExtensions() {
+    return useServerQuery<Array<ExtensionRepo_AnimeTorrentProviderExtensionItem>>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.key],
         enabled: true,
     })
 }

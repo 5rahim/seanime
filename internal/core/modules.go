@@ -223,7 +223,13 @@ func (a *App) InitOrRefreshModules() {
 
 	// Refresh auto scanner settings
 	if settings.Library != nil && a.AutoScanner != nil {
+
 		a.AutoScanner.SetEnabled(settings.Library.AutoScan)
+
+		// Torrent Repository
+		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
+			DefaultAnimeProvider: settings.Library.TorrentProvider,
+		})
 	}
 
 	if settings.MediaPlayer != nil {
@@ -293,9 +299,6 @@ func (a *App) InitOrRefreshModules() {
 			TorrentRepository: a.TorrentRepository,
 			Provider:          settings.Torrent.Default,
 		})
-
-		// Torrent Repository
-		a.TorrentRepository.SetSettings(settings.Torrent)
 
 		// Set AutoDownloader qBittorrent client
 		a.AutoDownloader.SetTorrentClientRepository(a.TorrentClientRepository)

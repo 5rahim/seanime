@@ -25,7 +25,7 @@ type (
 		// Map of manga provider extensions
 		mangaProviderExtensions *result.Map[string, extension.MangaProviderExtension]
 		// Map of torrent provider extensions
-		torrentProviderExtensions *result.Map[string, extension.AnimeTorrentProviderExtension]
+		animeTorrentProviderExtensions *result.Map[string, extension.AnimeTorrentProviderExtension]
 		// Map of online stream provider extensions
 		onlinestreamProviderExtensions *result.Map[string, extension.OnlinestreamProviderExtension]
 	}
@@ -41,12 +41,13 @@ type (
 		EpisodeServers []string `json:"episodeServers"`
 	}
 
-	TorrentProviderExtensionItem struct {
+	AnimeTorrentProviderExtensionItem struct {
 		ID                 string `json:"id"`
 		Name               string `json:"name"`
 		CanSmartSearch     bool   `json:"canSmartSearch"`
 		CanFindBestRelease bool   `json:"canFindBestRelease"`
 		SupportsAdult      bool   `json:"supportsAdult"`
+		Type               string `json:"type"`
 	}
 )
 
@@ -76,7 +77,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                         opts.Logger,
 		extensionDir:                   opts.ExtensionDir,
 		mangaProviderExtensions:        result.NewResultMap[string, extension.MangaProviderExtension](),
-		torrentProviderExtensions:      result.NewResultMap[string, extension.AnimeTorrentProviderExtension](),
+		animeTorrentProviderExtensions: result.NewResultMap[string, extension.AnimeTorrentProviderExtension](),
 		onlinestreamProviderExtensions: result.NewResultMap[string, extension.OnlinestreamProviderExtension](),
 	}
 
@@ -117,13 +118,17 @@ func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProvide
 	return ret
 }
 
-func (r *Repository) ListTorrentProviderExtensions() []*TorrentProviderExtensionItem {
-	ret := make([]*TorrentProviderExtensionItem, 0)
+func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProviderExtensionItem {
+	ret := make([]*AnimeTorrentProviderExtensionItem, 0)
 
-	r.torrentProviderExtensions.Range(func(key string, ext extension.AnimeTorrentProviderExtension) bool {
-		ret = append(ret, &TorrentProviderExtensionItem{
-			ID:   ext.GetID(),
-			Name: ext.GetName(),
+	r.animeTorrentProviderExtensions.Range(func(key string, ext extension.AnimeTorrentProviderExtension) bool {
+		ret = append(ret, &AnimeTorrentProviderExtensionItem{
+			ID:                 ext.GetID(),
+			Name:               ext.GetName(),
+			CanSmartSearch:     ext.GetProvider().CanSmartSearch(),
+			CanFindBestRelease: ext.GetProvider().CanFindBestRelease(),
+			SupportsAdult:      ext.GetProvider().SupportsAdult(),
+			Type:               string(ext.GetProvider().GetType()),
 		})
 		return true
 	})
@@ -170,12 +175,12 @@ func (r *Repository) GetOnlinestreamProviderExtensionByID(id string) (extension.
 	return ext, found
 }
 
-func (r *Repository) GetTorrentProviderExtensions() *result.Map[string, extension.AnimeTorrentProviderExtension] {
-	return r.torrentProviderExtensions
+func (r *Repository) GetAnimeTorrentProviderExtensions() *result.Map[string, extension.AnimeTorrentProviderExtension] {
+	return r.animeTorrentProviderExtensions
 }
 
 func (r *Repository) GetTorrentProviderExtensionByID(id string) (extension.AnimeTorrentProviderExtension, bool) {
-	ext, found := r.torrentProviderExtensions.Get(id)
+	ext, found := r.animeTorrentProviderExtensions.Get(id)
 	return ext, found
 }
 
@@ -187,8 +192,8 @@ func (r *Repository) LoadBuiltInMangaProviderExtension(info extension.Extension,
 	r.mangaProviderExtensions.Set(info.ID, extension.NewMangaProviderExtension(&info, provider))
 }
 
-func (r *Repository) LoadBuiltInTorrentProviderExtension(info extension.Extension, provider hibiketorrent.AnimeProvider) {
-	r.torrentProviderExtensions.Set(info.ID, extension.NewAnimeTorrentProviderExtension(&info, provider))
+func (r *Repository) LoadBuiltInAnimeTorrentProviderExtension(info extension.Extension, provider hibiketorrent.AnimeProvider) {
+	r.animeTorrentProviderExtensions.Set(info.ID, extension.NewAnimeTorrentProviderExtension(&info, provider))
 }
 
 func (r *Repository) LoadBuiltInOnlinestreamProviderExtension(info extension.Extension, provider hibikeonlinestream.Provider) {

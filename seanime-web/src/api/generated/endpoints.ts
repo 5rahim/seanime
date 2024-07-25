@@ -415,10 +415,10 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list/onlinestream-provider",
         },
-        ListTorrentProviderExtensions: {
-            key: "EXTENSIONS-list-torrent-provider-extensions",
+        ListAnimeTorrentProviderExtensions: {
+            key: "EXTENSIONS-list-anime-torrent-provider-extensions",
             methods: ["GET"],
-            endpoint: "/api/v1/extensions/list/torrent-provider",
+            endpoint: "/api/v1/extensions/list/anime-torrent-provider",
         },
     },
     FILECACHE: {

@@ -15,9 +15,9 @@ import (
 func HandleSearchTorrent(c *RouteCtx) error {
 
 	type body struct {
-		Provider string `json:"provider,omitempty"`
 		// "smart" or "simple"
-		Type           string            `json:"smartSearch,omitempty"`
+		Type           string            `json:"type,omitempty"`
+		Provider       string            `json:"provider,omitempty"`
 		Query          string            `json:"query,omitempty"`
 		EpisodeNumber  int               `json:"episodeNumber,omitempty"`
 		Batch          bool              `json:"batch,omitempty"`

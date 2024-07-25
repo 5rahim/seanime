@@ -2,7 +2,6 @@ package torrent
 
 import (
 	"seanime/internal/api/metadata"
-	"seanime/internal/database/models"
 	"seanime/internal/extension"
 	"seanime/internal/torrents/animetosho"
 	"seanime/internal/torrents/nyaa"
@@ -61,7 +60,9 @@ func getTestRepo(t *testing.T) *Repository {
 
 	repo.SetAnimeProviderExtensions(extensions)
 
-	repo.SetSettings(&models.TorrentSettings{Default: "animetosho"})
+	repo.SetSettings(&RepositorySettings{
+		DefaultAnimeProvider: ProviderAnimeTosho,
+	})
 
 	return repo
 }

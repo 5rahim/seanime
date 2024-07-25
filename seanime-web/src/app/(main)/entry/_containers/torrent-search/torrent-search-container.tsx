@@ -1,13 +1,13 @@
-import { Anime_AnimeEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
-import { useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
+import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
 import {
     TorrentConfirmationContinueButton,
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
-import { __torrentSearch_drawerIsOpenAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { cn } from "@/components/ui/core/styling"
@@ -15,13 +15,15 @@ import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
+import { RiFolderDownloadFill } from "react-icons/ri"
 
-export const __torrentSearch_selectedTorrentsAtom = atom<Torrent_AnimeTorrent[]>([])
+export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
-export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchType, entry: Anime_AnimeEntry }) {
+export function TorrentSearchContainer({ type, entry }: { type: TorrentSelectionType, entry: Anime_AnimeEntry }) {
     const serverStatus = useServerStatus()
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
 
@@ -37,12 +39,17 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
     const [isAdult, setIsAdult] = React.useState(entry.media?.isAdult === true)
 
     const {
+        warnings,
+        selectedProviderExtension,
+        selectedProviderExtensionId,
+        setSelectedProviderExtensionId,
+        providerExtensions,
         globalFilter,
         setGlobalFilter,
         selectedTorrents,
         setSelectedTorrents,
-        smartSearch,
-        setSmartSearch,
+        searchType,
+        setSearchType,
         smartSearchBatch,
         setSmartSearchBatch,
         smartSearchEpisode,
@@ -69,12 +76,12 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
     }, [])
 
     React.useLayoutEffect(() => {
-        if (smartSearch) {
+        if (searchType) {
             setGlobalFilter("")
         } else {
-            setGlobalFilter(entry.media?.title?.romaji || "")
+            setGlobalFilter(entry.media?.title?.romaji?.replaceAll(":", "").replaceAll("-", "") || "")
         }
-    }, [smartSearch])
+    }, [searchType, entry.media?.title])
 
     const torrents = React.useMemo(() => data?.torrents ?? [], [data?.torrents])
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
@@ -93,19 +100,19 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
             size="sm"
             fieldClass={cn(
                 "flex items-center md:justify-end gap-3 space-y-0",
-                { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || !smartSearch) },
+                { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || searchType != Torrent_SearchType.SMART) },
             )}
             fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
             className="max-w-[6rem]"
         />
-    }, [smartSearch, smartSearchBatch, downloadInfo, soughtEpisode])
+    }, [searchType, smartSearchBatch, downloadInfo, soughtEpisode])
 
     /**
      * Select torrent
      * - Download: Select multiple torrents
      * - Select: Select only one torrent
      */
-    const handleToggleTorrent = React.useCallback((t: Torrent_AnimeTorrent) => {
+    const handleToggleTorrent = React.useCallback((t: HibikeTorrent_AnimeTorrent) => {
         if (type === "download") {
             setSelectedTorrents(prev => {
                 const idx = prev.findIndex(n => n.link === t.link)
@@ -152,6 +159,21 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
     return (
         <>
             <div>
+                <Select
+                    name="torrentProvider"
+                    leftAddon="Torrent Provider"
+                    // label="Torrent Provider"
+                    value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
+                    leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
+                    options={[
+                        ...providerExtensions?.map(ext => ({
+                            label: ext.name,
+                            value: ext.id,
+                        })) ?? [],
+                        { label: "None", value: TORRENT_PROVIDER.NONE },
+                    ]}
+                />
+
                 {entry.media?.isAdult === true && <div className="py-2">
                     <Switch
                         label="Adult"
@@ -165,8 +187,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
                     <Switch
                         label="Smart search"
                         help="Builds a search query automatically, based on parameters"
-                        value={smartSearch}
-                        onValueChange={setSmartSearch}
+                        value={searchType === Torrent_SearchType.SMART}
+                        onValueChange={v => setSearchType(v ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)}
                     />
 
                     <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
@@ -179,7 +201,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
                     <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
                 </div>}
 
-                {smartSearch && <div>
+                {(searchType === Torrent_SearchType.SMART) && <div>
                     <div className="space-y-2">
                         <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
 
@@ -195,11 +217,11 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
                                     { value: "720", label: "720p" },
                                     { value: "480", label: "480p" },
                                 ]}
-                                disabled={smartSearchBest || !smartSearch}
+                                disabled={smartSearchBest || searchType != Torrent_SearchType.SMART}
                                 size="sm"
                                 fieldClass={cn(
                                     "flex items-center md:justify-center gap-3 space-y-0",
-                                    { "opacity-50 cursor-not-allowed pointer-events-none": !smartSearch || smartSearchBest },
+                                    { "opacity-50 cursor-not-allowed pointer-events-none": searchType != Torrent_SearchType.SMART || smartSearchBest },
                                 )}
                                 fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
                                 className="w-[6rem]"
@@ -233,7 +255,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
                         {serverStatus?.settings?.library?.torrentProvider != "animetosho" && <DataGridSearchInput
                             value={globalFilter ?? ""}
                             onChange={v => setGlobalFilter(v)}
-                            placeholder={smartSearch ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
+                            placeholder={searchType == Torrent_SearchType.SMART ? `Refine the title (${entry.media?.title?.romaji})` : "Search"}
                             fieldClass="md:max-w-full w-full"
                         />}
 
@@ -252,7 +274,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSearchTyp
                     torrents={torrents}
                     globalFilter={globalFilter}
                     setGlobalFilter={setGlobalFilter}
-                    smartSearch={smartSearch}
+                    smartSearch={searchType == Torrent_SearchType.SMART}
                     isLoading={isLoading}
                     isFetching={isFetching}
                     selectedTorrents={selectedTorrents}

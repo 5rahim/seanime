@@ -16,7 +16,7 @@ func (a *App) LoadBuiltInExtensions() {
 	// Load the extensions to the online stream repository
 	a.OnlinestreamRepository.SetProviderExtensions(a.ExtensionRepository.GetOnlinestreamProviderExtensions())
 	// Load the extensions to the torrent repository
-	a.TorrentRepository.SetAnimeProviderExtensions(a.ExtensionRepository.GetTorrentProviderExtensions())
+	a.TorrentRepository.SetAnimeProviderExtensions(a.ExtensionRepository.GetAnimeTorrentProviderExtensions())
 
 	//
 	// Built-in manga providers
@@ -95,7 +95,7 @@ func (a *App) LoadBuiltInExtensions() {
 	// Built-in torrent providers
 	//
 
-	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:       "nyaa",
 		Name:     "Nyaa",
 		Version:  "1.0.0",
@@ -104,7 +104,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:   "Seanime",
 	}, nyaa.NewProvider(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:       "nyaa-sukebei",
 		Name:     "Nyaa Sukebei",
 		Version:  "1.0.0",
@@ -113,7 +113,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:   "Seanime",
 	}, nyaa.NewSukebeiProvider(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:       "animetosho",
 		Name:     "AnimeTosho",
 		Version:  "1.0.0",
@@ -122,7 +122,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Author:   "Seanime",
 	}, animetosho.NewProvider(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInTorrentProviderExtension(extension.Extension{
+	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
 		ID:       "seadex",
 		Name:     "SeaDex",
 		Version:  "1.0.0",
