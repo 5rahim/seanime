@@ -44,7 +44,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Provider extensions
      */
-    const { providerOptions } = useHandleMangaProviders()
+    const { providerOptions } = useHandleMangaProviders(mediaId)
 
     /**
      * Current provider
