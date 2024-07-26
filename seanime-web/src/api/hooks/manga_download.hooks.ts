@@ -5,11 +5,11 @@ import {
     GetMangaDownloadData_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Manga_DownloadListItem, Manga_MediaDownloadData, Manga_Provider, Models_ChapterDownloadQueueItem, Nullish } from "@/api/generated/types"
+import { Manga_DownloadListItem, Manga_MediaDownloadData, Models_ChapterDownloadQueueItem, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useDownloadMangaChapters(id: Nullish<string | number>, provider: Manga_Provider) {
+export function useDownloadMangaChapters(id: Nullish<string | number>, provider: string) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, DownloadMangaChapters_Variables>({
@@ -97,7 +97,7 @@ export function useResetErroredChapterDownloadQueue() {
     })
 }
 
-export function useDeleteMangaDownloadedChapters(id: Nullish<string | number>, provider: Manga_Provider) {
+export function useDeleteMangaDownloadedChapters(id: Nullish<string | number>, provider: string) {
     const queryClient = useQueryClient()
     return useServerMutation<boolean, DeleteMangaDownloadedChapters_Variables>({
         endpoint: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.endpoint,
