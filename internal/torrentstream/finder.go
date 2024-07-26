@@ -27,7 +27,7 @@ type (
 	}
 )
 
-func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode, episodeNumber int) (ret *playbackTorrent, err error) {
+func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, anizipEpisode *anizip.Episode, episodeNumber int) (ret *playbackTorrent, err error) {
 	defer util.HandlePanicInModuleWithError("torrentstream/findBestTorrent", &err)
 
 	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)

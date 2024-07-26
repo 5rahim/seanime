@@ -57,7 +57,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 
 			metadata := seanime_parser.Parse(file.DisplayPath())
 
-			displayTitle := file.Path()
+			displayTitle := file.DisplayPath()
 
 			isLikely := false
 			parsedEpisodeNumber := -1

@@ -3,10 +3,11 @@ import { useGetTorrentstreamTorrentFilePreviews } from "@/api/hooks/torrentstrea
 import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
+import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
@@ -53,7 +54,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
         return <RadioGroup
             value={String(selectedFileIdx)}
             onValueChange={v => setSelectedFileIdx(Number(v))}
-            options={(filePreviews?.toSorted((a, b) => a.episodeNumber - b.episodeNumber)?.map((f, i) => {
+            options={(filePreviews?.toSorted((a, b) => a.path.localeCompare(b.path))?.map((f, i) => {
                 return {
                     label: <div className="w-full">
                         <p className="mb-1 line-clamp-1">
@@ -91,7 +92,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
     }, [filePreviews, selectedFileIdx])
 
     return (
-        <Modal
+        <Drawer
             open={!!selectedTorrent}
             onOpenChange={open => {
                 if (!open) {
@@ -99,30 +100,33 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
                     setSelectedFileIdx(-1)
                 }
             }}
-            contentClass="max-w-3xl"
+            size="xl"
+            // contentClass="max-w-3xl"
             title="Choose a file to stream"
         >
-            {isLoading ? <LoadingSpinner /> : (
-                <div className="pb-0">
+            <AppLayoutStack className="mt-4">
+                {isLoading ? <LoadingSpinner /> : (
+                    <div className="pb-0">
 
-                    <FileSelection />
+                        <FileSelection />
+
+                    </div>
+                )}
+
+                <div className="flex w-full justify-end gap-2">
+
+                    <Button
+                        intent="white"
+                        className="animate-pulse w-full"
+                        disabled={selectedFileIdx === -1 || isLoading}
+                        onClick={onStream}
+                    >
+                        Stream
+                    </Button>
 
                 </div>
-            )}
-
-            <div className="flex w-full justify-end gap-2">
-
-                <Button
-                    intent="white"
-                    className="animate-pulse"
-                    disabled={selectedFileIdx === -1 || isLoading}
-                    onClick={onStream}
-                >
-                    Stream
-                </Button>
-
-            </div>
-        </Modal>
+            </AppLayoutStack>
+        </Drawer>
     )
 
 }

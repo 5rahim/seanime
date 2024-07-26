@@ -37,9 +37,17 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		return err
 	}
 
+	anizipNotFound := false
+
 	anizipEpisode, err := r.getEpisodeInfo(anizipMedia, opts.AniDBEpisode)
 	if err != nil {
-		return err
+		anizipNotFound = true
+	}
+
+	// Create a dummy AniZip media if the real mapping is invalid
+	if anizipNotFound {
+		anizipMedia = anizip.NewDummyMedia(opts.MediaId, media.GetCurrentEpisodeCount())
+		anizipEpisode, _ = anizipMedia.FindEpisode(opts.AniDBEpisode)
 	}
 
 	episodeNumber := opts.EpisodeNumber
@@ -50,7 +58,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	var torrentToStream *playbackTorrent
 	switch opts.AutoSelect {
 	case true:
-		torrentToStream, err = r.findBestTorrent(media, anizipMedia, anizipEpisode, episodeNumber)
+		torrentToStream, err = r.findBestTorrent(media, anizipEpisode, episodeNumber)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
@@ -171,6 +179,10 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 }
 
 func (r *Repository) getEpisodeInfo(anizipMedia *anizip.Media, aniDBEpisode string) (episode *anizip.Episode, err error) {
+	if anizipMedia == nil {
+		return nil, fmt.Errorf("torrentstream: Anizip media is nil")
+	}
+
 	// Get the episode
 	var found bool
 	episode, found = anizipMedia.FindEpisode(aniDBEpisode)

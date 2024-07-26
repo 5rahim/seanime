@@ -20,13 +20,17 @@ func getTvdbIDFromAnimeLists(anidbID int) (tvdbID int, ok bool) {
 
 func (mw *MediaWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
 
+	if mw.anizipMedia.IsAbsent() {
+		return nil
+	}
+
 	// Get TVDB ID
 	var tvdbId int
-	tvdbId = mw.anizipMedia.Mappings.ThetvdbID
+	tvdbId = mw.anizipMedia.MustGet().Mappings.ThetvdbID
 	if tvdbId == 0 {
-		if mw.anizipMedia.Mappings.AnidbID > 0 {
+		if mw.anizipMedia.MustGet().Mappings.AnidbID > 0 {
 			// Try to get it from the mappings
-			tvdbId, _ = getTvdbIDFromAnimeLists(mw.anizipMedia.Mappings.AnidbID)
+			tvdbId, _ = getTvdbIDFromAnimeLists(mw.anizipMedia.MustGet().Mappings.AnidbID)
 		}
 	}
 
@@ -40,13 +44,17 @@ func (mw *MediaWrapper) EmptyTVDBEpisodesBucket(mediaId int) error {
 func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) {
 	key := mw.baseAnime.GetID()
 
+	if mw.anizipMedia.IsAbsent() {
+		return nil, errors.New("metadata: anizip media is absent")
+	}
+
 	// Get TVDB ID
 	var tvdbId int
-	tvdbId = mw.anizipMedia.Mappings.ThetvdbID
+	tvdbId = mw.anizipMedia.MustGet().Mappings.ThetvdbID
 	if tvdbId == 0 {
-		if mw.anizipMedia.Mappings.AnidbID > 0 {
+		if mw.anizipMedia.MustGet().Mappings.AnidbID > 0 {
 			// Try to get it from the mappings
-			tvdbId, _ = getTvdbIDFromAnimeLists(mw.anizipMedia.Mappings.AnidbID)
+			tvdbId, _ = getTvdbIDFromAnimeLists(mw.anizipMedia.MustGet().Mappings.AnidbID)
 		}
 	}
 
@@ -74,8 +82,8 @@ func (mw *MediaWrapper) GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error) 
 		episodes, err = tv.FetchSeriesEpisodes(tvdbId, tvdb.FilterEpisodeMediaInfo{
 			Year:           mw.baseAnime.GetStartDate().GetYear(),
 			Month:          mw.baseAnime.GetStartDate().GetMonth(),
-			TotalEp:        mw.anizipMedia.GetMainEpisodeCount(),
-			AbsoluteOffset: mw.anizipMedia.GetOffset(),
+			TotalEp:        mw.anizipMedia.MustGet().GetMainEpisodeCount(),
+			AbsoluteOffset: mw.anizipMedia.MustGet().GetOffset(),
 		})
 		if err != nil {
 			return nil, err

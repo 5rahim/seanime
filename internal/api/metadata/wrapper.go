@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/tvdb"
@@ -15,7 +16,7 @@ type (
 	// It primarily fetches metadata from AniZip and AniList.
 	// The user can request metadata to be fetched from TVDB as well, which will be done and stored in the cache.
 	MediaWrapper struct {
-		anizipMedia *anizip.Media
+		anizipMedia mo.Option[*anizip.Media]
 		baseAnime   *anilist.BaseAnime
 		fileCacher  *filecache.Cacher
 		logger      *zerolog.Logger
@@ -46,11 +47,15 @@ type (
 // Anizip Media can be nil.
 func (p *Provider) NewMediaWrapper(media *anilist.BaseAnime, anizipMedia *anizip.Media) *MediaWrapper {
 	mw := &MediaWrapper{
-		anizipMedia:  anizipMedia,
+		anizipMedia:  mo.None[*anizip.Media](),
 		baseAnime:    media,
 		fileCacher:   p.fileCacher,
 		logger:       p.logger,
 		tvdbEpisodes: make([]*tvdb.Episode, 0),
+	}
+
+	if anizipMedia != nil {
+		mw.anizipMedia = mo.Some(anizipMedia)
 	}
 
 	episodes, err := mw.GetTVDBEpisodes(false)
@@ -66,18 +71,21 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 		EpisodeNumber: epNum,
 	}
 
-	hasAnizipMetadata := mw.anizipMedia != nil && mw.anizipMedia.Episodes != nil
 	hasTVDBMetadata := mw.tvdbEpisodes != nil && len(mw.tvdbEpisodes) > 0
 
-	if !hasAnizipMetadata {
+	anizipEpisode := mo.None[*anizip.Episode]()
+	if mw.anizipMedia.IsAbsent() {
 		meta.Image = mw.baseAnime.GetBannerImageSafe()
+	} else {
+		anizipEpisodeF, found := mw.anizipMedia.MustGet().FindEpisode(strconv.Itoa(epNum))
+		if found {
+			meta.AniDBId = anizipEpisodeF.AnidbEid
+			anizipEpisode = mo.Some(anizipEpisodeF)
+		}
 	}
 
-	anizipEpisode, found := mw.anizipMedia.FindEpisode(strconv.Itoa(epNum))
-	meta.AniDBId = anizipEpisode.AnidbEid
-
 	// If we don't have AniZip metadata, just return the metadata containing the image
-	if !found {
+	if anizipEpisode.IsAbsent() {
 		return meta
 	}
 
@@ -92,21 +100,21 @@ func (mw *MediaWrapper) GetEpisodeMetadata(epNum int) MediaWrapperEpisodeMetadat
 
 	if meta.Image == "" {
 		// Set AniZip image if TVDB image is not set
-		if anizipEpisode.Image != "" {
-			meta.Image = anizipEpisode.Image
+		if anizipEpisode.MustGet().Image != "" {
+			meta.Image = anizipEpisode.MustGet().Image
 		} else {
 			// If AniZip image is not set, use the base media image
 			meta.Image = mw.baseAnime.GetBannerImageSafe()
 		}
 	}
 
-	meta.AirDate = anizipEpisode.Airdate
-	meta.Length = anizipEpisode.Length
-	if anizipEpisode.Runtime > 0 {
-		meta.Length = anizipEpisode.Runtime
+	meta.AirDate = anizipEpisode.MustGet().Airdate
+	meta.Length = anizipEpisode.MustGet().Length
+	if anizipEpisode.MustGet().Runtime > 0 {
+		meta.Length = anizipEpisode.MustGet().Runtime
 	}
-	meta.Summary = strings.ReplaceAll(anizipEpisode.Summary, "`", "'")
-	meta.Overview = strings.ReplaceAll(anizipEpisode.Overview, "`", "'")
+	meta.Summary = strings.ReplaceAll(anizipEpisode.MustGet().Summary, "`", "'")
+	meta.Overview = strings.ReplaceAll(anizipEpisode.MustGet().Overview, "`", "'")
 
 	return meta
 }

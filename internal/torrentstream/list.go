@@ -52,7 +52,42 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	if info == nil || info.EpisodesToDownload == nil {
+		r.logger.Debug().Msg("torrentstream: no episodes found from AniDB, using AniList")
+		baseAnime := completeAnime.ToBaseAnime()
+		for epIdx := range baseAnime.GetCurrentEpisodeCount() {
+			episodeNumber := epIdx + 1
+
+			mediaWrapper := r.metadataProvider.NewMediaWrapper(baseAnime, nil)
+			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
+
+			episode := &anime.AnimeEntryEpisode{
+				Type:                  anime.LocalFileTypeMain,
+				DisplayTitle:          fmt.Sprintf("Episode %d", episodeNumber),
+				EpisodeTitle:          baseAnime.GetPreferredTitle(),
+				EpisodeNumber:         episodeNumber,
+				AniDBEpisode:          fmt.Sprintf("%d", episodeNumber),
+				AbsoluteEpisodeNumber: episodeNumber,
+				ProgressNumber:        episodeNumber,
+				LocalFile:             nil,
+				IsDownloaded:          false,
+				EpisodeMetadata: &anime.AnimeEntryEpisodeMetadata{
+					AniDBId:  0,
+					Image:    episodeMetadata.Image,
+					AirDate:  "",
+					Length:   0,
+					Summary:  "",
+					Overview: "",
+					IsFiller: false,
+				},
+				FileMetadata:  nil,
+				IsInvalid:     true,
+				MetadataIssue: "",
+				BaseAnime:     baseAnime,
+			}
+			ec.Episodes = append(ec.Episodes, episode)
+		}
 		ec.HasMappingError = true
+		r.setEpisodeCollection(ec)
 		return
 	}
 

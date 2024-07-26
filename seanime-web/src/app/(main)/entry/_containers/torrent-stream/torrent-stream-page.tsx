@@ -145,6 +145,15 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 )}
             </div>
 
+            {episodeCollection?.hasMappingError && (
+                <div className="">
+                    <p className="text-red-200 opacity-50">
+                        No metadata info available for this anime. You may need to manually select the file to stream.
+                    </p>
+                </div>
+
+            )}
+
             <Carousel
                 className="w-full max-w-full"
                 gap="md"
