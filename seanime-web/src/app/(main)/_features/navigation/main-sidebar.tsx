@@ -24,8 +24,9 @@ import React from "react"
 import { BiCalendarAlt, BiChart, BiDownload, BiLogOut } from "react-icons/bi"
 import { FaBookReader, FaRssSquare } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { IoCloudOffline, IoLibrary } from "react-icons/io5"
+import { IoExtensionPuzzleSharp, IoLibrary } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
+import { RiWifiOffLine } from "react-icons/ri"
 import { SiAnilist } from "react-icons/si"
 
 /**
@@ -183,7 +184,13 @@ export function MainSidebar() {
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 {
-                                    iconType: IoCloudOffline,
+                                    iconType: IoExtensionPuzzleSharp,
+                                    name: "Extensions",
+                                    href: "/extensions",
+                                    isCurrent: pathname.includes("/extensions"),
+                                },
+                                {
+                                    iconType: RiWifiOffLine,
                                     name: "Offline mode",
                                     href: "/offline-mode",
                                     isCurrent: pathname.includes("/offline-mode"),

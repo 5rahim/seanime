@@ -21,7 +21,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Name:     "Nyaa",
 		Version:  "1.0.0",
 		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
+		Type:     extension.TypeAnimeTorrentProvider,
 		Author:   "Seanime",
 	}, nyaa.NewProvider(logger)))
 
@@ -30,7 +30,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Name:     "Nyaa Sukebei",
 		Version:  "1.0.0",
 		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
+		Type:     extension.TypeAnimeTorrentProvider,
 		Author:   "Seanime",
 	}, nyaa.NewSukebeiProvider(logger)))
 
@@ -39,7 +39,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Name:     "AnimeTosho",
 		Version:  "1.0.0",
 		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
+		Type:     extension.TypeAnimeTorrentProvider,
 		Author:   "Seanime",
 	}, animetosho.NewProvider(logger)))
 
@@ -48,7 +48,7 @@ func getTestRepo(t *testing.T) *Repository {
 		Name:     "SeaDex",
 		Version:  "1.0.0",
 		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
+		Type:     extension.TypeAnimeTorrentProvider,
 		Author:   "Seanime",
 	}, seadex.NewProvider(logger)))
 

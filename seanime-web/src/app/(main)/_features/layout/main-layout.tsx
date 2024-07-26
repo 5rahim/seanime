@@ -10,6 +10,7 @@ import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-libra
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useAnimeCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
+import { useExtensionListener } from "@/app/(main)/_listeners/extensions.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
@@ -32,6 +33,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     useAutoDownloaderItemListener()
     useAnimeCollectionListener()
     useToastEventListeners()
+    useExtensionListener()
     useMangaListener()
 
     return (

@@ -456,6 +456,59 @@
 // extensions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// export function useFetchExternalExtensionData() {
+//     return useServerMutation<Extension_Extension, FetchExternalExtensionData_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useInstallExternalExtension() {
+//     return useServerMutation<ExtensionRepo_ExtensionInstallResponse, InstallExternalExtension_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useUninstallExternalExtension() {
+//     return useServerMutation<boolean, UninstallExternalExtension_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useReloadExternalExtensions() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtensions.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtensions.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useListExtensionData() {
+//     return useServerQuery<Array<Extension_Extension>>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.ListExtensionData.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.ListExtensionData.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.ListExtensionData.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useListMangaProviderExtensions() {
 //     return useServerQuery<Array<ExtensionRepo_MangaProviderExtensionItem>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListMangaProviderExtensions.endpoint,

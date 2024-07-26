@@ -91,7 +91,7 @@ export function UISettings() {
                             <Field.ColorPicker
                                 name="backgroundColor"
                                 label="Background color"
-                                help="Default: #0c0c0c"
+                                help="Default: #070707"
                                 disabled={!f.watch("enableColorSettings")}
                             />
                             <Field.ColorPicker

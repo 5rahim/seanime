@@ -23,50 +23,54 @@ func (a *App) LoadBuiltInExtensions() {
 	//
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:            "comick",
-		Name:          "ComicK",
-		Version:       "1.0.0",
-		RepositoryURI: "",
-		Language:      extension.LanguageGo,
-		Type:          extension.TypeMangaProvider,
-		Author:        "Seanime",
-		Description:   "",
+		ID:          "comick",
+		Name:        "ComicK",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
+		Description: "",
 	}, manga_providers.NewComicK(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:       "mangapill",
-		Name:     "Mangapill",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeMangaProvider,
-		Author:   "Seanime",
+		ID:          "mangapill",
+		Name:        "Mangapill",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
 	}, manga_providers.NewMangapill(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:       "mangasee",
-		Name:     "Mangasee",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeMangaProvider,
-		Author:   "Seanime",
+		ID:          "mangasee",
+		Name:        "Mangasee",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
 	}, manga_providers.NewMangasee(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:       "mangadex",
-		Name:     "Mangadex",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeMangaProvider,
-		Author:   "Seanime",
+		ID:          "mangadex",
+		Name:        "Mangadex",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
 	}, manga_providers.NewMangadex(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:       "manganato",
-		Name:     "Manganato",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeMangaProvider,
-		Author:   "Seanime",
+		ID:          "manganato",
+		Name:        "Manganato",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
 	}, manga_providers.NewManganato(a.Logger))
 
 	//
@@ -74,21 +78,23 @@ func (a *App) LoadBuiltInExtensions() {
 	//
 
 	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
-		ID:       "gogoanime",
-		Name:     "Gogoanime",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeOnlinestreamProvider,
-		Author:   "Seanime",
+		ID:          "gogoanime",
+		Name:        "Gogoanime",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeOnlinestreamProvider,
+		Author:      "Seanime",
 	}, onlinestream_providers.NewGogoanime(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
-		ID:       "zoro",
-		Name:     "Hianime",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeOnlinestreamProvider,
-		Author:   "Seanime",
+		ID:          "zoro",
+		Name:        "Hianime",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeOnlinestreamProvider,
+		Author:      "Seanime",
 	}, onlinestream_providers.NewZoro(a.Logger))
 
 	//
@@ -96,39 +102,55 @@ func (a *App) LoadBuiltInExtensions() {
 	//
 
 	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
-		ID:       "nyaa",
-		Name:     "Nyaa",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
-		Author:   "Seanime",
+		ID:          "nyaa",
+		Name:        "Nyaa",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeAnimeTorrentProvider,
+		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/dlrljx.png",
+		},
 	}, nyaa.NewProvider(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
-		ID:       "nyaa-sukebei",
-		Name:     "Nyaa Sukebei",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
-		Author:   "Seanime",
+		ID:          "nyaa-sukebei",
+		Name:        "Nyaa Sukebei",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeAnimeTorrentProvider,
+		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/dlrljx.png",
+		},
 	}, nyaa.NewSukebeiProvider(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
-		ID:       "animetosho",
-		Name:     "AnimeTosho",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
-		Author:   "Seanime",
+		ID:          "animetosho",
+		Name:        "AnimeTosho",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeAnimeTorrentProvider,
+		Author:      "Seanime",
+		Meta:        extension.Meta{
+			//Icon: "https://files.catbox.moe/xf9jl6.ico",
+		},
 	}, animetosho.NewProvider(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInAnimeTorrentProviderExtension(extension.Extension{
-		ID:       "seadex",
-		Name:     "SeaDex",
-		Version:  "1.0.0",
-		Language: extension.LanguageGo,
-		Type:     extension.TypeTorrentProvider,
-		Author:   "Seanime",
+		ID:          "seadex",
+		Name:        "SeaDex",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeAnimeTorrentProvider,
+		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/6fax26.png",
+		},
 	}, seadex.NewProvider(a.Logger))
 
 }
@@ -136,6 +158,6 @@ func (a *App) LoadBuiltInExtensions() {
 func (a *App) LoadOrRefreshExternalExtensions() {
 
 	// Always called after loading built-in extensions
-	a.ExtensionRepository.LoadExternalExtensions()
+	a.ExtensionRepository.ReloadExternalExtensions()
 
 }

@@ -3,7 +3,7 @@
 //  * -----------------------------------------------------------------------------------------------*/
 
 
-import { Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
+import { Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
 import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hooks"
 
 import { useSetCurrentChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
@@ -118,7 +118,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                                     setCurrentChapter({
                                         chapterId: row.original.chapterId,
                                         chapterNumber: row.original.chapterNumber,
-                                        provider: row.original.provider as Manga_Provider,
+                                        provider: row.original.provider,
                                         mediaId: Number(entry.mediaId),
                                     })
                                 })

@@ -18,7 +18,8 @@ export function LayoutHeaderBackground() {
                 {/*/>}*/}
                 <div
                     className={cn(
-                        "bg-[url(/pattern-3.svg)] bg-brand-700/10 opacity-50 bg-contain bg-center bg-repeat z-[-2] w-full h-[20rem] absolute bottom-0",
+                        // "bg-[url(/pattern-3.svg)] bg-[#000] opacity-50 bg-contain bg-center bg-repeat z-[-2] w-full h-[20rem] absolute bottom-0",
+                        "bg-[#000] opacity-50 bg-contain bg-center bg-repeat z-[-2] w-full h-[20rem] absolute bottom-0",
                     )}
                 >
                     {pathname.startsWith("/anilist") && <div className="w-full flex items-center justify-center absolute bottom-0 h-[5rem]">

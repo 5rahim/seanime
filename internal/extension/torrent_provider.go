@@ -30,7 +30,7 @@ func (m *AnimeTorrentProviderExtensionImpl) GetExtension() *Extension {
 }
 
 func (m *AnimeTorrentProviderExtensionImpl) GetType() Type {
-	return TypeMangaProvider
+	return m.ext.Type
 }
 
 func (m *AnimeTorrentProviderExtensionImpl) GetID() string {
@@ -45,8 +45,8 @@ func (m *AnimeTorrentProviderExtensionImpl) GetVersion() string {
 	return m.ext.Version
 }
 
-func (m *AnimeTorrentProviderExtensionImpl) GetRepositoryURI() string {
-	return m.ext.RepositoryURI
+func (m *AnimeTorrentProviderExtensionImpl) GetManifestURI() string {
+	return m.ext.ManifestURI
 }
 
 func (m *AnimeTorrentProviderExtensionImpl) GetLanguage() Language {
@@ -63,4 +63,8 @@ func (m *AnimeTorrentProviderExtensionImpl) GetAuthor() string {
 
 func (m *AnimeTorrentProviderExtensionImpl) GetPayload() string {
 	return m.ext.Payload
+}
+
+func (m *AnimeTorrentProviderExtensionImpl) GetMeta() Meta {
+	return m.ext.Meta
 }

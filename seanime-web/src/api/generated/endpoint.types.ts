@@ -412,6 +412,39 @@ export type OpenInExplorer_Variables = {
 // extensions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/fetch
+ * @description
+ * Route returns the extension data from the given manifest uri.
+ */
+export type FetchExternalExtensionData_Variables = {
+    manifestUri: string
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/install
+ * @description
+ * Route installs the extension from the given manifest uri.
+ */
+export type InstallExternalExtension_Variables = {
+    manifestUri: string
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/uninstall
+ * @description
+ * Route uninstalls the extension with the given ID.
+ */
+export type UninstallExternalExtension_Variables = {
+    id: string
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // filecache
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

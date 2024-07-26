@@ -22455,10 +22455,9 @@
       {
         "name": "anizipMedia",
         "jsonName": "anizipMedia",
-        "goType": "anizip.Media",
-        "typescriptType": "Anizip_Media",
-        "usedStructName": "anizip.Media",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": []
       },
@@ -26228,9 +26227,9 @@
       {
         "name": "mu",
         "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
-        "usedStructName": "sync.Mutex",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
         "comments": []
@@ -26249,7 +26248,7 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
-        "\"torrent-provider\"",
+        "\"anime-torrent-provider\"",
         "\"manga-provider\"",
         "\"onlinestream-provider\""
       ]
@@ -26288,7 +26287,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " e.g. \"nyaa\""
+          " e.g. \"extension-example\""
         ]
       },
       {
@@ -26299,7 +26298,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " e.g. \"Nyaa\""
+          " e.g. \"Extension\""
         ]
       },
       {
@@ -26314,14 +26313,14 @@
         ]
       },
       {
-        "name": "RepositoryURI",
-        "jsonName": "repositoryURI",
+        "name": "ManifestURI",
+        "jsonName": "manifestURI",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": [
-          " e.g. \"http://cdn.something.app/extensions/nyaa/latest.js\""
+          " e.g. \"http://cdn.something.app/extensions/extension-example/manifest.json\""
         ]
       },
       {
@@ -26345,7 +26344,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " e.g. \"torrent-provider\""
+          " e.g. \"anime-torrent-provider\""
         ]
       },
       {
@@ -26356,7 +26355,7 @@
         "required": true,
         "public": true,
         "comments": [
-          " e.g. \"Nyaa torrent search extension\""
+          " e.g. \"This extension provides torrents\""
         ]
       },
       {
@@ -26371,8 +26370,46 @@
         ]
       },
       {
+        "name": "Meta",
+        "jsonName": "meta",
+        "goType": "Meta",
+        "typescriptType": "Extension_Meta",
+        "usedStructName": "extension.Meta",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Payload",
         "jsonName": "payload",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "Meta",
+    "formattedName": "Extension_Meta",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Icon",
+        "jsonName": "icon",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Website",
+        "jsonName": "website",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27497,6 +27534,25 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension_repo/external.go",
+    "filename": "external.go",
+    "name": "ExtensionInstallResponse",
+    "formattedName": "ExtensionRepo_ExtensionInstallResponse",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "Message",
+        "jsonName": "message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -27509,6 +27565,16 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
         "required": false,
         "public": false,
         "comments": []
@@ -27688,6 +27754,16 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
         "public": true,
         "comments": []
       }

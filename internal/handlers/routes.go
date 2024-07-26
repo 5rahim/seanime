@@ -346,6 +346,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1Extensions := v1.Group("/extensions")
+
+	v1Extensions.Post("/external/fetch", makeHandler(app, HandleFetchExternalExtensionData))
+	v1Extensions.Post("/external/install", makeHandler(app, HandleInstallExternalExtension))
+	v1Extensions.Post("/external/uninstall", makeHandler(app, HandleUninstallExternalExtension))
+	v1Extensions.Post("/external/reload", makeHandler(app, HandleReloadExternalExtensions))
+
+	v1Extensions.Get("/list", makeHandler(app, HandleListExtensionData))
 	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
 	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
 	v1Extensions.Get("/list/anime-torrent-provider", makeHandler(app, HandleListAnimeTorrentProviderExtensions))

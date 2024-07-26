@@ -1,4 +1,4 @@
-import { Manga_ChapterContainer, Manga_PageContainer, Manga_Provider, Nullish } from "@/api/generated/types"
+import { Manga_ChapterContainer, Manga_PageContainer, Nullish } from "@/api/generated/types"
 import { useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getDecimalFromChapter, isChapterAfter, isChapterBefore } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import {
@@ -55,7 +55,7 @@ export function useHandleChapterPageStatus(pageContainer: Manga_PageContainer | 
  */
 export type MangaReader_SelectedChapter = {
     chapterNumber: string
-    provider: Manga_Provider
+    provider: string
     chapterId: string
     mediaId: number
 }
@@ -100,7 +100,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
         const downloadedCh = _1 ? {
             chapterId: _1.chapterId,
             chapterNumber: _1.chapterNumber,
-            provider: _1.provider as Manga_Provider,
+            provider: _1.provider as string,
             mediaId: Number(mId),
         } : undefined
 
@@ -115,7 +115,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
             previousContainerCh = {
                 chapterId: chapterContainer.chapters[idx - 1].id,
                 chapterNumber: chapterContainer.chapters[idx - 1].chapter,
-                provider: chapterContainer.chapters[idx - 1].provider as Manga_Provider,
+                provider: chapterContainer.chapters[idx - 1].provider as string,
                 mediaId: chapterContainer.mediaId,
             }
         }
@@ -128,7 +128,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
         const adjacentContainerCh = _2 ? {
             chapterId: _2.id,
             chapterNumber: _2.chapter,
-            provider: _2.provider as Manga_Provider,
+            provider: _2.provider as string,
             mediaId: chapterContainer.mediaId,
         } : undefined
 
@@ -166,7 +166,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
         const downloadedCh = _1 ? {
             chapterId: _1.chapterId,
             chapterNumber: _1.chapterNumber,
-            provider: _1.provider as Manga_Provider,
+            provider: _1.provider as string,
             mediaId: Number(mId),
         } : undefined
 
@@ -181,7 +181,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
             nextContainerCh = {
                 chapterId: chapterContainer.chapters[idx + 1].id,
                 chapterNumber: chapterContainer.chapters[idx + 1].chapter,
-                provider: chapterContainer.chapters[idx + 1].provider as Manga_Provider,
+                provider: chapterContainer.chapters[idx + 1].provider as string,
                 mediaId: chapterContainer.mediaId,
             }
         }
@@ -194,7 +194,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
         const adjacentContainerCh = _2 ? {
             chapterId: _2.id,
             chapterNumber: _2.chapter,
-            provider: _2.provider as Manga_Provider,
+            provider: _2.provider as string,
             mediaId: chapterContainer.mediaId,
         } : undefined
 

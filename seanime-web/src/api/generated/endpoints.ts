@@ -405,6 +405,31 @@ export const API_ENDPOINTS = {
         },
     },
     EXTENSIONS: {
+        FetchExternalExtensionData: {
+            key: "EXTENSIONS-fetch-external-extension-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/fetch",
+        },
+        InstallExternalExtension: {
+            key: "EXTENSIONS-install-external-extension",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/install",
+        },
+        UninstallExternalExtension: {
+            key: "EXTENSIONS-uninstall-external-extension",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/uninstall",
+        },
+        ReloadExternalExtensions: {
+            key: "EXTENSIONS-reload-external-extensions",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/reload",
+        },
+        ListExtensionData: {
+            key: "EXTENSIONS-list-extension-data",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list",
+        },
         ListMangaProviderExtensions: {
             key: "EXTENSIONS-list-manga-provider-extensions",
             methods: ["GET"],

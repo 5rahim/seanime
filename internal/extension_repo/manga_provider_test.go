@@ -4,6 +4,7 @@ import (
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	"seanime/internal/manga/providers"
@@ -13,10 +14,12 @@ import (
 
 func getRepo(t *testing.T) *extension_repo.Repository {
 	logger := util.NewLogger()
+	wsEventManager := events.NewMockWSEventManager(logger)
 
 	return extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
-		Logger:       logger,
-		ExtensionDir: "testdir",
+		Logger:         logger,
+		ExtensionDir:   "testdir",
+		WSEventManager: wsEventManager,
 	})
 }
 
@@ -26,7 +29,7 @@ func TestExternalGoMangaExtension(t *testing.T) {
 
 	// Load all extensions
 	// This should load all the extensions in the directory
-	repo.LoadExternalExtensions()
+	repo.ReloadExternalExtensions()
 
 	ext, found := repo.GetMangaProviderExtensionByID("externalMangapill")
 	require.True(t, found)
@@ -58,15 +61,15 @@ func TestBuiltinMangaExtension(t *testing.T) {
 	// Load all extensions
 	// This should load all the extensions in the directory
 	repo.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:            "seanime-builtin-mangapill",
-		Type:          "manga-provider",
-		Name:          "Mangapill",
-		Version:       "0.0.0",
-		Language:      "go",
-		RepositoryURI: "",
-		Description:   "",
-		Author:        "",
-		Payload:       "",
+		ID:          "seanime-builtin-mangapill",
+		Type:        "manga-provider",
+		Name:        "Mangapill",
+		Version:     "0.0.0",
+		Language:    "go",
+		ManifestURI: "",
+		Description: "",
+		Author:      "",
+		Payload:     "",
 	}, manga_providers.NewMangapill(logger))
 
 	ext, found := repo.GetMangaProviderExtensionByID("seanime-builtin-mangapill")

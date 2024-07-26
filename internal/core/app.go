@@ -188,8 +188,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Extension Repository
 	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
-		Logger:       logger,
-		ExtensionDir: cfg.Extensions.Dir,
+		Logger:         logger,
+		ExtensionDir:   cfg.Extensions.Dir,
+		WSEventManager: wsEventManager,
 	})
 
 	app := &App{

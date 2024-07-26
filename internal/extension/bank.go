@@ -9,7 +9,7 @@ type Bank[T BaseExtension] struct {
 	extensions         *result.Map[string, T]
 	extensionAddedCh   chan struct{}
 	extensionRemovedCh chan struct{}
-	mu                 sync.Mutex
+	mu                 sync.RWMutex
 }
 
 func NewBank[T BaseExtension]() *Bank[T] {
@@ -17,8 +17,36 @@ func NewBank[T BaseExtension]() *Bank[T] {
 		extensions:         result.NewResultMap[string, T](),
 		extensionAddedCh:   make(chan struct{}),
 		extensionRemovedCh: make(chan struct{}),
-		mu:                 sync.Mutex{},
+		mu:                 sync.RWMutex{},
 	}
+}
+
+func (b *Bank[T]) Lock() {
+	b.mu.Lock()
+}
+
+func (b *Bank[T]) Unlock() {
+	b.mu.Unlock()
+}
+
+func (b *Bank[T]) Reset() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.extensions = result.NewResultMap[string, T]()
+	b.extensionAddedCh = make(chan struct{})
+	b.extensionRemovedCh = make(chan struct{})
+}
+
+func (b *Bank[T]) RemoveExternalExtensions() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	b.extensions.Range(func(id string, ext T) bool {
+		if ext.GetManifestURI() != "builtin" {
+			b.extensions.Delete(id)
+		}
+		return true
+	})
 }
 
 func (b *Bank[T]) Set(id string, ext T) {
@@ -34,8 +62,8 @@ func (b *Bank[T]) Set(id string, ext T) {
 }
 
 func (b *Bank[T]) Get(id string) (T, bool) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
+	b.mu.RLock()
+	defer b.mu.RUnlock()
 
 	return b.extensions.Get(id)
 }
@@ -52,11 +80,15 @@ func (b *Bank[T]) Delete(id string) {
 	b.extensionRemovedCh = make(chan struct{})
 }
 
-func (b *Bank[T]) GetAll() *result.Map[string, T] {
+func (b *Bank[T]) GetExtensionMap() *result.Map[string, T] {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
 	return b.extensions
 }
 
 func (b *Bank[T]) Range(f func(id string, ext T) bool) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
 	b.extensions.Range(f)
 }
 

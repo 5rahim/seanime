@@ -30,7 +30,7 @@ func (m *MangaProviderExtensionImpl) GetExtension() *Extension {
 }
 
 func (m *MangaProviderExtensionImpl) GetType() Type {
-	return TypeMangaProvider
+	return m.ext.Type
 }
 
 func (m *MangaProviderExtensionImpl) GetID() string {
@@ -45,8 +45,8 @@ func (m *MangaProviderExtensionImpl) GetVersion() string {
 	return m.ext.Version
 }
 
-func (m *MangaProviderExtensionImpl) GetRepositoryURI() string {
-	return m.ext.RepositoryURI
+func (m *MangaProviderExtensionImpl) GetManifestURI() string {
+	return m.ext.ManifestURI
 }
 
 func (m *MangaProviderExtensionImpl) GetLanguage() Language {
@@ -63,4 +63,8 @@ func (m *MangaProviderExtensionImpl) GetAuthor() string {
 
 func (m *MangaProviderExtensionImpl) GetPayload() string {
 	return m.ext.Payload
+}
+
+func (m *MangaProviderExtensionImpl) GetMeta() Meta {
+	return m.ext.Meta
 }

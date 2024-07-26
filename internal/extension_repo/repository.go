@@ -6,6 +6,7 @@ import (
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"os"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	vendor_hibike_torrent "seanime/internal/extension/vendoring/torrent"
 	"seanime/internal/yaegi_interp"
@@ -18,7 +19,8 @@ import (
 type (
 	// Repository manages all extensions
 	Repository struct {
-		logger *zerolog.Logger
+		logger         *zerolog.Logger
+		wsEventManager events.WSEventManagerInterface
 		// Absolute path to the directory containing all extensions
 		extensionDir string
 		// Yaegi interpreter for Go extensions
@@ -48,8 +50,9 @@ type (
 )
 
 type NewRepositoryOptions struct {
-	Logger       *zerolog.Logger
-	ExtensionDir string
+	Logger         *zerolog.Logger
+	ExtensionDir   string
+	WSEventManager events.WSEventManagerInterface
 }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -72,10 +75,30 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		yaegiInterp:                       i,
 		logger:                            opts.Logger,
 		extensionDir:                      opts.ExtensionDir,
+		wsEventManager:                    opts.WSEventManager,
 		mangaProviderExtensionBank:        extension.NewBank[extension.MangaProviderExtension](),
 		animeTorrentProviderExtensionBank: extension.NewBank[extension.AnimeTorrentProviderExtension](),
 		onlinestreamProviderExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
 	}
+
+	return ret
+}
+
+func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
+	r.mangaProviderExtensionBank.Range(func(key string, ext extension.MangaProviderExtension) bool {
+		ret = append(ret, extension.InstalledToExtensionData(ext))
+		return true
+	})
+
+	r.animeTorrentProviderExtensionBank.Range(func(key string, ext extension.AnimeTorrentProviderExtension) bool {
+		ret = append(ret, extension.InstalledToExtensionData(ext))
+		return true
+	})
+
+	r.onlinestreamProviderExtensionBank.Range(func(key string, ext extension.OnlinestreamProviderExtension) bool {
+		ret = append(ret, extension.InstalledToExtensionData(ext))
+		return true
+	})
 
 	return ret
 }
@@ -137,25 +160,26 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// External extensions
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) InstallExternalExtension(repositoryURI string) {
+func (r *Repository) GetLoadedExtension(id string) (extension.BaseExtension, bool) {
+	var ext extension.BaseExtension
+	ext, found := r.mangaProviderExtensionBank.Get(id)
+	if found {
+		return ext, true
+	}
 
-	// 1. Get the json from the URI
-	// 2. Parse the json
-	// 3. Check if the extension is already installed
-	// 4. If not, install the extension | If yes, update the extension
-	// 5. Load the extension
+	ext, found = r.animeTorrentProviderExtensionBank.Get(id)
+	if found {
+		return ext, true
+	}
 
+	ext, found = r.onlinestreamProviderExtensionBank.Get(id)
+	if found {
+		return ext, true
+	}
+
+	return nil, false
 }
-
-// CheckForUpdates checks all extensions for updates by querying their respective repositories
-func (r *Repository) CheckForUpdates() {
-
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) GetMangaProviderExtensionBank() *extension.Bank[extension.MangaProviderExtension] {
 	return r.mangaProviderExtensionBank
@@ -186,6 +210,8 @@ func (r *Repository) GetAnimeTorrentProviderExtensionByID(id string) (extension.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Built-in extensions
+// - Built-in extensions are loaded once, on application startup
+// - The "manifestURI" field is set to "builtin" to indicate that the extension is built-in
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) LoadBuiltInMangaProviderExtension(info extension.Extension, provider hibikemanga.Provider) {

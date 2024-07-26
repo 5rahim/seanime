@@ -1559,6 +1559,76 @@ export type DB_ScanSummaryItem = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extension
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_Extension = {
+    /**
+     * e.g. "extension-example"
+     */
+    id: string
+    /**
+     * e.g. "Extension"
+     */
+    name: string
+    /**
+     * e.g. "1.0.0"
+     */
+    version: string
+    /**
+     * e.g. "http://cdn.something.app/extensions/extension-example/manifest.json"
+     */
+    manifestURI: string
+    /**
+     * e.g. "go"
+     */
+    language: Extension_Language
+    /**
+     * e.g. "anime-torrent-provider"
+     */
+    type: Extension_Type
+    /**
+     * e.g. "This extension provides torrents"
+     */
+    description: string
+    /**
+     * e.g. "Seanime"
+     */
+    author: string
+    meta: Extension_Meta
+    payload: string
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_Language = "javascript" | "go"
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_Meta = {
+    icon: string
+    website: string
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionRepo
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1571,6 +1641,15 @@ export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
     id: string
     name: string
     settings?: HibikeTorrent_AnimeProviderSettings
+}
+
+/**
+ * - Filepath: internal/extension_repo/external.go
+ * - Filename: external.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_ExtensionInstallResponse = {
+    message: string
 }
 
 /**

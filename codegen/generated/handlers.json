@@ -1804,12 +1804,177 @@
     }
   },
   {
+    "name": "HandleFetchExternalExtensionData",
+    "trimmedName": "FetchExternalExtensionData",
+    "comments": [
+      "HandleFetchExternalExtensionData",
+      "",
+      "\t@summary returns the extension data from the given manifest uri.",
+      "\t@route /api/v1/extensions/external/fetch [POST]",
+      "\t@returns extension.Extension",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the extension data from the given manifest uri.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/fetch",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ManifestURI",
+          "jsonName": "manifestUri",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension.Extension",
+      "returnGoType": "extension.Extension",
+      "returnTypescriptType": "Extension_Extension"
+    }
+  },
+  {
+    "name": "HandleInstallExternalExtension",
+    "trimmedName": "InstallExternalExtension",
+    "comments": [
+      "HandleInstallExternalExtension",
+      "",
+      "\t@summary installs the extension from the given manifest uri.",
+      "\t@route /api/v1/extensions/external/install [POST]",
+      "\t@returns extension_repo.ExtensionInstallResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "installs the extension from the given manifest uri.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/install",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ManifestURI",
+          "jsonName": "manifestUri",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension_repo.ExtensionInstallResponse",
+      "returnGoType": "extension_repo.ExtensionInstallResponse",
+      "returnTypescriptType": "ExtensionRepo_ExtensionInstallResponse"
+    }
+  },
+  {
+    "name": "HandleUninstallExternalExtension",
+    "trimmedName": "UninstallExternalExtension",
+    "comments": [
+      "HandleUninstallExternalExtension",
+      "",
+      "\t@summary uninstalls the extension with the given ID.",
+      "\t@route /api/v1/extensions/external/uninstall [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "uninstalls the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/uninstall",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleReloadExternalExtensions",
+    "trimmedName": "ReloadExternalExtensions",
+    "comments": [
+      "HandleReloadExternalExtensions",
+      "",
+      "\t@summary reloads the external extensions.",
+      "\t@route /api/v1/extensions/external/reload [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "reloads the external extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/reload",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleListExtensionData",
+    "trimmedName": "ListExtensionData",
+    "comments": [
+      "HandleListExtensionData",
+      "",
+      "\t@summary returns the available manga providers.",
+      "\t@route /api/v1/extensions/list [GET]",
+      "\t@returns []extension.Extension",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the available manga providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension.Extension",
+      "returnGoType": "extension.Extension",
+      "returnTypescriptType": "Array\u003cExtension_Extension\u003e"
+    }
+  },
+  {
     "name": "HandleListMangaProviderExtensions",
     "trimmedName": "ListMangaProviderExtensions",
     "comments": [
       "HandleListMangaProviderExtensions",
       "",
-      "\t@summary returns the available manga providers.",
+      "\t@summary returns the installed manga providers.",
       "\t@route /api/v1/extensions/list/manga-provider [GET]",
       "\t@returns []extension_repo.MangaProviderExtensionItem",
       ""
@@ -1817,7 +1982,7 @@
     "filepath": "internal/handlers/extensions.go",
     "filename": "extensions.go",
     "api": {
-      "summary": "returns the available manga providers.",
+      "summary": "returns the installed manga providers.",
       "descriptions": [],
       "endpoint": "/api/v1/extensions/list/manga-provider",
       "methods": [
@@ -1836,7 +2001,7 @@
     "comments": [
       "HandleListOnlinestreamProviderExtensions",
       "",
-      "\t@summary returns the available manga providers.",
+      "\t@summary returns the installed online streaming providers.",
       "\t@route /api/v1/extensions/list/onlinestream-provider [GET]",
       "\t@returns []extension_repo.OnlinestreamProviderExtensionItem",
       ""
@@ -1844,7 +2009,7 @@
     "filepath": "internal/handlers/extensions.go",
     "filename": "extensions.go",
     "api": {
-      "summary": "returns the available manga providers.",
+      "summary": "returns the installed online streaming providers.",
       "descriptions": [],
       "endpoint": "/api/v1/extensions/list/onlinestream-provider",
       "methods": [
@@ -1863,7 +2028,7 @@
     "comments": [
       "HandleListAnimeTorrentProviderExtensions",
       "",
-      "\t@summary returns the available manga providers.",
+      "\t@summary returns the installed torrent providers.",
       "\t@route /api/v1/extensions/list/anime-torrent-provider [GET]",
       "\t@returns []extension_repo.AnimeTorrentProviderExtensionItem",
       ""
@@ -1871,7 +2036,7 @@
     "filepath": "internal/handlers/extensions.go",
     "filename": "extensions.go",
     "api": {
-      "summary": "returns the available manga providers.",
+      "summary": "returns the installed torrent providers.",
       "descriptions": [],
       "endpoint": "/api/v1/extensions/list/anime-torrent-provider",
       "methods": [

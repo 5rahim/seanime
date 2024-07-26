@@ -12,7 +12,7 @@ func TestExternalGoOnlinestreamProviderExtension(t *testing.T) {
 
 	// Load all extensions
 	// This should load all the extensions in the directory
-	repo.LoadExternalExtensions()
+	repo.ReloadExternalExtensions()
 
 	ext, found := repo.GetOnlinestreamProviderExtensionByID("externalGogoanime")
 	require.True(t, found)
