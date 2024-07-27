@@ -1,7 +1,8 @@
 import { Extension_Extension } from "@/api/generated/types"
-import { useUninstallExternalExtension } from "@/api/hooks/extensions.hooks"
+import { useFetchExternalExtensionData, useInstallExternalExtension, useUninstallExternalExtension } from "@/api/hooks/extensions.hooks"
 import { ExtensionDetails } from "@/app/(main)/extensions/_components/extension-details"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -14,6 +15,7 @@ import { BiCog } from "react-icons/bi"
 import { GrUpdate } from "react-icons/gr"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
+import { toast } from "sonner"
 
 type ExtensionCardProps = {
     extension: Extension_Extension
@@ -76,11 +78,6 @@ export function ExtensionCard(props: ExtensionCardProps) {
                             <p className="text-2xl font-bold">
                                 {(extension.name[0]).toUpperCase()}
                             </p>
-                            {/*<p className="text-2xl opacity-20">*/}
-                            {/*    {extension.type === "anime-torrent-provider" && <RiFolderDownloadFill />}*/}
-                            {/*    {extension.type === "manga-provider" && <PiBookFill />}*/}
-                            {/*    {extension.type === "onlinestream-provider" && <CgMediaPodcast />}*/}
-                            {/*</p>*/}
                         </div>}
                     </div>
 
@@ -129,6 +126,8 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
 
     const { mutate: uninstall, isPending: isUninstalling } = useUninstallExternalExtension()
 
+    const { mutate: fetchExtensionData, data: fetchedExtensionData, isPending: isFetchingData, reset } = useFetchExternalExtensionData(extension.id)
+
     const confirmUninstall = useConfirmationDialog({
         title: `Remove ${extension.name}`,
         description: "This action cannot be undone.",
@@ -138,6 +137,41 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
             })
         },
     })
+
+    const {
+        mutate: installExtension,
+        data: installResponse,
+        isPending: isInstalling,
+    } = useInstallExternalExtension()
+
+    React.useEffect(() => {
+        if (installResponse) {
+            toast.success(installResponse.message)
+            reset()
+        }
+    }, [installResponse])
+
+    const checkingForUpdatesRef = React.useRef(false)
+
+    function handleCheckUpdate() {
+        fetchExtensionData({
+            manifestUri: extension.manifestURI,
+        })
+        checkingForUpdatesRef.current = true
+    }
+
+    React.useEffect(() => {
+
+        if (fetchedExtensionData && checkingForUpdatesRef.current) {
+            checkingForUpdatesRef.current = false
+
+            if (fetchedExtensionData.version !== extension.version) {
+                toast.success("Update available")
+            } else {
+                toast.info("The extension is up to date")
+            }
+        }
+    }, [fetchedExtensionData])
 
     return (
         <Modal
@@ -164,6 +198,8 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
                             intent="gray-outline"
                             leftIcon={<GrUpdate className="text-lg" />}
                             disabled={!extension.manifestURI}
+                            onClick={handleCheckUpdate}
+                            loading={isFetchingData}
                         >
                             Check for updates
                         </Button>}
@@ -179,6 +215,26 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
                 )}
 
             </div>
+
+            {(!!fetchedExtensionData && fetchedExtensionData?.version !== extension.version) && (
+                <AppLayoutStack>
+                    <p className="">
+                        Update available: <span className="font-bold text-white">{fetchedExtensionData.version}</span>
+                    </p>
+                    <Button
+                        intent="white"
+                        leftIcon={<TbCloudDownload className="text-lg" />}
+                        loading={isInstalling}
+                        onClick={() => {
+                            installExtension({
+                                manifestUri: fetchedExtensionData.manifestURI,
+                            })
+                        }}
+                    >
+                        Install update
+                    </Button>
+                </AppLayoutStack>
+            )}
 
             <ConfirmationDialog {...confirmUninstall} />
         </Modal>

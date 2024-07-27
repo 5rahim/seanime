@@ -25,7 +25,7 @@ export function AddExtensionModal(props: AddExtensionModalProps) {
     const [open, setOpen] = React.useState(false)
     const [manifestURL, setManifestURL] = React.useState<string>("")
 
-    const { mutate: fetchExtensionData, data: extensionData, isPending, reset } = useFetchExternalExtensionData()
+    const { mutate: fetchExtensionData, data: extensionData, isPending, reset } = useFetchExternalExtensionData(null)
 
     const {
         mutate: installExtension,

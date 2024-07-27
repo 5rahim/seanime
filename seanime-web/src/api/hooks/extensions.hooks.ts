@@ -11,14 +11,15 @@ import {
     ExtensionRepo_ExtensionInstallResponse,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
+    Nullish,
 } from "@/api/generated/types"
 import { toast } from "sonner"
 
-export function useFetchExternalExtensionData() {
+export function useFetchExternalExtensionData(id: Nullish<string>) {
     return useServerMutation<Extension_Extension, FetchExternalExtensionData_Variables>({
         endpoint: API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.methods[0],
-        mutationKey: [API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.key],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.FetchExternalExtensionData.key, id],
         onSuccess: async () => {
 
         },
