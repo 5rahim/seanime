@@ -26394,6 +26394,80 @@
   {
     "filepath": "../internal/extension/extension.go",
     "filename": "extension.go",
+    "name": "InvalidExtensionErrorCode",
+    "formattedName": "Extension_InvalidExtensionErrorCode",
+    "package": "extension",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"invalid_manifest\"",
+        "\"invalid_payload\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "InvalidExtension",
+    "formattedName": "Extension_InvalidExtension",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Extension",
+        "jsonName": "extension",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Reason",
+        "jsonName": "reason",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Code",
+        "jsonName": "code",
+        "goType": "InvalidExtensionErrorCode",
+        "typescriptType": "Extension_InvalidExtensionErrorCode",
+        "usedStructName": "extension.InvalidExtensionErrorCode",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
     "name": "Meta",
     "formattedName": "Extension_Meta",
     "package": "extension",
@@ -27623,6 +27697,45 @@
         "typescriptType": "any",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "invalidExtensions",
+        "jsonName": "invalidExtensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "AllExtensions",
+    "formattedName": "ExtensionRepo_AllExtensions",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "Extensions",
+        "jsonName": "extensions",
+        "goType": "[]extension.Extension",
+        "typescriptType": "Array\u003cExtension_Extension\u003e",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InvalidExtensions",
+        "jsonName": "invalidExtensions",
+        "goType": "[]extension.InvalidExtension",
+        "typescriptType": "Array\u003cExtension_InvalidExtension\u003e",
+        "usedStructName": "extension.InvalidExtension",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],

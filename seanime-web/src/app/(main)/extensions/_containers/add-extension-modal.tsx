@@ -10,7 +10,7 @@ import { FiSearch } from "react-icons/fi"
 import { toast } from "sonner"
 
 type AddExtensionModalProps = {
-    extensions: Extension_Extension[]
+    extensions: Extension_Extension[] | undefined
     children?: React.ReactElement
 }
 
@@ -87,7 +87,7 @@ export function AddExtensionModal(props: AddExtensionModalProps) {
 
                         <ExtensionDetails extension={extensionData} />
 
-                        {extensions.find(n => n.id === extensionData.id) ? (
+                        {extensions?.find(n => n.id === extensionData.id) ? (
                             <p className="text-center">
                                 This extension is already installed.
                             </p>

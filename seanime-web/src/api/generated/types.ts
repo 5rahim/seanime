@@ -1609,6 +1609,26 @@ export type Extension_Extension = {
  * - Filename: extension.go
  * - Package: extension
  */
+export type Extension_InvalidExtension = {
+    id: string
+    path: string
+    extension: Extension_Extension
+    reason: string
+    code: Extension_InvalidExtensionErrorCode
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload"
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
 export type Extension_Language = "javascript" | "go"
 
 /**
@@ -1631,6 +1651,16 @@ export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onli
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionRepo
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension_repo/repository.go
+ * - Filename: repository.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_AllExtensions = {
+    extensions?: Array<Extension_Extension>
+    invalidExtensions?: Array<Extension_InvalidExtension>
+}
 
 /**
  * - Filepath: internal/extension_repo/repository.go

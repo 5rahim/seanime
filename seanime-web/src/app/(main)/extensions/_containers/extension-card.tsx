@@ -182,17 +182,8 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
 
             <ExtensionDetails extension={extension} />
 
-            <div className="flex gap-2">
-
-                {!installed && (
-                    <>
-                        <Button intent="primary-outline" leftIcon={<TbCloudDownload className="text-xl" />}>
-                            Install
-                        </Button>
-                    </>
-                )}
-
-                {installed && (
+            {installed && (
+                <div className="flex gap-2">
                     <>
                         {<Button
                             intent="gray-outline"
@@ -212,9 +203,9 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
                             Uninstall
                         </Button>
                     </>
-                )}
+                </div>
+            )}
 
-            </div>
 
             {(!!fetchedExtensionData && fetchedExtensionData?.version !== extension.version) && (
                 <AppLayoutStack>

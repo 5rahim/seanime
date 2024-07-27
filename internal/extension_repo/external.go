@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"io/fs"
 	"net/http"
 	"os"
@@ -75,6 +76,7 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 	update := false
 
 	// Check if the extension is already installed
+	// i.e. a file with the same ID exists
 	if _, err := os.Stat(filename); err == nil {
 		r.logger.Debug().Str("id", ext.ID).Msg("extensions: Updating extension")
 		// Delete the old extension
@@ -165,6 +167,8 @@ func (r *Repository) ReloadExternalExtensions() {
 
 // unloadExternalExtensions unloads all external extensions from the extension banks.
 func (r *Repository) unloadExternalExtensions() {
+	// We also clear the invalid extensions list, assuming the extensions are reloaded
+	r.invalidExtensions.Clear()
 	r.mangaProviderExtensionBank.RemoveExternalExtensions()
 	r.animeTorrentProviderExtensionBank.RemoveExternalExtensions()
 	r.onlinestreamProviderExtensionBank.RemoveExternalExtensions()
@@ -226,33 +230,71 @@ func (r *Repository) loadExternalExtension(filePath string) {
 
 	err = json.Unmarshal(fileContent, &ext)
 	if err != nil {
+		// If the extension file is corrupted or not a valid extension, skip loading the extension.
+		// We don't add it to the InvalidExtensions list because there's not enough information to
 		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extensions: Failed to parse extension file")
 		return
 	}
 
+	var manifestError error
+
 	// Sanity check
 	if err = r.extensionSanityCheck(&ext); err != nil {
 		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extensions: Failed sanity check")
+		manifestError = err
+	}
+
+	// If there was an error with the manifest, skip loading the extension,
+	// add the extension to the InvalidExtensions list and return
+	// The extension should be added to the InvalidExtensions list with an auto-generated ID.
+	if manifestError != nil {
+		id := uuid.NewString()
+		r.invalidExtensions.Set(id, &extension.InvalidExtension{
+			ID:        id,
+			Reason:    manifestError.Error(),
+			Path:      filePath,
+			Code:      extension.InvalidExtensionManifestError,
+			Extension: ext,
+		})
 		return
 	}
+
+	var loadingErr error
 
 	// Load extension
 	switch ext.Type {
 	case extension.TypeMangaProvider:
 		// Load manga provider
-		r.loadExternalMangaExtension(&ext)
+		loadingErr = r.loadExternalMangaExtension(&ext)
 	case extension.TypeOnlinestreamProvider:
 		// Load online streaming provider
-		r.loadExternalOnlinestreamProviderExtension(&ext)
+		loadingErr = r.loadExternalOnlinestreamProviderExtension(&ext)
 	case extension.TypeAnimeTorrentProvider:
 		// Load torrent provider
-		r.loadExternalTorrentProviderExtension(&ext)
+		loadingErr = r.loadExternalTorrentProviderExtension(&ext)
 	default:
 		r.logger.Error().Str("type", string(ext.Type)).Msg("extensions: Extension type not supported")
+		loadingErr = fmt.Errorf("extension type not supported")
 	}
 
+	// If there was an error loading the extension, skip adding it to the extension bank
+	// and add the extension to the InvalidExtensions list
+	if loadingErr != nil {
+		id := uuid.NewString()
+		r.invalidExtensions.Set(id, &extension.InvalidExtension{
+			ID:        id,
+			Reason:    loadingErr.Error(),
+			Path:      filePath,
+			Code:      extension.InvalidExtensionPayloadError,
+			Extension: ext,
+		})
+		return
+	}
+
+	return
 }
 
+// extensionSanityCheck checks if the extension has all the required fields in the manifest.
 func (r *Repository) extensionSanityCheck(ext *extension.Extension) error {
 	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
 		return fmt.Errorf("extension is missing required fields")

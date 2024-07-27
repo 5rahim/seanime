@@ -1947,7 +1947,7 @@
     "comments": [
       "HandleListExtensionData",
       "",
-      "\t@summary returns the available manga providers.",
+      "\t@summary returns the loaded extensions",
       "\t@route /api/v1/extensions/list [GET]",
       "\t@returns []extension.Extension",
       ""
@@ -1955,7 +1955,7 @@
     "filepath": "internal/handlers/extensions.go",
     "filename": "extensions.go",
     "api": {
-      "summary": "returns the available manga providers.",
+      "summary": "returns the loaded extensions",
       "descriptions": [],
       "endpoint": "/api/v1/extensions/list",
       "methods": [
@@ -1966,6 +1966,33 @@
       "returns": "[]extension.Extension",
       "returnGoType": "extension.Extension",
       "returnTypescriptType": "Array\u003cExtension_Extension\u003e"
+    }
+  },
+  {
+    "name": "HandleGetAllExtensions",
+    "trimmedName": "GetAllExtensions",
+    "comments": [
+      "HandleGetAllExtensions",
+      "",
+      "\t@summary returns all loaded and invalid extensions.",
+      "\t@route /api/v1/extensions/all [GET]",
+      "\t@returns extension_repo.AllExtensions",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns all loaded and invalid extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/all",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "extension_repo.AllExtensions",
+      "returnGoType": "extension_repo.AllExtensions",
+      "returnTypescriptType": "ExtensionRepo_AllExtensions"
     }
   },
   {

@@ -38,6 +38,24 @@ type Extension struct {
 	Payload string `json:"payload"`
 }
 
+type InvalidExtensionErrorCode string
+
+const (
+	// InvalidExtensionManifestError is returned when the extension manifest is invalid
+	InvalidExtensionManifestError InvalidExtensionErrorCode = "invalid_manifest"
+	// InvalidExtensionPayloadError is returned when the extension code is invalid / obsolete
+	InvalidExtensionPayloadError InvalidExtensionErrorCode = "invalid_payload"
+)
+
+type InvalidExtension struct {
+	// Auto-generated ID
+	ID        string                    `json:"id"`
+	Path      string                    `json:"path"`
+	Extension Extension                 `json:"extension"`
+	Reason    string                    `json:"reason"`
+	Code      InvalidExtensionErrorCode `json:"code"`
+}
+
 type Meta struct {
 	// Icon is the URL to the extension icon
 	Icon string `json:"icon"`

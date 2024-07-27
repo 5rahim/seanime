@@ -509,6 +509,15 @@
 //     })
 // }
 
+// export function useGetAllExtensions() {
+//     return useServerQuery<ExtensionRepo_AllExtensions>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useListMangaProviderExtensions() {
 //     return useServerQuery<Array<ExtensionRepo_MangaProviderExtensionItem>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListMangaProviderExtensions.endpoint,

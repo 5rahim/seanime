@@ -430,6 +430,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list",
         },
+        GetAllExtensions: {
+            key: "EXTENSIONS-get-all-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/all",
+        },
         ListMangaProviderExtensions: {
             key: "EXTENSIONS-list-manga-provider-extensions",
             methods: ["GET"],

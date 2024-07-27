@@ -7,6 +7,7 @@ import {
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     Extension_Extension,
+    ExtensionRepo_AllExtensions,
     ExtensionRepo_AnimeTorrentProviderExtensionItem,
     ExtensionRepo_ExtensionInstallResponse,
     ExtensionRepo_MangaProviderExtensionItem,
@@ -14,6 +15,15 @@ import {
     Nullish,
 } from "@/api/generated/types"
 import { toast } from "sonner"
+
+export function useGetAllExtensions() {
+    return useServerQuery<ExtensionRepo_AllExtensions>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
+        enabled: true,
+    })
+}
 
 export function useFetchExternalExtensionData(id: Nullish<string>) {
     return useServerMutation<Extension_Extension, FetchExternalExtensionData_Variables>({

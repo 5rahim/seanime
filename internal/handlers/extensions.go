@@ -81,11 +81,21 @@ func HandleReloadExternalExtensions(c *RouteCtx) error {
 
 // HandleListExtensionData
 //
-//	@summary returns the available manga providers.
+//	@summary returns the loaded extensions
 //	@route /api/v1/extensions/list [GET]
 //	@returns []extension.Extension
 func HandleListExtensionData(c *RouteCtx) error {
 	extensions := c.App.ExtensionRepository.ListExtensionData()
+	return c.RespondWithData(extensions)
+}
+
+// HandleGetAllExtensions
+//
+//	@summary returns all loaded and invalid extensions.
+//	@route /api/v1/extensions/all [GET]
+//	@returns extension_repo.AllExtensions
+func HandleGetAllExtensions(c *RouteCtx) error {
+	extensions := c.App.ExtensionRepository.GetAllExtensions()
 	return c.RespondWithData(extensions)
 }
 
