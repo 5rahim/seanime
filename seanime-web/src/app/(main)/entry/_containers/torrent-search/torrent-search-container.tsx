@@ -178,11 +178,10 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
             <div className="py-4 space-y-4">
                 <Select
                     name="torrentProvider"
-                    leftAddon="Torrent Provider"
-                    // label="Torrent Provider"
+                    label="Torrent Provider"
                     value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
                     onValueChange={setSelectedProviderExtensionId}
-                    leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
+                    leftIcon={<RiFolderDownloadFill />}
                     options={[
                         ...(providerExtensions?.map(ext => ({
                             label: ext.name,

@@ -47,8 +47,8 @@ export function ExtensionList(props: ExtensionListProps) {
                 <AddExtensionModal extensions={extensions}>
                     <Button
                         className="rounded-full"
-                        intent="primary"
-                        leftIcon={<GrInstallOption />}
+                        intent="primary-subtle"
+                        leftIcon={<GrInstallOption className="text-lg" />}
                     >
                         Add extension
                     </Button>

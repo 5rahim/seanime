@@ -39,7 +39,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
     return (
         <div
             className={cn(
-                "border p-3 pr-12 rounded-lg relative transition hover:bg-[var(--hover-from-background-color)] group/episode-list-item overflow-hidden",
+                "border p-3 pr-12 rounded-lg relative transition lg:hover:scale-[1.01] group/episode-list-item overflow-hidden",
                 {
                     "border-brand-200": isSelected,
                     "hover:border-gray-500": !isSelected,
