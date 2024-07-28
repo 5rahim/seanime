@@ -3,7 +3,6 @@
 class Provider {
 
     // credit to Anify
-    private id = "my-manga-provider"
     private api = "https://api.comick.fun"
 
     async search(opts: QueryOptions): Promise<SearchResult[]> {

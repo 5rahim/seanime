@@ -28,7 +28,7 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 		return
 	}
 
-	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded manga provider extension")
+	//r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded manga provider extension")
 	return
 }
 
@@ -40,7 +40,7 @@ func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) erro
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
-	r.logger.Trace().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extensions: Loading external manga provider")
+	r.logger.Trace().Str("id", ext.ID).Str("language", "go").Str("packageName", extensionPackageName).Msg("extensions: Loading external manga provider")
 
 	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
 
@@ -77,11 +77,16 @@ func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) erro
 
 func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {
 
-	provider, err := NewGojaMangaProvider(ext, language, r.logger)
+	r.logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external manga provider")
+
+	provider, gojaExt, err := NewGojaMangaProvider(ext, language, r.logger)
 	if err != nil {
 		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external manga provider")
 		return err
 	}
+
+	// Add the goja extension pointer to the map
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
 	r.mangaProviderExtensionBank.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))

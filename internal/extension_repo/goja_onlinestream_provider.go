@@ -16,11 +16,11 @@ type (
 	}
 )
 
-func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikeonlinestream.Provider, error) {
+func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikeonlinestream.Provider, *GojaOnlinestreamProvider, error) {
 	vm, err := SetupGojaExtensionVM(ext, language, logger)
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Create the provider
@@ -28,32 +28,40 @@ func NewGojaOnlinestreamProvider(ext *extension.Extension, language extension.La
    return new Provider()
 }`)
 	if err != nil {
+		vm.ClearInterrupt()
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create online streaming provider")
-		return nil, err
+		return nil, nil, err
 	}
 
 	newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
 	if !ok {
+		vm.ClearInterrupt()
 		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to invoke online streaming provider constructor")
-		return nil, fmt.Errorf("failed to invoke online streaming provider constructor")
+		return nil, nil, fmt.Errorf("failed to invoke online streaming provider constructor")
 	}
 
 	classObjVal, err := newProviderFunc(goja.Undefined())
 	if err != nil {
+		vm.ClearInterrupt()
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create online streaming provider")
-		return nil, err
+		return nil, nil, err
 	}
 
 	classObj := classObjVal.ToObject(vm)
 
-	return &GojaOnlinestreamProvider{
+	ret := &GojaOnlinestreamProvider{
 		gojaExtensionImpl: gojaExtensionImpl{
 			vm:       vm,
 			logger:   logger,
 			ext:      ext,
 			classObj: classObj,
 		},
-	}, nil
+	}
+	return ret, ret, nil
+}
+
+func (g *GojaOnlinestreamProvider) GetVM() *goja.Runtime {
+	return g.vm
 }
 
 func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {

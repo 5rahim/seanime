@@ -12,6 +12,13 @@ import (
 	"seanime/internal/extension"
 )
 
+// GojaExtension is an interface for Goja extensions.
+// It is stored into the repository map, giving access to the VM.
+// Current use: Kill the VM when the extension is unloaded.
+type GojaExtension interface {
+	GetVM() *goja.Runtime
+}
+
 // SetupGojaExtensionVM creates a new JavaScript VM with the extension source code loaded
 func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (*goja.Runtime, error) {
 	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM for external manga provider")

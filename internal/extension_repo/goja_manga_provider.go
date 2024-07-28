@@ -17,11 +17,11 @@ type (
 	}
 )
 
-func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikemanga.Provider, error) {
+func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikemanga.Provider, *GojaMangaProvider, error) {
 	vm, err := SetupGojaExtensionVM(ext, language, logger)
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Create the provider
@@ -29,32 +29,40 @@ func NewGojaMangaProvider(ext *extension.Extension, language extension.Language,
     return new Provider()
 }`)
 	if err != nil {
+		vm.ClearInterrupt()
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create manga provider")
-		return nil, err
+		return nil, nil, err
 	}
 
 	newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
 	if !ok {
+		vm.ClearInterrupt()
 		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to invoke manga provider constructor")
-		return nil, fmt.Errorf("failed to invoke manga provider constructor")
+		return nil, nil, fmt.Errorf("failed to invoke manga provider constructor")
 	}
 
 	classObjVal, err := newProviderFunc(goja.Undefined())
 	if err != nil {
+		vm.ClearInterrupt()
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create manga provider")
-		return nil, err
+		return nil, nil, err
 	}
 
 	classObj := classObjVal.ToObject(vm)
 
-	return &GojaMangaProvider{
+	ret := &GojaMangaProvider{
 		gojaExtensionImpl: gojaExtensionImpl{
 			vm:       vm,
 			logger:   logger,
 			ext:      ext,
 			classObj: classObj,
 		},
-	}, nil
+	}
+	return ret, ret, nil
+}
+
+func (g *GojaMangaProvider) GetVM() *goja.Runtime {
+	return g.vm
 }
 
 func (g *GojaMangaProvider) Search(query hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {

@@ -30,7 +30,7 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 		return
 	}
 
-	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded online streaming provider extension")
+	//r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded online streaming provider extension")
 	return
 }
 
@@ -42,7 +42,7 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
-	r.logger.Trace().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extensions: Loading external online streaming provider")
+	r.logger.Trace().Str("id", ext.ID).Str("language", "go").Str("packageName", extensionPackageName).Msg("extensions: Loading external online streaming provider")
 
 	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
 
@@ -79,11 +79,16 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 
 func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extension, language extension.Language) error {
 
-	provider, err := NewGojaOnlinestreamProvider(ext, language, r.logger)
+	r.logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external online streaming provider")
+
+	provider, gojaExt, err := NewGojaOnlinestreamProvider(ext, language, r.logger)
 	if err != nil {
 		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external online streaming provider")
 		return err
 	}
+
+	// Add the goja extension pointer to the map
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
 	r.onlinestreamProviderExtensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))

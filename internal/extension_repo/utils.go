@@ -2,8 +2,53 @@ package extension_repo
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
+	"seanime/internal/extension"
+	"seanime/internal/util"
 )
+
+// extensionSanityCheck checks if the extension has all the required fields in the manifest.
+func (r *Repository) extensionSanityCheck(ext *extension.Extension) error {
+	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
+		return fmt.Errorf("extension is missing required fields")
+	}
+
+	// Check the ID
+	if err := r.isValidExtensionID(ext.ID); err != nil {
+		return err
+	}
+
+	// Check name length
+	if len(ext.Name) > 50 {
+		return fmt.Errorf("extension name is too long")
+	}
+
+	// Check author length
+	if len(ext.Author) > 25 {
+		return fmt.Errorf("extension author is too long")
+	}
+
+	if !util.IsValidVersion(ext.Version) {
+		return fmt.Errorf("invalid version: %v", ext.Version)
+	}
+
+	// Check language
+	if ext.Language != extension.LanguageGo &&
+		ext.Language != extension.LanguageJavascript &&
+		ext.Language != extension.LanguageTypescript {
+		return fmt.Errorf("unsupported language: %v", ext.Language)
+	}
+
+	// Check type
+	if ext.Type != extension.TypeMangaProvider &&
+		ext.Type != extension.TypeOnlinestreamProvider &&
+		ext.Type != extension.TypeAnimeTorrentProvider {
+		return fmt.Errorf("unsupported extension type: %v", ext.Type)
+	}
+
+	return nil
+}
 
 // checks if the extension ID is valid
 // Note: The ID must start with a letter and contain only alphanumeric characters

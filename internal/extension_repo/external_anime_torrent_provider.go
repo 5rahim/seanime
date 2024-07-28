@@ -30,7 +30,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 		return
 	}
 
-	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded online streaming provider extension")
+	//r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded anime torrent provider extension")
 	return
 }
 
@@ -42,7 +42,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionGo(ext *extension.
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
-	r.logger.Trace().Str("id", ext.ID).Str("packageName", extensionPackageName).Msg("extensions: Loading external torrent provider")
+	r.logger.Trace().Str("id", ext.ID).Str("language", "go").Str("packageName", extensionPackageName).Msg("extensions: Loading external anime torrent provider")
 
 	payload := strings.Replace(ext.Payload, "package main", "package "+extensionPackageName, 1)
 
@@ -80,11 +80,16 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionGo(ext *extension.
 
 func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.Extension, language extension.Language) error {
 
-	provider, err := NewGojaAnimeTorrentProvider(ext, language, r.logger)
+	r.logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external anime torrent provider")
+
+	provider, gojaExt, err := NewGojaAnimeTorrentProvider(ext, language, r.logger)
 	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external online streaming provider")
+		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external anime torrent provider")
 		return err
 	}
+
+	// Add the goja extension pointer to the map
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
 	r.animeTorrentProviderExtensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))

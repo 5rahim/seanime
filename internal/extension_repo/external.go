@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/util"
 	"time"
 )
 
@@ -152,26 +153,51 @@ func (r *Repository) CheckForUpdates(manifestURI string) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Loading external extensions
+// Loading/Reloading external extensions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) ReloadExternalExtensions() {
 	r.loadExternalExtensions()
 }
 
+// killGojaVMs kills all VMs from currently loaded Goja extensions & clears the Goja extensions map.
+func (r *Repository) killGojaVMs() {
+	defer util.HandlePanicInModuleThen("extension_repo/killGojaVMs", func() {})
+
+	r.logger.Trace().Msg("extensions: Killing Goja VMs")
+
+	r.gojaExtensions.Range(func(key string, ext GojaExtension) bool {
+		defer util.HandlePanicInModuleThen(fmt.Sprintf("extension_repo/killGojaVMs/%s", key), func() {})
+
+		ext.GetVM().ClearInterrupt()
+		return true
+	})
+
+	// Clear the Goja extensions map
+	r.gojaExtensions.Clear()
+
+	r.logger.Debug().Msg("extensions: Killed Goja VMs")
+}
+
 // unloadExternalExtensions unloads all external extensions from the extension banks.
 func (r *Repository) unloadExternalExtensions() {
+	r.logger.Trace().Msg("extensions: Unloading external extensions")
 	// We also clear the invalid extensions list, assuming the extensions are reloaded
 	r.invalidExtensions.Clear()
 	r.mangaProviderExtensionBank.RemoveExternalExtensions()
 	r.animeTorrentProviderExtensionBank.RemoveExternalExtensions()
 	r.onlinestreamProviderExtensionBank.RemoveExternalExtensions()
+
+	r.logger.Debug().Msg("extensions: Unloaded external extensions")
 }
 
 // loadExternalExtensions loads all external extensions from the extension directory.
 // This should be called after the built-in extensions are loaded.
 func (r *Repository) loadExternalExtensions() {
 	r.logger.Trace().Msg("extensions: Loading external extensions")
+
+	// Kill all Goja VMs
+	r.killGojaVMs()
 
 	// Unload all external extensions
 	r.unloadExternalExtensions()
@@ -286,17 +312,4 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	}
 
 	return
-}
-
-// extensionSanityCheck checks if the extension has all the required fields in the manifest.
-func (r *Repository) extensionSanityCheck(ext *extension.Extension) error {
-	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
-		return fmt.Errorf("extension is missing required fields")
-	}
-
-	if err := r.isValidExtensionID(ext.ID); err != nil {
-		return err
-	}
-
-	return nil
 }

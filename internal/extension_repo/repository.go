@@ -12,8 +12,6 @@ import (
 	"seanime/internal/util/result"
 	"seanime/internal/yaegi_interp"
 
-	"github.com/dop251/goja"
-
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
@@ -28,9 +26,11 @@ type (
 		extensionDir string
 		// Yaegi interpreter for Go extensions
 		yaegiInterp *interp.Interpreter
-		// Goja VMs for JS extensions
-		gojaVMs *result.Map[string, *goja.Runtime]
+		// Store all active Goja VMs
+		// - When reloading extensions, all VMs are interrupted
+		gojaExtensions *result.Map[string, GojaExtension]
 		// Extension banks
+		// - When reloading extensions, external extensions are removed & re-added
 		mangaProviderExtensionBank        *extension.Bank[extension.MangaProviderExtension]
 		animeTorrentProviderExtensionBank *extension.Bank[extension.AnimeTorrentProviderExtension]
 		onlinestreamProviderExtensionBank *extension.Bank[extension.OnlinestreamProviderExtension]
@@ -75,7 +75,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                            opts.Logger,
 		extensionDir:                      opts.ExtensionDir,
 		wsEventManager:                    opts.WSEventManager,
-		gojaVMs:                           result.NewResultMap[string, *goja.Runtime](),
+		gojaExtensions:                    result.NewResultMap[string, GojaExtension](),
 		mangaProviderExtensionBank:        extension.NewBank[extension.MangaProviderExtension](),
 		animeTorrentProviderExtensionBank: extension.NewBank[extension.AnimeTorrentProviderExtension](),
 		onlinestreamProviderExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
