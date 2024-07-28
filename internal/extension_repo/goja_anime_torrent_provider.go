@@ -81,6 +81,10 @@ func (g *GojaAnimeTorrentProvider) Search(opts hibiketorrent.AnimeSearchOptions)
 		return nil, err
 	}
 
+	for i := range ret {
+		ret[i].Provider = g.ext.ID
+	}
+
 	return
 }
 func (g *GojaAnimeTorrentProvider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
@@ -98,6 +102,10 @@ func (g *GojaAnimeTorrentProvider) SmartSearch(opts hibiketorrent.AnimeSmartSear
 		return nil, err
 	}
 
+	for i := range ret {
+		ret[i].Provider = g.ext.ID
+	}
+
 	return
 }
 func (g *GojaAnimeTorrentProvider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (ret string, err error) {
@@ -108,7 +116,12 @@ func (g *GojaAnimeTorrentProvider) GetTorrentInfoHash(torrent *hibiketorrent.Ani
 		return "", err
 	}
 
-	err = g.unmarshalValue(res, &ret)
+	promiseRes, err := g.waitForPromise(res)
+	if err != nil {
+		return "", err
+	}
+
+	err = g.unmarshalValue(promiseRes, &ret)
 	if err != nil {
 		return "", err
 	}
@@ -123,7 +136,12 @@ func (g *GojaAnimeTorrentProvider) GetTorrentMagnetLink(torrent *hibiketorrent.A
 		return "", err
 	}
 
-	err = g.unmarshalValue(res, &ret)
+	promiseRes, err := g.waitForPromise(res)
+	if err != nil {
+		return "", err
+	}
+
+	err = g.unmarshalValue(promiseRes, &ret)
 	if err != nil {
 		return "", err
 	}

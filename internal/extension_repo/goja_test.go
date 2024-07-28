@@ -85,7 +85,7 @@ func TestGojaCode(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get the script
-	filepath := "./gojatestdir/my-manga-provider.ts"
+	filepath := "./goja_manga_test/my-manga-provider.ts"
 	fileB, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)

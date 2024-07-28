@@ -3,6 +3,7 @@ package torrent
 import (
 	"cmp"
 	"fmt"
+	"github.com/dustin/go-humanize"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
@@ -237,6 +238,19 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		comparison.ValueContainsBatchKeywords(opts.torrent.Name) || // Contains batch keywords
 		(!opts.media.IsMovieOrSingleEpisode() && len(parsedData.EpisodeNumber) > 1) // Multiple episodes parsed & not a movie
 
+	if opts.torrent.ReleaseGroup == "" {
+		opts.torrent.ReleaseGroup = parsedData.ReleaseGroup
+	}
+
+	if opts.torrent.Resolution == "" {
+		opts.torrent.Resolution = parsedData.VideoResolution
+	}
+
+	if opts.torrent.FormattedSize == "" {
+		opts.torrent.FormattedSize = humanize.Bytes(uint64(opts.torrent.Size))
+
+	}
+
 	if isBatch {
 		return &Preview{
 			Episode: nil, // Will be displayed as batch
@@ -282,6 +296,10 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 				MetadataProvider:     r.metadataProvider,
 			})
 			episode.IsInvalid = false
+
+			if episode.DisplayTitle == "" {
+				episode.DisplayTitle = parsedData.Title
+			}
 
 			return &Preview{
 				Episode: episode,
