@@ -18,6 +18,8 @@ type (
 )
 
 func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikemanga.Provider, *GojaMangaProvider, error) {
+	logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external manga provider")
+
 	vm, err := SetupGojaExtensionVM(ext, language, logger)
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")

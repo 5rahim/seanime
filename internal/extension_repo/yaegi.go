@@ -2,6 +2,7 @@ package extension_repo
 
 import (
 	"context"
+	"github.com/traefik/yaegi/interp"
 	"reflect"
 	"time"
 )
@@ -11,9 +12,9 @@ const (
 	MsgYaegiFailedToInstantiateExtension  = "extensions: Failed to instantiate extension, the extension is incompatible with the expected interface"
 )
 
-func (r *Repository) yaegiEval(src string) (reflect.Value, error) {
+func yaegiEval(i *interp.Interpreter, src string) (reflect.Value, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	return r.yaegiInterp.EvalWithContext(ctx, src)
+	return i.EvalWithContext(ctx, src)
 }

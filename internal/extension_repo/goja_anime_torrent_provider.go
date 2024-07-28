@@ -17,6 +17,8 @@ type (
 )
 
 func NewGojaAnimeTorrentProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibiketorrent.AnimeProvider, *GojaAnimeTorrentProvider, error) {
+	logger.Trace().Str("id", ext.ID).Any("language", language).Msg("extensions: Loading external anime torrent provider")
+
 	vm, err := SetupGojaExtensionVM(ext, language, logger)
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
