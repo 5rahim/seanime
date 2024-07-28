@@ -9,10 +9,12 @@ import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { RadioGroup } from "@/components/ui/radio-group"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
+import { IoPlayCircle } from "react-icons/io5"
 import { MdVerified } from "react-icons/md"
 
 export const __torrentSearch_torrentstreamSelectedTorrentAtom = atom<HibikeTorrent_AnimeTorrent | undefined>(undefined)
@@ -106,25 +108,33 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
         >
             <AppLayoutStack className="mt-4">
                 {isLoading ? <LoadingSpinner /> : (
-                    <div className="pb-0">
+                    <AppLayoutStack className="pb-0">
 
-                        <FileSelection />
+                        <div className="flex">
+                            <div className="flex flex-1"></div>
+                            <Button
+                                intent="primary"
+                                className=""
+                                rightIcon={<IoPlayCircle className="text-xl" />}
+                                disabled={selectedFileIdx === -1 || isLoading}
+                                onClick={onStream}
+                            >
+                                Stream
+                            </Button>
+                        </div>
 
-                    </div>
+                        <ScrollArea className="h-[75dvh] overflow-y-auto p-4 border rounded-md">
+                            <FileSelection />
+                        </ScrollArea>
+
+                    </AppLayoutStack>
                 )}
 
-                <div className="flex w-full justify-end gap-2">
+                {/*<div className="flex w-full justify-end gap-2">*/}
 
-                    <Button
-                        intent="white"
-                        className="animate-pulse w-full"
-                        disabled={selectedFileIdx === -1 || isLoading}
-                        onClick={onStream}
-                    >
-                        Stream
-                    </Button>
+                {/*    */}
 
-                </div>
+                {/*</div>*/}
             </AppLayoutStack>
         </Drawer>
     )
