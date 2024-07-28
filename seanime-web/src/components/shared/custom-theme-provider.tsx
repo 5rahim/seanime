@@ -49,7 +49,7 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
         if (!ts.enableColorSettings) return
 
         setBgColor(r, "--background", "#070707", ts.backgroundColor)
-        setBgColor(r, "--paper", "#101010", colord(ts.backgroundColor).lighten(0.025).toHex())
+        setBgColor(r, "--paper", colord("rgba(11 11 11)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
         setBgColor(r, "--media-card-popup-background", colord("rgb(16 16 16)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
         setBgColor(r,
             "--hover-from-background-color",
