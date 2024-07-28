@@ -83,7 +83,7 @@ func NewLogger() *zerolog.Logger {
 		if msg, ok := i.(string); ok {
 			if bytes.ContainsRune([]byte(msg), ':') {
 				parts := strings.SplitN(msg, ":", 2)
-				if len(parts) > 1 && len(parts[0]) < len(parts[1]) {
+				if len(parts) > 1 {
 					return colorizeb(parts[0], colorCyan) + colorizeb(" >", colorDarkGray) + parts[1]
 				}
 			}
@@ -95,7 +95,7 @@ func NewLogger() *zerolog.Logger {
 		if msg, ok := i.(string); ok {
 			if bytes.ContainsRune([]byte(msg), ':') {
 				parts := strings.SplitN(msg, ":", 2)
-				if len(parts) > 1 && len(parts[0]) < len(parts[1]) {
+				if len(parts) > 1 {
 					return parts[0] + " >" + parts[1]
 				}
 			}

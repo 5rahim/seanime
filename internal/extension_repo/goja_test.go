@@ -11,7 +11,6 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	"seanime/internal/util"
-	"seanime/internal/util/result"
 	"testing"
 	"time"
 )
@@ -72,7 +71,7 @@ func TestGojaWithExtension(t *testing.T) {
 	}
 
 	// Create the provider
-	provider, err := extension_repo.NewGojaMangaProvider(ext, ext.Language, util.NewLogger())
+	provider, _, err := extension_repo.NewGojaMangaProvider(ext, ext.Language, util.NewLogger())
 	require.NoError(t, err)
 
 	// Test the search function
@@ -116,13 +115,9 @@ func TestGojaWithExtension(t *testing.T) {
 
 func TestGojaCode(t *testing.T) {
 
-	runtimeMap := result.NewResultMap[string, *goja.Runtime]()
-
 	// VM
-	vm, err := extension_repo.CreateJSVM()
+	vm, err := extension_repo.CreateJSVM(util.NewLogger())
 	require.NoError(t, err)
-
-	runtimeMap.Set("my-manga-provider", vm)
 
 	// Get the script
 	filepath := "./gojatestdir/my-manga-provider.ts"

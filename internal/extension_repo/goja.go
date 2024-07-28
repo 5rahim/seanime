@@ -23,7 +23,7 @@ type GojaExtension interface {
 func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (*goja.Runtime, error) {
 	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM for external manga provider")
 
-	vm, err := CreateJSVM()
+	vm, err := CreateJSVM(logger)
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
 		return nil, err
@@ -50,7 +50,7 @@ func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language,
 }
 
 // CreateJSVM creates a new JavaScript VM for SetupGojaExtensionVM
-func CreateJSVM() (*goja.Runtime, error) {
+func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 
 	vm := goja.New()
 	vm.SetParserOptions(parser.WithDisableSourceMaps)
@@ -66,10 +66,15 @@ func CreateJSVM() (*goja.Runtime, error) {
 		return nil, err
 	}
 
-	err = gojaBindFindBestMatchWithSorensenDice(vm)
+	err = gojaBindConsole(vm, logger)
 	if err != nil {
 		return nil, err
 	}
+
+	//err = gojaBindFindBestMatchWithSorensenDice(vm)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	return vm, nil
 }
