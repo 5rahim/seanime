@@ -5,6 +5,7 @@ import (
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dop251/goja"
+	"github.com/goccy/go-json"
 	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/extension"
@@ -14,6 +15,40 @@ import (
 	"testing"
 	"time"
 )
+
+func TestUnmarshal(t *testing.T) {
+
+	type Person struct {
+		Name    string   `json:"name"`
+		Age     int      `json:"age"`
+		Float   float32  `json:"float"`
+		Strings []string `json:"strings"`
+	}
+
+	// Example interface value containing JSON data
+	var i interface{} = map[string]interface{}{
+		"name":  "John",
+		"age":   int64(40),
+		"float": float64(3.14),
+		"strings": []interface{}{
+			"hello",
+			"world",
+		},
+	}
+
+	// Convert the interface to JSON
+	jsonData, err := json.Marshal(i)
+	require.NoError(t, err)
+
+	// Unmarshal the JSON into the struct
+	var person Person
+	err = json.Unmarshal(jsonData, &person)
+	require.NoError(t, err)
+
+	// Print the struct
+	fmt.Printf("%+v\n", person)
+
+}
 
 func TestGojaWithExtension(t *testing.T) {
 	// Get the script
@@ -37,12 +72,25 @@ func TestGojaWithExtension(t *testing.T) {
 	}
 
 	// Create the provider
-	provider, err := extension_repo.NewGojaMangaProvider(ext, util.NewLogger())
+	provider, err := extension_repo.NewGojaMangaProvider(ext, ext.Language, util.NewLogger())
 	require.NoError(t, err)
 
 	// Test the search function
 	searchResult, err := provider.Search(hibikemanga.SearchOptions{Query: "dandadan"})
 	require.NoError(t, err)
+
+	spew.Dump(searchResult)
+
+	// Should have a result with rating of 1
+	var dandadanRes *hibikemanga.SearchResult
+	for _, res := range searchResult {
+		if res.SearchRating == 1 {
+			dandadanRes = res
+			break
+		}
+	}
+	require.NotNil(t, dandadanRes)
+	spew.Dump(dandadanRes)
 
 	// Test the search function again
 	searchResult, err = provider.Search(hibikemanga.SearchOptions{Query: "boku no kokoro no yaibai"})
@@ -101,17 +149,17 @@ func TestGojaCode(t *testing.T) {
 	require.True(t, ok)
 
 	// Create the provider
-	providerObjVal, err := newProviderFunc(goja.Undefined())
+	classObjVal, err := newProviderFunc(goja.Undefined())
 	require.NoError(t, err)
 
-	providerObj := providerObjVal.ToObject(vm)
+	classObj := classObjVal.ToObject(vm)
 
 	// Test the search function
-	searchFunc, ok := goja.AssertFunction(providerObj.Get("search"))
+	searchFunc, ok := goja.AssertFunction(classObj.Get("search"))
 	require.True(t, ok)
 
 	// Call the search function
-	searchResult, err := searchFunc(providerObj, vm.ToValue("dandadan"))
+	searchResult, err := searchFunc(classObj, vm.ToValue("dandadan"))
 	require.NoError(t, err)
 
 	promise := searchResult.Export().(*goja.Promise)

@@ -19,7 +19,9 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 	case extension.LanguageGo:
 		err = r.loadExternalMangaExtensionGo(ext)
 	case extension.LanguageJavascript:
-		// TODO
+		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageJavascript)
+	case extension.LanguageTypescript:
+		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageTypescript)
 	}
 
 	if err != nil {
@@ -63,6 +65,23 @@ func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) erro
 	}
 
 	provider := newProviderFunc(r.logger)
+
+	// Add the extension to the map
+	r.mangaProviderExtensionBank.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))
+	return nil
+}
+
+//
+// Typescript / Javascript
+//
+
+func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {
+
+	provider, err := NewGojaMangaProvider(ext, language, r.logger)
+	if err != nil {
+		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external manga provider")
+		return err
+	}
 
 	// Add the extension to the map
 	r.mangaProviderExtensionBank.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))

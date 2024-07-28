@@ -1,15 +1,15 @@
 /// <reference path="./manga-provider.d.ts" />
 
-// credit to Anify
 class Provider {
 
+    // credit to Anify
     private id = "my-manga-provider"
     private api = "https://api.comick.fun"
 
-    async search(query: string): Promise<SearchResult[]> {
-        console.log(this.api, query)
+    async search(opts: QueryOptions): Promise<SearchResult[]> {
+        console.log(this.api, opts.query)
 
-        const requestRes = await fetch(`${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`, {
+        const requestRes = await fetch(`${this.api}/v1.0/search?q=${encodeURIComponent(opts.query)}&limit=25&page=1`, {
             method: "get",
         })
         const comickRes = await requestRes.json() as ComickSearchResult[]
@@ -23,16 +23,12 @@ class Provider {
                 cover = "https://meo.comick.pictures/" + cover.b2key
             }
 
-            const compRes = $findBestMatchWithSorensenDice(query, [res.title, ...res.md_titles.map(t => t.title)])
-
             ret.push({
-                provider: this.id,
                 id: res.hid,
                 title: res.title ?? res.slug,
                 synonyms: res.md_titles?.map(t => t.title) ?? {},
                 year: res.year ?? 0,
                 image: cover,
-                searchRating: compRes?.rating ?? 0,
             })
         }
 
@@ -75,7 +71,6 @@ class Provider {
             if (canPush) {
                 if (chapter.lang === "en") {
                     chapters.push({
-                        provider: this.id,
                         url: `${this.api}/comic/${id}/chapter/${chapter.hid}`,
                         index: 0,
                         id: chapter.hid,
@@ -99,16 +94,6 @@ class Provider {
         return chapters
     }
 
-    padNum(number: string, places: number): string {
-        let range = number.split("-")
-        range = range.map((chapter) => {
-            chapter = chapter.trim()
-            const digits = chapter.split(".")[0].length
-            return "0".repeat(Math.max(0, places - digits)) + chapter
-        })
-        return range.join("-")
-    }
-
     async findChapterPages(id: string): Promise<ChapterPage[]> {
 
         const data = (await (await fetch(`${this.api}/chapter/${id}`))?.json()) as {
@@ -119,7 +104,6 @@ class Provider {
 
         data.chapter.md_images.map((image, index: number) => {
             pages.push({
-                provider: this.id,
                 url: `https://meo.comick.pictures/${image.b2key}?width=${image.w}`,
                 index: index,
                 headers: {},
@@ -127,6 +111,16 @@ class Provider {
         })
 
         return pages
+    }
+
+    padNum(number: string, places: number): string {
+        let range = number.split("-")
+        range = range.map((chapter) => {
+            chapter = chapter.trim()
+            const digits = chapter.split(".")[0].length
+            return "0".repeat(Math.max(0, places - digits)) + chapter
+        })
+        return range.join("-")
     }
 
 }

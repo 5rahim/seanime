@@ -2,41 +2,25 @@ package extension_repo
 
 import (
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"seanime/internal/util/comparison"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 )
 
 type (
 	GojaMangaProvider struct {
-		ext         *extension.Extension
-		vm          *goja.Runtime
-		logger      *zerolog.Logger
-		providerObj *goja.Object
+		gojaExtensionImpl
 	}
 )
 
-func NewGojaMangaProvider(ext *extension.Extension, logger *zerolog.Logger) (hibikemanga.Provider, error) {
-	logger.Trace().Str("id", ext.ID).Msgf("extensions: Creating javascript VM for external manga provider")
-
-	vm, err := CreateJSVM()
+func NewGojaMangaProvider(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (hibikemanga.Provider, error) {
+	vm, err := SetupGojaExtensionVM(ext, language, logger)
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
-		return nil, err
-	}
-
-	source, err := JSVMTypescriptToJS(ext.Payload)
-	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript to javascript")
-		return nil, err
-	}
-
-	// Run the program on the VM
-	_, err = vm.RunString(source)
-	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to run javascript source")
 		return nil, err
 	}
 
@@ -55,98 +39,57 @@ func NewGojaMangaProvider(ext *extension.Extension, logger *zerolog.Logger) (hib
 		return nil, fmt.Errorf("failed to invoke manga provider constructor")
 	}
 
-	providerObjVal, err := newProviderFunc(goja.Undefined())
+	classObjVal, err := newProviderFunc(goja.Undefined())
 	if err != nil {
 		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create manga provider")
 		return nil, err
 	}
 
-	providerObj := providerObjVal.ToObject(vm)
+	classObj := classObjVal.ToObject(vm)
 
 	return &GojaMangaProvider{
-		vm:          vm,
-		logger:      logger,
-		ext:         ext,
-		providerObj: providerObj,
+		gojaExtensionImpl: gojaExtensionImpl{
+			vm:       vm,
+			logger:   logger,
+			ext:      ext,
+			classObj: classObj,
+		},
 	}, nil
 }
 
 func (g *GojaMangaProvider) Search(query hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	searchFunc, ok := goja.AssertFunction(g.providerObj.Get("search"))
-	if !ok {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to get search function")
-		return nil, fmt.Errorf("failed to get search function")
-	}
+	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(query)))
 
-	// Call the search function
-	searchResult, err := searchFunc(g.providerObj, g.vm.ToValue(query.Query))
+	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extensions: Failed to call search function")
 		return nil, err
 	}
 
-	promiseRes, err := gojaWaitForPromise(g.vm, searchResult)
+	err = g.unmarshalValue(promiseRes, &ret)
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extensions: Unexpected response")
 		return nil, err
 	}
 
-	if promiseRes == nil || goja.IsUndefined(promiseRes) {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Result is undefined")
-		return nil, fmt.Errorf("result is undefined")
-	}
+	// Set the provider & search rating
+	for i := range ret {
+		ret[i].Provider = g.ext.ID
 
-	searchResArr, ok := promiseRes.Export().([]interface{})
-	if !ok {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to cast return value")
-		return nil, fmt.Errorf("failed to cast return value")
-	}
-
-	// Convert the results
-	for _, objMap := range searchResArr {
-		obj, ok := objMap.(map[string]interface{})
-		if !ok {
-			g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to cast results from extension")
-			return nil, fmt.Errorf("failed to cast results from extension")
+		synonyms := ret[i].Synonyms
+		if synonyms == nil {
+			continue
 		}
 
-		searchRes := &hibikemanga.SearchResult{
-			Provider: g.ext.ID,
+		compTitles := []*string{&ret[i].Title}
+		for _, syn := range synonyms {
+			compTitles = append(compTitles, &syn)
 		}
 
-		searchRes.ID = obj["id"].(string)
-		//searchRes.Provider = obj["provider"].(string)
-		searchRes.Title = obj["title"].(string)
-		searchRes.Image = obj["image"].(string)
-
-		_year, ok := obj["year"].(int64)
+		compRes, ok := comparison.FindBestMatchWithSorensenDice(&query.Query, compTitles)
 		if ok {
-			searchRes.Year = int(_year)
+			ret[i].SearchRating = compRes.Rating
 		}
-
-		_rating, ok := obj["searchRating"].(interface{})
-		if ok {
-			searchRatingFloat, ok := _rating.(float64)
-			if ok {
-				searchRes.SearchRating = searchRatingFloat
-			} else {
-				searchRatingInt, ok := _rating.(int64)
-				if ok {
-					searchRes.SearchRating = float64(searchRatingInt)
-				}
-			}
-		}
-
-		_synonyms, ok := obj["synonyms"].([]interface{})
-		if ok {
-			for _, syn := range _synonyms {
-				searchRes.Synonyms = append(searchRes.Synonyms, syn.(string))
-			}
-		}
-
-		ret = append(ret, searchRes)
 	}
 
 	return ret, nil
@@ -155,66 +98,21 @@ func (g *GojaMangaProvider) Search(query hibikemanga.SearchOptions) (ret []*hibi
 func (g *GojaMangaProvider) FindChapters(id string) (ret []*hibikemanga.ChapterDetails, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	searchFunc, ok := goja.AssertFunction(g.providerObj.Get("findChapters"))
-	if !ok {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to get search function")
-		return nil, fmt.Errorf("failed to get search function")
-	}
+	method, err := g.callClassMethod("findChapters", g.vm.ToValue(id))
 
-	// Call the findChapters function
-	findChaptersRes, err := searchFunc(g.providerObj, g.vm.ToValue(id))
+	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extensions: Failed to call search function")
 		return nil, err
 	}
 
-	promiseRes, err := gojaWaitForPromise(g.vm, findChaptersRes)
+	err = g.unmarshalValue(promiseRes, &ret)
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extensions: Unexpected response")
 		return nil, err
 	}
 
-	if promiseRes == nil || goja.IsUndefined(promiseRes) {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Result is undefined")
-		return nil, fmt.Errorf("result is undefined")
-	}
-
-	findChaptersResArr, ok := promiseRes.Export().([]interface{})
-	if !ok {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to cast return value")
-		return nil, fmt.Errorf("failed to cast return value")
-	}
-
-	// Convert the results
-	for _, objMap := range findChaptersResArr {
-		obj, ok := objMap.(map[string]interface{})
-		if !ok {
-			g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to cast results from extension")
-			return nil, fmt.Errorf("failed to cast results from extension")
-		}
-
-		chapter := &hibikemanga.ChapterDetails{
-			Provider: g.ext.ID,
-		}
-
-		chapter.ID = obj["id"].(string)
-		chapter.URL = obj["url"].(string)
-		//chapter.Provider = obj["provider"].(string)
-		chapter.Title = obj["title"].(string)
-		chapter.Chapter = obj["chapter"].(string)
-		chapter.Index = uint(obj["index"].(int64))
-
-		_rating, ok := obj["rating"].(int64)
-		if ok {
-			chapter.Rating = int(_rating)
-		}
-
-		_updateAt, ok := obj["updatedAt"].(string)
-		if ok {
-			chapter.UpdatedAt = _updateAt
-		}
-
-		ret = append(ret, chapter)
+	// Set the provider
+	for i := range ret {
+		ret[i].Provider = g.ext.ID
 	}
 
 	return ret, nil
@@ -223,61 +121,21 @@ func (g *GojaMangaProvider) FindChapters(id string) (ret []*hibikemanga.ChapterD
 func (g *GojaMangaProvider) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	searchFunc, ok := goja.AssertFunction(g.providerObj.Get("findChapterPages"))
-	if !ok {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to get search function")
-		return nil, fmt.Errorf("failed to get search function")
-	}
+	method, err := g.callClassMethod("findChapterPages", g.vm.ToValue(id))
 
-	// Call the findChapterPages function
-	findChapterPagesRes, err := searchFunc(g.providerObj, g.vm.ToValue(id))
+	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extensions: Failed to call search function")
 		return nil, err
 	}
 
-	promiseRes, err := gojaWaitForPromise(g.vm, findChapterPagesRes)
+	err = g.unmarshalValue(promiseRes, &ret)
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extensions: Unexpected response")
 		return nil, err
 	}
 
-	if promiseRes == nil || goja.IsUndefined(promiseRes) {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Result is undefined")
-		return nil, fmt.Errorf("result is undefined")
-	}
-
-	findChapterPagesResArr, ok := promiseRes.Export().([]interface{})
-	if !ok {
-		g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to cast return value")
-		return nil, fmt.Errorf("failed to cast return value")
-	}
-
-	// Convert the results
-	for _, objMap := range findChapterPagesResArr {
-		obj, ok := objMap.(map[string]interface{})
-		if !ok {
-			g.logger.Error().Str("id", g.ext.ID).Msg("extensions: Failed to cast results from extension")
-			return nil, fmt.Errorf("failed to cast results from extension")
-		}
-
-		chapterPage := &hibikemanga.ChapterPage{
-			Provider: g.ext.ID,
-			Headers:  make(map[string]string),
-		}
-
-		chapterPage.URL = obj["url"].(string)
-		//chapterPage.Provider = obj["provider"].(string)
-		chapterPage.Index = int(obj["index"].(int64))
-
-		_headers, ok := obj["headers"].(map[string]interface{})
-		if ok {
-			for key, value := range _headers {
-				chapterPage.Headers[key] = value.(string)
-			}
-		}
-
-		ret = append(ret, chapterPage)
+	// Set the provider
+	for i := range ret {
+		ret[i].Provider = g.ext.ID
 	}
 
 	return ret, nil

@@ -19,7 +19,11 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 	case extension.LanguageGo:
 		err = r.loadExternalOnlinestreamProviderExtensionGo(ext)
 	case extension.LanguageJavascript:
-		// TODO
+		err = r.loadExternalOnlinestreamExtensionJS(ext, extension.LanguageJavascript)
+	case extension.LanguageTypescript:
+		err = r.loadExternalOnlinestreamExtensionJS(ext, extension.LanguageTypescript)
+	default:
+		err = fmt.Errorf("unsupported language: %v", ext.Language)
 	}
 
 	if err != nil {
@@ -63,6 +67,23 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 	}
 
 	provider := newProviderFunc(r.logger)
+
+	// Add the extension to the map
+	r.onlinestreamProviderExtensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))
+	return nil
+}
+
+//
+// Typescript / Javascript
+//
+
+func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extension, language extension.Language) error {
+
+	provider, err := NewGojaOnlinestreamProvider(ext, language, r.logger)
+	if err != nil {
+		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external online streaming provider")
+		return err
+	}
 
 	// Add the extension to the map
 	r.onlinestreamProviderExtensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))

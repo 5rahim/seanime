@@ -429,7 +429,7 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 		//
 		mediaId = pm.currentMediaListEntry.MustGet().GetMedia().GetID()
 		epNum = pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet())
-		totalEpisodes = pm.currentMediaListEntry.MustGet().GetMedia().GetTotalEpisodeCount()
+		totalEpisodes = pm.currentMediaListEntry.MustGet().GetMedia().GetTotalEpisodeCount() // total episode count or -1
 
 	case StreamPlayback:
 		//
@@ -442,7 +442,7 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 
 		mediaId = pm.currentStreamMedia.MustGet().ID
 		epNum = pm.currentStreamEpisode.MustGet().GetProgressNumber()
-		totalEpisodes = pm.currentStreamMedia.MustGet().GetTotalEpisodeCount()
+		totalEpisodes = pm.currentStreamMedia.MustGet().GetTotalEpisodeCount() // total episode count or -1
 	default:
 		return errors.New("unknown playback type")
 	}

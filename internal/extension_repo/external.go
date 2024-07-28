@@ -94,6 +94,7 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create extension file")
 		return nil, fmt.Errorf("failed to create extension file, %w", err)
 	}
+	defer file.Close()
 
 	// Write the extension to the file
 	enc := json.NewEncoder(file)
@@ -101,13 +102,6 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 	if err != nil {
 		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to write extension to file")
 		return nil, fmt.Errorf("failed to write extension to file, %w", err)
-	}
-
-	// Close the file
-	err = file.Close()
-	if err != nil {
-		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to close extension file")
-		return nil, fmt.Errorf("failed to close extension file, %w", err)
 	}
 
 	// Reload the extensions
@@ -271,7 +265,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		loadingErr = r.loadExternalOnlinestreamProviderExtension(&ext)
 	case extension.TypeAnimeTorrentProvider:
 		// Load torrent provider
-		loadingErr = r.loadExternalTorrentProviderExtension(&ext)
+		loadingErr = r.loadExternalAnimeTorrentProviderExtension(&ext)
 	default:
 		r.logger.Error().Str("type", string(ext.Type)).Msg("extensions: Extension type not supported")
 		loadingErr = fmt.Errorf("extension type not supported")

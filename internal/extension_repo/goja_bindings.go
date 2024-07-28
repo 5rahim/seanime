@@ -14,7 +14,7 @@ import (
 
 func gojaBindFetch(vm *goja.Runtime) error {
 	err := vm.Set("fetch", func(call goja.FunctionCall) goja.Value {
-		return vm.ToValue(fetch(vm, call))
+		return vm.ToValue(gojaFetch(vm, call))
 	})
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func gojaBindFindBestMatchWithSorensenDice(vm *goja.Runtime) error {
 	return nil
 }
 
-func fetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
+func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
 	if len(call.Arguments) < 1 {
 		promise, _, reject := vm.NewPromise()
 		reject(vm.ToValue("TypeError: fetch requires at least 1 argument"))

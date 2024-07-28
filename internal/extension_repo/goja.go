@@ -2,17 +2,47 @@ package extension_repo
 
 import (
 	"errors"
-	"fmt"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	gojaconsole "github.com/dop251/goja_nodejs/console"
 	gojarequire "github.com/dop251/goja_nodejs/require"
 	gojaurl "github.com/dop251/goja_nodejs/url"
 	"github.com/evanw/esbuild/pkg/api"
-	"time"
+	"github.com/rs/zerolog"
+	"seanime/internal/extension"
 )
 
-// CreateJSVM creates a new Javascript VM with the necessary bindings
+// SetupGojaExtensionVM creates a new JavaScript VM with the extension source code loaded
+func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (*goja.Runtime, error) {
+	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM for external manga provider")
+
+	vm, err := CreateJSVM()
+	if err != nil {
+		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
+		return nil, err
+	}
+
+	source := ext.Payload
+
+	if language == extension.LanguageTypescript {
+		source, err = JSVMTypescriptToJS(ext.Payload)
+		if err != nil {
+			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript to javascript")
+			return nil, err
+		}
+	}
+
+	// Run the program on the VM
+	_, err = vm.RunString(source)
+	if err != nil {
+		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to run javascript code")
+		return nil, err
+	}
+
+	return vm, nil
+}
+
+// CreateJSVM creates a new JavaScript VM for SetupGojaExtensionVM
 func CreateJSVM() (*goja.Runtime, error) {
 
 	vm := goja.New()
@@ -37,7 +67,6 @@ func CreateJSVM() (*goja.Runtime, error) {
 	return vm, nil
 }
 
-// JSVMTypescriptToJS converts Typescript to Javascript
 func JSVMTypescriptToJS(ts string) (string, error) {
 	scriptJSTransform := api.Transform(ts, api.TransformOptions{
 		Target: api.ESNext,
@@ -50,29 +79,4 @@ func JSVMTypescriptToJS(ts string) (string, error) {
 	}
 
 	return string(scriptJSTransform.Code), nil
-}
-
-func gojaWaitForPromise(vm *goja.Runtime, value goja.Value) (goja.Value, error) {
-	promise, ok := value.Export().(*goja.Promise)
-	if !ok {
-		return nil, errors.New("value is not a promise")
-	}
-
-	doneCh := make(chan struct{})
-
-	go func() {
-		for promise.State() == goja.PromiseStatePending {
-			time.Sleep(10 * time.Millisecond)
-		}
-		close(doneCh)
-	}()
-
-	<-doneCh
-
-	if promise.State() == goja.PromiseStateRejected {
-		err := promise.Result()
-		return nil, fmt.Errorf("promise rejected: %v", err)
-	}
-
-	return promise.Result(), nil
 }

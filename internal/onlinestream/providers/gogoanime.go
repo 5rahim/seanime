@@ -230,11 +230,11 @@ func (g *Gogoanime) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDet
 	}
 
 	if source == nil {
-		g.logger.Warn().Str("server", string(server)).Msg("gogoanime: No sources found")
+		g.logger.Warn().Str("server", server).Msg("gogoanime: No sources found")
 		return nil, ErrSourceNotFound
 	}
 
-	g.logger.Debug().Str("server", string(server)).Int("videoSources", len(source.VideoSources)).Msg("gogoanime: Fetched server sources")
+	g.logger.Debug().Str("server", server).Int("videoSources", len(source.VideoSources)).Msg("gogoanime: Fetched server sources")
 
 	return source, nil
 

@@ -1,15 +1,12 @@
 declare type SearchResult = {
-    provider: string
     id: string
     title: string
     synonyms?: string[]
     year?: number
     image?: string
-    searchRating?: number
 }
 
 declare type ChapterDetails = {
-    provider: string
     id: string
     url: string
     title: string
@@ -20,23 +17,19 @@ declare type ChapterDetails = {
 }
 
 declare type ChapterPage = {
-    provider: string
     url: string
     index: number
     headers: { [key: string]: string }
 }
 
-declare function $findBestMatchWithSorensenDice(title: string, allTitles: string[]): {
-    originalValue: string
-    value: string
-    rating: number
-} | undefined
+declare type QueryOptions = {
+    query: string
+    year?: number
+}
 
 
 declare abstract class MangaProvider {
-    search(query: string): Promise<SearchResult[]>
-
+    search(opts: QueryOptions): Promise<SearchResult[]>
     findChapters(id: string): Promise<ChapterDetails[]>
-
     findChapterPages(id: string): Promise<ChapterPage[]>
 }

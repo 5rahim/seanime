@@ -10,16 +10,20 @@ import (
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Torrent provider
+// Anime Torrent provider
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) loadExternalTorrentProviderExtension(ext *extension.Extension) (err error) {
+func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Extension) (err error) {
 
 	switch ext.Language {
 	case extension.LanguageGo:
-		err = r.loadExternalTorrentProviderExtensionGo(ext)
+		err = r.loadExternalAnimeTorrentProviderExtensionGo(ext)
 	case extension.LanguageJavascript:
-		// TODO
+		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, extension.LanguageJavascript)
+	case extension.LanguageTypescript:
+		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, extension.LanguageTypescript)
+	default:
+		err = fmt.Errorf("unsupported language: %v", ext.Language)
 	}
 
 	if err != nil {
@@ -34,7 +38,7 @@ func (r *Repository) loadExternalTorrentProviderExtension(ext *extension.Extensi
 // Go
 //
 
-func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Extension) error {
+func (r *Repository) loadExternalAnimeTorrentProviderExtensionGo(ext *extension.Extension) error {
 
 	extensionPackageName := "ext_" + util.GenerateCryptoID()
 
@@ -67,5 +71,22 @@ func (r *Repository) loadExternalTorrentProviderExtensionGo(ext *extension.Exten
 	// Add the extension to the map
 	r.animeTorrentProviderExtensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
 
+	return nil
+}
+
+//
+// Typescript / Javascript
+//
+
+func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.Extension, language extension.Language) error {
+
+	provider, err := NewGojaAnimeTorrentProvider(ext, language, r.logger)
+	if err != nil {
+		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM for external online streaming provider")
+		return err
+	}
+
+	// Add the extension to the map
+	r.animeTorrentProviderExtensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
 	return nil
 }
