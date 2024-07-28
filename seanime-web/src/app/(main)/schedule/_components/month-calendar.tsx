@@ -1,6 +1,7 @@
 import { AL_BaseAnime, Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Popover } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { addMonths, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns"
 import { addDays } from "date-fns/addDays"
@@ -16,6 +17,8 @@ type WeekCalendarProps = {
     media: AL_BaseAnime[]
     missingEpisodes: Anime_AnimeEntryEpisode[]
 }
+
+const MAX_EVENT_COUNT = 5
 
 export function MonthCalendar(props: WeekCalendarProps) {
 
@@ -95,7 +98,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
     return (
         <>
             <div className="hidden lg:flex lg:h-full lg:flex-col rounded-md border">
-                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none border-b bg-gray-950">
+                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none border-b bg-[--background]">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
@@ -110,36 +113,36 @@ export function MonthCalendar(props: WeekCalendarProps) {
                     <IconButton icon={<AiOutlineArrowRight />} onClick={goToNextMonth} rounded intent="gray-outline" size="sm" />
                 </header>
                 <div className="lg:flex lg:flex-auto lg:flex-col">
-                    <div className="grid grid-cols-7 gap-px border-b bg-gray-900 text-center text-base font-semibold leading-6 text-gray-200 lg:flex-none">
-                        <div className="bg-gray-950 py-2">
+                    <div className="grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 lg:flex-none">
+                        <div className="py-2">
                             M<span className="sr-only sm:not-sr-only">on</span>
                         </div>
-                        <div className="bg-gray-950 py-2">
+                        <div className="py-2">
                             T<span className="sr-only sm:not-sr-only">ue</span>
                         </div>
-                        <div className="bg-gray-950 py-2">
+                        <div className="py-2">
                             W<span className="sr-only sm:not-sr-only">ed</span>
                         </div>
-                        <div className="bg-gray-950 py-2">
+                        <div className="py-2">
                             T<span className="sr-only sm:not-sr-only">hu</span>
                         </div>
-                        <div className="bg-gray-950 py-2">
+                        <div className="py-2">
                             F<span className="sr-only sm:not-sr-only">ri</span>
                         </div>
-                        <div className="bg-gray-950 py-2">
+                        <div className="py-2">
                             S<span className="sr-only sm:not-sr-only">at</span>
                         </div>
-                        <div className="bg-gray-950 py-2">
+                        <div className="py-2">
                             S<span className="sr-only sm:not-sr-only">un</span>
                         </div>
                     </div>
-                    <div className="flex bg-gray-900 text-xs leading-6 text-gray-200 lg:flex-auto">
+                    <div className="flex bg-gray-950 text-xs leading-6 text-gray-200 lg:flex-auto">
                         <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
                             {days.map((day, index) => (
                                 <div
                                     key={day.date + index}
                                     className={cn(
-                                        day.isCurrentMonth ? "bg-gray-950" : "opacity-30",
+                                        day.isCurrentMonth ? "bg-[--background]" : "opacity-30",
                                         "relative py-2 px-3 lg:min-h-24 overflow-hidden",
                                         // "hover:bg-gray-900",
                                         "flex flex-col justify-between",
@@ -165,7 +168,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                     </time>
                                     {day.events.length > 0 && (
                                         <ol className="mt-2 relative z-[1]">
-                                            {day.events.slice(0, 4).map((event) => (
+                                            {day.events.slice(0, MAX_EVENT_COUNT).map((event) => (
                                                 <Tooltip
                                                     key={event.id}
                                                     trigger={
@@ -187,7 +190,32 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                     Episode {event.episode}
                                                 </Tooltip>
                                             ))}
-                                            {day.events.length > 2 && <li className="text-[--muted]">+ {day.events.length - 2} more</li>}
+                                            {day.events.length > MAX_EVENT_COUNT && <Popover
+                                                className="w-full max-w-sm lg:max-w-sm"
+                                                trigger={
+                                                    <li className="text-[--muted]">+ {day.events.length - MAX_EVENT_COUNT} more</li>}
+                                            >
+                                                <ol className="text-sm max-w-full block">
+                                                    {day.events.map((event) => (
+                                                        <li key={event.id}>
+                                                            <Link className="group flex gap-2" href={event.href}>
+                                                                <p className="flex-1 truncate font-medium">
+                                                                    {event.name}
+                                                                </p>
+                                                                <p className="flex-none">
+                                                                    Ep. {event.episode}
+                                                                </p>
+                                                                <time
+                                                                    dateTime={event.datetime}
+                                                                    className="ml-3 hidden flex-none text-[--muted] group-hover:text-gray-200 xl:block"
+                                                                >
+                                                                    {event.time}
+                                                                </time>
+                                                            </Link>
+                                                        </li>
+                                                    ))}
+                                                </ol>
+                                            </Popover>}
                                         </ol>
                                     )}
                                 </div>
