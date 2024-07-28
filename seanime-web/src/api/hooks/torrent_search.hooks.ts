@@ -10,5 +10,6 @@ export function useSearchTorrent(variables: SearchTorrent_Variables, enabled: bo
         data: variables,
         queryKey: [API_ENDPOINTS.TORRENT_SEARCH.SearchTorrent.key, variables],
         enabled: enabled,
+        gcTime: 0,
     })
 }

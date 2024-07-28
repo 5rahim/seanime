@@ -102,7 +102,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     setSmartSearchEpisode(value)
                 })
             }}
-            hideControls
+            formatOptions={{ useGrouping: false }}
+            // hideControls
             size="sm"
             fieldClass={cn(
                 "flex items-center md:justify-end gap-3 space-y-0",
@@ -261,10 +262,11 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch
                                         label="Best releases"
-                                        help={!downloadInfo?.canBatch ? "Cannot look for best releases yet" : "Look for the best releases"}
+                                        // help={!downloadInfo?.canBatch ? "Cannot look for best releases yet" : "Look for the best releases"}
                                         value={smartSearchBest}
                                         onValueChange={setSmartSearchBest}
                                         fieldClass={cn(
+                                            "flex items-center",
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                         )}
                                         size="sm"
@@ -272,11 +274,12 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch") && <Switch
                                         label="Batches"
-                                        help={!downloadInfo?.canBatch ? "Cannot look for batches yet" : "Look for batches"}
+                                        // help={!downloadInfo?.canBatch ? "Cannot look for batches yet" : "Look for batches"}
                                         value={smartSearchBatch}
                                         onValueChange={setSmartSearchBatch}
                                         disabled={smartSearchBest || !downloadInfo?.canBatch}
                                         fieldClass={cn(
+                                            "flex items-center",
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
                                         )}
                                         size="sm"

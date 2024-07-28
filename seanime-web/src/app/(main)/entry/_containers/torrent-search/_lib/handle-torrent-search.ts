@@ -80,6 +80,11 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
 
     // Change fields based on selected provider
     React.useLayoutEffect(() => {
+        if (!warnings.extensionDoesNotSupportSmartSearch) {
+            setSearchType(Torrent_SearchType.SMART)
+        }
+    }, [warnings.extensionDoesNotSupportSmartSearch, selectedProviderExtensionId])
+    React.useLayoutEffect(() => {
         if (searchType === Torrent_SearchType.SMART && warnings.extensionDoesNotSupportSmartSearch) {
             setSearchType(Torrent_SearchType.SIMPLE)
         }

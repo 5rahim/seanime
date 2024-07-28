@@ -1,7 +1,8 @@
 import { cn } from "@/components/ui/core/styling"
+import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
-import { BsCollectionFill } from "react-icons/bs"
+import { FcFolder } from "react-icons/fc"
 import { MdVerified } from "react-icons/md"
 
 type TorrentPreviewItemProps = {
@@ -16,6 +17,7 @@ type TorrentPreviewItemProps = {
     children?: React.ReactNode
     action?: React.ReactNode
     image?: string | null
+    fallbackImage?: string
     confirmed?: boolean
 }
 
@@ -33,13 +35,14 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
         children,
         action,
         image,
+        fallbackImage,
         confirmed,
     } = props
 
     return (
         <div
             className={cn(
-                "border p-3 pr-12 rounded-lg relative transition lg:hover:scale-[1.01] group/episode-list-item overflow-hidden",
+                "border p-3 pr-12 rounded-lg relative transition lg:hover:scale-[1.01] group/torrent-preview-item overflow-hidden",
                 {
                     "border-brand-200": isSelected,
                     "hover:border-gray-500": !isSelected,
@@ -53,17 +56,24 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 <MdVerified className="text-[--green] text-xl" />
             </div>}
 
-            <div className="absolute left-0 top-0 w-full h-full max-w-[150px]">
-                {!!image && <img
-                    src={image}
+            <div className="absolute left-0 top-0 w-full h-full max-w-[180px]">
+                {(confirmed ? !!image : !!fallbackImage) && <Image
+                    src={confirmed ? image! : fallbackImage!}
                     alt="episode image"
-                    className="object-cover object-center absolute w-full h-full blur-xs opacity-20 z-[0] select-none pointer-events-none"
-                    data-src={image}
+                    fill
+                    className={cn(
+                        "object-cover object-center absolute w-full h-full  group-hover/torrent-preview-item:blur-0 transition-opacity opacity-20 group-hover/torrent-preview-item:opacity-40 z-[0] select-none pointer-events-none",
+                        isSelected && "opacity-50",
+                    )}
                 />}
                 <div
                     className="transition-colors absolute w-full h-full bg-gradient-to-l from-[--background] hover:from-[var(--hover-from-background-color)] to-transparent z-[1] select-none pointer-events-none"
                 ></div>
             </div>
+
+            <div
+                className="absolute w-full h-full bg-[--background] top-0 left-[179px]"
+            ></div>
 
             <div
                 className={cn(
@@ -76,20 +86,21 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
                 <div
                     className={cn(
-                        "h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden",
+                        "h-24 w-24 lg:w-28 flex-none rounded-md object-cover object-center relative overflow-hidden",
                         "flex items-center justify-center",
                         "text-xs px-2",
                     )}
                 >
                     <p
                         className={cn(
-                            "z-[1] font-bold line-clamp-1",
-                            // {
-                            //     "text-brand-200": releaseGroup.toLowerCase() === "subsplease",
-                            // },
+                            "z-[1] font-bold truncate flex items-center max-w-full w-fit px-2 py-1 rounded-md",
+                            "border-transparent bg-transparent",
+                            // "group-hover/torrent-preview-item:bg-gray-950/50 group-hover/torrent-preview-item:text-white",
                         )}
-                    >{releaseGroup}</p>
-                    {isBatch && <BsCollectionFill className="text-7xl absolute opacity-30" />}
+                    >
+                        <span className="truncate">{releaseGroup}</span>
+                    </p>
+                    {isBatch && <FcFolder className="text-7xl absolute opacity-30" />}
                 </div>
 
                 <div className="relative overflow-hidden">
@@ -98,7 +109,8 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     /> Unidentified</p>}
                     <h4 className={cn("font-medium transition line-clamp-2")}>{isBatch ? "Batch" : title}</h4>
 
-                    {!!filename && <p className={cn("text-sm text-[--muted] line-clamp-2 mb-2")}>{filename}</p>}
+                    {!!filename &&
+                        <p className={cn("text-sm text-[--muted] group-hover/torrent-preview-item:text-gray-200 line-clamp-2 mb-2")}>{filename}</p>}
 
                     <div className="flex items-center gap-2">
                         {children && children}

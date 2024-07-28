@@ -35,13 +35,14 @@ export const TorrentPreviewList = React.memo((
                 return (
                     <TorrentPreviewItem
                         confirmed={item.torrent?.confirmed}
-                        key={item.torrent.link}
+                        key={item.torrent.link + item.episode?.displayTitle}
                         title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
                         releaseGroup={item.torrent.releaseGroup || ""}
                         filename={item.torrent.name}
                         isBatch={item.torrent.isBatch ?? false}
                         image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
                             (item.torrent.confirmed ? (entry.media?.coverImage?.large || entry.media?.bannerImage) : null)}
+                        fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent!)}
                         action={<Tooltip

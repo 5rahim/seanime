@@ -103,6 +103,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     )}
                     onClick={onClick}
                 >
+                    <div className="absolute z-[1] rounded-md w-full h-full"></div>
                     <div className="bg-[--background] absolute z-[0] rounded-md w-full h-full"></div>
                     {!!onClick && <div
                         className={cn(
