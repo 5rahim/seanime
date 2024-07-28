@@ -7,12 +7,12 @@ import React from "react"
 
 export default function Page() {
 
-    const { data: allEtensions, isLoading } = useGetAllExtensions()
+    const { data: allExtensions, isLoading } = useGetAllExtensions()
 
     return (
         <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8 relative z-[4]">
             <ExtensionList
-                allExtensions={allEtensions}
+                allExtensions={allExtensions}
                 isLoading={isLoading}
             />
         </PageWrapper>

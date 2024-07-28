@@ -8,9 +8,11 @@ import (
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
-	vendor_hibike_torrent "seanime/internal/extension/vendoring/torrent"
+	"seanime/internal/extension/vendoring/torrent"
 	"seanime/internal/util/result"
 	"seanime/internal/yaegi_interp"
+
+	"github.com/dop251/goja"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
@@ -26,6 +28,8 @@ type (
 		extensionDir string
 		// Yaegi interpreter for Go extensions
 		yaegiInterp *interp.Interpreter
+		// Goja VMs for JS extensions
+		gojaVMs *result.Map[string, *goja.Runtime]
 		// Extension banks
 		mangaProviderExtensionBank        *extension.Bank[extension.MangaProviderExtension]
 		animeTorrentProviderExtensionBank *extension.Bank[extension.AnimeTorrentProviderExtension]
@@ -71,6 +75,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                            opts.Logger,
 		extensionDir:                      opts.ExtensionDir,
 		wsEventManager:                    opts.WSEventManager,
+		gojaVMs:                           result.NewResultMap[string, *goja.Runtime](),
 		mangaProviderExtensionBank:        extension.NewBank[extension.MangaProviderExtension](),
 		animeTorrentProviderExtensionBank: extension.NewBank[extension.AnimeTorrentProviderExtension](),
 		onlinestreamProviderExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),

@@ -12,6 +12,7 @@ const (
 
 const (
 	LanguageJavascript Language = "javascript"
+	LanguageTypescript Language = "typescript"
 	LanguageGo         Language = "go"
 )
 

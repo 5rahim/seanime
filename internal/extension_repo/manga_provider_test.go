@@ -4,24 +4,11 @@ import (
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
-	"seanime/internal/events"
 	"seanime/internal/extension"
-	"seanime/internal/extension_repo"
 	"seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"testing"
 )
-
-func getRepo(t *testing.T) *extension_repo.Repository {
-	logger := util.NewLogger()
-	wsEventManager := events.NewMockWSEventManager(logger)
-
-	return extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
-		Logger:         logger,
-		ExtensionDir:   "testdir",
-		WSEventManager: wsEventManager,
-	})
-}
 
 func TestExternalGoMangaExtension(t *testing.T) {
 
