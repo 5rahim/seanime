@@ -101,7 +101,7 @@ func (g *GojaAnimeTorrentProvider) SmartSearch(opts hibiketorrent.AnimeSmartSear
 func (g *GojaAnimeTorrentProvider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (ret string, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	res, err := g.callClassMethod("getTorrentInfoHash", g.vm.ToValue(torrent))
+	res, err := g.callClassMethod("getTorrentInfoHash", g.vm.ToValue(structToMap(torrent)))
 	if err != nil {
 		return "", err
 	}
