@@ -1,20 +1,17 @@
 package extension_repo
 
 import (
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/traefik/yaegi/interp"
-	"github.com/traefik/yaegi/stdlib"
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/extension/vendoring/torrent"
 	"seanime/internal/util/result"
-	"seanime/internal/yaegi_interp"
-
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
 type (
@@ -84,14 +81,11 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	_ = os.MkdirAll(opts.ExtensionDir, os.ModePerm)
 
 	ret := &Repository{
-		logger:         opts.Logger,
-		extensionDir:   opts.ExtensionDir,
-		wsEventManager: opts.WSEventManager,
-		gojaExtensions: result.NewResultMap[string, GojaExtension](),
-		extensionBank:  extension.NewUnifiedBank(),
-		//mangaProviderExtensionBank:        extension.NewBank[extension.MangaProviderExtension](),
-		//animeTorrentProviderExtensionBank: extension.NewBank[extension.AnimeTorrentProviderExtension](),
-		//onlinestreamProviderExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
+		logger:            opts.Logger,
+		extensionDir:      opts.ExtensionDir,
+		wsEventManager:    opts.WSEventManager,
+		gojaExtensions:    result.NewResultMap[string, GojaExtension](),
+		extensionBank:     extension.NewUnifiedBank(),
 		invalidExtensions: result.NewResultMap[string, *extension.InvalidExtension](),
 	}
 
@@ -100,12 +94,14 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	return ret
 }
 
-func (r *Repository) GetAllExtensions() (ret *AllExtensions) {
+func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 	ret = &AllExtensions{
 		Extensions:        r.ListExtensionData(),
 		InvalidExtensions: r.ListInvalidExtensions(),
 	}
-
+	if withUpdates {
+		ret.HasUpdate = r.checkForUpdates()
+	}
 	return
 }
 
@@ -126,42 +122,6 @@ func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension)
 	})
 
 	return ret
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) loadYaegiInterpreter() {
-	i := interp.New(interp.Options{
-		Unrestricted: false,
-	})
-
-	symbols := stdlib.Symbols
-	// Remove symbols from stdlib that are risky to give to extensions
-	delete(symbols, "os/os")
-	delete(symbols, "io/fs/fs")
-	delete(symbols, "os/exec/exec")
-	delete(symbols, "os/signal/signal")
-	delete(symbols, "os/user/user")
-	delete(symbols, "os/signal/signal")
-	delete(symbols, "io/ioutil/ioutil")
-	delete(symbols, "runtime/runtime")
-	delete(symbols, "syscall/syscall")
-	delete(symbols, "archive/tar/tar")
-	delete(symbols, "archive/zip/zip")
-	delete(symbols, "compress/gzip/gzip")
-	delete(symbols, "compress/zlib/zlib")
-
-	if err := i.Use(symbols); err != nil {
-		r.logger.Fatal().Err(err).Msg("extensions: Failed to load yaegi stdlib")
-	}
-
-	// Load the extension symbols
-	err := i.Use(yaegi_interp.Symbols)
-	if err != nil {
-		r.logger.Fatal().Err(err).Msg("extensions: Failed to load extension symbols")
-	}
-
-	r.yaegiInterp = i
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -26193,6 +26193,53 @@
   {
     "filepath": "../internal/extension/bank.go",
     "filename": "bank.go",
+    "name": "UnifiedBank",
+    "formattedName": "Extension_UnifiedBank",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "extensions",
+        "jsonName": "extensions",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionAddedCh",
+        "jsonName": "extensionAddedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionRemovedCh",
+        "jsonName": "extensionRemovedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/bank.go",
+    "filename": "bank.go",
     "name": "Bank",
     "formattedName": "Extension_Bank",
     "package": "extension",
@@ -26267,6 +26314,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"javascript\"",
+        "\"typescript\"",
         "\"go\""
       ]
     },
@@ -27627,6 +27675,42 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension_repo/goja_anime_torrent_provider.go",
+    "filename": "goja_anime_torrent_provider.go",
+    "name": "GojaAnimeTorrentProvider",
+    "formattedName": "ExtensionRepo_GojaAnimeTorrentProvider",
+    "package": "extension_repo",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "extension_repo.gojaExtensionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_manga_provider.go",
+    "filename": "goja_manga_provider.go",
+    "name": "GojaMangaProvider",
+    "formattedName": "ExtensionRepo_GojaMangaProvider",
+    "package": "extension_repo",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "extension_repo.gojaExtensionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_onlinestream_provider.go",
+    "filename": "goja_onlinestream_provider.go",
+    "name": "GojaOnlinestreamProvider",
+    "formattedName": "ExtensionRepo_GojaOnlinestreamProvider",
+    "package": "extension_repo",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "extension_repo.gojaExtensionImpl"
+    ]
+  },
+  {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -27673,8 +27757,8 @@
         "comments": []
       },
       {
-        "name": "mangaProviderExtensionBank",
-        "jsonName": "mangaProviderExtensionBank",
+        "name": "gojaExtensions",
+        "jsonName": "gojaExtensions",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -27682,19 +27766,11 @@
         "comments": []
       },
       {
-        "name": "animeTorrentProviderExtensionBank",
-        "jsonName": "animeTorrentProviderExtensionBank",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "onlinestreamProviderExtensionBank",
-        "jsonName": "onlinestreamProviderExtensionBank",
-        "goType": "",
-        "typescriptType": "any",
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
         "required": false,
         "public": false,
         "comments": []
@@ -27735,6 +27811,53 @@
         "typescriptType": "Array\u003cExtension_InvalidExtension\u003e",
         "usedStructName": "extension.InvalidExtension",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HasUpdate",
+        "jsonName": "hasUpdate",
+        "goType": "[]UpdateData",
+        "typescriptType": "Array\u003cExtensionRepo_UpdateData\u003e",
+        "usedStructName": "extension_repo.UpdateData",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
+    "name": "UpdateData",
+    "formattedName": "ExtensionRepo_UpdateData",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ManifestURI",
+        "jsonName": "manifestURI",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -35425,8 +35548,9 @@
       {
         "name": "providerExtensionBank",
         "jsonName": "providerExtensionBank",
-        "goType": "",
-        "typescriptType": "any",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
         "required": false,
         "public": false,
         "comments": []
@@ -40234,8 +40358,9 @@
       {
         "name": "providerExtensionBank",
         "jsonName": "providerExtensionBank",
-        "goType": "",
-        "typescriptType": "any",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
         "required": false,
         "public": false,
         "comments": []
@@ -46630,10 +46755,11 @@
         "comments": []
       },
       {
-        "name": "animeProviderExtensionBank",
-        "jsonName": "animeProviderExtensionBank",
-        "goType": "",
-        "typescriptType": "any",
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
         "required": false,
         "public": false,
         "comments": []

@@ -1975,7 +1975,7 @@
       "HandleGetAllExtensions",
       "",
       "\t@summary returns all loaded and invalid extensions.",
-      "\t@route /api/v1/extensions/all [GET]",
+      "\t@route /api/v1/extensions/all [POST]",
       "\t@returns extension_repo.AllExtensions",
       ""
     ],
@@ -1986,10 +1986,20 @@
       "descriptions": [],
       "endpoint": "/api/v1/extensions/all",
       "methods": [
-        "GET"
+        "POST"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "WithUpdates",
+          "jsonName": "withUpdates",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "extension_repo.AllExtensions",
       "returnGoType": "extension_repo.AllExtensions",
       "returnTypescriptType": "ExtensionRepo_AllExtensions"

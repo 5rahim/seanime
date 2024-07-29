@@ -12,6 +12,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"sync"
 	"time"
 )
 
@@ -149,17 +150,50 @@ func (r *Repository) UninstallExternalExtension(id string) error {
 	return nil
 }
 
-// CheckForUpdates checks all extensions for updates by querying their respective repositories.
+// checkForUpdates checks all extensions for updates by querying their respective repositories.
 // It returns a list of extension update data containing IDs and versions.
-func (r *Repository) CheckForUpdates() (ret []UpdateData) {
+func (r *Repository) checkForUpdates() (ret []UpdateData) {
 
-	//wg := sync.WaitGroup{}
-	//
-	//// Create a channel to receive the update data
-	//updateDataChan := make(chan UpdateData, 1)
-	//mu := sync.Mutex{}
-	//
-	//// Check for updates for all extensions
+	wg := sync.WaitGroup{}
+	mu := sync.Mutex{}
+
+	// Check for updates for all extensions
+	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
+		wg.Add(1)
+		go func(ext extension.BaseExtension) {
+			defer wg.Done()
+
+			if ext.GetManifestURI() == "builtin" || ext.GetManifestURI() == "" {
+				return
+			}
+			// Check for updates
+			extFromRepo, err := r.fetchExternalExtensionData(ext.GetManifestURI())
+			if err != nil {
+				r.logger.Error().Err(err).Str("id", ext.GetID()).Str("url", ext.GetManifestURI()).Msg("extensions: Failed to fetch extension data while checking for update")
+				return
+			}
+
+			if err = manifestSanityCheck(extFromRepo); err != nil {
+				r.logger.Error().Err(err).Str("id", ext.GetID()).Str("url", ext.GetManifestURI()).Msg("extensions: Failed sanity check while checking for update")
+				return
+			}
+
+			// If there's an update, send the update data to the channel
+			if extFromRepo.Version != ext.GetVersion() {
+				updateData := UpdateData{
+					ExtensionID: extFromRepo.ID,
+					Version:     extFromRepo.Version,
+					ManifestURI: extFromRepo.ManifestURI,
+				}
+				mu.Lock()
+				ret = append(ret, updateData)
+				mu.Unlock()
+			}
+		}(ext)
+		return true
+	})
+
+	wg.Wait()
 
 	return
 }

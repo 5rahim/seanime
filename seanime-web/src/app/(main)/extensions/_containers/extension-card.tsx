@@ -19,12 +19,14 @@ import { toast } from "sonner"
 
 type ExtensionCardProps = {
     extension: Extension_Extension
+    hasUpdate?: boolean
 }
 
 export function ExtensionCard(props: ExtensionCardProps) {
 
     const {
         extension,
+        hasUpdate,
         ...rest
     } = props
 
@@ -91,7 +93,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                     {!!extension.version && <Badge className="rounded-md">
                         {extension.version}
                     </Badge>}
@@ -101,6 +103,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     <Badge className="rounded-md" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>
+                    {hasUpdate && <Badge className="rounded-md" intent="success">
+                        Update available
+                    </Badge>}
                 </div>
 
             </div>

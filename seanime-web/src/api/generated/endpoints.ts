@@ -432,7 +432,7 @@ export const API_ENDPOINTS = {
         },
         GetAllExtensions: {
             key: "EXTENSIONS-get-all-extensions",
-            methods: ["GET"],
+            methods: ["POST"],
             endpoint: "/api/v1/extensions/all",
         },
         ListMangaProviderExtensions: {

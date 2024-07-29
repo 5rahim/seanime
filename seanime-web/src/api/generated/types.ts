@@ -1629,7 +1629,7 @@ export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Language = "javascript" | "go"
+export type Extension_Language = "javascript" | "typescript" | "go"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -1660,6 +1660,7 @@ export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onli
 export type ExtensionRepo_AllExtensions = {
     extensions?: Array<Extension_Extension>
     invalidExtensions?: Array<Extension_InvalidExtension>
+    hasUpdate?: Array<ExtensionRepo_UpdateData>
 }
 
 /**
@@ -1701,6 +1702,17 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
     id: string
     name: string
     episodeServers?: Array<string>
+}
+
+/**
+ * - Filepath: internal/extension_repo/repository.go
+ * - Filename: repository.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_UpdateData = {
+    extensionID: string
+    manifestURI: string
+    version: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

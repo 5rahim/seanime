@@ -92,10 +92,19 @@ func HandleListExtensionData(c *RouteCtx) error {
 // HandleGetAllExtensions
 //
 //	@summary returns all loaded and invalid extensions.
-//	@route /api/v1/extensions/all [GET]
+//	@route /api/v1/extensions/all [POST]
 //	@returns extension_repo.AllExtensions
 func HandleGetAllExtensions(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.GetAllExtensions()
+	type body struct {
+		WithUpdates bool `json:"withUpdates"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	extensions := c.App.ExtensionRepository.GetAllExtensions(b.WithUpdates)
 	return c.RespondWithData(extensions)
 }
 

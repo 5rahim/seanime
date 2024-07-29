@@ -510,11 +510,13 @@
 // }
 
 // export function useGetAllExtensions() {
-//     return useServerQuery<ExtensionRepo_AllExtensions>({
+//     return useServerMutation<ExtensionRepo_AllExtensions, GetAllExtensions_Variables>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.endpoint,
 //         method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
-//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
-//         enabled: true,
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
+//         onSuccess: async () => {
+// 
+//         },
 //     })
 // }
 

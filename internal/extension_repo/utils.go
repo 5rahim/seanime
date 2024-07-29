@@ -8,14 +8,14 @@ import (
 	"seanime/internal/util"
 )
 
-// extensionSanityCheck checks if the extension has all the required fields in the manifest.
-func (r *Repository) extensionSanityCheck(ext *extension.Extension) error {
+func manifestSanityCheck(ext *extension.Extension) error {
 	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
-		return fmt.Errorf("extension is missing required fields")
+		return fmt.Errorf("extension is missing required fields, ID: %v, Name: %v, Version: %v, Language: %v, Type: %v, Author: %v, Payload: %v",
+			ext.ID, ext.Name, ext.Version, ext.Language, ext.Type, ext.Author, len(ext.Payload))
 	}
 
 	// Check the ID
-	if err := r.isValidExtensionID(ext.ID); err != nil {
+	if err := isValidExtensionID(ext.ID); err != nil {
 		return err
 	}
 
@@ -50,10 +50,25 @@ func (r *Repository) extensionSanityCheck(ext *extension.Extension) error {
 	return nil
 }
 
+// extensionSanityCheck checks if the extension has all the required fields in the manifest.
+func (r *Repository) extensionSanityCheck(ext *extension.Extension) error {
+
+	if err := manifestSanityCheck(ext); err != nil {
+		return err
+	}
+
+	// Check that the ID is unique
+	if err := r.isUniqueExtensionID(ext.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // checks if the extension ID is valid
 // Note: The ID must start with a letter and contain only alphanumeric characters
 // because it can either be used as a package name or appear in a filename
-func (r *Repository) isValidExtensionID(id string) error {
+func isValidExtensionID(id string) error {
 	if id == "" {
 		return errors.New("extension ID is empty")
 	}
@@ -63,14 +78,9 @@ func (r *Repository) isValidExtensionID(id string) error {
 	if len(id) < 3 {
 		return errors.New("extension ID is too short")
 	}
+
 	if !isValidExtensionIDString(id) {
 		return errors.New("extension ID contains invalid characters")
-	}
-
-	// Check if the ID is not a reserved built-in extension ID
-	_, found := r.extensionBank.Get(id)
-	if found {
-		return errors.New("extension ID is already in use")
 	}
 
 	return nil
@@ -85,4 +95,13 @@ func isValidExtensionIDString(id string) bool {
 		return false
 	}
 	return true
+}
+
+func (r *Repository) isUniqueExtensionID(id string) error {
+	// Check if the ID is not a reserved built-in extension ID
+	_, found := r.extensionBank.Get(id)
+	if found {
+		return errors.New("extension ID is already in use")
+	}
+	return nil
 }
