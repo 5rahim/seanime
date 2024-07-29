@@ -29,17 +29,25 @@ type (
 		// Store all active Goja VMs
 		// - When reloading extensions, all VMs are interrupted
 		gojaExtensions *result.Map[string, GojaExtension]
-		// Extension banks
+		// Extension bank
 		// - When reloading extensions, external extensions are removed & re-added
-		mangaProviderExtensionBank        *extension.Bank[extension.MangaProviderExtension]
-		animeTorrentProviderExtensionBank *extension.Bank[extension.AnimeTorrentProviderExtension]
-		onlinestreamProviderExtensionBank *extension.Bank[extension.OnlinestreamProviderExtension]
-		invalidExtensions                 *result.Map[string, *extension.InvalidExtension]
+		extensionBank *extension.UnifiedBank
+
+		invalidExtensions *result.Map[string, *extension.InvalidExtension]
 	}
 
 	AllExtensions struct {
 		Extensions        []*extension.Extension        `json:"extensions"`
 		InvalidExtensions []*extension.InvalidExtension `json:"invalidExtensions"`
+		// List of extension IDs that have an update available
+		// This is only populated when the user clicks on "Check for updates"
+		HasUpdate []UpdateData `json:"hasUpdate"`
+	}
+
+	UpdateData struct {
+		ExtensionID string `json:"extensionID"`
+		ManifestURI string `json:"manifestURI"`
+		Version     string `json:"version"`
 	}
 
 	MangaProviderExtensionItem struct {
@@ -60,6 +68,10 @@ type (
 	}
 )
 
+func castExtension[T extension.BaseExtension](ext extension.BaseExtension) T {
+	return ext.(T)
+}
+
 type NewRepositoryOptions struct {
 	Logger         *zerolog.Logger
 	ExtensionDir   string
@@ -72,14 +84,15 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	_ = os.MkdirAll(opts.ExtensionDir, os.ModePerm)
 
 	ret := &Repository{
-		logger:                            opts.Logger,
-		extensionDir:                      opts.ExtensionDir,
-		wsEventManager:                    opts.WSEventManager,
-		gojaExtensions:                    result.NewResultMap[string, GojaExtension](),
-		mangaProviderExtensionBank:        extension.NewBank[extension.MangaProviderExtension](),
-		animeTorrentProviderExtensionBank: extension.NewBank[extension.AnimeTorrentProviderExtension](),
-		onlinestreamProviderExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
-		invalidExtensions:                 result.NewResultMap[string, *extension.InvalidExtension](),
+		logger:         opts.Logger,
+		extensionDir:   opts.ExtensionDir,
+		wsEventManager: opts.WSEventManager,
+		gojaExtensions: result.NewResultMap[string, GojaExtension](),
+		extensionBank:  extension.NewUnifiedBank(),
+		//mangaProviderExtensionBank:        extension.NewBank[extension.MangaProviderExtension](),
+		//animeTorrentProviderExtensionBank: extension.NewBank[extension.AnimeTorrentProviderExtension](),
+		//onlinestreamProviderExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
+		invalidExtensions: result.NewResultMap[string, *extension.InvalidExtension](),
 	}
 
 	ret.loadYaegiInterpreter()
@@ -97,17 +110,7 @@ func (r *Repository) GetAllExtensions() (ret *AllExtensions) {
 }
 
 func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
-	r.mangaProviderExtensionBank.Range(func(key string, ext extension.MangaProviderExtension) bool {
-		ret = append(ret, extension.InstalledToExtensionData(ext))
-		return true
-	})
-
-	r.animeTorrentProviderExtensionBank.Range(func(key string, ext extension.AnimeTorrentProviderExtension) bool {
-		ret = append(ret, extension.InstalledToExtensionData(ext))
-		return true
-	})
-
-	r.onlinestreamProviderExtensionBank.Range(func(key string, ext extension.OnlinestreamProviderExtension) bool {
+	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
 		ret = append(ret, extension.InstalledToExtensionData(ext))
 		return true
 	})
@@ -117,7 +120,7 @@ func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 
 func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension) {
 	r.invalidExtensions.Range(func(key string, ext *extension.InvalidExtension) bool {
-		ext.Extension.Payload = ""
+		ext.Extension.Payload = "" // Remove the payload so the client knows the extension is installed
 		ret = append(ret, ext)
 		return true
 	})
@@ -169,7 +172,7 @@ func (r *Repository) loadYaegiInterpreter() {
 func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem {
 	ret := make([]*MangaProviderExtensionItem, 0)
 
-	r.mangaProviderExtensionBank.Range(func(key string, ext extension.MangaProviderExtension) bool {
+	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.MangaProviderExtension) bool {
 		ret = append(ret, &MangaProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
@@ -183,7 +186,7 @@ func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem
 func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProviderExtensionItem {
 	ret := make([]*OnlinestreamProviderExtensionItem, 0)
 
-	r.onlinestreamProviderExtensionBank.Range(func(key string, ext extension.OnlinestreamProviderExtension) bool {
+	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.OnlinestreamProviderExtension) bool {
 		ret = append(ret, &OnlinestreamProviderExtensionItem{
 			ID:             ext.GetID(),
 			Name:           ext.GetName(),
@@ -198,7 +201,7 @@ func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProvide
 func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProviderExtensionItem {
 	ret := make([]*AnimeTorrentProviderExtensionItem, 0)
 
-	r.animeTorrentProviderExtensionBank.Range(func(key string, ext extension.AnimeTorrentProviderExtension) bool {
+	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.AnimeTorrentProviderExtension) bool {
 		ret = append(ret, &AnimeTorrentProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
@@ -211,6 +214,7 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 				}),
 			},
 		})
+
 		return true
 	})
 
@@ -223,17 +227,7 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 // It returns an extension.BaseExtension interface, so it can be used to get the extension's details.
 func (r *Repository) GetLoadedExtension(id string) (extension.BaseExtension, bool) {
 	var ext extension.BaseExtension
-	ext, found := r.mangaProviderExtensionBank.Get(id)
-	if found {
-		return ext, true
-	}
-
-	ext, found = r.animeTorrentProviderExtensionBank.Get(id)
-	if found {
-		return ext, true
-	}
-
-	ext, found = r.onlinestreamProviderExtensionBank.Get(id)
+	ext, found := r.extensionBank.Get(id)
 	if found {
 		return ext, true
 	}
@@ -241,30 +235,22 @@ func (r *Repository) GetLoadedExtension(id string) (extension.BaseExtension, boo
 	return nil, false
 }
 
-func (r *Repository) GetMangaProviderExtensionBank() *extension.Bank[extension.MangaProviderExtension] {
-	return r.mangaProviderExtensionBank
+func (r *Repository) GetExtensionBank() *extension.UnifiedBank {
+	return r.extensionBank
 }
 
 func (r *Repository) GetMangaProviderExtensionByID(id string) (extension.MangaProviderExtension, bool) {
-	ext, found := r.mangaProviderExtensionBank.Get(id)
+	ext, found := extension.GetExtension[extension.MangaProviderExtension](r.extensionBank, id)
 	return ext, found
-}
-
-func (r *Repository) GetOnlinestreamProviderExtensionBank() *extension.Bank[extension.OnlinestreamProviderExtension] {
-	return r.onlinestreamProviderExtensionBank
 }
 
 func (r *Repository) GetOnlinestreamProviderExtensionByID(id string) (extension.OnlinestreamProviderExtension, bool) {
-	ext, found := r.onlinestreamProviderExtensionBank.Get(id)
+	ext, found := extension.GetExtension[extension.OnlinestreamProviderExtension](r.extensionBank, id)
 	return ext, found
 }
 
-func (r *Repository) GetAnimeTorrentProviderExtensionBank() *extension.Bank[extension.AnimeTorrentProviderExtension] {
-	return r.animeTorrentProviderExtensionBank
-}
-
 func (r *Repository) GetAnimeTorrentProviderExtensionByID(id string) (extension.AnimeTorrentProviderExtension, bool) {
-	ext, found := r.animeTorrentProviderExtensionBank.Get(id)
+	ext, found := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
 	return ext, found
 }
 
@@ -275,17 +261,17 @@ func (r *Repository) GetAnimeTorrentProviderExtensionByID(id string) (extension.
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) LoadBuiltInMangaProviderExtension(info extension.Extension, provider hibikemanga.Provider) {
-	r.mangaProviderExtensionBank.Set(info.ID, extension.NewMangaProviderExtension(&info, provider))
+	r.extensionBank.Set(info.ID, extension.NewMangaProviderExtension(&info, provider))
 	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in manga provider extension")
 }
 
 func (r *Repository) LoadBuiltInAnimeTorrentProviderExtension(info extension.Extension, provider hibiketorrent.AnimeProvider) {
-	r.animeTorrentProviderExtensionBank.Set(info.ID, extension.NewAnimeTorrentProviderExtension(&info, provider))
+	r.extensionBank.Set(info.ID, extension.NewAnimeTorrentProviderExtension(&info, provider))
 	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in anime torrent provider extension")
 }
 
 func (r *Repository) LoadBuiltInOnlinestreamProviderExtension(info extension.Extension, provider hibikeonlinestream.Provider) {
-	r.onlinestreamProviderExtensionBank.Set(info.ID, extension.NewOnlinestreamProviderExtension(&info, provider))
+	r.extensionBank.Set(info.ID, extension.NewOnlinestreamProviderExtension(&info, provider))
 	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
 }
 

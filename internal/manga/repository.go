@@ -23,7 +23,7 @@ type (
 	Repository struct {
 		logger                *zerolog.Logger
 		fileCacher            *filecache.Cacher
-		providerExtensionBank *extension.Bank[extension.MangaProviderExtension]
+		providerExtensionBank *extension.UnifiedBank
 		serverUri             string
 		wsEventManager        events.WSEventManagerInterface
 		mu                    sync.Mutex
@@ -47,12 +47,12 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		serverUri:             opts.ServerURI,
 		wsEventManager:        opts.WsEventManager,
 		downloadDir:           opts.DownloadDir,
-		providerExtensionBank: extension.NewBank[extension.MangaProviderExtension](),
+		providerExtensionBank: extension.NewUnifiedBank(),
 	}
 	return r
 }
 
-func (r *Repository) InitProviderExtensionBank(bank *extension.Bank[extension.MangaProviderExtension]) {
+func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.providerExtensionBank = bank

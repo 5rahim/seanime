@@ -1,6 +1,7 @@
 import { Extension_Extension } from "@/api/generated/types"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import Link from "next/link"
 import React from "react"
@@ -72,7 +73,10 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                     <span className="text-[--muted]">Author:</span> <span className="">{extension.author}</span>
                 </p>
                 <p className="text-md line-clamp-1">
-                    <span className="text-[--muted]">Language:</span> <span className="">{extension.language}</span>
+                    <span className="text-[--muted]">Language:</span> <span className="">{capitalize(extension.language)}</span>
+                </p>
+                <p className="text-md line-clamp-1">
+                    <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>
                 </p>
             </div>
         </>

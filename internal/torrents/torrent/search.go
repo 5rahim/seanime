@@ -7,6 +7,7 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
+	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
@@ -58,7 +59,7 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 	r.logger.Debug().Str("provider", opts.Provider).Str("type", string(opts.Type)).Str("query", opts.Query).Msg("torrent repo: Searching for anime torrents")
 
 	// Find the provider by ID
-	providerExtension, ok := r.animeProviderExtensionBank.Get(opts.Provider)
+	providerExtension, ok := extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, opts.Provider)
 	if !ok {
 		// Get the default provider
 		providerExtension, ok = r.GetDefaultAnimeProviderExtension()

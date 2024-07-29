@@ -12,11 +12,11 @@ import (
 func (a *App) LoadBuiltInExtensions() {
 
 	// Load the extensions to the manga repository
-	a.MangaRepository.InitProviderExtensionBank(a.ExtensionRepository.GetMangaProviderExtensionBank())
+	a.MangaRepository.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
 	// Load the extensions to the online stream repository
-	a.OnlinestreamRepository.InitProviderExtensionBank(a.ExtensionRepository.GetOnlinestreamProviderExtensionBank())
+	a.OnlinestreamRepository.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
 	// Load the extensions to the torrent repository
-	a.TorrentRepository.InitAnimeProviderExtensionBank(a.ExtensionRepository.GetAnimeTorrentProviderExtensionBank())
+	a.TorrentRepository.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
 
 	//
 	// Built-in manga providers
@@ -31,6 +31,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
 		Description: "",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/wi5e0s.webp",
+		},
 	}, manga_providers.NewComicK(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
@@ -41,6 +44,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/pwhp89.png",
+		},
 	}, manga_providers.NewMangapill(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
@@ -51,6 +57,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/xerps6.png",
+		},
 	}, manga_providers.NewMangasee(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
@@ -61,6 +70,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/cbn07p.png",
+		},
 	}, manga_providers.NewMangadex(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
@@ -71,6 +83,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/sd8reg.png",
+		},
 	}, manga_providers.NewManganato(a.Logger))
 
 	//
@@ -85,6 +100,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeOnlinestreamProvider,
 		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/gzy8ip.png",
+		},
 	}, onlinestream_providers.NewGogoanime(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
@@ -95,6 +113,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeOnlinestreamProvider,
 		Author:      "Seanime",
+		Meta: extension.Meta{
+			Icon: "https://files.catbox.moe/ko0b5v.png",
+		},
 	}, onlinestream_providers.NewZoro(a.Logger))
 
 	//
@@ -135,8 +156,9 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeAnimeTorrentProvider,
 		Author:      "Seanime",
-		Meta:        extension.Meta{
+		Meta: extension.Meta{
 			//Icon: "https://files.catbox.moe/xf9jl6.ico",
+			Icon: "https://files.catbox.moe/s506vk.jpg",
 		},
 	}, animetosho.NewProvider(a.Logger))
 

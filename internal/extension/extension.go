@@ -35,7 +35,8 @@ type Extension struct {
 	Description string `json:"description"` // e.g. "This extension provides torrents"
 	Author      string `json:"author"`      // e.g. "Seanime"
 	Meta        Meta   `json:"meta"`
-	// Payload is the content of the extension
+	// Payload is the content of the extension.
+	// When returning the extension, this field should be emptied so the client knows it is installed.
 	Payload string `json:"payload"`
 }
 

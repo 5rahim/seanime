@@ -52,6 +52,8 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 		return nil, fmt.Errorf("failed to parse extension manifest, %w", err)
 	}
 
+	// \/ Do not do a sanity check here, we only do it when installing the extension
+	// This is to allow seeing the extension data of already installed extensions in "Add extensions"
 	//if err = r.extensionSanityCheck(&ext); err != nil {
 	//	r.logger.Error().Err(err).Str("url", manifestURI).Msg("extensions: Failed sanity check")
 	//	return nil, err
@@ -147,9 +149,19 @@ func (r *Repository) UninstallExternalExtension(id string) error {
 	return nil
 }
 
-// CheckForUpdates checks all extensions for updates by querying their respective repositories
-func (r *Repository) CheckForUpdates(manifestURI string) {
+// CheckForUpdates checks all extensions for updates by querying their respective repositories.
+// It returns a list of extension update data containing IDs and versions.
+func (r *Repository) CheckForUpdates() (ret []UpdateData) {
 
+	//wg := sync.WaitGroup{}
+	//
+	//// Create a channel to receive the update data
+	//updateDataChan := make(chan UpdateData, 1)
+	//mu := sync.Mutex{}
+	//
+	//// Check for updates for all extensions
+
+	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,9 +196,7 @@ func (r *Repository) unloadExternalExtensions() {
 	r.logger.Trace().Msg("extensions: Unloading external extensions")
 	// We also clear the invalid extensions list, assuming the extensions are reloaded
 	r.invalidExtensions.Clear()
-	r.mangaProviderExtensionBank.RemoveExternalExtensions()
-	r.animeTorrentProviderExtensionBank.RemoveExternalExtensions()
-	r.onlinestreamProviderExtensionBank.RemoveExternalExtensions()
+	r.extensionBank.RemoveExternalExtensions()
 
 	r.logger.Debug().Msg("extensions: Unloaded external extensions")
 }

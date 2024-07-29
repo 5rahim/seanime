@@ -38,8 +38,8 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionGo(ext *extension.
 	}
 
 	// Add the extension to the map
-	r.animeTorrentProviderExtensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
-
+	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider) // FIXME
+	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }
 func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.Extension, language extension.Language) error {
@@ -53,6 +53,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
-	r.animeTorrentProviderExtensionBank.Set(ext.ID, extension.NewAnimeTorrentProviderExtension(ext, provider))
+	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider) // FIXME
+	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }

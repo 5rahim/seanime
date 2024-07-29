@@ -14,7 +14,7 @@ func getTestRepo(t *testing.T) *Repository {
 	logger := util.NewLogger()
 	metadataProvider := metadata.TestGetMockProvider(t)
 
-	extensionBank := extension.NewBank[extension.AnimeTorrentProviderExtension]()
+	extensionBank := extension.NewUnifiedBank()
 
 	extensionBank.Set("nyaa", extension.NewAnimeTorrentProviderExtension(&extension.Extension{
 		ID:       "nyaa",
@@ -57,7 +57,7 @@ func getTestRepo(t *testing.T) *Repository {
 		MetadataProvider: metadataProvider,
 	})
 
-	repo.InitAnimeProviderExtensionBank(extensionBank)
+	repo.InitExtensionBank(extensionBank)
 
 	repo.SetSettings(&RepositorySettings{
 		DefaultAnimeProvider: ProviderAnimeTosho,

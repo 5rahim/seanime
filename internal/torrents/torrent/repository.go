@@ -12,7 +12,7 @@ import (
 type (
 	Repository struct {
 		logger                         *zerolog.Logger
-		animeProviderExtensionBank     *extension.Bank[extension.AnimeTorrentProviderExtension]
+		extensionBank                  *extension.UnifiedBank
 		animeProviderSearchCaches      *result.Map[string, *result.Cache[string, *SearchData]]
 		animeProviderSmartSearchCaches *result.Map[string, *result.Cache[string, *SearchData]]
 		anizipCache                    *anizip.Cache
@@ -35,7 +35,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
 		logger:                         opts.Logger,
 		metadataProvider:               opts.MetadataProvider,
-		animeProviderExtensionBank:     extension.NewBank[extension.AnimeTorrentProviderExtension](),
+		extensionBank:                  extension.NewUnifiedBank(),
 		animeProviderSearchCaches:      result.NewResultMap[string, *result.Cache[string, *SearchData]](),
 		animeProviderSmartSearchCaches: result.NewResultMap[string, *result.Cache[string, *SearchData]](),
 		anizipCache:                    anizip.NewCache(),
@@ -46,10 +46,10 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	return ret
 }
 
-func (r *Repository) InitAnimeProviderExtensionBank(bank *extension.Bank[extension.AnimeTorrentProviderExtension]) {
+func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.animeProviderExtensionBank = bank
+	r.extensionBank = bank
 
 	go func() {
 		for {
@@ -87,7 +87,7 @@ func (r *Repository) reloadExtensions() {
 
 	go func() {
 		// Create new caches for each provider
-		r.animeProviderExtensionBank.Range(func(provider string, value extension.AnimeTorrentProviderExtension) bool {
+		extension.RangeExtensions(r.extensionBank, func(provider string, value extension.AnimeTorrentProviderExtension) bool {
 			r.animeProviderSearchCaches.Set(provider, result.NewCache[string, *SearchData]())
 			r.animeProviderSmartSearchCaches.Set(provider, result.NewCache[string, *SearchData]())
 			return true
@@ -96,7 +96,7 @@ func (r *Repository) reloadExtensions() {
 
 	// Check if the default provider is in the list of providers
 	//if r.settings.DefaultAnimeProvider != "" && r.settings.DefaultAnimeProvider != "none" {
-	//	if _, ok := r.animeProviderExtensionBank.Get(r.settings.DefaultAnimeProvider); !ok {
+	//	if _, ok := r.extensionBank.Get(r.settings.DefaultAnimeProvider); !ok {
 	//		//r.logger.Error().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Default torrent provider not found in extensions")
 	//		// Set the default provider to empty
 	//		r.settings.DefaultAnimeProvider = ""
@@ -136,9 +136,9 @@ func (r *Repository) GetDefaultAnimeProviderExtension() (extension.AnimeTorrentP
 	if r.settings.DefaultAnimeProvider == "" {
 		return nil, false
 	}
-	return r.animeProviderExtensionBank.Get(r.settings.DefaultAnimeProvider)
+	return extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, r.settings.DefaultAnimeProvider)
 }
 
 func (r *Repository) GetAnimeProviderExtension(id string) (extension.AnimeTorrentProviderExtension, bool) {
-	return r.animeProviderExtensionBank.Get(id)
+	return extension.GetExtension[extension.AnimeTorrentProviderExtension](r.extensionBank, id)
 }

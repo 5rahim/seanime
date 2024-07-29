@@ -35,7 +35,8 @@ func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) erro
 	}
 
 	// Add the extension to the map
-	r.mangaProviderExtensionBank.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))
+	retExt := extension.NewMangaProviderExtension(ext, provider) // FIXME
+	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }
 
@@ -50,6 +51,7 @@ func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, lang
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
-	r.mangaProviderExtensionBank.Set(ext.ID, extension.NewMangaProviderExtension(ext, provider))
+	retExt := extension.NewMangaProviderExtension(ext, provider) // FIXME
+	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }

@@ -38,7 +38,8 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 	}
 
 	// Add the extension to the map
-	r.onlinestreamProviderExtensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))
+	retExt := extension.NewOnlinestreamProviderExtension(ext, provider) // FIXME
+	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }
 
@@ -53,6 +54,7 @@ func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extensio
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
-	r.onlinestreamProviderExtensionBank.Set(ext.ID, extension.NewOnlinestreamProviderExtension(ext, provider))
+	retExt := extension.NewOnlinestreamProviderExtension(ext, provider) // FIXME
+	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }

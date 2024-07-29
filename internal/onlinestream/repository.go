@@ -17,7 +17,7 @@ import (
 type (
 	Repository struct {
 		logger                *zerolog.Logger
-		providerExtensionBank *extension.Bank[extension.OnlinestreamProviderExtension]
+		providerExtensionBank *extension.UnifiedBank
 		fileCacher            *filecache.Cacher
 		anizipCache           *anizip.Cache
 		platform              platform.Platform
@@ -75,13 +75,13 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		logger:                opts.Logger,
 		anizipCache:           opts.AnizipCache,
 		fileCacher:            opts.FileCacher,
-		providerExtensionBank: extension.NewBank[extension.OnlinestreamProviderExtension](),
+		providerExtensionBank: extension.NewUnifiedBank(),
 		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
 		platform:              opts.Platform,
 	}
 }
 
-func (r *Repository) InitProviderExtensionBank(bank *extension.Bank[extension.OnlinestreamProviderExtension]) {
+func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 	r.providerExtensionBank = bank
 
 	r.logger.Debug().Msg("onlinestream: Initialized provider extension bank")

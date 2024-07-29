@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
+	"seanime/internal/extension"
 	"seanime/internal/manga/downloader"
 	"seanime/internal/manga/providers"
 	"seanime/internal/util"
@@ -94,7 +95,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 
 	var searchRes []*hibikemanga.SearchResult
 
-	providerExtension, ok := r.providerExtensionBank.Get(provider)
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
 		return nil, errors.New("manga: Provider not found")
@@ -247,7 +248,7 @@ func (r *Repository) GetMangaPageContainer(
 		return nil, ErrChapterNotFound
 	}
 
-	providerExtension, ok := r.providerExtensionBank.Get(provider)
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
 	if !ok {
 		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
 		return nil, errors.New("manga: Provider not found")
