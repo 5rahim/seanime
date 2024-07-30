@@ -1,103 +1,139 @@
 package platform
 
 import (
+	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
+	"sync"
 )
 
 type LocalPlatform struct {
-	localAnimeCollection mo.Option[*anilist.AnimeCollection]
-	localMangaCollection mo.Option[*anilist.MangaCollection]
+	logger             *zerolog.Logger
+	anilistClient      anilist.AnilistClient
+	animeCollection    mo.Option[*anilist.AnimeCollection]
+	rawAnimeCollection mo.Option[*anilist.AnimeCollection]
+	mangaCollection    mo.Option[*anilist.MangaCollection]
+	rawMangaCollection mo.Option[*anilist.MangaCollection]
+	mangaMu            sync.RWMutex
+	animeMu            sync.RWMutex
+	localDb            *LocalPlatformDatabase
 }
 
-func (ap *LocalPlatform) SetUsername(username string) {
+func NewLocalPlatform(dataDir string, anilistClient anilist.AnilistClient, logger *zerolog.Logger) (Platform, error) {
+
+	localDb, err := newLocalPlatformDatabase(dataDir, "local", logger)
+	if err != nil {
+		return nil, err
+	}
+
+	ap := &LocalPlatform{
+		localDb:            localDb,
+		anilistClient:      anilistClient,
+		logger:             logger,
+		animeCollection:    mo.None[*anilist.AnimeCollection](),
+		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
+		mangaCollection:    mo.None[*anilist.MangaCollection](),
+		rawMangaCollection: mo.None[*anilist.MangaCollection](),
+		mangaMu:            sync.RWMutex{},
+		animeMu:            sync.RWMutex{},
+	}
+
+	go ap.loadAnimeCollection()
+	go ap.loadMangaCollection()
+
+	return ap, nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (pm *LocalPlatform) SetUsername(username string) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) SetAnilistClient(client anilist.AnilistClient) {
+func (pm *LocalPlatform) SetAnilistClient(client anilist.AnilistClient) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
+func (pm *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error {
+func (pm *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) DeleteEntry(mediaID int) error {
+func (pm *LocalPlatform) DeleteEntry(mediaID int) error {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
+func (pm *LocalPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
+func (pm *LocalPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
+func (pm *LocalPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsById_Media, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
+func (pm *LocalPlatform) GetAnimeWithRelations(mediaID int) (*anilist.CompleteAnime, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
+func (pm *LocalPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
+func (pm *LocalPlatform) GetMangaDetails(mediaID int) (*anilist.MangaDetailsById_Media, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+func (pm *LocalPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
+func (pm *LocalPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
+func (pm *LocalPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) refreshAnimeCollection() error {
+func (pm *LocalPlatform) refreshAnimeCollection() error {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
+func (pm *LocalPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeCollectionWithRelations, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+func (pm *LocalPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
+func (pm *LocalPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
+func (pm *LocalPlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) refreshMangaCollection() error {
+func (pm *LocalPlatform) refreshMangaCollection() error {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) AddMediaToCollection(mIds []int) error {
+func (pm *LocalPlatform) AddMediaToCollection(mIds []int) error {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
+func (pm *LocalPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetails, error) {
 	panic("todo")
 }
 
-func (ap *LocalPlatform) GetAnilistClient() anilist.AnilistClient {
+func (pm *LocalPlatform) GetAnilistClient() anilist.AnilistClient {
 	panic("todo")
 }
