@@ -169,22 +169,26 @@ type SilencedMediaEntry struct {
 
 type Theme struct {
 	BaseModel
-	AnimeEntryScreenLayout     string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"` // DEPRECATED
-	SmallerEpisodeCarouselSize bool   `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
-	ExpandSidebarOnHover       bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
-	EnableColorSettings        bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`
-	BackgroundColor            string `gorm:"column:background_color" json:"backgroundColor"`
-	AccentColor                string `gorm:"column:accent_color" json:"accentColor"`
-	SidebarBackgroundColor     string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`
-	// Library Screen Banner
-	LibraryScreenBannerType              string `gorm:"column:library_screen_banner_type" json:"libraryScreenBannerType"`
-	LibraryScreenCustomBannerImage       string `gorm:"column:library_screen_custom_banner_image" json:"libraryScreenCustomBannerImage"`
-	LibraryScreenCustomBannerPosition    string `gorm:"column:library_screen_custom_banner_position" json:"libraryScreenCustomBannerPosition"`
-	LibraryScreenCustomBannerOpacity     int    `gorm:"column:library_screen_custom_banner_opacity" json:"libraryScreenCustomBannerOpacity"`
+	// Main
+	EnableColorSettings    bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`
+	BackgroundColor        string `gorm:"column:background_color" json:"backgroundColor"`
+	AccentColor            string `gorm:"column:accent_color" json:"accentColor"`
+	SidebarBackgroundColor string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`  // DEPRECATED
+	AnimeEntryScreenLayout string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"` // DEPRECATED
+	ExpandSidebarOnHover   bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
+	HideTopNavbar          bool   `gorm:"column:hide_top_navbar" json:"hideTopNavbar"`
+	// These are named "libraryScreen" but are used on all pages
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`
-	// Library
-	DisableLibraryScreenGenreSelector bool `gorm:"column:disable_library_screen_genre_selector" json:"disableLibraryScreenGenreSelector"`
+	// Anime
+	SmallerEpisodeCarouselSize bool `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
+	// Library Screen (Anime & Manga)
+	// LibraryScreenBannerType: "dynamic", "custom"
+	LibraryScreenBannerType           string `gorm:"column:library_screen_banner_type" json:"libraryScreenBannerType"`
+	LibraryScreenCustomBannerImage    string `gorm:"column:library_screen_custom_banner_image" json:"libraryScreenCustomBannerImage"`
+	LibraryScreenCustomBannerPosition string `gorm:"column:library_screen_custom_banner_position" json:"libraryScreenCustomBannerPosition"`
+	LibraryScreenCustomBannerOpacity  int    `gorm:"column:library_screen_custom_banner_opacity" json:"libraryScreenCustomBannerOpacity"`
+	DisableLibraryScreenGenreSelector bool   `gorm:"column:disable_library_screen_genre_selector" json:"disableLibraryScreenGenreSelector"`
 }
 
 // +---------------------+

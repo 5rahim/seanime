@@ -25,7 +25,7 @@ export default function Page() {
         <div>
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && (
                 <>
-                    <CustomLibraryBanner />
+                    <CustomLibraryBanner isLibraryScreen />
                     <div className="h-32"></div>
                 </>
             )}

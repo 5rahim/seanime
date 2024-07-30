@@ -2157,22 +2157,26 @@ export type Models_SilencedMediaEntry = {
  * - Package: models
  */
 export type Models_Theme = {
+    enableColorSettings: boolean
+    backgroundColor: string
+    accentColor: string
+    /**
+     * DEPRECATED
+     */
+    sidebarBackgroundColor: string
     /**
      * DEPRECATED
      */
     animeEntryScreenLayout: string
-    smallerEpisodeCarouselSize: boolean
     expandSidebarOnHover: boolean
-    enableColorSettings: boolean
-    backgroundColor: string
-    accentColor: string
-    sidebarBackgroundColor: string
+    hideTopNavbar: boolean
+    libraryScreenCustomBackgroundImage: string
+    libraryScreenCustomBackgroundOpacity: number
+    smallerEpisodeCarouselSize: boolean
     libraryScreenBannerType: string
     libraryScreenCustomBannerImage: string
     libraryScreenCustomBannerPosition: string
     libraryScreenCustomBannerOpacity: number
-    libraryScreenCustomBackgroundImage: string
-    libraryScreenCustomBackgroundOpacity: number
     disableLibraryScreenGenreSelector: boolean
     id: number
     createdAt?: string

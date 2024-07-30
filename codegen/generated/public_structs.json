@@ -24857,35 +24857,6 @@
     "package": "models",
     "fields": [
       {
-        "name": "AnimeEntryScreenLayout",
-        "jsonName": "animeEntryScreenLayout",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " DEPRECATED"
-        ]
-      },
-      {
-        "name": "SmallerEpisodeCarouselSize",
-        "jsonName": "smallerEpisodeCarouselSize",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ExpandSidebarOnHover",
-        "jsonName": "expandSidebarOnHover",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "EnableColorSettings",
         "jsonName": "enableColorSettings",
         "goType": "bool",
@@ -24917,6 +24888,64 @@
         "jsonName": "sidebarBackgroundColor",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " DEPRECATED"
+        ]
+      },
+      {
+        "name": "AnimeEntryScreenLayout",
+        "jsonName": "animeEntryScreenLayout",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " DEPRECATED"
+        ]
+      },
+      {
+        "name": "ExpandSidebarOnHover",
+        "jsonName": "expandSidebarOnHover",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HideTopNavbar",
+        "jsonName": "hideTopNavbar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibraryScreenCustomBackgroundImage",
+        "jsonName": "libraryScreenCustomBackgroundImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibraryScreenCustomBackgroundOpacity",
+        "jsonName": "libraryScreenCustomBackgroundOpacity",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SmallerEpisodeCarouselSize",
+        "jsonName": "smallerEpisodeCarouselSize",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -24951,24 +24980,6 @@
       {
         "name": "LibraryScreenCustomBannerOpacity",
         "jsonName": "libraryScreenCustomBannerOpacity",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LibraryScreenCustomBackgroundImage",
-        "jsonName": "libraryScreenCustomBackgroundImage",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LibraryScreenCustomBackgroundOpacity",
-        "jsonName": "libraryScreenCustomBackgroundOpacity",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -40890,8 +40901,28 @@
     "package": "platform",
     "fields": [
       {
-        "name": "localAnimeCollection",
-        "jsonName": "localAnimeCollection",
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistClient",
+        "jsonName": "anilistClient",
+        "goType": "anilist.AnilistClient",
+        "typescriptType": "AL_AnilistClient",
+        "usedStructName": "anilist.AnilistClient",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -40899,11 +40930,59 @@
         "comments": []
       },
       {
-        "name": "localMangaCollection",
-        "jsonName": "localMangaCollection",
+        "name": "rawAnimeCollection",
+        "jsonName": "rawAnimeCollection",
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "rawMangaCollection",
+        "jsonName": "rawMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaMu",
+        "jsonName": "mangaMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeMu",
+        "jsonName": "animeMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDb",
+        "jsonName": "localDb",
+        "goType": "LocalPlatformDatabase",
+        "typescriptType": "LocalPlatformDatabase",
+        "usedStructName": "platform.LocalPlatformDatabase",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -40939,28 +41018,6 @@
       }
     ],
     "comments": []
-  },
-  {
-    "filepath": "../internal/platform/local_platform_manager.go",
-    "filename": "local_platform_manager.go",
-    "name": "LocalPlatformManager",
-    "formattedName": "LocalPlatformManager",
-    "package": "platform",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " LocalPlatformManager takes care of storing, retrieving, updating, syncing data between the local database and the Anilist API"
-    ]
   },
   {
     "filepath": "../internal/platform/local_platform_models.go",
@@ -41004,21 +41061,10 @@
   {
     "filepath": "../internal/platform/local_platform_models.go",
     "filename": "local_platform_models.go",
-    "name": "LocalMedia",
-    "formattedName": "LocalMedia",
+    "name": "LocalCollection",
+    "formattedName": "LocalCollection",
     "package": "platform",
     "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Media ID"
-        ]
-      },
       {
         "name": "Type",
         "jsonName": "type",
@@ -41046,6 +41092,144 @@
     "embeddedStructNames": [
       "platform.BaseModel"
     ]
+  },
+  {
+    "filepath": "../internal/platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "MediaSnapshot",
+    "formattedName": "MediaSnapshot",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeSnapshot",
+        "jsonName": "animeSnapshot",
+        "goType": "AnimeSnapshot",
+        "typescriptType": "AnimeSnapshot",
+        "usedStructName": "platform.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaSnapshot",
+        "jsonName": "mangaSnapshot",
+        "goType": "MangaSnapshot",
+        "typescriptType": "MangaSnapshot",
+        "usedStructName": "platform.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "ImageSnapshot",
+    "formattedName": "ImageSnapshot",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "CoverImage",
+        "jsonName": "coverImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImage",
+        "jsonName": "bannerImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeImages",
+        "jsonName": "episodeImages",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Local filepath to image file"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "AnimeSnapshot",
+    "formattedName": "AnimeSnapshot",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "anime.AnimeEntry",
+        "typescriptType": "Anime_AnimeEntry",
+        "usedStructName": "anime.AnimeEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Images",
+        "jsonName": "images",
+        "goType": "ImageSnapshot",
+        "typescriptType": "ImageSnapshot",
+        "usedStructName": "platform.ImageSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "MangaSnapshot",
+    "formattedName": "MangaSnapshot",
+    "package": "platform",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "manga.Entry",
+        "typescriptType": "Manga_Entry",
+        "usedStructName": "manga.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Images",
+        "jsonName": "images",
+        "goType": "ImageSnapshot",
+        "typescriptType": "ImageSnapshot",
+        "usedStructName": "platform.ImageSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/test_utils/data.go",
@@ -48253,6 +48437,94 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/util/crashlog/crashlog.go",
+    "filename": "crashlog.go",
+    "name": "CrashLogger",
+    "formattedName": "CrashLogger",
+    "package": "crashlog",
+    "fields": [
+      {
+        "name": "logDir",
+        "jsonName": "logDir",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/util/crashlog/crashlog.go",
+    "filename": "crashlog.go",
+    "name": "CrashLoggerArea",
+    "formattedName": "CrashLoggerArea",
+    "package": "crashlog",
+    "fields": [
+      {
+        "name": "name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logBuffer",
+        "jsonName": "logBuffer",
+        "goType": "bytes.Buffer",
+        "typescriptType": "Buffer",
+        "usedStructName": "bytes.Buffer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancelFunc",
+        "jsonName": "cancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],

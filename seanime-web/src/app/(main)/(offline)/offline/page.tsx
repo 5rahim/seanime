@@ -17,7 +17,7 @@ export default function Page() {
 
     return (
         <>
-            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner />}
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
 
             <OfflineAnimeLists />
             {!!snapshot?.entries?.mangaEntries && <div className="space-y-6 p-4 pt-10 relative z-[5]" id="manga">

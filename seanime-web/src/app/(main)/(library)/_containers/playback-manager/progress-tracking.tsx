@@ -28,12 +28,15 @@ import { MdCancel } from "react-icons/md"
 import { PiPopcornFill } from "react-icons/pi"
 import { toast } from "sonner"
 
-
 const __pt_showModalAtom = atom(false)
 const __pt_isTrackingAtom = atom(false)
 const __pt_isCompletedAtom = atom(false)
 
-export function ProgressTracking() {
+type ProgressTrackingProps = {
+    asSidebarButton?: boolean
+}
+
+export function ProgressTracking({ asSidebarButton }: ProgressTrackingProps) {
 
     const serverStatus = useServerStatus()
 
@@ -179,14 +182,26 @@ export function ProgressTracking() {
 
     return (
         <>
-            {shouldBeDisplayed && <Button
-                intent="primary"
-                className={cn("animate-pulse")}
-                leftIcon={<PiPopcornFill />}
-                onClick={() => setShowModal(true)}
-            >
-                Currently watching
-            </Button>}
+            {shouldBeDisplayed && (
+                <>
+                    {asSidebarButton ? (
+                        <IconButton
+                            intent="primary-subtle"
+                            className={cn("animate-pulse")}
+                            icon={<PiPopcornFill />}
+                            onClick={() => setShowModal(true)}
+                        />
+                    ) : (
+                        <Button
+                            intent="primary"
+                            className={cn("animate-pulse")}
+                            leftIcon={<PiPopcornFill />}
+                            onClick={() => setShowModal(true)}
+                        >
+                            Currently watching
+                        </Button>)}
+                </>
+            )}
 
 
             <Modal

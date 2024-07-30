@@ -17,6 +17,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     backgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.backgroundColor).transform(n => n.trim()),
     accentColor: z.string().min(0).default(THEME_DEFAULT_VALUES.accentColor).transform(n => n.trim()),
     sidebarBackgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.sidebarBackgroundColor),
+    hideTopNavbar: z.boolean().default(THEME_DEFAULT_VALUES.hideTopNavbar),
 
     libraryScreenBannerType: z.string().default(THEME_DEFAULT_VALUES.libraryScreenBannerType),
     libraryScreenCustomBannerImage: z.string().default(THEME_DEFAULT_VALUES.libraryScreenCustomBannerImage),
@@ -37,202 +38,216 @@ export function UISettings() {
     const { mutate, isPending } = useUpdateTheme()
 
     return (
-            <Form
-                schema={themeSchema}
-                onSubmit={data => {
-                    if (colord(data.backgroundColor).isLight()) {
-                        toast.error("Seanime does not support light themes")
-                        return
-                    }
+        <Form
+            schema={themeSchema}
+            onSubmit={data => {
+                if (colord(data.backgroundColor).isLight()) {
+                    toast.error("Seanime does not support light themes")
+                    return
+                }
 
-                    const prevEnableColorSettings = themeSettings?.enableColorSettings
+                const prevEnableColorSettings = themeSettings?.enableColorSettings
 
-                    mutate({
-                        theme: {
-                            id: 0,
-                            ...themeSettings,
-                            ...data,
-                        },
-                    }, {
-                        onSuccess() {
-                            if (data.enableColorSettings !== prevEnableColorSettings && !data.enableColorSettings) {
-                                window.location.reload()
-                            }
-                        },
-                    })
-                }}
-                defaultValues={{
-                    enableColorSettings: themeSettings?.enableColorSettings,
-                    animeEntryScreenLayout: themeSettings?.animeEntryScreenLayout,
-                    smallerEpisodeCarouselSize: themeSettings?.smallerEpisodeCarouselSize,
-                    expandSidebarOnHover: themeSettings?.expandSidebarOnHover,
-                    backgroundColor: themeSettings?.backgroundColor,
-                    accentColor: themeSettings?.accentColor,
-                    sidebarBackgroundColor: themeSettings?.sidebarBackgroundColor,
-                    libraryScreenBannerType: themeSettings?.libraryScreenBannerType,
-                    libraryScreenCustomBannerImage: themeSettings?.libraryScreenCustomBannerImage,
-                    libraryScreenCustomBannerPosition: themeSettings?.libraryScreenCustomBannerPosition,
-                    libraryScreenCustomBannerOpacity: themeSettings?.libraryScreenCustomBannerOpacity,
-                    libraryScreenCustomBackgroundImage: themeSettings?.libraryScreenCustomBackgroundImage,
-                    libraryScreenCustomBackgroundOpacity: themeSettings?.libraryScreenCustomBackgroundOpacity,
-                    disableLibraryScreenGenreSelector: themeSettings?.disableLibraryScreenGenreSelector,
-                }}
-                stackClass="space-y-4"
-            >
-                {(f) => (
-                    <>
-                        <h3>Main</h3>
+                mutate({
+                    theme: {
+                        id: 0,
+                        ...themeSettings,
+                        ...data,
+                    },
+                }, {
+                    onSuccess() {
+                        if (data.enableColorSettings !== prevEnableColorSettings && !data.enableColorSettings) {
+                            window.location.reload()
+                        }
+                    },
+                })
+            }}
+            defaultValues={{
+                enableColorSettings: themeSettings?.enableColorSettings,
+                animeEntryScreenLayout: themeSettings?.animeEntryScreenLayout,
+                smallerEpisodeCarouselSize: themeSettings?.smallerEpisodeCarouselSize,
+                expandSidebarOnHover: themeSettings?.expandSidebarOnHover,
+                backgroundColor: themeSettings?.backgroundColor,
+                accentColor: themeSettings?.accentColor,
+                sidebarBackgroundColor: themeSettings?.sidebarBackgroundColor,
+                hideTopNavbar: themeSettings?.hideTopNavbar,
+                libraryScreenBannerType: themeSettings?.libraryScreenBannerType,
+                libraryScreenCustomBannerImage: themeSettings?.libraryScreenCustomBannerImage,
+                libraryScreenCustomBannerPosition: themeSettings?.libraryScreenCustomBannerPosition,
+                libraryScreenCustomBannerOpacity: themeSettings?.libraryScreenCustomBannerOpacity,
+                libraryScreenCustomBackgroundImage: themeSettings?.libraryScreenCustomBackgroundImage,
+                libraryScreenCustomBackgroundOpacity: themeSettings?.libraryScreenCustomBackgroundOpacity,
+                disableLibraryScreenGenreSelector: themeSettings?.disableLibraryScreenGenreSelector,
+            }}
+            stackClass="space-y-4"
+        >
+            {(f) => (
+                <>
+                    <h3>Main</h3>
 
-                        <Field.Switch
-                            label="Enable color settings"
-                            name="enableColorSettings"
+                    <Field.Switch
+                        label="Enable color settings"
+                        name="enableColorSettings"
+                    />
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <Field.ColorPicker
+                            name="backgroundColor"
+                            label="Background color"
+                            help="Default: #070707"
+                            disabled={!f.watch("enableColorSettings")}
                         />
-                        <div className="flex flex-col md:flex-row gap-3">
-                            <Field.ColorPicker
-                                name="backgroundColor"
-                                label="Background color"
-                                help="Default: #070707"
-                                disabled={!f.watch("enableColorSettings")}
-                            />
-                            <Field.ColorPicker
-                                name="accentColor"
-                                label="Accent color"
-                                help="Default: #6152df"
-                                disabled={!f.watch("enableColorSettings")}
-                            />
-                        </div>
+                        <Field.ColorPicker
+                            name="accentColor"
+                            label="Accent color"
+                            help="Default: #6152df"
+                            disabled={!f.watch("enableColorSettings")}
+                        />
+                    </div>
 
-                        {f.watch("enableColorSettings") && (
-                            <div className="flex flex-wrap gap-3 w-full">
-                                {THEME_COLOR_BANK.map((opt) => (
+                    {f.watch("enableColorSettings") && (
+                        <div className="flex flex-wrap gap-3 w-full">
+                            {THEME_COLOR_BANK.map((opt) => (
+                                <div
+                                    key={opt.name}
+                                    className={cn(
+                                        "flex gap-3 items-center w-fit rounded-full border p-1 cursor-pointer",
+                                        themeSettings.backgroundColor === opt.backgroundColor && themeSettings.accentColor === opt.accentColor && "border-[--brand] ring-[--brand] ring-offset-1 ring-offset-[--background]",
+                                    )}
+                                    onClick={() => {
+                                        f.setValue("backgroundColor", opt.backgroundColor)
+                                        f.setValue("accentColor", opt.accentColor)
+                                        mutate({
+                                            theme: {
+                                                id: 0,
+                                                ...themeSettings,
+                                                enableColorSettings: true,
+                                                backgroundColor: opt.backgroundColor,
+                                                accentColor: opt.accentColor,
+                                            },
+                                        })
+                                    }}
+                                >
                                     <div
-                                        key={opt.name}
-                                        className={cn(
-                                            "flex gap-3 items-center w-fit rounded-full border p-1 cursor-pointer",
-                                            themeSettings.backgroundColor === opt.backgroundColor && themeSettings.accentColor === opt.accentColor && "border-[--brand] ring-[--brand] ring-offset-1 ring-offset-[--background]",
-                                        )}
-                                        onClick={() => {
-                                            f.setValue("backgroundColor", opt.backgroundColor)
-                                            f.setValue("accentColor", opt.accentColor)
-                                            mutate({
-                                                theme: {
-                                                    id: 0,
-                                                    ...themeSettings,
-                                                    enableColorSettings: true,
-                                                    backgroundColor: opt.backgroundColor,
-                                                    accentColor: opt.accentColor,
-                                                },
-                                            })
-                                        }}
+                                        className="flex gap-1"
                                     >
                                         <div
-                                            className="flex gap-1"
-                                        >
-                                            <div
-                                                className="w-6 h-6 rounded-full border"
-                                                style={{ backgroundColor: opt.backgroundColor }}
-                                            />
-                                            <div
-                                                className="w-6 h-6 rounded-full border"
-                                                style={{ backgroundColor: opt.accentColor }}
-                                            />
-                                        </div>
+                                            className="w-6 h-6 rounded-full border"
+                                            style={{ backgroundColor: opt.backgroundColor }}
+                                        />
+                                        <div
+                                            className="w-6 h-6 rounded-full border"
+                                            style={{ backgroundColor: opt.accentColor }}
+                                        />
                                     </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="flex flex-col md:flex-row gap-3">
-                            <Field.Text
-                                label="Background image path"
-                                name="libraryScreenCustomBackgroundImage"
-                                placeholder="e.g., image.png"
-                                help="This will be used as the background image for the library page."
-                            />
-
-                            <Field.Number
-                                label="Background image opacity"
-                                name="libraryScreenCustomBackgroundOpacity"
-                                placeholder="Default: 10"
-                                min={1}
-                                max={100}
-                            />
+                                </div>
+                            ))}
                         </div>
-                        <h3>Sidebar</h3>
+                    )}
 
-                        <Field.Switch
-                            label="Expand sidebar on hover"
-                            name="expandSidebarOnHover"
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <Field.Text
+                            label="Background image path"
+                            name="libraryScreenCustomBackgroundImage"
+                            placeholder="e.g., image.png"
+                            help="Background image for all pages. Dimmed on non-library screens."
                         />
 
-                        <Separator />
-
-                        <h3>Library</h3>
-
-                        <Field.Switch
-                            label="Smaller episode carousel size"
-                            name="smallerEpisodeCarouselSize"
+                        <Field.Number
+                            label="Background image opacity"
+                            name="libraryScreenCustomBackgroundOpacity"
+                            placeholder="Default: 10"
+                            min={1}
+                            max={100}
                         />
+                    </div>
 
-                        <Field.Switch
-                            label="Disable genre selector"
-                            name="disableLibraryScreenGenreSelector"
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <Field.Text
+                            label="Banner image path"
+                            name="libraryScreenCustomBannerImage"
+                            placeholder="e.g., image.gif"
+                            help="Banner image for all pages."
                         />
-
-                        <Field.RadioCards
-                            label="Banner type"
-                            name="libraryScreenBannerType"
-                            options={[
-                                {
-                                    label: "Dynamic Banner",
-                                    value: "dynamic",
-                                },
-                                {
-                                    label: "Custom Banner",
-                                    value: "custom",
-                                },
-                                {
-                                    label: "None",
-                                    value: "none",
-                                },
-                            ]}
-                            itemContainerClass={cn(
-                                "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
-                                "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
-                                "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
-                                "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                                "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
-                            )}
+                        <Field.Text
+                            label="Banner position"
+                            name="libraryScreenCustomBannerPosition"
+                            placeholder="Default: 50% 50%"
                         />
+                        <Field.Number
+                            label="Banner opacity"
+                            name="libraryScreenCustomBannerOpacity"
+                            placeholder="Default: 10"
+                            min={1}
+                            max={100}
+                        />
+                    </div>
 
-                        {f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && (
-                            <div className="flex flex-col md:flex-row gap-3">
-                                <Field.Text
-                                    label="Custom banner image path"
-                                    name="libraryScreenCustomBannerImage"
-                                    placeholder="e.g., image.gif"
-                                />
-                                <Field.Text
-                                    label="Custom banner position"
-                                    name="libraryScreenCustomBannerPosition"
-                                    placeholder="Default: 50% 50%"
-                                />
-                                <Field.Number
-                                    label="Custom banner Opacity"
-                                    name="libraryScreenCustomBannerOpacity"
-                                    placeholder="Default: 10"
-                                    min={1}
-                                    max={100}
-                                />
-                            </div>
+                    <h3>Sidebar</h3>
+
+                    <Field.Switch
+                        label="Expand sidebar on hover"
+                        name="expandSidebarOnHover"
+                    />
+
+                    <h3>Navbar</h3>
+
+                    <Field.Switch
+                        label="Hide top navbar"
+                        name="hideTopNavbar"
+                    />
+
+                    <Separator />
+
+                    <div>
+                        <h3>Library screens</h3>
+                        <p className="text-[--muted]">
+                            These settings affect the anime and manga library screens.
+                        </p>
+                    </div>
+
+                    <Field.RadioCards
+                        label="Banner type"
+                        name="libraryScreenBannerType"
+                        options={[
+                            {
+                                label: "Dynamic Banner",
+                                value: "dynamic",
+                            },
+                            {
+                                label: "Custom Banner",
+                                value: "custom",
+                            },
+                            {
+                                label: "None",
+                                value: "none",
+                            },
+                        ]}
+                        itemContainerClass={cn(
+                            "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
+                            "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                            "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
+                            "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+                            "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
                         )}
+                        help={f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && "Use the banner image on all library screens."}
+                    />
 
-                        <div className="mt-4">
-                            <Field.Submit role="save" intent="white" rounded loading={isPending}>Save</Field.Submit>
-                        </div>
-                    </>
-                )}
-            </Form>
+                    <Field.Switch
+                        label="Smaller episode carousel size"
+                        name="smallerEpisodeCarouselSize"
+                    />
+
+                    <Field.Switch
+                        label="Disable genre selector"
+                        name="disableLibraryScreenGenreSelector"
+                    />
+
+                    <div className="mt-4">
+                        <Field.Submit role="save" intent="white" rounded loading={isPending}>Save</Field.Submit>
+                    </div>
+                </>
+            )}
+        </Form>
     )
 
 }
