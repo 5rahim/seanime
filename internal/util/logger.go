@@ -3,9 +3,12 @@ package util
 import (
 	"bytes"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"os"
+	"os/signal"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/rs/zerolog"
@@ -27,97 +30,29 @@ const (
 	unknownLevel = "???"
 )
 
+// Stores logs from all loggers. Used to write logs to a file when WriteGlobalLogBufferToFile is called.
+// It is reset after writing to a file.
 var logBuffer bytes.Buffer
 var logBufferMutex = &sync.Mutex{}
 
 func NewLogger() *zerolog.Logger {
 
 	timeFormat := fmt.Sprintf("%s", time.DateTime)
-	formatLevel := func(i interface{}) string {
-		if ll, ok := i.(string); ok {
-			s := strings.ToLower(ll)
-			switch s {
-			case "debug":
-				s = "DBG" + colorizeb(" -", colorDarkGray)
-			case "info":
-				s = fmt.Sprint(colorizeb("INF", colorBold)) + colorizeb(" -", colorDarkGray)
-			case "warn":
-				s = colorizeb("WRN", colorYellow) + colorizeb(" -", colorDarkGray)
-			case "trace":
-				s = colorizeb("TRC", colorDarkGray) + colorizeb(" -", colorDarkGray)
-			case "error":
-				s = colorizeb("ERR", colorRed) + colorizeb(" -", colorDarkGray)
-			case "fatal":
-				s = colorizeb("FTL", colorRed) + colorizeb(" -", colorDarkGray)
-			case "panic":
-				s = colorizeb("PNC", colorRed) + colorizeb(" -", colorDarkGray)
-			}
-			return fmt.Sprint(s)
-		}
-		return ""
-	}
-	formatLevelF := func(i interface{}) string {
-		if ll, ok := i.(string); ok {
-			s := strings.ToLower(ll)
-			switch s {
-			case "debug":
-				s = "|DBG|"
-			case "info":
-				s = "|INF|"
-			case "warn":
-				s = "|WRN|"
-			case "trace":
-				s = "|TRC|"
-			case "error":
-				s = "|ERR|"
-			case "fatal":
-				s = "|FTL|"
-			case "panic":
-				s = "|PNC|"
-			}
-			return fmt.Sprint(s)
-		}
-		return ""
-	}
-	formatMessage := func(i interface{}) string {
-		if msg, ok := i.(string); ok {
-			if bytes.ContainsRune([]byte(msg), ':') {
-				parts := strings.SplitN(msg, ":", 2)
-				if len(parts) > 1 {
-					return colorizeb(parts[0], colorCyan) + colorizeb(" >", colorDarkGray) + parts[1]
-				}
-			}
-			return msg
-		}
-		return ""
-	}
-	formatMessageF := func(i interface{}) string {
-		if msg, ok := i.(string); ok {
-			if bytes.ContainsRune([]byte(msg), ':') {
-				parts := strings.SplitN(msg, ":", 2)
-				if len(parts) > 1 {
-					return parts[0] + " >" + parts[1]
-				}
-			}
-			return msg
-		}
-		return ""
-	}
 
 	// Set up logger
 	consoleOutput := zerolog.ConsoleWriter{
 		Out:           os.Stdout,
 		TimeFormat:    timeFormat,
-		FormatLevel:   formatLevel,
-		FormatMessage: formatMessage,
+		FormatLevel:   ZerologFormatLevelPretty,
+		FormatMessage: ZerologFormatMessagePretty,
 	}
 
 	fileOutput := zerolog.ConsoleWriter{
 		Out:           &logBuffer,
-		NoColor:       true,
 		TimeFormat:    timeFormat,
-		FormatMessage: formatMessageF,
-		FormatLevel:   formatLevelF,
+		FormatMessage: ZerologFormatMessageSimple,
+		FormatLevel:   ZerologFormatLevelSimple,
+		NoColor:       true, // Needed to prevent color codes from being written to the file
 	}
 
 	multi := zerolog.MultiLevelWriter(consoleOutput, fileOutput)
@@ -135,6 +70,98 @@ func WriteGlobalLogBufferToFile(file *os.File) {
 		fmt.Print("Failed to write log buffer to file")
 	}
 	logBuffer.Reset()
+}
+
+func SetupLoggerSignalHandling(file *os.File) {
+	if file == nil {
+		return
+	}
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-sigChan
+		log.Trace().Msgf("Received signal: %s", sig)
+		// Flush log buffer to the log file when the app exits
+		WriteGlobalLogBufferToFile(file)
+		_ = file.Close()
+		os.Exit(0)
+	}()
+}
+
+func ZerologFormatMessagePretty(i interface{}) string {
+	if msg, ok := i.(string); ok {
+		if bytes.ContainsRune([]byte(msg), ':') {
+			parts := strings.SplitN(msg, ":", 2)
+			if len(parts) > 1 {
+				return colorizeb(parts[0], colorCyan) + colorizeb(" >", colorDarkGray) + parts[1]
+			}
+		}
+		return msg
+	}
+	return ""
+}
+
+func ZerologFormatMessageSimple(i interface{}) string {
+	if msg, ok := i.(string); ok {
+		if bytes.ContainsRune([]byte(msg), ':') {
+			parts := strings.SplitN(msg, ":", 2)
+			if len(parts) > 1 {
+				return parts[0] + " >" + parts[1]
+			}
+		}
+		return msg
+	}
+	return ""
+}
+
+func ZerologFormatLevelPretty(i interface{}) string {
+	if ll, ok := i.(string); ok {
+		s := strings.ToLower(ll)
+		switch s {
+		case "debug":
+			s = "DBG" + colorizeb(" -", colorDarkGray)
+		case "info":
+			s = fmt.Sprint(colorizeb("INF", colorBold)) + colorizeb(" -", colorDarkGray)
+		case "warn":
+			s = colorizeb("WRN", colorYellow) + colorizeb(" -", colorDarkGray)
+		case "trace":
+			s = colorizeb("TRC", colorDarkGray) + colorizeb(" -", colorDarkGray)
+		case "error":
+			s = colorizeb("ERR", colorRed) + colorizeb(" -", colorDarkGray)
+		case "fatal":
+			s = colorizeb("FTL", colorRed) + colorizeb(" -", colorDarkGray)
+		case "panic":
+			s = colorizeb("PNC", colorRed) + colorizeb(" -", colorDarkGray)
+		}
+		return fmt.Sprint(s)
+	}
+	return ""
+}
+
+func ZerologFormatLevelSimple(i interface{}) string {
+	if ll, ok := i.(string); ok {
+		s := strings.ToLower(ll)
+		switch s {
+		case "debug":
+			s = "|DBG|"
+		case "info":
+			s = "|INF|"
+		case "warn":
+			s = "|WRN|"
+		case "trace":
+			s = "|TRC|"
+		case "error":
+			s = "|ERR|"
+		case "fatal":
+			s = "|FTL|"
+		case "panic":
+			s = "|PNC|"
+		}
+		return fmt.Sprint(s)
+	}
+	return ""
 }
 
 func colorizeb(s interface{}, c int) string {

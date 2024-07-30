@@ -3,15 +3,12 @@
 package app
 
 import (
-	golog "log"
-	"os/signal"
-	"syscall"
-
 	"embed"
 	"fmt"
 	"fyne.io/systray"
 	"github.com/cli/browser"
 	"github.com/rs/zerolog/log"
+	golog "log"
 	"os"
 	"path/filepath"
 	"seanime/internal/core"
@@ -20,6 +17,7 @@ import (
 	"seanime/internal/icon"
 	"seanime/internal/updater"
 	"seanime/internal/util"
+	"seanime/internal/util/crashlog"
 	"time"
 
 	"github.com/gonutz/w32/v2"
@@ -42,24 +40,6 @@ func hideConsole() {
 	if w32.GetCurrentProcessId() == consoleProcID {
 		w32.ShowWindow(console, w32.SW_HIDE)
 	}
-}
-
-func setupSignalHandling(file *os.File) {
-	if file == nil {
-		return
-	}
-
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		sig := <-sigChan
-		log.Trace().Msgf("Received signal: %s", sig)
-		// Flush log buffer to the log file when the app exits
-		util.WriteGlobalLogBufferToFile(file)
-		_ = file.Close()
-		os.Exit(0)
-	}()
 }
 
 func StartApp(webFS embed.FS) {
@@ -91,29 +71,17 @@ func StartApp(webFS embed.FS) {
 
 	log.Logger = *app.Logger
 	golog.SetOutput(app.Logger)
+	util.SetupLoggerSignalHandling(logFile)
+	crashlog.GlobalCrashLogger.SetLogDir(app.Config.Logs.Dir)
 
-	setupSignalHandling(logFile)
-
-	// Flush log buffer to the log file when the app exits
-	defer func() {
-		if r := recover(); r != nil {
-			log.Error().Msgf("Recovered from panic: %v", r)
-			util.WriteGlobalLogBufferToFile(logFile)
-			_ = logFile.Close()
-			os.Exit(1)
-		} else {
-			// Ensure buffer is flushed on normal exit
-			util.WriteGlobalLogBufferToFile(logFile)
-			_ = logFile.Close()
-		}
-	}()
-
-	go func() {
-		for {
-			util.WriteGlobalLogBufferToFile(logFile)
-			time.Sleep(5 * time.Second)
-		}
-	}()
+	if !flags.Update {
+		go func() {
+			for {
+				util.WriteGlobalLogBufferToFile(logFile)
+				time.Sleep(5 * time.Second)
+			}
+		}()
+	}
 
 	// Blocks until systray.Quit() is called
 	systray.Run(onReady(webFS, app, flags, selfupdater), onExit)

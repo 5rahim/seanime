@@ -166,6 +166,8 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
+	r.logger.Trace().Msg("extensions: Checking for updates")
+
 	// Check for updates for all extensions
 	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
 		wg.Add(1)
@@ -204,6 +206,8 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 	})
 
 	wg.Wait()
+
+	r.logger.Debug().Int("haveUpdates", len(ret)).Msg("extensions: Retrieved update info")
 
 	return
 }

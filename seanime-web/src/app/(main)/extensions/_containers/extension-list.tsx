@@ -8,6 +8,7 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
+import { orderBy } from "lodash"
 import React from "react"
 import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
@@ -31,10 +32,9 @@ export function ExtensionList(props: ExtensionListProps) {
     const { data: allExtensions, isPending: isLoading, refetch } = useGetAllExtensions(checkForUpdates)
 
     function orderExtensions(extensions: Extension_Extension[] | undefined) {
-        return extensions?.sort((a, b) => b.name.localeCompare(a.name))?.sort((a, b) => {
-            if (a.manifestURI === "builtin") return -1
-            return 0
-        }) ?? []
+        return extensions ?
+            orderBy(extensions, ["name"])
+            : []
     }
 
     function isExtensionInstalled(extensionID: string) {
