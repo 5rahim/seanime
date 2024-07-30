@@ -290,7 +290,7 @@ func (r *Repository) GetMangaPageContainer(
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId int, chapterId string, pages []*hibikemanga.ChapterPage) (ret map[int]*PageDimension, err error) {
-	util.HandlePanicInModuleThen("manga/getPageDimensions", func() {
+	defer util.HandlePanicInModuleThen("manga/getPageDimensions", func() {
 		err = fmt.Errorf("failed to get page dimensions")
 	})
 

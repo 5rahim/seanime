@@ -165,7 +165,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	// Add the media to the collection (if it wasn't already)
 	go func() {
-		util.HandlePanicInModuleThen("handlers/HandleTorrentClientDownload", func() {})
+		defer util.HandlePanicInModuleThen("handlers/HandleTorrentClientDownload", func() {})
 		if b.Media != nil {
 			// Check if the media is already in the collection
 			animeCollection, err := c.App.GetAnimeCollection(false)
