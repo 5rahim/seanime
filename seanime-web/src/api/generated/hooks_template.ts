@@ -489,6 +489,17 @@
 //     })
 // }
 
+// export function useUpdateExtensionCode() {
+//     return useServerMutation<boolean, UpdateExtensionCode_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useReloadExternalExtensions() {
 //     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtensions.endpoint,

@@ -1915,6 +1915,52 @@
     }
   },
   {
+    "name": "HandleUpdateExtensionCode",
+    "trimmedName": "UpdateExtensionCode",
+    "comments": [
+      "HandleUpdateExtensionCode",
+      "",
+      "\t@summary updates the extension code with the given ID and reloads the extensions.",
+      "\t@route /api/v1/extensions/external/edit-payload [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "updates the extension code with the given ID and reloads the extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/edit-payload",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Payload",
+          "jsonName": "payload",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleReloadExternalExtensions",
     "trimmedName": "ReloadExternalExtensions",
     "comments": [

@@ -4,6 +4,7 @@ import {
     GetAllExtensions_Variables,
     InstallExternalExtension_Variables,
     UninstallExternalExtension_Variables,
+    UpdateExtensionCode_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
@@ -59,6 +60,17 @@ export function useUninstallExternalExtension() {
         mutationKey: [API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.key],
         onSuccess: async () => {
             toast.success("Extension uninstalled successfully.")
+        },
+    })
+}
+
+export function useUpdateExtensionCode() {
+    return useServerMutation<boolean, UpdateExtensionCode_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.key],
+        onSuccess: async () => {
+
         },
     })
 }

@@ -65,10 +65,6 @@ type (
 	}
 )
 
-func castExtension[T extension.BaseExtension](ext extension.BaseExtension) T {
-	return ext.(T)
-}
-
 type NewRepositoryOptions struct {
 	Logger         *zerolog.Logger
 	ExtensionDir   string
@@ -116,7 +112,7 @@ func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 
 func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension) {
 	r.invalidExtensions.Range(func(key string, ext *extension.InvalidExtension) bool {
-		ext.Extension.Payload = "" // Remove the payload so the client knows the extension is installed
+		//ext.Extension.Payload = "" // Remove the payload so the client knows the extension is installed
 		ret = append(ret, ext)
 		return true
 	})

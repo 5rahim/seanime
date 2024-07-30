@@ -420,6 +420,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/external/uninstall",
         },
+        UpdateExtensionCode: {
+            key: "EXTENSIONS-update-extension-code",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/edit-payload",
+        },
         ReloadExternalExtensions: {
             key: "EXTENSIONS-reload-external-extensions",
             methods: ["POST"],

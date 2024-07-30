@@ -350,6 +350,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Extensions.Post("/external/fetch", makeHandler(app, HandleFetchExternalExtensionData))
 	v1Extensions.Post("/external/install", makeHandler(app, HandleInstallExternalExtension))
 	v1Extensions.Post("/external/uninstall", makeHandler(app, HandleUninstallExternalExtension))
+	v1Extensions.Post("/external/edit-payload", makeHandler(app, HandleUpdateExtensionCode))
 	v1Extensions.Post("/external/reload", makeHandler(app, HandleReloadExternalExtensions))
 
 	v1Extensions.Post("/all", makeHandler(app, HandleGetAllExtensions))

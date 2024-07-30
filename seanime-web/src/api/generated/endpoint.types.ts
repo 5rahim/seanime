@@ -448,6 +448,18 @@ export type UninstallExternalExtension_Variables = {
 /**
  * - Filepath: internal/handlers/extensions.go
  * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/edit-payload
+ * @description
+ * Route updates the extension code with the given ID and reloads the extensions.
+ */
+export type UpdateExtensionCode_Variables = {
+    id: string
+    payload: string
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
  * - Endpoint: /api/v1/extensions/all
  * @description
  * Route returns all loaded and invalid extensions.

@@ -38,14 +38,14 @@ func NewGojaAnimeTorrentProvider(ext *extension.Extension, language extension.La
 	newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
 	if !ok {
 		vm.ClearInterrupt()
-		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to invoke online streaming provider constructor")
-		return nil, nil, fmt.Errorf("failed to invoke online streaming provider constructor")
+		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to invoke anime torrent provider constructor")
+		return nil, nil, fmt.Errorf("failed to invoke anime torrent provider constructor")
 	}
 
 	classObjVal, err := newProviderFunc(goja.Undefined())
 	if err != nil {
 		vm.ClearInterrupt()
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create online streaming provider")
+		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create anime torrent provider")
 		return nil, nil, err
 	}
 

@@ -69,6 +69,30 @@ func HandleUninstallExternalExtension(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
+// HandleUpdateExtensionCode
+//
+//	@summary updates the extension code with the given ID and reloads the extensions.
+//	@route /api/v1/extensions/external/edit-payload [POST]
+//	@returns bool
+func HandleUpdateExtensionCode(c *RouteCtx) error {
+	type body struct {
+		ID      string `json:"id"`
+		Payload string `json:"payload"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.ExtensionRepository.UpdateExtensionCode(b.ID, b.Payload)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
 // HandleReloadExternalExtensions
 //
 //	@summary reloads the external extensions.

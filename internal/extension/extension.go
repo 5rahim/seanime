@@ -36,7 +36,6 @@ type Extension struct {
 	Author      string `json:"author"`      // e.g. "Seanime"
 	Meta        Meta   `json:"meta"`
 	// Payload is the content of the extension.
-	// When returning the extension, this field should be emptied so the client knows it is installed.
 	Payload string `json:"payload"`
 }
 
@@ -100,6 +99,6 @@ func InstalledToExtensionData(ext BaseExtension) *Extension {
 		Description: ext.GetDescription(),
 		Author:      ext.GetAuthor(),
 		Meta:        ext.GetMeta(),
-		// We do not return the payload
+		Payload:     ext.GetPayload(),
 	}
 }

@@ -1,5 +1,6 @@
 import { Extension_InvalidExtension } from "@/api/generated/types"
 import { ExtensionSettings } from "@/app/(main)/extensions/_containers/extension-card"
+import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -8,15 +9,18 @@ import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
 import { BiCog, BiInfoCircle } from "react-icons/bi"
+import { FaCode } from "react-icons/fa"
 
 type InvalidExtensionCardProps = {
     extension: Extension_InvalidExtension
+    isInstalled: boolean
 }
 
 export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
 
     const {
         extension,
+        isInstalled,
         ...rest
     } = props
 
@@ -47,10 +51,10 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                     <p>
                         Seanime failed to load this extension.
                     </p>
-                    <code>
+                    <code className="code">
                         {extension.code}
                     </code>
-                    <code className="text-red-200">
+                    <code className="code text-red-200">
                         {extension.reason}
                     </code>
 
@@ -60,13 +64,36 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 </Modal>
                 {/*Show settings if extension has an ID and manifest URI*/}
                 {/*This will allow the user to fetch updates or uninstall the extension*/}
-                {(!!extension.extension?.id && !!extension.extension?.manifestURI) && <ExtensionSettings extension={extension?.extension}>
-                    <IconButton
-                        size="sm"
-                        intent="gray-basic"
-                        icon={<BiCog />}
-                    />
-                </ExtensionSettings>}
+                {(!!extension.extension?.id && !!extension.extension?.manifestURI) && (
+                    <>
+                        <ExtensionSettings extension={extension?.extension} isInstalled={isInstalled}>
+                            <IconButton
+                                size="sm"
+                                intent="gray-basic"
+                                icon={<BiCog />}
+                            />
+                        </ExtensionSettings>
+
+                        <ExtensionCodeModal extension={extension.extension}>
+                            <IconButton
+                                size="sm"
+                                intent="gray-basic"
+                                icon={<FaCode />}
+                            />
+                        </ExtensionCodeModal>
+                    </>
+                )}
+                {(!!extension.extension?.id && !extension.extension?.manifestURI) && (
+                    <>
+                        <ExtensionCodeModal extension={extension.extension}>
+                            <IconButton
+                                size="sm"
+                                intent="gray-basic"
+                                icon={<FaCode />}
+                            />
+                        </ExtensionCodeModal>
+                    </>
+                )}
             </div>
 
             <div className="z-[1] relative space-y-3">

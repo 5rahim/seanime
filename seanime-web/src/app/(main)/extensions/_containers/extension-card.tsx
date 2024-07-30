@@ -1,6 +1,7 @@
 import { Extension_Extension } from "@/api/generated/types"
 import { useFetchExternalExtensionData, useInstallExternalExtension, useUninstallExternalExtension } from "@/api/hooks/extensions.hooks"
 import { ExtensionDetails } from "@/app/(main)/extensions/_components/extension-details"
+import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +13,7 @@ import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
 import { BiCog } from "react-icons/bi"
+import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
@@ -19,7 +21,8 @@ import { toast } from "sonner"
 
 type ExtensionCardProps = {
     extension: Extension_Extension
-    hasUpdate?: boolean
+    hasUpdate: boolean
+    isInstalled: boolean
 }
 
 export function ExtensionCard(props: ExtensionCardProps) {
@@ -27,11 +30,11 @@ export function ExtensionCard(props: ExtensionCardProps) {
     const {
         extension,
         hasUpdate,
+        isInstalled,
         ...rest
     } = props
 
     const isBuiltin = extension.manifestURI === "builtin"
-
 
     return (
         <div
@@ -51,15 +54,24 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 Built-in
             </p>}
 
-            <div className="absolute top-3 right-3 flex flex-col gap-2 z-[2]">
+            <div className="absolute top-3 right-3 flex flex-col gap-1 z-[2]">
                 {!isBuiltin && (
-                    <ExtensionSettings extension={extension}>
+                    <ExtensionSettings extension={extension} isInstalled={isInstalled}>
                         <IconButton
                             size="sm"
                             intent="gray-basic"
                             icon={<BiCog />}
                         />
                     </ExtensionSettings>
+                )}
+                {extension.manifestURI === "" && (
+                    <ExtensionCodeModal extension={extension}>
+                        <IconButton
+                            size="sm"
+                            intent="gray-basic"
+                            icon={<FaCode />}
+                        />
+                    </ExtensionCodeModal>
                 )}
             </div>
 
@@ -116,6 +128,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
 type ExtensionSettingsProps = {
     extension: Extension_Extension
     children?: React.ReactElement
+    isInstalled: boolean
 }
 
 export function ExtensionSettings(props: ExtensionSettingsProps) {
@@ -123,11 +136,12 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
     const {
         extension,
         children,
+        isInstalled,
         ...rest
     } = props
 
     // If the extension is installed, it will not have a payload
-    const installed = !extension.payload
+    // const installed = !extension.payload
 
     const { mutate: uninstall, isPending: isUninstalling } = useUninstallExternalExtension()
 
@@ -187,7 +201,7 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
 
             <ExtensionDetails extension={extension} />
 
-            {installed && (
+            {isInstalled && (
                 <div className="flex gap-2">
                     <>
                         {<Button

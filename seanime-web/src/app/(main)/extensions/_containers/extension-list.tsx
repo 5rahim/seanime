@@ -30,12 +30,16 @@ export function ExtensionList(props: ExtensionListProps) {
 
     const { data: allExtensions, isPending: isLoading, refetch } = useGetAllExtensions(checkForUpdates)
 
-
     function orderExtensions(extensions: Extension_Extension[] | undefined) {
         return extensions?.sort((a, b) => b.name.localeCompare(a.name))?.sort((a, b) => {
             if (a.manifestURI === "builtin") return -1
             return 0
         }) ?? []
+    }
+
+    function isExtensionInstalled(extensionID: string) {
+        return !!allExtensions?.extensions?.find(n => n.id === extensionID) ||
+            !!allExtensions?.invalidExtensions?.find(n => n.id === extensionID)
     }
 
     if (isLoading) return <LoadingSpinner />
@@ -86,6 +90,7 @@ export function ExtensionList(props: ExtensionListProps) {
                         key={extension.id}
                         extension={extension}
                         hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                        isInstalled={isExtensionInstalled(extension.id)}
                     />
                 ))}
             </div>
@@ -97,6 +102,7 @@ export function ExtensionList(props: ExtensionListProps) {
                         key={extension.id}
                         extension={extension}
                         hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                        isInstalled={isExtensionInstalled(extension.id)}
                     />
                 ))}
             </div>
@@ -108,6 +114,7 @@ export function ExtensionList(props: ExtensionListProps) {
                         key={extension.id}
                         extension={extension}
                         hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                        isInstalled={isExtensionInstalled(extension.id)}
                     />
                 ))}
             </div>
@@ -120,7 +127,11 @@ export function ExtensionList(props: ExtensionListProps) {
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {allExtensions.invalidExtensions.map(extension => (
-                            <InvalidExtensionCard key={extension.id} extension={extension} />
+                            <InvalidExtensionCard
+                                key={extension.id}
+                                extension={extension}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                            />
                         ))}
                     </div>
 
