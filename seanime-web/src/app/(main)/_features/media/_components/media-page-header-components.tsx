@@ -236,11 +236,11 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
     return (
         <>
-            <div className="flex gap-8">
+            <div className="flex flex-col lg:flex-row gap-8">
 
                 {!!coverImage && <div
                     className={cn(
-                        "flex-none aspect-[6/8] max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md hidden lg:block",
+                        "flex-none aspect-[6/8] max-w-[100px] mx-auto h-[150px] lg:h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
                     )}
                 >
                     <Image
@@ -253,7 +253,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                 </div>}
 
 
-                <div className="space-y-4">
+                <div className="space-y-2 lg:space-y-4">
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <TextGenerateEffect
@@ -306,7 +306,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             : listData?.status)}</p>
                     </div>
 
-                    <ScrollArea className="h-20 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">
+                    <ScrollArea className="h-20 col-span-2 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">
                         {description?.replace(/(<([^>]+)>)/ig, "")}
                     </ScrollArea>
 

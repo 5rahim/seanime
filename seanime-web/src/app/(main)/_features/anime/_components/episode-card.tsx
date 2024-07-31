@@ -96,13 +96,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 <p className="w-[80%] line-clamp-1 text-[--muted] transition-colors duration-200 group-hover/episode-card:text-[--foreground] font-semibold">{topTitle?.replaceAll(
                     "`",
                     "'")}</p>
-                <div className="w-full justify-between flex items-center">
+                <div className="w-full justify-between flex flex-none items-center">
                     <p className="text-base md:text-xl font-semibold line-clamp-1">
                         <span>{title}{showTotalEpisodes ?
                             <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                             : ``}</span>
                     </p>
-                    {(!!meta || !!length) && <p className="text-[--muted] text-sm md:text-base line-clamp-2 text-right">
+                    {(!!meta || !!length) && <p className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
                         {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
                     </p>}
                 </div>

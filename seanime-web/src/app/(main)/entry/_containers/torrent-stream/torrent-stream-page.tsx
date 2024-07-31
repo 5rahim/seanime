@@ -175,13 +175,12 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                 image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                 topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                 title={episode.displayTitle}
-                                meta={!!episode.episodeMetadata?.length
-                                    ? `${episode.episodeMetadata?.length}m`
-                                    : episode.episodeMetadata?.airDate ?? undefined}
+                                // meta={episode.episodeMetadata?.airDate ?? undefined}
                                 isInvalid={episode.isInvalid}
                                 progressTotal={episode.baseAnime?.episodes}
                                 progressNumber={episode.progressNumber}
                                 episodeNumber={episode.episodeNumber}
+                                length={episode.episodeMetadata?.length}
                                 hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
                                 onClick={() => {
                                     handleEpisodeClick(episode)
