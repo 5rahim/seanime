@@ -7,7 +7,6 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	torrentanalyzer "seanime/internal/torrents/analyzer"
 	itorrent "seanime/internal/torrents/torrent"
 	"seanime/internal/util"
@@ -27,7 +26,7 @@ type (
 	}
 )
 
-func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, anizipEpisode *anizip.Episode, episodeNumber int) (ret *playbackTorrent, err error) {
+func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode string, episodeNumber int) (ret *playbackTorrent, err error) {
 	defer util.HandlePanicInModuleWithError("torrentstream/findBestTorrent", &err)
 
 	r.logger.Debug().Msgf("torrentstream: Finding best torrent for %s, Episode %d", media.GetTitleSafe(), episodeNumber)
@@ -193,7 +192,7 @@ searchLoop:
 			continue
 		}
 
-		analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
+		analysisFile, found := analysis.GetFileByAniDBEpisode(aniDbEpisode)
 		// Check if analyzer found the episode
 		if !found {
 			r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", searchT.Link)
@@ -205,7 +204,7 @@ searchLoop:
 			continue
 		}
 
-		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
+		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", aniDbEpisode, analysisFile.GetLocalFile().Name)
 
 		// Download the file and unselect the rest
 		for i, f := range t.Files() {
@@ -239,7 +238,7 @@ searchLoop:
 }
 
 // findBestTorrentFromManualSelection is like findBestTorrent but no need to search for the best torrent first
-func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, anizipEpisode *anizip.Episode, chosenFileIndex *int) (*playbackTorrent, error) {
+func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, aniDbEpisode string, chosenFileIndex *int) (*playbackTorrent, error) {
 
 	r.logger.Debug().Msgf("torrentstream: Analyzing torrent from %s for %s", t.Link, media.GetTitleSafe())
 
@@ -314,7 +313,7 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 			return nil, err
 		}
 
-		analysisFile, found := analysis.GetFileByAniDBEpisode(anizipEpisode.Episode)
+		analysisFile, found := analysis.GetFileByAniDBEpisode(aniDbEpisode)
 		// Check if analyzer found the episode
 		if !found {
 			r.logger.Error().Msgf("torrentstream: Failed to auto-select episode from torrent %s", selectedTorrent.Info().Name)
@@ -325,7 +324,7 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 			return nil, ErrNoEpisodeFound
 		}
 
-		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", anizipEpisode.Episode, analysisFile.GetLocalFile().Name)
+		r.logger.Debug().Msgf("torrentstream: Found corresponding file for episode %s: %s", aniDbEpisode, analysisFile.GetLocalFile().Name)
 
 		fileIndex = analysisFile.GetIndex()
 

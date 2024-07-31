@@ -6,10 +6,9 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
-	discordrpc_presence "seanime/internal/discordrpc/presence"
+	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
@@ -55,17 +54,15 @@ type (
 		// For Stream playback, it is optional
 		// See [progress_tracking.go] for it is handled
 		currentMediaListEntry mo.Option[*anilist.MediaListEntry] // List Entry for the current video playback
-		// + Local file playback
+		// \/ Local file playback
 		currentLocalFile             mo.Option[*anime.LocalFile]             // Local file for the current video playback
 		currentLocalFileWrapperEntry mo.Option[*anime.LocalFileWrapperEntry] // This contains the current media entry local file data
-		// + Stream playback
+		// \/ Stream playback
 		// DEVOTE: currentStreamEpisodeCollection and currentStreamEpisode can be absent when the user is streaming a video,
 		// we will just not track the progress in that case
 		currentStreamEpisodeCollection mo.Option[*anime.AnimeEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
 		currentStreamEpisode           mo.Option[*anime.AnimeEntryEpisode]           // The current episode being streamed
 		currentStreamMedia             mo.Option[*anilist.BaseAnime]                 // The current media being streamed
-		currentStreamAnizipMedia       mo.Option[*anizip.Media]                      // The current anizip media being streamed
-		currentStreamAnizipEpisode     mo.Option[*anizip.Episode]                    // The current anizip episode being streamed
 
 		playlistHub *playlistHub // The playlist hub
 
@@ -212,13 +209,13 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	return nil
 }
 
-func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *anilist.BaseAnime, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode) error {
+func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *anilist.BaseAnime, aniDbEpisode string) error {
 	pm.playlistHub.reset()
 	if pm.isOffline {
 		return errors.New("cannot stream when offline")
 	}
 
-	if media == nil || anizipMedia == nil || anizipEpisode == nil {
+	if media == nil || aniDbEpisode == "" {
 		pm.Logger.Error().Msg("playback manager: cannot start streaming, missing options [StartStreamingUsingMediaPlayer]")
 		return errors.New("cannot start streaming, not enough data provided")
 	}
@@ -227,14 +224,12 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *ani
 	defer pm.mu.Unlock()
 
 	pm.currentStreamMedia = mo.Some(media)
-	pm.currentStreamAnizipMedia = mo.Some(anizipMedia)
-	pm.currentStreamAnizipEpisode = mo.Some(anizipEpisode)
 
 	// Set the current episode being streamed
 	// If the episode collection is not set, we'll still let the stream start. The progress will just not be tracked
 	if pm.currentStreamEpisodeCollection.IsPresent() {
 		for _, episode := range pm.currentStreamEpisodeCollection.MustGet().Episodes {
-			if episode.AniDBEpisode == anizipEpisode.Episode {
+			if episode.AniDBEpisode == aniDbEpisode {
 				pm.currentStreamEpisode = mo.Some(episode)
 				break
 			}

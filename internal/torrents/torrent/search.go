@@ -290,12 +290,11 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 			var episode *anime.AnimeEntryEpisode
 
 			// Remove the episode if the parsed episode number is not the same as the search option
-			if !(len(parsedData.EpisodeNumber) == 1 && util.StringToIntMust(parsedData.EpisodeNumber[0]) == opts.searchOpts.EpisodeNumber) {
-				episode = nil
-			} else {
+			if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.anizipMedia.MustGet().GetOffset()) {
+				ep := opts.searchOpts.EpisodeNumber
 				episode = anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
 					LocalFile:            nil,
-					OptionalAniDBEpisode: strconv.Itoa(opts.torrent.EpisodeNumber),
+					OptionalAniDBEpisode: strconv.Itoa(ep),
 					AnizipMedia:          anizipMedia,
 					Media:                opts.media,
 					ProgressOffset:       0,
@@ -318,9 +317,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		var episode *anime.AnimeEntryEpisode
 
 		// Remove the episode if the parsed episode number is not the same as the search option
-		if !(len(parsedData.EpisodeNumber) == 1 && util.StringToIntMust(parsedData.EpisodeNumber[0]) == opts.searchOpts.EpisodeNumber) {
-			episode = nil
-		} else {
+		if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.anizipMedia.MustGet().GetOffset()) {
 			displayTitle := ""
 			if len(parsedData.EpisodeNumber) == 1 && parsedData.EpisodeNumber[0] != strconv.Itoa(opts.searchOpts.EpisodeNumber) {
 				displayTitle = fmt.Sprintf("Episode %s", parsedData.EpisodeNumber[0])
@@ -355,4 +352,14 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		Episode: nil,
 		Torrent: opts.torrent,
 	}
+}
+
+func isProbablySameEpisode(parsedEpisode []string, searchEpisode int, absoluteOffset int) bool {
+	if len(parsedEpisode) == 1 {
+		if util.StringToIntMust(parsedEpisode[0]) == searchEpisode || util.StringToIntMust(parsedEpisode[0]) == searchEpisode+absoluteOffset {
+			return true
+		}
+	}
+
+	return false
 }

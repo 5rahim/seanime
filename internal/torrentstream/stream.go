@@ -5,6 +5,7 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
+	"strconv"
 	"time"
 
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
@@ -32,25 +33,13 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	//
 	// Get the media info
 	//
-	media, anizipMedia, err := r.getMediaInfo(opts.MediaId)
+	media, _, err := r.getMediaInfo(opts.MediaId)
 	if err != nil {
 		return err
 	}
 
-	anizipNotFound := false
-
-	anizipEpisode, err := r.getEpisodeInfo(anizipMedia, opts.AniDBEpisode)
-	if err != nil {
-		anizipNotFound = true
-	}
-
-	// Create a dummy AniZip media if the real mapping is invalid
-	if anizipNotFound {
-		anizipMedia = anizip.NewDummyMedia(opts.MediaId, media.GetCurrentEpisodeCount())
-		anizipEpisode, _ = anizipMedia.FindEpisode(opts.AniDBEpisode)
-	}
-
 	episodeNumber := opts.EpisodeNumber
+	aniDbEpisode := strconv.Itoa(episodeNumber)
 
 	//
 	// Find the best torrent / Select the torrent
@@ -58,7 +47,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	var torrentToStream *playbackTorrent
 	switch opts.AutoSelect {
 	case true:
-		torrentToStream, err = r.findBestTorrent(media, anizipEpisode, episodeNumber)
+		torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
@@ -67,7 +56,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		if opts.Torrent == nil {
 			return fmt.Errorf("torrentstream: No torrent provided")
 		}
-		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, anizipEpisode, opts.FileIndex)
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, aniDbEpisode, opts.FileIndex)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
@@ -107,7 +96,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		// Start the stream
 		//
 		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseAnime(), anizipMedia, anizipEpisode)
+		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseAnime(), aniDbEpisode)
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
