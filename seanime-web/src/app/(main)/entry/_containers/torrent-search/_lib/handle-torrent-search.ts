@@ -78,23 +78,27 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             "batch"),
     }
 
-    // Change fields based on selected provider
+    // Change fields when changing the selected provider - i.e. when [selectedProviderExtensionId] changes
     React.useLayoutEffect(() => {
-        if (!warnings.extensionDoesNotSupportSmartSearch) {
+        // If the selected provider supports smart search, enable it if it's not already enabled
+        if (searchType === Torrent_SearchType.SIMPLE && selectedProviderExtension?.settings?.canSmartSearch) {
             setSearchType(Torrent_SearchType.SMART)
         }
-    }, [warnings.extensionDoesNotSupportSmartSearch, selectedProviderExtensionId])
+    }, [searchType && warnings.extensionDoesNotSupportSmartSearch, selectedProviderExtension?.settings?.canSmartSearch, selectedProviderExtensionId])
     React.useLayoutEffect(() => {
+        // If the selected provider does not support smart search, disable it
         if (searchType === Torrent_SearchType.SMART && warnings.extensionDoesNotSupportSmartSearch) {
             setSearchType(Torrent_SearchType.SIMPLE)
         }
     }, [warnings.extensionDoesNotSupportSmartSearch, selectedProviderExtensionId, searchType])
     React.useLayoutEffect(() => {
+        // If the selected provider does not support best release, disable it
         if (smartSearchBest && warnings.extensionDoesNotSupportBestRelease) {
             setSmartSearchBest(false)
         }
     }, [warnings.extensionDoesNotSupportBestRelease, selectedProviderExtensionId, smartSearchBest])
     React.useLayoutEffect(() => {
+        // If the selected provider does not support batch search, disable it
         if (smartSearchBatch && warnings.extensionDoesNotSupportBatchSearch) {
             setSmartSearchBatch(false)
         }

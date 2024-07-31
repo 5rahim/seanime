@@ -106,7 +106,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
             // hideControls
             size="sm"
             fieldClass={cn(
-                "flex items-center md:justify-end gap-3 space-y-0",
+                "flex flex-none w-fit md:justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || searchType != Torrent_SearchType.SMART) },
             )}
             fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
@@ -235,7 +235,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
                         {(searchType === Torrent_SearchType.SMART) && <div>
                             <div className="space-y-2">
-                                <div className="flex flex-col justify-between gap-3 md:flex-row w-full">
+                                <div className="flex flex-col justify-around gap-3 md:flex-row w-full">
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") && <EpisodeNumberInput />}
 
@@ -253,7 +253,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         disabled={smartSearchBest || searchType != Torrent_SearchType.SMART}
                                         size="sm"
                                         fieldClass={cn(
-                                            "flex items-center md:justify-center gap-3 space-y-0",
+                                            "flex flex-none w-fit md:justify-center gap-3 space-y-0",
                                             { "opacity-50 cursor-not-allowed pointer-events-none": searchType != Torrent_SearchType.SMART || smartSearchBest },
                                         )}
                                         fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
@@ -266,7 +266,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         value={smartSearchBest}
                                         onValueChange={setSmartSearchBest}
                                         fieldClass={cn(
-                                            "flex items-center",
+                                            "flex flex-none w-fit",
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                         )}
                                         size="sm"
@@ -279,7 +279,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         onValueChange={setSmartSearchBatch}
                                         disabled={smartSearchBest || !downloadInfo?.canBatch}
                                         fieldClass={cn(
-                                            "flex items-center",
+                                            "flex flex-none w-fit",
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
                                         )}
                                         size="sm"

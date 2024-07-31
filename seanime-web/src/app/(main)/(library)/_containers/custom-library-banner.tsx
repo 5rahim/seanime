@@ -4,7 +4,8 @@ import { getAssetUrl } from "@/lib/server/assets"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import Image from "next/image"
-import React from "react"
+import React, { useEffect } from "react"
+import { useWindowScroll } from "react-use"
 
 type CustomLibraryBannerProps = {
     discrete?: boolean
@@ -20,6 +21,16 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
     const ts = useThemeSettings()
     const image = React.useMemo(() => ts.libraryScreenCustomBannerImage ? getAssetUrl(ts.libraryScreenCustomBannerImage) : "",
         [ts.libraryScreenCustomBannerImage])
+    const [dimmed, setDimmed] = React.useState(false)
+
+    const { y } = useWindowScroll()
+
+    useEffect(() => {
+        if (y > 100)
+            setDimmed(true)
+        else
+            setDimmed(false)
+    }, [(y > 100)])
 
     if (isLibraryScreen && ts.libraryScreenBannerType !== ThemeLibraryScreenBannerType.Custom) return null
     if (discrete && !!ts.libraryScreenCustomBackgroundImage) return null
@@ -30,13 +41,10 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
             {!discrete && <div className="py-20"></div>}
             <div
                 className={cn(
-                    "CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[44rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-80% to-transparent",
-                )}
-            />
-            <div
-                className={cn(
-                    "__header h-[20rem] z-[1] top-0 w-full absolute group/library-header",
+                    "__header h-[20rem] z-[1] top-0 w-full fixed group/library-header transition-opacity duration-1000",
                     discrete && "opacity-20",
+                    !!ts.libraryScreenCustomBackgroundImage && "absolute", // If there's a background image, make the banner absolute
+                    (!ts.libraryScreenCustomBackgroundImage && dimmed) && "opacity-5", // If the user has scrolled down, dim the banner
                 )}
             >
                 <motion.div
