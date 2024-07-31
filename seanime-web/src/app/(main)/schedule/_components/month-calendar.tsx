@@ -42,6 +42,15 @@ export function MonthCalendar(props: WeekCalendarProps) {
         setCurrentDate(prevDate => addMonths(prevDate, 1))
     }
 
+    const isSameDayUtc = (dateLeft: Date, dateRight: Date) => {
+        return (
+            dateLeft.getUTCFullYear() === dateRight.getUTCFullYear() &&
+            dateLeft.getUTCMonth() === dateRight.getUTCMonth() &&
+            dateLeft.getUTCDate() === dateRight.getUTCDate()
+        )
+    }
+
+
     const days = React.useMemo(() => {
         const startOfCurrentMonth = startOfMonth(currentDate)
         const endOfCurrentMonth = endOfMonth(currentDate)
@@ -66,13 +75,13 @@ export function MonthCalendar(props: WeekCalendarProps) {
                 }
             })
 
-            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(item.episodeMetadata?.airDate,
+            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDayUtc(new Date(item.episodeMetadata?.airDate),
                 day)).map((item) => {
                 return {
                     id: item.baseAnime?.id! + item.fileMetadata?.episode!,
                     name: item.baseAnime?.title?.userPreferred,
                     time: "",
-                    datetime: format(new Date(item.episodeMetadata?.airDate!), "yyyy-MM-dd'T'HH:mm"),
+                    datetime: item.episodeMetadata?.airDate,
                     href: `/entry?id=${item.baseAnime?.id}`,
                     image: item.baseAnime?.bannerImage ?? item.baseAnime?.coverImage?.extraLarge ?? item.baseAnime?.coverImage?.large ?? item.baseAnime?.coverImage?.medium,
                     episode: item.episodeNumber || 1,

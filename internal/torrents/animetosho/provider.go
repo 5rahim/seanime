@@ -123,7 +123,7 @@ func (at *Provider) smartSearchSingleEpisode(opts *hibiketorrent.AnimeSmartSearc
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class", query))
+			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -200,8 +200,7 @@ func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			format := "?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-d"
-			torrents, err := fetchTorrents(fmt.Sprintf(format, query))
+			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-d", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -333,8 +332,8 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) (ret [
 	}
 
 	for _, q := range queryStr {
-		ret = append(ret, url.QueryEscape(q))
-		ret = append(ret, url.QueryEscape(q+" -S0"))
+		ret = append(ret, q)
+		ret = append(ret, q+" -S0")
 	}
 
 	return
