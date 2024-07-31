@@ -70,7 +70,7 @@ export function useUpdateExtensionCode() {
         method: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.key],
         onSuccess: async () => {
-
+            toast.success("Extension updated successfully.")
         },
     })
 }

@@ -11,6 +11,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/language": "^6.10.2",
+    "@codemirror/legacy-modes": "^6.4.0",
     "@dnd-kit/modifiers": "^7.0.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@googlemaps/js-api-loader": "^1.16.6",
@@ -45,7 +48,8 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@uiw/react-textarea-code-editor": "^3.0.2",
+    "@uiw/codemirror-theme-vscode": "^4.23.0",
+    "@uiw/react-codemirror": "^4.23.0",
     "@vidstack/react": "^1.10.9",
     "@zag-js/number-input": "^0.37.3",
     "@zag-js/react": "^0.37.3",

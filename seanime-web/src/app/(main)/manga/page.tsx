@@ -23,10 +23,12 @@ export default function Page() {
 
     return (
         <div>
-            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && (
+            {(
+                (!!ts.libraryScreenCustomBannerImage && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom)
+            ) && (
                 <>
                     <CustomLibraryBanner isLibraryScreen />
-                    <div className="h-32"></div>
+                    <div className="h-14"></div>
                 </>
             )}
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && (

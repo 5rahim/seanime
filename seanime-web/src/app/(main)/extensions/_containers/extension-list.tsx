@@ -33,7 +33,7 @@ export function ExtensionList(props: ExtensionListProps) {
 
     function orderExtensions(extensions: Extension_Extension[] | undefined) {
         return extensions ?
-            orderBy(extensions, ["name"])
+            orderBy(extensions, ["name", "manifestUri"])
             : []
     }
 

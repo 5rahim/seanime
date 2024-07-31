@@ -1,13 +1,14 @@
 import { Extension_Extension } from "@/api/generated/types"
 import { useUpdateExtensionCode } from "@/api/hooks/extensions.hooks"
 import { Button } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import dynamic from "next/dynamic"
+import { Drawer } from "@/components/ui/drawer"
+import { javascript } from "@codemirror/lang-javascript"
+import { StreamLanguage } from "@codemirror/language"
+import { go } from "@codemirror/legacy-modes/mode/go"
+import { vscodeDark } from "@uiw/codemirror-theme-vscode"
+import CodeMirror from "@uiw/react-codemirror"
 import React from "react"
-import "@uiw/react-textarea-code-editor/dist.css"
 
-const CodeEditor = dynamic(() => import("@uiw/react-textarea-code-editor").then((mod) => mod.default), { ssr: false })
 
 type ExtensionCodeModalProps = {
     children?: React.ReactElement
@@ -47,19 +48,33 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
     }
 
     return (
-        <Modal
-            contentClass="max-w-5xl"
+        <Drawer
+            // contentClass="max-w-5xl"
             trigger={children}
             title="Code"
+            size="xl"
+            contentClass="space-y-4"
         >
+            <div>
+                <p>
+                    {extension.name}
+                </p>
+                <div className="text-sm text-[--muted]">
+                    You can edit the code of the extension here.
+                </div>
+            </div>
             <div className="flex">
-                <div className="flex flex-1"></div>
-                <Button loading={isPending} onClick={handleSave}>
+                <Button intent="white" loading={isPending} onClick={handleSave}>
                     Save
                 </Button>
+                <div className="flex flex-1"></div>
             </div>
-            <ExtensionCodeEditor code={code} setCode={setCode} />
-        </Modal>
+            <ExtensionCodeEditor
+                code={code}
+                setCode={setCode}
+                language={extension.language}
+            />
+        </Drawer>
     )
 }
 
@@ -67,23 +82,18 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
 function ExtensionCodeEditor({
     code,
     setCode,
-}: { code: string, setCode: any }) {
+    language,
+}: { code: string, language: string, setCode: any }) {
 
     return (
-        <ScrollArea className="max-h-[70vh]">
-            <CodeEditor
-                data-color-mode="dark"
+        <div className="overflow-hidden rounded-md">
+            <CodeMirror
                 value={code}
-                language="ts"
-                placeholder="Please enter the code."
-                onChange={(evn) => setCode(evn.target.value)}
-                style={{
-                    fontSize: 15,
-                    backgroundColor: "#0e0e0e",
-                    borderRadius: "1rem",
-                    fontFamily: "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
-                }}
+                height="75vh"
+                theme={vscodeDark}
+                extensions={[javascript({ typescript: language === "typescript" }), StreamLanguage.define(go)]}
+                onChange={setCode}
             />
-        </ScrollArea>
+        </div>
     )
 }
