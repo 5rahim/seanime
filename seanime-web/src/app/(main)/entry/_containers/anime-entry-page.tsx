@@ -1,6 +1,7 @@
 import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
@@ -17,6 +18,7 @@ export const __anime_torrentStreamingViewActiveAtom = atom(false)
 
 export function AnimeEntryPage() {
 
+    const serverStatus = useServerStatus()
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
@@ -24,6 +26,20 @@ export function AnimeEntryPage() {
     const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
 
     const [isTorrentStreamingView, setIsTorrentStreamingView] = useAtom(__anime_torrentStreamingViewActiveAtom)
+
+    const switchedView = React.useRef(false)
+    React.useLayoutEffect(() => {
+        if (!animeEntryLoading &&
+            animeEntry?.media?.status !== "NOT_YET_RELEASED" &&
+            !animeEntry?.libraryData &&
+            !isTorrentStreamingView &&
+            serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView &&
+            !switchedView.current
+        ) {
+            switchedView.current = true
+            setIsTorrentStreamingView(true)
+        }
+    }, [animeEntryLoading, serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView, isTorrentStreamingView])
 
     React.useEffect(() => {
         if (!mediaId) {
@@ -62,7 +78,7 @@ export function AnimeEntryPage() {
                     <AnimatePresence mode="wait" initial={false}>
                         {!isTorrentStreamingView && <PageWrapper
                             key="episode-list"
-                            className="relative 2xl:order-first pb-10 pt-4"
+                            className="relative 2xl:order-first pb-10"
                             {...{
                                 initial: { opacity: 0, y: 60 },
                                 animate: { opacity: 1, y: 0 },
@@ -77,7 +93,7 @@ export function AnimeEntryPage() {
 
                         {isTorrentStreamingView && <PageWrapper
                             key="torrent-streaming-episodes"
-                            className="relative 2xl:order-first pb-10 pt-4"
+                            className="relative 2xl:order-first pb-10"
                             {...{
                                 initial: { opacity: 0, y: 60 },
                                 animate: { opacity: 1, y: 0 },

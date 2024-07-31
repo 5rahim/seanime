@@ -2218,6 +2218,7 @@ export type Models_TorrentstreamSettings = {
     torrentClientPort: number
     streamingServerHost: string
     streamingServerPort: number
+    fallbackToTorrentStreamingView: boolean
     id: number
     createdAt?: string
     updatedAt?: string

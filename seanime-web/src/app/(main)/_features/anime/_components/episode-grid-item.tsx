@@ -152,7 +152,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     >
                         <span
                             className={cn(
-                                "font-medium text-white",
+                                "font-medium text-[--foreground]",
                                 isSelected && "text-[--brand]",
                             )}
                         >

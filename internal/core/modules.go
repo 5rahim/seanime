@@ -393,12 +393,13 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			Enabled:             false,
-			AutoSelect:          true,
-			AddToLibrary:        false,
-			StreamingServerHost: "0.0.0.0",
-			StreamingServerPort: 43214,
-			TorrentClientPort:   43213,
+			Enabled:                        false,
+			AutoSelect:                     true,
+			AddToLibrary:                   false,
+			StreamingServerHost:            "0.0.0.0",
+			StreamingServerPort:            43214,
+			TorrentClientPort:              43213,
+			FallbackToTorrentStreamingView: false,
 		})
 		if err != nil {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")

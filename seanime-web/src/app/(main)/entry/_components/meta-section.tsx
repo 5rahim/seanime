@@ -4,9 +4,9 @@ import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-m
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { AnimeEntryStudio } from "@/app/(main)/_features/media/_components/anime-entry-studio"
 import {
-    AnimeEntryGenresList,
     AnimeEntryRankings,
     MediaEntryAudienceScore,
+    MediaEntryGenresList,
 } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {
     MediaPageHeader,
@@ -75,7 +75,7 @@ export function MetaSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeD
                         </div>
 
                         <DisclosureContent className="space-y-2">
-                            <AnimeEntryGenresList genres={details?.genres} />
+                            <MediaEntryGenresList genres={details?.genres} />
 
                             <AnimeEntryRankings rankings={details?.rankings} />
                         </DisclosureContent>
@@ -105,21 +105,20 @@ export function MetaSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeD
 
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">
 
+                    <EntryOnlinestreamButton entry={entry} />
+
                     <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                         <Button intent="gray-link" className="px-0">
-                            Open on AniList
+                            AniList
                         </Button>
                     </Link>
 
                     {!!entry?.media?.trailer?.id && <TrailerModal
                         trailerId={entry?.media?.trailer?.id} trigger={
                         <Button intent="gray-link" className="px-0">
-                            Watch Trailer
-                        </Button>
-                    }
+                            Trailer
+                        </Button>}
                     />}
-
-                    <EntryOnlinestreamButton entry={entry} />
 
 
                     <div className="flex flex-1"></div>

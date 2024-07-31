@@ -3,6 +3,7 @@ import { useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Separator } from "@/components/ui/separator"
 import React from "react"
 import { FcFolder } from "react-icons/fc"
 
@@ -61,8 +62,6 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     return (
         <>
-            <h2>Transcoding</h2>
-
             <Form
                 schema={mediastreamSchema}
                 onSubmit={data => {
@@ -92,14 +91,15 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
             >
                 <Field.Switch
                     name="transcodeEnabled"
-                    label="Enable real-time transcoding"
-                    help="Enable transcoding for media files."
+                    label="Media streaming & Direct play"
                 />
+
+                <Separator />
 
                 <Field.Switch
                     name="disableAutoSwitchToDirectPlay"
-                    label="Disable auto switch to direct play"
-                    help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client. Enable this to deactive this behavior."
+                    label="Don't auto switch to direct play"
+                    help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
                 />
 
                 <Field.DirectorySelector

@@ -119,7 +119,9 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     return (
         <AppLayoutStack>
-            <h2>Torrent streaming</h2>
+            <div className="absolute right-0 top-[-3rem]">
+                <h2 className="text-xl lg:text-3xl">Torrent streaming</h2>
+            </div>
 
             <div className="flex flex-col md:flex-row gap-4">
                 <Switch
@@ -173,7 +175,9 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                 image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                 topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                 title={episode.displayTitle}
-                                meta={episode.episodeMetadata?.airDate ?? undefined}
+                                meta={!!episode.episodeMetadata?.length
+                                    ? `${episode.episodeMetadata?.length}m`
+                                    : episode.episodeMetadata?.airDate ?? undefined}
                                 isInvalid={episode.isInvalid}
                                 progressTotal={episode.baseAnime?.episodes}
                                 progressNumber={episode.progressNumber}

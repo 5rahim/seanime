@@ -240,7 +240,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                 {!!coverImage && <div
                     className={cn(
-                        "flex-none aspect-[6/8] max-w-[200px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md border hidden lg:block",
+                        "flex-none aspect-[6/8] max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md hidden lg:block",
                     )}
                 >
                     <Image
@@ -306,9 +306,9 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             : listData?.status)}</p>
                     </div>
 
-                    <ScrollArea className="h-16 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">{description?.replace(
-                        /(<([^>]+)>)/ig,
-                        "")}</ScrollArea>
+                    <ScrollArea className="h-20 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">
+                        {description?.replace(/(<([^>]+)>)/ig, "")}
+                    </ScrollArea>
 
                     {children}
 

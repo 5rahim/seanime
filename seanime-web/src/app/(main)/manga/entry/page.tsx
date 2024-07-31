@@ -35,7 +35,6 @@ export default function Page() {
 
     return (
         <div>
-
             <MetaSection entry={mangaEntry} details={mangaDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">

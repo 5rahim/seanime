@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	alog "github.com/anacrolix/log"
 	"github.com/anacrolix/sync"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
@@ -88,6 +89,7 @@ func (c *Client) initializeClient() error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
 	cfg.DisableIPv6 = true
+	cfg.Logger = alog.Logger{}
 	//cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
 	if settings.TorrentClientPort == 0 {

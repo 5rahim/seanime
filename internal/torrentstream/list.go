@@ -80,7 +80,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 					IsFiller: false,
 				},
 				FileMetadata:  nil,
-				IsInvalid:     true,
+				IsInvalid:     false,
 				MetadataIssue: "",
 				BaseAnime:     baseAnime,
 			}

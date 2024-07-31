@@ -69,12 +69,12 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
         <>
             {!!ts.libraryScreenCustomBackgroundImage && (
                 <div
-                    className="LIB_HEADER_FADE_BG w-full absolute z-[1] top-0 h-[40rem] opacity-100 bg-gradient-to-b from-[var(--background)] via-[var(--background)] to-transparent via"
+                    className="LIB_HEADER_FADE_BG pointer-events-none w-full absolute z-[1] top-0 h-[40rem] opacity-100 bg-gradient-to-b from-[var(--background)] via-[var(--background)] to-transparent via"
                 />
             )}
             <div
                 className={cn(
-                    "LIB_HEADER_CONTAINER __header h-[20rem] z-[1] top-0 w-full absolute group/library-header",
+                    "LIB_HEADER_CONTAINER __header h-[20rem] z-[1] top-0 w-full absolute group/library-header pointer-events-none",
                     // Make it not fixed when the user scrolls down if a background image is set
                     !ts.libraryScreenCustomBackgroundImage && "fixed",
                 )}
@@ -108,7 +108,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                             sizes="100vw"
                             className={cn(
                                 "object-cover object-center z-[1] opacity-80 transition-all duration-700",
-                                { "opacity-10": dimmed },
+                                { "opacity-5": dimmed },
                             )}
                         />}
                     </Transition>
@@ -121,7 +121,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                         sizes="100vw"
                         className={cn(
                             "object-cover object-center z-[1] opacity-50 transition-all",
-                            { "opacity-10": dimmed },
+                            { "opacity-5": dimmed },
                         )}
                     />}
                     <div

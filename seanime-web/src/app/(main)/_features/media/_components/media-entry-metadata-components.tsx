@@ -11,11 +11,11 @@ import React from "react"
 import { AiFillStar, AiOutlineHeart, AiOutlineStar } from "react-icons/ai"
 import { BiHeart, BiHide } from "react-icons/bi"
 
-type AnimeEntryGenresListProps = {
+type MediaEntryGenresListProps = {
     genres?: Array<string | null> | null | undefined
 }
 
-export function AnimeEntryGenresList(props: AnimeEntryGenresListProps) {
+export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
 
     const {
         genres,

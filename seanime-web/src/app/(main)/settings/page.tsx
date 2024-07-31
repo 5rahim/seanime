@@ -10,7 +10,6 @@ import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-s
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
@@ -96,18 +95,18 @@ export default function Page() {
                 >
                     <TabsList className="flex-wrap max-w-full">
                         <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
-                        <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
-                        <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
-                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
-                        <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                         <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
                                                                                                                                     streaming</TabsTrigger>
                         <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
                                                                                                                           streaming</TabsTrigger>
+                        <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
+                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
+                        <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                         <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
                         <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                         <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
+                        <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                         <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
                         <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                     </TabsList>
@@ -223,7 +222,6 @@ export default function Page() {
                                     help="Directory where your anime library is located. (Keep the casing consistent)"
                                     shouldExist
                                 />
-                                <Separator />
                                 <Field.Switch
                                     name="autoScan"
                                     label="Automatically refresh library"
@@ -604,7 +602,7 @@ export default function Page() {
 
                         <TabsContent value="mediastream" className="space-y-6">
 
-                            <h3>Media streaming <BetaBadge /></h3>
+                            <h3>Media streaming</h3>
 
                             <MediastreamSettings settings={mediastreamSettings} isLoading={mediastreamSettingsLoading} />
 
@@ -620,7 +618,7 @@ export default function Page() {
 
                         <TabsContent value="torrentstream" className="space-y-6">
 
-                            <h3>Torrent streaming <BetaBadge /></h3>
+                            <h3>Torrent streaming</h3>
 
                             <TorrentstreamSettings settings={torrentstreamSettings} />
 

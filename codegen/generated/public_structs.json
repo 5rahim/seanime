@@ -25300,6 +25300,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FallbackToTorrentStreamingView",
+        "jsonName": "fallbackToTorrentStreamingView",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

@@ -17,6 +17,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     streamingServerHost: z.string(),
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
+    fallbackToTorrentStreamingView: z.boolean(),
 }))
 
 
@@ -64,25 +65,43 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     streamingServerHost: settings.streamingServerHost,
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
+                    fallbackToTorrentStreamingView: settings.fallbackToTorrentStreamingView,
                 }}
                 stackClass="space-y-6"
             >
                 <Field.Switch
                     name="enabled"
-                    label="Enable"
-                    help="Enable torrent streaming."
+                    label="Torrent streaming"
                 />
+
+                <Separator />
+
+                <h3>
+                    User interface
+                </h3>
+
+                <Field.Switch
+                    name="fallbackToTorrentStreamingView"
+                    label="Fall back to torrent streaming view"
+                    help="If the anime is not in your library, default to the torrent streaming view."
+                />
+
+                <Separator />
+
+                <h3>
+                    Torrent selection
+                </h3>
 
                 <Field.Switch
                     name="autoSelect"
                     label="Auto-select torrent"
-                    help="Find the best torrent automatically"
+                    help="Let Seanime find the best torrent automatically."
                 />
 
                 <Field.Select
                     name="preferredResolution"
                     label="Preferred resolution"
-                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
+                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution. 'Any' will prefer the highest resolution available."
                     options={[
                         { label: "Any", value: "-" },
                         { label: "480p", value: "480" },
@@ -107,7 +126,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
                 <Separator />
 
-                <h4>Torrent client</h4>
+                <h3>Torrent client</h3>
 
                 <p>
                     Seanime uses a built-in torrent client to download torrents.
@@ -128,9 +147,9 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
                 <Separator />
 
-                <h4>
+                <h3>
                     Streaming server
-                </h4>
+                </h3>
 
                 <p>
                     Seanime will launch a separate server to stream torrents. You can configure the port and host it uses here.
