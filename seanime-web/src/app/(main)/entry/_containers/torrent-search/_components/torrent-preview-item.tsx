@@ -39,7 +39,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
         confirmed,
     } = props
 
-    const _title = isBatch ? "Batch" : title
+    const _title = isBatch ? "" : title
 
     return (
         <div
@@ -109,12 +109,12 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
                         className="text-lg text-red-500"
                     /> Unidentified</p>}
-                    <h4 className={cn("font-medium transition line-clamp-2")}>{_title}</h4>
+                    <h4 className={cn("font-medium text-base transition line-clamp-2")}>{_title}</h4>
 
                     {!!filename && <p
                         className={cn(
-                            "text-sm text-[--muted] group-hover/torrent-preview-item:text-gray-200 line-clamp-2 mb-2",
-                            !(_title) && "text-gray-200 text-md",
+                            "text-sm group-hover/torrent-preview-item:text-gray-200 line-clamp-2 mb-2",
+                            !(_title) ? "text-gray-200 text-base" : "text-[--muted]",
                         )}
                     >
                         {filename}

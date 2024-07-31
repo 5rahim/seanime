@@ -109,10 +109,12 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 "flex flex-none w-fit md:justify-end gap-3 space-y-0",
                 { "opacity-50 cursor-not-allowed pointer-events-none": (smartSearchBatch || searchType != Torrent_SearchType.SMART) },
             )}
-            fieldLabelClass="flex-none self-center font-normal !text-md sm:text-md lg:text-md"
+            fieldLabelClass={cn(
+                "flex-none self-center font-normal !text-md sm:text-md lg:text-md",
+            )}
             className="max-w-[6rem]"
         />
-    }, [searchType, smartSearchBatch, downloadInfo, soughtEpisode])
+    }, [searchType, smartSearchBatch, smartSearchBest, downloadInfo, soughtEpisode])
 
     /**
      * Select torrent
@@ -177,20 +179,22 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     return (
         <>
             <div className="py-4 space-y-4">
-                <Select
-                    name="torrentProvider"
-                    label="Torrent Provider"
-                    value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
-                    onValueChange={setSelectedProviderExtensionId}
-                    leftIcon={<RiFolderDownloadFill />}
-                    options={[
-                        ...(providerExtensions?.map(ext => ({
-                            label: ext.name,
-                            value: ext.id,
-                        })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
-                        { label: "None", value: TORRENT_PROVIDER.NONE },
-                    ]}
-                />
+                <div className="max-w-[250px]">
+                    <Select
+                        name="torrentProvider"
+                        label="Torrent Provider"
+                        value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
+                        onValueChange={setSelectedProviderExtensionId}
+                        leftIcon={<RiFolderDownloadFill />}
+                        options={[
+                            ...(providerExtensions?.map(ext => ({
+                                label: ext.name,
+                                value: ext.id,
+                            })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
+                            { label: "None", value: TORRENT_PROVIDER.NONE },
+                        ]}
+                    />
+                </div>
 
                 {selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "" ? (
                     <>
@@ -260,21 +264,8 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         className="w-[6rem]"
                                     />}
 
-                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch
-                                        label="Best releases"
-                                        // help={!downloadInfo?.canBatch ? "Cannot look for best releases yet" : "Look for the best releases"}
-                                        value={smartSearchBest}
-                                        onValueChange={setSmartSearchBest}
-                                        fieldClass={cn(
-                                            "flex flex-none w-fit",
-                                            { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
-                                        )}
-                                        size="sm"
-                                    />}
-
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch") && <Switch
                                         label="Batches"
-                                        // help={!downloadInfo?.canBatch ? "Cannot look for batches yet" : "Look for batches"}
                                         value={smartSearchBatch}
                                         onValueChange={setSmartSearchBatch}
                                         disabled={smartSearchBest || !downloadInfo?.canBatch}
@@ -285,19 +276,30 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         size="sm"
                                     />}
 
+                                    {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch
+                                        label="Best releases"
+                                        value={smartSearchBest}
+                                        onValueChange={setSmartSearchBest}
+                                        fieldClass={cn(
+                                            "flex flex-none w-fit",
+                                            { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
+                                        )}
+                                        size="sm"
+                                    />}
+
                                 </div>
 
                                 {!hasOneWarning && (
                                     <>
+                                        <div className="pb-1" />
                                         {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") && <DataGridSearchInput
                                             value={globalFilter ?? ""}
                                             onChange={v => setGlobalFilter(v)}
-                                            placeholder={searchType == Torrent_SearchType.SMART
+                                            placeholder={searchType === Torrent_SearchType.SMART
                                                 ? `Refine the title (${entry.media?.title?.romaji})`
                                                 : "Search"}
                                             fieldClass="md:max-w-full w-full"
                                         />}
-
                                         <div className="pb-1" />
 
                                         <TorrentPreviewList

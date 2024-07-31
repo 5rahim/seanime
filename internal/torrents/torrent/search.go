@@ -287,19 +287,26 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		_, foundEp := anizipMedia.FindEpisode(strconv.Itoa(opts.searchOpts.EpisodeNumber))
 
 		if foundEp {
-			episode := anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
-				LocalFile:            nil,
-				OptionalAniDBEpisode: strconv.Itoa(opts.torrent.EpisodeNumber),
-				AnizipMedia:          anizipMedia,
-				Media:                opts.media,
-				ProgressOffset:       0,
-				IsDownloaded:         false,
-				MetadataProvider:     r.metadataProvider,
-			})
-			episode.IsInvalid = false
+			var episode *anime.AnimeEntryEpisode
 
-			if episode.DisplayTitle == "" {
-				episode.DisplayTitle = parsedData.Title
+			// Remove the episode if the parsed episode number is not the same as the search option
+			if !(len(parsedData.EpisodeNumber) == 1 && util.StringToIntMust(parsedData.EpisodeNumber[0]) == opts.searchOpts.EpisodeNumber) {
+				episode = nil
+			} else {
+				episode = anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
+					LocalFile:            nil,
+					OptionalAniDBEpisode: strconv.Itoa(opts.torrent.EpisodeNumber),
+					AnizipMedia:          anizipMedia,
+					Media:                opts.media,
+					ProgressOffset:       0,
+					IsDownloaded:         false,
+					MetadataProvider:     r.metadataProvider,
+				})
+				episode.IsInvalid = false
+
+				if episode.DisplayTitle == "" {
+					episode.DisplayTitle = parsedData.Title
+				}
 			}
 
 			return &Preview{
@@ -308,26 +315,37 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 			}
 		}
 
-		// If the episode number could not be found in the AniZip media, create a new episode
-		episode := anime.AnimeEntryEpisode{
-			Type:                  anime.LocalFileTypeMain,
-			DisplayTitle:          fmt.Sprintf("Episode %d", opts.searchOpts.EpisodeNumber),
-			EpisodeTitle:          "",
-			EpisodeNumber:         opts.searchOpts.EpisodeNumber,
-			ProgressNumber:        opts.searchOpts.EpisodeNumber,
-			AniDBEpisode:          "",
-			AbsoluteEpisodeNumber: 0,
-			LocalFile:             nil,
-			IsDownloaded:          false,
-			EpisodeMetadata:       anime.NewEpisodeMetadata(opts.anizipMedia.MustGet(), nil, opts.media, r.metadataProvider),
-			FileMetadata:          nil,
-			IsInvalid:             false,
-			MetadataIssue:         "",
-			BaseAnime:             opts.media,
+		var episode *anime.AnimeEntryEpisode
+
+		// Remove the episode if the parsed episode number is not the same as the search option
+		if !(len(parsedData.EpisodeNumber) == 1 && util.StringToIntMust(parsedData.EpisodeNumber[0]) == opts.searchOpts.EpisodeNumber) {
+			episode = nil
+		} else {
+			displayTitle := ""
+			if len(parsedData.EpisodeNumber) == 1 && parsedData.EpisodeNumber[0] != strconv.Itoa(opts.searchOpts.EpisodeNumber) {
+				displayTitle = fmt.Sprintf("Episode %s", parsedData.EpisodeNumber[0])
+			}
+			// If the episode number could not be found in the AniZip media, create a new episode
+			episode = &anime.AnimeEntryEpisode{
+				Type:                  anime.LocalFileTypeMain,
+				DisplayTitle:          displayTitle,
+				EpisodeTitle:          "",
+				EpisodeNumber:         opts.searchOpts.EpisodeNumber,
+				ProgressNumber:        opts.searchOpts.EpisodeNumber,
+				AniDBEpisode:          "",
+				AbsoluteEpisodeNumber: 0,
+				LocalFile:             nil,
+				IsDownloaded:          false,
+				EpisodeMetadata:       anime.NewEpisodeMetadata(opts.anizipMedia.MustGet(), nil, opts.media, r.metadataProvider),
+				FileMetadata:          nil,
+				IsInvalid:             false,
+				MetadataIssue:         "",
+				BaseAnime:             opts.media,
+			}
 		}
 
 		return &Preview{
-			Episode: &episode,
+			Episode: episode,
 			Torrent: opts.torrent,
 		}
 
