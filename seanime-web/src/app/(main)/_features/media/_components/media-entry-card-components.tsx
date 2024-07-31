@@ -443,7 +443,8 @@ export const MediaEntryCardHoverPopupBanner = ({
 
     const Content = (
         <div className="aspect-[4/2] relative rounded-md mb-2 cursor-pointer">
-            {(showProgressBar && progress && listStatus && progressTotal) && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+            {(showProgressBar && progress && listStatus && progressTotal) &&
+                <div className="absolute rounded-md overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                 <div
                     className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -469,7 +470,7 @@ export const MediaEntryCardHoverPopupBanner = ({
                 quality={100}
                 sizes="20rem"
                 className={cn(
-                    "object-cover object-center rounded-md transition",
+                    "object-cover top-0 object-center rounded-md transition",
                     trailerLoaded && "hidden",
                 )}
             /> : <div

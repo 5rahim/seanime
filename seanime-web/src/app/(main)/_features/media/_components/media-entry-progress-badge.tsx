@@ -13,10 +13,14 @@ export const MediaEntryProgressBadge = (props: MediaEntryProgressBadgeProps) => 
     if (!progress) return null
 
     return (
-        <Badge size="lg" className="rounded-md px-1.5 gap-0">
+        <Badge
+            intent="unstyled"
+            size="lg"
+            className="font-medium tracking-wide rounded-md rounded-tl-none rounded-br-none border-0 bg-zinc-950/40 px-1.5 gap-0"
+        >
             {progress}{!!progressTotal && <span
             className={cn(
-                progress != progressTotal && "text-[--muted]",
+                "text-[--muted]",
             )}
         >/{progressTotal}</span>}
         </Badge>
