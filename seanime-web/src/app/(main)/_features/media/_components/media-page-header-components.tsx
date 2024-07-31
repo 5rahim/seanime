@@ -129,22 +129,10 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     />
                 </div>
                 <div
-                    className="w-full z-[3] absolute bottom-0 h-[5rem] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
+                    className="w-full z-[3] absolute bottom-0 h-[50%] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
                 />
 
-                {/*<Image*/}
-                {/*    src={"/mask-2.png"}*/}
-                {/*    alt="mask"*/}
-                {/*    fill*/}
-                {/*    quality={100}*/}
-                {/*    priority*/}
-                {/*    sizes="100vw"*/}
-                {/*    className={cn(*/}
-                {/*        "hidden lg:block object-cover object-left z-[2] transition-opacity duration-1000 opacity-90 lg:opacity-70 lg:group-hover/media-page-header:opacity-80",*/}
-                {/*    )}*/}
-                {/*/>*/}
-
-                <div className="absolute h-full w-full block lg:hidden bg-gray-950 opacity-70 z-[2]" />
+                <div className="absolute h-full w-full block lg:hidden bg-[--background] opacity-70 z-[2]" />
 
             </div>
         </motion.div>

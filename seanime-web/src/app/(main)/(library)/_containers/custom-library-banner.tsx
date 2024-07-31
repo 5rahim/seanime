@@ -41,12 +41,15 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
             {!discrete && <div className="py-20"></div>}
             <div
                 className={cn(
-                    "__header h-[20rem] z-[1] top-0 w-full fixed group/library-header transition-opacity duration-1000",
+                    "__header h-[30rem] z-[1] top-0 w-full fixed group/library-header transition-opacity duration-1000",
                     discrete && "opacity-20",
                     !!ts.libraryScreenCustomBackgroundImage && "absolute", // If there's a background image, make the banner absolute
                     (!ts.libraryScreenCustomBackgroundImage && dimmed) && "opacity-5", // If the user has scrolled down, dim the banner
                 )}
             >
+                <div
+                    className="w-full z-[3] absolute bottom-[-5rem] h-[5rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent"
+                />
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, y: 0 }}
