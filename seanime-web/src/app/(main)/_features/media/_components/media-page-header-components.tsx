@@ -7,7 +7,7 @@ import {
     Nullish,
     Offline_ListData,
 } from "@/api/generated/types"
-import { AnilistAnimeEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
@@ -310,7 +310,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         />
 
                         {!serverStatus?.isOffline ?
-                            <AnilistAnimeEntryModal listData={listData} media={media} type={type} /> :
+                            <AnilistMediaEntryModal listData={listData} media={media} type={type} /> :
                             offlineAnilistAnimeEntryModal}
 
                         <p className="text-base md:text-lg">{capitalize(listData?.status === "CURRENT"

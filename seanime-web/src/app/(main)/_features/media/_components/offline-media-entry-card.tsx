@@ -1,21 +1,21 @@
 import { AL_BaseAnime, AL_BaseManga, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
-import { OfflineAnilistAnimeEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
+import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import {
-    AnimeEntryCardBody,
-    AnimeEntryCardContainer,
-    AnimeEntryCardHoverPopup,
-    AnimeEntryCardHoverPopupBanner,
-    AnimeEntryCardHoverPopupBody,
-    AnimeEntryCardHoverPopupFooter,
-    AnimeEntryCardHoverPopupTitleSection,
     AnimeEntryCardNextAiring,
-    AnimeEntryCardOverlay,
-    AnimeEntryCardTitleSection,
+    MediaEntryCardBody,
+    MediaEntryCardContainer,
+    MediaEntryCardHoverPopup,
+    MediaEntryCardHoverPopupBanner,
+    MediaEntryCardHoverPopupBody,
+    MediaEntryCardHoverPopupFooter,
+    MediaEntryCardHoverPopupTitleSection,
+    MediaEntryCardOverlay,
+    MediaEntryCardTitleSection,
 } from "@/app/(main)/_features/media/_components/media-entry-card-components"
-import { AnimeEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
-import { AnimeEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
-import { AnimeEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
+import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
+import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
+import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import capitalize from "lodash/capitalize"
@@ -24,7 +24,7 @@ import React from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 
-type OfflineAnimeEntryCardBasedProps = {
+type OfflineMediaEntryCardBasedProps = {
     overlay?: React.ReactNode
     withAudienceScore?: boolean
     containerClassName?: string
@@ -32,12 +32,12 @@ type OfflineAnimeEntryCardBasedProps = {
     assetMap: Offline_AssetMapImageMap | undefined
 }
 
-type OfflineAnimeEntryCardProps<T extends "anime" | "manga"> = {
+type OfflineMediaEntryCardProps<T extends "anime" | "manga"> = {
     type: T
     media: T extends "anime" ? AL_BaseAnime : T extends "manga" ? AL_BaseManga : never
-} & OfflineAnimeEntryCardBasedProps
+} & OfflineMediaEntryCardBasedProps
 
-export function OfflineAnimeEntryCard<T extends "anime" | "manga">(props: OfflineAnimeEntryCardProps<T>) {
+export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: OfflineMediaEntryCardProps<T>) {
 
     const serverStatus = useServerStatus()
     const {
@@ -62,17 +62,17 @@ export function OfflineAnimeEntryCard<T extends "anime" | "manga">(props: Offlin
     if (!media) return null
 
     return (
-        <AnimeEntryCardContainer className={props.containerClassName}>
+        <MediaEntryCardContainer className={props.containerClassName}>
 
-            <AnimeEntryCardOverlay overlay={overlay} />
+            <MediaEntryCardOverlay overlay={overlay} />
 
             {/*ACTION POPUP*/}
-            <AnimeEntryCardHoverPopup>
+            <MediaEntryCardHoverPopup>
 
                 {/*METADATA SECTION*/}
-                <AnimeEntryCardHoverPopupBody>
+                <MediaEntryCardHoverPopupBody>
 
-                    <AnimeEntryCardHoverPopupBanner
+                    <MediaEntryCardHoverPopupBanner
                         trailerId={(media as any)?.trailer?.id}
                         showProgressBar={showProgressBar}
                         mediaId={media.id}
@@ -87,7 +87,7 @@ export function OfflineAnimeEntryCard<T extends "anime" | "manga">(props: Offlin
                         listStatus={listData?.status}
                     />
 
-                    <AnimeEntryCardHoverPopupTitleSection
+                    <MediaEntryCardHoverPopupTitleSection
                         title={media.title?.userPreferred || ""}
                         year={media.startDate?.year}
                         season={media.season}
@@ -137,11 +137,11 @@ export function OfflineAnimeEntryCard<T extends "anime" | "manga">(props: Offlin
                                 : capitalize(listData?.status ?? "")}
                         </p>}
 
-                </AnimeEntryCardHoverPopupBody>
+                </MediaEntryCardHoverPopupBody>
 
-                <AnimeEntryCardHoverPopupFooter>
+                <MediaEntryCardHoverPopupFooter>
 
-                    <OfflineAnilistAnimeEntryModal
+                    <OfflineAnilistMediaEntryModal
                         listData={listData}
                         assetMap={assetMap}
                         media={media}
@@ -149,15 +149,15 @@ export function OfflineAnimeEntryCard<T extends "anime" | "manga">(props: Offlin
                     />
 
                     {withAudienceScore &&
-                        <AnimeEntryAudienceScore
+                        <MediaEntryAudienceScore
                             meanScore={media.meanScore}
                         />}
 
-                </AnimeEntryCardHoverPopupFooter>
+                </MediaEntryCardHoverPopupFooter>
 
-            </AnimeEntryCardHoverPopup>
+            </MediaEntryCardHoverPopup>
 
-            <AnimeEntryCardBody
+            <MediaEntryCardBody
                 link={link}
                 type={type}
                 title={media.title?.userPreferred || ""}
@@ -174,25 +174,25 @@ export function OfflineAnimeEntryCard<T extends "anime" | "manga">(props: Offlin
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
                 <div className="absolute z-[10] right-1 bottom-1">
-                    <AnimeEntryScoreBadge
+                    <MediaEntryScoreBadge
                         score={listData?.score}
                     />
                 </div>
                 <div className="absolute z-[10] left-1 bottom-1">
-                    <AnimeEntryProgressBadge
+                    <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
                     />
                 </div>
-            </AnimeEntryCardBody>
+            </MediaEntryCardBody>
 
-            <AnimeEntryCardTitleSection
+            <MediaEntryCardTitleSection
                 title={media.title?.userPreferred || ""}
                 year={media.startDate?.year}
                 season={media.season}
                 format={media.format}
             />
 
-        </AnimeEntryCardContainer>
+        </MediaEntryCardContainer>
     )
 }

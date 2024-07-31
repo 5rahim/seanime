@@ -6,7 +6,7 @@
 import { useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
-export function AnimeListItemBottomGradient() {
+export function MediaCardBodyBottomGradient() {
 
     const ts = useThemeSettings()
 
@@ -20,7 +20,7 @@ export function AnimeListItemBottomGradient() {
 
     return (
         <div
-            className="z-[5] absolute bottom-0 w-full h-[50%] bg-gradient-to-t from-[--background] to-transparent"
+            className="z-[5] absolute bottom-0 w-full opacity-90 to-40% h-[50%] bg-gradient-to-t from-[--background] to-transparent"
         />
     )
 }
@@ -40,7 +40,7 @@ export function EpisodeItemBottomGradient() {
 
     return (
         <div
-            className="z-[1] absolute bottom-0 w-full h-full md:h-[80%] bg-gradient-to-t from-[--background] to-transparent"
+            className="z-[1] absolute bottom-0 w-full h-full opacity-90 md:h-[80%] bg-gradient-to-t from-[--background] to-transparent"
         />
     )
 }

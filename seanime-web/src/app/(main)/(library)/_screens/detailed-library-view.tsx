@@ -9,7 +9,7 @@ import {
 } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
-import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
@@ -150,7 +150,7 @@ const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCol
 
 const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
     return (
-        <AnimeEntryCard
+        <MediaEntryCard
             media={entry.media!}
             listData={entry.listData}
             libraryData={entry.libraryData}

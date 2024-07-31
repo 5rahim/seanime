@@ -2,12 +2,12 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import React from "react"
 
-type AnimeEntryProgressBadgeProps = {
+type MediaEntryProgressBadgeProps = {
     progress?: number
     progressTotal?: number
 }
 
-export const AnimeEntryProgressBadge = (props: AnimeEntryProgressBadgeProps) => {
+export const MediaEntryProgressBadge = (props: MediaEntryProgressBadgeProps) => {
     const { progress, progressTotal } = props
 
     if (!progress) return null

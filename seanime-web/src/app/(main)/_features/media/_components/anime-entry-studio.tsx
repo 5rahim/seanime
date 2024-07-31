@@ -1,5 +1,5 @@
 import { useGetAnilistStudioDetails } from "@/api/hooks/anilist.hooks"
-import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { Badge } from "@/components/ui/badge"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -73,7 +73,7 @@ function AnimeEntryStudioDetailsModalContent(props: AnimeEntryStudioProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
                 {data?.Studio?.media?.nodes?.map(media => {
                     return <div key={media?.id!} className="col-span-1">
-                        <AnimeEntryCard
+                        <MediaEntryCard
                             media={media}
                             type="anime"
                             showLibraryBadge

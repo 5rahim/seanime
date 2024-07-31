@@ -2170,6 +2170,7 @@ export type Models_Theme = {
     animeEntryScreenLayout: string
     expandSidebarOnHover: boolean
     hideTopNavbar: boolean
+    enableMediaCardBlurredBackground: boolean
     libraryScreenCustomBackgroundImage: string
     libraryScreenCustomBackgroundOpacity: number
     smallerEpisodeCarouselSize: boolean

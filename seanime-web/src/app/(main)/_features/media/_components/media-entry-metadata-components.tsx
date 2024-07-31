@@ -34,12 +34,12 @@ export function AnimeEntryGenresList(props: AnimeEntryGenresListProps) {
     )
 }
 
-type AnimeEntryAudienceScoreProps = {
+type MediaEntryAudienceScoreProps = {
     meanScore?: number | null
     badgeClass?: string
 }
 
-export function AnimeEntryAudienceScore(props: AnimeEntryAudienceScoreProps) {
+export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
 
     const {
         meanScore,

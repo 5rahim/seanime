@@ -14,7 +14,7 @@ import { AiFillEdit } from "react-icons/ai"
 import { BiListPlus, BiPlus, BiStar, BiTrash } from "react-icons/bi"
 import { useToggle } from "react-use"
 
-type AnilistAnimeEntryModalProps = {
+type AnilistMediaEntryModalProps = {
     children?: React.ReactNode
     listData?: Anime_AnimeEntryListData | Manga_EntryListData
     media?: AL_BaseAnime | AL_BaseManga
@@ -31,7 +31,7 @@ export const mediaListDataSchema = defineSchema(({ z, presets }) => z.object({
 }))
 
 
-export const AnilistAnimeEntryModal: React.FC<AnilistAnimeEntryModalProps> = (props) => {
+export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (props) => {
     const [open, toggle] = useToggle(false)
 
     const { children, media, listData, hideButton, type = "anime", ...rest } = props

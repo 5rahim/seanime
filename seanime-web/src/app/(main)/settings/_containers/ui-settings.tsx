@@ -18,6 +18,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     accentColor: z.string().min(0).default(THEME_DEFAULT_VALUES.accentColor).transform(n => n.trim()),
     sidebarBackgroundColor: z.string().min(0).default(THEME_DEFAULT_VALUES.sidebarBackgroundColor),
     hideTopNavbar: z.boolean().default(THEME_DEFAULT_VALUES.hideTopNavbar),
+    enableMediaCardBlurredBackground: z.boolean().default(THEME_DEFAULT_VALUES.enableMediaCardBlurredBackground),
 
     libraryScreenBannerType: z.string().default(THEME_DEFAULT_VALUES.libraryScreenBannerType),
     libraryScreenCustomBannerImage: z.string().default(THEME_DEFAULT_VALUES.libraryScreenCustomBannerImage),
@@ -71,6 +72,7 @@ export function UISettings() {
                 accentColor: themeSettings?.accentColor,
                 sidebarBackgroundColor: themeSettings?.sidebarBackgroundColor,
                 hideTopNavbar: themeSettings?.hideTopNavbar,
+                enableMediaCardBlurredBackground: themeSettings?.enableMediaCardBlurredBackground,
                 libraryScreenBannerType: themeSettings?.libraryScreenBannerType,
                 libraryScreenCustomBannerImage: themeSettings?.libraryScreenCustomBannerImage,
                 libraryScreenCustomBannerPosition: themeSettings?.libraryScreenCustomBannerPosition,
@@ -194,6 +196,14 @@ export function UISettings() {
                     <Field.Switch
                         label="Hide top navbar"
                         name="hideTopNavbar"
+                        help="Switches to sidebar-only mode."
+                    />
+
+                    <h3>Media Cards</h3>
+
+                    <Field.Switch
+                        label="Glassy background"
+                        name="enableMediaCardBlurredBackground"
                     />
 
                     <Separator />

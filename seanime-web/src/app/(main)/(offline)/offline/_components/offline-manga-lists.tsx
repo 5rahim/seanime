@@ -1,7 +1,7 @@
 import { Offline_MangaEntry } from "@/api/generated/types"
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
-import { OfflineAnimeEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
+import { OfflineMediaEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import React from "react"
 
@@ -14,7 +14,7 @@ export function OfflineMangaLists() {
                 {entries?.map(entry => {
                     if (!entry) return null
 
-                    return <OfflineAnimeEntryCard
+                    return <OfflineMediaEntryCard
                         key={entry.mediaId}
                         media={entry.media!}
                         listData={entry.listData}

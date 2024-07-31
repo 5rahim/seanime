@@ -1,6 +1,6 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
-import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
 import React from "react"
@@ -78,7 +78,7 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
 
 export const LibraryCollectionEntryItem = React.memo(({ entry }: { entry: Anime_LibraryCollectionEntry }) => {
     return (
-        <AnimeEntryCard
+        <MediaEntryCard
             media={entry.media!}
             listData={entry.listData}
             libraryData={entry.libraryData}

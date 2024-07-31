@@ -170,13 +170,14 @@ type SilencedMediaEntry struct {
 type Theme struct {
 	BaseModel
 	// Main
-	EnableColorSettings    bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`
-	BackgroundColor        string `gorm:"column:background_color" json:"backgroundColor"`
-	AccentColor            string `gorm:"column:accent_color" json:"accentColor"`
-	SidebarBackgroundColor string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`  // DEPRECATED
-	AnimeEntryScreenLayout string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"` // DEPRECATED
-	ExpandSidebarOnHover   bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
-	HideTopNavbar          bool   `gorm:"column:hide_top_navbar" json:"hideTopNavbar"`
+	EnableColorSettings              bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`
+	BackgroundColor                  string `gorm:"column:background_color" json:"backgroundColor"`
+	AccentColor                      string `gorm:"column:accent_color" json:"accentColor"`
+	SidebarBackgroundColor           string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`  // DEPRECATED
+	AnimeEntryScreenLayout           string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"` // DEPRECATED
+	ExpandSidebarOnHover             bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
+	HideTopNavbar                    bool   `gorm:"column:hide_top_navbar" json:"hideTopNavbar"`
+	EnableMediaCardBlurredBackground bool   `gorm:"column:enable_media_card_blurred_background" json:"enableMediaCardBlurredBackground"`
 	// These are named "libraryScreen" but are used on all pages
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`

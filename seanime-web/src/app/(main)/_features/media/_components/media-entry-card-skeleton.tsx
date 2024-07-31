@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import React from "react"
 
-export const AnimeEntryCardSkeleton = () => {
+export const MediaEntryCardSkeleton = () => {
     return (
         <>
             <Skeleton

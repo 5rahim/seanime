@@ -1,5 +1,5 @@
 import { AL_BaseAnime } from "@/api/generated/types"
-import { AnimeEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
+import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { Button } from "@/components/ui/button"
@@ -152,7 +152,7 @@ export function DiscoverPageHeader() {
                                             </p>
                                         )}
                                         {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
-                                            <AnimeEntryAudienceScore
+                                            <MediaEntryAudienceScore
                                                 meanScore={randomTrending.meanScore}
                                             />
                                         </div>}

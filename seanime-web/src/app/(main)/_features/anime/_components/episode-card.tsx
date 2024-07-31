@@ -21,6 +21,7 @@ type EpisodeCardProps = {
     mRef?: React.RefObject<HTMLDivElement>
     hasDiscrepancy?: boolean
     length?: string | number | null
+    imageClass?: string
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -43,6 +44,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         progressNumber,
         hasDiscrepancy,
         length,
+        imageClass,
         ...rest
     } = props
 
@@ -53,7 +55,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         <div
             ref={mRef}
             className={cn(
-                "rounded-md border overflow-hidden aspect-[4/2] relative flex items-end flex-none group/episode-card cursor-pointer",
+                "rounded-lg overflow-hidden aspect-[4/2] relative flex items-end flex-none group/episode-card cursor-pointer",
                 "select-none",
                 type === "carousel" && "w-full",
                 type === "grid" && "w-72 lg:w-[26rem]",
@@ -63,7 +65,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
             onClick={onClick}
             {...rest}
         >
-            <div className="absolute w-full h-full overflow-hidden z-[1]">
+            <div className="absolute w-full h-full rounded-lg overflow-hidden z-[1]">
                 {!!image ? <Image
                     src={image}
                     alt={""}
@@ -71,9 +73,12 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     quality={100}
                     placeholder={imageShimmer(700, 475)}
                     sizes="20rem"
-                    className="object-cover object-center transition"
+                    className={cn(
+                        "object-cover rounded-lg object-center transition",
+                        imageClass,
+                    )}
                 /> : <div
-                    className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
+                    className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                 ></div>}
                 {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                 <EpisodeItemBottomGradient />
@@ -87,10 +92,12 @@ export function EpisodeCard(props: EpisodeCardProps) {
             >
                 {actionIcon && actionIcon}
             </div>
-            <div className="relative z-[3] w-full p-4 space-y-1">
-                <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{topTitle?.replaceAll("`", "'")}</p>
+            <div className="relative z-[3] w-full p-4 space-y-0">
+                <p className="w-[80%] line-clamp-1 text-[--muted] transition-colors duration-200 group-hover/episode-card:text-[--foreground] font-semibold">{topTitle?.replaceAll(
+                    "`",
+                    "'")}</p>
                 <div className="w-full justify-between flex items-center">
-                    <p className="text-base md:text-xl lg:text-2xl font-semibold line-clamp-1">
+                    <p className="text-base md:text-xl font-semibold line-clamp-1">
                         <span>{title}{showTotalEpisodes ?
                             <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                             : ``}</span>

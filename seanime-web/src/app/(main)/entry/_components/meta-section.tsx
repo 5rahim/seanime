@@ -4,9 +4,9 @@ import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-m
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import { AnimeEntryStudio } from "@/app/(main)/_features/media/_components/anime-entry-studio"
 import {
-    AnimeEntryAudienceScore,
     AnimeEntryGenresList,
     AnimeEntryRankings,
+    MediaEntryAudienceScore,
 } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {
     MediaPageHeader,
@@ -65,7 +65,7 @@ export function MetaSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeD
                     <DisclosureItem value="item-1" className="space-y-2">
 
                         <div className="flex gap-2 items-center">
-                            <AnimeEntryAudienceScore meanScore={details?.meanScore} />
+                            <MediaEntryAudienceScore meanScore={details?.meanScore} />
 
                             <AnimeEntryStudio studios={details?.studios} />
 

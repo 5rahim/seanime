@@ -1,6 +1,6 @@
 import { Manga_Collection, Manga_CollectionList } from "@/api/generated/types"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
-import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/app/(main)/manga/_components/library-header"
 import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
@@ -126,7 +126,7 @@ export function FilteredCollectionLists({ collectionList }: {
                     return <div
                         key={entry.media?.id}
                     >
-                        <AnimeEntryCard
+                        <MediaEntryCard
                             media={entry.media!}
                             listData={entry.listData}
                             showListDataButton
@@ -178,7 +178,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
                             }
                         }}
                     >
-                        <AnimeEntryCard
+                        <MediaEntryCard
                             media={entry.media!}
                             listData={entry.listData}
                             showListDataButton

@@ -3,11 +3,11 @@ import { getScoreColor } from "@/lib/helpers/score"
 import React from "react"
 import { BiStar } from "react-icons/bi"
 
-type AnimeEntryScoreBadgeProps = {
+type MediaEntryScoreBadgeProps = {
     score?: number // 0-100
 }
 
-export const AnimeEntryScoreBadge = (props: AnimeEntryScoreBadgeProps) => {
+export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
     const { score } = props
 
     if (!score) return null

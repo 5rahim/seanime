@@ -1,6 +1,6 @@
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
-import { AnimeEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
-import { AnimeEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
+import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
+import { MediaEntryCardSkeleton } from "@/app/(main)/_features/media/_components/media-entry-card-skeleton"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
 import { __discover_hoveringHeaderAtom } from "@/app/(main)/discover/_components/discover-page-header"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
@@ -80,14 +80,14 @@ export function DiscoverTrendingManga() {
             <CarouselContent className="px-6">
                 {!isLoading ? data?.Page?.media?.filter(Boolean).map(media => {
                     return (
-                        <AnimeEntryCard
+                        <MediaEntryCard
                             key={media.id}
                             media={media}
                             containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                             type="manga"
                         />
                     )
-                }) : [...Array(10).keys()].map((v, idx) => <AnimeEntryCardSkeleton key={idx} />)}
+                }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
             </CarouselContent>
         </Carousel>
     )
@@ -152,14 +152,14 @@ export function DiscoverMangaSearchBar() {
                 <CarouselContent className="px-6">
                     {!(isLoading || isFetching) ? data?.Page?.media?.filter(Boolean).map(media => {
                         return (
-                            <AnimeEntryCard
+                            <MediaEntryCard
                                 key={media.id}
                                 media={media}
                                 containerClassName="basis-[200px] md:basis-[250px] mx-2 my-8"
                                 type="manga"
                             />
                         )
-                    }) : [...Array(10).keys()].map((v, idx) => <AnimeEntryCardSkeleton key={idx} />)}
+                    }) : [...Array(10).keys()].map((v, idx) => <MediaEntryCardSkeleton key={idx} />)}
                 </CarouselContent>
             </Carousel>}
         </div>

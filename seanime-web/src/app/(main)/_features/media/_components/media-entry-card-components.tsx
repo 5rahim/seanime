@@ -1,9 +1,10 @@
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
-import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { atom, useAtom } from "jotai/index"
 import capitalize from "lodash/capitalize"
@@ -15,12 +16,12 @@ import { BiCalendarAlt } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { RiSignalTowerLine } from "react-icons/ri"
 
-type AnimeEntryCardContainerProps = {
+type MediaEntryCardContainerProps = {
     children?: React.ReactNode
     mRef?: React.RefObject<HTMLDivElement>
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function AnimeEntryCardContainer(props: AnimeEntryCardContainerProps) {
+export function MediaEntryCardContainer(props: MediaEntryCardContainerProps) {
 
     const {
         children,
@@ -33,7 +34,7 @@ export function AnimeEntryCardContainer(props: AnimeEntryCardContainerProps) {
         <div
             ref={mRef}
             className={cn(
-                "h-full col-span-1 group/anime-list-item relative flex flex-col place-content-stretch focus-visible:outline-0 flex-none",
+                "h-full col-span-1 group/media-entry-card relative flex flex-col place-content-stretch focus-visible:outline-0 flex-none",
                 className,
             )}
             {...rest}
@@ -45,11 +46,11 @@ export function AnimeEntryCardContainer(props: AnimeEntryCardContainerProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardOverlayProps = {
+type MediaEntryCardOverlayProps = {
     overlay?: React.ReactNode
 }
 
-export function AnimeEntryCardOverlay(props: AnimeEntryCardOverlayProps) {
+export function MediaEntryCardOverlay(props: MediaEntryCardOverlayProps) {
 
     const {
         overlay,
@@ -67,33 +68,57 @@ export function AnimeEntryCardOverlay(props: AnimeEntryCardOverlayProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardHoverPopupProps = {
+type MediaEntryCardHoverPopupProps = {
     children?: React.ReactNode
+    coverImage?: string
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function AnimeEntryCardHoverPopup(props: AnimeEntryCardHoverPopupProps) {
+export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
 
     const {
         children,
         className,
+        coverImage,
         ...rest
     } = props
+
+    const ts = useThemeSettings()
 
     return (
         <div
             className={cn(
-                "bg-[var(--media-card-popup-background)]",
-                "absolute z-[15] opacity-0 scale-70 border",
-                "group-hover/anime-list-item:opacity-100 group-hover/anime-list-item:scale-100",
-                "group-focus-visible/anime-list-item:opacity-100 group-focus-visible/anime-list-item:scale-100",
+                !ts.enableMediaCardBlurredBackground ? "bg-[--media-card-popup-background]" : "bg-[--background]",
+                "absolute z-[15] opacity-0 scale-80 border duration-150",
+                "group-hover/media-entry-card:opacity-100 group-hover/media-entry-card:scale-100",
+                "group-focus-visible/media-entry-card:opacity-100 group-focus-visible/media-entry-card:scale-100",
                 "focus-visible:opacity-100 focus-visible:scale-100",
-                "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
+                "h-[105%] w-[102%] -top-[5%] rounded-md transition ease-in-out",
                 "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
                 "hidden lg:block", // Hide on small screens
             )}
             {...rest}
         >
-            <div className="p-2 h-full w-full flex flex-col justify-between">
+            {(ts.enableMediaCardBlurredBackground && !!coverImage) && <div className="absolute top-0 left-0 w-full h-full rounded-md overflow-hidden">
+                <Image
+                    src={coverImage || ""}
+                    alt={""}
+                    fill
+                    placeholder={imageShimmer(700, 475)}
+                    quality={100}
+                    sizes="20rem"
+                    className="object-cover object-center transition opacity-20"
+                />
+
+                <div
+                    className="absolute top-0 w-full h-full backdrop-blur-xl z-[0]"
+                ></div>
+            </div>}
+
+            {ts.enableMediaCardBlurredBackground && <div
+                className="w-full absolute top-0 h-full opacity-80 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2]"
+            />}
+
+            <div className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
                 {children}
             </div>
         </div>
@@ -102,11 +127,11 @@ export function AnimeEntryCardHoverPopup(props: AnimeEntryCardHoverPopupProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardHoverPopupBodyProps = {
+type MediaEntryCardHoverPopupBodyProps = {
     children?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function AnimeEntryCardHoverPopupBody(props: AnimeEntryCardHoverPopupBodyProps) {
+export function MediaEntryCardHoverPopupBody(props: MediaEntryCardHoverPopupBodyProps) {
 
     const {
         children,
@@ -129,11 +154,11 @@ export function AnimeEntryCardHoverPopupBody(props: AnimeEntryCardHoverPopupBody
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardHoverPopupFooterProps = {
+type MediaEntryCardHoverPopupFooterProps = {
     children?: React.ReactNode
 } & React.HTMLAttributes<HTMLDivElement>
 
-export function AnimeEntryCardHoverPopupFooter(props: AnimeEntryCardHoverPopupFooterProps) {
+export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFooterProps) {
 
     const {
         children,
@@ -156,7 +181,7 @@ export function AnimeEntryCardHoverPopupFooter(props: AnimeEntryCardHoverPopupFo
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardHoverPopupTitleSectionProps = {
+type MediaEntryCardHoverPopupTitleSectionProps = {
     link: string
     title: string
     season?: string
@@ -164,7 +189,7 @@ type AnimeEntryCardHoverPopupTitleSectionProps = {
     format?: string
 }
 
-export function AnimeEntryCardHoverPopupTitleSection(props: AnimeEntryCardHoverPopupTitleSectionProps) {
+export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverPopupTitleSectionProps) {
 
     const {
         link,
@@ -233,7 +258,7 @@ export function AnimeEntryCardNextAiring(props: AnimeEntryCardNextAiringProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardBodyProps = {
+type MediaEntryCardBodyProps = {
     link: string
     type: "anime" | "manga"
     title: string
@@ -251,7 +276,7 @@ type AnimeEntryCardBodyProps = {
     blurAdultContent?: boolean
 }
 
-export function AnimeEntryCardBody(props: AnimeEntryCardBodyProps) {
+export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
 
     const {
         link,
@@ -279,10 +304,10 @@ export function AnimeEntryCardBody(props: AnimeEntryCardBodyProps) {
                 href={link}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
             >
-                <div className="aspect-[6/8] border flex-none rounded-md object-cover object-center relative overflow-hidden select-none">
+                <div className="aspect-[6/8] flex-none rounded-md object-cover object-center relative overflow-hidden select-none">
 
                     {/*[CUSTOM UI] BOTTOM GRADIENT*/}
-                    <AnimeListItemBottomGradient />
+                    <MediaCardBodyBottomGradient />
 
                     {(showProgressBar && progress && progressTotal) && (
                         <div
@@ -326,7 +351,7 @@ export function AnimeEntryCardBody(props: AnimeEntryCardBodyProps) {
                         placeholder={imageShimmer(700, 475)}
                         quality={100}
                         sizes="20rem"
-                        className="object-cover object-center group-hover/anime-list-item:scale-125 transition"
+                        className="object-cover object-center group-hover/media-entry-card:scale-110 transition"
                     />
 
                     {(blurAdultContent && isAdult) && <div
@@ -340,14 +365,14 @@ export function AnimeEntryCardBody(props: AnimeEntryCardBodyProps) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AnimeEntryCardTitleSectionProps = {
+type MediaEntryCardTitleSectionProps = {
     title: string
     season?: string
     year?: number
     format?: string
 }
 
-export function AnimeEntryCardTitleSection(props: AnimeEntryCardTitleSectionProps) {
+export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProps) {
 
     const {
         title,
@@ -358,9 +383,9 @@ export function AnimeEntryCardTitleSection(props: AnimeEntryCardTitleSectionProp
     } = props
 
     return (
-        <div className="pt-2 space-y-2 flex flex-col justify-between h-full select-none">
+        <div className="pt-2 space-y-1 flex flex-col justify-between h-full select-none">
             <div>
-                <p className="text-center font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-2">{title}</p>
+                <p className="text-left font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-2">{title}</p>
             </div>
             {(!!season || !!year) && <div>
                 <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
@@ -373,9 +398,9 @@ export function AnimeEntryCardTitleSection(props: AnimeEntryCardTitleSectionProp
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const __animeEntryCard_hoveredPopupId = atom<number | undefined>(undefined)
+export const __mediaEntryCard_hoveredPopupId = atom<number | undefined>(undefined)
 
-export const AnimeEntryCardHoverPopupBanner = ({
+export const MediaEntryCardHoverPopupBanner = ({
     trailerId,
     showProgressBar,
     mediaId,
@@ -406,16 +431,18 @@ export const AnimeEntryCardHoverPopupBanner = ({
 }) => {
 
     const [trailerLoaded, setTrailerLoaded] = React.useState(false)
-    const [actionPopupHoverId] = useAtom(__animeEntryCard_hoveredPopupId)
+    const [actionPopupHoverId] = useAtom(__mediaEntryCard_hoveredPopupId)
     const actionPopupHover = actionPopupHoverId === mediaId
     const [trailerEnabled, setTrailerEnabled] = React.useState(!!trailerId && !disableAnimeCardTrailers && showTrailer)
+
+    const ts = useThemeSettings()
 
     React.useEffect(() => {
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
     const Content = (
-        <div className="aspect-[4/2] relative rounded-md overflow-hidden mb-2 cursor-pointer">
+        <div className="aspect-[4/2] relative rounded-md mb-2 cursor-pointer">
             {(showProgressBar && progress && listStatus && progressTotal) && <div className="absolute top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                 <div
                     className={cn(
@@ -442,7 +469,7 @@ export const AnimeEntryCardHoverPopupBanner = ({
                 quality={100}
                 sizes="20rem"
                 className={cn(
-                    "object-cover object-center transition",
+                    "object-cover object-center rounded-md transition",
                     trailerLoaded && "hidden",
                 )}
             /> : <div
@@ -468,9 +495,12 @@ export const AnimeEntryCardHoverPopupBanner = ({
                 onError={() => setTrailerEnabled(false)}
             />}
 
-            <div
-                className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-gray-950 to-transparent z-[2]"
-            />
+            {<div
+                className={cn(
+                    "w-full absolute -bottom-1 h-[80%] from-10% bg-gradient-to-t from-[--media-card-popup-background] to-transparent z-[2]",
+                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-md opacity-80",
+                )}
+            />}
         </div>
     )
 

@@ -2,22 +2,22 @@ import { AL_BaseAnime, AL_BaseManga, Anime_AnimeEntryLibraryData, Anime_AnimeEnt
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import {
-    __animeEntryCard_hoveredPopupId,
-    AnimeEntryCardBody,
-    AnimeEntryCardContainer,
-    AnimeEntryCardHoverPopup,
-    AnimeEntryCardHoverPopupBanner,
-    AnimeEntryCardHoverPopupBody,
-    AnimeEntryCardHoverPopupFooter,
-    AnimeEntryCardHoverPopupTitleSection,
+    __mediaEntryCard_hoveredPopupId,
     AnimeEntryCardNextAiring,
-    AnimeEntryCardOverlay,
-    AnimeEntryCardTitleSection,
+    MediaEntryCardBody,
+    MediaEntryCardContainer,
+    MediaEntryCardHoverPopup,
+    MediaEntryCardHoverPopupBanner,
+    MediaEntryCardHoverPopupBody,
+    MediaEntryCardHoverPopupFooter,
+    MediaEntryCardHoverPopupTitleSection,
+    MediaEntryCardOverlay,
+    MediaEntryCardTitleSection,
 } from "@/app/(main)/_features/media/_components/media-entry-card-components"
-import { AnimeEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
-import { AnimeEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
-import { AnimeEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
-import { AnilistAnimeEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
+import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
+import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
+import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
@@ -32,14 +32,14 @@ import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { RiCalendarLine } from "react-icons/ri"
 
-type AnimeEntryCardBaseProps = {
+type MediaEntryCardBaseProps = {
     overlay?: React.ReactNode
     withAudienceScore?: boolean
     containerClassName?: string
     showListDataButton?: boolean
 }
 
-type AnimeEntryCardProps<T extends "anime" | "manga"> = {
+type MediaEntryCardProps<T extends "anime" | "manga"> = {
     type: T
     media: T extends "anime" ? AL_BaseAnime : T extends "manga" ? AL_BaseManga : never
     // Anime-only
@@ -47,9 +47,9 @@ type AnimeEntryCardProps<T extends "anime" | "manga"> = {
     showLibraryBadge?: T extends "anime" ? boolean : never
     showTrailer?: T extends "anime" ? boolean : never
     libraryData?: T extends "anime" ? Anime_AnimeEntryLibraryData : never
-} & AnimeEntryCardBaseProps
+} & MediaEntryCardBaseProps
 
-export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCardProps<T>) {
+export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
 
     const serverStatus = useServerStatus()
     const {
@@ -66,7 +66,7 @@ export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCar
     const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_AnimeEntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_AnimeEntryLibraryData | undefined>(_libraryData)
-    const setActionPopupHover = useSetAtom(__animeEntryCard_hoveredPopupId)
+    const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
 
     const ref = React.useRef<HTMLDivElement>(null)
 
@@ -130,20 +130,21 @@ export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCar
     if (!media) return null
 
     return (
-        <AnimeEntryCardContainer mRef={ref} className={props.containerClassName}>
+        <MediaEntryCardContainer mRef={ref} className={props.containerClassName}>
 
-            <AnimeEntryCardOverlay overlay={overlay} />
+            <MediaEntryCardOverlay overlay={overlay} />
 
             {/*ACTION POPUP*/}
-            <AnimeEntryCardHoverPopup
+            <MediaEntryCardHoverPopup
                 onMouseEnter={() => setActionPopupHover(media.id)}
                 onMouseLeave={() => setActionPopupHover(undefined)}
+                coverImage={media.bannerImage || media.coverImage?.extraLarge || ""}
             >
 
                 {/*METADATA SECTION*/}
-                <AnimeEntryCardHoverPopupBody>
+                <MediaEntryCardHoverPopupBody>
 
-                    <AnimeEntryCardHoverPopupBanner
+                    <MediaEntryCardHoverPopupBanner
                         trailerId={(media as any)?.trailer?.id}
                         showProgressBar={showProgressBar}
                         mediaId={media.id}
@@ -159,7 +160,7 @@ export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCar
                         status={media.status}
                     />
 
-                    <AnimeEntryCardHoverPopupTitleSection
+                    <MediaEntryCardHoverPopupTitleSection
                         title={media.title?.userPreferred || ""}
                         year={media.startDate?.year}
                         season={media.season}
@@ -210,24 +211,24 @@ export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCar
                                 : capitalize(listData?.status ?? "")}
                         </p>}
 
-                </AnimeEntryCardHoverPopupBody>
+                </MediaEntryCardHoverPopupBody>
 
-                <AnimeEntryCardHoverPopupFooter>
+                <MediaEntryCardHoverPopupFooter>
 
                     {(type === "anime" && !!libraryData) && <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
 
-                    {showListDataButton && <AnilistAnimeEntryModal listData={listData} media={media} type={type} />}
+                    {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} />}
 
                     {withAudienceScore &&
-                        <AnimeEntryAudienceScore
+                        <MediaEntryAudienceScore
                             meanScore={media.meanScore}
                         />}
 
-                </AnimeEntryCardHoverPopupFooter>
-            </AnimeEntryCardHoverPopup>
+                </MediaEntryCardHoverPopupFooter>
+            </MediaEntryCardHoverPopup>
 
 
-            <AnimeEntryCardBody
+            <MediaEntryCardBody
                 link={link}
                 type={type}
                 title={media.title?.userPreferred || ""}
@@ -244,13 +245,13 @@ export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCar
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
                 <div className="absolute z-[10] left-1 bottom-1">
-                    <AnimeEntryProgressBadge
+                    <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
                     />
                 </div>
                 <div className="absolute z-[10] right-1 bottom-1">
-                    <AnimeEntryScoreBadge
+                    <MediaEntryScoreBadge
                         score={listData?.score}
                     />
                 </div>
@@ -263,16 +264,16 @@ export function AnimeEntryCard<T extends "anime" | "manga">(props: AnimeEntryCar
                         ><RiCalendarLine /></Badge>
                     </div>
                 )}
-            </AnimeEntryCardBody>
+            </MediaEntryCardBody>
 
-            <AnimeEntryCardTitleSection
+            <MediaEntryCardTitleSection
                 title={media.title?.userPreferred || ""}
                 year={media.startDate?.year}
                 season={media.season}
                 format={media.format}
             />
 
-        </AnimeEntryCardContainer>
+        </MediaEntryCardContainer>
     )
 }
 
