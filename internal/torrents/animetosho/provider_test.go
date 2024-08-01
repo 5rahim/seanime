@@ -161,3 +161,21 @@ func TestSearch2(t *testing.T) {
 		t.Logf("\tConfirmed: %v", torrent.Confirmed)
 	}
 }
+
+func TestGetLatest(t *testing.T) {
+
+	toshoPlatform := NewProvider(util.NewLogger())
+	torrents, err := toshoPlatform.GetLatest()
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, len(torrents), 1, "expected at least 1 torrent")
+
+	for _, torrent := range torrents {
+		t.Log(torrent.Name)
+		t.Logf("\tLink: %s", torrent.Link)
+		t.Logf("\tMagnet: %s", torrent.MagnetLink)
+		t.Logf("\tEpisodeNumber: %d", torrent.EpisodeNumber)
+		t.Logf("\tResolution: %s", torrent.Resolution)
+		t.Logf("\tIsBatch: %v", torrent.IsBatch)
+		t.Logf("\tConfirmed: %v", torrent.Confirmed)
+	}
+}

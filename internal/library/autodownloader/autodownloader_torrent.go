@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"seanime/seanime-parser"
 )
@@ -16,12 +17,12 @@ type (
 )
 
 func (ad *AutoDownloader) getLatestTorrents() (ret []*NormalizedTorrent, err error) {
-	ad.logger.Debug().Msg("autodownloader: Checking for new episodes from Nyaa")
+	ad.logger.Debug().Msg("autodownloader: Checking for new episodes")
 
 	providerExtension, ok := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 	if !ok {
 		ad.logger.Warn().Msg("autodownloader: No default torrent provider found")
-		return []*NormalizedTorrent{}, nil
+		return nil, errors.New("no default torrent provider found")
 	}
 
 	// Get the latest torrents
@@ -44,6 +45,7 @@ func (ad *AutoDownloader) getLatestTorrents() (ret []*NormalizedTorrent, err err
 	return ret, nil
 }
 
+// GetMagnet returns the magnet link for the torrent.
 func (t *NormalizedTorrent) GetMagnet(providerExtension hibiketorrent.AnimeProvider) (string, error) {
 	if t.magnet == "" {
 		magnet, err := providerExtension.GetTorrentMagnetLink(&t.AnimeTorrent)

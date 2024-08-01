@@ -65,6 +65,18 @@ func (m *OnlinestreamProviderExtensionImpl) GetPayload() string {
 	return m.ext.Payload
 }
 
-func (m *OnlinestreamProviderExtensionImpl) GetMeta() Meta {
-	return m.ext.Meta
+func (m *OnlinestreamProviderExtensionImpl) GetWebsite() string {
+	return m.ext.Website
+}
+
+func (m *OnlinestreamProviderExtensionImpl) GetIcon() string {
+	return m.ext.Icon
+}
+
+func (m *OnlinestreamProviderExtensionImpl) GetScopes() []string {
+	return m.ext.Scopes
+}
+
+func (m *OnlinestreamProviderExtensionImpl) GetConfig() Config {
+	return m.ext.Config
 }

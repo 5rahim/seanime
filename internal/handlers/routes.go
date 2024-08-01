@@ -69,6 +69,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		})
 	}
 
+	//fiberApp.Use(pprof.New(pprof.Config{
+	//	Prefix: "/api/v1",
+	//}))
+
 	v1.Get("/internal/docs", makeHandler(app, HandleGetDocs))
 
 	// Image Proxy

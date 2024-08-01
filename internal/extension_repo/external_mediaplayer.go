@@ -5,18 +5,18 @@ import (
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Manga
+// Media player
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err error) {
+func (r *Repository) loadExternalMediaPlayerExtension(ext *extension.Extension) (err error) {
 
 	switch ext.Language {
 	case extension.LanguageGo:
-		err = r.loadExternalMangaExtensionGo(ext)
+		err = r.loadExternalMediaPlayerExtensionGo(ext)
 	case extension.LanguageJavascript:
-		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageJavascript)
+		err = r.loadExternalMediaPlayerExtensionJS(ext, extension.LanguageJavascript)
 	case extension.LanguageTypescript:
-		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageTypescript)
+		err = r.loadExternalMediaPlayerExtensionJS(ext, extension.LanguageTypescript)
 	}
 
 	if err != nil {
@@ -26,22 +26,22 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 	return
 }
 
-func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) error {
+func (r *Repository) loadExternalMediaPlayerExtensionGo(ext *extension.Extension) error {
 
-	provider, err := NewYaegiMangaProvider(r.yaegiInterp, ext, r.logger)
+	provider, err := NewYaegiMediaPlayer(r.yaegiInterp, ext, r.logger)
 	if err != nil {
 		return err
 	}
 
 	// Add the extension to the map
-	retExt := extension.NewMangaProviderExtension(ext, provider)
+	retExt := extension.NewMediaPlayerExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }
 
-func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {
+func (r *Repository) loadExternalMediaPlayerExtensionJS(ext *extension.Extension, language extension.Language) error {
 
-	provider, gojaExt, err := NewGojaMangaProvider(ext, language, r.logger)
+	provider, gojaExt, err := NewGojaMediaPlayer(ext, language, r.logger)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, lang
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
-	retExt := extension.NewMangaProviderExtension(ext, provider)
+	retExt := extension.NewMediaPlayerExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }

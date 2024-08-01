@@ -29,7 +29,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card relative overflow-hidden",
-                "bg-gray-950 border rounded-md p-3",
+                "bg-gray-950 border border-[rgb(255_255_255_/_5%)] rounded-md p-3",
             )}
         >
             <div
@@ -99,9 +99,9 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
                     <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
-                        {!!extension.extension?.meta?.icon ? (
+                        {!!extension.extension?.icon ? (
                             <Image
-                                src={extension.extension?.meta?.icon}
+                                src={extension.extension?.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"
                                 fill

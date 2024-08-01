@@ -26,7 +26,6 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 		return
 	}
 
-	//r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded anime torrent provider extension")
 	return
 }
 
@@ -38,7 +37,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionGo(ext *extension.
 	}
 
 	// Add the extension to the map
-	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider) // FIXME
+	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }
@@ -53,7 +52,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
-	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider) // FIXME
+	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }

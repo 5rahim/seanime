@@ -78,9 +78,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
                     <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
-                        {!!extension.meta.icon ? (
+                        {!!extension.icon ? (
                             <Image
-                                src={extension.meta.icon}
+                                src={extension.icon}
                                 alt="extension icon"
                                 crossOrigin="anonymous"
                                 fill
@@ -204,7 +204,7 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
             {isInstalled && (
                 <div className="flex gap-2">
                     <>
-                        {<Button
+                        {!!extension.manifestURI && <Button
                             intent="gray-outline"
                             leftIcon={<GrUpdate className="text-lg" />}
                             disabled={!extension.manifestURI}

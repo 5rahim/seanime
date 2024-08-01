@@ -65,6 +65,18 @@ func (m *AnimeTorrentProviderExtensionImpl) GetPayload() string {
 	return m.ext.Payload
 }
 
-func (m *AnimeTorrentProviderExtensionImpl) GetMeta() Meta {
-	return m.ext.Meta
+func (m *AnimeTorrentProviderExtensionImpl) GetWebsite() string {
+	return m.ext.Website
+}
+
+func (m *AnimeTorrentProviderExtensionImpl) GetIcon() string {
+	return m.ext.Icon
+}
+
+func (m *AnimeTorrentProviderExtensionImpl) GetScopes() []string {
+	return m.ext.Scopes
+}
+
+func (m *AnimeTorrentProviderExtensionImpl) GetConfig() Config {
+	return m.ext.Config
 }

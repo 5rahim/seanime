@@ -31,7 +31,6 @@ func TestGojaWithExtension(t *testing.T) {
 		Type:        extension.TypeMangaProvider,
 		Description: "",
 		Author:      "",
-		Meta:        extension.Meta{},
 		Payload:     string(fileB),
 	}
 

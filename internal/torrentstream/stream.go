@@ -100,7 +100,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
-			r.StopStream()
+			_ = r.StopStream()
 			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
 		}
 	}()

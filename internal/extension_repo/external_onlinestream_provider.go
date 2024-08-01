@@ -26,7 +26,6 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 		return
 	}
 
-	//r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded online streaming provider extension")
 	return
 }
 
@@ -38,7 +37,7 @@ func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.
 	}
 
 	// Add the extension to the map
-	retExt := extension.NewOnlinestreamProviderExtension(ext, provider) // FIXME
+	retExt := extension.NewOnlinestreamProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }
@@ -54,7 +53,7 @@ func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extensio
 	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
-	retExt := extension.NewOnlinestreamProviderExtension(ext, provider) // FIXME
+	retExt := extension.NewOnlinestreamProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
 	return nil
 }

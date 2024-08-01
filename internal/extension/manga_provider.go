@@ -65,6 +65,18 @@ func (m *MangaProviderExtensionImpl) GetPayload() string {
 	return m.ext.Payload
 }
 
-func (m *MangaProviderExtensionImpl) GetMeta() Meta {
-	return m.ext.Meta
+func (m *MangaProviderExtensionImpl) GetWebsite() string {
+	return m.ext.Website
+}
+
+func (m *MangaProviderExtensionImpl) GetIcon() string {
+	return m.ext.Icon
+}
+
+func (m *MangaProviderExtensionImpl) GetScopes() []string {
+	return m.ext.Scopes
+}
+
+func (m *MangaProviderExtensionImpl) GetConfig() Config {
+	return m.ext.Config
 }

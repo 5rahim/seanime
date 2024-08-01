@@ -4,12 +4,13 @@ go 1.22
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/hibike v0.3.2
+	github.com/5rahim/hibike v0.4.3
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/Yamashou/gqlgenc v0.23.2
 	github.com/adrg/strutil v0.3.1
+	github.com/anacrolix/log v0.15.2
 	github.com/anacrolix/sync v0.5.1
 	github.com/anacrolix/torrent v1.56.1
 	github.com/charmbracelet/lipgloss v0.11.0
@@ -58,7 +59,6 @@ require (
 	github.com/anacrolix/envpprof v1.3.0 // indirect
 	github.com/anacrolix/generics v0.0.2-0.20240227122613-f95486179cab // indirect
 	github.com/anacrolix/go-libutp v1.3.1 // indirect
-	github.com/anacrolix/log v0.15.2 // indirect
 	github.com/anacrolix/missinggo v1.3.0 // indirect
 	github.com/anacrolix/missinggo/perf v1.0.0 // indirect
 	github.com/anacrolix/missinggo/v2 v2.7.3 // indirect

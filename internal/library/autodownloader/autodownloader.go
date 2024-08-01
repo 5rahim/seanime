@@ -134,6 +134,7 @@ func (ad *AutoDownloader) Start() {
 			started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
 			if !started {
 				ad.logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running for the Auto Downloader to work.")
+				ad.mu.Unlock()
 				return
 			}
 		}
@@ -154,6 +155,7 @@ func (ad *AutoDownloader) Run() {
 		ad.mu.Lock()
 		defer ad.mu.Unlock()
 		ad.startCh <- struct{}{}
+		ad.logger.Trace().Msg("autodownloader: Received start signal")
 	}()
 }
 
@@ -193,7 +195,7 @@ func (ad *AutoDownloader) start() {
 
 		case <-ad.startCh:
 			if ad.settings.Enabled {
-				ad.logger.Info().Msg("autodownloader: Auto Downloader started")
+				ad.logger.Debug().Msg("autodownloader: Auto Downloader started")
 				ad.checkForNewEpisodes()
 			}
 		case <-ticker.C:
@@ -212,15 +214,18 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	ad.mu.Lock()
 	if ad == nil || ad.torrentRepository == nil || !ad.settings.Enabled || ad.settings.Provider == "" || ad.settings.Provider == torrent.ProviderNone {
 		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. AutoDownloader is not enabled or provider is not set.")
+		ad.mu.Unlock()
 		return
 	}
 	providerExt, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 	if !found {
 		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. Default provider not found.")
+		ad.mu.Unlock()
 		return
 	}
 	if providerExt.GetProvider().GetSettings().Type != hibiketorrent.AnimeProviderTypeMain {
 		ad.logger.Warn().Msgf("autodownloader: Could not check for new episodes. Provider '%s' cannot be used for auto downloading.", providerExt.GetName())
+		ad.mu.Unlock()
 		return
 	}
 	ad.mu.Unlock()

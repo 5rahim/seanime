@@ -169,6 +169,7 @@ func (g *GojaAnimeTorrentProvider) GetLatest() (ret []*hibiketorrent.AnimeTorren
 
 	return
 }
+
 func (g *GojaAnimeTorrentProvider) GetSettings() (ret hibiketorrent.AnimeProviderSettings) {
 
 	res, err := g.callClassMethod("getSettings")

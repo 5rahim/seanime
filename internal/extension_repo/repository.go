@@ -103,7 +103,7 @@ func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 
 func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
-		ret = append(ret, extension.InstalledToExtensionData(ext))
+		ret = append(ret, extension.ToExtensionData(ext))
 		return true
 	})
 

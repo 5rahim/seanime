@@ -3,6 +3,7 @@ package animetosho
 import (
 	"bytes"
 	"fmt"
+	"github.com/dustin/go-humanize"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
@@ -613,7 +614,7 @@ func (t *Torrent) toAnimeTorrent(media *hibiketorrent.Media) *hibiketorrent.Anim
 		Name:          t.Title,
 		Date:          formattedDate,
 		Size:          t.TotalSize,
-		FormattedSize: util.ToHumanReadableSize(t.TotalSize),
+		FormattedSize: humanize.Bytes(uint64(t.TotalSize)),
 		Seeders:       t.Seeders,
 		Leechers:      t.Leechers,
 		DownloadCount: t.TorrentDownloadCount,

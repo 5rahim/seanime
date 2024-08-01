@@ -1567,6 +1567,45 @@ export type DB_ScanSummaryItem = {
  * - Filename: extension.go
  * - Package: extension
  */
+export type Extension_Config = {
+    requiresConfig: boolean
+    fields?: Array<Extension_ConfigField>
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_ConfigField = {
+    type: Extension_ConfigFieldType
+    name: string
+    options?: Array<Extension_ConfigFieldSelectOption>
+    default: string
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_ConfigFieldSelectOption = {
+    value: string
+    label: string
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_ConfigFieldType = "text" | "switch" | "select" | "number"
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
 export type Extension_Extension = {
     /**
      * e.g. "extension-example"
@@ -1600,7 +1639,10 @@ export type Extension_Extension = {
      * e.g. "Seanime"
      */
     author: string
-    meta: Extension_Meta
+    icon: string
+    website: string
+    scopes?: Array<string>
+    config?: Extension_Config
     payload: string
 }
 
@@ -1622,7 +1664,7 @@ export type Extension_InvalidExtension = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload"
+export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "invalid_authorization"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -1636,17 +1678,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Meta = {
-    icon: string
-    website: string
-}
-
-/**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
- * - Package: extension
- */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider"
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "mediaplayer"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionRepo

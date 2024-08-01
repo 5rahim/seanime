@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"seanime/internal/util"
+	"github.com/dustin/go-humanize"
 	"strings"
 )
 
@@ -19,7 +19,7 @@ func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 	}
 
 	// Return the cache size
-	return c.RespondWithData(util.ToHumanReadableSize(size))
+	return c.RespondWithData(humanize.Bytes(uint64(size)))
 }
 
 // HandleRemoveFileCacheBucket
@@ -68,7 +68,7 @@ func HandleGetFileCacheMediastreamVideoFilesTotalSize(c *RouteCtx) error {
 	}
 
 	// Return the cache size
-	return c.RespondWithData(util.ToHumanReadableSize(size))
+	return c.RespondWithData(humanize.Bytes(uint64(size)))
 }
 
 // HandleClearFileCacheMediastreamVideoFiles

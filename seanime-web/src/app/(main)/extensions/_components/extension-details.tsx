@@ -21,9 +21,9 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
     return (
         <>
             <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
-                {!!extension.meta.icon ? (
+                {!!extension.icon ? (
                     <Image
-                        src={extension.meta.icon}
+                        src={extension.icon}
                         alt="extension icon"
                         crossOrigin="anonymous"
                         fill
@@ -47,8 +47,8 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
 
                     <div className="flex flex-1"></div>
 
-                    {!!extension.meta.website && <Link
-                        href={extension.meta.website}
+                    {!!extension.website && <Link
+                        href={extension.website}
                         target="_blank"
                         className="inline-block"
                     >
@@ -75,9 +75,9 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                 <p className="text-md line-clamp-1">
                     <span className="text-[--muted]">Language:</span> <span className="">{capitalize(extension.language)}</span>
                 </p>
-                <p className="text-md line-clamp-1">
+                {!!extension.manifestURI && <p className="text-md line-clamp-1">
                     <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>
-                </p>
+                </p>}
             </div>
         </>
     )

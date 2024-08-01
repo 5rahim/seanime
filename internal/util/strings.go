@@ -57,27 +57,6 @@ func ToHumanReadableSpeed(bytesPerSecond int) string {
 	return fmt.Sprintf("%.1f %cB/s", float64(bytesPerSecond)/float64(div), "KMGTPE"[exp])
 }
 
-// ToHumanReadableSize converts total size in bytes to a human-readable string
-func ToHumanReadableSize(bytes int64) string { // FIXME incorrect
-	if bytes < 0 {
-		return "Invalid size"
-	}
-
-	// Define the size units
-	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"}
-
-	// Loop through units and divide by 1024 until the size is less than 1024
-	size := float64(bytes)
-	unitIndex := 0
-	for size >= 1024 && unitIndex < len(units)-1 {
-		size /= 1024
-		unitIndex++
-	}
-
-	// Use a format string to limit the number of decimal places
-	return fmt.Sprintf("%.1f %s", size, units[unitIndex])
-}
-
 func StringSizeToBytes(str string) (int64, error) {
 	// Regular expression to extract size and unit
 	re := regexp.MustCompile(`(?i)^(\d+(\.\d+)?)\s*([KMGT]?i?B)$`)
