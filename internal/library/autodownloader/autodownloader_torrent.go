@@ -3,7 +3,10 @@ package autodownloader
 import (
 	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/samber/lo"
+	"seanime/internal/library/anime"
 	"seanime/seanime-parser"
+	"sync"
 )
 
 type (
@@ -16,7 +19,7 @@ type (
 	}
 )
 
-func (ad *AutoDownloader) getLatestTorrents() (ret []*NormalizedTorrent, err error) {
+func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (ret []*NormalizedTorrent, err error) {
 	ad.logger.Debug().Msg("autodownloader: Checking for new episodes")
 
 	providerExtension, ok := ad.torrentRepository.GetDefaultAnimeProviderExtension()
@@ -30,6 +33,36 @@ func (ad *AutoDownloader) getLatestTorrents() (ret []*NormalizedTorrent, err err
 	if err != nil {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
 		return nil, err
+	}
+
+	if ad.settings.EnableEnhancedQueries {
+		// Get unique release groups
+		uniqueReleaseGroups := GetUniqueReleaseGroups(rules)
+		// Filter the torrents
+		wg := sync.WaitGroup{}
+		mu := sync.Mutex{}
+		wg.Add(len(uniqueReleaseGroups))
+
+		for _, releaseGroup := range uniqueReleaseGroups {
+			go func(releaseGroup string) {
+				defer wg.Done()
+				filteredTorrents, err := providerExtension.GetProvider().Search(hibiketorrent.AnimeSearchOptions{
+					Media: hibiketorrent.Media{},
+					Query: releaseGroup,
+				})
+				if err != nil {
+					return
+				}
+				mu.Lock()
+				torrents = append(torrents, filteredTorrents...)
+				mu.Unlock()
+			}(releaseGroup)
+		}
+		wg.Wait()
+		// Remove duplicates
+		torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
+			return t.Name
+		})
 	}
 
 	// Normalize the torrents

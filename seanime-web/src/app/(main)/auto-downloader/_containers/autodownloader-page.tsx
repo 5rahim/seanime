@@ -24,6 +24,7 @@ const settingsSchema = defineSchema(({ z }) => z.object({
     interval: z.number().min(2),
     enabled: z.boolean(),
     downloadAutomatically: z.boolean(),
+    enableEnhancedQueries: z.boolean(),
 }))
 
 export function AutoDownloaderPage() {
@@ -131,6 +132,7 @@ export function AutoDownloaderPage() {
                                 enabled: serverStatus?.settings?.autoDownloader?.enabled ?? false,
                                 interval: serverStatus?.settings?.autoDownloader?.interval || 10,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
+                                enableEnhancedQueries: serverStatus?.settings?.autoDownloader?.enableEnhancedQueries ?? false,
                             }}
                             stackClass="space-y-6"
                         >
@@ -149,14 +151,19 @@ export function AutoDownloaderPage() {
                                             !f.watch("enabled") && "pointer-events-none opacity-50",
                                         )}
                                     >
+                                        <Field.Switch
+                                            label="Use enhanced queries"
+                                            name="enableEnhancedQueries"
+                                            help="Seanime will use multiple custom queries instead of a single one."
+                                        />
                                         <Field.Checkbox
                                             label="Download episodes immediately"
                                             name="downloadAutomatically"
-                                            help="If disabled, torrents will be added to the queue"
+                                            help="If disabled, torrents will be added to the queue."
                                         />
                                         <Field.Number
                                             label="Interval"
-                                            help="How often to check for new episodes"
+                                            help="How often to check for new episodes."
                                             name="interval"
                                             leftAddon="Every"
                                             rightAddon="minutes"

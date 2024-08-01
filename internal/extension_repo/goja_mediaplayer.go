@@ -95,47 +95,55 @@ func (g *GojaMediaPlayer) Start() error {
 	return nil
 }
 
-func (g *GojaMediaPlayer) Play(req hibikemediaplayer.PlayRequest) (hibikemediaplayer.PlayResponse, error) {
+func (g *GojaMediaPlayer) Stop() error {
+	_, err := g.callClassMethod("stop")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *GojaMediaPlayer) Play(req hibikemediaplayer.PlayRequest) (*hibikemediaplayer.PlayResponse, error) {
 	res, err := g.callClassMethod("play", g.vm.ToValue(structToMap(req)))
 	if err != nil {
-		return hibikemediaplayer.PlayResponse{}, err
+		return nil, err
 	}
 
 	var ret hibikemediaplayer.PlayResponse
 	err = g.unmarshalValue(res, &ret)
 	if err != nil {
-		return hibikemediaplayer.PlayResponse{}, err
+		return nil, err
 	}
 
-	return ret, nil
+	return &ret, nil
 }
 
-func (g *GojaMediaPlayer) Stream(req hibikemediaplayer.PlayRequest) (hibikemediaplayer.PlayResponse, error) {
+func (g *GojaMediaPlayer) Stream(req hibikemediaplayer.PlayRequest) (*hibikemediaplayer.PlayResponse, error) {
 	res, err := g.callClassMethod("stream", g.vm.ToValue(structToMap(req)))
 	if err != nil {
-		return hibikemediaplayer.PlayResponse{}, err
+		return nil, err
 	}
 
 	var ret hibikemediaplayer.PlayResponse
 	err = g.unmarshalValue(res, &ret)
 	if err != nil {
-		return hibikemediaplayer.PlayResponse{}, err
+		return nil, err
 	}
 
-	return ret, nil
+	return &ret, nil
 }
 
-func (g *GojaMediaPlayer) GetPlaybackStatus() (hibikemediaplayer.PlaybackStatus, error) {
+func (g *GojaMediaPlayer) GetPlaybackStatus() (*hibikemediaplayer.PlaybackStatus, error) {
 	res, err := g.callClassMethod("getPlaybackStatus")
 	if err != nil {
-		return hibikemediaplayer.PlaybackStatus{}, err
+		return nil, err
 	}
 
 	var ret hibikemediaplayer.PlaybackStatus
 	err = g.unmarshalValue(res, &ret)
 	if err != nil {
-		return hibikemediaplayer.PlaybackStatus{}, err
+		return nil, err
 	}
 
-	return ret, nil
+	return &ret, nil
 }

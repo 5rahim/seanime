@@ -24833,6 +24833,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "EnableEnhancedQueries",
+        "jsonName": "enableEnhancedQueries",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28070,6 +28079,18 @@
     "filename": "goja_manga_provider.go",
     "name": "GojaMangaProvider",
     "formattedName": "ExtensionRepo_GojaMangaProvider",
+    "package": "extension_repo",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "extension_repo.gojaExtensionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_mediaplayer.go",
+    "filename": "goja_mediaplayer.go",
+    "name": "GojaMediaPlayer",
+    "formattedName": "ExtensionRepo_GojaMediaPlayer",
     "package": "extension_repo",
     "fields": [],
     "comments": [],
@@ -31324,6 +31345,26 @@
     "embeddedStructNames": [
       "hibiketorrent.AnimeTorrent"
     ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/helpers.go",
+    "filename": "helpers.go",
+    "name": "RuleContainer",
+    "formattedName": "RuleContainer",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "rules",
+        "jsonName": "rules",
+        "goType": "[]anime.AutoDownloaderRule",
+        "typescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e",
+        "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/library/autoscanner/autoscanner.go",

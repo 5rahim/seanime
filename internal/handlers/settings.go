@@ -164,6 +164,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Interval              int  `json:"interval"`
 		Enabled               bool `json:"enabled"`
 		DownloadAutomatically bool `json:"downloadAutomatically"`
+		EnableEnhancedQueries bool `json:"enableEnhancedQueries"`
 	}
 
 	var b body
@@ -187,6 +188,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Interval:              b.Interval,
 		Enabled:               b.Enabled,
 		DownloadAutomatically: b.DownloadAutomatically,
+		EnableEnhancedQueries: b.EnableEnhancedQueries,
 	}
 
 	_, err = c.App.Database.UpsertSettings(&models.Settings{

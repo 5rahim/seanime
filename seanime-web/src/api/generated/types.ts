@@ -2034,6 +2034,7 @@ export type Models_AutoDownloaderSettings = {
     interval: number
     enabled: boolean
     downloadAutomatically: boolean
+    enableEnhancedQueries: boolean
 }
 
 /**

@@ -73,6 +73,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 			Interval:              10,
 			Enabled:               false,
 			DownloadAutomatically: false,
+			EnableEnhancedQueries: false,
 		},
 		settingsUpdatedCh: make(chan struct{}, 1),
 		stopCh:            make(chan struct{}, 1),
@@ -217,9 +218,11 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		ad.mu.Unlock()
 		return
 	}
+
+	// DEVNOTE: [checkForNewEpisodes] is called on startup, when the default anime provider extension has not yet been loaded.
 	providerExt, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 	if !found {
-		ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. Default provider not found.")
+		//ad.logger.Warn().Msg("autodownloader: Could not check for new episodes. Default provider not found.")
 		ad.mu.Unlock()
 		return
 	}
@@ -248,7 +251,8 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	// Create a LocalFileWrapper
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 
-	torrents, err = ad.getLatestTorrents()
+	// Get the latest torrents
+	torrents, err = ad.getLatestTorrents(rules)
 	if err != nil {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
 		return
