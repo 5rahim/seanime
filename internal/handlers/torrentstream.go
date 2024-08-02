@@ -149,6 +149,9 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	userAgent := c.Fiber.Get("User-Agent")
+	clientId, _ := c.Fiber.Locals("Seanime-Client-Id").(string)
+
 	err := c.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
@@ -156,6 +159,8 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		AutoSelect:    b.AutoSelect,
 		Torrent:       b.Torrent,
 		FileIndex:     b.FileIndex,
+		UserAgent:     userAgent,
+		ClientId:      clientId,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

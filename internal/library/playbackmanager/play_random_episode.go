@@ -7,8 +7,14 @@ import (
 	"seanime/internal/library/anime"
 )
 
+type StartRandomVideoOptions struct {
+	UserAgent string
+	ClientId  string
+}
+
 // StartRandomVideo starts a random video from the collection.
-func (pm *PlaybackManager) StartRandomVideo() error {
+// Note that this might now be suited if the user has multiple seasons of the same anime.
+func (pm *PlaybackManager) StartRandomVideo(opts *StartRandomVideoOptions) error {
 	pm.playlistHub.reset()
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
@@ -77,12 +83,14 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 
 	lfs = lo.Shuffle(lfs)
 
-	err = pm.MediaPlayerRepository.Play(lfs[0].GetPath())
+	err = pm.StartPlayingUsingMediaPlayer(&StartPlayingOptions{
+		Payload:   lfs[0].GetPath(),
+		UserAgent: opts.UserAgent,
+		ClientId:  opts.ClientId,
+	})
 	if err != nil {
 		return err
 	}
-
-	pm.MediaPlayerRepository.StartTracking()
 
 	return nil
 }

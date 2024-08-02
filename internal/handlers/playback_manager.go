@@ -1,6 +1,9 @@
 package handlers
 
-import "seanime/internal/database/db_bridge"
+import (
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/playbackmanager"
+)
 
 // HandlePlaybackPlayVideo
 //
@@ -10,7 +13,6 @@ import "seanime/internal/database/db_bridge"
 //	@route /api/v1/playback-manager/play [POST]
 //	@returns bool
 func HandlePlaybackPlayVideo(c *RouteCtx) error {
-
 	type body struct {
 		Path string `json:"path"`
 	}
@@ -19,7 +21,13 @@ func HandlePlaybackPlayVideo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err := c.App.PlaybackManager.StartPlayingUsingMediaPlayer(b.Path)
+	clientId, _ := c.Fiber.Locals("Seanime-Client-Id").(string)
+
+	err := c.App.PlaybackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+		Payload:   b.Path,
+		UserAgent: c.Fiber.Get("User-Agent"),
+		ClientId:  clientId,
+	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -37,7 +45,12 @@ func HandlePlaybackPlayVideo(c *RouteCtx) error {
 //	@returns bool
 func HandlePlaybackPlayRandomVideo(c *RouteCtx) error {
 
-	err := c.App.PlaybackManager.StartRandomVideo()
+	clientId, _ := c.Fiber.Locals("Seanime-Client-Id").(string)
+
+	err := c.App.PlaybackManager.StartRandomVideo(&playbackmanager.StartRandomVideoOptions{
+		UserAgent: c.Fiber.Get("User-Agent"),
+		ClientId:  clientId,
+	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}

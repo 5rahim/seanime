@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"runtime"
 	"seanime/internal/core"
@@ -13,6 +14,7 @@ import (
 	util2 "seanime/internal/util/proxies"
 	"strings"
 	"sync"
+	"time"
 )
 
 func InitRoutes(app *core.App, fiberApp *fiber.App) {
@@ -39,6 +41,34 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
 	})
 	fiberApp.Use(fiberLogger)
+
+	fiberApp.Use(func(c *fiber.Ctx) error {
+		// Check if the client has a UUID cookie
+		cookie := c.Cookies("Seanime-Client-Id")
+
+		if cookie == "" {
+			// Generate a new UUID for the client
+			u := uuid.New().String()
+
+			// Create a cookie with the UUID
+			cookie := new(fiber.Cookie)
+			cookie.Name = "Seanime-Client-Id"
+			cookie.Value = u
+			cookie.HTTPOnly = false // Make the cookie accessible via JS
+			cookie.Expires = time.Now().Add(24 * time.Hour)
+
+			// Set the cookie
+			c.Cookie(cookie)
+
+			// Store the UUID in the context for use in the request
+			c.Locals("Seanime-Client-Id", u)
+		} else {
+			// Store the existing UUID in the context for use in the request
+			c.Locals("Seanime-Client-Id", cookie)
+		}
+
+		return c.Next()
+	})
 
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")

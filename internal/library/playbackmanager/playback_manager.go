@@ -193,13 +193,21 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 	}()
 }
 
-func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type StartPlayingOptions struct {
+	Payload   string // url or path
+	UserAgent string
+	ClientId  string
+}
+
+func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOptions) error {
 	pm.playlistHub.reset()
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
 	}
 
-	err := pm.MediaPlayerRepository.Play(videopath)
+	err := pm.MediaPlayerRepository.Play(opts.Payload)
 	if err != nil {
 		return err
 	}
@@ -209,7 +217,7 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error 
 	return nil
 }
 
-func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *anilist.BaseAnime, aniDbEpisode string) error {
+func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) error {
 	pm.playlistHub.reset()
 	if pm.isOffline {
 		return errors.New("cannot stream when offline")
@@ -236,7 +244,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *ani
 		}
 	}
 
-	err := pm.MediaPlayerRepository.Stream(url)
+	err := pm.MediaPlayerRepository.Stream(opts.Payload)
 	if err != nil {
 		return err
 	}

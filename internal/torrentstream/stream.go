@@ -5,6 +5,7 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
+	"seanime/internal/library/playbackmanager"
 	"strconv"
 	"time"
 
@@ -18,6 +19,8 @@ type StartStreamOptions struct {
 	AutoSelect    bool                        // Automatically select the best file to stream
 	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
 	FileIndex     *int                        // Index of the file to stream (Manual selection)
+	UserAgent     string
+	ClientId      string
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -96,7 +99,11 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		// Start the stream
 		//
 		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseAnime(), aniDbEpisode)
+		err = r.playbackManager.StartStreamingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+			Payload:   r.client.GetStreamingUrl(),
+			UserAgent: opts.UserAgent,
+			ClientId:  opts.ClientId,
+		}, media.ToBaseAnime(), aniDbEpisode)
 		if err != nil {
 			// Failed to start the stream, we'll drop the torrents and stop the server
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)

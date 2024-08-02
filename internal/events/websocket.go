@@ -89,3 +89,21 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 	//}
 	//m.Logger.Trace().Str("type", t).Msg("ws: Sent message")
 }
+
+// SendEventTo sends a websocket event to the specified client.
+func (m *WSEventManager) SendEventTo(clientId string, t string, payload interface{}) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if t != PlaybackManagerProgressPlaybackState && payload == nil {
+		m.Logger.Trace().Str("type", t).Msg("ws: Sending message")
+	}
+
+	for _, conn := range m.Conns {
+		if conn.ID == clientId {
+			_ = conn.Conn.WriteJSON(WSEvent{
+				Type:    t,
+				Payload: payload,
+			})
+		}
+	}
+}
