@@ -75,7 +75,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                 }
             })
 
-            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDayUtc(new Date(item.episodeMetadata?.airDate),
+            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(new Date(item.episodeMetadata?.airDate),
                 day)).map((item) => {
                 return {
                     id: item.baseAnime?.id! + item.fileMetadata?.episode!,

@@ -29,6 +29,7 @@ export function useHandlePlayMedia() {
                 return
             }
 
+            setMediastreamFilePath(path)
             React.startTransition(() => {
                 router.push(`/medialinks?id=${mediaId}`)
             })
