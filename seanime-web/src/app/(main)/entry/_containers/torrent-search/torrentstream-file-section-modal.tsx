@@ -6,8 +6,8 @@ import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torr
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -94,7 +94,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
     }, [filePreviews, selectedFileIdx])
 
     return (
-        <Drawer
+        <Modal
             open={!!selectedTorrent}
             onOpenChange={open => {
                 if (!open) {
@@ -102,8 +102,8 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
                     setSelectedFileIdx(-1)
                 }
             }}
-            size="xl"
-            // contentClass="max-w-3xl"
+            // size="xl"
+            contentClass="max-w-5xl"
             title="Choose a file to stream"
         >
             <AppLayoutStack className="mt-4">
@@ -136,7 +136,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeE
 
                 {/*</div>*/}
             </AppLayoutStack>
-        </Drawer>
+        </Modal>
     )
 
 }

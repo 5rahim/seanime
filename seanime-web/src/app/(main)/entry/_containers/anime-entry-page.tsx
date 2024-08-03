@@ -62,7 +62,7 @@ export function AnimeEntryPage() {
 
             <div className="px-4 md:px-8 relative z-[8]">
                 <PageWrapper
-                    className="relative 2xl:order-first pb-10 pt-4"
+                    className="relative 2xl:order-first pb-10"
                     {...{
                         initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
@@ -93,7 +93,7 @@ export function AnimeEntryPage() {
 
                         {isTorrentStreamingView && <PageWrapper
                             key="torrent-streaming-episodes"
-                            className="relative 2xl:order-first pb-10"
+                            className="relative 2xl:order-first pb-10 lg:pt-0"
                             {...{
                                 initial: { opacity: 0, y: 60 },
                                 animate: { opacity: 1, y: 0 },

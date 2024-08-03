@@ -25,7 +25,7 @@ export function AnimeEntryMetadataManager(props: AnimeEntryMetadataManagerProps)
     const { mutate: filler_populate, isPending: filler_isPopulating } = usePopulateFillerData()
     const { mutate: filler_remove, isPending: filler_isRemoving } = useRemoveFillerData()
 
-    const cannotAddMetadata = entry.media?.format !== "TV" && entry.media?.format !== "TV_SHORT"
+    const cannotAddMetadata = entry.media?.format !== "TV" && entry.media?.format !== "TV_SHORT" && entry.media?.format !== "ONA"
 
     return (
         <Modal

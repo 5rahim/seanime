@@ -3,7 +3,7 @@ import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip } from "@/components/ui/tooltip"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React from "react"
@@ -26,7 +26,12 @@ export const TorrentPreviewList = React.memo((
         onToggleTorrent,
     }: TorrentPreviewList) => {
 
-    if (isLoading) return <LoadingSpinner />
+    if (isLoading) return <div className="space-y-2">
+        <Skeleton className="h-[96px]" />
+        <Skeleton className="h-[96px]" />
+        <Skeleton className="h-[96px]" />
+        <Skeleton className="h-[96px]" />
+    </div>
 
     return (
         <div className="space-y-2">

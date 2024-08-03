@@ -185,7 +185,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
             <TextInput
                 label="External player link"
                 placeholder="Example: outplayer://{url}"
-                help="Link to the external player."
+                help="URL scheme to open media files."
                 value={externalPlayerLink}
                 onValueChange={setExternalPlayerLink}
             />

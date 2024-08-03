@@ -1,8 +1,8 @@
 import { Anime_AnimeEntry, Anime_AnimeEntryDownloadEpisode } from "@/api/generated/types"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { Drawer } from "@/components/ui/drawer"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
+import { Modal } from "@/components/ui/modal"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -32,24 +32,25 @@ export function TorrentSearchDrawer(props: { entry: Anime_AnimeEntry }) {
     }, [downloadParam])
 
     return (
-        <Drawer
+        <Modal
             open={type !== undefined}
             onOpenChange={() => setter(undefined)}
-            size="xl"
+            // size="xl"
+            contentClass="max-w-5xl"
             title="Search torrents"
         >
-            <div
-                className="bg-[url(/pattern-2.svg)] z-[0] w-full h-[10rem] absolute opacity-50 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"
-            >
-                <div
-                    className="w-full absolute bottom-0 h-[10rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                />
-            </div>
+            {/*<div*/}
+            {/*    className="bg-[url(/pattern-2.svg)] z-[0] w-full h-[10rem] absolute opacity-50 top-[-5rem] left-0 bg-no-repeat bg-right bg-contain"*/}
+            {/*>*/}
+            {/*    <div*/}
+            {/*        className="w-full absolute bottom-0 h-[10rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"*/}
+            {/*    />*/}
+            {/*</div>*/}
             <div className="relative z-[1]">
                 {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
                 {!!type && <TorrentSearchContainer type={type} entry={entry} />}
             </div>
-        </Drawer>
+        </Modal>
     )
 
 }
