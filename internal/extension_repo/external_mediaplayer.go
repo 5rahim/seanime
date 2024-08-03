@@ -1,6 +1,7 @@
 package extension_repo
 
 import (
+	"fmt"
 	"seanime/internal/extension"
 )
 
@@ -9,6 +10,14 @@ import (
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) loadExternalMediaPlayerExtension(ext *extension.Extension) (err error) {
+
+	// Check if the extension ID is not already in use by built-in code
+	switch ext.ID {
+	case "mpv", "vlc", "mpc-hc":
+		err = fmt.Errorf("extension ID '%s' is a reserved ID", ext.ID)
+		return
+	default:
+	}
 
 	switch ext.Language {
 	case extension.LanguageGo:

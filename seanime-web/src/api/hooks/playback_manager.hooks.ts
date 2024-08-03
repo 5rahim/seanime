@@ -1,5 +1,5 @@
 import { useServerMutation } from "@/api/client/requests"
-import { PlaybackPlayVideo_Variables, PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
+import { PlaybackPlayVideo_Variables, PlaybackStartManualTracking_Variables, PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useQueryClient } from "@tanstack/react-query"
@@ -94,6 +94,28 @@ export function usePlaybackPlayRandomVideo() {
         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackPlayRandomVideo.key],
         onSuccess: async () => {
             toast.success("Playing random episode")
+        },
+    })
+}
+
+export function usePlaybackStartManualTracking() {
+    return useServerMutation<boolean, PlaybackStartManualTracking_Variables>({
+        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.endpoint,
+        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.methods[0],
+        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.key],
+        onSuccess: async () => {
+
+        },
+    })
+}
+
+export function usePlaybackCancelManualTracking({ onSuccess }: { onSuccess?: () => void }) {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.endpoint,
+        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.methods[0],
+        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.key],
+        onSuccess: async () => {
+            onSuccess?.()
         },
     })
 }

@@ -1,0 +1,46 @@
+{
+  "id": "mobileplayer",
+  "name": "MobilePlayer",
+  "description": "",
+  "version": "0.0.1",
+  "type": "mediaplayer",
+  "manifestURI": "",
+  "language": "go",
+  "author": "Seanime",
+  "config": {
+    "requiresConfig": true,
+    "fields": [
+      {
+        "type": "select",
+        "label": "iOS Player",
+        "name": "iosPlayer",
+        "options": [
+          {
+            "label": "Outplayer",
+            "value": "outplayer"
+          },
+          {
+            "label": "VLC",
+            "value": "vlc"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "label": "Android Player",
+        "name": "androidPlayer",
+        "options": [
+          {
+            "label": "VLC",
+            "value": "vlc"
+          },
+          {
+            "label": "MX Player",
+            "value": "mxplayer"
+          }
+        ]
+      }
+    ]
+  },
+  "payload": ""
+}

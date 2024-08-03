@@ -1218,6 +1218,28 @@
 //     })
 // }
 
+// export function usePlaybackStartManualTracking() {
+//     return useServerMutation<boolean, PlaybackStartManualTracking_Variables>({
+//         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.endpoint,
+//         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.methods[0],
+//         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartManualTracking.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function usePlaybackCancelManualTracking() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.endpoint,
+//         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.methods[0],
+//         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // playlist
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

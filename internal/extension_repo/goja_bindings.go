@@ -160,11 +160,23 @@ func gojaBindConsole(vm *goja.Runtime, logger *zerolog.Logger) error {
 }
 
 // Log method for console.log
-func (c *gojaConsole) Log(t string) func(c goja.FunctionCall) goja.Value {
+func (c *gojaConsole) Log(t string) (ret func(c goja.FunctionCall) goja.Value) {
+	defer func() {
+		if r := recover(); r != nil {
+			c.logger.Error().Msgf("extension: Panic from console.log: %v", r)
+			ret = func(call goja.FunctionCall) goja.Value {
+				return goja.Undefined()
+			}
+		}
+	}()
 
 	return func(call goja.FunctionCall) goja.Value {
 		var ret []string
 		for _, arg := range call.Arguments {
+			if arg == nil || arg.Export() == nil || arg.ExportType() == nil {
+				ret = append(ret, "undefined")
+				continue
+			}
 			if arg.ExportType().Kind() == reflect.Struct || arg.ExportType().Kind() == reflect.Map || arg.ExportType().Kind() == reflect.Slice {
 				ret = append(ret, strings.ReplaceAll(spew.Sdump(arg.Export()), "\n", ""))
 			} else {

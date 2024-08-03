@@ -1580,6 +1580,7 @@ export type Extension_Config = {
 export type Extension_ConfigField = {
     type: Extension_ConfigFieldType
     name: string
+    label: string
     options?: Array<Extension_ConfigFieldSelectOption>
     default: string
 }
@@ -1804,6 +1805,9 @@ export type MalAuthResponse = {
  */
 export type Status = {
     os: string
+    clientDevice: string
+    clientPlatform: string
+    clientUserAgent: string
     user?: Anime_User
     settings?: Models_Settings
     mal?: Models_Mal
@@ -2569,6 +2573,13 @@ export type Torrentstream_FilePreview = {
     isLikely: boolean
     index: number
 }
+
+/**
+ * - Filepath: internal/torrentstream/stream.go
+ * - Filename: stream.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_PlaybackType = "default" | "externalPlayerLink"
 
 /**
  * - Filepath: internal/torrentstream/events.go

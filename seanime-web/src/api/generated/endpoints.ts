@@ -1023,6 +1023,28 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/playlist-next",
         },
+        /**
+         *  @description
+         *  Route starts manual tracking of a media.
+         *  Used for tracking progress of media that is not played through any integrated media player.
+         *  This should only be used for trackable episodes (episodes that count towards progress).
+         *  This returns 'true' if the tracking was successfully started.
+         */
+        PlaybackStartManualTracking: {
+            key: "PLAYBACK-MANAGER-playback-start-manual-tracking",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/manual-tracking/start",
+        },
+        /**
+         *  @description
+         *  Route cancels manual tracking of a media.
+         *  This will stop the server from expecting progress updates for the media.
+         */
+        PlaybackCancelManualTracking: {
+            key: "PLAYBACK-MANAGER-playback-cancel-manual-tracking",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/manual-tracking/cancel",
+        },
     },
     PLAYLIST: {
         /**

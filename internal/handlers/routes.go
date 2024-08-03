@@ -21,7 +21,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	fiberApp.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, X-Seanime-Mediastream-Client-Id",
+		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
 	// Set up a custom logger for fiber.
@@ -262,6 +262,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playback-manager/next-episode", makeHandler(app, HandlePlaybackPlayNextEpisode))
 	v1.Post("/playback-manager/play", makeHandler(app, HandlePlaybackPlayVideo))
 	v1.Post("/playback-manager/play-random", makeHandler(app, HandlePlaybackPlayRandomVideo))
+	//------------
+	v1.Post("/playback-manager/manual-tracking/start", makeHandler(app, HandlePlaybackStartManualTracking))
+	v1.Post("/playback-manager/manual-tracking/cancel", makeHandler(app, HandlePlaybackCancelManualTracking))
 
 	//
 	// Playlists

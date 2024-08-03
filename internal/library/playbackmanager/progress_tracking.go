@@ -273,6 +273,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackState(status *mediaplayer.Playbac
 
 	// Find the following episode
 	_, canPlayNext := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
+
 	return PlaybackState{
 		EpisodeNumber:        pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
 		MediaTitle:           pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
@@ -417,16 +418,12 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 
 		defer util.HandlePanicInModuleWithError("playbackmanager/updateProgress", &err)
 
-		//
-		// Offline
-		//
+		/// Offline
 		if pm.isOffline {
 			return pm.updateProgressOffline()
 		}
 
-		//
-		// Online
-		//
+		/// Online
 		mediaId = pm.currentMediaListEntry.MustGet().GetMedia().GetID()
 		epNum = pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet())
 		totalEpisodes = pm.currentMediaListEntry.MustGet().GetMedia().GetTotalEpisodeCount() // total episode count or -1
@@ -443,6 +440,35 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 		mediaId = pm.currentStreamMedia.MustGet().ID
 		epNum = pm.currentStreamEpisode.MustGet().GetProgressNumber()
 		totalEpisodes = pm.currentStreamMedia.MustGet().GetTotalEpisodeCount() // total episode count or -1
+
+	case ManualTrackingPlayback:
+		//
+		// Manual Tracking
+		//
+		if pm.currentManualTrackingState.IsAbsent() {
+			return errors.New("no media file is being manually tracked")
+		}
+
+		defer func() {
+			if pm.manualTrackingCtxCancel != nil {
+				pm.manualTrackingCtxCancel()
+			}
+		}()
+
+		/// Offline
+		if pm.isOffline {
+			return pm.updateProgressOfflineWithVars(
+				pm.currentManualTrackingState.MustGet().MediaId,
+				pm.currentManualTrackingState.MustGet().EpisodeNumber,
+				pm.currentManualTrackingState.MustGet().TotalEpisodes,
+			)
+		}
+
+		/// Online
+		mediaId = pm.currentManualTrackingState.MustGet().MediaId
+		epNum = pm.currentManualTrackingState.MustGet().EpisodeNumber
+		totalEpisodes = pm.currentManualTrackingState.MustGet().TotalEpisodes
+
 	default:
 		return errors.New("unknown playback type")
 	}
@@ -471,12 +497,21 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 
 func (pm *PlaybackManager) updateProgressOffline() (err error) {
 	if pm.currentLocalFileWrapperEntry.IsAbsent() || pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() {
-		return errors.New("no video is being watched")
+		return errors.New("no video is being watched or media data is missing")
 	}
 
 	mediaId := pm.currentMediaListEntry.MustGet().GetMedia().GetID()
 	epNum := pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet())
 	totalEpisodes := pm.currentMediaListEntry.MustGet().GetMedia().GetTotalEpisodeCount()
+
+	return pm.updateProgressOfflineWithVars(mediaId, epNum, totalEpisodes)
+}
+
+func (pm *PlaybackManager) updateProgressOfflineWithVars(
+	mediaId int,
+	epNum int,
+	totalEpisodes int,
+) (err error) {
 
 	totalEp := 0
 	if totalEpisodes != 0 && totalEpisodes > 0 {
@@ -493,4 +528,5 @@ func (pm *PlaybackManager) updateProgressOffline() (err error) {
 	}
 
 	return pm.offlineHub.UpdateAnimeListStatus(mediaId, epNum, status)
+
 }

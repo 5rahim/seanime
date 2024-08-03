@@ -403,6 +403,9 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	case extension.TypeAnimeTorrentProvider:
 		// Load torrent provider
 		loadingErr = r.loadExternalAnimeTorrentProviderExtension(ext)
+	case extension.TypeMediaPlayer:
+		// Load media player
+		loadingErr = r.loadExternalMediaPlayerExtension(ext)
 	default:
 		r.logger.Error().Str("type", string(ext.Type)).Msg("extensions: Extension type not supported")
 		loadingErr = fmt.Errorf("extension type not supported")

@@ -71,7 +71,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
             >
                 <Field.Switch
                     name="enabled"
-                    label="Torrent streaming"
+                    label="Enable"
                 />
 
                 <Separator />

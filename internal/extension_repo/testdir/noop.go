@@ -1,1 +1,1 @@
-package testdir
+package extension_repo_test

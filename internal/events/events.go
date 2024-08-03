@@ -12,12 +12,16 @@ const (
 	AutoScanStarted   = "auto-scan-started"   // The auto scan has started
 	AutoScanCompleted = "auto-scan-completed" // The auto scan has stopped
 
-	PlaybackManagerProgressTrackingStarted = "playback-manager-progress-tracking-started" // The video progress tracking has started
-	PlaybackManagerProgressTrackingStopped = "playback-manager-progress-tracking-stopped" // The video progress tracking has stopped
-	PlaybackManagerProgressVideoCompleted  = "playback-manager-progress-video-completed"  // The video progress has been completed
-	PlaybackManagerProgressPlaybackState   = "playback-manager-progress-playback-state"   // Dispatches the current playback state
-	PlaybackManagerProgressUpdated         = "playback-manager-progress-updated"          // Signals that the progress has been updated
-	PlaybackManagerPlaylistState           = "playback-manager-playlist-state"            // Dispatches the current playlist state
+	PlaybackManagerProgressTrackingStarted     = "playback-manager-progress-tracking-started"      // The video progress tracking has started
+	PlaybackManagerProgressTrackingStopped     = "playback-manager-progress-tracking-stopped"      // The video progress tracking has stopped
+	PlaybackManagerProgressVideoCompleted      = "playback-manager-progress-video-completed"       // The video progress has been completed
+	PlaybackManagerProgressPlaybackState       = "playback-manager-progress-playback-state"        // Dispatches the current playback state
+	PlaybackManagerProgressUpdated             = "playback-manager-progress-updated"               // Signals that the progress has been updated
+	PlaybackManagerPlaylistState               = "playback-manager-playlist-state"                 // Dispatches the current playlist state
+	PlaybackManagerManualTrackingPlaybackState = "playback-manager-manual-tracking-playback-state" // Dispatches the current playback state
+	PlaybackManagerManualTrackingStopped       = "playback-manager-manual-tracking-stopped"        // The manual tracking has been stopped
+
+	ExternalPlayerOpenURL = "external-player-open-url" // Open a URL to send media to an external media player
 
 	InfoToast    = "info-toast"
 	ErrorToast   = "error-toast"

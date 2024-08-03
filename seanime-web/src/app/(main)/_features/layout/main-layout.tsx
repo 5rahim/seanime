@@ -2,6 +2,7 @@
 import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
+import { ExternalPlayerLinkButton } from "@/app/(main)/_features/external-player/external-player-link-button"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
@@ -11,6 +12,7 @@ import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-l
 import { useAnimeCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
 import { useExtensionListener } from "@/app/(main)/_listeners/extensions.listeners"
+import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-player-link.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
@@ -35,6 +37,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     useToastEventListeners()
     useExtensionListener()
     useMangaListener()
+    useExternalPlayerLinkListener()
 
     return (
         <>
@@ -45,6 +48,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaylistsModal />
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
+            <ExternalPlayerLinkButton />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

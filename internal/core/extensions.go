@@ -10,13 +10,16 @@ import (
 )
 
 func (a *App) LoadBuiltInExtensions() {
+	var consumers = []extension.Consumer{
+		a.MangaRepository,
+		a.OnlinestreamRepository,
+		a.TorrentRepository,
+		a.MediaPlayerRepository,
+	}
 
-	// Load the extensions to the manga repository
-	a.MangaRepository.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-	// Load the extensions to the online stream repository
-	a.OnlinestreamRepository.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
-	// Load the extensions to the torrent repository
-	a.TorrentRepository.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	for _, consumer := range consumers {
+		consumer.InitExtensionBank(a.ExtensionRepository.GetExtensionBank())
+	}
 
 	//
 	// Built-in manga providers

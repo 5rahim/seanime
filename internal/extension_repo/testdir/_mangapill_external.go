@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const MangapillProvider = "externalMangapill"
+const MangapillProvider = "mangapill-external"
 
 type (
 	Mangapill struct {

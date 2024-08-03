@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"seanime/internal/events"
+	"seanime/internal/extension"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	vlc2 "seanime/internal/mediaplayers/vlc"
@@ -13,8 +14,6 @@ import (
 	"sync"
 	"time"
 )
-
-type MpvType string
 
 type (
 	// Repository provides a common interface to interact with media players
@@ -24,8 +23,9 @@ type (
 		VLC                   *vlc2.VLC
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
-		MpvType               MpvType
-		WSEventManager        events.WSEventManagerInterface
+		wsEventManager        events.WSEventManagerInterface
+		playerInUse           string
+		extensionBank         *extension.UnifiedBank
 		completionThreshold   float64
 		mu                    sync.Mutex
 		isRunning             bool
@@ -66,6 +66,7 @@ type (
 		Duration             int     `json:"duration"` // in ms
 		Filepath             string  `json:"filepath"`
 	}
+	// TODO: Use sync.Pool for PlaybackStatus
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -76,9 +77,10 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		VLC:                 opts.VLC,
 		MpcHc:               opts.MpcHc,
 		Mpv:                 opts.Mpv,
-		WSEventManager:      opts.WSEventManager,
+		wsEventManager:      opts.WSEventManager,
 		completionThreshold: 0.8,
 		subscribers:         result.NewResultMap[string, *RepositorySubscriber](),
+		extensionBank:       extension.NewUnifiedBank(),
 	}
 }
 
@@ -97,6 +99,10 @@ func (m *Repository) Subscribe(id string) *RepositorySubscriber {
 	}
 	m.subscribers.Set(id, sub)
 	return sub
+}
+
+func (m *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
+	m.extensionBank = bank
 }
 
 func (m *Repository) GetStatus() *PlaybackStatus {
@@ -634,3 +640,94 @@ func (m *Repository) processStreamStatus(player string, status interface{}) (*Pl
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//type PlayMediaOptions struct {
+//	Type       PlayMediaType
+//	Path       string
+//	Player     string
+//	ClientId   string
+//	ClientInfo *hibikemediaplayer.ClientInfo
+//}
+//
+//type PlayMediaType string
+//
+//const (
+//	PlayMediaTypeLocal  PlayMediaType = "local"
+//	PlayMediaTypeStream PlayMediaType = "stream"
+//)
+//
+//type PlayMediaResponse struct {
+//	ShouldStartTracking bool
+//}
+//
+//func (m *Repository) PlayMedia(opts *PlayMediaOptions) (*PlayMediaResponse, error) {
+//	m.Logger.Debug().Str("path", opts.Path).Str("player", opts.Player).Msg("media player: Media requested")
+//
+//	m.playerInUse = opts.Player
+//
+//	// Handle built-in player integrations
+//	switch m.playerInUse {
+//	case "vlc", "mpc-hc", "mpv":
+//		switch opts.Type {
+//		case PlayMediaTypeLocal:
+//			err := m.Play(opts.Path)
+//			if err != nil {
+//				return nil, err
+//			}
+//		case PlayMediaTypeStream:
+//			err := m.Stream(opts.Path)
+//			if err != nil {
+//				return nil, err
+//			}
+//		}
+//		return &PlayMediaResponse{ShouldStartTracking: true}, nil
+//	}
+//
+//	providerExt, found := extension.GetExtension[extension.MediaPlayerExtension](m.extensionBank, opts.Player)
+//	if !found {
+//		return nil, fmt.Errorf("media player '%s' not found", opts.Player)
+//	}
+//
+//	var playResponse *hibikemediaplayer.PlayResponse
+//	var err error
+//
+//	switch opts.Type {
+//	case PlayMediaTypeLocal:
+//		playResponse, err = providerExt.GetMediaPlayer().Play(hibikemediaplayer.PlayRequest{
+//			Path:       opts.Path,
+//			ClientInfo: *opts.ClientInfo,
+//		})
+//	case PlayMediaTypeStream:
+//		playResponse, err = providerExt.GetMediaPlayer().Stream(hibikemediaplayer.PlayRequest{
+//			Path:       opts.Path,
+//			ClientInfo: *opts.ClientInfo,
+//		})
+//	}
+//
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	resp := &PlayMediaResponse{
+//		ShouldStartTracking: providerExt.GetMediaPlayer().GetSettings().CanTrackProgress,
+//	}
+//
+//	if playResponse == nil {
+//		return resp, nil
+//	}
+//
+//	// If the response involves opening a URL,
+//	// send the corresponding event to the client
+//	if playResponse.OpenURL != "" {
+//		m.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, playResponse.OpenURL)
+//		return resp, nil
+//	}
+//
+//	if playResponse.Cmd != "" {
+//		return nil, fmt.Errorf("command execution not supported yet")
+//	}
+//
+//	return resp, nil
+//}

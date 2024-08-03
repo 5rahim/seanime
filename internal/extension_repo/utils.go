@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"strings"
 )
 
 func manifestSanityCheck(ext *extension.Extension) error {
@@ -104,4 +105,18 @@ func (r *Repository) isUniqueExtensionID(id string) error {
 		return errors.New("extension ID is already in use")
 	}
 	return nil
+}
+
+func ReplacePackageName(src string, newPkgName string) string {
+	rgxp, err := regexp.Compile(`package \w+`)
+	if err != nil {
+		return ""
+	}
+
+	ogPkg := rgxp.FindString(src)
+	if ogPkg == "" {
+		return src
+	}
+
+	return strings.Replace(src, ogPkg, "package "+newPkgName, 1)
 }

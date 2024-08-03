@@ -1,11 +1,16 @@
 import { Models_MediastreamSettings } from "@/api/generated/types"
 import { useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { Alert } from "@/components/ui/alert"
+import { Checkbox } from "@/components/ui/checkbox"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
 import { FcFolder } from "react-icons/fc"
+import { MdOutlineDevices } from "react-icons/md"
 
 const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeEnabled: z.boolean(),
@@ -50,7 +55,11 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
+
     const { mutate, isPending } = useSaveMediastreamSettings()
+
+    const { activeOnDevice, setActiveOnDevice } = useMediastreamActiveOnDevice()
 
     // const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheMediastreamVideoFilesTotalSize()
 
@@ -91,8 +100,32 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
             >
                 <Field.Switch
                     name="transcodeEnabled"
-                    label="Media streaming & Direct play"
+                    label="Enable"
                 />
+
+                <div className="flex gap-4 items-center border rounded-md p-2 lg:p-4">
+                    <MdOutlineDevices className="text-4xl" />
+                    <div className="space-y-1">
+                        <Checkbox
+                            name=""
+                            value={activeOnDevice ?? false}
+                            onValueChange={v => setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)}
+                            label="Use media streaming on this device"
+                            help="Enable this option if you want to use media streaming on this device."
+                        />
+                        <p className="text-gray-200">
+                            Current client: {serverStatus?.clientDevice}, {serverStatus?.clientPlatform}
+                        </p>
+                    </div>
+                </div>
+
+                {activeOnDevice && (
+                    <Alert
+                        intent="info" description={<>
+                        If media streaming is enabled, your downloaded files will be transcoded and played back using the built-in player.
+                    </>}
+                    />
+                )}
 
                 <Separator />
 
@@ -101,6 +134,8 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     label="Don't auto switch to direct play"
                     help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
                 />
+
+                <Separator />
 
                 <Field.DirectorySelector
                     name="transcodeTempDir"

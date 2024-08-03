@@ -26508,6 +26508,81 @@
   {
     "filepath": "../internal/extension/extension.go",
     "filename": "extension.go",
+    "name": "InvalidExtensionErrorCode",
+    "formattedName": "Extension_InvalidExtensionErrorCode",
+    "package": "extension",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"invalid_manifest\"",
+        "\"invalid_payload\"",
+        "\"invalid_authorization\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "InvalidExtension",
+    "formattedName": "Extension_InvalidExtension",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Extension",
+        "jsonName": "extension",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Reason",
+        "jsonName": "reason",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Code",
+        "jsonName": "code",
+        "goType": "InvalidExtensionErrorCode",
+        "typescriptType": "Extension_InvalidExtensionErrorCode",
+        "usedStructName": "extension.InvalidExtensionErrorCode",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
     "name": "Config",
     "formattedName": "Extension_Config",
     "package": "extension",
@@ -26554,6 +26629,15 @@
       {
         "name": "Name",
         "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -26622,81 +26706,6 @@
         "jsonName": "label",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/extension.go",
-    "filename": "extension.go",
-    "name": "InvalidExtensionErrorCode",
-    "formattedName": "Extension_InvalidExtensionErrorCode",
-    "package": "extension",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"invalid_manifest\"",
-        "\"invalid_payload\"",
-        "\"invalid_authorization\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/extension.go",
-    "filename": "extension.go",
-    "name": "InvalidExtension",
-    "formattedName": "Extension_InvalidExtension",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Path",
-        "jsonName": "path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Extension",
-        "jsonName": "extension",
-        "goType": "Extension",
-        "typescriptType": "Extension_Extension",
-        "usedStructName": "extension.Extension",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Reason",
-        "jsonName": "reason",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Code",
-        "jsonName": "code",
-        "goType": "InvalidExtensionErrorCode",
-        "typescriptType": "Extension_InvalidExtensionErrorCode",
-        "usedStructName": "extension.InvalidExtensionErrorCode",
         "required": true,
         "public": true,
         "comments": []
@@ -28111,6 +28120,26 @@
     ]
   },
   {
+    "filepath": "../internal/extension_repo/mediaplayer_testdir/mobileplayer.go",
+    "filename": "mobileplayer.go",
+    "name": "MobilePlayer",
+    "formattedName": "MobilePlayer",
+    "package": "mediaplayer_testdir",
+    "fields": [
+      {
+        "name": "config",
+        "jsonName": "config",
+        "goType": "mobilePlayerConfig",
+        "typescriptType": "mobilePlayerConfig",
+        "usedStructName": "mediaplayer_testdir.mobilePlayerConfig",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -28407,8 +28436,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension_repo/testdir/_gogoanime.go",
-    "filename": "_gogoanime.go",
+    "filepath": "../internal/extension_repo/testdir/_gogoanime_external.go",
+    "filename": "_gogoanime_external.go",
     "name": "Gogoanime",
     "formattedName": "Gogoanime",
     "package": "main",
@@ -28464,8 +28493,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension_repo/testdir/_gogoanime.go",
-    "filename": "_gogoanime.go",
+    "filepath": "../internal/extension_repo/testdir/_gogoanime_external.go",
+    "filename": "_gogoanime_external.go",
     "name": "GogoCDN",
     "formattedName": "GogoCDN",
     "package": "main",
@@ -28512,8 +28541,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension_repo/testdir/_gogoanime.go",
-    "filename": "_gogoanime.go",
+    "filepath": "../internal/extension_repo/testdir/_gogoanime_external.go",
+    "filename": "_gogoanime_external.go",
     "name": "StreamSB",
     "formattedName": "StreamSB",
     "package": "main",
@@ -28549,8 +28578,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension_repo/testdir/_mangapill.go",
-    "filename": "_mangapill.go",
+    "filepath": "../internal/extension_repo/testdir/_mangapill_external.go",
+    "filename": "_mangapill_external.go",
     "name": "Mangapill",
     "formattedName": "Mangapill",
     "package": "main",
@@ -28840,6 +28869,33 @@
       {
         "name": "OS",
         "jsonName": "os",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientDevice",
+        "jsonName": "clientDevice",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientPlatform",
+        "jsonName": "clientPlatform",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientUserAgent",
+        "jsonName": "clientUserAgent",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -31347,26 +31403,6 @@
     ]
   },
   {
-    "filepath": "../internal/library/autodownloader/helpers.go",
-    "filename": "helpers.go",
-    "name": "RuleContainer",
-    "formattedName": "RuleContainer",
-    "package": "autodownloader",
-    "fields": [
-      {
-        "name": "rules",
-        "jsonName": "rules",
-        "goType": "[]anime.AutoDownloaderRule",
-        "typescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e",
-        "usedStructName": "anime.AutoDownloaderRule",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/library/autoscanner/autoscanner.go",
     "filename": "autoscanner.go",
     "name": "AutoScanner",
@@ -31681,6 +31717,117 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/playbackmanager/manual_tracking.go",
+    "filename": "manual_tracking.go",
+    "name": "ManualTrackingState",
+    "formattedName": "PlaybackManager_ManualTrackingState",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentProgress",
+        "jsonName": "CurrentProgress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalEpisodes",
+        "jsonName": "TotalEpisodes",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/manual_tracking.go",
+    "filename": "manual_tracking.go",
+    "name": "StartManualProgressTrackingOptions",
+    "formattedName": "PlaybackManager_StartManualProgressTrackingOptions",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/play_random_episode.go",
+    "filename": "play_random_episode.go",
+    "name": "StartRandomVideoOptions",
+    "formattedName": "PlaybackManager_StartRandomVideoOptions",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/library/playbackmanager/playback_manager.go",
     "filename": "playback_manager.go",
     "name": "PlaybackType",
@@ -31692,7 +31839,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"localfile\"",
-        "\"stream\""
+        "\"stream\"",
+        "\"manual\""
       ]
     },
     "comments": []
@@ -31918,6 +32066,45 @@
         "comments": [
           " The current media being streamed"
         ]
+      },
+      {
+        "name": "manualTrackingCtx",
+        "jsonName": "manualTrackingCtx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "manualTrackingCtxCancel",
+        "jsonName": "manualTrackingCtxCancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "manualTrackingPlaybackState",
+        "jsonName": "manualTrackingPlaybackState",
+        "goType": "PlaybackState",
+        "typescriptType": "PlaybackManager_PlaybackState",
+        "usedStructName": "playbackmanager.PlaybackState",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentManualTrackingState",
+        "jsonName": "currentManualTrackingState",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       },
       {
         "name": "playlistHub",
@@ -32158,6 +32345,45 @@
         "typescriptType": "Offline_HubInterface",
         "usedStructName": "offline.HubInterface",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/playback_manager.go",
+    "filename": "playback_manager.go",
+    "name": "StartPlayingOptions",
+    "formattedName": "PlaybackManager_StartPlayingOptions",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "Payload",
+        "jsonName": "Payload",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " url or path"
+        ]
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -36200,20 +36426,6 @@
   {
     "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
     "filename": "repository.go",
-    "name": "MpvType",
-    "formattedName": "MpvType",
-    "package": "mediaplayer",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": []
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/mediaplayers/mediaplayer/repository.go",
-    "filename": "repository.go",
     "name": "Repository",
     "formattedName": "Repository",
     "package": "mediaplayer",
@@ -36268,23 +36480,32 @@
         "comments": []
       },
       {
-        "name": "MpvType",
-        "jsonName": "MpvType",
-        "goType": "MpvType",
-        "typescriptType": "MpvType",
-        "usedStructName": "mediaplayer.MpvType",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WSEventManager",
-        "jsonName": "WSEventManager",
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
         "goType": "events.WSEventManagerInterface",
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
         "required": false,
-        "public": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playerInUse",
+        "jsonName": "playerInUse",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "extensionBank",
+        "jsonName": "extensionBank",
+        "goType": "extension.UnifiedBank",
+        "typescriptType": "Extension_UnifiedBank",
+        "usedStructName": "extension.UnifiedBank",
+        "required": false,
+        "public": false,
         "comments": []
       },
       {
@@ -48174,6 +48395,23 @@
   {
     "filepath": "../internal/torrentstream/stream.go",
     "filename": "stream.go",
+    "name": "PlaybackType",
+    "formattedName": "Torrentstream_PlaybackType",
+    "package": "torrentstream",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"default\"",
+        "\"externalPlayerLink\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/stream.go",
+    "filename": "stream.go",
     "name": "StartStreamOptions",
     "formattedName": "Torrentstream_StartStreamOptions",
     "package": "torrentstream",
@@ -48242,6 +48480,34 @@
         "comments": [
           " Index of the file to stream (Manual selection)"
         ]
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackType",
+        "jsonName": "PlaybackType",
+        "goType": "PlaybackType",
+        "typescriptType": "Torrentstream_PlaybackType",
+        "usedStructName": "torrentstream.PlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -49394,5 +49660,33 @@
     "comments": [
       " Options the option to set custom headers"
     ]
+  },
+  {
+    "filepath": "../internal/util/useragent.go",
+    "filename": "useragent.go",
+    "name": "ClientInfo",
+    "formattedName": "Util_ClientInfo",
+    "package": "util",
+    "fields": [
+      {
+        "name": "Device",
+        "jsonName": "Device",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   }
 ]

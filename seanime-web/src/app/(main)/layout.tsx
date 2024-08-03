@@ -1,10 +1,10 @@
 "use client"
-import { ProgressTracking } from "@/app/(main)/(library)/_containers/playback-manager/progress-tracking"
 import { OfflineTopNavbar } from "@/app/(main)/(offline)/offline/_components/offline-top-navbar"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { MainLayout } from "@/app/(main)/_features/layout/main-layout"
 import { OfflineLayout } from "@/app/(main)/_features/layout/offline-layout"
 import { TopNavbar } from "@/app/(main)/_features/layout/top-navbar"
+import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ServerDataWrapper } from "@/app/(main)/server-data-wrapper"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                 <div className="flex items-center w-full gap-2">
                                     <AppSidebarTrigger />
                                     <OfflineTopNavbar />
-                                    <ProgressTracking />
+                                    <PlaybackManagerProgressTracking />
                                 </div>
                             </div>
                             <LayoutHeaderBackground />

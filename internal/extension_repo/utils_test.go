@@ -1,6 +1,10 @@
 package extension_repo
 
-import "testing"
+import (
+	"seanime/internal/util"
+	"strings"
+	"testing"
+)
 
 func TestExtensionID(t *testing.T) {
 
@@ -22,4 +26,27 @@ func TestExtensionID(t *testing.T) {
 		}
 	}
 
+}
+
+func TestReplacePackageName(t *testing.T) {
+	extensionPackageName := "ext_" + util.GenerateCryptoID()
+
+	payload := `package main
+
+import (
+	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/base64"
+	"encoding/hex"
+	"errors"
+	"fmt"`
+
+	newPayload := ReplacePackageName(payload, extensionPackageName)
+
+	if strings.Contains(newPayload, "package main") {
+		t.Errorf("ReplacePackageName failed")
+	}
+
+	t.Log(newPayload)
 }

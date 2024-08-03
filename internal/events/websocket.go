@@ -1,6 +1,7 @@
 package events
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/rs/zerolog"
 	"sync"
@@ -8,6 +9,7 @@ import (
 
 type WSEventManagerInterface interface {
 	SendEvent(t string, payload interface{})
+	SendEventTo(clientId string, t string, payload interface{})
 }
 
 type (
@@ -94,12 +96,11 @@ func (m *WSEventManager) SendEvent(t string, payload interface{}) {
 func (m *WSEventManager) SendEventTo(clientId string, t string, payload interface{}) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if t != PlaybackManagerProgressPlaybackState && payload == nil {
-		m.Logger.Trace().Str("type", t).Msg("ws: Sending message")
-	}
 
 	for _, conn := range m.Conns {
+		spew.Dump(conn.ID, clientId)
 		if conn.ID == clientId {
+			m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
 			_ = conn.Conn.WriteJSON(WSEvent{
 				Type:    t,
 				Payload: payload,

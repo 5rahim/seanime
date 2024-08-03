@@ -4,18 +4,22 @@ import (
 	"runtime"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
+	"seanime/internal/util"
 )
 
 // Status is a struct containing the user data, settings, and OS.
 // It is used by the client in various places to access necessary information.
 type Status struct {
-	OS            string           `json:"os"`
-	User          *anime.User      `json:"user"`
-	Settings      *models.Settings `json:"settings"`
-	Mal           *models.Mal      `json:"mal"`
-	Version       string           `json:"version"`
-	ThemeSettings *models.Theme    `json:"themeSettings"`
-	IsOffline     bool             `json:"isOffline"`
+	OS              string           `json:"os"`
+	ClientDevice    string           `json:"clientDevice"`
+	ClientPlatform  string           `json:"clientPlatform"`
+	ClientUserAgent string           `json:"clientUserAgent"`
+	User            *anime.User      `json:"user"`
+	Settings        *models.Settings `json:"settings"`
+	Mal             *models.Mal      `json:"mal"`
+	Version         string           `json:"version"`
+	ThemeSettings   *models.Theme    `json:"themeSettings"`
+	IsOffline       bool             `json:"isOffline"`
 	//FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
 	MediastreamSettings   *models.MediastreamSettings   `json:"mediastreamSettings"`
 	TorrentstreamSettings *models.TorrentstreamSettings `json:"torrentstreamSettings"`
@@ -45,21 +49,26 @@ func NewStatus(c *RouteCtx) *Status {
 		}
 	}
 
+	clientInfo := util.GetClientInfo(c.Fiber.Get("User-Agent"))
+
 	theme, _ = c.App.Database.GetTheme()
 	mal, _ = c.App.Database.GetMalInfo()
 	return &Status{
-		OS:            runtime.GOOS,
-		User:          user,
-		Settings:      settings,
-		Mal:           mal,
-		Version:       c.App.Version,
-		ThemeSettings: theme,
-		IsOffline:     c.App.Config.Server.Offline,
-		//FeatureFlags:          c.App.FeatureFlags,
+		OS:                    runtime.GOOS,
+		ClientDevice:          clientInfo.Device,
+		ClientPlatform:        clientInfo.Platform,
+		ClientUserAgent:       c.Fiber.Get("User-Agent"),
+		User:                  user,
+		Settings:              settings,
+		Mal:                   mal,
+		Version:               c.App.Version,
+		ThemeSettings:         theme,
+		IsOffline:             c.App.Config.Server.Offline,
 		MediastreamSettings:   c.App.SecondarySettings.Mediastream,
 		TorrentstreamSettings: c.App.SecondarySettings.Torrentstream,
 		AnilistClientID:       c.App.Config.Anilist.ClientID,
 		Updating:              false,
+		//FeatureFlags:          c.App.FeatureFlags,
 	}
 }
 

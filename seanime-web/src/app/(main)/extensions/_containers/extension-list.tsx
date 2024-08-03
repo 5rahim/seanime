@@ -78,7 +78,7 @@ export function ExtensionList(props: ExtensionListProps) {
                             intent="primary-subtle"
                             leftIcon={<GrInstallOption className="text-lg" />}
                         >
-                            Add extension
+                            Add an extension
                         </Button>
                     </AddExtensionModal>
                 </div>

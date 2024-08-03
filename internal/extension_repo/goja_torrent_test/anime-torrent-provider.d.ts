@@ -67,14 +67,9 @@ declare interface AnimeTorrent {
 
 declare interface AnimeTorrentProvider {
     search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]>
-
     smartSearch(opts: AnimeSmartSearchOptions): Promise<AnimeTorrent[]>
-
     getTorrentInfoHash(torrent: AnimeTorrent): Promise<string>
-
     getTorrentMagnetLink(torrent: AnimeTorrent): Promise<string>
-
     getLatest(): Promise<AnimeTorrent[]>
-
     getSettings(): AnimeProviderSettings
 }

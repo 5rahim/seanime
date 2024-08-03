@@ -5,6 +5,7 @@ import (
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dop251/goja"
+	"github.com/goccy/go-json"
 	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/extension"
@@ -16,7 +17,7 @@ import (
 
 func TestGojaWithExtension(t *testing.T) {
 	// Get the script
-	filepath := "./gojatestdir/my-manga-provider.ts"
+	filepath := "./goja_manga_test/my-manga-provider.ts"
 	fileB, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +75,9 @@ func TestGojaWithExtension(t *testing.T) {
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(pages), 10)
 
-	spew.Dump(pages)
+	for _, page := range pages {
+		t.Logf("Page: %s, Index: %d\n", page.URL, page.Index)
+	}
 }
 
 func TestGojaCode(t *testing.T) {
@@ -92,6 +95,7 @@ func TestGojaCode(t *testing.T) {
 
 	now := time.Now()
 
+	// Convert the typescript to javascript
 	source, err := extension_repo.JSVMTypescriptToJS(string(fileB))
 	require.NoError(t, err)
 
@@ -117,8 +121,19 @@ func TestGojaCode(t *testing.T) {
 	searchFunc, ok := goja.AssertFunction(classObj.Get("search"))
 	require.True(t, ok)
 
+	searchOpts := hibikemanga.SearchOptions{
+		Query: "dandadan",
+		Year:  0,
+	}
+
+	marshaledSearchOpts, err := json.Marshal(searchOpts)
+	require.NoError(t, err)
+	var searchData map[string]interface{}
+	err = json.Unmarshal(marshaledSearchOpts, &searchData)
+	require.NoError(t, err)
+
 	// Call the search function
-	searchResult, err := searchFunc(classObj, vm.ToValue("dandadan"))
+	searchResult, err := searchFunc(classObj, vm.ToValue(searchData))
 	require.NoError(t, err)
 
 	promise := searchResult.Export().(*goja.Promise)
@@ -132,43 +147,18 @@ func TestGojaCode(t *testing.T) {
 		var res []*hibikemanga.SearchResult
 
 		retValue := promise.Result()
-		retValueCast, ok := retValue.Export().([]interface{})
+		retValueCast, ok := retValue.Export().(interface{})
 		require.True(t, ok)
 
-		for _, objMap := range retValueCast {
-			obj := objMap.(map[string]interface{})
+		marshaled, err := json.Marshal(retValueCast)
+		require.NoError(t, err)
 
-			searchRes := &hibikemanga.SearchResult{}
+		err = json.Unmarshal(marshaled, &res)
+		require.NoError(t, err)
 
-			searchRes.ID = obj["id"].(string)
-			searchRes.Provider = obj["provider"].(string)
-			searchRes.Title = obj["title"].(string)
-			searchRes.Image = obj["image"].(string)
-
-			searchRatingR, ok := obj["searchRating"].(interface{})
-			if ok {
-				searchRatingFloat, ok := searchRatingR.(float64)
-				if ok {
-					searchRes.SearchRating = searchRatingFloat
-				} else {
-					searchRatingInt, ok := searchRatingR.(int64)
-					if ok {
-						searchRes.SearchRating = float64(searchRatingInt)
-					}
-				}
-			}
-
-			synonymsR, ok := obj["synonyms"].([]interface{})
-			if ok {
-				for _, syn := range synonymsR {
-					searchRes.Synonyms = append(searchRes.Synonyms, syn.(string))
-				}
-			}
-
-			res = append(res, searchRes)
+		for _, r := range res {
+			t.Logf("Title: %s, Search Rating: %.2f\n", r.Title, r.SearchRating)
 		}
-
-		spew.Dump(res)
 	} else {
 		err := promise.Result()
 		t.Fatal(err)

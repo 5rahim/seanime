@@ -142,6 +142,8 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		AutoSelect    bool                        `json:"autoSelect"`
 		Torrent       *hibiketorrent.AnimeTorrent `json:"torrent,omitempty"` // Nil if autoSelect is true
 		FileIndex     *int                        `json:"fileIndex,omitempty"`
+		PlaybackType  torrentstream.PlaybackType  `json:"playbackType"` // "default" or "externalPlayerLink"
+		ClientId      string                      `json:"clientId"`
 	}
 
 	var b body
@@ -150,7 +152,6 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 	}
 
 	userAgent := c.Fiber.Get("User-Agent")
-	clientId, _ := c.Fiber.Locals("Seanime-Client-Id").(string)
 
 	err := c.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
 		MediaId:       b.MediaId,
@@ -160,7 +161,8 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		Torrent:       b.Torrent,
 		FileIndex:     b.FileIndex,
 		UserAgent:     userAgent,
-		ClientId:      clientId,
+		ClientId:      b.ClientId,
+		PlaybackType:  b.PlaybackType,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

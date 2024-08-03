@@ -18,9 +18,16 @@ import (
 )
 
 const (
-	LocalFilePlayback PlaybackType = "localfile"
-	StreamPlayback    PlaybackType = "stream"
+	LocalFilePlayback      PlaybackType = "localfile"
+	StreamPlayback         PlaybackType = "stream"
+	ManualTrackingPlayback PlaybackType = "manual"
 )
+
+var playbackStatePool = sync.Pool{
+	New: func() interface{} {
+		return &PlaybackState{}
+	},
+}
 
 type (
 	PlaybackType string
@@ -49,10 +56,10 @@ type (
 		currentPlaybackType        PlaybackType
 		currentMediaPlaybackStatus *mediaplayer.PlaybackStatus // The current video playback status (can be nil)
 
-		// + Local file playback & stream playback
+		// \/ Local file playback & stream playback
 		// For Local file playback, it MUST be set
 		// For Stream playback, it is optional
-		// See [progress_tracking.go] for it is handled
+		// See [progress_tracking.go] for how it is handled
 		currentMediaListEntry mo.Option[*anilist.MediaListEntry] // List Entry for the current video playback
 		// \/ Local file playback
 		currentLocalFile             mo.Option[*anime.LocalFile]             // Local file for the current video playback
@@ -63,7 +70,12 @@ type (
 		currentStreamEpisodeCollection mo.Option[*anime.AnimeEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
 		currentStreamEpisode           mo.Option[*anime.AnimeEntryEpisode]           // The current episode being streamed
 		currentStreamMedia             mo.Option[*anilist.BaseAnime]                 // The current media being streamed
-
+		// \/ Manual progress tracking (non-integrated external player)
+		manualTrackingCtx           context.Context
+		manualTrackingCtxCancel     context.CancelFunc
+		manualTrackingPlaybackState PlaybackState
+		currentManualTrackingState  mo.Option[*ManualTrackingState]
+		// \/ Playlist
 		playlistHub *playlistHub // The playlist hub
 
 		isOffline       bool
@@ -100,17 +112,24 @@ type (
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	pm := &PlaybackManager{
-		Logger:                     opts.Logger,
-		Database:                   opts.Database,
-		discordPresence:            opts.DiscordPresence,
-		wsEventManager:             opts.WSEventManager,
-		platform:                   opts.Platform,
-		refreshAnimeCollectionFunc: opts.RefreshAnimeCollectionFunc,
-		mu:                         sync.Mutex{},
-		historyMap:                 make(map[string]PlaybackState),
-		isOffline:                  opts.IsOffline,
-		offlineHub:                 opts.OfflineHub,
-		animeCollection:            mo.None[*anilist.AnimeCollection](),
+		Logger:                         opts.Logger,
+		Database:                       opts.Database,
+		discordPresence:                opts.DiscordPresence,
+		wsEventManager:                 opts.WSEventManager,
+		platform:                       opts.Platform,
+		refreshAnimeCollectionFunc:     opts.RefreshAnimeCollectionFunc,
+		mu:                             sync.Mutex{},
+		historyMap:                     make(map[string]PlaybackState),
+		isOffline:                      opts.IsOffline,
+		offlineHub:                     opts.OfflineHub,
+		currentStreamEpisodeCollection: mo.None[*anime.AnimeEntryEpisodeCollection](),
+		currentStreamEpisode:           mo.None[*anime.AnimeEntryEpisode](),
+		currentStreamMedia:             mo.None[*anilist.BaseAnime](),
+		animeCollection:                mo.None[*anilist.AnimeCollection](),
+		currentManualTrackingState:     mo.None[*ManualTrackingState](),
+		currentLocalFile:               mo.None[*anime.LocalFile](),
+		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
+		currentMediaListEntry:          mo.None[*anilist.MediaListEntry](),
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)
@@ -130,37 +149,6 @@ func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.AnimeEntryEpis
 
 func (pm *PlaybackManager) SetAnimeCollection(ac *anilist.AnimeCollection) {
 	pm.animeCollection = mo.Some(ac)
-}
-
-// PlayNextEpisode plays the next episode of the media that has been watched
-//   - Called when the user clicks on the "Next" button in the client
-//   - Should not be called when the user is watching a playlist
-//   - Should not be called when no next episode is available
-func (pm *PlaybackManager) PlayNextEpisode() error {
-	switch pm.currentPlaybackType {
-	case LocalFilePlayback:
-		if pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() || pm.currentLocalFileWrapperEntry.IsAbsent() {
-			return errors.New("could not play next episode")
-		}
-
-		nextLf, found := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
-		if !found {
-			return errors.New("could not play next episode")
-		}
-
-		err := pm.MediaPlayerRepository.Play(nextLf.Path)
-		if err != nil {
-			return err
-		}
-		// Start tracking the video
-		pm.MediaPlayerRepository.StartTracking()
-
-	case StreamPlayback:
-		// TODO: Implement it for torrentstream
-		// Check if torrent stream etc...
-	}
-
-	return nil
 }
 
 // SetMediaPlayerRepository sets the media player repository and starts listening to media player events
@@ -207,11 +195,18 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 		return err
 	}
 
+	// Cancel manual tracking if active
+	if pm.manualTrackingCtxCancel != nil {
+		pm.manualTrackingCtxCancel()
+	}
+
+	// Send the media file to the media player
 	err := pm.MediaPlayerRepository.Play(opts.Payload)
 	if err != nil {
 		return err
 	}
 
+	// Start tracking
 	pm.MediaPlayerRepository.StartTracking()
 
 	return nil
@@ -230,6 +225,11 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
+
+	// Cancel manual tracking if active
+	if pm.manualTrackingCtxCancel != nil {
+		pm.manualTrackingCtxCancel()
+	}
 
 	pm.currentStreamMedia = mo.Some(media)
 
@@ -253,6 +253,41 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 
 	return nil
 }
+
+// PlayNextEpisode plays the next episode of the media that has been watched
+//   - Called when the user clicks on the "Next" button in the client
+//   - Should not be called when the user is watching a playlist
+//   - Should not be called when no next episode is available
+func (pm *PlaybackManager) PlayNextEpisode() error {
+	switch pm.currentPlaybackType {
+	case LocalFilePlayback:
+		if pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() || pm.currentLocalFileWrapperEntry.IsAbsent() {
+			return errors.New("could not play next episode")
+		}
+
+		nextLf, found := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
+		if !found {
+			return errors.New("could not play next episode")
+		}
+
+		err := pm.MediaPlayerRepository.Play(nextLf.Path)
+		if err != nil {
+			return err
+		}
+		// Start tracking the video
+		pm.MediaPlayerRepository.StartTracking()
+
+	case StreamPlayback:
+		// TODO: Implement it for torrentstream
+		// Check if torrent stream etc...
+	}
+
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Playlist
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // CancelCurrentPlaylist cancels the current playlist.
 // This is an action triggered by the client.

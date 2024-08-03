@@ -5,10 +5,7 @@ import {
     usePlaybackPlayNextEpisode,
     usePlaybackSyncCurrentProgress,
 } from "@/api/hooks/playback_manager.hooks"
-import {
-    PlaybackManager_PlaybackState,
-    PlaybackManager_PlaylistState,
-} from "@/app/(main)/(library)/_containers/playback-manager/_lib/playback-manager.types"
+import { PlaybackManager_PlaybackState, PlaybackManager_PlaylistState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -32,11 +29,11 @@ const __pt_showModalAtom = atom(false)
 const __pt_isTrackingAtom = atom(false)
 const __pt_isCompletedAtom = atom(false)
 
-type ProgressTrackingProps = {
+type Props = {
     asSidebarButton?: boolean
 }
 
-export function ProgressTracking({ asSidebarButton }: ProgressTrackingProps) {
+export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
 
     const serverStatus = useServerStatus()
 

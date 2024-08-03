@@ -1,11 +1,13 @@
 import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
-import { ProgressTracking } from "@/app/(main)/(library)/_containers/playback-manager/progress-tracking"
 import { RefreshAnilistButton } from "@/app/(main)/_features/anilist/refresh-anilist-button"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
+import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
+import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
-import { __manga__chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
+import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
+import { cn } from "@/components/ui/core/styling"
 import { Separator } from "@/components/ui/separator/separator"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useThemeSettings } from "@/lib/theme/hooks"
@@ -27,18 +29,21 @@ export function TopNavbar(props: TopNavbarProps) {
     } = props
 
     const ts = useThemeSettings()
-    const pathname = usePathname()
-
-    if (ts.hideTopNavbar) return null
 
     return (
         <>
-            <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
+            <div
+                className={cn(
+                    "w-full h-[5rem] relative overflow-hidden flex items-center",
+                    ts.hideTopNavbar && "lg:hidden",
+                )}
+            >
                 <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
                     <div className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
                         <TopMenu />
-                        <ProgressTracking />
+                        <PlaybackManagerProgressTracking />
+                        <ManualProgressTracking />
                         <div className="flex flex-1"></div>
                         <ChapterDownloadsButton />
                         <RefreshAnilistButton />
@@ -52,7 +57,6 @@ export function TopNavbar(props: TopNavbarProps) {
 
 
 type SidebarNavbarProps = {
-    children?: React.ReactNode
     isCollapsed: boolean
     handleExpandSidebar: () => void
     handleUnexpandedSidebar: () => void
@@ -61,7 +65,6 @@ type SidebarNavbarProps = {
 export function SidebarNavbar(props: SidebarNavbarProps) {
 
     const {
-        children,
         isCollapsed,
         handleExpandSidebar,
         handleUnexpandedSidebar,
@@ -71,7 +74,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
     const ts = useThemeSettings()
     const pathname = usePathname()
 
-    const openDownloadQueue = useSetAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
+    const openDownloadQueue = useSetAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
     const isMangaPage = pathname.startsWith("/manga")
 
     /**
@@ -98,6 +101,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                         iconType: IoReload,
                         name: "Refresh AniList",
                         onClick: () => {
+                            if (isRefreshingAC) return
                             refreshAC()
                         },
                     },
@@ -113,7 +117,10 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                 ]}
             />
             <div className="flex justify-center">
-                <ProgressTracking asSidebarButton />
+                <PlaybackManagerProgressTracking asSidebarButton />
+            </div>
+            <div className="flex justify-center">
+                <ManualProgressTracking asSidebarButton />
             </div>
         </div>
     )

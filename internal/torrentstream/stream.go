@@ -2,14 +2,21 @@ package torrentstream
 
 import (
 	"fmt"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
+	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"strconv"
 	"time"
+)
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+type PlaybackType string
+
+const (
+	PlaybackTypeDefault        PlaybackType = "default"
+	PlaybackTypeExternalPlayer PlaybackType = "externalPlayerLink"
 )
 
 type StartStreamOptions struct {
@@ -21,6 +28,7 @@ type StartStreamOptions struct {
 	FileIndex     *int                        // Index of the file to stream (Manual selection)
 	UserAgent     string
 	ClientId      string
+	PlaybackType  PlaybackType
 }
 
 // StartStream is called by the client to start streaming a torrent
@@ -29,7 +37,10 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	// NO SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
 	//r.Shutdown()
 
-	r.logger.Info().Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
+	r.logger.Info().
+		Str("clientId", opts.ClientId).
+		Any("playbackType", opts.PlaybackType).
+		Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
 
 	r.wsEventManager.SendEvent(eventTorrentLoading, nil)
 
@@ -92,23 +103,42 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 				return
 			}
 			r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
-			time.Sleep(3 * time.Second)
+			time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
 		}
 
-		//
-		// Start the stream
-		//
-		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartStreamingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
-			Payload:   r.client.GetStreamingUrl(),
-			UserAgent: opts.UserAgent,
-			ClientId:  opts.ClientId,
-		}, media.ToBaseAnime(), aniDbEpisode)
-		if err != nil {
-			// Failed to start the stream, we'll drop the torrents and stop the server
-			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
-			_ = r.StopStream()
-			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+		switch opts.PlaybackType {
+		case PlaybackTypeDefault:
+			//
+			// Start the stream
+			//
+			r.logger.Debug().Msg("torrentstream: Starting the media player")
+			err = r.playbackManager.StartStreamingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+				Payload:   r.client.GetStreamingUrl(),
+				UserAgent: opts.UserAgent,
+				ClientId:  opts.ClientId,
+			}, media.ToBaseAnime(), aniDbEpisode)
+			if err != nil {
+				// Failed to start the stream, we'll drop the torrents and stop the server
+				r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+				_ = r.StopStream()
+				r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+			}
+
+		case PlaybackTypeExternalPlayer:
+			// Send the external player link
+			r.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, struct {
+				Url           string `json:"url"`
+				MediaId       int    `json:"mediaId"`
+				EpisodeNumber int    `json:"episodeNumber"`
+			}{
+				Url:           r.client.GetStreamingUrl(),
+				MediaId:       opts.MediaId,
+				EpisodeNumber: opts.EpisodeNumber,
+			})
+
+			// Signal to the client that the torrent has started playing (remove loading status)
+			// We can't know for sure
+			r.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
 		}
 	}()
 

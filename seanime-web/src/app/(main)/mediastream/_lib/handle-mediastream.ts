@@ -8,6 +8,7 @@ import {
     useMediastreamCurrentFile,
     useMediastreamJassubOffscreenRender,
 } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { getAssetUrl } from "@/lib/server/assets"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -130,7 +131,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const previousCurrentTimeRef = React.useRef(0)
     const previousIsPlayingRef = React.useRef(false)
 
-    const [sessionId, setSessionId] = React.useState<string>(uuidv4())
+    const sessionId = useAtomValue(clientIdAtom)
 
     /**
      * Fetch media container containing stream URL
@@ -138,7 +139,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, isFetching, refetch } = useRequestMediastreamMediaContainer({
         path: filePath,
         streamType: streamType,
-        clientId: sessionId,
+        clientId: sessionId ?? uuidv4(),
     }, !!mediastreamSettings && !mediastreamSettingsLoading)
 
     const mediaContainer = React.useMemo(() => (!isPending && !isFetching) ? _mediaContainer : undefined, [_mediaContainer, isPending, isFetching])

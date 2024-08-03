@@ -5,6 +5,8 @@ import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
+import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
@@ -16,16 +18,15 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, getDefaultMpcSocket, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
+import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
-import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
-import { HiPlay } from "react-icons/hi"
+import { FcFolder } from "react-icons/fc"
 import { ImDownload } from "react-icons/im"
-import { IoLibrary } from "react-icons/io5"
+import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
 import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
@@ -36,12 +37,12 @@ import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
 
 const tabsTriggerClass = cn(
-    "text-base px-6 rounded-md w-fit md:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
-    "h-12 lg:h-10 lg:justify-start px-3",
+    "text-base px-6 rounded-md w-fit lg:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+    "h-10 lg:justify-start px-3",
 )
 
 const tabsListClass = cn(
-    "w-full flex flex-wrap md:flex-nowrap h-fit md:h-12",
+    "w-full flex flex-wrap lg:flex-nowrap h-fit xl:h-10",
     "lg:block",
 )
 
@@ -95,19 +96,23 @@ export default function Page() {
                 >
                     <TabsList className="flex-wrap max-w-full">
                         <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
+                        <Separator className="hidden lg:block" />
+                        <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
                         <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
                                                                                                                                     streaming</TabsTrigger>
+                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> External Media Player</TabsTrigger>
                         <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
                                                                                                                           streaming</TabsTrigger>
                         <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
-                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Media Player</TabsTrigger>
                         <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                        <Separator className="hidden lg:block" />
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                         <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
                         <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                         <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
                         <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                         <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
+                        <Separator className="hidden lg:block" />
                         <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                     </TabsList>
 
@@ -245,12 +250,6 @@ export default function Page() {
                                             <em>Note:</em> Visit the scan summary page to see the results.
                                         </p>
                                     </div>}
-                                />
-                                <Separator />
-                                <Field.Switch
-                                    name="autoUpdateProgress"
-                                    label="Automatically update progress"
-                                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
                                 />
                                 <Separator />
 
@@ -391,111 +390,11 @@ export default function Page() {
                             </TabsContent>
 
                             <TabsContent value="media-player" className="space-y-4">
+                                <MediaplayerSettings isPending={isPending} />
+                            </TabsContent>
 
-                                <h3>Media Player</h3>
-
-                                <Field.Select
-                                    name="defaultPlayer"
-                                    label="Default player"
-                                    leftIcon={<FcVideoCall />}
-                                    options={[
-                                        { label: "MPV", value: "mpv" },
-                                        { label: "VLC", value: "vlc" },
-                                        { label: "MPC-HC", value: "mpc-hc" },
-                                    ]}
-                                    help="Player that will be used to open files and track your progress automatically."
-                                />
-
-                                <Field.Text
-                                    name="mediaPlayerHost"
-                                    label="Host"
-                                    help="VLC/MPC-HC"
-                                />
-
-                                <Accordion
-                                    type="single"
-                                    className=""
-                                    triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
-                                    itemClass="border-b"
-                                    contentClass="pb-8"
-                                    collapsible
-                                >
-                                    <AccordionItem value="vlc">
-                                        <AccordionTrigger>
-                                            <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
-                                        </AccordionTrigger>
-                                        <AccordionContent className="space-y-4">
-                                            <div className="flex flex-col md:flex-row gap-4">
-                                                <Field.Text
-                                                    name="vlcUsername"
-                                                    label="Username"
-                                                />
-                                                <Field.Text
-                                                    name="vlcPassword"
-                                                    label="Password"
-                                                />
-                                                <Field.Number
-                                                    name="vlcPort"
-                                                    label="Port"
-                                                    formatOptions={{
-                                                        useGrouping: false,
-                                                    }}
-                                                    hideControls
-                                                />
-                                            </div>
-                                            <Field.Text
-                                                name="vlcPath"
-                                                label="Application path"
-                                            />
-                                        </AccordionContent>
-                                    </AccordionItem>
-
-                                    <AccordionItem value="mpc-hc">
-                                        <AccordionTrigger>
-                                            <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <div className="flex flex-col md:flex-row gap-4">
-                                                <Field.Number
-                                                    name="mpcPort"
-                                                    label="Port"
-                                                    formatOptions={{
-                                                        useGrouping: false,
-                                                    }}
-                                                    hideControls
-                                                />
-                                                <Field.Text
-                                                    name="mpcPath"
-                                                    label="Application path"
-                                                />
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-
-                                    <AccordionItem value="mpv">
-                                        <AccordionTrigger>
-                                            <h4 className="flex gap-2 items-center"><HiPlay className="mr-1 text-purple-100" /> MPV</h4>
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <div className="flex gap-4">
-                                                <Field.Text
-                                                    name="mpvSocket"
-                                                    label="Socket"
-                                                    placeholder={`Default: '${getDefaultMpcSocket(status?.os ?? "")}'`}
-                                                />
-                                                <Field.Text
-                                                    name="mpvPath"
-                                                    label="Application path"
-                                                    placeholder="Defaults to 'mpv' command"
-                                                    help="Leave empty to automatically use the 'mpv' command"
-                                                />
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
-
-                                <SettingsSubmitButton isPending={isPending} />
-
+                            <TabsContent value="playback" className="space-y-4">
+                                <PlaybackSettings />
                             </TabsContent>
 
                             <TabsContent value="torrent-client" className="space-y-4">

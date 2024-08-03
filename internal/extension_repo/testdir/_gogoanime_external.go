@@ -24,7 +24,7 @@ import (
 
 const (
 	DefaultServer      = "default"
-	GogoanimeProvider  = "gogoanime"
+	GogoanimeProvider  = "gogoanime-external"
 	GogocdnServer      = "gogocdn"
 	VidstreamingServer = "vidstreaming"
 	StreamSBServer     = "streamsb"

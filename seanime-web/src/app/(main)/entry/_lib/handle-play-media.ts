@@ -1,7 +1,7 @@
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
+import { PlaybackDownloadedMedia, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useMediastreamCurrentFile, useMediastreamMediaToTranscode } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
-import { isMobile, isPs4, isTv, isXbox } from "@/lib/utils/browser-detection"
+import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -10,35 +10,41 @@ export function useHandlePlayMedia() {
     const router = useRouter()
     const serverStatus = useServerStatus()
 
-    const { mediaToTranscode } = useMediastreamMediaToTranscode()
+    const { activeOnDevice: mediastreamActiveOnDevice } = useMediastreamActiveOnDevice()
+    const { setFilePath: setMediastreamFilePath } = useMediastreamCurrentFile()
 
+    const { downloadedMediaPlayback } = useCurrentDevicePlaybackSettings()
+    const { externalPlayerLink } = useExternalPlayerLink()
+
+    // Play using desktop external player
     const { mutate: playVideo } = usePlaybackPlayVideo()
 
-    const { setFilePath } = useMediastreamCurrentFile()
 
     function playMediaFile({ path, mediaId }: { path: string, mediaId: number }) {
 
-        if (serverStatus?.mediastreamSettings?.transcodeEnabled && mediaToTranscode.includes(String(mediaId))) {
-            setFilePath(path)
+        // If external player link is set, open the media file in the external player
+        if (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink) {
+            if (!externalPlayerLink) {
+                toast.error("External player link is not set.")
+                return
+            }
+
+            React.startTransition(() => {
+                router.push(`/medialinks?id=${mediaId}`)
+            })
+            return
+        }
+
+        // Handle media streaming
+        if (serverStatus?.mediastreamSettings?.transcodeEnabled && mediastreamActiveOnDevice) {
+            setMediastreamFilePath(path)
             React.startTransition(() => {
                 router.push(`/mediastream?id=${mediaId}`)
             })
             return
         }
 
-        if (isMobile() || isTv() || isPs4() || isXbox()) { // TODO: Find a way to override this
-            if (serverStatus?.mediastreamSettings?.transcodeEnabled) {
-                setFilePath(path)
-                React.startTransition(() => {
-                    router.push(`/mediastream?id=${mediaId}`)
-                })
-            } else {
-                toast.error("Playback is not supported on this device.")
-            }
-            return
-        } else {
-            return playVideo({ path })
-        }
+        return playVideo({ path })
     }
 
     return {

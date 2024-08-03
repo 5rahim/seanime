@@ -10,6 +10,8 @@ import (
 	"testing"
 )
 
+// Tests the external manga provider extension loaded from the extension directory.
+// This will load the extensions from ./testdir
 func TestExternalGoMangaExtension(t *testing.T) {
 
 	repo := getRepo(t)
@@ -18,7 +20,7 @@ func TestExternalGoMangaExtension(t *testing.T) {
 	// This should load all the extensions in the directory
 	repo.ReloadExternalExtensions()
 
-	ext, found := repo.GetMangaProviderExtensionByID("externalMangapill")
+	ext, found := repo.GetMangaProviderExtensionByID("mangapill-external")
 	require.True(t, found)
 
 	t.Logf("\nExtension:\n\tID: %s \n\tName: %s", ext.GetID(), ext.GetName())
@@ -40,6 +42,7 @@ func TestExternalGoMangaExtension(t *testing.T) {
 
 }
 
+// Tests the built-in manga provider extension
 func TestBuiltinMangaExtension(t *testing.T) {
 
 	logger := util.NewLogger()

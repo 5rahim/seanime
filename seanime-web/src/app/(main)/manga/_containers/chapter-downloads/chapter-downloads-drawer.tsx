@@ -22,7 +22,7 @@ import { MdClear } from "react-icons/md"
 import { PiWarningOctagonDuotone } from "react-icons/pi"
 import { TbWorldDownload } from "react-icons/tb"
 
-export const __manga__chapterDownloadsDrawerIsOpenAtom = atom(false)
+export const __manga_chapterDownloadsDrawerIsOpenAtom = atom(false)
 
 type ChapterDownloadQueueDrawerProps = {}
 
@@ -30,7 +30,7 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
 
     const {} = props
 
-    const [isOpen, setIsOpen] = useAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
+    const [isOpen, setIsOpen] = useAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
 
     const { data: mangaCollection } = useGetMangaCollection()
 

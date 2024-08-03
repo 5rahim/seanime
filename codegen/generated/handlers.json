@@ -4578,6 +4578,98 @@
     }
   },
   {
+    "name": "HandlePlaybackStartManualTracking",
+    "trimmedName": "PlaybackStartManualTracking",
+    "comments": [
+      "HandlePlaybackStartManualTracking",
+      "",
+      "\t@summary starts manual tracking of a media.",
+      "\t@desc Used for tracking progress of media that is not played through any integrated media player.",
+      "\t@desc This should only be used for trackable episodes (episodes that count towards progress).",
+      "\t@desc This returns 'true' if the tracking was successfully started.",
+      "\t@route /api/v1/playback-manager/manual-tracking/start [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "starts manual tracking of a media.",
+      "descriptions": [
+        "Used for tracking progress of media that is not played through any integrated media player.",
+        "This should only be used for trackable episodes (episodes that count towards progress).",
+        "This returns 'true' if the tracking was successfully started."
+      ],
+      "endpoint": "/api/v1/playback-manager/manual-tracking/start",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandlePlaybackCancelManualTracking",
+    "trimmedName": "PlaybackCancelManualTracking",
+    "comments": [
+      "HandlePlaybackCancelManualTracking",
+      "",
+      "\t@summary cancels manual tracking of a media.",
+      "\t@desc This will stop the server from expecting progress updates for the media.",
+      "\t@route /api/v1/playback-manager/manual-tracking/cancel [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "cancels manual tracking of a media.",
+      "descriptions": [
+        "This will stop the server from expecting progress updates for the media."
+      ],
+      "endpoint": "/api/v1/playback-manager/manual-tracking/cancel",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleCreatePlaylist",
     "trimmedName": "CreatePlaylist",
     "comments": [
@@ -5285,6 +5377,15 @@
         {
           "name": "DownloadAutomatically",
           "jsonName": "downloadAutomatically",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EnableEnhancedQueries",
+          "jsonName": "enableEnhancedQueries",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
@@ -6010,6 +6111,24 @@
           "usedStructType": "",
           "typescriptType": "number",
           "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "PlaybackType",
+          "jsonName": "playbackType",
+          "goType": "torrentstream.PlaybackType",
+          "usedStructType": "torrentstream.PlaybackType",
+          "typescriptType": "Torrentstream_PlaybackType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
           "descriptions": []
         }
       ],

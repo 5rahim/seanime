@@ -1,5 +1,11 @@
 package extension
 
+type Consumer interface {
+	InitExtensionBank(bank *UnifiedBank)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type Type string
 
 type Language string
@@ -47,64 +53,6 @@ type Extension struct {
 	Payload string `json:"payload"`
 }
 
-type Config struct {
-	// Whether the extension requires user configuration.
-	RequiresConfig bool `json:"requiresConfig"`
-	// This will be used to generate the user configuration form, and the values will be passed to the extension.
-	Fields []ConfigField `json:"fields"`
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const (
-	ConfigFieldTypeText   ConfigFieldType = "text"
-	ConfigFieldTypeSwitch ConfigFieldType = "switch"
-	ConfigFieldTypeSelect ConfigFieldType = "select"
-	ConfigFieldTypeNumber ConfigFieldType = "number"
-)
-
-type (
-	// ConfigField represents a field in an extension's configuration.
-	// The fields are defined in the manifest file.
-	ConfigField struct {
-		Type    ConfigFieldType           `json:"type"`
-		Name    string                    `json:"name"`
-		Options []ConfigFieldSelectOption `json:"options"`
-		Default string                    `json:"default"`
-	}
-
-	ConfigFieldType string
-
-	ConfigFieldSelectOption struct {
-		Value string `json:"value"`
-		Label string `json:"label"`
-	}
-
-	ConfigFieldValueValidator func(value string) error
-)
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type InvalidExtensionErrorCode string
-
-const (
-	// InvalidExtensionManifestError is returned when the extension manifest is invalid
-	InvalidExtensionManifestError InvalidExtensionErrorCode = "invalid_manifest"
-	// InvalidExtensionPayloadError is returned when the extension code is invalid / obsolete
-	InvalidExtensionPayloadError InvalidExtensionErrorCode = "invalid_payload"
-	// InvalidExtensionAuthorizationError is returned when some authorization scopes have not been granted
-	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
-)
-
-type InvalidExtension struct {
-	// Auto-generated ID
-	ID        string                    `json:"id"`
-	Path      string                    `json:"path"`
-	Extension Extension                 `json:"extension"`
-	Reason    string                    `json:"reason"`
-	Code      InvalidExtensionErrorCode `json:"code"`
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // BaseExtension is the base interface for all extensions
@@ -142,3 +90,64 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Payload:     ext.GetPayload(),
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type InvalidExtensionErrorCode string
+
+const (
+	// InvalidExtensionManifestError is returned when the extension manifest is invalid
+	InvalidExtensionManifestError InvalidExtensionErrorCode = "invalid_manifest"
+	// InvalidExtensionPayloadError is returned when the extension code is invalid / obsolete
+	InvalidExtensionPayloadError InvalidExtensionErrorCode = "invalid_payload"
+	// InvalidExtensionAuthorizationError is returned when some authorization scopes have not been granted
+	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
+)
+
+type InvalidExtension struct {
+	// Auto-generated ID
+	ID        string                    `json:"id"`
+	Path      string                    `json:"path"`
+	Extension Extension                 `json:"extension"`
+	Reason    string                    `json:"reason"`
+	Code      InvalidExtensionErrorCode `json:"code"`
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type Config struct {
+	// Whether the extension requires user configuration.
+	RequiresConfig bool `json:"requiresConfig"`
+	// This will be used to generate the user configuration form, and the values will be passed to the extension.
+	Fields []ConfigField `json:"fields"`
+}
+
+const (
+	ConfigFieldTypeText   ConfigFieldType = "text"
+	ConfigFieldTypeSwitch ConfigFieldType = "switch"
+	ConfigFieldTypeSelect ConfigFieldType = "select"
+	ConfigFieldTypeNumber ConfigFieldType = "number"
+)
+
+type (
+	// ConfigField represents a field in an extension's configuration.
+	// The fields are defined in the manifest file.
+	ConfigField struct {
+		Type    ConfigFieldType           `json:"type"`
+		Name    string                    `json:"name"`
+		Label   string                    `json:"label"`
+		Options []ConfigFieldSelectOption `json:"options"`
+		Default string                    `json:"default"`
+	}
+
+	ConfigFieldType string
+
+	ConfigFieldSelectOption struct {
+		Value string `json:"value"`
+		Label string `json:"label"`
+	}
+
+	ConfigFieldValueValidator func(value string) error
+)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
