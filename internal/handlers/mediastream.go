@@ -42,17 +42,6 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	//// Check JASSUB
-	//if b.Settings.TranscodeEnabled || b.Settings.PreTranscodeEnabled {
-	//	jassubPath := filepath.Join(c.App.Config.Web.AssetDir, "/jassub/jassub-worker.js")
-	//	if _, err := os.Stat(jassubPath); os.IsNotExist(err) {
-	//		c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, JASSUB was not located in the asset directory")
-	//		b.Settings.TranscodeEnabled = false
-	//		b.Settings.PreTranscodeEnabled = false
-	//		c.App.WSEventManager.SendEvent(events.ErrorToast, "JASSUB was not located in the asset directory, transcoding has been disabled")
-	//	}
-	//}
-
 	// Check Transcode directory
 	if b.Settings.TranscodeEnabled {
 		transcodeDir := filepath.Clean(b.Settings.TranscodeTempDir)
@@ -180,15 +169,6 @@ func HandleMediastreamDirectPlay(c *RouteCtx) error {
 	return c.App.MediastreamRepository.ServeFiberDirectPlay(c.Fiber, client)
 }
 
-////
-//// Direct Stream
-////
-//
-//func HandleMediastreamDirectStream(c *RouteCtx) error {
-//	client := "1"
-//	return c.App.MediastreamRepository.ServeFiberDirectStream(c.Fiber, client)
-//}
-
 //
 // Transcode
 //
@@ -210,4 +190,14 @@ func HandleMediastreamShutdownTranscodeStream(c *RouteCtx) error {
 	client := "1"
 	c.App.MediastreamRepository.ShutdownTranscodeStream(client)
 	return c.RespondWithData(true)
+}
+
+//
+// Serve file
+//
+
+func HandleMediastreamFile(c *RouteCtx) error {
+	client := "1"
+	fp := c.Fiber.AllParams()["*1"]
+	return c.App.MediastreamRepository.ServeFiberFile(c.Fiber, fp, client)
 }

@@ -121,7 +121,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         placeholder={imageShimmer(700, 475)}
                         sizes="10rem"
                         className={cn("object-cover object-center transition select-none", {
-                            "opacity-25 group-hover/episode-list-item:opacity-100": isWatched,
+                            "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched,
                         }, imageClassName)}
                         data-src={image}
                     />}

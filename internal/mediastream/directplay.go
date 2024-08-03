@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"io"
+	"net/url"
 	"os"
 	"seanime/internal/events"
 	"strconv"
@@ -14,6 +15,20 @@ import (
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Direct
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ServeFiberFile just returns the file to the client.
+// This is used for external players
+func (r *Repository) ServeFiberFile(ctx *fiber.Ctx, filePath string, clientId string) error {
+
+	filePath, _ = url.QueryUnescape(filePath)
+
+	if !r.IsInitialized() {
+		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
+		return errors.New("module not initialized")
+	}
+
+	return ctx.SendFile(filePath)
+}
 
 func (r *Repository) ServeFiberDirectPlay(ctx *fiber.Ctx, clientId string) error {
 	ctx.Set("Cache-Control", "no-cache, no-store, must-revalidate")
