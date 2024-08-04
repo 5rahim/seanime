@@ -171,7 +171,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                     External player link
                 </h3>
                 <p className="text-[--muted]">
-                    Specify the link format for opening files with an external player.
+                    Specify the mobile deep link format for opening files with an external player.
                     Ensure the player supports HTTP sources.
                 </p>
             </div>

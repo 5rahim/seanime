@@ -84,7 +84,7 @@ export function useGetAnilistAnimeDetails(id: Nullish<number | string>) {
         endpoint: API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.GetAnilistAnimeDetails.key, String(id)],
-        enabled: true,
+        enabled: !!id,
     })
 }
 

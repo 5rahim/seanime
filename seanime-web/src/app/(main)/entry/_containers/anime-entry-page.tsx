@@ -3,6 +3,7 @@ import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
+import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
 import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
@@ -88,7 +89,11 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
-                            <EpisodeSection entry={animeEntry} details={animeDetails} />
+                            <EpisodeSection
+                                entry={animeEntry}
+                                details={animeDetails}
+                                bottomSection={<RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />}
+                            />
                         </PageWrapper>}
 
                         {isTorrentStreamingView && <PageWrapper

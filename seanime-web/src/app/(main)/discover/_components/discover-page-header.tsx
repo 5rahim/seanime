@@ -88,17 +88,25 @@ export function DiscoverPageHeader() {
                     )}
                 </AnimatePresence>
 
-                <Image
-                    src={"/mask.png"}
-                    alt="mask"
-                    fill
-                    quality={100}
-                    priority
-                    sizes="100vw"
+                {/*<Image*/}
+                {/*    src={"/mask-2.png"}*/}
+                {/*    alt="mask"*/}
+                {/*    fill*/}
+                {/*    quality={100}*/}
+                {/*    priority*/}
+                {/*    sizes="100vw"*/}
+                {/*    className={cn(*/}
+                {/*        "object-cover object-left z-[2] transition-opacity duration-1000 opacity-60 hidden lg:block",*/}
+                {/*    )}*/}
+                {/*/>*/}
+
+                <div
                     className={cn(
-                        "object-cover object-right z-[2] transition-opacity duration-1000 opacity-60 hidden lg:block",
+                        "hidden lg:block max-w-[100rem] w-full z-[2] h-full absolute right-0 bg-gradient-to-l from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "opacity-100 duration-500",
                     )}
                 />
+
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 <AnimatePresence>
                     {(!!randomTrending && !isTransitioning) && (
@@ -122,7 +130,7 @@ export function DiscoverPageHeader() {
                             >
                                 <div className="flex-none">
                                     {randomTrending.coverImage?.large && <div
-                                        className="w-[180px] h-[240px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
+                                        className="w-[200px] h-[300px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
                                     >
                                         <Image
                                             src={randomTrending.coverImage.large}
@@ -137,9 +145,9 @@ export function DiscoverPageHeader() {
                                         />
                                     </div>}
                                 </div>
-                                <div className="flex-auto space-y-1 z-[1] text-center">
+                                <div className="flex-auto space-y-2 z-[1] text-center">
                                     <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
-                                    <div className="flex items-center justify-center max-w-md gap-4">
+                                    <div className="flex items-center max-w-md gap-4">
                                         {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
                                             <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
                                                 <RiSignalTowerLine /> Releasing now

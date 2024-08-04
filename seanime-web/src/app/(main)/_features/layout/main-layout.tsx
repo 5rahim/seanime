@@ -2,7 +2,6 @@
 import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
-import { ExternalPlayerLinkButton } from "@/app/(main)/_features/external-player/external-player-link-button"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
@@ -16,6 +15,7 @@ import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+import { AnimePreviewModal } from "@/app/(main)/entry/anime-preview-modal"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import React from "react"
@@ -48,7 +48,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaylistsModal />
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
-            <ExternalPlayerLinkButton />
+            <AnimePreviewModal />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

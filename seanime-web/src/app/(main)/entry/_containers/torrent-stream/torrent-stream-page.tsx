@@ -19,7 +19,6 @@ import { Switch } from "@/components/ui/switch"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/react"
 import React, { useMemo } from "react"
-import { SiBittorrent } from "react-icons/si"
 
 type TorrentStreamPageProps = {
     children?: React.ReactNode
@@ -121,7 +120,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     return (
         <AppLayoutStack>
             <div className="absolute right-0 top-[-3rem]">
-                <h2 className="text-xl lg:text-3xl flex items-center gap-3"><SiBittorrent /> Torrent streaming</h2>
+                <h2 className="text-xl lg:text-3xl flex items-center gap-3">Torrent streaming</h2>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">
