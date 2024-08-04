@@ -122,7 +122,8 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         && !warnings.noProvider
         && !warnings.extensionDoesNotSupportAdult
         && !warnings.extensionDoesNotSupportSmartSearch
-        && !warnings.extensionDoesNotSupportBestRelease,
+        && !warnings.extensionDoesNotSupportBestRelease
+        && !!providerExtensions // Provider extensions must be loaded
     )
 
     React.useLayoutEffect(() => {

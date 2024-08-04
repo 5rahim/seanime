@@ -74,7 +74,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     placeholder={imageShimmer(700, 475)}
                     sizes="20rem"
                     className={cn(
-                        "object-cover rounded-lg object-center transition",
+                        "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
                         imageClass,
                     )}
                 /> : <div

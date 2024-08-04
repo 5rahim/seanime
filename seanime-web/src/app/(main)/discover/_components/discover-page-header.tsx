@@ -80,7 +80,6 @@ export function DiscoverPageHeader() {
                             fill
                             quality={100}
                             priority
-                            sizes="100vw"
                             {...{
                                 initial: { opacity: 1 },
                                 animate: { opacity: 1 },
