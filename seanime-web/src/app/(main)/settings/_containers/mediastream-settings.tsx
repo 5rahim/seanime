@@ -107,7 +107,6 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     <MdOutlineDevices className="text-4xl" />
                     <div className="space-y-1">
                         <Checkbox
-                            name=""
                             value={activeOnDevice ?? false}
                             onValueChange={v => setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)}
                             label="Use media streaming on this device"

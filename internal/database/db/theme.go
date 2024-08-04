@@ -5,13 +5,23 @@ import (
 	"seanime/internal/database/models"
 )
 
+var themeCache *models.Theme
+
 func (db *Database) GetTheme() (*models.Theme, error) {
+
+	if themeCache != nil {
+		return themeCache, nil
+	}
+
 	var theme models.Theme
 	err := db.gormdb.Where("id = ?", 1).Find(&theme).Error
 
 	if err != nil {
 		return nil, err
 	}
+
+	themeCache = &theme
+
 	return &theme, nil
 }
 
@@ -29,6 +39,9 @@ func (db *Database) UpsertTheme(settings *models.Theme) (*models.Theme, error) {
 	}
 
 	db.Logger.Debug().Msg("db: Theme saved")
+
+	themeCache = settings
+
 	return settings, nil
 
 }

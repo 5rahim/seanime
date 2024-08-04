@@ -5,6 +5,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 )
 
 // Status is a struct containing the user data, settings, and OS.
@@ -27,6 +28,8 @@ type Status struct {
 	Updating              bool                          `json:"updating"` // If true, a new screen will be displayed
 }
 
+var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
+
 // NewStatus returns a new Status struct.
 // It uses the RouteCtx to get the App instance containing the Database instance.
 func NewStatus(c *RouteCtx) *Status {
@@ -34,7 +37,7 @@ func NewStatus(c *RouteCtx) *Status {
 	var user *anime.User
 	var settings *models.Settings
 	var theme *models.Theme
-	var mal *models.Mal
+	//var mal *models.Mal
 
 	if dbAcc, _ = c.App.Database.GetAccount(); dbAcc != nil {
 		user, _ = anime.NewUser(dbAcc)
@@ -49,18 +52,22 @@ func NewStatus(c *RouteCtx) *Status {
 		}
 	}
 
-	clientInfo := util.GetClientInfo(c.Fiber.Get("User-Agent"))
+	clientInfo, found := clientInfoCache.Get(c.Fiber.Get("User-Agent"))
+	if !found {
+		clientInfo = util.GetClientInfo(c.Fiber.Get("User-Agent"))
+		clientInfoCache.Set(c.Fiber.Get("User-Agent"), clientInfo)
+	}
 
 	theme, _ = c.App.Database.GetTheme()
-	mal, _ = c.App.Database.GetMalInfo()
+	//mal, _ = c.App.Database.GetMalInfo()
 	return &Status{
-		OS:                    runtime.GOOS,
-		ClientDevice:          clientInfo.Device,
-		ClientPlatform:        clientInfo.Platform,
-		ClientUserAgent:       c.Fiber.Get("User-Agent"),
-		User:                  user,
-		Settings:              settings,
-		Mal:                   mal,
+		OS:              runtime.GOOS,
+		ClientDevice:    clientInfo.Device,
+		ClientPlatform:  clientInfo.Platform,
+		ClientUserAgent: c.Fiber.Get("User-Agent"),
+		User:            user,
+		Settings:        settings,
+		//Mal:                   mal,
 		Version:               c.App.Version,
 		ThemeSettings:         theme,
 		IsOffline:             c.App.Config.Server.Offline,
