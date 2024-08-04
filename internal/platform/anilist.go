@@ -239,10 +239,8 @@ func (ap *AnilistPlatform) GetAnimeCollectionWithRelations() (*anilist.AnimeColl
 }
 
 func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaCollection, error) {
-	ap.logger.Trace().Msg("anilist platform: Fetching manga collection")
 
 	if !bypassCache && ap.mangaCollection.IsPresent() {
-		ap.logger.Trace().Msg("anilist platform: Returning manga collection from cache")
 		return ap.mangaCollection.MustGet(), nil
 	}
 
