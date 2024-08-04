@@ -1,4 +1,5 @@
 "use client"
+import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { cn } from "@/components/ui/core/styling"
 import { getAssetUrl } from "@/lib/server/assets"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
@@ -45,6 +46,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
                     discrete && "opacity-20",
                     !!ts.libraryScreenCustomBackgroundImage && "absolute", // If there's a background image, make the banner absolute
                     (!ts.libraryScreenCustomBackgroundImage && dimmed) && "opacity-5", // If the user has scrolled down, dim the banner
+                    !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                 )}
             >
                 <div

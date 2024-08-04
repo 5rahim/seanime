@@ -1,4 +1,5 @@
 import { AL_BaseAnime } from "@/api/generated/types"
+import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -20,7 +22,7 @@ export const __discover_hoveringHeaderAtom = atom(false)
 const MotionImage = motion(Image)
 
 export function DiscoverPageHeader() {
-
+    const ts = useThemeSettings()
     const pathname = usePathname()
 
     const [pageType, setPageType] = useAtom(__discord_pageTypeAtom)
@@ -49,12 +51,18 @@ export function DiscoverPageHeader() {
             }}
         >
             <div
-                className="CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[48rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-75% to-transparent via"
-            />
-            <div
 
-                className="lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
+                className={cn(
+                    "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0",
+                    !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                )}
             >
+                <div
+                    className={cn(
+                        "w-full z-[2] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
+                    )}
+                />
+
                 <div
                     className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
@@ -100,12 +108,21 @@ export function DiscoverPageHeader() {
                 {/*    )}*/}
                 {/*/>*/}
 
+                {/*RIGHT FADE*/}
                 <div
                     className={cn(
-                        "hidden lg:block max-w-[100rem] w-full z-[2] h-full absolute right-0 bg-gradient-to-l from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute right-0 bg-gradient-to-l from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
                         "opacity-100 duration-500",
                     )}
                 />
+
+                {/*LEFT FADE IF SIDEBAR IS TRANSPARENT*/}
+                {!ts.disableSidebarTransparency && <div
+                    className={cn(
+                        "hidden lg:block max-w-[10rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "opacity-70 duration-500",
+                    )}
+                />}
 
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 <AnimatePresence>

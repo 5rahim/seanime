@@ -19,8 +19,6 @@ import { toast } from "sonner"
 export const EpisodeItemIsolation = createIsolation()
 
 const __metadataModalIsOpenAtom = atom(false)
-export const __episodeItem_infoModalIsOpenAtom = atom(false)
-
 
 export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
     episode: Anime_AnimeEntryEpisode,
@@ -117,7 +115,7 @@ function MetadataModal({ episode }: { episode: Anime_AnimeEntryEpisode }) {
             titleClass="text-center"
             contentClass="max-w-xl"
         >
-            <p className="w-full line-clamp-2 text-sm text-[--muted] px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
+            <p className="w-full line-clamp-2 text-sm px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
             <Form
                 schema={metadataSchema}
                 onSubmit={(data) => {
@@ -174,7 +172,7 @@ function MetadataModalButton() {
 function EpisodeItemInfoModalButton({ episode }: { episode: Anime_AnimeEntryEpisode }) {
     return <Modal
         title={episode.displayTitle}
-        contentClass="max-w-2xl"
+        contentClass="max-w-2xl overflow-hidden"
         titleClass="text-xl"
         trigger={<IconButton
             icon={<MdInfo />}

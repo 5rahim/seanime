@@ -385,11 +385,11 @@ export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProp
     return (
         <div className="pt-2 space-y-1 flex flex-col justify-between h-full select-none">
             <div>
-                <p className="text-left font-semibold text-sm lg:text-md min-[2000px]:text-lg line-clamp-2">{title}</p>
+                <p className="text-pretty font-medium min-[2000px]:font-semibold text-sm lg:text-[1rem] min-[2000px]:text-lg line-clamp-2">{title}</p>
             </div>
             {(!!season || !!year) && <div>
                 <p className="text-sm text-[--muted] inline-flex gap-1 items-center">
-                    <BiCalendarAlt />{capitalize(season ?? "")} {year}
+                    {capitalize(season ?? "")} {year}
                 </p>
             </div>}
         </div>

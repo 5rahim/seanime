@@ -28,6 +28,9 @@ const themeSchema = defineSchema(({ z }) => z.object({
     libraryScreenCustomBackgroundOpacity: z.number()
         .transform(v => v === 0 ? 100 : v)
         .default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundOpacity),
+    libraryScreenCustomBackgroundBlur: z.string().default(THEME_DEFAULT_VALUES.libraryScreenCustomBackgroundBlur),
+    enableMediaPageBlurredBackground: z.boolean().default(THEME_DEFAULT_VALUES.enableMediaPageBlurredBackground),
+    disableSidebarTransparency: z.boolean().default(THEME_DEFAULT_VALUES.disableSidebarTransparency),
     disableLibraryScreenGenreSelector: z.boolean().default(false),
 
 }))
@@ -54,6 +57,9 @@ export function UISettings() {
                         id: 0,
                         ...themeSettings,
                         ...data,
+                        libraryScreenCustomBackgroundBlur: data.libraryScreenCustomBackgroundBlur === "-"
+                            ? ""
+                            : data.libraryScreenCustomBackgroundBlur,
                     },
                 }, {
                     onSuccess() {
@@ -80,12 +86,15 @@ export function UISettings() {
                 libraryScreenCustomBackgroundImage: themeSettings?.libraryScreenCustomBackgroundImage,
                 libraryScreenCustomBackgroundOpacity: themeSettings?.libraryScreenCustomBackgroundOpacity,
                 disableLibraryScreenGenreSelector: themeSettings?.disableLibraryScreenGenreSelector,
+                libraryScreenCustomBackgroundBlur: themeSettings?.libraryScreenCustomBackgroundBlur || "-",
+                enableMediaPageBlurredBackground: themeSettings?.enableMediaPageBlurredBackground,
+                disableSidebarTransparency: themeSettings?.disableSidebarTransparency,
             }}
             stackClass="space-y-4"
         >
             {(f) => (
                 <>
-                    <h3>Main</h3>
+                    <h3>Color scheme</h3>
 
                     <Field.Switch
                         label="Enable color settings"
@@ -146,37 +155,59 @@ export function UISettings() {
                         </div>
                     )}
 
+                    <br />
+
+                    <h3>
+                        Background image
+                    </h3>
+
                     <div className="flex flex-col md:flex-row gap-3">
                         <Field.Text
-                            label="Background image path"
+                            label="Image path"
                             name="libraryScreenCustomBackgroundImage"
                             placeholder="e.g., image.png"
                             help="Background image for all pages. Dimmed on non-library screens."
                         />
 
                         <Field.Number
-                            label="Background image opacity"
+                            label="Opacity"
                             name="libraryScreenCustomBackgroundOpacity"
                             placeholder="Default: 10"
                             min={1}
                             max={100}
                         />
+
+                        {/*<Field.Select*/}
+                        {/*    label="Blur"*/}
+                        {/*    name="libraryScreenCustomBackgroundBlur"*/}
+                        {/*    help="Can cause performance issues."*/}
+                        {/*    options={[*/}
+                        {/*        { label: "None", value: "-" },*/}
+                        {/*        { label: "5px", value: "5px" },*/}
+                        {/*        { label: "10px", value: "10px" },*/}
+                        {/*        { label: "15px", value: "15px" },*/}
+                        {/*    ]}*/}
+                        {/*/>*/}
                     </div>
+
+                    <br />
+
+                    <h3>Banner image</h3>
 
                     <div className="flex flex-col md:flex-row gap-3">
                         <Field.Text
-                            label="Banner image path"
+                            label="Image path"
                             name="libraryScreenCustomBannerImage"
                             placeholder="e.g., image.gif"
                             help="Banner image for all pages."
                         />
                         <Field.Text
-                            label="Banner position"
+                            label="Position"
                             name="libraryScreenCustomBannerPosition"
                             placeholder="Default: 50% 50%"
                         />
                         <Field.Number
-                            label="Banner opacity"
+                            label="Opacity"
                             name="libraryScreenCustomBannerOpacity"
                             placeholder="Default: 10"
                             min={1}
@@ -184,12 +215,21 @@ export function UISettings() {
                         />
                     </div>
 
+                    <br />
+
                     <h3>Sidebar</h3>
 
                     <Field.Switch
                         label="Expand sidebar on hover"
                         name="expandSidebarOnHover"
                     />
+
+                    <Field.Switch
+                        label="Disable transparency"
+                        name="disableSidebarTransparency"
+                    />
+
+                    <br />
 
                     <h3>Navbar</h3>
 
@@ -199,6 +239,8 @@ export function UISettings() {
                         help="Switches to sidebar-only mode."
                     />
 
+                    <br />
+
                     <h3>Media Cards</h3>
 
                     <Field.Switch
@@ -206,7 +248,9 @@ export function UISettings() {
                         name="enableMediaCardBlurredBackground"
                     />
 
-                    <Separator />
+                    <Separator className="!mt-10" />
+
+                    <br />
 
                     <div>
                         <h3>Library screens</h3>
@@ -248,7 +292,13 @@ export function UISettings() {
                     />
 
                     <Field.Switch
-                        label="Disable genre selector"
+                        label="Blurred gradient on media pages"
+                        name="enableMediaPageBlurredBackground"
+                        help="Can cause performance issues."
+                    />
+
+                    <Field.Switch
+                        label="No genre selector"
                         name="disableLibraryScreenGenreSelector"
                     />
 

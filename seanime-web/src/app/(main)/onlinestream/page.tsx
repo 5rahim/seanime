@@ -3,6 +3,7 @@ import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
     OnlinestreamParametersButton,
@@ -35,7 +36,6 @@ import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/l
 import HLS from "hls.js"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
@@ -50,7 +50,6 @@ const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 export const dynamic = "force-static"
 
 export default function Page() {
-
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -490,28 +489,7 @@ export default function Page() {
 
             </div>
 
-            <div
-                className="h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
-            >
-                <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
-                />
-                <div className="absolute w-full h-full">
-                    {(!!media?.bannerImage || !!media?.coverImage?.extraLarge) && <Image
-                        src={media?.bannerImage || media?.coverImage?.extraLarge || ""}
-                        alt="banner image"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className="object-cover object-center z-[1]"
-                    />}
-                </div>
-                <div
-                    className="w-full z-[3] absolute bottom-0 h-[32rem] bg-gradient-to-t from-[--background] via-[--background] via-50% to-transparent"
-                />
-
-            </div>
+            <MediaEntryPageSmallBanner bannerImage={media?.bannerImage || media?.coverImage?.extraLarge} />
         </>
     )
 

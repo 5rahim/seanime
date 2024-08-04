@@ -42,10 +42,21 @@ export function OfflineSidebar() {
             <AppSidebar
                 className={cn(
                     "h-full flex flex-col justify-between transition-gpu w-full transition-[width]",
-                    { "w-[400px]": !ctx.isBelowBreakpoint && expandedSidebar },
+                    (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover) && "hover:bg-[--background]",
                 )}
-                // sidebarClass="h-full"
+                onMouseEnter={handleExpandSidebar}
+                onMouseLeave={handleUnexpandedSidebar}
             >
+                {(!ctx.isBelowBreakpoint && ts.expandSidebarOnHover && ts.disableSidebarTransparency) && <div
+                    className={cn(
+                        "fixed h-full translate-x-0 w-[50px] bg-gradient bg-gradient-to-r via-[--background] from-[--background] to-transparent",
+                        "group-hover/main-sidebar:translate-x-[250px] transition opacity-0 duration-300 group-hover/main-sidebar:opacity-100",
+                    )}
+                ></div>}
+
+
                 <div>
                     <div className="mb-4 p-4 pb-0 flex justify-center w-full">
                         <img src="/logo.png" alt="logo" className="w-15 h-10" />
@@ -54,8 +65,6 @@ export function OfflineSidebar() {
                         className="px-4"
                         collapsed={isCollapsed}
                         itemClass="relative"
-                        onMouseEnter={handleExpandSidebar}
-                        onMouseLeave={handleUnexpandedSidebar}
                         items={[
                             {
                                 iconType: IoLibrary,
@@ -78,8 +87,6 @@ export function OfflineSidebar() {
                         <VerticalMenu
                             collapsed={isCollapsed}
                             itemClass="relative"
-                            onMouseEnter={handleExpandSidebar}
-                            onMouseLeave={handleUnexpandedSidebar}
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 {

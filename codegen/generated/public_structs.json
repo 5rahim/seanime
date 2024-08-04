@@ -25012,6 +25012,33 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "LibraryScreenCustomBackgroundBlur",
+        "jsonName": "libraryScreenCustomBackgroundBlur",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnableMediaPageBlurredBackground",
+        "jsonName": "enableMediaPageBlurredBackground",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableSidebarTransparency",
+        "jsonName": "disableSidebarTransparency",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

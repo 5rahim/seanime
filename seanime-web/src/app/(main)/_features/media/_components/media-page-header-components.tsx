@@ -7,6 +7,7 @@ import {
     Nullish,
     Offline_ListData,
 } from "@/api/generated/types"
+import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
@@ -41,7 +42,7 @@ export const MediaPageHeaderAnatomy = defineStyleAnatomy({
     }),
     imageContainer: cva([
         "__media-page-header-image-container",
-        " w-full flex-none object-cover object-center z-[3] overflow-hidden bg-[--background]",
+        " w-full flex-none object-cover object-center z-[3] bg-[--background]",
     ], {
         variants: {
             flavor: {
@@ -89,6 +90,26 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 className={cn(MediaPageHeaderAnatomy.fadeBg({ size }))}
             />
 
+            {(ts.enableMediaPageBlurredBackground) && <div
+                className={cn(
+                    "fixed opacity-0 transition-opacity duration-1000 top-0 left-0 w-full h-full z-[4] bg-[--background] rounded-xl",
+                    y > 100 && "opacity-100",
+                )}
+            >
+                <Image
+                    src={backgroundImage || ""}
+                    alt={""}
+                    fill
+                    quality={100}
+                    sizes="20rem"
+                    className="object-cover object-center transition opacity-10"
+                />
+
+                <div
+                    className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2] "
+                ></div>
+            </div>}
+
             {children}
 
             <div
@@ -97,12 +118,23 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         size,
                         flavor: ts.libraryScreenCustomBackgroundImage ? "absolute" : "fixed",
                     }),
-                    !ts.libraryScreenCustomBackgroundImage && y > 100 && "opacity-5",
+                    !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : "opacity-5"),
+                    !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                 )}
             >
+                {/*TOP FADE*/}
                 <div
                     className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
                 />
+
+                {/*BOTTOM OVERFLOW FADE*/}
+                <div
+                    className={cn(
+                        "w-full z-[2] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
+                        !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                    )}
+                />
+
                 <div className="absolute w-full h-full">
                     {(!!backgroundImage) && <Image
                         src={backgroundImage || ""}
@@ -116,18 +148,20 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     {/*LEFT MASK*/}
                     <div
                         className={cn(
-                            "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                            "hidden lg:block max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] transition-opacity via-opacity-80 via-5% to-transparent",
                             "opacity-100 duration-1000",
                             // y > 300 && "opacity-70",
                         )}
                     />
-                    <div
-                        className={cn(
-                            "hidden lg:block max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
-                            "opacity-0 lg:group-hover/media-page-header:opacity-30 duration-500",
-                        )}
-                    />
+                    {/*<div*/}
+                    {/*    className={cn(*/}
+                    {/*        "hidden lg:block max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",*/}
+                    {/*        "opacity-0 lg:group-hover/media-page-header:opacity-30 duration-500",*/}
+                    {/*    )}*/}
+                    {/*/>*/}
                 </div>
+
+                {/*BOTTOM FADE*/}
                 <div
                     className="w-full z-[3] absolute bottom-0 h-[50%] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
                 />
@@ -257,7 +291,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <TextGenerateEffect
-                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl"
+                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl"
                             words={title || ""}
                         />
                         {(!!englishTitle && title?.toLowerCase() !== englishTitle?.toLowerCase()) &&
@@ -306,7 +340,12 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             : listData?.status)}</p>
                     </div>
 
-                    <ScrollArea className="h-20 col-span-2 text-[--muted] hover:text-gray-300 transition-colors duration-500 text-sm pr-2">
+                    <ScrollArea
+                        className={cn(
+                            "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] hover:text-[--foreground] transition-colors duration-500 text-sm pr-2",
+                            "bg-transparent hover:bg-zinc-950/30 rounded-md",
+                        )}
+                    >
                         {description?.replace(/(<([^>]+)>)/ig, "")}
                     </ScrollArea>
 

@@ -1,6 +1,7 @@
 "use client"
 import { Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/continue-watching"
+import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { cn } from "@/components/ui/core/styling"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { Transition } from "@headlessui/react"
@@ -67,25 +68,35 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
 
     return (
         <>
-            {!!ts.libraryScreenCustomBackgroundImage && (
-                <div
-                    className="LIB_HEADER_FADE_BG pointer-events-none w-full absolute z-[1] top-0 h-[40rem] opacity-100 bg-gradient-to-b from-[var(--background)] via-[var(--background)] to-transparent via"
-                />
-            )}
             <div
                 className={cn(
-                    "LIB_HEADER_CONTAINER __header h-[20rem] z-[1] top-0 w-full absolute group/library-header pointer-events-none",
+                    "LIB_HEADER_CONTAINER __header h-[25rem] z-[1] top-0 w-full absolute group/library-header pointer-events-none",
                     // Make it not fixed when the user scrolls down if a background image is set
                     !ts.libraryScreenCustomBackgroundImage && "fixed",
                 )}
             >
+
+                <div
+                    className={cn(
+                        "w-full z-[3] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
+                        !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                    )}
+                />
+
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1, delay: 0.2 }}
-                    className="LIB_HEADER_INNER_CONTAINER h-full z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
+                    className={cn(
+                        "LIB_HEADER_INNER_CONTAINER h-full z-[0] w-full flex-none object-cover object-center absolute top-0 overflow-hidden",
+                        !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                    )}
                 >
+
+                    {!ts.disableSidebarTransparency && <div
+                        className="hidden lg:block h-full absolute z-[2] w-[20%] opacity-70 left-0 top-0 bg-gradient bg-gradient-to-r from-[var(--background)] to-transparent"
+                    />}
 
                     <div
                         className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"
@@ -107,7 +118,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                             priority
                             sizes="100vw"
                             className={cn(
-                                "object-cover object-center z-[1] opacity-80 transition-all duration-700",
+                                "object-cover object-center z-[1] opacity-100 transition-all duration-700",
                                 { "opacity-5": dimmed },
                             )}
                         />}
@@ -125,34 +136,36 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                         )}
                     />}
                     <div
-                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
+                        className={cn(
+                            "LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent",
+                        )}
                     />
-                    <div className="h-full absolute w-full xl-right-48">
-                        <Image
-                            src={"/mask-2.png"}
-                            alt="mask"
-                            fill
-                            quality={100}
-                            priority
-                            sizes="100vw"
-                            className={cn(
-                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-5",
-                            )}
-                        />
-                    </div>
-                    <div className="h-full absolute w-full xl:-right-48">
-                        <Image
-                            src={"/mask.png"}
-                            alt="mask"
-                            fill
-                            quality={100}
-                            priority
-                            sizes="100vw"
-                            className={cn(
-                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-5",
-                            )}
-                        />
-                    </div>
+                    {/*<div className="h-full absolute w-full xl-right-48">*/}
+                    {/*    <Image*/}
+                    {/*        src={"/mask-2.png"}*/}
+                    {/*        alt="mask"*/}
+                    {/*        fill*/}
+                    {/*        quality={100}*/}
+                    {/*        priority*/}
+                    {/*        sizes="100vw"*/}
+                    {/*        className={cn(*/}
+                    {/*            "object-cover object-left z-[2] transition-opacity duration-1000 opacity-5",*/}
+                    {/*        )}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
+                    {/*<div className="h-full absolute w-full xl:-right-48">*/}
+                    {/*    <Image*/}
+                    {/*        src={"/mask.png"}*/}
+                    {/*        alt="mask"*/}
+                    {/*        fill*/}
+                    {/*        quality={100}*/}
+                    {/*        priority*/}
+                    {/*        sizes="100vw"*/}
+                    {/*        className={cn(*/}
+                    {/*            "object-cover object-right z-[2] transition-opacity duration-1000 opacity-5",*/}
+                    {/*        )}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
                 </motion.div>
             </div>
         </>

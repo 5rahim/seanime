@@ -50,6 +50,7 @@ export function RecentReleases() {
                                     title={`Episode ${item.episode}`}
                                     image={item.media?.bannerImage || item.media?.coverImage?.large}
                                     topTitle={item.media?.title?.userPreferred}
+                                    progressTotal={item.media?.episodes}
                                     meta={item.airingAt
                                         ? formatDistanceToNow(addSeconds(new Date(), item.timeUntilAiring), { addSuffix: true })
                                         : undefined}

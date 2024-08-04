@@ -2,6 +2,7 @@
 
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { MediastreamPlaybackSubmenu } from "@/app/(main)/mediastream/_components/mediastream-video-addons"
 import {
@@ -461,28 +462,8 @@ export default function Page() {
 
 
             </AppLayoutStack>
-            <div
-                className="h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
-            >
-                <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
-                />
-                <div className="absolute w-full h-full">
-                    {(!!animeEntry?.media?.bannerImage || !!animeEntry?.media?.coverImage?.extraLarge) && <Image
-                        src={animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge || ""}
-                        alt="banner image"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className="object-cover object-center z-[1]"
-                    />}
-                </div>
-                <div
-                    className="w-full z-[3] absolute bottom-0 h-[32rem] bg-gradient-to-t from-[--background] via-[--background] via-50% to-transparent"
-                />
 
-            </div>
+            <MediaEntryPageSmallBanner bannerImage={animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge} />
         </>
     )
 
