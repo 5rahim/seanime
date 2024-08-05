@@ -58,7 +58,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
 
                     <Link href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
                         <Button intent="gray-link" className="px-0">
-                            Open on AniList
+                            AniList
                         </Button>
                     </Link>
 

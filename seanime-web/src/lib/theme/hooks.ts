@@ -22,6 +22,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     libraryScreenCustomBackgroundBlur: "",
     enableMediaPageBlurredBackground: false,
     disableSidebarTransparency: false,
+    useLegacyEpisodeCard: false,
 }
 
 export const enum ThemeLibraryScreenBannerType {
@@ -59,6 +60,7 @@ export function useThemeSettings(): ThemeSettingsHook {
         libraryScreenCustomBackgroundBlur: getThemeValue("libraryScreenCustomBackgroundBlur", serverStatus?.themeSettings),
         enableMediaPageBlurredBackground: getThemeValue("enableMediaPageBlurredBackground", serverStatus?.themeSettings),
         disableSidebarTransparency: getThemeValue("disableSidebarTransparency", serverStatus?.themeSettings),
+        useLegacyEpisodeCard: getThemeValue("useLegacyEpisodeCard", serverStatus?.themeSettings),
 
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
     }

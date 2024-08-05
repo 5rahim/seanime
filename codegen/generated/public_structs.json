@@ -25124,6 +25124,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UseLegacyEpisodeCard",
+        "jsonName": "useLegacyEpisodeCard",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -26620,7 +26629,9 @@
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
-        "comments": []
+        "comments": [
+          " NOT IMPLEMENTED"
+        ]
       },
       {
         "name": "Config",
@@ -26630,7 +26641,9 @@
         "usedStructName": "extension.Config",
         "required": false,
         "public": true,
-        "comments": []
+        "comments": [
+          " NOT IMPLEMENTED"
+        ]
       },
       {
         "name": "Payload",
@@ -28221,6 +28234,73 @@
     "embeddedStructNames": [
       "extension_repo.gojaExtensionImpl"
     ]
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_bindings.go",
+    "filename": "goja_bindings.go",
+    "name": "GojaFormData",
+    "formattedName": "ExtensionRepo_GojaFormData",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "runtime",
+        "jsonName": "runtime",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "buf",
+        "jsonName": "buf",
+        "goType": "bytes.Buffer",
+        "typescriptType": "Buffer",
+        "usedStructName": "bytes.Buffer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "writer",
+        "jsonName": "writer",
+        "goType": "multipart.Writer",
+        "typescriptType": "Writer",
+        "usedStructName": "multipart.Writer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fieldNames",
+        "jsonName": "fieldNames",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "values",
+        "jsonName": "values",
+        "goType": "map[string][]string",
+        "typescriptType": "Record\u003cstring, Array\u003cstring\u003e\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/extension_repo/goja_manga_provider.go",

@@ -50,7 +50,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         <>
             {!hideButton && <>
                 {!!listData && <IconButton
-                    intent="gray-subtle"
+                    intent="white-subtle"
                     icon={<AiFillEdit />}
                     rounded
                     size="sm"

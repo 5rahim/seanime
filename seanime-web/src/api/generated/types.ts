@@ -1642,7 +1642,13 @@ export type Extension_Extension = {
     author: string
     icon: string
     website: string
+    /**
+     * NOT IMPLEMENTED
+     */
     scopes?: Array<string>
+    /**
+     * NOT IMPLEMENTED
+     */
     config?: Extension_Config
     payload: string
 }
@@ -2234,6 +2240,7 @@ export type Models_Theme = {
     libraryScreenCustomBackgroundBlur: string
     enableMediaPageBlurredBackground: boolean
     disableSidebarTransparency: boolean
+    useLegacyEpisodeCard: boolean
     id: number
     createdAt?: string
     updatedAt?: string

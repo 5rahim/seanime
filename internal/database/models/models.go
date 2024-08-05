@@ -205,6 +205,7 @@ type Theme struct {
 	LibraryScreenCustomBackgroundBlur string `gorm:"column:library_screen_custom_background_blur" json:"libraryScreenCustomBackgroundBlur"`
 	EnableMediaPageBlurredBackground  bool   `gorm:"column:enable_media_page_blurred_background" json:"enableMediaPageBlurredBackground"`
 	DisableSidebarTransparency        bool   `gorm:"column:disable_sidebar_transparency" json:"disableSidebarTransparency"`
+	UseLegacyEpisodeCard              bool   `gorm:"column:use_legacy_episode_card" json:"useLegacyEpisodeCard"`
 }
 
 // +---------------------+

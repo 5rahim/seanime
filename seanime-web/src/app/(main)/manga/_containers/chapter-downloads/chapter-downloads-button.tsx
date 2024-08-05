@@ -27,7 +27,8 @@ export function ChapterDownloadsButton(props: ChapterDownloadsButtonProps) {
         <>
             <Button
                 onClick={() => openDownloadQueue(true)}
-                intent="primary-outline"
+                intent="white-subtle"
+                rounded
                 size="sm"
                 leftIcon={<FaDownload />}
             >

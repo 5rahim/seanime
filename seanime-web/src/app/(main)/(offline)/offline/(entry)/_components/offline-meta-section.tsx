@@ -24,7 +24,6 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
     return (
         <MediaPageHeader
-            size="smaller"
             backgroundImage={offline_getAssetUrl(entry.media?.bannerImage, assetMap)
                 || offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)}
         >

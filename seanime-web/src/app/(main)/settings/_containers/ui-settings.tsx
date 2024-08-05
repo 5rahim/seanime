@@ -32,7 +32,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     enableMediaPageBlurredBackground: z.boolean().default(THEME_DEFAULT_VALUES.enableMediaPageBlurredBackground),
     disableSidebarTransparency: z.boolean().default(THEME_DEFAULT_VALUES.disableSidebarTransparency),
     disableLibraryScreenGenreSelector: z.boolean().default(false),
-
+    useLegacyEpisodeCard: z.boolean().default(THEME_DEFAULT_VALUES.useLegacyEpisodeCard),
 }))
 
 
@@ -89,6 +89,7 @@ export function UISettings() {
                 libraryScreenCustomBackgroundBlur: themeSettings?.libraryScreenCustomBackgroundBlur || "-",
                 enableMediaPageBlurredBackground: themeSettings?.enableMediaPageBlurredBackground,
                 disableSidebarTransparency: themeSettings?.disableSidebarTransparency,
+                useLegacyEpisodeCard: themeSettings?.useLegacyEpisodeCard,
             }}
             stackClass="space-y-4"
         >
@@ -287,8 +288,13 @@ export function UISettings() {
                     />
 
                     <Field.Switch
-                        label="Smaller episode carousel size"
+                        label="Smaller episode cards"
                         name="smallerEpisodeCarouselSize"
+                    />
+
+                    <Field.Switch
+                        label="Legacy episode cards"
+                        name="useLegacyEpisodeCard"
                     />
 
                     <Field.Switch

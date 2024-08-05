@@ -1,5 +1,6 @@
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
@@ -115,7 +116,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             </div>}
 
             {ts.enableMediaCardBlurredBackground && <div
-                className="w-full absolute top-0 h-full opacity-80 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2]"
+                className="w-full absolute top-0 h-full opacity-60 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2] rounded-md"
             />}
 
             <div className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
@@ -355,7 +356,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     />
 
                     {(blurAdultContent && isAdult) && <div
-                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] border-4"
+                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-md"
                     ></div>}
                 </div>
             </Link>
@@ -443,16 +444,16 @@ export const MediaEntryCardHoverPopupBanner = ({
 
     const Content = (
         <div className="aspect-[4/2] relative rounded-md mb-2 cursor-pointer">
-            {(showProgressBar && progress && listStatus && progressTotal) &&
+            {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
                 <div className="absolute rounded-md overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0">
-                <div
-                    className={cn(
-                        "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
-                        (listStatus === "CURRENT" || listStatus === "COMPLETED") ? "bg-brand-400" : "bg-gray-400",
-                    )}
-                    style={{ width: `${String(Math.ceil((progress / progressTotal) * 100))}%` }}
-                ></div>
-            </div>}
+                    <div
+                        className={cn(
+                            "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
+                            (listStatus === "CURRENT" || listStatus === "COMPLETED") ? "bg-brand-400" : "bg-gray-400",
+                        )}
+                        style={{ width: `${String(Math.ceil((progress / progressTotal) * 100))}%` }}
+                    ></div>
+                </div>}
 
             {(status === "RELEASING" || status === "NOT_YET_RELEASED") && <div className="absolute z-[10] right-1 top-2">
                 <Tooltip
@@ -478,8 +479,16 @@ export const MediaEntryCardHoverPopupBanner = ({
             ></div>}
 
             {(blurAdultContent && isAdult) && <div
-                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] border-2"
+                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-md"
             ></div>}
+
+            <div className="absolute z-[4] left-0 bottom-0">
+                <MediaEntryProgressBadge
+                    progress={progress}
+                    progressTotal={progressTotal}
+                    forceShowTotal
+                />
+            </div>
 
             {(trailerEnabled && actionPopupHover) && <video
                 src={`https://yewtu.be/latest_version?id=${trailerId}&itag=18`}
