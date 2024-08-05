@@ -113,3 +113,7 @@ func structToMap(obj interface{}) map[string]interface{} {
 
 	return data
 }
+
+func gojaValueIsDefined(v goja.Value) bool {
+	return v != nil && !goja.IsUndefined(v) && !goja.IsNull(v)
+}

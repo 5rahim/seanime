@@ -8,10 +8,11 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"reflect"
 	"seanime/internal/util"
-	"seanime/internal/util/comparison"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -31,7 +32,15 @@ func gojaBindFetch(vm *goja.Runtime) error {
 	return nil
 }
 
-func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
+func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
+	defer func() {
+		if r := recover(); r != nil {
+			promise, _, reject := vm.NewPromise()
+			reject(vm.ToValue(fmt.Sprintf("extension: Panic from fetch: %v", r)))
+			ret = promise
+		}
+	}()
+
 	if len(call.Arguments) < 1 {
 		promise, _, reject := vm.NewPromise()
 		reject(vm.ToValue("TypeError: fetch requires at least 1 argument"))
@@ -59,13 +68,12 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
 
 	go func() {
 		method := "GET"
-		m := options.Get("method")
-		if m != nil && !goja.IsUndefined(m) {
+		if m := options.Get("method"); m != nil && gojaValueIsDefined(m) {
 			method = strings.ToUpper(m.String())
 		}
 
 		headers := make(map[string]string)
-		if h := options.Get("headers"); h != nil && !goja.IsUndefined(h) {
+		if h := options.Get("headers"); h != nil && gojaValueIsDefined(h) {
 			headerObj := h.ToObject(vm)
 			for _, key := range headerObj.Keys() {
 				headers[key] = headerObj.Get(key).String()
@@ -91,6 +99,7 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
 			Timeout: 10 * time.Second,
 		}
 		client.Transport = util.AddCloudFlareByPass(client.Transport)
+
 		resp, err := client.Do(req)
 		if err != nil {
 			reject(vm.ToValue(err.Error()))
@@ -104,8 +113,9 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
 			return
 		}
 
-		var jsonResult interface{}
-		if err := json.Unmarshal(bodyBytes, &jsonResult); err != nil {
+		// Unmarshal the response body to an interface
+		var jsonInterface interface{}
+		if err := json.Unmarshal(bodyBytes, &jsonInterface); err != nil {
 			reject(vm.ToValue(err.Error()))
 			return
 		}
@@ -115,24 +125,53 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
 		responseObj.Set("statusText", resp.Status)
 		responseObj.Set("ok", resp.StatusCode >= 200 && resp.StatusCode < 300)
 
-		headersObj := vm.NewObject()
+		// Set the response headers
+		respHeadersObj := vm.NewObject()
 		for key, values := range resp.Header {
-			headersObj.Set(key, values[0])
+			respHeadersObj.Set(key, values[0])
 		}
-		responseObj.Set("headers", headersObj)
+		responseObj.Set("headers", respHeadersObj)
 
+		// Set the response body
 		responseObj.Set("text", func(call goja.FunctionCall) goja.Value {
 			return vm.ToValue(string(bodyBytes))
 		})
 
+		// Set the response JSON
 		responseObj.Set("json", func(call goja.FunctionCall) goja.Value {
-			return vm.ToValue(jsonResult)
+			return vm.ToValue(jsonInterface)
 		})
 
 		resolve(responseObj)
 	}()
 
 	return promise
+}
+
+// Function to serialize GojaFormData to multipart/form-data format
+func serializeFormData(formData *goja.Object, vm *goja.Runtime) (io.Reader, string, error) {
+	var buffer bytes.Buffer
+	writer := multipart.NewWriter(&buffer)
+
+	// Iterate over all keys and values in the GojaFormData object
+	for _, key := range formData.Keys() {
+		value := formData.Get(key).String()
+		part, err := writer.CreateFormField(key)
+		if err != nil {
+			return nil, "", err
+		}
+		_, err = part.Write([]byte(value))
+		if err != nil {
+			return nil, "", err
+		}
+	}
+
+	err := writer.Close()
+	if err != nil {
+		return nil, "", err
+	}
+
+	return &buffer, writer.Boundary(), nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,65 +225,238 @@ func (c *gojaConsole) Log(t string) (ret func(c goja.FunctionCall) goja.Value) {
 
 		switch t {
 		case "log", "warn", "info", "debug":
-			c.logger.Debug().Msgf("extension: [console.%s] %s", t, strings.Join(ret, ", "))
+			c.logger.Debug().Msgf("extension: [console.%s] %s", t, strings.Join(ret, " "))
 		case "error":
-			c.logger.Error().Msgf("extension: [console.error] %s", strings.Join(ret, ", "))
+			c.logger.Error().Msgf("extension: [console.error] %s", strings.Join(ret, " "))
 		}
 		return goja.Undefined()
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FindBestMatchWithSorensenDice
+// GojaFormData
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func gojaBindFindBestMatchWithSorensenDice(vm *goja.Runtime) error {
-	err := vm.Set("$findBestMatchWithSorensenDice", func(call goja.FunctionCall) goja.Value {
-		if len(call.Arguments) < 2 {
-			return vm.ToValue("TypeError: Expected 2 arguments")
-		}
-
-		// Convert the first argument to string
-		inputStr, ok := call.Argument(0).Export().(string)
-		if !ok {
-			return vm.ToValue("TypeError: First argument must be a string")
-		}
-		input := inputStr
-
-		// Convert the second argument to an array of strings
-		vals := call.Argument(1).ToObject(vm)
-
-		// Check if the second argument is an array of strings
-		length := vals.Get("length")
-		if length == nil || goja.IsUndefined(length) {
-			return vm.ToValue("TypeError: Second argument must be an array of strings")
-		}
-
-		var strVals []*string
-		for _, key := range vals.Keys() {
-			val := vals.Get(key)
-			valStr := val.ToString()
-			str := valStr.String()
-			strVals = append(strVals, &str)
-		}
-
-		// Call the Go function
-		result, ok := comparison.FindBestMatchWithSorensenDice(&input, strVals)
-		if !ok {
-			return vm.ToValue(nil) // No match found
-		}
-
-		// Create a JavaScript object to return
-		jsResult := vm.NewObject()
-		jsResult.Set("originalValue", result.OriginalValue)
-		jsResult.Set("value", result.Value)
-		jsResult.Set("rating", result.Rating)
-
-		return jsResult
+func gojaBindFormData(vm *goja.Runtime) error {
+	err := vm.Set("FormData", func(call goja.ConstructorCall) *goja.Object {
+		fd := NewFormData(vm)
+		obj := call.This
+		obj.Set("append", fd.Append)
+		obj.Set("delete", fd.Delete)
+		obj.Set("entries", fd.Entries)
+		obj.Set("get", fd.Get)
+		obj.Set("getAll", fd.GetAll)
+		obj.Set("has", fd.Has)
+		obj.Set("keys", fd.Keys)
+		obj.Set("set", fd.Set)
+		obj.Set("values", fd.Values)
+		obj.Set("getContentType", fd.GetContentType)
+		obj.Set("getBuffer", fd.GetBuffer)
+		return obj
 	})
 	if err != nil {
 		return err
 	}
-
 	return nil
+}
+
+type GojaFormData struct {
+	runtime    *goja.Runtime
+	buf        *bytes.Buffer
+	writer     *multipart.Writer
+	fieldNames map[string]struct{}
+	values     map[string][]string
+	closed     bool
+}
+
+func NewFormData(runtime *goja.Runtime) *GojaFormData {
+	buf := &bytes.Buffer{}
+	writer := multipart.NewWriter(buf)
+	return &GojaFormData{
+		runtime:    runtime,
+		buf:        buf,
+		writer:     writer,
+		fieldNames: make(map[string]struct{}),
+		values:     make(map[string][]string),
+		closed:     false,
+	}
+}
+
+func (fd *GojaFormData) Append(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot append to closed GojaFormData")
+	}
+
+	fieldName := call.Argument(0).String()
+	value := call.Argument(1).String()
+
+	fieldName = strings.TrimSpace(fieldName)
+	fd.values[fieldName] = append(fd.values[fieldName], value)
+
+	if _, exists := fd.fieldNames[fieldName]; !exists {
+		fd.fieldNames[fieldName] = struct{}{}
+		writer, err := fd.writer.CreateFormField(fieldName)
+		if err != nil {
+			return fd.runtime.ToValue(err.Error())
+		}
+		_, err = writer.Write([]byte(value))
+		if err != nil {
+			return fd.runtime.ToValue(err.Error())
+		}
+	}
+
+	return goja.Undefined()
+}
+
+func (fd *GojaFormData) Delete(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot delete from closed GojaFormData")
+	}
+
+	fieldName := call.Argument(0).String()
+	fieldName = strings.TrimSpace(fieldName)
+
+	delete(fd.fieldNames, fieldName)
+	delete(fd.values, fieldName)
+
+	return goja.Undefined()
+}
+
+func (fd *GojaFormData) Entries(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot get entries from closed GojaFormData")
+	}
+
+	iter := fd.runtime.NewArray()
+	index := 0
+	for key, values := range fd.values {
+		for _, value := range values {
+			entry := fd.runtime.NewObject()
+			entry.Set("0", key)
+			entry.Set("1", value)
+			iter.Set(strconv.Itoa(index), entry)
+			index++
+		}
+	}
+
+	return iter
+}
+
+func (fd *GojaFormData) Get(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot get value from closed GojaFormData")
+	}
+
+	fieldName := call.Argument(0).String()
+	fieldName = strings.TrimSpace(fieldName)
+
+	if values, exists := fd.values[fieldName]; exists && len(values) > 0 {
+		return fd.runtime.ToValue(values[0])
+	}
+
+	return goja.Undefined()
+}
+
+func (fd *GojaFormData) GetAll(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot get all values from closed GojaFormData")
+	}
+
+	fieldName := call.Argument(0).String()
+	fieldName = strings.TrimSpace(fieldName)
+
+	iter := fd.runtime.NewArray()
+	if values, exists := fd.values[fieldName]; exists {
+		for i, value := range values {
+			iter.Set(strconv.Itoa(i), value)
+		}
+	}
+
+	return iter
+}
+
+func (fd *GojaFormData) Has(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot check key in closed GojaFormData")
+	}
+
+	fieldName := call.Argument(0).String()
+	fieldName = strings.TrimSpace(fieldName)
+
+	_, exists := fd.fieldNames[fieldName]
+	return fd.runtime.ToValue(exists)
+}
+
+func (fd *GojaFormData) Keys(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot get keys from closed GojaFormData")
+	}
+
+	iter := fd.runtime.NewArray()
+	index := 0
+	for key := range fd.fieldNames {
+		iter.Set(strconv.Itoa(index), key)
+		index++
+	}
+
+	return iter
+}
+
+func (fd *GojaFormData) Set(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot set value in closed GojaFormData")
+	}
+
+	fieldName := call.Argument(0).String()
+	value := call.Argument(1).String()
+
+	fieldName = strings.TrimSpace(fieldName)
+	fd.values[fieldName] = []string{value}
+
+	if _, exists := fd.fieldNames[fieldName]; !exists {
+		fd.fieldNames[fieldName] = struct{}{}
+		writer, err := fd.writer.CreateFormField(fieldName)
+		if err != nil {
+			return fd.runtime.ToValue(err.Error())
+		}
+		_, err = writer.Write([]byte(value))
+		if err != nil {
+			return fd.runtime.ToValue(err.Error())
+		}
+	}
+
+	return goja.Undefined()
+}
+
+func (fd *GojaFormData) Values(call goja.FunctionCall) goja.Value {
+	if fd.closed {
+		return fd.runtime.ToValue("cannot get values from closed GojaFormData")
+	}
+
+	iter := fd.runtime.NewArray()
+	index := 0
+	for _, values := range fd.values {
+		for _, value := range values {
+			iter.Set(strconv.Itoa(index), value)
+			index++
+		}
+	}
+
+	return iter
+}
+
+func (fd *GojaFormData) GetContentType() goja.Value {
+	if !fd.closed {
+		fd.writer.Close()
+		fd.closed = true
+	}
+	return fd.runtime.ToValue(fd.writer.FormDataContentType())
+}
+
+func (fd *GojaFormData) GetBuffer() goja.Value {
+	if !fd.closed {
+		fd.writer.Close()
+		fd.closed = true
+	}
+	return fd.runtime.ToValue(fd.buf.String())
 }

@@ -47,8 +47,8 @@ type Extension struct {
 	Website string `json:"website"`
 	// List of authorization scopes required by the extension.
 	// The user must grant these permissions before the extension can be loaded.
-	Scopes []string `json:"scopes,omitempty"`
-	Config Config   `json:"config,omitempty"`
+	Scopes []string `json:"scopes,omitempty"` // NOT IMPLEMENTED
+	Config Config   `json:"config,omitempty"` // NOT IMPLEMENTED
 	// Payload is the content of the extension.
 	Payload string `json:"payload"`
 }

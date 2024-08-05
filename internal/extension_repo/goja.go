@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
+	gojabuffer "github.com/dop251/goja_nodejs/buffer"
 	gojaconsole "github.com/dop251/goja_nodejs/console"
 	gojarequire "github.com/dop251/goja_nodejs/require"
 	gojaurl "github.com/dop251/goja_nodejs/url"
@@ -60,6 +61,7 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 
 	gojaurl.Enable(vm)
 	gojaconsole.Enable(vm)
+	gojabuffer.Enable(vm)
 
 	err := gojaBindFetch(vm)
 	if err != nil {
@@ -71,10 +73,10 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 		return nil, err
 	}
 
-	//err = gojaBindFindBestMatchWithSorensenDice(vm)
-	//if err != nil {
-	//	return nil, err
-	//}
+	err = gojaBindFormData(vm)
+	if err != nil {
+		return nil, err
+	}
 
 	return vm, nil
 }
