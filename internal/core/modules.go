@@ -15,6 +15,7 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
+	"seanime/internal/notifier"
 	"seanime/internal/offline"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -218,6 +219,8 @@ func (a *App) InitOrRefreshModules() {
 	// |   Module settings   |
 	// +---------------------+
 	// Refresh settings of modules that were initialized in initModulesOnce
+
+	notifier.GlobalNotifier.SetSettings(a.Config.Data.AppDataDir, a.Settings.Notifications)
 
 	// Refresh updater settings
 	if settings.Library != nil && a.Updater != nil {
