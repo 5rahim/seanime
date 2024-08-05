@@ -2170,6 +2170,7 @@ export type Models_MediastreamSettings = {
 export type Models_NotificationSettings = {
     disableNotifications: boolean
     disableAutoDownloaderNotifications: boolean
+    disableAutoScannerNotifications: boolean
 }
 
 /**

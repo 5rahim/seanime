@@ -125,3 +125,10 @@ func FormatETA(etaInSeconds int) string {
 		return fmt.Sprintf("%d seconds left", seconds)
 	}
 }
+
+func Pluralize(count int, singular, plural string) string {
+	if count == 1 {
+		return singular
+	}
+	return plural
+}

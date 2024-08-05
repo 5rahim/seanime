@@ -120,6 +120,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     notifications: {
                                         disableNotifications: false,
                                         disableAutoDownloaderNotifications: false,
+                                        disableAutoScannerNotifications: false,
                                     },
                                 })
                             }}

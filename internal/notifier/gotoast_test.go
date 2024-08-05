@@ -13,13 +13,11 @@ func TestGoToast(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t)
 
-	t.Log(test_utils.ConfigData.Path.DataDir + "logo.png")
-
 	notification := toast.Notification{
 		AppID:   "Seanime",
-		Title:   "Downloaded 1 episode",
+		Title:   "Seanime",
 		Icon:    filepath.Join(test_utils.ConfigData.Path.DataDir, "logo.png"),
-		Message: "Some message about how important something is...",
+		Message: "Auto Downloader has downloaded 1 episode",
 	}
 	err := notification.Push()
 	if err != nil {

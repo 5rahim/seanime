@@ -48,7 +48,6 @@ require (
 	golang.org/x/net v0.25.0
 	golang.org/x/term v0.20.0
 	golang.org/x/text v0.16.0
-	gopkg.in/toast.v1 v1.0.0-20180812000517-0a84660828b2
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.0
 	gorm.io/gorm v1.25.10
 )

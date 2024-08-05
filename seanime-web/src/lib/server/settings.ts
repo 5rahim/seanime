@@ -64,6 +64,7 @@ export const settingsSchema = z.object({
     richPresenceShowAniListProfileButton: z.boolean().optional().default(false),
     disableNotifications: z.boolean().optional().default(false),
     disableAutoDownloaderNotifications: z.boolean().optional().default(false),
+    disableAutoScannerNotifications: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

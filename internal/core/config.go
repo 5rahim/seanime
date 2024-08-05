@@ -324,12 +324,15 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 	// User defined data directory
 	if definedDataDir != "" {
 
+		// Expand environment variables
+		definedDataDir = filepath.FromSlash(os.ExpandEnv(definedDataDir))
+
 		if !filepath.IsAbs(definedDataDir) {
 			return "", "", errors.New("app: Data directory path must be absolute")
 		}
 
-		// Normalize the data directory path
-		dataDir = filepath.FromSlash(os.ExpandEnv(definedDataDir))
+		// Replace the default data directory
+		dataDir = definedDataDir
 
 		logger.Trace().Str("dataDir", dataDir).Msg("app: Overriding default data directory")
 	} else {

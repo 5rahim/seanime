@@ -9,6 +9,7 @@ import (
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
+	"seanime/internal/notifier"
 	"seanime/internal/platform"
 	"seanime/internal/util"
 	"sync"
@@ -114,7 +115,6 @@ func (as *AutoScanner) SetEnabled(enabled bool) {
 // After the 30 seconds have passed, it will trigger a scan.
 // When a scan is complete, it will check the missedAction flag and trigger another scan if necessary.
 func (as *AutoScanner) watch() {
-
 	defer util.HandlePanicInModuleThen("scanner/autoscanner/watch", func() {
 		as.logger.Error().Msg("autoscanner: recovered from panic")
 	})
@@ -162,7 +162,6 @@ func (as *AutoScanner) RunNow() {
 
 // scan is used to trigger a scan.
 func (as *AutoScanner) scan() {
-
 	defer util.HandlePanicInModuleThen("scanner/autoscanner/scan", func() {
 		as.logger.Error().Msg("autoscanner: recovered from panic")
 	})
@@ -234,6 +233,8 @@ func (as *AutoScanner) scan() {
 
 	// Refresh the queue
 	go as.autoDownloader.CleanUpDownloadedItems()
+
+	notifier.GlobalNotifier.Notify(notifier.AutoScanner, "Your library has been scanned.")
 
 	return
 }

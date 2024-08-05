@@ -102,9 +102,9 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                         className="w-full z-[3] opacity-50 absolute top-0 h-[5rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent"
                     />
 
-                    <div
-                        className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"
-                    />
+                    {/*<div*/}
+                    {/*    className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"*/}
+                    {/*/>*/}
                     <Transition
                         show={!!actualImage}
                         enter="transition-opacity duration-500"
@@ -141,7 +141,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                     />}
                     <div
                         className={cn(
-                            "LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent",
+                            "LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[15rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent",
                         )}
                     />
                 </motion.div>

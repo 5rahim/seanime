@@ -1,6 +1,7 @@
 package autodownloader
 
 import (
+	"fmt"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
@@ -13,6 +14,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
+	"seanime/internal/notifier"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
@@ -267,6 +269,8 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		}
 	}
 
+	downloaded := 0
+
 	// Going through each rule
 	p := pool.New()
 	for _, rule := range rules {
@@ -312,7 +316,10 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 			// Download the torrent if there's only one
 			if len(torrentsToDownload) == 1 {
 				t := torrentsToDownload[0]
-				ad.downloadTorrent(t.torrent, rule, t.episode)
+				ok := ad.downloadTorrent(t.torrent, rule, t.episode)
+				if ok {
+					downloaded++
+				}
 				return
 			}
 
@@ -333,7 +340,10 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 				// If there's only one torrent for the episode, download it
 				if len(torrents) == 1 {
-					ad.downloadTorrent(torrents[0].torrent, rule, ep)
+					ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
+					if ok {
+						downloaded++
+					}
 					continue
 				}
 
@@ -349,11 +359,21 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 					return torrents[i].torrent.Seeders > torrents[j].torrent.Seeders
 				})
 
-				ad.downloadTorrent(torrents[0].torrent, rule, ep)
+				ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
+				if ok {
+					downloaded++
+				}
 			}
 		})
 	}
 	p.Wait()
+
+	if downloaded > 0 {
+		notifier.GlobalNotifier.Notify(
+			notifier.AutoDownloader,
+			fmt.Sprintf("%d %s %s been downloaded or added to the queue.", downloaded, util.Pluralize(downloaded, "episode", "episodes"), util.Pluralize(downloaded, "has", "have")),
+		)
+	}
 
 }
 
@@ -385,7 +405,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	return episode, true
 }
 
-func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int) {
+func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.AutoDownloaderRule, episode int) bool {
 	defer util.HandlePanicInModuleThen("autodownloader/downloadTorrent", func() {})
 
 	ad.mu.Lock()
@@ -394,31 +414,31 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 	providerExtension, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 	if !found {
 		ad.logger.Warn().Msg("autodownloader: Could not download torrent. Default provider not found")
-		return
+		return false
 	}
 
 	if ad.torrentClientRepository == nil {
 		ad.logger.Error().Msg("autodownloader: torrent client not found")
-		return
+		return false
 	}
 
 	started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
 	if !started {
 		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
-		return
+		return false
 	}
 
 	// Return if the torrent is already added
 	torrentExists := ad.torrentClientRepository.TorrentExists(t.InfoHash)
 	if torrentExists {
 		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
-		return
+		return false
 	}
 
 	magnet, err := t.GetMagnet(providerExtension.GetProvider())
 	if err != nil {
 		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
-		return
+		return false
 	}
 
 	downloaded := false
@@ -432,7 +452,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		err := ad.torrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
 		if err != nil {
 			ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
-			return
+			return false
 		}
 
 		downloaded = true
@@ -454,6 +474,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 	}
 	_ = ad.database.InsertAutoDownloaderItem(item)
 
+	return true
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

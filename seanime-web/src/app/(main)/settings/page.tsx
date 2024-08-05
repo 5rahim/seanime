@@ -176,6 +176,7 @@ export default function Page() {
                                     notifications: {
                                         disableNotifications: data?.disableNotifications ?? false,
                                         disableAutoDownloaderNotifications: data?.disableAutoDownloaderNotifications ?? false,
+                                        disableAutoScannerNotifications: data?.disableAutoScannerNotifications ?? false,
                                     },
                                 })
                             }}
@@ -225,6 +226,7 @@ export default function Page() {
                                 richPresenceShowAniListProfileButton: status?.settings?.discord?.richPresenceShowAniListProfileButton ?? false,
                                 disableNotifications: status?.settings?.notifications?.disableNotifications ?? false,
                                 disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
+                                disableAutoScannerNotifications: status?.settings?.notifications?.disableAutoScannerNotifications ?? false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -291,7 +293,12 @@ export default function Page() {
 
                                 <Field.Switch
                                     name="disableAutoDownloaderNotifications"
-                                    label="Disable auto downloader notifications"
+                                    label="Disable Auto Downloader notifications"
+                                />
+
+                                <Field.Switch
+                                    name="disableAutoScannerNotifications"
+                                    label="Disable Auto Scanner notifications"
                                 />
 
                                 <SettingsSubmitButton isPending={isPending} />

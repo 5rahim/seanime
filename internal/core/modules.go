@@ -220,7 +220,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 	// Refresh settings of modules that were initialized in initModulesOnce
 
-	notifier.GlobalNotifier.SetSettings(a.Config.Data.AppDataDir, a.Settings.Notifications)
+	notifier.GlobalNotifier.SetSettings(a.Config.Data.AppDataDir, a.Settings.Notifications, a.Logger)
 
 	// Refresh updater settings
 	if settings.Library != nil && a.Updater != nil {

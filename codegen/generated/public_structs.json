@@ -24684,6 +24684,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "DisableAutoScannerNotifications",
+        "jsonName": "disableAutoScannerNotifications",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -26077,6 +26086,15 @@
         "jsonName": "hasSent",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "username",
+        "jsonName": "username",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": false,
         "comments": []
@@ -40241,13 +40259,67 @@
       {
         "name": "dataDir",
         "jsonName": "dataDir",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logoPath",
+        "jsonName": "logoPath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/notifier/notifier.go",
+    "filename": "notifier.go",
+    "name": "Notification",
+    "formattedName": "Notification",
+    "package": "notifier",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"Auto Downloader\"",
+        "\"Auto Scanner\""
+      ]
+    },
     "comments": []
   },
   {

@@ -113,6 +113,7 @@ type DiscordSettings struct {
 type NotificationSettings struct {
 	DisableNotifications               bool `gorm:"column:disable_notifications" json:"disableNotifications"`
 	DisableAutoDownloaderNotifications bool `gorm:"column:disable_auto_downloader_notifications" json:"disableAutoDownloaderNotifications"`
+	DisableAutoScannerNotifications    bool `gorm:"column:disable_auto_scanner_notifications" json:"disableAutoScannerNotifications"`
 }
 
 // +---------------------+
