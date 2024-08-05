@@ -44,7 +44,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Provider extensions
      */
-    const { providerOptions } = useHandleMangaProviders(mediaId)
+    const { providerOptions, providersLoading } = useHandleMangaProviders(mediaId)
 
     /**
      * Current provider
@@ -206,6 +206,8 @@ export function ChapterList(props: ChapterListProps) {
     React.useEffect(() => {
         resetRowSelection()
     }, [chapters])
+
+    if (providersLoading) return <LoadingSpinner />
 
     return (
         <div

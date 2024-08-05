@@ -135,7 +135,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     )}
                 />
 
-                <div className="absolute w-full h-full">
+                <div className="absolute top-0 left-0 w-full h-full">
                     {(!!backgroundImage) && <Image
                         src={backgroundImage || ""}
                         alt="banner image"

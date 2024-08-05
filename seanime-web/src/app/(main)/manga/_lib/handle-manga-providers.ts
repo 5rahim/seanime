@@ -5,7 +5,7 @@ import React from "react"
 
 export function useHandleMangaProviders(mId: string | null) {
 
-    const { data: providerExtensions } = useListMangaProviderExtensions()
+    const { data: providerExtensions, isLoading: providersLoading } = useListMangaProviderExtensions()
 
     const [selectedProvider, setSelectedProvider] = useAtom(__manga_entryProviderAtom)
 
@@ -29,6 +29,7 @@ export function useHandleMangaProviders(mId: string | null) {
 
     return {
         providers: providerExtensions ?? [],
+        providersLoading,
         providerOptions: (providerExtensions ?? []).map(provider => ({
             label: provider.name,
             value: provider.id,

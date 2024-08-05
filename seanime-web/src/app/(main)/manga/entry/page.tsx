@@ -40,6 +40,7 @@ export default function Page() {
             <div className="px-4 md:px-8 relative z-[8]">
 
                 <PageWrapper
+                    key="chapter-list"
                     className="relative 2xl:order-first pb-10 pt-4"
                     {...{
                         initial: { opacity: 0, y: 60 },
