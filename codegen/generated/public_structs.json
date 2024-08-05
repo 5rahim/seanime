@@ -23771,6 +23771,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "EmbeddedLogo",
+        "jsonName": "EmbeddedLogo",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " The embedded logo"
+        ]
       }
     ],
     "comments": []
@@ -24171,6 +24182,16 @@
         "goType": "DiscordSettings",
         "typescriptType": "Models_DiscordSettings",
         "usedStructName": "models.DiscordSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Notifications",
+        "jsonName": "notifications",
+        "goType": "NotificationSettings",
+        "typescriptType": "Models_NotificationSettings",
+        "usedStructName": "models.NotificationSettings",
         "required": false,
         "public": true,
         "comments": []
@@ -24603,6 +24624,61 @@
       {
         "name": "EnableMangaRichPresence",
         "jsonName": "enableMangaRichPresence",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RichPresenceHideSeanimeRepositoryButton",
+        "jsonName": "richPresenceHideSeanimeRepositoryButton",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RichPresenceShowAniListMediaButton",
+        "jsonName": "richPresenceShowAniListMediaButton",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RichPresenceShowAniListProfileButton",
+        "jsonName": "richPresenceShowAniListProfileButton",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "NotificationSettings",
+    "formattedName": "Models_NotificationSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "DisableNotifications",
+        "jsonName": "disableNotifications",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisableAutoDownloaderNotifications",
+        "jsonName": "disableAutoDownloaderNotifications",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -26026,6 +26102,15 @@
     "package": "discordrpc_presence",
     "fields": [
       {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Title",
         "jsonName": "Title",
         "goType": "string",
@@ -26071,6 +26156,15 @@
     "formattedName": "DiscordRPC_MangaActivity",
     "package": "discordrpc_presence",
     "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "Title",
         "jsonName": "Title",
@@ -36591,6 +36685,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "exitedCh",
+        "jsonName": "exitedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed when the media player exits"
+        ]
       }
     ],
     "comments": []
@@ -37193,6 +37298,15 @@
         "jsonName": "prevSocketName",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "exitedCh",
+        "jsonName": "exitedCh",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
         "public": false,
         "comments": []
@@ -40115,6 +40229,25 @@
         "\"original\""
       ]
     },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/notifier/notifier.go",
+    "filename": "notifier.go",
+    "name": "Notifier",
+    "formattedName": "Notifier",
+    "package": "notifier",
+    "fields": [
+      {
+        "name": "dataDir",
+        "jsonName": "dataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {

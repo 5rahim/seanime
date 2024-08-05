@@ -44,6 +44,7 @@ type Settings struct {
 	ListSync       *ListSyncSettings       `gorm:"embedded" json:"listSync"`
 	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
 	Discord        *DiscordSettings        `gorm:"embedded" json:"discord"`
+	Notifications  *NotificationSettings   `gorm:"embedded" json:"notifications"`
 }
 
 type AnilistSettings struct {
@@ -101,9 +102,17 @@ type ListSyncSettings struct {
 }
 
 type DiscordSettings struct {
-	EnableRichPresence      bool `gorm:"column:enable_rich_presence" json:"enableRichPresence"`
-	EnableAnimeRichPresence bool `gorm:"column:enable_anime_rich_presence" json:"enableAnimeRichPresence"`
-	EnableMangaRichPresence bool `gorm:"column:enable_manga_rich_presence" json:"enableMangaRichPresence"`
+	EnableRichPresence                      bool `gorm:"column:enable_rich_presence" json:"enableRichPresence"`
+	EnableAnimeRichPresence                 bool `gorm:"column:enable_anime_rich_presence" json:"enableAnimeRichPresence"`
+	EnableMangaRichPresence                 bool `gorm:"column:enable_manga_rich_presence" json:"enableMangaRichPresence"`
+	RichPresenceHideSeanimeRepositoryButton bool `gorm:"column:rich_presence_hide_seanime_repository_button" json:"richPresenceHideSeanimeRepositoryButton"`
+	RichPresenceShowAniListMediaButton      bool `gorm:"column:rich_presence_show_anilist_media_button" json:"richPresenceShowAniListMediaButton"`
+	RichPresenceShowAniListProfileButton    bool `gorm:"column:rich_presence_show_anilist_profile_button" json:"richPresenceShowAniListProfileButton"`
+}
+
+type NotificationSettings struct {
+	DisableNotifications               bool `gorm:"column:disable_notifications" json:"disableNotifications"`
+	DisableAutoDownloaderNotifications bool `gorm:"column:disable_auto_downloader_notifications" json:"disableAutoDownloaderNotifications"`
 }
 
 // +---------------------+

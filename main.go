@@ -8,6 +8,9 @@ import (
 //go:embed all:web
 var WebFS embed.FS
 
+//go:embed internal/icon/logo.png
+var embeddedLogo []byte
+
 func main() {
-	app.StartApp(WebFS)
+	app.StartApp(WebFS, embeddedLogo)
 }

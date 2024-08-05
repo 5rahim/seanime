@@ -71,6 +71,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
 					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+						ID:            pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
 						Title:         pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
 						Image:         pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
 						IsMovie:       pm.currentMediaListEntry.MustGet().GetMedia().IsMovie(),
@@ -181,6 +182,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
 					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+						ID:            pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
 						Title:         pm.currentStreamMedia.MustGet().GetPreferredTitle(),
 						Image:         pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
 						IsMovie:       pm.currentStreamMedia.MustGet().IsMovie(),

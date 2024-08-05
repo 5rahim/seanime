@@ -10,6 +10,7 @@ import "seanime/internal/discordrpc/presence"
 func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 
 	type body struct {
+		MediaId int    `json:"mediaId"`
 		Title   string `json:"title"`
 		Image   string `json:"image"`
 		Chapter string `json:"chapter"`
@@ -22,6 +23,7 @@ func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 	}
 
 	c.App.DiscordPresence.SetMangaActivity(&discordrpc_presence.MangaActivity{
+		ID:      b.MediaId,
 		Title:   b.Title,
 		Image:   b.Image,
 		Chapter: b.Chapter,

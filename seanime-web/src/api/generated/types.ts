@@ -2070,6 +2070,9 @@ export type Models_DiscordSettings = {
     enableRichPresence: boolean
     enableAnimeRichPresence: boolean
     enableMangaRichPresence: boolean
+    richPresenceHideSeanimeRepositoryButton: boolean
+    richPresenceShowAniListMediaButton: boolean
+    richPresenceShowAniListProfileButton: boolean
 }
 
 /**
@@ -2164,6 +2167,16 @@ export type Models_MediastreamSettings = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_NotificationSettings = {
+    disableNotifications: boolean
+    disableAutoDownloaderNotifications: boolean
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_Settings = {
     library?: Models_LibrarySettings
     mediaPlayer?: Models_MediaPlayerSettings
@@ -2172,6 +2185,7 @@ export type Models_Settings = {
     listSync?: Models_ListSyncSettings
     autoDownloader?: Models_AutoDownloaderSettings
     discord?: Models_DiscordSettings
+    notifications?: Models_NotificationSettings
     id: number
     createdAt?: string
     updatedAt?: string

@@ -59,6 +59,11 @@ export const settingsSchema = z.object({
     openTorrentClientOnStart: z.boolean().optional().default(false),
     openWebURLOnStart: z.boolean().optional().default(false),
     refreshLibraryOnStart: z.boolean().optional().default(false),
+    richPresenceHideSeanimeRepositoryButton: z.boolean().optional().default(false),
+    richPresenceShowAniListMediaButton: z.boolean().optional().default(false),
+    richPresenceShowAniListProfileButton: z.boolean().optional().default(false),
+    disableNotifications: z.boolean().optional().default(false),
+    disableAutoDownloaderNotifications: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

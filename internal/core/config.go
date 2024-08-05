@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/constants"
+	"seanime/internal/util"
 	"strconv"
 )
 
@@ -54,6 +55,7 @@ type Config struct {
 type ConfigOptions struct {
 	DataDir         string // The path to the Seanime data directory, if any
 	OnVersionChange []func(oldVersion string, newVersion string)
+	EmbeddedLogo    []byte // The embedded logo
 }
 
 // NewConfig initializes the config
@@ -148,6 +150,8 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	if err := validateConfig(cfg, logger); err != nil {
 		return nil, err
 	}
+
+	go loadLogo(options.EmbeddedLogo, dataDir)
 
 	return cfg, nil
 }
@@ -353,4 +357,22 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 	dataDir = filepath.FromSlash(dataDir)
 
 	return
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func loadLogo(embeddedLogo []byte, dataDir string) (err error) {
+	defer util.HandlePanicInModuleWithError("core/loadLogo", &err)
+
+	if len(embeddedLogo) == 0 {
+		return nil
+	}
+
+	logoPath := filepath.Join(dataDir, "logo.png")
+	if _, err = os.Stat(logoPath); os.IsNotExist(err) {
+		if err = os.WriteFile(logoPath, embeddedLogo, 0644); err != nil {
+			return err
+		}
+	}
+	return nil
 }

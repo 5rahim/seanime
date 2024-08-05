@@ -6,7 +6,6 @@ import { useHandleMissingEpisodes } from "@/app/(main)/schedule/_lib/handle-miss
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { AiOutlineDownload } from "react-icons/ai"
@@ -83,27 +82,44 @@ export function MissingEpisodes({ isLoading, data }: {
                                     <p className="flex gap-3 items-center text-lg text-inherit"><LuBellOff /> Silenced episodes</p>
                                 </AccordionTrigger>
                                 <AccordionContent className="bg-gray-950 rounded-[--radius]">
-                                    <HorizontalDraggableScroll>
-                                        {!isLoading && silencedEpisodes?.map(episode => {
-                                            return <EpisodeCard
-                                                key={episode.displayTitle + episode.baseAnime?.id}
-                                                image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
-                                                topTitle={episode.baseAnime?.title?.userPreferred}
-                                                title={episode.displayTitle}
-                                                meta={episode.episodeMetadata?.airDate ?? undefined}
-                                                actionIcon={hasTorrentProvider ? <AiOutlineDownload /> : null}
-                                                isInvalid={episode.isInvalid}
-                                                type="grid"
-                                                onClick={() => {
-                                                    if (hasTorrentProvider) {
-                                                        router.push(`/entry?id=${episode.baseAnime?.id}&download=${episode.episodeNumber}`)
-                                                    } else {
-                                                        router.push(`/entry?id=${episode.baseAnime?.id}`)
-                                                    }
-                                                }}
-                                            />
-                                        })}
-                                    </HorizontalDraggableScroll>
+                                    <Carousel
+                                        className="w-full max-w-full"
+                                        gap="md"
+                                        opts={{
+                                            align: "start",
+                                        }}
+                                        autoScroll
+                                    >
+                                        <CarouselDotButtons />
+                                        <CarouselContent>
+                                            {!isLoading && silencedEpisodes?.map(episode => {
+                                                return (
+                                                    <CarouselItem
+                                                        key={episode.baseAnime?.id + episode.displayTitle}
+                                                        className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/5 min-[2000px]:basis-1/6"
+                                                    >
+                                                        <EpisodeCard
+                                                            key={episode.displayTitle + episode.baseAnime?.id}
+                                                            image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+                                                            topTitle={episode.baseAnime?.title?.userPreferred}
+                                                            title={episode.displayTitle}
+                                                            meta={episode.episodeMetadata?.airDate ?? undefined}
+                                                            actionIcon={hasTorrentProvider ? <AiOutlineDownload /> : null}
+                                                            isInvalid={episode.isInvalid}
+                                                            type="carousel"
+                                                            onClick={() => {
+                                                                if (hasTorrentProvider) {
+                                                                    router.push(`/entry?id=${episode.baseAnime?.id}&download=${episode.episodeNumber}`)
+                                                                } else {
+                                                                    router.push(`/entry?id=${episode.baseAnime?.id}`)
+                                                                }
+                                                            }}
+                                                        />
+                                                    </CarouselItem>
+                                                )
+                                            })}
+                                        </CarouselContent>
+                                    </Carousel>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>

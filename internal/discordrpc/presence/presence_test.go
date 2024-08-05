@@ -15,7 +15,7 @@ func TestPresence(t *testing.T) {
 		EnableMangaRichPresence: true,
 	}
 
-	presence := New(nil, util.NewLogger())
+	presence := New(nil, "test", util.NewLogger())
 	presence.SetSettings(settings)
 	defer presence.Close()
 

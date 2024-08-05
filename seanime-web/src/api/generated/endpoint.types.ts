@@ -20,6 +20,7 @@ import type {
     Models_LibrarySettings,
     Models_MediaPlayerSettings,
     Models_MediastreamSettings,
+    Models_NotificationSettings,
     Models_Theme,
     Models_TorrentSettings,
     Models_TorrentstreamSettings,
@@ -356,6 +357,7 @@ export type DirectorySelector_Variables = {
  * Route sets manga activity for discord rich presence.
  */
 export type SetDiscordMangaActivity_Variables = {
+    mediaId: number
     title: string
     image: string
     chapter: string
@@ -1035,6 +1037,7 @@ export type GettingStarted_Variables = {
     torrent: Models_TorrentSettings
     anilist: Models_AnilistSettings
     discord: Models_DiscordSettings
+    notifications: Models_NotificationSettings
     enableTranscode: boolean
     enableTorrentStreaming: boolean
 }
@@ -1052,6 +1055,7 @@ export type SaveSettings_Variables = {
     torrent: Models_TorrentSettings
     anilist: Models_AnilistSettings
     discord: Models_DiscordSettings
+    notifications: Models_NotificationSettings
 }
 
 /**

@@ -4,7 +4,6 @@ import { cn } from "@/components/ui/core/styling"
 import { getAssetUrl } from "@/lib/server/assets"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
-import Image from "next/image"
 import React, { useEffect } from "react"
 import { useWindowScroll } from "react-use"
 
@@ -89,32 +88,6 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
                             discrete && "via-50% via-opacity-100 h-[40rem]",
                         )}
                     />
-                    <div className="h-full absolute z-[2] w-full xl-right-48">
-                        <Image
-                            src={"/mask-2.png"}
-                            alt="mask"
-                            fill
-                            quality={100}
-                            priority
-                            sizes="100vw"
-                            className={cn(
-                                "object-cover object-left z-[2] transition-opacity duration-1000 opacity-10",
-                            )}
-                        />
-                    </div>
-                    <div className="h-full absolute z-[2] w-full xl:-right-48">
-                        <Image
-                            src={"/mask.png"}
-                            alt="mask"
-                            fill
-                            quality={100}
-                            priority
-                            sizes="100vw"
-                            className={cn(
-                                "object-cover object-right z-[2] transition-opacity duration-1000 opacity-10",
-                            )}
-                        />
-                    </div>
                 </motion.div>
             </div>
         </>

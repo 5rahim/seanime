@@ -58,7 +58,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 "rounded-lg overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
                 "select-none",
                 type === "carousel" && "w-full",
-                type === "grid" && "w-72 lg:w-[26rem]",
+                type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
                 className,
                 containerClass,
             )}

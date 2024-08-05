@@ -42,7 +42,7 @@ func hideConsole() {
 	}
 }
 
-func StartApp(webFS embed.FS) {
+func StartApp(webFS embed.FS, embeddedLogo []byte) {
 	onExit := func() {}
 
 	hideConsole()
@@ -57,7 +57,8 @@ func StartApp(webFS embed.FS) {
 
 	// Create the app instance
 	app := core.NewApp(&core.ConfigOptions{
-		DataDir: flags.DataDir,
+		DataDir:      flags.DataDir,
+		EmbeddedLogo: embeddedLogo,
 	}, selfupdater)
 
 	// Create log file

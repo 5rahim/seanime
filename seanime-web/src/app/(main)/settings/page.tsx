@@ -164,11 +164,18 @@ export default function Page() {
                                         enableRichPresence: data?.enableRichPresence ?? false,
                                         enableAnimeRichPresence: data?.enableAnimeRichPresence ?? false,
                                         enableMangaRichPresence: data?.enableMangaRichPresence ?? false,
+                                        richPresenceHideSeanimeRepositoryButton: data?.richPresenceHideSeanimeRepositoryButton ?? false,
+                                        richPresenceShowAniListMediaButton: data?.richPresenceShowAniListMediaButton ?? false,
+                                        richPresenceShowAniListProfileButton: data?.richPresenceShowAniListProfileButton ?? false,
                                     },
                                     anilist: {
                                         hideAudienceScore: data.hideAudienceScore,
                                         enableAdultContent: data.enableAdultContent,
                                         blurAdultContent: data.blurAdultContent,
+                                    },
+                                    notifications: {
+                                        disableNotifications: data?.disableNotifications ?? false,
+                                        disableAutoDownloaderNotifications: data?.disableAutoDownloaderNotifications ?? false,
                                     },
                                 })
                             }}
@@ -213,6 +220,11 @@ export default function Page() {
                                 openTorrentClientOnStart: status?.settings?.library?.openTorrentClientOnStart ?? false,
                                 openWebURLOnStart: status?.settings?.library?.openWebURLOnStart ?? false,
                                 refreshLibraryOnStart: status?.settings?.library?.refreshLibraryOnStart ?? false,
+                                richPresenceHideSeanimeRepositoryButton: status?.settings?.discord?.richPresenceHideSeanimeRepositoryButton ?? false,
+                                richPresenceShowAniListMediaButton: status?.settings?.discord?.richPresenceShowAniListMediaButton ?? false,
+                                richPresenceShowAniListProfileButton: status?.settings?.discord?.richPresenceShowAniListProfileButton ?? false,
+                                disableNotifications: status?.settings?.notifications?.disableNotifications ?? false,
+                                disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -267,6 +279,19 @@ export default function Page() {
                                 <Field.Switch
                                     name="openWebURLOnStart"
                                     label="Open localhost web URL on startup"
+                                />
+                                <Separator />
+
+                                <h3>Notifications</h3>
+
+                                <Field.Switch
+                                    name="disableNotifications"
+                                    label="Disable notifications"
+                                />
+
+                                <Field.Switch
+                                    name="disableAutoDownloaderNotifications"
+                                    label="Disable auto downloader notifications"
                                 />
 
                                 <SettingsSubmitButton isPending={isPending} />

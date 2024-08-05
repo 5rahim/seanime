@@ -95,18 +95,6 @@ export function DiscoverPageHeader() {
                     )}
                 </AnimatePresence>
 
-                {/*<Image*/}
-                {/*    src={"/mask-2.png"}*/}
-                {/*    alt="mask"*/}
-                {/*    fill*/}
-                {/*    quality={100}*/}
-                {/*    priority*/}
-                {/*    sizes="100vw"*/}
-                {/*    className={cn(*/}
-                {/*        "object-cover object-left z-[2] transition-opacity duration-1000 opacity-60 hidden lg:block",*/}
-                {/*    )}*/}
-                {/*/>*/}
-
                 {/*RIGHT FADE*/}
                 <div
                     className={cn(

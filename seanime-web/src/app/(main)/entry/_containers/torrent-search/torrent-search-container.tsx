@@ -19,6 +19,7 @@ import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom, useSetAtom } from "jotai"
@@ -196,7 +197,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     />
                 </div>
 
-                {selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "" ? (
+                {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") ? (
                     <>
 
                         {Object.keys(warnings)?.map((key) => {
@@ -332,7 +333,12 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                         )}
 
                     </>
-                ) : <LuffyError title="No extension selected" />}
+                ) : (!!providerExtensions) ? <LuffyError title="No extension selected" /> : <div className="space-y-2">
+                    <Skeleton className="h-[96px]" />
+                    <Skeleton className="h-[96px]" />
+                    <Skeleton className="h-[96px]" />
+                    <Skeleton className="h-[96px]" />
+                </div>}
             </div>
 
             {type === "download" && <TorrentConfirmationModal

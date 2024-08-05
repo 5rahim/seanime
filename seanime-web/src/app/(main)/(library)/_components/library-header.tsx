@@ -99,6 +99,10 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                     />}
 
                     <div
+                        className="w-full z-[3] opacity-50 absolute top-0 h-[5rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent"
+                    />
+
+                    <div
                         className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"
                     />
                     <Transition
@@ -140,32 +144,6 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                             "LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent",
                         )}
                     />
-                    {/*<div className="h-full absolute w-full xl-right-48">*/}
-                    {/*    <Image*/}
-                    {/*        src={"/mask-2.png"}*/}
-                    {/*        alt="mask"*/}
-                    {/*        fill*/}
-                    {/*        quality={100}*/}
-                    {/*        priority*/}
-                    {/*        sizes="100vw"*/}
-                    {/*        className={cn(*/}
-                    {/*            "object-cover object-left z-[2] transition-opacity duration-1000 opacity-5",*/}
-                    {/*        )}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="h-full absolute w-full xl:-right-48">*/}
-                    {/*    <Image*/}
-                    {/*        src={"/mask.png"}*/}
-                    {/*        alt="mask"*/}
-                    {/*        fill*/}
-                    {/*        quality={100}*/}
-                    {/*        priority*/}
-                    {/*        sizes="100vw"*/}
-                    {/*        className={cn(*/}
-                    {/*            "object-cover object-right z-[2] transition-opacity duration-1000 opacity-5",*/}
-                    {/*        )}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
                 </motion.div>
             </div>
         </>

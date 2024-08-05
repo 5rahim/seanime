@@ -1567,6 +1567,15 @@
       "params": [],
       "bodyFields": [
         {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "Title",
           "jsonName": "title",
           "goType": "string",
@@ -5233,6 +5242,15 @@
           "descriptions": []
         },
         {
+          "name": "Notifications",
+          "jsonName": "notifications",
+          "goType": "models.NotificationSettings",
+          "usedStructType": "models.NotificationSettings",
+          "typescriptType": "Models_NotificationSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "EnableTranscode",
           "jsonName": "enableTranscode",
           "goType": "bool",
@@ -5325,6 +5343,15 @@
           "goType": "models.DiscordSettings",
           "usedStructType": "models.DiscordSettings",
           "typescriptType": "Models_DiscordSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Notifications",
+          "jsonName": "notifications",
+          "goType": "models.NotificationSettings",
+          "usedStructType": "models.NotificationSettings",
+          "typescriptType": "Models_NotificationSettings",
           "required": true,
           "descriptions": []
         }

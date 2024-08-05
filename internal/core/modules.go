@@ -54,8 +54,11 @@ func (a *App) initModulesOnce() {
 	// |     Discord RPC     |
 	// +---------------------+
 
-	// Settings are set in InitOrRefreshModules
-	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
+	username := ""
+	if a.account != nil {
+		username = a.account.Username
+	}
+	a.DiscordPresence = discordrpc_presence.New(nil, username, a.Logger)
 	a.AddCleanupFunction(func() {
 		a.DiscordPresence.Close()
 	})
