@@ -33,7 +33,6 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
         playMediaFile,
     } = useHandleEpisodeSection({ entry, details })
 
-
     if (!media) return null
 
     if (!!media && (!entry.listData || !entry.libraryData)) {

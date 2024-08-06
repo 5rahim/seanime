@@ -249,8 +249,7 @@ export function AnimeEntryCardNextAiring(props: AnimeEntryCardNextAiringProps) {
                             >{nextAiring?.episode}</Badge>
                         </p>
                     }
-                >{formatDistanceToNow(addSeconds(new Date(), nextAiring?.timeUntilAiring),
-                    { addSuffix: true })}</Tooltip>
+                >{formatDistanceToNow(addSeconds(new Date(), nextAiring?.timeUntilAiring), { addSuffix: true })}</Tooltip>
             </div>
         </>
     )

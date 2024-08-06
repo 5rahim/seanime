@@ -11,10 +11,8 @@ export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }, enab
     const playNext = searchParams.get("playNext")
     const id = searchParams.get("id")
 
-    const checked = React.useRef(false)
     React.useEffect(() => {
         if (!enabled) return
-        if (checked.current) return
 
         // Automatically play the next episode if param is present in URL
         const t = setTimeout(() => {
@@ -23,8 +21,6 @@ export function usePlayNextVideoOnMount({ onPlay }: { onPlay: () => void }, enab
                 onPlay()
             }
         }, 500)
-
-        checked.current = true
 
         return () => clearTimeout(t)
     }, [pathname, id, playNext, serverStatus, onPlay, enabled])

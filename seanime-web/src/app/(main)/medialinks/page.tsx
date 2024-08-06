@@ -63,8 +63,6 @@ export default function Page() {
             urlToSend.replace("127.0.0.1,", window.location.hostname).replace("localhost", window.location.hostname)
             window.open(externalPlayerLink.replace("{url}", urlToSend), "_blank")
 
-            toast.info(externalPlayerLink.replace("{url}", urlToSend))
-
             // Start manual tracking
             React.startTransition(() => {
                 startManualTracking({
