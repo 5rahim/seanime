@@ -1,7 +1,5 @@
 import { Anime_AnimeEntry, Anime_AnimeEntryDownloadEpisode } from "@/api/generated/types"
-import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { Modal } from "@/components/ui/modal"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -62,26 +60,29 @@ function EpisodeList({ episodes }: { episodes: Anime_AnimeEntryDownloadEpisode[]
     return (
         <div className="space-y-2 mt-4">
             <h4>Missing episodes:</h4>
-            <p>Episode {episodes.slice(0, 5).map(n => n.episodeNumber).join(", ")}{episodes.length > 5 ? ", ..." : ""}</p>
-            <HorizontalDraggableScroll>
-                {episodes.filter(Boolean).slice(0, 10).map(item => {
-                    return (
-                        <EpisodeGridItem
-                            key={item.episode + item.aniDBEpisode}
-                            media={item.episode?.baseAnime as any}
-                            title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
-                            image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large}
-                            description={item?.episode?.episodeTitle}
-                            // description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber
-                            //     ? `(Episode ${item?.episode?.absoluteEpisodeNumber})`
-                            //     : undefined}
-                            imageContainerClassName="size-20 lg:h-20 lg:w-28"
-                            className="flex-none w-72"
-                            episodeTitleClassName="text-sm lg:text-sm line-clamp-1"
-                        />
-                    )
-                })}
-            </HorizontalDraggableScroll>
+            <p>Episode {episodes.slice(0, 5).map(n => n.episodeNumber).join(", ")}{episodes.length > 5
+                ? `, ..., ${episodes[episodes.length - 1].episodeNumber}`
+                : ""}
+            </p>
+            {/*<HorizontalDraggableScroll>*/}
+            {/*    {episodes.filter(Boolean).slice(0, 10).map(item => {*/}
+            {/*        return (*/}
+            {/*            <EpisodeGridItem*/}
+            {/*                key={item.episode + item.aniDBEpisode}*/}
+            {/*                media={item.episode?.baseAnime as any}*/}
+            {/*                title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}*/}
+            {/*                image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large}*/}
+            {/*                description={item?.episode?.episodeTitle}*/}
+            {/*                // description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber*/}
+            {/*                //     ? `(Episode ${item?.episode?.absoluteEpisodeNumber})`*/}
+            {/*                //     : undefined}*/}
+            {/*                imageContainerClassName="size-20 lg:h-20 lg:w-28"*/}
+            {/*                className="flex-none w-72"*/}
+            {/*                episodeTitleClassName="text-sm lg:text-sm line-clamp-1"*/}
+            {/*            />*/}
+            {/*        )*/}
+            {/*    })}*/}
+            {/*</HorizontalDraggableScroll>*/}
         </div>
     )
 

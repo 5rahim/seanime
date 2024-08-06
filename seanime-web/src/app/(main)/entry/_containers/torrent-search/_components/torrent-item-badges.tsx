@@ -26,7 +26,7 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
     return (
         <Badge
             className="rounded-md"
-            intent={(seeders) > 4 ? (seeders) > 50 ? "primary" : "success" : "gray"}
+            intent={(seeders) > 4 ? (seeders) > 19 ? "primary" : "success" : "gray"}
             // leftIcon={<FcLineChart/>}
         >
             <span className="text-sm">{seeders}</span> seeders

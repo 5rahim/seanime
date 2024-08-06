@@ -10,11 +10,11 @@ import (
 )
 
 func (a *App) LoadBuiltInExtensions() {
+
 	var consumers = []extension.Consumer{
 		a.MangaRepository,
 		a.OnlinestreamRepository,
 		a.TorrentRepository,
-		a.MediaPlayerRepository,
 	}
 
 	for _, consumer := range consumers {

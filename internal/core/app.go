@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/rs/zerolog"
-	"os"
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
@@ -94,9 +93,6 @@ type (
 
 // NewApp creates a new server instance
 func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
-	defer util.HandlePanicInModuleThen("core", func() {
-		os.Exit(1) // Exit the app if a panic occurs
-	})
 
 	logger := util.NewLogger()
 

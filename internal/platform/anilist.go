@@ -2,6 +2,7 @@ package platform
 
 import (
 	"context"
+	"errors"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
@@ -162,6 +163,10 @@ func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeC
 		return ap.animeCollection.MustGet(), nil
 	}
 
+	if ap.username.IsAbsent() {
+		return nil, nil
+	}
+
 	err := ap.refreshAnimeCollection()
 	if err != nil {
 		return nil, err
@@ -175,6 +180,10 @@ func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.Ani
 		return ap.rawAnimeCollection.MustGet(), nil
 	}
 
+	if ap.username.IsAbsent() {
+		return nil, nil
+	}
+
 	err := ap.refreshAnimeCollection()
 	if err != nil {
 		return nil, err
@@ -184,6 +193,10 @@ func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.Ani
 }
 
 func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
+	if ap.username.IsAbsent() {
+		return nil, nil
+	}
+
 	err := ap.refreshAnimeCollection()
 	if err != nil {
 		return nil, err
@@ -194,7 +207,7 @@ func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, e
 
 func (ap *AnilistPlatform) refreshAnimeCollection() error {
 	if ap.username.IsAbsent() {
-		return nil
+		return errors.New("anilist: Username is not set")
 	}
 
 	// Else, get the collection from Anilist
@@ -244,6 +257,10 @@ func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaC
 		return ap.mangaCollection.MustGet(), nil
 	}
 
+	if ap.username.IsAbsent() {
+		return nil, nil
+	}
+
 	err := ap.refreshMangaCollection()
 	if err != nil {
 		return nil, err
@@ -260,6 +277,10 @@ func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.Man
 		return ap.rawMangaCollection.MustGet(), nil
 	}
 
+	if ap.username.IsAbsent() {
+		return nil, nil
+	}
+
 	err := ap.refreshMangaCollection()
 	if err != nil {
 		return nil, err
@@ -269,6 +290,10 @@ func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.Man
 }
 
 func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, error) {
+	if ap.username.IsAbsent() {
+		return nil, nil
+	}
+
 	err := ap.refreshMangaCollection()
 	if err != nil {
 		return nil, err
@@ -279,7 +304,7 @@ func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, e
 
 func (ap *AnilistPlatform) refreshMangaCollection() error {
 	if ap.username.IsAbsent() {
-		return nil
+		return errors.New("anilist: Username is not set")
 	}
 
 	collection, err := ap.anilistClient.MangaCollection(context.Background(), ap.username.ToPointer())

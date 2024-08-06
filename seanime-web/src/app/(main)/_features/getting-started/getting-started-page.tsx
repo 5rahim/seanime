@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
+import { Tooltip } from "@/components/ui/tooltip"
 import {
     DEFAULT_DOH_PROVIDER,
     DEFAULT_TORRENT_PROVIDER,
@@ -57,8 +58,10 @@ export function GettingStartedPage({ status }: { status: Status }) {
             <Card className="relative p-4">
                 <AppLayoutStack>
                     <div className="space-y-4 p-1">
-                        <h3>Getting started</h3>
-                        <em className="text-[--muted]">These settings can be modified later.</em>
+                        <div>
+                            <h3 className="text-center">Getting started</h3>
+                            <p className="italic text-[--muted] text-center">These settings can be modified later.</p>
+                        </div>
                         <Form
                             schema={gettingStartedSchema}
                             onSubmit={data => {
@@ -139,7 +142,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
                                 torrentProvider: DEFAULT_TORRENT_PROVIDER,
                                 mpvSocket: mpvSocketPath,
-                                enableRichPresence: true,
+                                enableRichPresence: false,
                                 autoScan: false,
                                 enableManga: true,
                                 enableOnlinestream: false,
@@ -267,7 +270,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             </Accordion>
 
                             <div>
-                                <h4 className="text-center">Torrent Provider</h4>
+                                <h4 className="text-center">Torrent Provider Extension</h4>
 
                                 <p className="text-[--muted] text-center">
                                     Built-in torrent provider extension used by the search engine and auto downloader. AnimeTosho is recommended for
@@ -403,14 +406,6 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             />
 
                             <Field.Checkbox
-                                name="enableTranscode"
-                                label={<span>Media streaming / Transcoding</span>}
-                                disabled={true}
-                                help="Stream downloaded episodes to other devices. Some additional configuration is required in the settings."
-                                size="lg"
-                            />
-
-                            <Field.Checkbox
                                 name="enableOnlinestream"
                                 label={<span>Online streaming</span>}
                                 help="Watch anime episodes from online sources."
@@ -433,6 +428,18 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 </div>}
                                 size="lg"
                             />
+
+                            <Tooltip
+                                trigger={<Field.Checkbox
+                                    name="enableTranscode"
+                                    label={<span>Media streaming / Transcoding</span>}
+                                    disabled={true}
+                                    help="Stream downloaded episodes to other devices. Some additional configuration is required in the settings."
+                                    size="lg"
+                                />}
+                            >
+                                Enable this feature after the initial setup
+                            </Tooltip>
 
 
                             <Field.Submit

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"seanime/internal/events"
-	"seanime/internal/extension"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
 	vlc2 "seanime/internal/mediaplayers/vlc"
@@ -25,7 +24,6 @@ type (
 		Mpv                   *mpv.Mpv
 		wsEventManager        events.WSEventManagerInterface
 		playerInUse           string
-		extensionBank         *extension.UnifiedBank
 		completionThreshold   float64
 		mu                    sync.Mutex
 		isRunning             bool
@@ -80,7 +78,6 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		wsEventManager:        opts.WSEventManager,
 		completionThreshold:   0.8,
 		subscribers:           result.NewResultMap[string, *RepositorySubscriber](),
-		extensionBank:         extension.NewUnifiedBank(),
 		currentPlaybackStatus: &PlaybackStatus{},
 		exitedCh:              make(chan struct{}),
 	}
@@ -101,10 +98,6 @@ func (m *Repository) Subscribe(id string) *RepositorySubscriber {
 	}
 	m.subscribers.Set(id, sub)
 	return sub
-}
-
-func (m *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
-	m.extensionBank = bank
 }
 
 func (m *Repository) GetStatus() *PlaybackStatus {
