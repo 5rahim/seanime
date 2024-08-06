@@ -1,6 +1,4 @@
-//go:build (linux || darwin) && !windows
-
-package app
+package server
 
 import (
 	"embed"
@@ -18,8 +16,7 @@ import (
 	"time"
 )
 
-func StartApp(webFS embed.FS, embeddedLogo []byte) {
-
+func startApp(embeddedLogo []byte) (*core.App, core.SeanimeFlags, *updater.SelfUpdater) {
 	// Print the header
 	core.PrintHeader()
 
@@ -48,26 +45,27 @@ func StartApp(webFS embed.FS, embeddedLogo []byte) {
 	util.SetupLoggerSignalHandling(logFile)
 	crashlog.GlobalCrashLogger.SetLogDir(app.Config.Logs.Dir)
 
-	updateMode := false
-	if flags.Update {
-		updateMode = true
-	} else {
-
+	if !flags.Update {
 		go func() {
 			for {
 				util.WriteGlobalLogBufferToFile(logFile)
 				time.Sleep(5 * time.Second)
 			}
 		}()
-
 	}
+
+	return app, flags, selfupdater
+}
+
+func startAppLoop(webFS *embed.FS, app *core.App, flags core.SeanimeFlags, selfupdater *updater.SelfUpdater) {
+	updateMode := flags.Update
 
 appLoop:
 	for {
 		switch updateMode {
 		case true:
 
-			fmt.Println("Running in update mode")
+			log.Log().Msg("Running in update mode")
 
 			// Print the header
 			core.PrintHeader()
@@ -77,14 +75,14 @@ appLoop:
 			if err != nil {
 			}
 
-			fmt.Println("Shutting down in 10 seconds...")
+			log.Log().Msg("Shutting down in 10 seconds...")
 			time.Sleep(10 * time.Second)
 
 			break appLoop
 		case false:
 
 			// Create the fiber app instance
-			fiberApp := core.NewFiberApp(app, &webFS)
+			fiberApp := core.NewFiberApp(app, webFS)
 
 			// Initialize the routes
 			handlers.InitRoutes(app, fiberApp)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"embed"
-	"seanime/internal/app"
+	"seanime/internal/server"
 )
 
 //go:embed all:web
@@ -12,5 +12,5 @@ var WebFS embed.FS
 var embeddedLogo []byte
 
 func main() {
-	app.StartApp(WebFS, embeddedLogo)
+	server.StartServer(WebFS, embeddedLogo)
 }
