@@ -25439,6 +25439,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IncludeInLibrary",
+        "jsonName": "includeInLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -30097,6 +30106,58 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Stream",
+        "jsonName": "stream",
+        "goType": "StreamCollection",
+        "typescriptType": "Anime_StreamCollection",
+        "usedStructName": "anime.StreamCollection",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Hydrated by the route handler"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/collection.go",
+    "filename": "collection.go",
+    "name": "StreamCollection",
+    "formattedName": "Anime_StreamCollection",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "ContinueWatchingList",
+        "jsonName": "continueWatchingList",
+        "goType": "[]AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Anime",
+        "jsonName": "anime",
+        "goType": "[]anilist.BaseAnime",
+        "typescriptType": "Array\u003cAL_BaseAnime\u003e",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ListData",
+        "jsonName": "listData",
+        "goType": "map[int]AnimeEntryListData",
+        "typescriptType": "Record\u003cnumber, Anime_AnimeEntryListData\u003e",
+        "usedStructName": "anime.AnimeEntryListData",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -31258,58 +31319,58 @@
     "package": "anime",
     "fields": [
       {
-        "name": "filePath",
-        "jsonName": "filePath",
+        "name": "FilePath",
+        "jsonName": "FilePath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "libraryPath",
-        "jsonName": "libraryPath",
+        "name": "LibraryPath",
+        "jsonName": "LibraryPath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "mediaId",
-        "jsonName": "mediaId",
+        "name": "MediaId",
+        "jsonName": "MediaId",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "metadataEpisode",
-        "jsonName": "metadataEpisode",
+        "name": "MetadataEpisode",
+        "jsonName": "MetadataEpisode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "metadataAniDbEpisode",
-        "jsonName": "metadataAniDbEpisode",
+        "name": "MetadataAniDbEpisode",
+        "jsonName": "MetadataAniDbEpisode",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "metadataType",
-        "jsonName": "metadataType",
+        "name": "MetadataType",
+        "jsonName": "MetadataType",
         "goType": "LocalFileType",
         "typescriptType": "Anime_LocalFileType",
         "usedStructName": "anime.LocalFileType",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -31323,31 +31384,31 @@
     "package": "anime",
     "fields": [
       {
-        "name": "metadataEpisode",
-        "jsonName": "metadataEpisode",
+        "name": "MetadataEpisode",
+        "jsonName": "MetadataEpisode",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "metadataAniDbEpisode",
-        "jsonName": "metadataAniDbEpisode",
+        "name": "MetadataAniDbEpisode",
+        "jsonName": "MetadataAniDbEpisode",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "metadataType",
-        "jsonName": "metadataType",
+        "name": "MetadataType",
+        "jsonName": "MetadataType",
         "goType": "LocalFileType",
         "typescriptType": "Anime_LocalFileType",
         "usedStructName": "anime.LocalFileType",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -36714,16 +36775,6 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "extensionBank",
-        "jsonName": "extensionBank",
-        "goType": "extension.UnifiedBank",
-        "typescriptType": "Extension_UnifiedBank",
-        "usedStructName": "extension.UnifiedBank",
-        "required": false,
         "public": false,
         "comments": []
       },
@@ -48204,6 +48255,76 @@
         "goType": "Repository",
         "typescriptType": "Torrentstream_Repository",
         "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/collection.go",
+    "filename": "collection.go",
+    "name": "StreamCollection",
+    "formattedName": "Torrentstream_StreamCollection",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "ContinueWatchingList",
+        "jsonName": "continueWatchingList",
+        "goType": "[]anime.AnimeEntryEpisode",
+        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
+        "usedStructName": "anime.AnimeEntryEpisode",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Anime",
+        "jsonName": "anime",
+        "goType": "[]anilist.BaseAnime",
+        "typescriptType": "Array\u003cAL_BaseAnime\u003e",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ListData",
+        "jsonName": "listData",
+        "goType": "map[int]anime.AnimeEntryListData",
+        "typescriptType": "Record\u003cnumber, Anime_AnimeEntryListData\u003e",
+        "usedStructName": "anime.AnimeEntryListData",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/collection.go",
+    "filename": "collection.go",
+    "name": "HydrateStreamCollectionOptions",
+    "formattedName": "Torrentstream_HydrateStreamCollectionOptions",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "LibraryCollection",
+        "jsonName": "LibraryCollection",
+        "goType": "anime.LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnizipCache",
+        "jsonName": "AnizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
         "required": false,
         "public": true,
         "comments": []

@@ -182,8 +182,6 @@ func (m *BaseAnime) HasSynonyms() bool {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (m *CompleteAnime) GetTitleSafe() string {
 	if m.GetTitle().GetEnglish() != nil {
@@ -347,7 +345,7 @@ func (m *CompleteAnime) HasSynonyms() bool {
 	return m.Synonyms != nil
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var EdgeNarrowFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort}
 var EdgeBroaderFormats = []MediaFormat{MediaFormatTv, MediaFormatTvShort, MediaFormatOna, MediaFormatOva, MediaFormatMovie, MediaFormatSpecial}
@@ -402,7 +400,7 @@ func (e *CompleteAnime_Relations_Edges) IsNarrowRelationFormat() bool {
 	return false
 }
 
-//----------------------------------------------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (m *CompleteAnime) ToBaseAnime() *BaseAnime {
 	if m == nil {
@@ -479,4 +477,27 @@ func (m *CompleteAnime) ToBaseAnime() *BaseAnime {
 		EndDate:           endDate,
 		NextAiringEpisode: nextAiringEpisode,
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (m *MediaListEntry) GetProgressSafe() int {
+	if m.Progress == nil {
+		return 0
+	}
+	return *m.Progress
+}
+
+func (m *MediaListEntry) GetScoreSafe() float64 {
+	if m.Score == nil {
+		return 0
+	}
+	return *m.Score
+}
+
+func (m *MediaListEntry) GetStatusSafe() MediaListStatus {
+	if m.Status == nil {
+		return ""
+	}
+	return *m.Status
 }

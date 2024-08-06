@@ -14,6 +14,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/mal"
+	"seanime/internal/core"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
@@ -133,6 +134,8 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	core.AnimeCollectionCacheId++
 
 	return c.RespondWithData(retLfs)
 
@@ -438,6 +441,8 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	core.AnimeCollectionCacheId++
 
 	return c.RespondWithData(retLfs)
 

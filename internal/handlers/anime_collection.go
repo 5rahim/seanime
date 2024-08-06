@@ -5,9 +5,11 @@ import (
 	"github.com/dustin/go-humanize"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
+	"seanime/internal/torrentstream"
+	"seanime/internal/util/result"
 )
 
-//var libraryCollectionMap = result.NewResultMap[string, *anime.LibraryCollection]()
+var libraryCollectionCache = result.NewResultMap[int, *anime.LibraryCollection]()
 
 // HandleGetLibraryCollection
 //
@@ -20,12 +22,14 @@ import (
 //	@returns anime.LibraryCollection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
-	bypassCache := c.Fiber.Method() == "POST"
-
-	animeCollection, err := c.App.GetAnimeCollection(bypassCache)
+	animeCollection, err := c.App.GetAnimeCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	//if lc, found := libraryCollectionCache.Get(core.AnimeCollectionCacheId); found {
+	//	return c.RespondWithData(lc)
+	//}
 
 	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
@@ -43,8 +47,18 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if c.App.SecondarySettings.Torrentstream != nil && c.App.SecondarySettings.Torrentstream.IncludeInLibrary {
+		c.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
+			LibraryCollection: libraryCollection,
+			AnizipCache:       c.App.AnizipCache,
+		})
+	}
+
 	// Hydrate total library size
 	libraryCollection.Stats.TotalSize = humanize.Bytes(c.App.TotalLibrarySize)
+
+	//libraryCollectionCache.Clear()
+	//libraryCollectionCache.Set(core.AnimeCollectionCacheId, libraryCollection)
 
 	return c.RespondWithData(libraryCollection)
 }

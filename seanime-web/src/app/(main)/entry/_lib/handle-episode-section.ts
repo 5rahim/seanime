@@ -1,12 +1,11 @@
 import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
-import { useMemo } from "react"
+import React from "react"
 
 export function useHandleEpisodeSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeDetailsById_Media | undefined }) {
     const { entry, details } = props
     const media = entry.media
-
 
     const { playMediaFile } = useHandlePlayMedia()
 
@@ -14,28 +13,27 @@ export function useHandleEpisodeSection(props: { entry: Anime_AnimeEntry, detail
         onPlay: () => {
             if (entry.nextEpisode) {
                 playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "", mediaId: entry.mediaId })
-                // playVideo({ path: entry.nextEpisode.localFile?.path ?? "" })
             }
         },
-    })
+    }, !!entry.nextEpisode)
 
-    const mainEpisodes = useMemo(() => {
+    const mainEpisodes = React.useMemo(() => {
         return entry.episodes?.filter(ep => ep.type === "main") ?? []
     }, [entry.episodes])
 
-    const specialEpisodes = useMemo(() => {
+    const specialEpisodes = React.useMemo(() => {
         return entry.episodes?.filter(ep => ep.type === "special") ?? []
     }, [entry.episodes])
 
-    const ncEpisodes = useMemo(() => {
+    const ncEpisodes = React.useMemo(() => {
         return entry.episodes?.filter(ep => ep.type === "nc") ?? []
     }, [entry.episodes])
 
-    const hasInvalidEpisodes = useMemo(() => {
+    const hasInvalidEpisodes = React.useMemo(() => {
         return entry.episodes?.some(ep => ep.isInvalid) ?? false
     }, [entry.episodes])
 
-    const episodesToWatch = useMemo(() => {
+    const episodesToWatch = React.useMemo(() => {
         const ret = mainEpisodes.filter(ep => {
             if (!entry.nextEpisode) {
                 return true

@@ -11,21 +11,21 @@ func TestLocalFileWrapperEntry(t *testing.T) {
 
 	lfs := MockHydratedLocalFiles(
 		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/One Piece/One Piece - %ep.mkv", 21, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{metadataEpisode: 1070, metadataAniDbEpisode: "1070", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 1071, metadataAniDbEpisode: "1071", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 1072, metadataAniDbEpisode: "1072", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 1073, metadataAniDbEpisode: "1073", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 1074, metadataAniDbEpisode: "1074", metadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1070, MetadataAniDbEpisode: "1070", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1071, MetadataAniDbEpisode: "1071", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1072, MetadataAniDbEpisode: "1072", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1073, MetadataAniDbEpisode: "1073", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1074, MetadataAniDbEpisode: "1074", MetadataType: LocalFileTypeMain},
 		}),
 		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Blue Lock/Blue Lock - %ep.mkv", 22222, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 3, metadataAniDbEpisode: "3", metadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: LocalFileTypeMain},
 		}),
 		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{metadataEpisode: 0, metadataAniDbEpisode: "S1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
+			{MetadataEpisode: 0, MetadataAniDbEpisode: "S1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
 		}),
 	)
 
@@ -101,14 +101,14 @@ func TestLocalFileWrapperEntryProgressNumber(t *testing.T) {
 
 	lfs := MockHydratedLocalFiles(
 		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{metadataEpisode: 0, metadataAniDbEpisode: "S1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
+			{MetadataEpisode: 0, MetadataAniDbEpisode: "S1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
 		}),
 		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656_2, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{metadataEpisode: 1, metadataAniDbEpisode: "S1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 2, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-			{metadataEpisode: 3, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "S1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+			{MetadataEpisode: 3, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
 		}),
 	)
 

@@ -12,6 +12,7 @@ import (
 )
 
 // Test to retrieve accurate missing episodes
+// DEPRECATED
 func TestNewMissingEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
@@ -39,17 +40,17 @@ func TestNewMissingEpisodes(t *testing.T) {
 			mediaId: 154587,
 			localFiles: MockHydratedLocalFiles(
 				MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - %ep (1080p) [F02B9CEE].mkv", 154587, []MockHydratedLocalFileWrapperOptionsMetadata{
-					{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-					{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
-					{metadataEpisode: 3, metadataAniDbEpisode: "3", metadataType: LocalFileTypeMain},
-					{metadataEpisode: 4, metadataAniDbEpisode: "4", metadataType: LocalFileTypeMain},
-					{metadataEpisode: 5, metadataAniDbEpisode: "5", metadataType: LocalFileTypeMain},
+					{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+					{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+					{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: LocalFileTypeMain},
+					{MetadataEpisode: 4, MetadataAniDbEpisode: "4", MetadataType: LocalFileTypeMain},
+					{MetadataEpisode: 5, MetadataAniDbEpisode: "5", MetadataType: LocalFileTypeMain},
 				}),
 			),
 			mediaAiredEpisodes: 10,
 			currentProgress:    4,
 			//expectedMissingEpisodes: 5,
-			expectedMissingEpisodes: 1, // DEVNOTE: Now the value is 1 at most because everything else is aggregated
+			expectedMissingEpisodes: 1, // DEVNOTE: Now the value is 1 at most because everything else is merged
 		},
 	}
 

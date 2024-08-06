@@ -31,6 +31,13 @@ type (
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 		UnknownGroups        []*UnknownGroup          `json:"unknownGroups"`
 		Stats                *LibraryCollectionStats  `json:"stats"`
+		Stream               *StreamCollection        `json:"stream,omitempty"` // Hydrated by the route handler
+	}
+
+	StreamCollection struct {
+		ContinueWatchingList []*AnimeEntryEpisode        `json:"continueWatchingList"`
+		Anime                []*anilist.BaseAnime        `json:"anime"`
+		ListData             map[int]*AnimeEntryListData `json:"listData"`
 	}
 
 	LibraryCollectionListType string

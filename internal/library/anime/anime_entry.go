@@ -99,7 +99,7 @@ func NewAnimeEntry(opts *NewAnimeEntryOptions) (*AnimeEntry, error) {
 	entry.CurrentEpisodeCount = entry.Media.GetCurrentEpisodeCount()
 
 	// +---------------------+
-	// |   Local files       |
+	// |     Local files     |
 	// +---------------------+
 
 	// Get the entry's local files
@@ -198,9 +198,9 @@ func (e *AnimeEntry) hydrateEntryEpisodeData(
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
-	if possibleSpecialInclusion && hasDiscrepancy {
+	//if possibleSpecialInclusion && hasDiscrepancy {
+	if hasDiscrepancy {
 		progressOffset = 1
-
 	} else if possibleSpecialInclusion && !hasDiscrepancy {
 		// Check if the Episode 0 is set to "S1"
 		epZero, ok := lo.Find(e.LocalFiles, func(lf *LocalFile) bool {
@@ -298,5 +298,12 @@ func detectDiscrepancy(
 	hasDiscrepancy = media.GetCurrentEpisodeCount() > anizipData.GetMainEpisodeCount() && aniDBHasS1
 
 	return
+}
 
+func HasDiscrepancy(media *anilist.BaseAnime, anizipData *anizip.Media) bool {
+	if media == nil || anizipData == nil || anizipData.Episodes == nil {
+		return false
+	}
+	_, aniDBHasS1 := anizipData.Episodes["S1"]
+	return media.GetCurrentEpisodeCount() > anizipData.GetMainEpisodeCount() && aniDBHasS1
 }

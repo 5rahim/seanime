@@ -1366,6 +1366,10 @@ export type Anime_LibraryCollection = {
     ignoredLocalFiles?: Array<Anime_LocalFile>
     unknownGroups?: Array<Anime_UnknownGroup>
     stats?: Anime_LibraryCollectionStats
+    /**
+     * Hydrated by the route handler
+     */
+    stream?: Anime_StreamCollection
 }
 
 /**
@@ -1495,6 +1499,17 @@ export type Anime_Playlist = {
      * LocalFiles is a list of local files in the playlist, in order
      */
     localFiles?: Array<Anime_LocalFile>
+}
+
+/**
+ * - Filepath: internal/library/anime/collection.go
+ * - Filename: collection.go
+ * - Package: anime
+ */
+export type Anime_StreamCollection = {
+    continueWatchingList?: Array<Anime_AnimeEntryEpisode>
+    anime?: Array<AL_BaseAnime>
+    listData?: Record<number, Anime_AnimeEntryListData>
 }
 
 /**
@@ -2281,6 +2296,7 @@ export type Models_TorrentstreamSettings = {
     streamingServerHost: string
     streamingServerPort: number
     fallbackToTorrentStreamingView: boolean
+    includeInLibrary: boolean
     id: number
     createdAt?: string
     updatedAt?: string

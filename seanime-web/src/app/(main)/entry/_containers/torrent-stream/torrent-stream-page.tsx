@@ -10,6 +10,7 @@ import {
     __torrentSearch_drawerIsOpenAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -79,6 +80,19 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     // Stores the episode that was clicked
     const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+
+    // Play next video on mount only if auto-select is enabled
+    usePlayNextVideoOnMount({
+        onPlay: () => {
+            if (autoSelect && episodesToWatch[0] && episodesToWatch[0].aniDBEpisode) {
+                handleAutoSelectTorrentStream({
+                    entry: entry,
+                    episodeNumber: episodesToWatch[0].episodeNumber,
+                    aniDBEpisode: episodesToWatch[0].aniDBEpisode,
+                })
+            }
+        },
+    }, !!episodesToWatch[0])
 
     /**
      * Handle episode click

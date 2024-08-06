@@ -18,6 +18,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
     fallbackToTorrentStreamingView: z.boolean(),
+    includeInLibrary: z.boolean(),
 }))
 
 
@@ -66,6 +67,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
                     fallbackToTorrentStreamingView: settings.fallbackToTorrentStreamingView,
+                    includeInLibrary: settings.includeInLibrary,
                 }}
                 stackClass="space-y-6"
             >
@@ -77,13 +79,19 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 <Separator />
 
                 <h3>
-                    User interface
+                    Integration
                 </h3>
 
                 <Field.Switch
                     name="fallbackToTorrentStreamingView"
                     label="Fall back to torrent streaming view"
                     help="If the anime is not in your library, default to the torrent streaming view."
+                />
+
+                <Field.Switch
+                    name="includeInLibrary"
+                    label="Include in library"
+                    help="Make non-downloaded episodes appear in your library for torrent streaming."
                 />
 
                 <Separator />
@@ -179,28 +187,6 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     </Button>
                 </div>
             </Form>
-
-            {/*<Separator />*/}
-
-            {/*<h2>Cache</h2>*/}
-
-            {/*<div className="space-y-4">*/}
-            {/*    <div className="flex gap-2 items-center">*/}
-            {/*        <Button intent="white-subtle" size="sm" onClick={() => getTotalSize()} disabled={isFetchingSize}>*/}
-            {/*            Show total size*/}
-            {/*        </Button>*/}
-            {/*        {!!totalSize && (*/}
-            {/*            <p>*/}
-            {/*                {totalSize}*/}
-            {/*            </p>*/}
-            {/*        )}*/}
-            {/*    </div>*/}
-            {/*    <div className="flex gap-2 flex-wrap items-center">*/}
-            {/*        <Button intent="alert-subtle" size="sm" onClick={() => clearCache()} disabled={isClearing}>*/}
-            {/*            Clear cache*/}
-            {/*        </Button>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
         </>
     )
 }

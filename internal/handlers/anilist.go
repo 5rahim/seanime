@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/core"
 	"seanime/internal/events"
 	"seanime/internal/util/result"
 	"strconv"
@@ -38,6 +39,10 @@ func HandleGetAnimeCollection(c *RouteCtx) error {
 			}
 		}
 	}()
+
+	if bypassCache {
+		core.AnimeCollectionCacheId++
+	}
 
 	return c.RespondWithData(animeCollection)
 }

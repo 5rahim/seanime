@@ -34,13 +34,13 @@ export function AnimeEntryPage() {
             animeEntry?.media?.status !== "NOT_YET_RELEASED" &&
             !animeEntry?.libraryData &&
             !isTorrentStreamingView &&
-            serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView &&
+            (serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView || !!searchParams.get("playNext")) &&
             !switchedView.current
         ) {
             switchedView.current = true
             setIsTorrentStreamingView(true)
         }
-    }, [animeEntryLoading, serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView, isTorrentStreamingView])
+    }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView, isTorrentStreamingView])
 
     React.useEffect(() => {
         if (!mediaId) {

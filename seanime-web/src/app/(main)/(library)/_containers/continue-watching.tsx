@@ -162,6 +162,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
             progressNumber={episode.progressNumber}
             episodeNumber={episode.episodeNumber}
             length={episode.episodeMetadata?.length}
+            hasDiscrepancy={episode.episodeNumber !== episode.progressNumber}
             onMouseEnter={() => {
                 React.startTransition(() => {
                     setHeaderImage(episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null)

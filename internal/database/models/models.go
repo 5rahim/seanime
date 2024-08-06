@@ -266,6 +266,7 @@ type TorrentstreamSettings struct {
 	StreamingServerHost            string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
 	StreamingServerPort            int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
 	FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"`
+	IncludeInLibrary               bool   `gorm:"column:include_in_library" json:"includeInLibrary"`
 }
 
 // +---------------------+
