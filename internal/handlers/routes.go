@@ -89,6 +89,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 					strings.HasPrefix(uriS[1], "/manga") ||
 					strings.HasPrefix(uriS[1], "/mediastream") ||
 					strings.HasPrefix(uriS[1], "/torrentstream") ||
+					strings.HasPrefix(uriS[1], "/extensions") ||
 					strings.HasPrefix(uriS[1], "/open-in-explorer") {
 					return c.Next()
 				} else {

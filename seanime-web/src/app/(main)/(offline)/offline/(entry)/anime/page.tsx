@@ -113,6 +113,8 @@ function EpisodeLists(props: EpisodeListsProps) {
 
     return (
         <div className="space-y-10">
+            <h2>Episodes</h2>
+
             {episodesToWatch.length > 0 && (
                 <>
                     <Carousel
@@ -134,7 +136,6 @@ function EpisodeLists(props: EpisodeListsProps) {
                                         image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
                                         topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                         title={episode.displayTitle}
-                                        meta={episode.episodeMetadata?.airDate ?? undefined}
                                         isInvalid={episode.isInvalid}
                                         progressTotal={episode.baseAnime?.episodes}
                                         progressNumber={episode.progressNumber}
@@ -150,7 +151,6 @@ function EpisodeLists(props: EpisodeListsProps) {
             )}
 
             <div className="space-y-10 pb-10">
-                <h2>Episodes</h2>
                 <EpisodeListGrid>
                     {mainEpisodes.map(episode => (
                         <EpisodeItem
