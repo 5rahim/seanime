@@ -23,6 +23,7 @@ type EpisodeCardProps = {
     hasDiscrepancy?: boolean
     length?: string | number | null
     imageClass?: string
+    badge?: React.ReactNode
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -46,6 +47,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         hasDiscrepancy,
         length,
         imageClass,
+        badge,
         ...rest
     } = props
 

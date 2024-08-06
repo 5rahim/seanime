@@ -1,7 +1,7 @@
 import { cn } from "@/components/ui/core/styling"
 import { getScoreColor } from "@/lib/helpers/score"
 import React from "react"
-import { BiStar } from "react-icons/bi"
+import { BiSolidStar, BiStar } from "react-icons/bi"
 
 type MediaEntryScoreBadgeProps = {
     score?: number // 0-100
@@ -18,7 +18,7 @@ export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
                 getScoreColor(score, "user"),
             )}
         >
-            <BiStar /> {(score === 0) ? "-" : score / 10}
+            {score >= 90 ? <BiSolidStar className="text-xs" /> : <BiStar className="text-xs" />} {(score === 0) ? "-" : score / 10}
         </div>
     )
 }

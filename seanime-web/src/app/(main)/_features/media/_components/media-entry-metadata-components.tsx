@@ -73,7 +73,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                             intent="unstyled"
                             size="lg"
                             className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
-                            leftIcon={<BiHeart />}
+                            leftIcon={<BiHeart className="text-xs" />}
                         >{meanScore / 10}</Badge>
                     </DisclosureContent>
                 </DisclosureItem>
@@ -81,7 +81,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                 intent="unstyled"
                 size="lg"
                 className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
-                leftIcon={<BiHeart />}
+                leftIcon={<BiHeart className="text-xs" />}
             >{meanScore / 10}</Badge>}
         </>
     )

@@ -20,7 +20,7 @@ import { motion } from "framer-motion"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
-import { BiCalendarAlt, BiStar } from "react-icons/bi"
+import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
 import { useWindowScroll } from "react-use"
 
 
@@ -337,7 +337,12 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
 
     return (
         <>
-            {!!score && <Badge leftIcon={<BiStar />} size="xl" intent="unstyled" className={getScoreColor(score, "user")}>
+            {!!score && <Badge
+                leftIcon={score >= 90 ? <BiSolidStar className="text-sm" /> : <BiStar className="text-sm" />}
+                size="xl"
+                intent="unstyled"
+                className={getScoreColor(score, "user")}
+            >
                 {score / 10}
             </Badge>}
             <Badge
