@@ -94,10 +94,32 @@ export type AL_AnimeDetailsById_Media = {
     startDate?: AL_AnimeDetailsById_Media_StartDate
     endDate?: AL_AnimeDetailsById_Media_EndDate
     studios?: AL_AnimeDetailsById_Media_Studios
+    characters?: AL_AnimeDetailsById_Media_Characters
     staff?: AL_AnimeDetailsById_Media_Staff
     rankings?: Array<AL_AnimeDetailsById_Media_Rankings>
     recommendations?: AL_AnimeDetailsById_Media_Recommendations
     relations?: AL_AnimeDetailsById_Media_Relations
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_AnimeDetailsById_Media_Characters = {
+    edges?: Array<AL_AnimeDetailsById_Media_Characters_Edges>
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_AnimeDetailsById_Media_Characters_Edges = {
+    id?: number
+    role?: AL_CharacterRole
+    name?: string
+    node?: AL_BaseCharacter
 }
 
 /**
@@ -443,6 +465,54 @@ export type AL_BaseAnime_Trailer = {
  * - Filename: client_gen.go
  * - Package: anilist
  */
+export type AL_BaseCharacter = {
+    id: number
+    isFavourite: boolean
+    gender?: string
+    age?: string
+    dateOfBirth?: AL_BaseCharacter_DateOfBirth
+    name?: AL_BaseCharacter_Name
+    image?: AL_BaseCharacter_Image
+    description?: string
+    siteUrl?: string
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_BaseCharacter_DateOfBirth = {
+    year?: number
+    month?: number
+    day?: number
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_BaseCharacter_Image = {
+    large?: string
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_BaseCharacter_Name = {
+    full?: string
+    native?: string
+    alternative?: Array<string>
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
 export type AL_BaseManga = {
     id: number
     idMal?: number
@@ -511,6 +581,15 @@ export type AL_BaseManga_Title = {
     english?: string
     native?: string
 }
+
+/**
+ * - Filepath: internal/api/anilist/models_gen.go
+ * - Filename: models_gen.go
+ * - Package: anilist
+ * @description
+ *  The role the character plays in the media
+ */
+export type AL_CharacterRole = "MAIN" | "SUPPORTING" | "BACKGROUND"
 
 /**
  * - Filepath: internal/api/anilist/models_gen.go
@@ -749,8 +828,30 @@ export type AL_MangaDetailsById_Media = {
     duration?: number
     genres?: Array<string>
     rankings?: Array<AL_MangaDetailsById_Media_Rankings>
+    characters?: AL_MangaDetailsById_Media_Characters
     recommendations?: AL_MangaDetailsById_Media_Recommendations
     relations?: AL_MangaDetailsById_Media_Relations
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MangaDetailsById_Media_Characters = {
+    edges?: Array<AL_MangaDetailsById_Media_Characters_Edges>
+}
+
+/**
+ * - Filepath: internal/api/anilist/client_gen.go
+ * - Filename: client_gen.go
+ * - Package: anilist
+ */
+export type AL_MangaDetailsById_Media_Characters_Edges = {
+    id?: number
+    role?: AL_CharacterRole
+    name?: string
+    node?: AL_BaseCharacter
 }
 
 /**

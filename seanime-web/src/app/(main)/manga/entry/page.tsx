@@ -1,5 +1,6 @@
 "use client"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
+import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
@@ -41,7 +42,7 @@ export default function Page() {
 
                 <PageWrapper
                     key="chapter-list"
-                    className="relative 2xl:order-first pb-10 pt-4"
+                    className="relative 2xl:order-first pb-10 pt-4 space-y-10"
                     {...{
                         initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
@@ -70,9 +71,11 @@ export default function Page() {
 
                         <div>
                             <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
+
                         </div>
                     </div>
 
+                    <MediaEntryCharactersSection details={mangaDetails} />
 
                 </PageWrapper>
             </div>

@@ -126,16 +126,6 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         data-src={image}
                     />}
                 </div>
-                {(image && unoptimizedImage) && <div
-                    className="h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden"
-                >
-                    <img
-                        src={image}
-                        alt="episode image"
-                        className="object-cover object-center absolute w-full h-full"
-                        data-src={image}
-                    />
-                </div>}
 
                 <div className="relative overflow-hidden">
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning

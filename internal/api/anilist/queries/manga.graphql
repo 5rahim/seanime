@@ -64,6 +64,16 @@ query MangaDetailsById ($id: Int) {
       allTime
       season
     }
+    characters(sort: [ROLE]) {
+      edges {
+        id
+        role
+        name
+        node {
+          ...baseCharacter
+        }
+      }
+    }
     recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
       edges {
         node {

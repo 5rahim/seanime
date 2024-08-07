@@ -112,6 +112,16 @@ query AnimeDetailsById ($id: Int) {
         id
       }
     }
+    characters(sort: [ROLE]) {
+      edges {
+        id
+        role
+        name
+        node {
+          ...baseCharacter
+        }
+      }
+    }
     staff(sort: [RELEVANCE]) {
       edges {
         role
@@ -353,4 +363,26 @@ fragment completeAnime on Media {
       }
     }
   }
+}
+
+fragment baseCharacter on Character {
+  id
+  isFavourite
+  gender
+  age
+  dateOfBirth {
+    year
+    month
+    day
+  }
+  name {
+    full
+    native
+    alternative
+  }
+  image {
+    large
+  }
+  description
+  siteUrl
 }

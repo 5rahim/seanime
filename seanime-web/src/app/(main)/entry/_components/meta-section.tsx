@@ -21,12 +21,10 @@ import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-act
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { TorrentStreamButton } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-button"
-import { Button, IconButton } from "@/components/ui/button"
-import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
+import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
 import Link from "next/link"
 import React from "react"
-import { BiChevronDown } from "react-icons/bi"
 
 
 export function MetaSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeDetailsById_Media | undefined }) {
@@ -61,26 +59,16 @@ export function MetaSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeD
                     type="anime"
                 />
 
-                <Disclosure type="multiple" className="space-y-4" defaultValue={[]}>
-                    <DisclosureItem value="item-1" className="space-y-2">
 
-                        <div className="flex gap-2 items-center">
-                            <MediaEntryAudienceScore meanScore={details?.meanScore} />
+                <div className="flex gap-2 flex-wrap items-center">
+                    <MediaEntryAudienceScore meanScore={details?.meanScore} />
 
-                            <AnimeEntryStudio studios={details?.studios} />
+                    <AnimeEntryStudio studios={details?.studios} />
 
-                            <DisclosureTrigger>
-                                <IconButton className="rounded-full" size="sm" intent="gray-basic" icon={<BiChevronDown />} />
-                            </DisclosureTrigger>
-                        </div>
+                    <MediaEntryGenresList genres={details?.genres} />
 
-                        <DisclosureContent className="space-y-2">
-                            <MediaEntryGenresList genres={details?.genres} />
-
-                            <AnimeEntryRankings rankings={details?.rankings} />
-                        </DisclosureContent>
-                    </DisclosureItem>
-                </Disclosure>
+                    <AnimeEntryRankings rankings={details?.rankings} />
+                </div>
 
 
                 <div className="flex flex-col lg:flex-row w-full gap-3">

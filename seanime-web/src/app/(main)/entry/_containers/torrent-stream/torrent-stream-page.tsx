@@ -24,6 +24,7 @@ import React, { useMemo } from "react"
 type TorrentStreamPageProps = {
     children?: React.ReactNode
     entry: Anime_AnimeEntry
+    bottomSection?: React.ReactNode
 }
 
 export function TorrentStreamPage(props: TorrentStreamPageProps) {
@@ -31,6 +32,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const {
         children,
         entry,
+        bottomSection,
         ...rest
     } = props
 
@@ -235,6 +237,8 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                     />
                 ))}
             </EpisodeListGrid>
+
+            {bottomSection}
         </AppLayoutStack>
     )
 }

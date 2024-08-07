@@ -498,6 +498,100 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "BaseCharacter",
+    "formattedName": "AL_BaseCharacter",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsFavourite",
+        "jsonName": "isFavourite",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Gender",
+        "jsonName": "gender",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Age",
+        "jsonName": "age",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DateOfBirth",
+        "jsonName": "dateOfBirth",
+        "goType": "BaseCharacter_DateOfBirth",
+        "typescriptType": "AL_BaseCharacter_DateOfBirth",
+        "usedStructName": "anilist.BaseCharacter_DateOfBirth",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "BaseCharacter_Name",
+        "typescriptType": "AL_BaseCharacter_Name",
+        "usedStructName": "anilist.BaseCharacter_Name",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "BaseCharacter_Image",
+        "typescriptType": "AL_BaseCharacter_Image",
+        "usedStructName": "anilist.BaseCharacter_Image",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SiteURL",
+        "jsonName": "siteUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "BaseManga",
     "formattedName": "AL_BaseManga",
     "package": "anilist",
@@ -1907,6 +2001,99 @@
         "goType": "[]CompleteAnime_Relations_Edges",
         "typescriptType": "Array\u003cAL_CompleteAnime_Relations_Edges\u003e",
         "usedStructName": "anilist.CompleteAnime_Relations_Edges",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "BaseCharacter_DateOfBirth",
+    "formattedName": "AL_BaseCharacter_DateOfBirth",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "BaseCharacter_Name",
+    "formattedName": "AL_BaseCharacter_Name",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Full",
+        "jsonName": "full",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Alternative",
+        "jsonName": "alternative",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "BaseCharacter_Image",
+    "formattedName": "AL_BaseCharacter_Image",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
         "required": false,
         "public": true,
         "comments": []
@@ -4551,6 +4738,167 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth",
+    "formattedName": "AL_AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name",
+    "formattedName": "AL_AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Full",
+        "jsonName": "full",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Alternative",
+        "jsonName": "alternative",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image",
+    "formattedName": "AL_AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeDetailsById_Media_Characters_Edges",
+    "formattedName": "AL_AnimeDetailsById_Media_Characters_Edges",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "CharacterRole",
+        "typescriptType": "AL_CharacterRole",
+        "usedStructName": "anilist.CharacterRole",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Node",
+        "jsonName": "node",
+        "goType": "BaseCharacter",
+        "typescriptType": "AL_BaseCharacter",
+        "usedStructName": "anilist.BaseCharacter",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "AnimeDetailsById_Media_Characters",
+    "formattedName": "AL_AnimeDetailsById_Media_Characters",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Edges",
+        "jsonName": "edges",
+        "goType": "[]AnimeDetailsById_Media_Characters_Edges",
+        "typescriptType": "Array\u003cAL_AnimeDetailsById_Media_Characters_Edges\u003e",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Characters_Edges",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "AnimeDetailsById_Media_Staff_Edges_Node_Name",
     "formattedName": "AL_AnimeDetailsById_Media_Staff_Edges_Node_Name",
     "package": "anilist",
@@ -5514,6 +5862,16 @@
         "goType": "AnimeDetailsById_Media_Studios",
         "typescriptType": "AL_AnimeDetailsById_Media_Studios",
         "usedStructName": "anilist.AnimeDetailsById_Media_Studios",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Characters",
+        "jsonName": "characters",
+        "goType": "AnimeDetailsById_Media_Characters",
+        "typescriptType": "AL_AnimeDetailsById_Media_Characters",
+        "usedStructName": "anilist.AnimeDetailsById_Media_Characters",
         "required": false,
         "public": true,
         "comments": []
@@ -7196,6 +7554,167 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth",
+    "formattedName": "AL_MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name",
+    "formattedName": "AL_MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Full",
+        "jsonName": "full",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Native",
+        "jsonName": "native",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Alternative",
+        "jsonName": "alternative",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image",
+    "formattedName": "AL_MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Characters_Edges",
+    "formattedName": "AL_MangaDetailsById_Media_Characters_Edges",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Role",
+        "jsonName": "role",
+        "goType": "CharacterRole",
+        "typescriptType": "AL_CharacterRole",
+        "usedStructName": "anilist.CharacterRole",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Node",
+        "jsonName": "node",
+        "goType": "BaseCharacter",
+        "typescriptType": "AL_BaseCharacter",
+        "usedStructName": "anilist.BaseCharacter",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "MangaDetailsById_Media_Characters",
+    "formattedName": "AL_MangaDetailsById_Media_Characters",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "Edges",
+        "jsonName": "edges",
+        "goType": "[]MangaDetailsById_Media_Characters_Edges",
+        "typescriptType": "Array\u003cAL_MangaDetailsById_Media_Characters_Edges\u003e",
+        "usedStructName": "anilist.MangaDetailsById_Media_Characters_Edges",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
     "formattedName": "AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title",
     "package": "anilist",
@@ -7873,6 +8392,16 @@
         "goType": "[]MangaDetailsById_Media_Rankings",
         "typescriptType": "Array\u003cAL_MangaDetailsById_Media_Rankings\u003e",
         "usedStructName": "anilist.MangaDetailsById_Media_Rankings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Characters",
+        "jsonName": "characters",
+        "goType": "MangaDetailsById_Media_Characters",
+        "typescriptType": "AL_MangaDetailsById_Media_Characters",
+        "usedStructName": "anilist.MangaDetailsById_Media_Characters",
         "required": false,
         "public": true,
         "comments": []

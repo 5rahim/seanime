@@ -117,7 +117,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                     intent="gray"
                     leftIcon={<AiFillStar />}
                     iconClass="text-yellow-500"
-                    className="rounded-md border-transparent px-2"
+                    className="rounded-full border-transparent px-2"
                 >
                     #{String(allTimeHighestRated.rank)} Highest
                     Rated {formatFormat(allTimeHighestRated.format)} of All
@@ -128,7 +128,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                     intent="gray"
                     leftIcon={<AiOutlineStar />}
                     iconClass="text-yellow-500"
-                    className="rounded-md border-transparent px-2"
+                    className="rounded-full border-transparent px-2"
                 >
                     #{String(seasonHighestRated.rank)} Highest
                     Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
@@ -138,7 +138,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                     intent="gray"
                     leftIcon={<AiOutlineHeart />}
                     iconClass="text-pink-500"
-                    className="rounded-md border-transparent px-2"
+                    className="rounded-full border-transparent px-2"
                 >
                     #{(String(seasonMostPopular.rank))} Most
                     Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}

@@ -362,6 +362,73 @@ func (t *CompleteAnime) GetRelations() *CompleteAnime_Relations {
 	return t.Relations
 }
 
+type BaseCharacter struct {
+	ID          int                        "json:\"id\" graphql:\"id\""
+	IsFavourite bool                       "json:\"isFavourite\" graphql:\"isFavourite\""
+	Gender      *string                    "json:\"gender,omitempty\" graphql:\"gender\""
+	Age         *string                    "json:\"age,omitempty\" graphql:\"age\""
+	DateOfBirth *BaseCharacter_DateOfBirth "json:\"dateOfBirth,omitempty\" graphql:\"dateOfBirth\""
+	Name        *BaseCharacter_Name        "json:\"name,omitempty\" graphql:\"name\""
+	Image       *BaseCharacter_Image       "json:\"image,omitempty\" graphql:\"image\""
+	Description *string                    "json:\"description,omitempty\" graphql:\"description\""
+	SiteURL     *string                    "json:\"siteUrl,omitempty\" graphql:\"siteUrl\""
+}
+
+func (t *BaseCharacter) GetID() int {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.ID
+}
+func (t *BaseCharacter) GetIsFavourite() bool {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.IsFavourite
+}
+func (t *BaseCharacter) GetGender() *string {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.Gender
+}
+func (t *BaseCharacter) GetAge() *string {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.Age
+}
+func (t *BaseCharacter) GetDateOfBirth() *BaseCharacter_DateOfBirth {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.DateOfBirth
+}
+func (t *BaseCharacter) GetName() *BaseCharacter_Name {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.Name
+}
+func (t *BaseCharacter) GetImage() *BaseCharacter_Image {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.Image
+}
+func (t *BaseCharacter) GetDescription() *string {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.Description
+}
+func (t *BaseCharacter) GetSiteURL() *string {
+	if t == nil {
+		t = &BaseCharacter{}
+	}
+	return t.SiteURL
+}
+
 type BaseManga struct {
 	ID              int                   "json:\"id\" graphql:\"id\""
 	IDMal           *int                  "json:\"idMal,omitempty\" graphql:\"idMal\""
@@ -1347,6 +1414,67 @@ func (t *CompleteAnime_Relations) GetEdges() []*CompleteAnime_Relations_Edges {
 		t = &CompleteAnime_Relations{}
 	}
 	return t.Edges
+}
+
+type BaseCharacter_DateOfBirth struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *BaseCharacter_DateOfBirth) GetYear() *int {
+	if t == nil {
+		t = &BaseCharacter_DateOfBirth{}
+	}
+	return t.Year
+}
+func (t *BaseCharacter_DateOfBirth) GetMonth() *int {
+	if t == nil {
+		t = &BaseCharacter_DateOfBirth{}
+	}
+	return t.Month
+}
+func (t *BaseCharacter_DateOfBirth) GetDay() *int {
+	if t == nil {
+		t = &BaseCharacter_DateOfBirth{}
+	}
+	return t.Day
+}
+
+type BaseCharacter_Name struct {
+	Full        *string   "json:\"full,omitempty\" graphql:\"full\""
+	Native      *string   "json:\"native,omitempty\" graphql:\"native\""
+	Alternative []*string "json:\"alternative,omitempty\" graphql:\"alternative\""
+}
+
+func (t *BaseCharacter_Name) GetFull() *string {
+	if t == nil {
+		t = &BaseCharacter_Name{}
+	}
+	return t.Full
+}
+func (t *BaseCharacter_Name) GetNative() *string {
+	if t == nil {
+		t = &BaseCharacter_Name{}
+	}
+	return t.Native
+}
+func (t *BaseCharacter_Name) GetAlternative() []*string {
+	if t == nil {
+		t = &BaseCharacter_Name{}
+	}
+	return t.Alternative
+}
+
+type BaseCharacter_Image struct {
+	Large *string "json:\"large,omitempty\" graphql:\"large\""
+}
+
+func (t *BaseCharacter_Image) GetLarge() *string {
+	if t == nil {
+		t = &BaseCharacter_Image{}
+	}
+	return t.Large
 }
 
 type BaseManga_Title struct {
@@ -3132,6 +3260,110 @@ func (t *AnimeDetailsById_Media_Studios) GetNodes() []*AnimeDetailsById_Media_St
 	return t.Nodes
 }
 
+type AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth) GetYear() *int {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth{}
+	}
+	return t.Year
+}
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth) GetMonth() *int {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth{}
+	}
+	return t.Month
+}
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth) GetDay() *int {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth{}
+	}
+	return t.Day
+}
+
+type AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name struct {
+	Full        *string   "json:\"full,omitempty\" graphql:\"full\""
+	Native      *string   "json:\"native,omitempty\" graphql:\"native\""
+	Alternative []*string "json:\"alternative,omitempty\" graphql:\"alternative\""
+}
+
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name) GetFull() *string {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name{}
+	}
+	return t.Full
+}
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name) GetNative() *string {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name{}
+	}
+	return t.Native
+}
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name) GetAlternative() []*string {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name{}
+	}
+	return t.Alternative
+}
+
+type AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image struct {
+	Large *string "json:\"large,omitempty\" graphql:\"large\""
+}
+
+func (t *AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image) GetLarge() *string {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image{}
+	}
+	return t.Large
+}
+
+type AnimeDetailsById_Media_Characters_Edges struct {
+	ID   *int           "json:\"id,omitempty\" graphql:\"id\""
+	Role *CharacterRole "json:\"role,omitempty\" graphql:\"role\""
+	Name *string        "json:\"name,omitempty\" graphql:\"name\""
+	Node *BaseCharacter "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *AnimeDetailsById_Media_Characters_Edges) GetID() *int {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges{}
+	}
+	return t.ID
+}
+func (t *AnimeDetailsById_Media_Characters_Edges) GetRole() *CharacterRole {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges{}
+	}
+	return t.Role
+}
+func (t *AnimeDetailsById_Media_Characters_Edges) GetName() *string {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges{}
+	}
+	return t.Name
+}
+func (t *AnimeDetailsById_Media_Characters_Edges) GetNode() *BaseCharacter {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters_Edges{}
+	}
+	return t.Node
+}
+
+type AnimeDetailsById_Media_Characters struct {
+	Edges []*AnimeDetailsById_Media_Characters_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *AnimeDetailsById_Media_Characters) GetEdges() []*AnimeDetailsById_Media_Characters_Edges {
+	if t == nil {
+		t = &AnimeDetailsById_Media_Characters{}
+	}
+	return t.Edges
+}
+
 type AnimeDetailsById_Media_Staff_Edges_Node_Name struct {
 	Full *string "json:\"full,omitempty\" graphql:\"full\""
 }
@@ -3712,6 +3944,7 @@ type AnimeDetailsById_Media struct {
 	StartDate       *AnimeDetailsById_Media_StartDate       "json:\"startDate,omitempty\" graphql:\"startDate\""
 	EndDate         *AnimeDetailsById_Media_EndDate         "json:\"endDate,omitempty\" graphql:\"endDate\""
 	Studios         *AnimeDetailsById_Media_Studios         "json:\"studios,omitempty\" graphql:\"studios\""
+	Characters      *AnimeDetailsById_Media_Characters      "json:\"characters,omitempty\" graphql:\"characters\""
 	Staff           *AnimeDetailsById_Media_Staff           "json:\"staff,omitempty\" graphql:\"staff\""
 	Rankings        []*AnimeDetailsById_Media_Rankings      "json:\"rankings,omitempty\" graphql:\"rankings\""
 	Recommendations *AnimeDetailsById_Media_Recommendations "json:\"recommendations,omitempty\" graphql:\"recommendations\""
@@ -3789,6 +4022,12 @@ func (t *AnimeDetailsById_Media) GetStudios() *AnimeDetailsById_Media_Studios {
 		t = &AnimeDetailsById_Media{}
 	}
 	return t.Studios
+}
+func (t *AnimeDetailsById_Media) GetCharacters() *AnimeDetailsById_Media_Characters {
+	if t == nil {
+		t = &AnimeDetailsById_Media{}
+	}
+	return t.Characters
 }
 func (t *AnimeDetailsById_Media) GetStaff() *AnimeDetailsById_Media_Staff {
 	if t == nil {
@@ -4920,6 +5159,110 @@ func (t *MangaDetailsById_Media_Rankings) GetSeason() *MediaSeason {
 	return t.Season
 }
 
+type MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth) GetYear() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth{}
+	}
+	return t.Year
+}
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth) GetMonth() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth{}
+	}
+	return t.Month
+}
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth) GetDay() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_DateOfBirth{}
+	}
+	return t.Day
+}
+
+type MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name struct {
+	Full        *string   "json:\"full,omitempty\" graphql:\"full\""
+	Native      *string   "json:\"native,omitempty\" graphql:\"native\""
+	Alternative []*string "json:\"alternative,omitempty\" graphql:\"alternative\""
+}
+
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name) GetFull() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name{}
+	}
+	return t.Full
+}
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name) GetNative() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name{}
+	}
+	return t.Native
+}
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name) GetAlternative() []*string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Name{}
+	}
+	return t.Alternative
+}
+
+type MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image struct {
+	Large *string "json:\"large,omitempty\" graphql:\"large\""
+}
+
+func (t *MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image) GetLarge() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges_Node_BaseCharacter_Image{}
+	}
+	return t.Large
+}
+
+type MangaDetailsById_Media_Characters_Edges struct {
+	ID   *int           "json:\"id,omitempty\" graphql:\"id\""
+	Role *CharacterRole "json:\"role,omitempty\" graphql:\"role\""
+	Name *string        "json:\"name,omitempty\" graphql:\"name\""
+	Node *BaseCharacter "json:\"node,omitempty\" graphql:\"node\""
+}
+
+func (t *MangaDetailsById_Media_Characters_Edges) GetID() *int {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges{}
+	}
+	return t.ID
+}
+func (t *MangaDetailsById_Media_Characters_Edges) GetRole() *CharacterRole {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges{}
+	}
+	return t.Role
+}
+func (t *MangaDetailsById_Media_Characters_Edges) GetName() *string {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges{}
+	}
+	return t.Name
+}
+func (t *MangaDetailsById_Media_Characters_Edges) GetNode() *BaseCharacter {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters_Edges{}
+	}
+	return t.Node
+}
+
+type MangaDetailsById_Media_Characters struct {
+	Edges []*MangaDetailsById_Media_Characters_Edges "json:\"edges,omitempty\" graphql:\"edges\""
+}
+
+func (t *MangaDetailsById_Media_Characters) GetEdges() []*MangaDetailsById_Media_Characters_Edges {
+	if t == nil {
+		t = &MangaDetailsById_Media_Characters{}
+	}
+	return t.Edges
+}
+
 type MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title struct {
 	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
 	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
@@ -5353,6 +5696,7 @@ type MangaDetailsById_Media struct {
 	Duration        *int                                    "json:\"duration,omitempty\" graphql:\"duration\""
 	Genres          []*string                               "json:\"genres,omitempty\" graphql:\"genres\""
 	Rankings        []*MangaDetailsById_Media_Rankings      "json:\"rankings,omitempty\" graphql:\"rankings\""
+	Characters      *MangaDetailsById_Media_Characters      "json:\"characters,omitempty\" graphql:\"characters\""
 	Recommendations *MangaDetailsById_Media_Recommendations "json:\"recommendations,omitempty\" graphql:\"recommendations\""
 	Relations       *MangaDetailsById_Media_Relations       "json:\"relations,omitempty\" graphql:\"relations\""
 }
@@ -5386,6 +5730,12 @@ func (t *MangaDetailsById_Media) GetRankings() []*MangaDetailsById_Media_Ranking
 		t = &MangaDetailsById_Media{}
 	}
 	return t.Rankings
+}
+func (t *MangaDetailsById_Media) GetCharacters() *MangaDetailsById_Media_Characters {
+	if t == nil {
+		t = &MangaDetailsById_Media{}
+	}
+	return t.Characters
 }
 func (t *MangaDetailsById_Media) GetRecommendations() *MangaDetailsById_Media_Recommendations {
 	if t == nil {
@@ -6872,6 +7222,16 @@ const AnimeDetailsByIDDocument = `query AnimeDetailsById ($id: Int) {
 				id
 			}
 		}
+		characters(sort: [ROLE]) {
+			edges {
+				id
+				role
+				name
+				node {
+					... baseCharacter
+				}
+			}
+		}
 		staff(sort: [RELEVANCE]) {
 			edges {
 				role
@@ -6943,6 +7303,27 @@ const AnimeDetailsByIDDocument = `query AnimeDetailsById ($id: Int) {
 			}
 		}
 	}
+}
+fragment baseCharacter on Character {
+	id
+	isFavourite
+	gender
+	age
+	dateOfBirth {
+		year
+		month
+		day
+	}
+	name {
+		full
+		native
+		alternative
+	}
+	image {
+		large
+	}
+	description
+	siteUrl
 }
 fragment baseAnime on Media {
 	id
@@ -7519,6 +7900,16 @@ const MangaDetailsByIDDocument = `query MangaDetailsById ($id: Int) {
 			allTime
 			season
 		}
+		characters(sort: [ROLE]) {
+			edges {
+				id
+				role
+				name
+				node {
+					... baseCharacter
+				}
+			}
+		}
 		recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
 			edges {
 				node {
@@ -7573,6 +7964,27 @@ const MangaDetailsByIDDocument = `query MangaDetailsById ($id: Int) {
 			}
 		}
 	}
+}
+fragment baseCharacter on Character {
+	id
+	isFavourite
+	gender
+	age
+	dateOfBirth {
+		year
+		month
+		day
+	}
+	name {
+		full
+		native
+		alternative
+	}
+	image {
+		large
+	}
+	description
+	siteUrl
 }
 fragment baseManga on Media {
 	id

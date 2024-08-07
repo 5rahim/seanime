@@ -1,5 +1,6 @@
 import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
+import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
@@ -93,7 +94,10 @@ export function AnimeEntryPage() {
                             <EpisodeSection
                                 entry={animeEntry}
                                 details={animeDetails}
-                                bottomSection={<RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />}
+                                bottomSection={<>
+                                    <MediaEntryCharactersSection details={animeDetails} />
+                                    <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
+                                </>}
                             />
                         </PageWrapper>}
 
@@ -109,7 +113,13 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
-                            <TorrentStreamPage entry={animeEntry} />
+                            <TorrentStreamPage
+                                entry={animeEntry}
+                                bottomSection={<>
+                                    <MediaEntryCharactersSection details={animeDetails} />
+                                    <RelationsRecommendationsSection entry={animeEntry} details={animeDetails} />
+                                </>}
+                            />
                         </PageWrapper>}
 
                     </AnimatePresence>
