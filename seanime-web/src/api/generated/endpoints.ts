@@ -670,6 +670,49 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/manga/update-progress",
         },
+        /**
+         *  @description
+         *  Route returns search results for a manual search.
+         *  Returns search results for a manual search.
+         */
+        MangaManualSearch: {
+            key: "MANGA-manga-manual-search",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/search",
+        },
+        /**
+         *  @description
+         *  Route manually maps a manga entry to a manga ID from the provider.
+         *  This is used to manually map a manga entry to a manga ID from the provider.
+         *  The client should re-fetch the chapter container after this.
+         */
+        MangaManualMapping: {
+            key: "MANGA-manga-manual-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/manual-mapping",
+        },
+        /**
+         *  @description
+         *  Route returns the mapping for a manga entry.
+         *  This is used to get the mapping for a manga entry.
+         *  An empty string is returned if there's no manual mapping. If there is, the manga ID will be returned.
+         */
+        GetMangaMapping: {
+            key: "MANGA-get-manga-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/get-mapping",
+        },
+        /**
+         *  @description
+         *  Route removes the mapping for a manga entry.
+         *  This is used to remove the mapping for a manga entry.
+         *  The client should re-fetch the chapter container after this.
+         */
+        RemoveMangaMapping: {
+            key: "MANGA-remove-manga-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/remove-mapping",
+        },
     },
     MANGA_DOWNLOAD: {
         DownloadMangaChapters: {

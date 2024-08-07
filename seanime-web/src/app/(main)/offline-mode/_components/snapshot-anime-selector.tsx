@@ -32,7 +32,7 @@ export function SnapshotAnimeSelector(props: SnapshotAnimeSelectorProps) {
                             <div
                                 key={entry.mediaId}
                                 className={cn(
-                                    "col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative bg-[var(--background)] cursor-pointer transition-opacity",
+                                    "col-span-1 aspect-[6/7] rounded-md overflow-hidden relative bg-[var(--background)] cursor-pointer transition-opacity",
                                     !animeMediaIds.includes(entry.mediaId) && "opacity-80",
                                 )}
                                 onClick={() => {
@@ -52,7 +52,7 @@ export function SnapshotAnimeSelector(props: SnapshotAnimeSelectorProps) {
                                     fill
                                     alt=""
                                     className={cn(
-                                        "object-center object-cover transition-opacity",
+                                        "object-center object-cover rounded-md transition-opacity",
                                         animeMediaIds.includes(entry.mediaId) ? "opacity-100" : "opacity-60",
                                     )}
                                 />
@@ -68,20 +68,6 @@ export function SnapshotAnimeSelector(props: SnapshotAnimeSelectorProps) {
                                         animeMediaIds.includes(entry.mediaId) ? "opacity-0" : "opacity-100 hover:opacity-80",
                                     )}
                                 />
-
-                                {/*<div className="absolute top-0 p-2 z-[6]">*/}
-                                {/*    <Checkbox*/}
-                                {/*        size="lg"*/}
-                                {/*        value={animeMediaIds.includes(entry.mediaId)}*/}
-                                {/*        onValueChange={(v) => {*/}
-                                {/*            if (v) {*/}
-                                {/*                setAnimeMediaIds(prev => [...prev, entry.mediaId])*/}
-                                {/*            } else {*/}
-                                {/*                setAnimeMediaIds(prev => prev.filter(n => n !== entry.mediaId))*/}
-                                {/*            }*/}
-                                {/*        }}*/}
-                                {/*    />*/}
-                                {/*</div>*/}
                             </div>
                         )
                     })}

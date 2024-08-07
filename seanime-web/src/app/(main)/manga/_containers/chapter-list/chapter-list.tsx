@@ -1,12 +1,12 @@
 import { AL_MangaDetailsById_Media, HibikeManga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
-import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
+import { useEmptyMangaEntryCache } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
+import { MangaManualMappingModal } from "@/app/(main)/manga/_containers/chapter-list/manga-manual-mapping-modal"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
-import { useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
+import { useHandleMangaChapters } from "@/app/(main)/manga/_lib/handle-manga-chapters"
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
-import { useHandleMangaProviders } from "@/app/(main)/manga/_lib/handle-manga-providers"
 import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -42,26 +42,18 @@ export function ChapterList(props: ChapterListProps) {
     } = props
 
     /**
-     * Provider extensions
-     */
-    const { providerOptions, providersLoading } = useHandleMangaProviders(mediaId)
-
-    /**
-     * Current provider
-     */
-    const { provider, setProvider } = useMangaProvider(mediaId)
-
-    /**
-     * Fetch chapter container
+     * Find chapter container
      */
     const {
-        data: chapterContainer,
-        isLoading: chapterContainerLoading,
-        isError: chapterContainerError,
-    } = useGetMangaEntryChapters({
-        mediaId: Number(mediaId),
-        provider: provider,
-    })
+        selectedProvider,
+        setSelectedProvider,
+        providerExtensionsLoading,
+        providerOptions,
+        chapterContainer,
+        chapterContainerLoading,
+        chapterContainerError,
+    } = useHandleMangaChapters(mediaId)
+
 
     // Keep track of chapter numbers as integers
     // This is used to filter the chapters
@@ -207,19 +199,19 @@ export function ChapterList(props: ChapterListProps) {
         resetRowSelection()
     }, [chapters])
 
-    if (providersLoading) return <LoadingSpinner />
+    if (providerExtensionsLoading) return <LoadingSpinner />
 
     return (
         <div
             className="space-y-2"
         >
 
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center">
                 <Select
                     fieldClass="w-fit"
                     options={providerOptions}
-                    value={provider}
-                    onValueChange={v => setProvider({
+                    value={selectedProvider}
+                    onValueChange={v => setSelectedProvider({
                         mId: mediaId,
                         provider: v,
                     })}
@@ -238,6 +230,16 @@ export function ChapterList(props: ChapterListProps) {
                 >
                     Reload sources
                 </Button>
+
+                <MangaManualMappingModal entry={entry}>
+                    <Button
+                        leftIcon={<IoLibrary />}
+                        intent="white-subtle"
+                        size="sm"
+                    >
+                        Manual mapping
+                    </Button>
+                </MangaManualMappingModal>
             </div>
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (

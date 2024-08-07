@@ -25515,6 +25515,48 @@
     ]
   },
   {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "MangaMapping",
+    "formattedName": "Models_MangaMapping",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaID",
+        "jsonName": "mangaId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID from search result, used to fetch chapters"
+        ]
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Activity",
@@ -33817,6 +33859,161 @@
     "comments": []
   },
   {
+    "filepath": "../internal/manga/chapter_container.go",
+    "filename": "chapter_container.go",
+    "name": "ChapterContainer",
+    "formattedName": "Manga_ChapterContainer",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Chapters",
+        "jsonName": "chapters",
+        "goType": "[]hibikemanga.ChapterDetails",
+        "typescriptType": "Array\u003cHibikeManga_ChapterDetails\u003e",
+        "usedStructName": "hibikemanga.ChapterDetails",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/chapter_container.go",
+    "filename": "chapter_container.go",
+    "name": "MappingResponse",
+    "formattedName": "Manga_MappingResponse",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MangaID",
+        "jsonName": "mangaId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/chapter_page_container.go",
+    "filename": "chapter_page_container.go",
+    "name": "PageContainer",
+    "formattedName": "Manga_PageContainer",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterId",
+        "jsonName": "chapterId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Pages",
+        "jsonName": "pages",
+        "goType": "[]hibikemanga.ChapterPage",
+        "typescriptType": "Array\u003cHibikeManga_ChapterPage\u003e",
+        "usedStructName": "hibikemanga.ChapterPage",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageDimensions",
+        "jsonName": "pageDimensions",
+        "goType": "map[int]PageDimension",
+        "typescriptType": "Record\u003cnumber, Manga_PageDimension\u003e",
+        "usedStructName": "manga.PageDimension",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Indexed by page number"
+        ]
+      },
+      {
+        "name": "IsDownloaded",
+        "jsonName": "isDownloaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " TODO remove"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/chapter_page_container.go",
+    "filename": "chapter_page_container.go",
+    "name": "PageDimension",
+    "formattedName": "Manga_PageDimension",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Height",
+        "jsonName": "height",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/manga/collection.go",
     "filename": "collection.go",
     "name": "CollectionStatusType",
@@ -36496,6 +36693,16 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -36563,140 +36770,14 @@
         "required": true,
         "public": true,
         "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/repository_actions.go",
-    "filename": "repository_actions.go",
-    "name": "ChapterContainer",
-    "formattedName": "Manga_ChapterContainer",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
       },
       {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Chapters",
-        "jsonName": "chapters",
-        "goType": "[]hibikemanga.ChapterDetails",
-        "typescriptType": "Array\u003cHibikeManga_ChapterDetails\u003e",
-        "usedStructName": "hibikemanga.ChapterDetails",
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/repository_actions.go",
-    "filename": "repository_actions.go",
-    "name": "PageContainer",
-    "formattedName": "Manga_PageContainer",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterId",
-        "jsonName": "chapterId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Pages",
-        "jsonName": "pages",
-        "goType": "[]hibikemanga.ChapterPage",
-        "typescriptType": "Array\u003cHibikeManga_ChapterPage\u003e",
-        "usedStructName": "hibikemanga.ChapterPage",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PageDimensions",
-        "jsonName": "pageDimensions",
-        "goType": "map[int]PageDimension",
-        "typescriptType": "Record\u003cnumber, Manga_PageDimension\u003e",
-        "usedStructName": "manga.PageDimension",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Indexed by page number"
-        ]
-      },
-      {
-        "name": "IsDownloaded",
-        "jsonName": "isDownloaded",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": [
-          " TODO remove"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/repository_actions.go",
-    "filename": "repository_actions.go",
-    "name": "PageDimension",
-    "formattedName": "Manga_PageDimension",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "Width",
-        "jsonName": "width",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Height",
-        "jsonName": "height",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
         "public": true,
         "comments": []
       }
@@ -41772,11 +41853,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platform/anilist.go",
+    "filepath": "../internal/platforms/anilist_platform/anilist.go",
     "filename": "anilist.go",
     "name": "AnilistPlatform",
     "formattedName": "AnilistPlatform",
-    "package": "platform",
+    "package": "anilist_platform",
     "fields": [
       {
         "name": "logger",
@@ -41865,11 +41946,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platform/local_platform.go",
+    "filepath": "../internal/platforms/local_platform/local_platform.go",
     "filename": "local_platform.go",
     "name": "LocalPlatform",
     "formattedName": "LocalPlatform",
-    "package": "platform",
+    "package": "local_platform",
     "fields": [
       {
         "name": "logger",
@@ -41952,7 +42033,7 @@
         "jsonName": "localDb",
         "goType": "LocalPlatformDatabase",
         "typescriptType": "LocalPlatformDatabase",
-        "usedStructName": "platform.LocalPlatformDatabase",
+        "usedStructName": "local_platform.LocalPlatformDatabase",
         "required": false,
         "public": false,
         "comments": []
@@ -41961,11 +42042,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platform/local_platform_database.go",
+    "filepath": "../internal/platforms/local_platform/local_platform_database.go",
     "filename": "local_platform_database.go",
     "name": "LocalPlatformDatabase",
     "formattedName": "LocalPlatformDatabase",
-    "package": "platform",
+    "package": "local_platform",
     "fields": [
       {
         "name": "gormdb",
@@ -41991,11 +42072,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platform/local_platform_models.go",
+    "filepath": "../internal/platforms/local_platform/local_platform_models.go",
     "filename": "local_platform_models.go",
     "name": "BaseModel",
     "formattedName": "BaseModel",
-    "package": "platform",
+    "package": "local_platform",
     "fields": [
       {
         "name": "ID",
@@ -42030,11 +42111,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platform/local_platform_models.go",
+    "filepath": "../internal/platforms/local_platform/local_platform_models.go",
     "filename": "local_platform_models.go",
     "name": "LocalCollection",
     "formattedName": "LocalCollection",
-    "package": "platform",
+    "package": "local_platform",
     "fields": [
       {
         "name": "Type",
@@ -42061,8 +42142,146 @@
     ],
     "comments": [],
     "embeddedStructNames": [
-      "platform.BaseModel"
+      "local_platform.BaseModel"
     ]
+  },
+  {
+    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "MediaSnapshot",
+    "formattedName": "MediaSnapshot",
+    "package": "local_platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeSnapshot",
+        "jsonName": "animeSnapshot",
+        "goType": "AnimeSnapshot",
+        "typescriptType": "AnimeSnapshot",
+        "usedStructName": "local_platform.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaSnapshot",
+        "jsonName": "mangaSnapshot",
+        "goType": "MangaSnapshot",
+        "typescriptType": "MangaSnapshot",
+        "usedStructName": "local_platform.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "ImageSnapshot",
+    "formattedName": "ImageSnapshot",
+    "package": "local_platform",
+    "fields": [
+      {
+        "name": "CoverImage",
+        "jsonName": "coverImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImage",
+        "jsonName": "bannerImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeImages",
+        "jsonName": "episodeImages",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Local filepath to image file"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "AnimeSnapshot",
+    "formattedName": "AnimeSnapshot",
+    "package": "local_platform",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "anime.AnimeEntry",
+        "typescriptType": "Anime_AnimeEntry",
+        "usedStructName": "anime.AnimeEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Images",
+        "jsonName": "images",
+        "goType": "ImageSnapshot",
+        "typescriptType": "ImageSnapshot",
+        "usedStructName": "local_platform.ImageSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
+    "filename": "local_platform_save.go",
+    "name": "MangaSnapshot",
+    "formattedName": "MangaSnapshot",
+    "package": "local_platform",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "manga.Entry",
+        "typescriptType": "Manga_Entry",
+        "usedStructName": "manga.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Images",
+        "jsonName": "images",
+        "goType": "ImageSnapshot",
+        "typescriptType": "ImageSnapshot",
+        "usedStructName": "local_platform.ImageSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/test_utils/data.go",

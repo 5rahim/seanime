@@ -7,8 +7,8 @@ import { Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
 import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hooks"
 
 import { useSetCurrentChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
-import { useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
 import { MangaDownloadChapterItem, useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
+import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { Button, IconButton } from "@/components/ui/button"
@@ -34,7 +34,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         ...rest
     } = props
 
-    const { provider, setProvider } = useMangaProvider(entry.mediaId)
+    const { selectedProvider } = useSelectedMangaProvider(entry.mediaId)
 
     /**
      * Set selected chapter
@@ -43,7 +43,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
     const [showQueued, setShowQueued] = React.useState(false)
 
-    const { mutate: deleteChapters, isPending: isDeletingChapter } = useDeleteMangaDownloadedChapters(String(entry.mediaId), provider)
+    const { mutate: deleteChapters, isPending: isDeletingChapter } = useDeleteMangaDownloadedChapters(String(entry.mediaId), selectedProvider)
 
     const downloadedOrQueuedChapters = useMangaEntryDownloadedChapters()
 

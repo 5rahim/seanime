@@ -142,7 +142,7 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mangaDetailsCache.SetT(id, details, time.Hour)
+	mangaDetailsCache.SetT(id, details, 1*time.Hour)
 
 	return c.RespondWithData(details)
 }
@@ -202,6 +202,7 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 			return c.RespondWithError(err)
 		}
 		titles = baseManga.GetAllTitles()
+		baseMangaCache.SetT(b.MediaId, baseManga, 24*time.Hour)
 	} else {
 		titles = baseManga.GetAllTitles()
 	}
@@ -362,6 +363,112 @@ func HandleUpdateMangaProgress(c *RouteCtx) error {
 	}
 
 	_, _ = c.App.RefreshMangaCollection() // Refresh the AniList collection
+
+	return c.RespondWithData(true)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleMangaManualSearch
+//
+//	@summary returns search results for a manual search.
+//	@desc Returns search results for a manual search.
+//	@route /api/v1/manga/search [POST]
+//	@returns []vendor_hibike_manga.SearchResult
+func HandleMangaManualSearch(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		Query    string `json:"query"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret, err := c.App.MangaRepository.ManualSearch(b.Provider, b.Query)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(ret)
+}
+
+// HandleMangaManualMapping
+//
+//	@summary manually maps a manga entry to a manga ID from the provider.
+//	@desc This is used to manually map a manga entry to a manga ID from the provider.
+//	@desc The client should re-fetch the chapter container after this.
+//	@route /api/v1/manga/manual-mapping [POST]
+//	@returns bool
+func HandleMangaManualMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+		MangaId  string `json:"mangaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.MangaRepository.ManualMapping(b.Provider, b.MediaId, b.MangaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandleGetMangaMapping
+//
+//	@summary returns the mapping for a manga entry.
+//	@desc This is used to get the mapping for a manga entry.
+//	@desc An empty string is returned if there's no manual mapping. If there is, the manga ID will be returned.
+//	@route /api/v1/manga/get-mapping [POST]
+//	@returns manga.MappingResponse
+func HandleGetMangaMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	mapping := c.App.MangaRepository.GetMapping(b.Provider, b.MediaId)
+	return c.RespondWithData(mapping)
+}
+
+// HandleRemoveMangaMapping
+//
+//	@summary removes the mapping for a manga entry.
+//	@desc This is used to remove the mapping for a manga entry.
+//	@desc The client should re-fetch the chapter container after this.
+//	@route /api/v1/manga/remove-mapping [POST]
+//	@returns bool
+func HandleRemoveMangaMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.MangaRepository.RemoveMapping(b.Provider, b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
 	return c.RespondWithData(true)
 }

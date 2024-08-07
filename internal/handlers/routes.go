@@ -324,6 +324,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Delete("/download-queue", makeHandler(app, HandleClearAllChapterDownloadQueue))
 	v1Manga.Post("/download-queue/reset-errored", makeHandler(app, HandleResetErroredChapterDownloadQueue))
 
+	v1Manga.Post("/search", makeHandler(app, HandleMangaManualSearch))
+	v1Manga.Post("/manual-mapping", makeHandler(app, HandleMangaManualMapping))
+	v1Manga.Post("/get-mapping", makeHandler(app, HandleGetMangaMapping))
+	v1Manga.Post("/remove-mapping", makeHandler(app, HandleRemoveMangaMapping))
+
 	//
 	// File Cache
 	//

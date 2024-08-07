@@ -670,6 +670,55 @@ export type UpdateMangaProgress_Variables = {
     totalChapters: number
 }
 
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/search
+ * @description
+ * Route returns search results for a manual search.
+ */
+export type MangaManualSearch_Variables = {
+    provider: string
+    query: string
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/manual-mapping
+ * @description
+ * Route manually maps a manga entry to a manga ID from the provider.
+ */
+export type MangaManualMapping_Variables = {
+    provider: string
+    mediaId: number
+    mangaId: string
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/get-mapping
+ * @description
+ * Route returns the mapping for a manga entry.
+ */
+export type GetMangaMapping_Variables = {
+    provider: string
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/remove-mapping
+ * @description
+ * Route removes the mapping for a manga entry.
+ */
+export type RemoveMangaMapping_Variables = {
+    provider: string
+    mediaId: number
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // manga_download
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

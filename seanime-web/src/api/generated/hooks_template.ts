@@ -811,6 +811,50 @@
 //     })
 // }
 
+// export function useMangaManualSearch() {
+//     return useServerMutation<Array<HibikeManga_SearchResult>, MangaManualSearch_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA.MangaManualSearch.endpoint,
+//         method: API_ENDPOINTS.MANGA.MangaManualSearch.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA.MangaManualSearch.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useMangaManualMapping() {
+//     return useServerMutation<boolean, MangaManualMapping_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA.MangaManualMapping.endpoint,
+//         method: API_ENDPOINTS.MANGA.MangaManualMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA.MangaManualMapping.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetMangaMapping() {
+//     return useServerMutation<Manga_MappingResponse, GetMangaMapping_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA.GetMangaMapping.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetMangaMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA.GetMangaMapping.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useRemoveMangaMapping() {
+//     return useServerMutation<boolean, RemoveMangaMapping_Variables>({
+//         endpoint: API_ENDPOINTS.MANGA.RemoveMangaMapping.endpoint,
+//         method: API_ENDPOINTS.MANGA.RemoveMangaMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.MANGA.RemoveMangaMapping.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // manga_download
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

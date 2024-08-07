@@ -29,16 +29,16 @@ export const __manga_setEntryProviderAtom = atom(null, (get, set, payload: { mId
  * - Get the manga provider for a specific manga entry
  * - Set the manga provider for a specific manga entry
  */
-export function useMangaProvider(mId: Nullish<string | number>) {
+export function useSelectedMangaProvider(mId: Nullish<string | number>) {
     const [_, getProvider] = useAtom(__manga_getEntryProviderAtom)
-    const provider = React.useMemo(() => {
+    const selectedProvider = React.useMemo(() => {
         return getProvider(mId)
     }, [mId, _])
 
-    const setProvider = useSetAtom(__manga_setEntryProviderAtom)
+    const setSelectedProvider = useSetAtom(__manga_setEntryProviderAtom)
 
     return {
-        provider,
-        setProvider,
+        selectedProvider,
+        setSelectedProvider,
     }
 }

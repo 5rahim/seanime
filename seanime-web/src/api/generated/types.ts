@@ -1849,8 +1849,8 @@ export type Status = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/manga/repository_actions.go
- * - Filename: repository_actions.go
+ * - Filepath: internal/manga/chapter_container.go
+ * - Filename: chapter_container.go
  * - Package: manga
  */
 export type Manga_ChapterContainer = {
@@ -1929,6 +1929,15 @@ export type Manga_EntryListData = {
 }
 
 /**
+ * - Filepath: internal/manga/chapter_container.go
+ * - Filename: chapter_container.go
+ * - Package: manga
+ */
+export type Manga_MappingResponse = {
+    mangaId?: string
+}
+
+/**
  * - Filepath: internal/manga/manga_downloader.go
  * - Filename: manga_downloader.go
  * - Package: manga
@@ -1939,8 +1948,8 @@ export type Manga_MediaDownloadData = {
 }
 
 /**
- * - Filepath: internal/manga/repository_actions.go
- * - Filename: repository_actions.go
+ * - Filepath: internal/manga/chapter_page_container.go
+ * - Filename: chapter_page_container.go
  * - Package: manga
  */
 export type Manga_PageContainer = {
@@ -1959,8 +1968,8 @@ export type Manga_PageContainer = {
 }
 
 /**
- * - Filepath: internal/manga/repository_actions.go
- * - Filename: repository_actions.go
+ * - Filepath: internal/manga/chapter_page_container.go
+ * - Filename: chapter_page_container.go
  * - Package: manga
  */
 export type Manga_PageDimension = {
@@ -2753,6 +2762,21 @@ export type HibikeManga_ChapterPage = {
     url: string
     index: number
     headers?: Record<string, string>
+}
+
+/**
+ * - Filepath: internal/extension/vendoring/manga/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_manga
+ */
+export type HibikeManga_SearchResult = {
+    provider: string
+    id: string
+    title: string
+    synonyms?: Array<string>
+    year?: number
+    image?: string
+    searchRating?: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

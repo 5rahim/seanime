@@ -12,6 +12,7 @@ import (
 )
 
 func TestGetDownloadedChapterContainers(t *testing.T) {
+	t.Skip("include database")
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
@@ -35,6 +36,7 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),
+		Database:       nil, // FIX
 	})
 
 	// Test

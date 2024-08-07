@@ -2,6 +2,7 @@ package manga
 
 import (
 	"bytes"
+	"errors"
 	"github.com/rs/zerolog"
 	_ "golang.org/x/image/bmp"  // Register BMP format
 	_ "golang.org/x/image/tiff" // Register Tiff format
@@ -10,6 +11,7 @@ import (
 	_ "image/jpeg" // Register JPEG format
 	_ "image/png"  // Register PNG format
 	"net/http"
+	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util/filecache"
@@ -17,6 +19,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+)
+
+var (
+	ErrNoResults            = errors.New("no results found for this media")
+	ErrNoChapters           = errors.New("no manga chapters found")
+	ErrChapterNotFound      = errors.New("chapter not found")
+	ErrChapterNotDownloaded = errors.New("chapter not downloaded")
+	ErrNoTitlesProvided     = errors.New("no titles provided")
 )
 
 type (
@@ -28,6 +38,7 @@ type (
 		wsEventManager        events.WSEventManagerInterface
 		mu                    sync.Mutex
 		downloadDir           string
+		db                    *db.Database
 	}
 
 	NewRepositoryOptions struct {
@@ -37,6 +48,7 @@ type (
 		ServerURI      string
 		WsEventManager events.WSEventManagerInterface
 		DownloadDir    string
+		Database       *db.Database
 	}
 )
 
@@ -48,6 +60,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		wsEventManager:        opts.WsEventManager,
 		downloadDir:           opts.DownloadDir,
 		providerExtensionBank: extension.NewUnifiedBank(),
+		db:                    opts.Database,
 	}
 	return r
 }
@@ -93,8 +106,6 @@ func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 	return
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Backups
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func getImageNaturalSize(url string) (int, int, error) {

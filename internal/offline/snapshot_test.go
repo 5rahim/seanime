@@ -42,6 +42,7 @@ func getHub(t *testing.T) *Hub {
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),
+		Database:       db,
 	})
 
 	offlineHub := NewHub(&NewHubOptions{

@@ -160,7 +160,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Online Stream
-	onlineStream := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
+	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
 		Logger:      logger,
 		FileCacher:  fileCacher,
 		AnizipCache: anizipCache,
@@ -181,6 +181,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		ServerURI:      cfg.GetServerURI(),
 		WsEventManager: wsEventManager,
 		DownloadDir:    cfg.Manga.DownloadDir,
+		Database:       database,
 	})
 
 	// Extension Repository
@@ -201,7 +202,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Version:                 constants.Version,
 		Updater:                 updater.New(constants.Version, logger),
 		FileCacher:              fileCacher,
-		OnlinestreamRepository:  onlineStream,
+		OnlinestreamRepository:  onlinestreamRepository,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
 		ExtensionRepository:     extensionRepository,

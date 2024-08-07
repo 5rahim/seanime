@@ -84,6 +84,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.TorrentstreamSettings{},
 		&models.MediastreamSettings{},
 		&models.MediaFiller{},
+		&models.MangaMapping{},
 	)
 	if err != nil {
 

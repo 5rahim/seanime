@@ -281,3 +281,14 @@ type MediaFiller struct {
 	LastFetchedAt time.Time `gorm:"column:last_fetched_at" json:"lastFetchedAt"`
 	Data          []byte    `gorm:"column:data" json:"data"`
 }
+
+// +---------------------+
+// |        Manga        |
+// +---------------------+
+
+type MangaMapping struct {
+	BaseModel
+	Provider string `gorm:"column:provider" json:"provider"`
+	MediaID  int    `gorm:"column:media_id" json:"mediaId"`
+	MangaID  string `gorm:"column:manga_id" json:"mangaId"` // ID from search result, used to fetch chapters
+}

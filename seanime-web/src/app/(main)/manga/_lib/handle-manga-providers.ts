@@ -1,9 +1,9 @@
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
-import { __manga_entryProviderAtom } from "@/app/(main)/manga/_lib/handle-manga"
+import { __manga_entryProviderAtom } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { useAtom } from "jotai/react"
 import React from "react"
 
-export function useHandleMangaProviders(mId: string | null) {
+export function useHandleMangaProviderExtensions(mId: string | null) {
 
     const { data: providerExtensions, isLoading: providersLoading } = useListMangaProviderExtensions()
 
@@ -28,8 +28,8 @@ export function useHandleMangaProviders(mId: string | null) {
     }, [providerExtensions, selectedProvider, mId])
 
     return {
-        providers: providerExtensions ?? [],
-        providersLoading,
+        providerExtensions: providerExtensions,
+        providerExtensionsLoading: providersLoading,
         providerOptions: (providerExtensions ?? []).map(provider => ({
             label: provider.name,
             value: provider.id,

@@ -338,6 +338,7 @@ func (d *Downloader) refreshMediaMap() {
 		d.logger.Error().Err(err).Msg("manga downloader: Failed to read download directory")
 	}
 
+	// Hydrate MediaMap by going through all chapter directories
 	mu := sync.Mutex{}
 	wg := sync.WaitGroup{}
 	for _, file := range files {
@@ -346,6 +347,7 @@ func (d *Downloader) refreshMediaMap() {
 			defer wg.Done()
 
 			if file.IsDir() {
+				// e.g. comick_1234_abc_13.5
 				parts := strings.SplitN(file.Name(), "_", 4)
 				if len(parts) != 4 {
 					return
@@ -361,27 +363,19 @@ func (d *Downloader) refreshMediaMap() {
 				}
 
 				mu.Lock()
+				newMapInfo := ProviderDownloadMapChapterInfo{
+					ChapterID:     chapterID,
+					ChapterNumber: chapterNumber,
+				}
+
 				if _, ok := ret[mediaID]; !ok {
 					ret[mediaID] = make(map[string][]ProviderDownloadMapChapterInfo)
-					ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{
-						{
-							ChapterID:     chapterID,
-							ChapterNumber: chapterNumber,
-						},
-					}
+					ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
 				} else {
 					if _, ok := ret[mediaID][provider]; !ok {
-						ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{
-							{
-								ChapterID:     chapterID,
-								ChapterNumber: chapterNumber,
-							},
-						}
+						ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
 					} else {
-						ret[mediaID][provider] = append(ret[mediaID][provider], ProviderDownloadMapChapterInfo{
-							ChapterID:     chapterID,
-							ChapterNumber: chapterNumber,
-						})
+						ret[mediaID][provider] = append(ret[mediaID][provider], newMapInfo)
 					}
 				}
 				mu.Unlock()
