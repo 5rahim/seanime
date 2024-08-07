@@ -109,23 +109,17 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     {/*LEFT MASK*/}
                     <div
                         className={cn(
-                            "hidden lg:block max-w-[70rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] transition-opacity via-opacity-80 via-5% to-transparent",
-                            "opacity-100 duration-1000",
+                            "hidden lg:block max-w-[60rem] xl:max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background]  transition-opacity to-transparent",
+                            "opacity-85 duration-1000",
                             // y > 300 && "opacity-70",
                         )}
                     />
                     <div
                         className={cn(
-                            "hidden lg:block max-w-[70rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
-                            "opacity-30 duration-500",
+                            "hidden lg:block max-w-[60rem] xl:max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-25% transition-opacity to-transparent",
+                            "opacity-50 duration-500",
                         )}
                     />
-                    {/*<div*/}
-                    {/*    className={cn(*/}
-                    {/*        "hidden lg:block max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",*/}
-                    {/*        "opacity-0 lg:group-hover/media-page-header:opacity-30 duration-500",*/}
-                    {/*    )}*/}
-                    {/*/>*/}
                 </div>
 
                 {/*BOTTOM FADE*/}
@@ -309,7 +303,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                     <ScrollArea
                         className={cn(
-                            "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] hover:text-[--foreground] transition-colors duration-500 text-sm pr-2",
+                            "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] hover:text-white transition-colors duration-500 text-sm pr-2",
                             "bg-transparent hover:bg-zinc-950/30 rounded-md",
                         )}
                     >

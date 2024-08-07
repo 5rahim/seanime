@@ -10,6 +10,7 @@ import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip } from "@/components/ui/tooltip"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import React from "react"
@@ -142,8 +143,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                     <div
                                         key={item.id}
                                         className={cn(
-                                            "col-span-1 aspect-[6/7] rounded-md overflow-hidden relative bg-[--background] cursor-pointer transition-opacity",
-                                            "hover:-translate-y-1 transition-transform",
+                                            "group/sr-item col-span-1 aspect-[6/7] rounded-md relative bg-[--background] cursor-pointer transition-opacity",
                                         )}
                                         onClick={() => {
                                             setMangaId(item.id)
@@ -160,17 +160,24 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                             fill
                                             alt=""
                                             className={cn(
-                                                "object-center object-cover rounded-md transition-opacity",
+                                                "object-center object-cover lg:opacity-50 rounded-md transition-opacity lg:group-hover/sr-item:opacity-100",
                                             )}
                                         />}
                                         {/*<Badge intent="gray-solid" size="sm" className="absolute text-sm top-1 left-1">*/}
                                         {/*    {item.id}*/}
                                         {/*</Badge>*/}
-                                        <p className="line-clamp-2 text-sm absolute m-2 bottom-0 font-semibold z-[10]">
+                                        <Tooltip
+                                            trigger={<p className="line-clamp-2 text-sm absolute m-2 bottom-0 font-semibold z-[10]">
                                             {item.title} {item.year && `(${item.year})`}
-                                        </p>
+                                            </p>}
+                                            className="z-[10]"
+                                        >
+                                            <p>
+                                                {item.title} {item.year && `(${item.year})`}
+                                            </p>
+                                        </Tooltip>
                                         <div
-                                            className="z-[5] absolute bottom-[-2px] w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
+                                            className="z-[5] absolute rounded-br-md rounded-bl-md bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
                                         />
                                         {/*<div*/}
                                         {/*    className={cn(*/}
