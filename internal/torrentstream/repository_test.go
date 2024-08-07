@@ -12,7 +12,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/offline"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -35,7 +35,7 @@ func TestTorrentstream(t *testing.T) {
 	}
 	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)

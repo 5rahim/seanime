@@ -1,4 +1,4 @@
-package platform
+package anilist_platform
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
 	"time"
@@ -26,7 +27,7 @@ type (
 	}
 )
 
-func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) Platform {
+func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) platform.Platform {
 	ap := &AnilistPlatform{
 		anilistClient:      anilistClient,
 		logger:             logger,

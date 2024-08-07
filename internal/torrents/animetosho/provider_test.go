@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"strconv"
@@ -17,7 +17,7 @@ func TestSmartSearch(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
 	toshoPlatform := NewProvider(util.NewLogger())
 

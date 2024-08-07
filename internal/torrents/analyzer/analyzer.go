@@ -9,7 +9,7 @@ import (
 	"seanime/internal/api/anizip"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 )

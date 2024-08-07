@@ -4,7 +4,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -16,7 +16,7 @@ func TestScanner_Scan(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 

@@ -7,7 +7,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/extension"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"

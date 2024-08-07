@@ -3,7 +3,7 @@ package torrent_analyzer
 import (
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -15,7 +15,7 @@ func TestSelectFilesFromSeason(t *testing.T) {
 
 	logger := util.NewLogger()
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	tests := []struct {
 		name            string

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/analyzer"
 	"time"
 

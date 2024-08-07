@@ -6,7 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -18,7 +18,7 @@ func TestNewLibraryCollection(t *testing.T) {
 	metadataProvider := metadata.TestGetMockProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 

@@ -27,7 +27,8 @@ import (
 	"seanime/internal/mediastream"
 	"seanime/internal/offline"
 	"seanime/internal/onlinestream"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
@@ -147,7 +148,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	wsEventManager := events.NewWSEventManager(logger)
 
 	// Anilist Platform
-	anilistPlatform := platform.NewAnilistPlatform(anilistCW, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 
 	// AniZip Cache
 	anizipCache := anizip.NewCache()

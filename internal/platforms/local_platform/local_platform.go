@@ -1,9 +1,10 @@
-package platform
+package local_platform
 
 import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
+	"seanime/internal/platforms/platform"
 	"sync"
 )
 
@@ -19,7 +20,7 @@ type LocalPlatform struct {
 	localDb            *LocalPlatformDatabase
 }
 
-func NewLocalPlatform(dataDir string, anilistClient anilist.AnilistClient, logger *zerolog.Logger) (Platform, error) {
+func NewLocalPlatform(dataDir string, anilistClient anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
 
 	localDb, err := newLocalPlatformDatabase(dataDir, "local", logger)
 	if err != nil {

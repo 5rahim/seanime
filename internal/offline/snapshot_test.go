@@ -7,7 +7,7 @@ import (
 	db2 "seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/manga"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -27,7 +27,7 @@ func getHub(t *testing.T) *Hub {
 	}
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
 		Logger:     logger,

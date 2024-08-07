@@ -13,7 +13,7 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/offline"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"sync"
 )
 

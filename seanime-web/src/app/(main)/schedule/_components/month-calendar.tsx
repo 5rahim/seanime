@@ -107,12 +107,12 @@ export function MonthCalendar(props: WeekCalendarProps) {
     return (
         <>
             <div className="hidden lg:flex lg:h-full lg:flex-col rounded-md border">
-                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none border-b bg-[--background]">
+                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none rounded-tr-md rounded-tl-md border-b bg-[--background]">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
-                            "text-lg font-semibold text-gray-100 text-center w-[200px]",
-                            isSameMonth(currentDate, new Date()) && "text-brand-200",
+                            "text-lg font-semibold text-[--muted] text-center w-[200px]",
+                            isSameMonth(currentDate, new Date()) && "text-gray-100",
                         )}
                     >
                         <time dateTime={format(currentDate, "yyyy-MM")}>
@@ -121,7 +121,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                     </h1>
                     <IconButton icon={<AiOutlineArrowRight />} onClick={goToNextMonth} rounded intent="gray-outline" size="sm" />
                 </header>
-                <div className="lg:flex lg:flex-auto lg:flex-col">
+                <div className="lg:flex lg:flex-auto lg:flex-col rounded-br-md rounded-bl-md">
                     <div className="grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 lg:flex-none">
                         <div className="py-2">
                             M<span className="sr-only sm:not-sr-only">on</span>

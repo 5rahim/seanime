@@ -3,7 +3,7 @@ package manga
 import (
 	"github.com/rs/zerolog"
 	"seanime/internal/api/anilist"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
 )
 

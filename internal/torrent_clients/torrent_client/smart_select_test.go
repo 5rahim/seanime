@@ -3,7 +3,7 @@ package torrent_client
 import (
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -16,7 +16,7 @@ func TestSmartSelect(t *testing.T) {
 	_ = t.TempDir()
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	_ = platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	_ = anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
 	// get repo
 

@@ -19,6 +19,7 @@ type Config struct {
 		Port          int
 		Offline       bool
 		UseBinaryPath bool // Makes $SEANIME_WORKING_DIR point to the binary's directory
+		Systray       bool
 	}
 	Database struct {
 		Name string
@@ -105,6 +106,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("server.offline", false)
 	// Use the binary's directory as the working directory environment variable on macOS
 	viper.SetDefault("server.useBinaryPath", true)
+	//viper.SetDefault("server.systray", true)
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")

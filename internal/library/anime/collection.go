@@ -8,7 +8,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"slices"
 	"sort"

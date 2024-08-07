@@ -9,7 +9,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/manga"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/image_downloader"

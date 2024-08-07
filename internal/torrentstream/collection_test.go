@@ -9,7 +9,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -25,7 +25,7 @@ func TestStreamCollection(t *testing.T) {
 	require.NoError(t, err)
 	metadataProvider := metadata.TestGetMockProvider(t)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)

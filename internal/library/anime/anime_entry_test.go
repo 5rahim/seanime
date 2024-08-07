@@ -6,7 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -70,7 +70,7 @@ func TestNewAnimeEntry(t *testing.T) {
 	}
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)

@@ -1,4 +1,4 @@
-package platform
+package local_platform
 
 import (
 	"github.com/goccy/go-json"

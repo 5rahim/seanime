@@ -10,7 +10,7 @@ import (
 	"seanime/internal/api/anizip"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"seanime/internal/util/limiter"

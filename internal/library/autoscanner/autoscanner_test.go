@@ -3,7 +3,7 @@ package autoscanner
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -17,7 +17,7 @@ func TestAutoScanner(t *testing.T) {
 
 	logger := util.NewLogger()
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := platform.NewAnilistPlatform(anilistClient, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	as := New(&NewAutoScannerOptions{
 		Database:       nil,

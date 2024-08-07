@@ -10,7 +10,7 @@ import (
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
 	"seanime/internal/notifier"
-	"seanime/internal/platform"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"sync"
 	"time"
