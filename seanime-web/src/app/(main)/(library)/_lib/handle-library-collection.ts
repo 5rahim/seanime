@@ -38,7 +38,7 @@ export function useHandleLibraryCollection() {
         const allGenres = data?.lists?.flatMap(l => {
             return l.entries?.flatMap(e => e.media?.genres) ?? []
         })
-        return [...new Set(allGenres)].filter(Boolean)
+        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
     }, [data])
 
     const [params, setParams] = useAtom(__mainLibrary_paramsAtom)
@@ -129,7 +129,7 @@ export function useHandleLibraryCollection() {
             return list.filter(entry => entry.baseAnime?.isAdult === false)
         }
 
-        return list?.toSorted((a, b) => b.episodeNumber - a.episodeNumber)
+        return list?.sort((a, b) => b.episodeNumber - a.episodeNumber)?.sort((a, b) => a.displayTitle?.localeCompare(b.displayTitle))
     }, [
         data?.stream,
         data?.continueWatchingList,

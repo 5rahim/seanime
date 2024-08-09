@@ -21,10 +21,14 @@ type CollectionSorting =
     | "RELEASE_DATE_DESC"
     | "PROGRESS"
     | "PROGRESS_DESC"
+    | "TITLE"
+    | "TITLE_DESC"
 
 export const COLLECTION_SORTING_OPTIONS = [
     { label: "Highest score", value: "SCORE_DESC" },
     { label: "Lowest score", value: "SCORE" },
+    { label: "Title", value: "TITLE" },
+    { label: "Title (Z-A)", value: "TITLE_DESC" },
     { label: "Highest progress", value: "PROGRESS_DESC" },
     { label: "Lowest progress", value: "PROGRESS" },
     { label: "Started recently", value: "START_DATE_DESC" },
@@ -114,8 +118,14 @@ export function filterListEntries<T extends AL_MangaCollection_MediaListCollecti
         })
     }
 
-    // Sort by name
+    // Initial sort by name
     arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+
+    // Sort by title
+    if (getParamValue(params.sorting) === "TITLE")
+        arr = sortBy(arr, n => n?.media?.title?.userPreferred)
+    if (getParamValue(params.sorting) === "TITLE_DESC")
+        arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
 
     // Sort by release date
     if (getParamValue(params.sorting) === "RELEASE_DATE" || getParamValue(params.sorting) === "RELEASE_DATE_DESC") {
@@ -192,8 +202,14 @@ export function filterCollectionEntries<T extends Anime_LibraryCollectionEntry[]
         })
     }
 
-    // Sort by name
+    // Initial sort by name
     arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
+
+    // Sort by title
+    if (getParamValue(params.sorting) === "TITLE")
+        arr = sortBy(arr, n => n?.media?.title?.userPreferred)
+    if (getParamValue(params.sorting) === "TITLE_DESC")
+        arr = sortBy(arr, n => n?.media?.title?.userPreferred).reverse()
 
     // Sort by release date
     if (getParamValue(params.sorting) === "RELEASE_DATE" || getParamValue(params.sorting) === "RELEASE_DATE_DESC") {
