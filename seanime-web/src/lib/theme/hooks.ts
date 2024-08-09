@@ -23,6 +23,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     enableMediaPageBlurredBackground: false,
     disableSidebarTransparency: false,
     useLegacyEpisodeCard: false,
+    disableCarouselAutoScroll: false,
 }
 
 export const enum ThemeLibraryScreenBannerType {
@@ -61,6 +62,7 @@ export function useThemeSettings(): ThemeSettingsHook {
         enableMediaPageBlurredBackground: getThemeValue("enableMediaPageBlurredBackground", serverStatus?.themeSettings),
         disableSidebarTransparency: getThemeValue("disableSidebarTransparency", serverStatus?.themeSettings),
         useLegacyEpisodeCard: getThemeValue("useLegacyEpisodeCard", serverStatus?.themeSettings),
+        disableCarouselAutoScroll: getThemeValue("disableCarouselAutoScroll", serverStatus?.themeSettings),
 
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
     }

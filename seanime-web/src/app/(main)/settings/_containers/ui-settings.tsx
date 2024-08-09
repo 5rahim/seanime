@@ -33,6 +33,7 @@ const themeSchema = defineSchema(({ z }) => z.object({
     disableSidebarTransparency: z.boolean().default(THEME_DEFAULT_VALUES.disableSidebarTransparency),
     disableLibraryScreenGenreSelector: z.boolean().default(false),
     useLegacyEpisodeCard: z.boolean().default(THEME_DEFAULT_VALUES.useLegacyEpisodeCard),
+    disableCarouselAutoScroll: z.boolean().default(THEME_DEFAULT_VALUES.disableCarouselAutoScroll),
 }))
 
 
@@ -90,6 +91,7 @@ export function UISettings() {
                 enableMediaPageBlurredBackground: themeSettings?.enableMediaPageBlurredBackground,
                 disableSidebarTransparency: themeSettings?.disableSidebarTransparency,
                 useLegacyEpisodeCard: themeSettings?.useLegacyEpisodeCard,
+                disableCarouselAutoScroll: themeSettings?.disableCarouselAutoScroll,
             }}
             stackClass="space-y-4"
         >
@@ -249,6 +251,20 @@ export function UISettings() {
                         name="enableMediaCardBlurredBackground"
                     />
 
+                    <br />
+
+                    <h3>Carousel</h3>
+
+                    <Field.Switch
+                        label="Disable auto-scroll"
+                        name="disableCarouselAutoScroll"
+                    />
+
+                    <Field.Switch
+                        label="Smaller episode cards"
+                        name="smallerEpisodeCarouselSize"
+                    />
+
                     <Separator className="!mt-10" />
 
                     <br />
@@ -285,11 +301,6 @@ export function UISettings() {
                             "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
                         )}
                         help={f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && "Use the banner image on all library screens."}
-                    />
-
-                    <Field.Switch
-                        label="Smaller episode cards"
-                        name="smallerEpisodeCarouselSize"
                     />
 
                     <Field.Switch

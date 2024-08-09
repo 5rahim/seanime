@@ -129,7 +129,7 @@ export function useHandleLibraryCollection() {
             return list.filter(entry => entry.baseAnime?.isAdult === false)
         }
 
-        return list?.sort((a, b) => b.episodeNumber - a.episodeNumber)
+        return list?.toSorted((a, b) => b.episodeNumber - a.episodeNumber)
     }, [
         data?.stream,
         data?.continueWatchingList,

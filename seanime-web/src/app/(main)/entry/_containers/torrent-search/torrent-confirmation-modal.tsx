@@ -111,7 +111,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     function handleDownloadFiles() {
         downloadTorrentFiles({
-            download_urls: selectedTorrents.map(n => n.link),
+            download_urls: selectedTorrents.map(n => n.downloadUrl),
             destination,
             media,
         })
@@ -172,7 +172,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 ))}
                 <div className="!mt-4 flex w-full justify-between gap-2 items-center">
                     <div>
-                        {!selectedTorrents?.some(t => t.provider === "seadex") && <Button
+                        {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
                             leftIcon={<BiDownload />}
                             intent="gray-outline"
                             onClick={() => handleDownloadFiles()}

@@ -143,12 +143,18 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         ...rest
     } = props
 
+    const ts = useThemeSettings()
+
     const _plugins = React.useMemo(() => {
         return [
             ...(plugins || []),
-            ...(autoScroll ? [AutoScroll({ delay: autoScrollDelay, stopOnMouseEnter: true, stopOnInteraction: false })] : []),
+            ...((autoScroll && !ts.disableCarouselAutoScroll) ? [AutoScroll({
+                delay: autoScrollDelay,
+                stopOnMouseEnter: true,
+                stopOnInteraction: false,
+            })] : []),
         ]
-    }, [plugins, autoScroll])
+    }, [plugins, autoScroll, ts.disableCarouselAutoScroll])
 
     const [carouselRef, api] = useEmblaCarousel({ ...opts, axis: orientation === "horizontal" ? "x" : "y" }, _plugins)
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)

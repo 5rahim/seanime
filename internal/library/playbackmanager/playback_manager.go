@@ -14,6 +14,7 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/offline"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"sync"
 )
 
@@ -212,7 +213,9 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	return nil
 }
 
-func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) error {
+func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartStreamingUsingMediaPlayer", &err)
+
 	pm.playlistHub.reset()
 	if pm.isOffline {
 		return errors.New("cannot stream when offline")
@@ -244,7 +247,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 		}
 	}
 
-	err := pm.MediaPlayerRepository.Stream(opts.Payload)
+	err = pm.MediaPlayerRepository.Stream(opts.Payload)
 	if err != nil {
 		return err
 	}
@@ -258,7 +261,9 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 //   - Called when the user clicks on the "Next" button in the client
 //   - Should not be called when the user is watching a playlist
 //   - Should not be called when no next episode is available
-func (pm *PlaybackManager) PlayNextEpisode() error {
+func (pm *PlaybackManager) PlayNextEpisode() (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/PlayNextEpisode", &err)
+
 	switch pm.currentPlaybackType {
 	case LocalFilePlayback:
 		if pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() || pm.currentLocalFileWrapperEntry.IsAbsent() {
@@ -305,7 +310,9 @@ func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 
 // StartPlaylist starts a playlist.
 // This action is triggered by the client.
-func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
+func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartPlaylist", &err)
+
 	pm.playlistHub.loadPlaylist(playlist)
 
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
@@ -314,7 +321,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 	// Play the first video in the playlist
 	firstVidPath := playlist.LocalFiles[0].Path
-	err := pm.MediaPlayerRepository.Play(firstVidPath)
+	err = pm.MediaPlayerRepository.Play(firstVidPath)
 	if err != nil {
 		return err
 	}
@@ -381,7 +388,9 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (pm *PlaybackManager) checkOrLoadAnimeCollection() error {
+func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/checkOrLoadAnimeCollection", &err)
+
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
 	if pm.isOffline && pm.animeCollection.IsAbsent() {

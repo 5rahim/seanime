@@ -18,10 +18,11 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { useSetAtom } from "jotai/react"
 import React from "react"
-import { FaDownload, FaRedo } from "react-icons/fa"
+import { FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
 import { HiOutlineSearchCircle } from "react-icons/hi"
 import { IoBookOutline, IoLibrary } from "react-icons/io5"
+import { MdOutlineDownloadForOffline, MdOutlineOfflinePin } from "react-icons/md"
 
 type ChapterListProps = {
     mediaId: string | null
@@ -145,10 +146,10 @@ export function ChapterList(props: ChapterListProps) {
                             size="sm"
                             disabled={isSendingDownloadRequest}
                             onClick={() => downloadChapters([row.original])}
-                            icon={<FaDownload className="text-sm" />}
+                            icon={<MdOutlineDownloadForOffline className="text-2xl" />}
                         />}
                         {isChapterQueued(row.original) && <p className="text-[--muted]">Queued</p>}
-                        {isChapterDownloaded(row.original) && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
+                        {isChapterDownloaded(row.original) && <p className="text-[--muted] px-1"><MdOutlineOfflinePin className="text-2xl" /></p>}
                         <IconButton
                             intent="gray-subtle"
                             size="sm"
@@ -238,7 +239,7 @@ export function ChapterList(props: ChapterListProps) {
                         intent="white-subtle"
                         size="sm"
                     >
-                        Manual mapping
+                        Manual match
                     </Button>
                 </MangaManualMappingModal>
             </div>

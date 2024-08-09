@@ -19,7 +19,7 @@ import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 import { BiTrash } from "react-icons/bi"
 import { GiOpenBook } from "react-icons/gi"
-import { IoLibrary } from "react-icons/io5"
+import { MdOutlineOfflinePin } from "react-icons/md"
 
 type DownloadedChapterListProps = {
     entry: Manga_Entry
@@ -99,7 +99,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                 return (
                     <div className="flex justify-end gap-2 items-center w-full">
                         {row.original.queued && <p className="text-[--muted]">Queued</p>}
-                        {row.original.downloaded && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
+                        {row.original.downloaded && <p className="text-[--muted] px-1"><MdOutlineOfflinePin className="text-2xl" /></p>}
 
                         {row.original.downloaded && <IconButton
                             intent="gray-subtle"

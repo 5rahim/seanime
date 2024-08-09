@@ -6,14 +6,12 @@ import (
 	"github.com/samber/lo"
 	"seanime/internal/extension"
 	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"seanime/internal/util/result"
 	"strings"
+	"sync"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-)
-
-var (
-	ErrNoMapping = errors.New("manga: No mapping found")
 )
 
 type (
@@ -136,11 +134,11 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 
 	key := fmt.Sprintf("%s$%d", provider, mediaId)
 
-	r.logger.Debug().
+	r.logger.Trace().
 		Str("provider", provider).
 		Int("mediaId", mediaId).
 		Str("key", key).
-		Msgf("manga: getting chapters")
+		Msgf("manga: Getting chapters")
 
 	// +---------------------+
 	// |       Cache         |
@@ -199,14 +197,45 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 				Query: *title,
 			})
 			if err == nil {
+
+				// Rate the search results if all ratings are 0
+				if noRatings := lo.EveryBy(_searchRes, func(res *hibikemanga.SearchResult) bool {
+					return res.SearchRating == 0
+				}); noRatings {
+					wg := sync.WaitGroup{}
+					wg.Add(len(_searchRes))
+					for _, res := range _searchRes {
+						go func(res *hibikemanga.SearchResult) {
+							defer wg.Done()
+
+							compTitles := []*string{&res.Title}
+							if res.Synonyms == nil || len(res.Synonyms) == 0 {
+								return
+							}
+							for _, syn := range res.Synonyms {
+								compTitles = append(compTitles, &syn)
+							}
+
+							compRes, ok := comparison.FindBestMatchWithSorensenDice(title, compTitles)
+							if !ok {
+								return
+							}
+
+							res.SearchRating = compRes.Rating
+							return
+						}(res)
+					}
+					wg.Wait()
+				}
+
 				searchRes = append(searchRes, _searchRes...)
 			} else {
-				r.logger.Warn().Err(err).Msg("manga: search failed")
+				r.logger.Warn().Err(err).Msg("manga: Search failed")
 			}
 		}
 
 		if searchRes == nil || len(searchRes) == 0 {
-			r.logger.Error().Msg("manga: no search results found")
+			r.logger.Error().Msg("manga: No search results found")
 			return nil, ErrNoResults
 		}
 

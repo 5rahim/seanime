@@ -25662,6 +25662,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "DisableCarouselAutoScroll",
+        "jsonName": "disableCarouselAutoScroll",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

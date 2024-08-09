@@ -32,7 +32,7 @@ export function MangaManualMappingModal(props: MangaManualMappingModalProps) {
     return (
         <>
             <Modal
-                title="Manual mapping"
+                title="Manual match"
                 trigger={children}
                 contentClass="max-w-4xl"
             >
@@ -74,7 +74,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
 
     const [mangaId, setMangaId] = React.useState<string | null>(null)
     const confirmMatch = useConfirmationDialog({
-        title: "Manual mapping",
+        title: "Manual match",
         description: "Are you sure you want to match this manga to the search result?",
         actionText: "Confirm",
         actionIntent: "success",
@@ -113,7 +113,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                 </Button>
                             </AppLayoutStack>
                         ) : (
-                            <p className="text-[--muted] italic">No manual mapping</p>
+                            <p className="text-[--muted] italic">No manual match</p>
                         )}
                     </div>
 

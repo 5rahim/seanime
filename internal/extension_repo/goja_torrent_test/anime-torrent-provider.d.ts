@@ -66,10 +66,23 @@ declare interface AnimeTorrent {
 }
 
 declare interface AnimeTorrentProvider {
+    // Returns the search results depending on the query.
     search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]>
+
+    // Returns the search results depending on the search options.
     smartSearch(opts: AnimeSmartSearchOptions): Promise<AnimeTorrent[]>
+
+    // Returns the info hash of the torrent.
+    // This should just return the info hash without scraping the torrent page if already available.
     getTorrentInfoHash(torrent: AnimeTorrent): Promise<string>
+
+    // Returns the magnet link of the torrent.
+    // This should just return the magnet link without scraping the torrent page if already available.
     getTorrentMagnetLink(torrent: AnimeTorrent): Promise<string>
+
+    // Returns the latest torrents.
     getLatest(): Promise<AnimeTorrent[]>
+
+    // Returns the provider settings.
     getSettings(): AnimeProviderSettings
 }

@@ -2366,6 +2366,7 @@ export type Models_Theme = {
     enableMediaPageBlurredBackground: boolean
     disableSidebarTransparency: boolean
     useLegacyEpisodeCard: boolean
+    disableCarouselAutoScroll: boolean
     id: number
     createdAt?: string
     updatedAt?: string

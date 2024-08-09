@@ -144,7 +144,7 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	// Add the chapter to the download queue
 	return d.chapterDownloader.AddToQueue(chapter_downloader.DownloadOptions{
 		DownloadID: chapter_downloader.DownloadID{
-			Provider:      string(opts.Provider),
+			Provider:      opts.Provider,
 			MediaId:       opts.MediaId,
 			ChapterId:     opts.ChapterId,
 			ChapterNumber: manga_providers.GetNormalizedChapter(chapter.Chapter),
