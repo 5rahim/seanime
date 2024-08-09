@@ -9,7 +9,7 @@ import (
 // This is run in a goroutine.
 func (n *Notifier) Notify(id Notification, message string) {
 	go func() {
-		defer util.HandlePanicThen(func() {})
+		defer util.HandlePanicInModuleThen("notifier/Notify", func() {})
 
 		n.mu.Lock()
 		defer n.mu.Unlock()

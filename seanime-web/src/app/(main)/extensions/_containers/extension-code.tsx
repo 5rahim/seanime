@@ -1,7 +1,7 @@
 import { Extension_Extension } from "@/api/generated/types"
 import { useUpdateExtensionCode } from "@/api/hooks/extensions.hooks"
 import { Button } from "@/components/ui/button"
-import { Drawer } from "@/components/ui/drawer"
+import { Modal } from "@/components/ui/modal"
 import { javascript } from "@codemirror/lang-javascript"
 import { StreamLanguage } from "@codemirror/language"
 import { go } from "@codemirror/legacy-modes/mode/go"
@@ -48,12 +48,13 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
     }
 
     return (
-        <Drawer
-            // contentClass="max-w-5xl"
+        <Modal
+            contentClass="max-w-5xl"
             trigger={children}
             title="Code"
-            size="xl"
-            contentClass="space-y-4"
+            onInteractOutside={e => e.preventDefault()}
+            // size="xl"
+            // contentClass="space-y-4"
         >
             <div>
                 <p>
@@ -74,7 +75,7 @@ export function ExtensionCodeModal(props: ExtensionCodeModalProps) {
                 setCode={setCode}
                 language={extension.language}
             />
-        </Drawer>
+        </Modal>
     )
 }
 

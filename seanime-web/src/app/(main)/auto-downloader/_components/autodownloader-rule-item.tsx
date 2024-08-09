@@ -68,7 +68,7 @@ export function AutoDownloaderRuleItem(props: AutoDownloaderRuleItemProps) {
                 open={modal.active}
                 onOpenChange={modal.off}
                 title="Edit rule"
-                contentClass="max-w-3xl"
+                contentClass="max-w-4xl"
 
             >
                 <AutoDownloaderRuleForm type="edit" rule={rule} />

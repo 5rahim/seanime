@@ -163,7 +163,7 @@ func (as *AutoScanner) RunNow() {
 // scan is used to trigger a scan.
 func (as *AutoScanner) scan() {
 	defer util.HandlePanicInModuleThen("scanner/autoscanner/scan", func() {
-		as.logger.Error().Msg("autoscanner: recovered from panic")
+		as.logger.Error().Msg("autoscanner: Recovered from panic")
 	})
 
 	// Create scan summary logger
@@ -175,19 +175,19 @@ func (as *AutoScanner) scan() {
 
 	settings, err := as.db.GetSettings()
 	if err != nil || settings == nil {
-		as.logger.Error().Err(err).Msg("autoscanner: failed to get settings")
+		as.logger.Error().Err(err).Msg("autoscanner: Failed to get settings")
 		return
 	}
 
 	if settings.Library.LibraryPath == "" {
-		as.logger.Error().Msg("autoscanner: library path is not set")
+		as.logger.Error().Msg("autoscanner: Library path is not set")
 		return
 	}
 
 	// Get existing local files
 	existingLfs, _, err := db_bridge.GetLocalFiles(as.db)
 	if err != nil {
-		as.logger.Error().Err(err).Msg("autoscanner: failed to get existing local files")
+		as.logger.Error().Err(err).Msg("autoscanner: Failed to get existing local files")
 		return
 	}
 
@@ -209,7 +209,7 @@ func (as *AutoScanner) scan() {
 		if errors.Is(err, scanner.ErrNoLocalFiles) {
 			return
 		} else {
-			as.logger.Error().Err(err).Msg("autoscanner: failed to scan library")
+			as.logger.Error().Err(err).Msg("autoscanner: Failed to scan library")
 			return
 		}
 	}

@@ -51,6 +51,10 @@ func GetClientInfo(userAgent string) ClientInfo {
 		platform = PlatformChromeOS
 	}
 
+	if platform == "" {
+		platform = "N/A"
+	}
+
 	return ClientInfo{
 		Device:   device,
 		Platform: platform,

@@ -103,7 +103,7 @@ func (r *Repository) reloadExtensions() {
 	//	}
 	//}
 
-	r.logger.Trace().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Reloaded extensions")
+	//r.logger.Trace().Str("defaultProvider", r.settings.DefaultAnimeProvider).Msg("torrent repo: Reloaded extensions")
 }
 
 // SetSettings should be called after the repository is created and settings are refreshed

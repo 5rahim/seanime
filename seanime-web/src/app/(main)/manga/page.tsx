@@ -38,7 +38,6 @@ export default function Page() {
                 </>
             )}
 
-
             <MangaLibraryView
                 genres={genres}
                 collection={mangaCollection}

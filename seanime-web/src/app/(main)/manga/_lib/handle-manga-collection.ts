@@ -46,7 +46,7 @@ export function useHandleMangaCollection() {
                 })
             })
         })
-        return Array.from(genresSet)
+        return Array.from(genresSet)?.sort((a, b) => a.localeCompare(b))
     }, [data])
 
     const sortedCollection = useMemo(() => {
