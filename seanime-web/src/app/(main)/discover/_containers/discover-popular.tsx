@@ -15,6 +15,7 @@ export function DiscoverPopular() {
             gap="xl"
             opts={{
                 align: "start",
+                dragFree: true,
             }}
             autoScroll
         >
@@ -49,6 +50,7 @@ export function DiscoverPastSeason() {
             gap="xl"
             opts={{
                 align: "start",
+                dragFree: true,
             }}
             autoScroll
         >

@@ -68,16 +68,17 @@ export const CarouselAnatomy = defineStyleAnatomy({
     }),
     button: cva([
         "UI-Carousel__button",
-        "absolute rounded-full",
+        "rounded-full z-[10]",
     ], {
         variants: {
             placement: { previous: null, next: null },
             orientation: { horizontal: null, vertical: null },
         },
         compoundVariants: [
-            { placement: "previous", orientation: "horizontal", className: "-left-12 top-1/2 -translate-y-1/2" },
+            { placement: "previous", orientation: "horizontal", className: "" },
+            { placement: "next", orientation: "horizontal", className: "" },
+
             { placement: "previous", orientation: "vertical", className: "-top-12 left-1/2 -translate-x-1/2 rotate-90" },
-            { placement: "next", orientation: "horizontal", className: "-right-12 top-1/2 -translate-y-1/2" },
             { placement: "next", orientation: "vertical", className: "-bottom-12 left-1/2 -translate-x-1/2 rotate-90" },
         ],
     }),
@@ -229,11 +230,36 @@ export const Carousel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
                 {...rest}
             >
                 {children}
+                <CarouselButtons />
             </div>
         </__CarouselContext.Provider>
     )
 })
 Carousel.displayName = "Carousel"
+
+type CarouselButtonsProps = {
+    children?: React.ReactNode
+}
+
+export function CarouselButtons(props: CarouselButtonsProps) {
+
+    const {
+        children,
+        ...rest
+    } = props
+
+    const { scrollSnaps } = useDotButton()
+
+    return (
+        <>
+            {scrollSnaps.length > 30 && <div className="flex gap-2 absolute top-[-3.5rem] right-0">
+                <CarouselPrevious />
+                <CarouselNext />
+            </div>}
+        </>
+    )
+}
+
 
 /* -------------------------------------------------------------------------------------------------
  * CarouselContent

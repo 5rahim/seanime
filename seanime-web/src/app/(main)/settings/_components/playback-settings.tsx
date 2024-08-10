@@ -56,7 +56,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
             <Select
                 name="-"
                 label="Torrent streaming"
-                help="Player to use for transcoding."
+                help="Player to use for torrent streaming."
                 value={torrentStreamingPlayback}
                 onValueChange={v => setTorrentStreamingPlayback(v)}
                 disabled={!serverStatus?.torrentstreamSettings?.enabled}

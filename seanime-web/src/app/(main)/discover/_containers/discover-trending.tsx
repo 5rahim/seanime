@@ -64,6 +64,7 @@ export function DiscoverTrending() {
             gap="xl"
             opts={{
                 align: "start",
+                dragFree: true,
             }}
             autoScroll
         >

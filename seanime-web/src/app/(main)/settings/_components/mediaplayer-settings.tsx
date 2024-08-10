@@ -171,7 +171,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                     External player link
                 </h3>
                 <p className="text-[--muted]">
-                    Specify the mobile deep link format for opening files with an external player.
+                    Enter a custom scheme format for opening files with an external player on this device.
                     Ensure the player supports HTTP sources.
                 </p>
             </div>
@@ -183,9 +183,8 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
             />
 
             <TextInput
-                label="External player link"
+                label="Custom scheme"
                 placeholder="Example: outplayer://{url}"
-                help="URL scheme to open media files."
                 value={externalPlayerLink}
                 onValueChange={setExternalPlayerLink}
             />

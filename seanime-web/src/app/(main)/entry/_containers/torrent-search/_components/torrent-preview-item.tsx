@@ -114,7 +114,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
                     {!!filename && <p
                         className={cn(
-                            "text-sm group-hover/torrent-preview-item:text-gray-200 line-clamp-2 mb-2",
+                            "text-sm group-hover/torrent-preview-item:text-gray-200 line-clamp-2 mb-2 break-all",
                             !(_title) ? "text-gray-200 text-base" : "text-[--muted]",
                         )}
                     >

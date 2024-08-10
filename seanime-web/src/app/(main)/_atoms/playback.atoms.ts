@@ -7,7 +7,7 @@ export const enum PlaybackDownloadedMedia {
 }
 
 export const playbackDownloadedMediaOptions = [
-    { label: "Default external player / Built-in player (media streaming)", value: PlaybackDownloadedMedia.Default },
+    { label: "Desktop media player / Built-in player (media streaming)", value: PlaybackDownloadedMedia.Default },
     { label: "External player link", value: PlaybackDownloadedMedia.ExternalPlayerLink },
 ]
 
@@ -16,12 +16,12 @@ export const __playback_downloadedMediaAtom = atomWithStorage<string>("sea-playb
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const enum PlaybackTorrentStreaming {
-    Default = "default", // Default external player
+    Default = "default", // Desktop media player
     ExternalPlayerLink = "externalPlayerLink",
 }
 
 export const playbackTorrentStreamingOptions = [
-    { label: "Default external player", value: PlaybackTorrentStreaming.Default },
+    { label: "Desktop media player", value: PlaybackTorrentStreaming.Default },
     { label: "External player link", value: PlaybackTorrentStreaming.ExternalPlayerLink },
 ]
 
