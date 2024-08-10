@@ -1,3 +1,5 @@
+//go:build windows
+
 package notifier
 
 import (
@@ -31,7 +33,6 @@ func (n *Notifier) Notify(id Notification, message string) {
 				n.logger.MustGet().Trace().Msgf("notifier: Failed to push notification: %v", err)
 			}
 		}
-
 		if n.logger.IsPresent() {
 			n.logger.MustGet().Trace().Msgf("notifier: Pushed notification: %v", id)
 		}

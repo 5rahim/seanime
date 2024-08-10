@@ -27,6 +27,10 @@ const (
 
 var GlobalNotifier = NewNotifier()
 
+func init() {
+	GlobalNotifier = NewNotifier()
+}
+
 func NewNotifier() *Notifier {
 	return &Notifier{
 		dataDir:  mo.None[string](),

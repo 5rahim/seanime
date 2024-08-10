@@ -5,7 +5,6 @@ package notifier
 import (
 	"fmt"
 	"github.com/gen2brain/beeep"
-	"path/filepath"
 	"seanime/internal/util"
 )
 
@@ -25,7 +24,7 @@ func (n *Notifier) Notify(id Notification, message string) {
 		err := beeep.Notify(
 			fmt.Sprintf("Seanime: %s", id),
 			message,
-			filepath.Join(test_utils.ConfigData.Path.DataDir, "logo.png"),
+			n.logoPath,
 		)
 		if err != nil {
 			if n.logger.IsPresent() {

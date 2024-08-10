@@ -270,6 +270,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 
 	downloaded := 0
+	mu := sync.Mutex{}
 
 	// Going through each rule
 	p := pool.New()
@@ -342,7 +343,9 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				if len(torrents) == 1 {
 					ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
 					if ok {
+						mu.Lock()
 						downloaded++
+						mu.Unlock()
 					}
 					continue
 				}
@@ -361,7 +364,9 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 				ok := ad.downloadTorrent(torrents[0].torrent, rule, ep)
 				if ok {
+					mu.Lock()
 					downloaded++
+					mu.Unlock()
 				}
 			}
 		})
@@ -369,10 +374,17 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	p.Wait()
 
 	if downloaded > 0 {
-		notifier.GlobalNotifier.Notify(
-			notifier.AutoDownloader,
-			fmt.Sprintf("%d %s %s been downloaded or added to the queue.", downloaded, util.Pluralize(downloaded, "episode", "episodes"), util.Pluralize(downloaded, "has", "have")),
-		)
+		if ad.settings.DownloadAutomatically {
+			notifier.GlobalNotifier.Notify(
+				notifier.AutoDownloader,
+				fmt.Sprintf("%d %s %s been downloaded.", downloaded, util.Pluralize(downloaded, "episode", "episodes"), util.Pluralize(downloaded, "has", "have")),
+			)
+		} else {
+			notifier.GlobalNotifier.Notify(
+				notifier.AutoDownloader,
+				fmt.Sprintf("%d %s %s been added to the queue.", downloaded, util.Pluralize(downloaded, "episode", "episodes"), util.Pluralize(downloaded, "has", "have")),
+			)
+		}
 	}
 
 }
