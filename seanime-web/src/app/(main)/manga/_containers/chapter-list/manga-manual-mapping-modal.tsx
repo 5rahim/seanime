@@ -57,7 +57,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
     })
 
     // Search
-    const { mutate: search, data: searchResults, isPending: searchLoading, reset } = useMangaManualSearch(entry.mediaId)
+    const { mutate: search, data: searchResults, isPending: searchLoading, reset } = useMangaManualSearch(entry.mediaId, selectedProvider)
 
     function handleSearch(data: InferType<typeof searchSchema>) {
         search({

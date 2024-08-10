@@ -399,7 +399,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             <Field.Checkbox
                                 name="enableTranscode"
                                 label={<span>Media streaming / Transcoding</span>}
-                                help="Stream downloaded episodes to other devices using transcoding or direct play."
+                                help="Stream downloaded episodes to other devices using transcoding or direct play. FFmpeg is required."
                                 size="lg"
                             />
 

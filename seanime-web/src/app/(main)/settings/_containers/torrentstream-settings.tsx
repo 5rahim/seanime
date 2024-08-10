@@ -91,7 +91,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 <Field.Switch
                     name="includeInLibrary"
                     label="Include in library"
-                    help="Make non-downloaded episodes appear in your library for torrent streaming."
+                    help="Make non-downloaded episodes and shows appear in your library for torrent streaming."
                 />
 
                 <Separator />

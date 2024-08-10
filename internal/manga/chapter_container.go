@@ -41,7 +41,7 @@ func (r *Repository) ManualSearch(provider string, query string) ([]*hibikemanga
 
 	normalizedQuery := strings.ToLower(strings.TrimSpace(query))
 
-	searchRes, found := searchResultCache.Get(normalizedQuery)
+	searchRes, found := searchResultCache.Get(provider + normalizedQuery)
 	if found {
 		return searchRes, nil
 	}
@@ -59,7 +59,7 @@ func (r *Repository) ManualSearch(provider string, query string) ([]*hibikemanga
 		res.Provider = provider
 	}
 
-	searchResultCache.Set(normalizedQuery, searchRes)
+	searchResultCache.Set(provider+normalizedQuery, searchRes)
 
 	return searchRes, nil
 }

@@ -134,11 +134,12 @@ export function useUpdateMangaProgress(id: Nullish<string | number>) {
 
 ////
 
-export function useMangaManualSearch(mediaId: Nullish<number>) {
+export function useMangaManualSearch(mediaId: Nullish<number>, provider: string) {
     return useServerMutation<Array<HibikeManga_SearchResult>, MangaManualSearch_Variables>({
         endpoint: API_ENDPOINTS.MANGA.MangaManualSearch.endpoint,
         method: API_ENDPOINTS.MANGA.MangaManualSearch.methods[0],
-        mutationKey: [API_ENDPOINTS.MANGA.MangaManualSearch.key, String(mediaId)],
+        mutationKey: [API_ENDPOINTS.MANGA.MangaManualSearch.key, String(mediaId), provider],
+        gcTime: 0,
     })
 }
 
