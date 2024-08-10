@@ -119,17 +119,21 @@ export function useHandleLibraryCollection() {
         if (!data?.continueWatchingList) return []
 
         let list = [...data.continueWatchingList]
+
+
         if (data.stream) {
             for (let entry of (data.stream.continueWatchingList ?? [])) {
                 list = [...list, entry]
             }
         }
 
+        list.sort((a, b) => a.displayTitle?.localeCompare(b.displayTitle)).sort((a, b) => b.episodeNumber - a.episodeNumber)
+
         if (!serverStatus?.settings?.anilist?.enableAdultContent || serverStatus?.settings?.anilist?.blurAdultContent) {
             return list.filter(entry => entry.baseAnime?.isAdult === false)
         }
 
-        return list?.sort((a, b) => b.episodeNumber - a.episodeNumber)?.sort((a, b) => a.displayTitle?.localeCompare(b.displayTitle))
+        return list
     }, [
         data?.stream,
         data?.continueWatchingList,

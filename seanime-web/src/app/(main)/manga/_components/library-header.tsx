@@ -98,7 +98,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                     />}
 
                     <div
-                        className="w-full z-[3] opacity-50 absolute top-0 h-[5rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent"
+                        className="w-full z-[3] opacity-70 lg:opacity-50 absolute top-0 h-[5rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent"
                     />
 
                     {/*<div*/}
@@ -139,7 +139,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         )}
                     />}
                     <div
-                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[15rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent"
+                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] lg:h-[15rem] bg-gradient-to-t from-[--background] lg:via-opacity-50 lg:via-10% to-transparent"
                     />
                 </motion.div>
             </div>

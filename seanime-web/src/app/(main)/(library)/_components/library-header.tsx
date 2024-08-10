@@ -140,9 +140,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                         )}
                     />}
                     <div
-                        className={cn(
-                            "LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[15rem] bg-gradient-to-t from-[--background] via-opacity-50 via-10% to-transparent",
-                        )}
+                        className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] lg:h-[15rem] bg-gradient-to-t from-[--background] lg:via-opacity-50 lg:via-10% to-transparent"
                     />
                 </motion.div>
             </div>

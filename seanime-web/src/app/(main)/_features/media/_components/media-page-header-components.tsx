@@ -235,7 +235,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                 {!!coverImage && <div
                     className={cn(
-                        "flex-none aspect-[6/8] max-w-[100px] mx-auto h-[150px] lg:h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
+                        "flex-none aspect-[6/8] max-w-[150px] mx-auto h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
                     )}
                 >
                     <Image
