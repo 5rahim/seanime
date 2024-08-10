@@ -25822,15 +25822,6 @@
         "comments": []
       },
       {
-        "name": "TranscodeTempDir",
-        "jsonName": "transcodeTempDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "DisableAutoSwitchToDirectPlay",
         "jsonName": "disableAutoSwitchToDirectPlay",
         "goType": "bool",
@@ -29418,6 +29409,84 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/testdir/_my_anime_torrent_provider.go",
+    "filename": "_my_anime_torrent_provider.go",
+    "name": "MyAnimeTorrentProvider",
+    "formattedName": "MyAnimeTorrentProvider",
+    "package": "main",
+    "fields": [
+      {
+        "name": "url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/testdir/_my_online_streaming_provider.go",
+    "filename": "_my_online_streaming_provider.go",
+    "name": "Provider",
+    "formattedName": "Provider",
+    "package": "main",
+    "fields": [
+      {
+        "name": "url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
         "comments": []
       },
       {
@@ -37273,15 +37342,6 @@
         "comments": []
       },
       {
-        "name": "BackupDir",
-        "jsonName": "BackupDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "ServerURI",
         "jsonName": "ServerURI",
         "goType": "string",
@@ -39519,7 +39579,20 @@
         "typescriptType": "string",
         "required": true,
         "public": false,
-        "comments": []
+        "comments": [
+          " where attachments are stored"
+        ]
+      },
+      {
+        "name": "transcodeDir",
+        "jsonName": "transcodeDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": [
+          " where stream segments are stored"
+        ]
       }
     ],
     "comments": []

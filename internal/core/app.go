@@ -177,7 +177,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      cfg.Manga.DownloadDir,
 		ServerURI:      cfg.GetServerURI(),
 		WsEventManager: wsEventManager,
 		DownloadDir:    cfg.Manga.DownloadDir,

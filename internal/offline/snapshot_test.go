@@ -38,7 +38,6 @@ func getHub(t *testing.T) *Hub {
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      "",
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),

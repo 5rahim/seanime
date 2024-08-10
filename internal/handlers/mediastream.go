@@ -3,10 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"seanime/internal/database/models"
-	"seanime/internal/events"
 	"seanime/internal/mediastream"
 )
 
@@ -32,7 +29,6 @@ func HandleGetMediastreamSettings(c *RouteCtx) error {
 //	@returns models.MediastreamSettings
 //	@route /api/v1/mediastream/settings [PATCH]
 func HandleSaveMediastreamSettings(c *RouteCtx) error {
-
 	type body struct {
 		Settings models.MediastreamSettings `json:"settings"`
 	}
@@ -40,29 +36,6 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 	var b body
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
-	}
-
-	// Check Transcode directory
-	if b.Settings.TranscodeEnabled {
-		transcodeDir := filepath.Clean(b.Settings.TranscodeTempDir)
-		if transcodeDir == "" {
-			c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, transcode directory is not set")
-			b.Settings.TranscodeEnabled = false
-			b.Settings.PreTranscodeEnabled = false
-			c.App.WSEventManager.SendEvent(events.ErrorToast, "Transcode directory is not set, transcoding has been disabled")
-		}
-		if !filepath.IsAbs(transcodeDir) {
-			c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, transcode directory is not an absolute path")
-			b.Settings.TranscodeEnabled = false
-			b.Settings.PreTranscodeEnabled = false
-			c.App.WSEventManager.SendEvent(events.ErrorToast, "Transcode directory is not an absolute path, transcoding has been disabled")
-		}
-		if _, err := os.Stat(transcodeDir); os.IsNotExist(err) {
-			c.App.Logger.Error().Msgf("app: 'Media streaming' cannot be enabled, transcode directory cannot be located")
-			b.Settings.TranscodeEnabled = false
-			b.Settings.PreTranscodeEnabled = false
-			c.App.WSEventManager.SendEvent(events.ErrorToast, "Transcode directory cannot be located, transcoding has been disabled")
-		}
 	}
 
 	settings, err := c.App.Database.UpsertMediastreamSettings(&b.Settings)

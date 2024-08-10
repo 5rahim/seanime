@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"os"
+	"path/filepath"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/mediastream/optimizer"
@@ -28,7 +29,8 @@ type (
 		wsEventManager             events.WSEventManagerInterface
 		fileCacher                 *filecache.Cacher
 		reqMu                      sync.Mutex
-		cacheDir                   string
+		cacheDir                   string // where attachments are stored
+		transcodeDir               string // where stream segments are stored
 	}
 
 	NewRepositoryOptions struct {
@@ -79,13 +81,16 @@ func (r *Repository) OnCleanup() {
 	})
 }
 
-func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cacheDir string) {
+func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cacheDir string, transcodeDir string) {
 	if settings == nil {
 		r.logger.Error().Msg("mediastream: Settings not present")
 		return
 	}
 	// Create the temp directory
-	_ = os.MkdirAll(settings.TranscodeTempDir, 0755)
+	err := os.MkdirAll(transcodeDir, 0755)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("mediastream: Failed to create transcode directory")
+	}
 
 	if settings.FfmpegPath == "" {
 		settings.FfmpegPath = "ffmpeg"
@@ -99,6 +104,7 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 	r.settings = mo.Some[*models.MediastreamSettings](settings)
 
 	r.cacheDir = cacheDir
+	r.transcodeDir = transcodeDir
 
 	// Set the optimizer settings
 	r.optimizer.SetLibraryDir(settings.PreTranscodeLibraryDir)
@@ -112,6 +118,33 @@ func (r *Repository) InitializeModules(settings *models.MediastreamSettings, cac
 
 // CacheWasCleared should be called when the cache directory is manually cleared.
 func (r *Repository) CacheWasCleared() {
+	r.playbackManager.mediaContainers.Clear()
+}
+
+func (r *Repository) ClearTranscodeDir() {
+	r.reqMu.Lock()
+	defer r.reqMu.Unlock()
+
+	r.logger.Trace().Msg("mediastream: Clearing transcode directory")
+
+	// Empty the transcode directory
+	if r.transcodeDir != "" {
+		files, err := os.ReadDir(r.transcodeDir)
+		if err != nil {
+			r.logger.Error().Err(err).Msg("mediastream: Failed to read transcode directory")
+			return
+		}
+
+		for _, file := range files {
+			err = os.RemoveAll(filepath.Join(r.transcodeDir, file.Name()))
+			if err != nil {
+				r.logger.Error().Err(err).Msg("mediastream: Failed to remove file from transcode directory")
+			}
+		}
+	}
+
+	r.logger.Debug().Msg("mediastream: Transcode directory cleared")
+
 	r.playbackManager.mediaContainers.Clear()
 }
 
@@ -241,7 +274,7 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 	}
 
 	// If the temp directory is not set, don't initialize the transcoder
-	if settings.MustGet().TranscodeTempDir == "" {
+	if r.transcodeDir == "" {
 		r.logger.Error().Msg("mediastream: Transcode directory not set, could not initialize transcoder")
 		return false
 	}
@@ -250,9 +283,9 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 		Logger:      r.logger,
 		HwAccelKind: settings.MustGet().TranscodeHwAccel,
 		Preset:      settings.MustGet().TranscodePreset,
-		TempOutDir:  settings.MustGet().TranscodeTempDir,
 		FfmpegPath:  settings.MustGet().FfmpegPath,
 		FfprobePath: settings.MustGet().FfprobePath,
+		TempOutDir:  r.transcodeDir,
 	}
 
 	tc, err := transcoder.NewTranscoder(opts)

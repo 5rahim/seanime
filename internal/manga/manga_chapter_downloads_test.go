@@ -32,7 +32,6 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 	repository := NewRepository(&NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      "",
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),

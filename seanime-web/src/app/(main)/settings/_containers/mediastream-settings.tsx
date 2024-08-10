@@ -9,7 +9,6 @@ import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
-import { FcFolder } from "react-icons/fc"
 import { MdOutlineDevices } from "react-icons/md"
 
 const mediastreamSchema = defineSchema(({ z }) => z.object({
@@ -79,7 +78,6 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             settings: {
                                 ...settings,
                                 ...data,
-                                transcodeTempDir: data.transcodeTempDir,
                             },
                         })
                     }
@@ -89,7 +87,6 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     transcodeHwAccel: settings?.transcodeHwAccel || "cpu",
                     transcodeThreads: settings?.transcodeThreads,
                     transcodePreset: settings?.transcodePreset,
-                    transcodeTempDir: settings?.transcodeTempDir,
                     preTranscodeEnabled: settings?.preTranscodeEnabled,
                     preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
                     disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay,
@@ -98,81 +95,75 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 }}
                 stackClass="space-y-6"
             >
-                <Field.Switch
-                    name="transcodeEnabled"
-                    label="Enable"
-                />
-
-                <div className="flex gap-4 items-center border rounded-md p-2 lg:p-4">
-                    <MdOutlineDevices className="text-4xl" />
-                    <div className="space-y-1">
-                        <Checkbox
-                            value={activeOnDevice ?? false}
-                            onValueChange={v => setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)}
-                            label="Use media streaming on this device"
-                            help="Enable this option if you want to use media streaming on this device."
+                {(f) => (
+                    <>
+                        <Field.Switch
+                            name="transcodeEnabled"
+                            label="Enable"
                         />
-                        <p className="text-gray-200">
-                            Current client: {serverStatus?.clientDevice}, {serverStatus?.clientPlatform}
-                        </p>
-                    </div>
-                </div>
 
-                {activeOnDevice && (
-                    <Alert
-                        intent="info" description={<>
-                        If media streaming is enabled, your downloaded files will be transcoded and played back using the built-in player.
-                    </>}
-                    />
+                        <div className="flex gap-4 items-center border rounded-md p-2 lg:p-4">
+                            <MdOutlineDevices className="text-4xl" />
+                            <div className="space-y-1">
+                                <Checkbox
+                                    value={activeOnDevice ?? false}
+                                    onValueChange={v => setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)}
+                                    label="Use media streaming on this device"
+                                    help="Enable this option if you want to use media streaming on this device."
+                                />
+                                <p className="text-gray-200">
+                                    Current client: {serverStatus?.clientDevice}, {serverStatus?.clientPlatform}
+                                </p>
+                            </div>
+                        </div>
+
+                        {(f.watch("transcodeEnabled") && activeOnDevice) && (
+                            <Alert
+                                intent="info" description={<>
+                                Your downloaded media files will be played back using the built-in player on this device.
+                            </>}
+                            />
+                        )}
+
+                        <Separator />
+
+                        <Field.Switch
+                            name="disableAutoSwitchToDirectPlay"
+                            label="Don't auto switch to direct play"
+                            help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
+                        />
+
+                        <Field.Select
+                            options={MEDIASTREAM_HW_ACCEL_OPTIONS}
+                            name="transcodeHwAccel"
+                            label="Hardware acceleration"
+                            help="Hardware acceleration is highly recommended for a smoother transcoding experience."
+                        />
+
+                        <Field.Select
+                            options={MEDIASTREAM_PRESET_OPTIONS}
+                            name="transcodePreset"
+                            label="Transcode preset"
+                            help="'Fast' is recommended. VAAPI does not support presets."
+                        />
+
+                        <div className="flex gap-3 items-center">
+                            <Field.Text
+                                name="ffmpegPath"
+                                label="FFmpeg path"
+                                help="Path to the FFmpeg binary. Leave empty if binary is already in your PATH."
+                            />
+
+                            <Field.Text
+                                name="ffprobePath"
+                                label="FFprobe path"
+                                help="Path to the FFprobe binary. Leave empty if binary is already in your PATH."
+                            />
+                        </div>
+
+                        <SettingsSubmitButton isPending={isPending} />
+                    </>
                 )}
-
-                <Separator />
-
-                <Field.Switch
-                    name="disableAutoSwitchToDirectPlay"
-                    label="Don't auto switch to direct play"
-                    help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
-                />
-
-                <Separator />
-
-                <Field.DirectorySelector
-                    name="transcodeTempDir"
-                    label="Transcode directory"
-                    leftIcon={<FcFolder />}
-                    help="Directory where transcoded files are temporarily stored. This directory should be different from your library directory."
-                    shouldExist
-                />
-
-                <Field.Select
-                    options={MEDIASTREAM_HW_ACCEL_OPTIONS}
-                    name="transcodeHwAccel"
-                    label="Hardware acceleration"
-                    help="Hardware acceleration is highly recommended for a smoother transcoding experience."
-                />
-
-                <Field.Select
-                    options={MEDIASTREAM_PRESET_OPTIONS}
-                    name="transcodePreset"
-                    label="Transcode preset"
-                    help="'Fast' is recommended. VAAPI does not support presets."
-                />
-
-                <div className="flex gap-3 items-center">
-                    <Field.Text
-                        name="ffmpegPath"
-                        label="FFmpeg path"
-                        help="Path to the FFmpeg binary. Leave empty if binary is already in your PATH."
-                    />
-
-                    <Field.Text
-                        name="ffprobePath"
-                        label="FFprobe path"
-                        help="Path to the FFprobe binary. Leave empty if binary is already in your PATH."
-                    />
-                </div>
-
-                <SettingsSubmitButton isPending={isPending} />
             </Form>
 
             {/*<Separator />*/}

@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import capitalize from "lodash/capitalize"
 import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
@@ -77,7 +78,7 @@ export default function Page() {
                 <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
                     <div className="space-y-1">
                         <h2 className="text-center lg:text-left">Settings</h2>
-                        <p className="text-[--muted]">App version: {status?.version}-{status?.os}</p>
+                        <p className="text-[--muted]">App version: {status?.version}, OS: {capitalize(status?.os)}</p>
                     </div>
                     <div>
 
@@ -98,9 +99,9 @@ export default function Page() {
                         <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
+                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> External Media Player</TabsTrigger>
                         <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
                                                                                                                                     streaming</TabsTrigger>
-                        <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> External Media Player</TabsTrigger>
                         <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
                                                                                                                           streaming</TabsTrigger>
                         <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>

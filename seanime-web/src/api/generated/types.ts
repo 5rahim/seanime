@@ -2282,7 +2282,6 @@ export type Models_MediastreamSettings = {
     transcodeHwAccel: string
     transcodeThreads: number
     transcodePreset: string
-    transcodeTempDir: string
     disableAutoSwitchToDirectPlay: boolean
     preTranscodeEnabled: boolean
     preTranscodeLibraryDir: string

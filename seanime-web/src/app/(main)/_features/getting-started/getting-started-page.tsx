@@ -6,7 +6,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
 import { Field, Form } from "@/components/ui/form"
-import { Tooltip } from "@/components/ui/tooltip"
 import {
     DEFAULT_DOH_PROVIDER,
     DEFAULT_TORRENT_PROVIDER,
@@ -397,6 +396,13 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 size="lg"
                             />
 
+                            <Field.Checkbox
+                                name="enableTranscode"
+                                label={<span>Media streaming / Transcoding</span>}
+                                help="Stream downloaded episodes to other devices using transcoding or direct play."
+                                size="lg"
+                            />
+
 
                             <Field.Checkbox
                                 name="enableTorrentStreaming"
@@ -428,18 +434,6 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 </div>}
                                 size="lg"
                             />
-
-                            <Tooltip
-                                trigger={<Field.Checkbox
-                                    name="enableTranscode"
-                                    label={<span>Media streaming / Transcoding</span>}
-                                    disabled={true}
-                                    help="Stream downloaded episodes to other devices. Some additional configuration is required in the settings."
-                                    size="lg"
-                                />}
-                            >
-                                Enable this feature after the initial setup
-                            </Tooltip>
 
 
                             <Field.Submit

@@ -31,14 +31,14 @@ type Config struct {
 		Dir string
 	}
 	Cache struct {
-		Dir string
+		Dir          string
+		TranscodeDir string
 	}
 	Offline struct {
 		Dir      string
 		AssetDir string
 	}
 	Manga struct {
-		BackupDir   string
 		DownloadDir string
 	}
 	Data struct { // Hydrated after config is loaded
@@ -110,7 +110,7 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")
-	viper.SetDefault("manga.backupDir", "$SEANIME_DATA_DIR/cache/manga")
+	viper.SetDefault("cache.transcodeDir", "$SEANIME_DATA_DIR/cache/transcode")
 	viper.SetDefault("manga.downloadDir", "$SEANIME_DATA_DIR/manga")
 	viper.SetDefault("logs.dir", "$SEANIME_DATA_DIR/logs")
 	viper.SetDefault("offline.dir", "$SEANIME_DATA_DIR/offline")
@@ -248,28 +248,62 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if cfg.Web.AssetDir == "" {
 		return errInvalidConfigValue("web.assetDir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Web.AssetDir); err != nil {
+		return wrapInvalidConfigValue("web.assetDir", err)
+	}
+
 	if cfg.Cache.Dir == "" {
 		return errInvalidConfigValue("cache.dir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Cache.Dir); err != nil {
+		return wrapInvalidConfigValue("cache.dir", err)
+	}
+
+	if cfg.Cache.TranscodeDir == "" {
+		return errInvalidConfigValue("cache.transcodeDir", "cannot be empty")
+	}
+	if err := checkIsValidPath(cfg.Cache.TranscodeDir); err != nil {
+		return wrapInvalidConfigValue("cache.transcodeDir", err)
+	}
+
 	if cfg.Logs.Dir == "" {
 		return errInvalidConfigValue("logs.dir", "cannot be empty")
 	}
-	if cfg.Manga.BackupDir == "" {
-		return errInvalidConfigValue("manga.backupDir", "cannot be empty")
+	if err := checkIsValidPath(cfg.Logs.Dir); err != nil {
+		return wrapInvalidConfigValue("logs.dir", err)
 	}
+
 	if cfg.Manga.DownloadDir == "" {
 		return errInvalidConfigValue("manga.downloadDir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Manga.DownloadDir); err != nil {
+		return wrapInvalidConfigValue("manga.downloadDir", err)
+	}
+
 	if cfg.Extensions.Dir == "" {
 		return errInvalidConfigValue("extensions.dir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Extensions.Dir); err != nil {
+		return wrapInvalidConfigValue("extensions.dir", err)
+	}
 
+	return nil
+}
+
+func checkIsValidPath(path string) error {
+	ok := filepath.IsAbs(path)
+	if !ok {
+		return errors.New("path is not an absolute path")
+	}
 	return nil
 }
 
 // errInvalidConfigValue returns an error for an invalid config value
 func errInvalidConfigValue(s string, s2 string) error {
 	return errors.New(fmt.Sprintf("invalid config value: \"%s\" %s", s, s2))
+}
+func wrapInvalidConfigValue(s string, err error) error {
+	return fmt.Errorf("invalid config value: \"%s\" %w", s, err)
 }
 
 func updateVersion(cfg *Config, opts *ConfigOptions) error {
@@ -299,8 +333,8 @@ func expandEnvironmentValues(cfg *Config) {
 	}()
 	cfg.Web.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Web.AssetDir))
 	cfg.Cache.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.Dir))
+	cfg.Cache.TranscodeDir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.TranscodeDir))
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
-	cfg.Manga.BackupDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.BackupDir))
 	cfg.Manga.DownloadDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.DownloadDir))
 	cfg.Offline.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.Dir))
 	cfg.Offline.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.AssetDir))

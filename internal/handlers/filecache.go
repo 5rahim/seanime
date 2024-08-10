@@ -79,11 +79,15 @@ func HandleGetFileCacheMediastreamVideoFilesTotalSize(c *RouteCtx) error {
 //	@returns bool
 func HandleClearFileCacheMediastreamVideoFiles(c *RouteCtx) error {
 
+	// Clear the attachments
 	err := c.App.FileCacher.ClearMediastreamVideoFiles()
 
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	// Clear the transcode dir
+	c.App.MediastreamRepository.ClearTranscodeDir()
 
 	if c.App.MediastreamRepository != nil {
 		go c.App.MediastreamRepository.CacheWasCleared()

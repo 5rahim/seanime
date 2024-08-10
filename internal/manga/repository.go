@@ -44,7 +44,6 @@ type (
 	NewRepositoryOptions struct {
 		Logger         *zerolog.Logger
 		FileCacher     *filecache.Cacher
-		BackupDir      string
 		ServerURI      string
 		WsEventManager events.WSEventManagerInterface
 		DownloadDir    string

@@ -70,7 +70,6 @@ func HandleGettingStarted(c *RouteCtx) error {
 		Discord:        &b.Discord,
 		Notifications:  &b.Notifications,
 		AutoDownloader: autoDownloaderSettings,
-		//ListSync:       listSyncSettings,
 	})
 
 	if err != nil {
@@ -80,10 +79,21 @@ func HandleGettingStarted(c *RouteCtx) error {
 	if b.EnableTorrentStreaming {
 		go func() {
 			defer util.HandlePanicThen(func() {})
-			prevTorrentstreamSettings, found := c.App.Database.GetTorrentstreamSettings()
+			prev, found := c.App.Database.GetTorrentstreamSettings()
 			if found {
-				prevTorrentstreamSettings.Enabled = true
-				_, _ = c.App.Database.UpsertTorrentstreamSettings(prevTorrentstreamSettings)
+				prev.Enabled = true
+				_, _ = c.App.Database.UpsertTorrentstreamSettings(prev)
+			}
+		}()
+	}
+
+	if b.EnableTranscode {
+		go func() {
+			defer util.HandlePanicThen(func() {})
+			prev, found := c.App.Database.GetMediastreamSettings()
+			if found {
+				prev.TranscodeEnabled = true
+				_, _ = c.App.Database.UpsertMediastreamSettings(prev)
 			}
 		}()
 	}

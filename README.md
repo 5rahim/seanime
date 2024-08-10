@@ -19,7 +19,7 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/v2/rec_anime.gif" alt="preview" width="49%"/>
+<img src="docs/images/v2/rec_anime.gif" alt="preview" width="48.5%"/>
 <img src="docs/images/v2/rec_manga.gif" alt="preview" width="49%"/>
 </p>
 
@@ -32,7 +32,7 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 
 ## About
 
-Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
+Seanime is a free and open-source media server built around APIs to provide a seamless experience for anime and manga enthusiasts. 
 It combines a lightweight server and a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
 
@@ -67,37 +67,39 @@ How to install Seanime
 
 ### ⬇️ Download new episodes & movies
 
-- Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei) with SeaDex support
+- Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei, SeaDex)
 - Integration with **qBittorrent** & **Transmission** for a seamless download experience
 - View upcoming and missing episodes to never miss a release
-- **Automate everything** by creating custom rules and let Seanime download new episodes or movies for you
+- Let Seanime **automatically download** new episodes or movies for you by creating custom rules
+- Support for extensions to add more sources
 
 
 ### 🎞️ Watch, anytime, anywhere
 - **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
 - Create **playlists** to binge-watch seamlessly
+- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📱 Media streaming / Transcoding
-- Watch your downloaded episodes on any device with a web browser
-- On-the-fly transcoding with seeking support powered by **FFmpeg**
+- Watch your downloaded episodes on any device
+- Built-in player with **on-the-fly transcoding** powered by **FFmpeg** & **Direct Play**
 - Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
-- Built-in player with subtitle support
-- Direct play support
+- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📽️ Torrent streaming
-- Stream torrents directly to your media player without waiting for the download to complete
+- Stream torrents directly to your media player (desktop or mobile) without waiting for the download to complete
 - Automatic torrent selection with no input required - click and play
-- Auto-selection of single episodes from batches
-- Support for seeding in the background after streaming
+- Auto-selection or manual selection of files from batches
+- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📺 Online streaming
-  - Watch episodes from online sources using the built-in player
-  - Support for multiple sources
+- Watch episodes from online sources using the built-in player
+- Support for multiple sources & extensions
 
 ### 📕 Browse and manage your manga collection
-  - Browse your AniList manga collection, search for new manga, get recommendations
+- Browse your AniList manga collection, search for new manga, get recommendations
 - **Read chapters** from various sources with the built-in, customizable manga reader
 - **Download chapters** for offline reading
+- Support for extensions to add more sources
 
 ### Other features
 - **Advanced anime/manga search**

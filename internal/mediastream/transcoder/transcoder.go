@@ -44,9 +44,11 @@ type (
 
 func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 
-	// Create/clear the temp directory containing the streams
+	// Create a directory that'll hold the stream segments if it doesn't exist
 	streamDir := filepath.Join(opts.TempOutDir, "streams")
 	_ = os.MkdirAll(streamDir, 0755)
+
+	// Clear the directory containing the streams
 	dir, err := os.ReadDir(streamDir)
 	if err != nil {
 		return nil, err
