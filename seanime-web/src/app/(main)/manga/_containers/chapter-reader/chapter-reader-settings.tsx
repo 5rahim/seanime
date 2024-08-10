@@ -443,15 +443,17 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
 
 
                     <Button
-                        size="sm" className="rounded-full" intent="white-subtle"
+                        size="sm" className="rounded-full w-full" intent="white-subtle"
                         disabled={isDefaultSettings}
                         onClick={() => {
                             setPageFit(defaultSettings[readingMode].pageFit)
                             setPageStretch(defaultSettings[readingMode].pageStretch)
                         }}
                     >
-                        Reset defaults
-                        for <span className="w-2"></span> {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
+                        <span className="flex flex-none items-center">
+                            Reset defaults
+                            for <span className="w-2"></span> {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
+                        </span>
                     </Button>
 
                     <Separator />

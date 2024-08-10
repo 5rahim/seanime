@@ -15,12 +15,12 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/2/showcase.png" alt="preview" width="100%"/>
+<img src="docs/images/v2/showcase.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
-<img src="docs/images/2/rec_anime-01.gif" alt="preview" width="49%"/>
-<img src="docs/images/2/rec_manga-01.gif" alt="preview" width="48.75%"/>
+<img src="docs/images/v2/rec_anime.gif" alt="preview" width="49%"/>
+<img src="docs/images/v2/rec_manga.gif" alt="preview" width="49%"/>
 </p>
 
 <p align="center">
@@ -139,58 +139,59 @@ Development and testing might require additional configuration.
 
 ### Scanning
 
-<img src="docs/images/2/rec_scanning-01-cropped.gif" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_scanning.gif" alt="preview" width="100%"/>
 
 ### Progress tracking
 
-<img src="docs/images/2/anime_entry-watching--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/anime-desktop-media-player_02--squashed.jpg" alt="preview" width="100%"/>
 
 ### Downloading
 
-<img src="docs/images/2/rec_anime_entry-download-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_anime-download_02.gif" alt="preview" width="100%"/>
 
 ### Manga
 
-<img src="docs/images/2/manga-03--squashed.jpg" alt="preview" width="100%"/>
-<img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
+<img src="docs/images/v2/manga_01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/manga-reader_01.png" alt="preview" width="100%"/>
 
 ### Torrent streaming
 
-<img src="docs/images/2/rec_torrent_streaming-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_torrent-streaming.gif" alt="preview" width="100%"/>
 
 ### Media streaming / Transcoding
 
-<img src="docs/images/2/media_streaming-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_mediastream.gif" alt="preview" width="100%"/>
 <p align="center">
-<img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="250px"/>
+<img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="200px"/>
 </p>
 
 ### Schedule
 
-<img src="docs/images/2/schedule-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/schedule_01--squashed.jpg" alt="preview" width="100%"/>
 
 <details>
 <summary><b>View more</b></summary>
 
 ### Online streaming
 
-<img src="docs/images/2/online_streaming-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/online-streaming--squashed.jpg" alt="preview" width="100%"/>
 
 ### Detailed library view
 
-<img src="docs/images/2/my_library_detailed_view-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/my-library_02--squashed.jpg" alt="preview" width="100%"/>
 
 ### Discover
 
-<img src="docs/images/2/discover-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/discover_02--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/discover_03--squashed.jpg" alt="preview" width="100%"/>
 
 ### AniList integration
 
-<img src="docs/images/2/anilist-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/anilist_01--squashed.jpg" alt="preview" width="100%"/>
 
 ### UI customization
 
-<img src="docs/images/2/ui_customization-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/customization_01--squashed.jpg" alt="preview" width="100%"/>
 
 </details>
 
@@ -203,6 +204,3 @@ The acquisition and legitimacy of this content are external to the developer's c
 - Seanime may, at its discretion, provide links or an interface to external websites or applications. These external websites are independently maintained by third parties, and Seanime has no control
   over the legitimacy of their content or operations. Please contact the website's owners for any concerns.
 - Seanime does not collect any kind of personal data or information from its users. You are responsible for maintaining the privacy and security of the third-party authentication tokens stored within your device.
-
-## Stargazers
-[![Stargazers over time](https://starchart.cc/5rahim/seanime.svg?variant=adaptive)](https://starchart.cc/5rahim/seanime)
