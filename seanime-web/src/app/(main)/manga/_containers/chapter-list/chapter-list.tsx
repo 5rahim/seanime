@@ -205,7 +205,7 @@ export function ChapterList(props: ChapterListProps) {
 
     return (
         <div
-            className="space-y-2"
+            className="space-y-4"
         >
 
             <div className="flex flex-wrap gap-2 items-center">
@@ -255,7 +255,7 @@ export function ChapterList(props: ChapterListProps) {
                         {!!chapterContainer?.chapters?.length && (
                             <>
                                 <div className="flex gap-2 items-center w-full pb-2">
-                                    <h3 className="px-1">Chapters</h3>
+                                    <h2 className="px-1">Chapters</h2>
                                     <div className="flex flex-1"></div>
                                     <div>
                                         {!!unreadChapters?.length && <Button

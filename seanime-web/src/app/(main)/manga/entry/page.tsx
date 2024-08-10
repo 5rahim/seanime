@@ -57,7 +57,7 @@ export default function Page() {
                 >
 
                     <div
-                        className="grid gap-4 xl:grid-cols-[1fr,380px] 2xl:grid-cols-[1fr,650px]"
+                        className="grid gap-8 xl:grid-cols-[1fr,480px] 2xl:grid-cols-[1fr,650px]"
                     >
                         <div className="space-y-2">
                             <ChapterList
@@ -69,13 +69,12 @@ export default function Page() {
                             />
                         </div>
 
-                        <div>
-                            <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
-
+                        <div className="pt-12">
+                            <MediaEntryCharactersSection details={mangaDetails} isMangaPage />
                         </div>
                     </div>
 
-                    <MediaEntryCharactersSection details={mangaDetails} />
+                    <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
 
                 </PageWrapper>
             </div>

@@ -75,7 +75,7 @@ export default function Page() {
             // Clear the file path
             setFilePath(undefined)
         }
-    }, [animeEntry, filePath])
+    }, [animeEntry, filePath, externalPlayerLink])
 
     const mainEpisodes = React.useMemo(() => {
         return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []

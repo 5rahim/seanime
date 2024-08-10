@@ -10,12 +10,14 @@ import { BiSolidHeart } from "react-icons/bi"
 
 type RelationsRecommendationsSectionProps = {
     details: AL_AnimeDetailsById_Media | AL_MangaDetailsById_Media | undefined
+    isMangaPage?: boolean
 }
 
 export function MediaEntryCharactersSection(props: RelationsRecommendationsSectionProps) {
 
     const {
         details,
+        isMangaPage,
         ...rest
     } = props
 
@@ -29,11 +31,16 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
 
     return (
         <>
-            <Separator />
+            {!isMangaPage && <Separator />}
 
             <h2>Characters</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+            <div
+                className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4",
+                    isMangaPage && "grid-cols-1 md:grid-col-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-2",
+                )}
+            >
                 {characters?.slice(0, 10).map(edge => {
                     return <div key={edge?.node?.id} className="col-span-1">
                         <div
