@@ -80,14 +80,14 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 }}
                 defaultValues={{
                     transcodeEnabled: settings?.transcodeEnabled ?? false,
-                    transcodeHwAccel: settings?.transcodeHwAccel || "cpu",
-                    transcodePreset: settings?.transcodePreset || "fast",
+                    transcodeHwAccel: settings?.transcodeHwAccel ?? "cpu",
+                    transcodePreset: settings?.transcodePreset ?? "fast",
                     // transcodeThreads: settings?.transcodeThreads,
                     // preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,
                     // preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
                     disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay ?? false,
-                    ffmpegPath: settings?.ffmpegPath || "",
-                    ffprobePath: settings?.ffprobePath || "",
+                    ffmpegPath: settings?.ffmpegPath ?? "",
+                    ffprobePath: settings?.ffprobePath ?? "",
                 }}
                 stackClass="space-y-6"
             >
