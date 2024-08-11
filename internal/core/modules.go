@@ -55,11 +55,7 @@ func (a *App) initModulesOnce() {
 	// |     Discord RPC     |
 	// +---------------------+
 
-	username := ""
-	if a.account != nil {
-		username = a.account.Username
-	}
-	a.DiscordPresence = discordrpc_presence.New(nil, username, a.Logger)
+	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
 	a.AddCleanupFunction(func() {
 		a.DiscordPresence.Close()
 	})
@@ -337,7 +333,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Discord != nil && a.DiscordPresence != nil {
-		a.DiscordPresence.SetSettings(settings.Discord)
+		a.DiscordPresence.SetSettings(settings.Discord, "")
 	}
 
 	a.Logger.Info().Msg("app: Refreshed modules")
@@ -453,6 +449,10 @@ func (a *App) InitOrRefreshAnilistData() {
 		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
 		return
 	}
+
+	go func(username string) {
+		a.DiscordPresence.SetUsername(username)
+	}(a.account.Username)
 
 	a.Logger.Info().Msg("app: Fetched Anilist data")
 }

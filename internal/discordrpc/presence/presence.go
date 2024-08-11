@@ -23,7 +23,7 @@ type Presence struct {
 
 // New creates a new Presence instance.
 // If rich presence is enabled, it sets up a new discord rpc client.
-func New(settings *models.DiscordSettings, username string, logger *zerolog.Logger) *Presence {
+func New(settings *models.DiscordSettings, logger *zerolog.Logger) *Presence {
 	var client *discordrpc_client.Client
 
 	if settings != nil && settings.EnableRichPresence {
@@ -40,7 +40,6 @@ func New(settings *models.DiscordSettings, username string, logger *zerolog.Logg
 		logger:   logger,
 		lastSet:  time.Now(),
 		hasSent:  false,
-		username: username,
 	}
 }
 
@@ -56,7 +55,7 @@ func (p *Presence) Close() {
 	p.client = nil
 }
 
-func (p *Presence) SetSettings(settings *models.DiscordSettings) {
+func (p *Presence) SetSettings(settings *models.DiscordSettings, username string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -66,6 +65,7 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 	p.Close()
 
 	p.settings = settings
+	p.username = username
 
 	// Create a new client if rich presence is enabled
 	if settings.EnableRichPresence {
@@ -74,6 +74,13 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 	} else {
 		p.client = nil
 	}
+}
+
+func (p *Presence) SetUsername(username string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.username = username
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +226,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 		})
 	}
 
-	if !p.settings.RichPresenceHideSeanimeRepositoryButton && len(activity.Buttons) == 1 {
+	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
 			Label: "Seanime",
 			Url:   "https://github.com/5rahim/seanime",
@@ -275,7 +282,7 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 		})
 	}
 
-	if !p.settings.RichPresenceHideSeanimeRepositoryButton && len(activity.Buttons) == 1 {
+	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
 		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
 			Label: "Seanime",
 			Url:   "https://github.com/5rahim/seanime",
