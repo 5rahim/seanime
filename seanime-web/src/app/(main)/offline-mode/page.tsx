@@ -39,7 +39,7 @@ export default function Page() {
                         Offline mode allows you to use the most important features of Seanime without an internet connection.
                     </p>
                     <p className="">
-                        Create a snapshot of your library then enable offline mode in your <code>config.toml</code> file.
+                        Create a snapshot of your library then enable offline mode in your <code className="code">config.toml</code> file.
                         Your progress will be synced once you're back online.
                     </p>
                     <p>

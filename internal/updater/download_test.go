@@ -2,8 +2,8 @@ package updater
 
 import (
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/util"
 	"os"
+	"seanime/internal/util"
 	"strings"
 	"testing"
 )

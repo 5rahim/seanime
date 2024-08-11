@@ -3,9 +3,9 @@ package scanner
 import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/events"
 	"os"
 	"path/filepath"
+	"seanime/internal/events"
 )
 
 // Watcher is a custom file system event watcher
@@ -81,12 +81,12 @@ func (w *Watcher) StartWatching(
 				if event.Op&fsnotify.Write == fsnotify.Write {
 				}
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					w.Logger.Debug().Msgf("File created: %s", event.Name)
+					w.Logger.Debug().Msgf("watcher: File created: %s", event.Name)
 					w.WSEventManager.SendEvent(events.LibraryWatcherFileAdded, event.Name)
 					onFileAction()
 				}
 				if event.Op&fsnotify.Remove == fsnotify.Remove {
-					w.Logger.Debug().Msgf("File removed: %s", event.Name)
+					w.Logger.Debug().Msgf("watcher: File removed: %s", event.Name)
 					w.WSEventManager.SendEvent(events.LibraryWatcherFileRemoved, event.Name)
 					onFileAction()
 				}

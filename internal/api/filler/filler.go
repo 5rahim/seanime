@@ -5,7 +5,7 @@ import (
 	"github.com/adrg/strutil/metrics"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/util"
 	"strings"
 )
 

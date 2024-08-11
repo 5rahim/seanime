@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/database/models"
 	"io"
 	"net/http"
 	"net/url"
+	"seanime/internal/database/db"
+	"seanime/internal/database/models"
 	"strings"
 	"time"
 )

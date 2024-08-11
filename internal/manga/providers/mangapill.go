@@ -2,12 +2,13 @@ package manga_providers
 
 import (
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
 	"net/http"
 	"net/url"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"slices"
 	"strconv"
 	"strings"
@@ -36,8 +37,12 @@ func NewMangapill(logger *zerolog.Logger) *Mangapill {
 	}
 }
 
-func (mp *Mangapill) Search(opts SearchOptions) (ret []*SearchResult, err error) {
-	ret = make([]*SearchResult, 0)
+// DEVNOTE: Unique ID
+// Each chapter ID has this format: {number}${slug} -- e.g. 6502-10004000$gokurakugai-chapter-4
+// The chapter ID is split by the $ character to reconstruct the chapter URL for subsequent requests
+
+func (mp *Mangapill) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
+	ret = make([]*hibikemanga.SearchResult, 0)
 
 	mp.logger.Debug().Str("query", opts.Query).Msg("mangapill: Searching manga")
 
@@ -54,8 +59,8 @@ func (mp *Mangapill) Search(opts SearchOptions) (ret []*SearchResult, err error)
 			if r := recover(); r != nil {
 			}
 		}()
-		result := &SearchResult{
-			Provider: MangapillProvider,
+		result := &hibikemanga.SearchResult{
+			Provider: string(MangapillProvider),
 		}
 
 		result.ID = strings.Split(e.ChildAttr("a", "href"), "/manga/")[1]
@@ -107,8 +112,8 @@ func (mp *Mangapill) Search(opts SearchOptions) (ret []*SearchResult, err error)
 	return ret, nil
 }
 
-func (mp *Mangapill) FindChapters(id string) (ret []*ChapterDetails, err error) {
-	ret = make([]*ChapterDetails, 0)
+func (mp *Mangapill) FindChapters(id string) (ret []*hibikemanga.ChapterDetails, err error) {
+	ret = make([]*hibikemanga.ChapterDetails, 0)
 
 	mp.logger.Debug().Str("mangaId", id).Msg("mangapill: Finding chapters")
 
@@ -126,8 +131,8 @@ func (mp *Mangapill) FindChapters(id string) (ret []*ChapterDetails, err error) 
 			if r := recover(); r != nil {
 			}
 		}()
-		chapter := &ChapterDetails{
-			Provider: MangapillProvider,
+		chapter := &hibikemanga.ChapterDetails{
+			Provider: string(MangapillProvider),
 		}
 
 		chapter.ID = strings.Split(e.Attr("href"), "/chapters/")[1]
@@ -166,8 +171,8 @@ func (mp *Mangapill) FindChapters(id string) (ret []*ChapterDetails, err error) 
 	return ret, nil
 }
 
-func (mp *Mangapill) FindChapterPages(id string) (ret []*ChapterPage, err error) {
-	ret = make([]*ChapterPage, 0)
+func (mp *Mangapill) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err error) {
+	ret = make([]*hibikemanga.ChapterPage, 0)
 
 	mp.logger.Debug().Str("chapterId", id).Msg("mangapill: Finding chapter pages")
 
@@ -185,7 +190,7 @@ func (mp *Mangapill) FindChapterPages(id string) (ret []*ChapterPage, err error)
 			if r := recover(); r != nil {
 			}
 		}()
-		page := &ChapterPage{}
+		page := &hibikemanga.ChapterPage{}
 
 		page.URL = e.DOM.Find("div picture img").AttrOr("data-src", "")
 		if page.URL == "" {

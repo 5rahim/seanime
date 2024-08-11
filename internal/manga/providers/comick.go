@@ -4,12 +4,13 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
 	"net/http"
 	"net/url"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"slices"
 	"strings"
 	"time"
@@ -73,7 +74,9 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 	}
 }
 
-func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
+// DEVNOTE: Each chapter ID is a unique string provided by ComicK
+
+func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
 
 	c.logger.Debug().Str("query", opts.Query).Msg("comick: Searching manga")
 
@@ -102,7 +105,7 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	results := make([]*SearchResult, 0)
+	results := make([]*hibikemanga.SearchResult, 0)
 	for _, result := range data {
 
 		// Skip fan-colored manga
@@ -120,16 +123,17 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 			altTitles[j] = title.Title
 		}
 
+		// DEVNOTE: We don't compare to alt titles because ComicK's synonyms aren't good
 		compRes, _ := comparison.FindBestMatchWithSorensenDice(&opts.Query, []*string{&result.Title})
 
-		results = append(results, &SearchResult{
+		results = append(results, &hibikemanga.SearchResult{
 			ID:           result.HID,
 			Title:        cmp.Or(result.Title, result.Slug),
 			Synonyms:     altTitles,
 			Image:        coverURL,
 			Year:         result.Year,
 			SearchRating: compRes.Rating,
-			Provider:     ComickProvider,
+			Provider:     string(ComickProvider),
 		})
 	}
 
@@ -143,8 +147,8 @@ func (c *ComicK) Search(opts SearchOptions) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
-	ret := make([]*ChapterDetails, 0)
+func (c *ComicK) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) {
+	ret := make([]*hibikemanga.ChapterDetails, 0)
 
 	c.logger.Debug().Str("mangaId", id).Msg("comick: Fetching chapters")
 
@@ -173,8 +177,8 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	chapters := make([]*ChapterDetails, 0)
-	chaptersMap := make(map[string]*ChapterDetails)
+	chapters := make([]*hibikemanga.ChapterDetails, 0)
+	chaptersMap := make(map[string]*hibikemanga.ChapterDetails)
 	count := 0
 	for _, chapter := range data.Chapters {
 		if chapter.Chap == "" || chapter.Lang != "en" {
@@ -198,8 +202,8 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 			if !ok {
 				count++
 			}
-			chaptersMap[chapter.Chap] = &ChapterDetails{
-				Provider:  ComickProvider,
+			chaptersMap[chapter.Chap] = &hibikemanga.ChapterDetails{
+				Provider:  string(ComickProvider),
 				ID:        chapter.HID,
 				Title:     title,
 				Index:     uint(count),
@@ -216,7 +220,7 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	}
 
 	// Sort chapters by index
-	slices.SortStableFunc(chapters, func(i, j *ChapterDetails) int {
+	slices.SortStableFunc(chapters, func(i, j *hibikemanga.ChapterDetails) int {
 		return cmp.Compare(i.Index, j.Index)
 	})
 
@@ -232,8 +236,8 @@ func (c *ComicK) FindChapters(id string) ([]*ChapterDetails, error) {
 	return ret, nil
 }
 
-func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
-	ret := make([]*ChapterPage, 0)
+func (c *ComicK) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error) {
+	ret := make([]*hibikemanga.ChapterPage, 0)
 
 	c.logger.Debug().Str("chapterId", id).Msg("comick: Finding chapter pages")
 
@@ -268,8 +272,8 @@ func (c *ComicK) FindChapterPages(id string) ([]*ChapterPage, error) {
 	}
 
 	for index, image := range data.Chapter.MdImages {
-		ret = append(ret, &ChapterPage{
-			Provider: ComickProvider,
+		ret = append(ret, &hibikemanga.ChapterPage{
+			Provider: string(ComickProvider),
 			URL:      fmt.Sprintf("https://meo.comick.pictures/%s?width=%d", image.B2Key, image.W),
 			Index:    index,
 			Headers:  make(map[string]string),

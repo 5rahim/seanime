@@ -17,6 +17,10 @@ const (
 	space                           = "    "
 )
 
+var additionalStructNamesForEndpoints = []string{
+	"vendor_hibike_torrent.AnimeTorrent",
+}
+
 func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir string) []string {
 	handlers := LoadHandlers(docsPath)
 	structs := LoadPublicStructs(structsPath)
@@ -177,6 +181,10 @@ func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir
 
 		importedTypes = append(importedTypes, goStruct.FormattedName)
 	}
+
+	for _, otherStrctName := range additionalStructNamesForEndpoints {
+		importedTypes = append(importedTypes, stringGoTypeToTypescriptType(otherStrctName))
+	}
 	//
 	slices.SortStableFunc(importedTypes, func(i, j string) int {
 		return strings.Compare(i, j)
@@ -219,7 +227,7 @@ func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir
 				typeF.WriteString(fmt.Sprintf(" * Route %s\n", strings.TrimSpace(route.Api.Summary)))
 			}
 			typeF.WriteString(" */\n")
-			typeF.WriteString(fmt.Sprintf("export type %s_Variables = {\n", strings.TrimPrefix(route.Name, "Handle"))) // export type EditMediaEntry_Variables = {
+			typeF.WriteString(fmt.Sprintf("export type %s_Variables = {\n", strings.TrimPrefix(route.Name, "Handle"))) // export type EditAnimeEntry_Variables = {
 
 			addedBodyFields := false
 			for _, param := range route.Api.BodyFields {

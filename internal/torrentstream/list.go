@@ -4,18 +4,19 @@ import (
 	"cmp"
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
 	"slices"
 )
 
 type (
 	EpisodeCollection struct {
-		Episodes []*anime.MediaEntryEpisode `json:"episodes"`
+		Episodes        []*anime.AnimeEntryEpisode `json:"episodes"`
+		HasMappingError bool                       `json:"hasMappingError"`
 	}
 )
 
-// NewEpisodeCollection creates a new episode collection by leveraging anime.MediaEntryDownloadInfo.
+// NewEpisodeCollection creates a new episode collection by leveraging anime.AnimeEntryDownloadInfo.
 // It stores the EpisodeCollection in the repository instance for the lifetime of the repository.
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
 	if err = r.FailIfNoSettings(); err != nil {
@@ -23,25 +24,26 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	// Get the media info, this is cached
-	completeMedia, anizipMedia, err := r.getMediaInfo(mId)
+	completeAnime, anizipMedia, err := r.getMediaInfo(mId)
 	if err != nil {
 		return nil, err
 	}
 
 	ec = &EpisodeCollection{
-		Episodes: make([]*anime.MediaEntryEpisode, 0),
+		HasMappingError: false,
+		Episodes:        make([]*anime.AnimeEntryEpisode, 0),
 	}
 
 	// +---------------------+
 	// |    Download Info    |
 	// +---------------------+
 
-	info, err := anime.NewMediaEntryDownloadInfo(&anime.NewMediaEntryDownloadInfoOptions{
+	info, err := anime.NewAnimeEntryDownloadInfo(&anime.NewAnimeEntryDownloadInfoOptions{
 		LocalFiles:       nil,
 		AnizipMedia:      anizipMedia,
 		Progress:         lo.ToPtr(0), // Progress is 0 because we want the entire list
 		Status:           lo.ToPtr(anilist.MediaListStatusCurrent),
-		Media:            completeMedia.ToBaseMedia(),
+		Media:            completeAnime.ToBaseAnime(),
 		MetadataProvider: r.metadataProvider,
 	})
 	if err != nil {
@@ -50,8 +52,43 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	if info == nil || info.EpisodesToDownload == nil {
-		r.logger.Error().Msg("torrentstream: could not get media entry info, episodes to download is nil")
-		return nil, fmt.Errorf("could not get media entry info")
+		r.logger.Debug().Msg("torrentstream: no episodes found from AniDB, using AniList")
+		baseAnime := completeAnime.ToBaseAnime()
+		for epIdx := range baseAnime.GetCurrentEpisodeCount() {
+			episodeNumber := epIdx + 1
+
+			mediaWrapper := r.metadataProvider.NewMediaWrapper(baseAnime, nil)
+			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
+
+			episode := &anime.AnimeEntryEpisode{
+				Type:                  anime.LocalFileTypeMain,
+				DisplayTitle:          fmt.Sprintf("Episode %d", episodeNumber),
+				EpisodeTitle:          baseAnime.GetPreferredTitle(),
+				EpisodeNumber:         episodeNumber,
+				AniDBEpisode:          fmt.Sprintf("%d", episodeNumber),
+				AbsoluteEpisodeNumber: episodeNumber,
+				ProgressNumber:        episodeNumber,
+				LocalFile:             nil,
+				IsDownloaded:          false,
+				EpisodeMetadata: &anime.AnimeEntryEpisodeMetadata{
+					AniDBId:  0,
+					Image:    episodeMetadata.Image,
+					AirDate:  "",
+					Length:   0,
+					Summary:  "",
+					Overview: "",
+					IsFiller: false,
+				},
+				FileMetadata:  nil,
+				IsInvalid:     false,
+				MetadataIssue: "",
+				BaseAnime:     baseAnime,
+			}
+			ec.Episodes = append(ec.Episodes, episode)
+		}
+		ec.HasMappingError = true
+		r.setEpisodeCollection(ec)
+		return
 	}
 
 	if len(info.EpisodesToDownload) == 0 {
@@ -59,11 +96,11 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		return nil, fmt.Errorf("no episodes found")
 	}
 
-	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.MediaEntryDownloadEpisode, i int) *anime.MediaEntryEpisode {
+	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.AnimeEntryDownloadEpisode, i int) *anime.AnimeEntryEpisode {
 		return episode.Episode
 	})
 
-	slices.SortStableFunc(ec.Episodes, func(i, j *anime.MediaEntryEpisode) int {
+	slices.SortStableFunc(ec.Episodes, func(i, j *anime.AnimeEntryEpisode) int {
 		return cmp.Compare(i.EpisodeNumber, j.EpisodeNumber)
 	})
 

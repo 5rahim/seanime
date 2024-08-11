@@ -1,11 +1,11 @@
 package torrent_analyzer
 
 import (
-	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -14,7 +14,8 @@ func TestSelectFilesFromSeason(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	logger := util.NewLogger()
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	tests := []struct {
 		name            string
@@ -73,16 +74,16 @@ func TestSelectFilesFromSeason(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			// Get media
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.mediaId)
+			media, err := anilistPlatform.GetAnimeWithRelations(tt.mediaId)
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
 			}
 
 			analyzer := NewAnalyzer(&NewAnalyzerOptions{
-				Logger:               logger,
-				Filepaths:            tt.filepaths,
-				Media:                mediaF.GetMedia(),
-				AnilistClientWrapper: anilistClientWrapper,
+				Logger:    logger,
+				Filepaths: tt.filepaths,
+				Media:     media,
+				Platform:  anilistPlatform,
 			})
 
 			// AnalyzeTorrentFiles

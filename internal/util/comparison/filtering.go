@@ -73,6 +73,9 @@ func ExtractResolutionInt(val string) int {
 	if strings.Contains(val, "720") {
 		return 720
 	}
+	if strings.Contains(val, "540") {
+		return 540
+	}
 	if strings.Contains(val, "480") {
 		return 480
 	}

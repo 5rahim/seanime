@@ -1,4 +1,4 @@
-import { Manga_ChapterPage, Manga_PageContainer } from "@/api/generated/types"
+import { HibikeManga_ChapterPage, Manga_PageContainer } from "@/api/generated/types"
 import { useMangaReaderUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -11,7 +11,7 @@ type ChapterPageProps = {
     children?: React.ReactNode
     index: number
     pageContainer: Manga_PageContainer | undefined
-    page: Manga_ChapterPage | undefined
+    page: HibikeManga_ChapterPage | undefined
     containerClass: string
     imageClass: string
     readingMode: string

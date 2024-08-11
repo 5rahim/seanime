@@ -48,8 +48,8 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
 
         if (!ts.enableColorSettings) return
 
-        setBgColor(r, "--background", "#0c0c0c", ts.backgroundColor)
-        setBgColor(r, "--paper", "#101010", colord(ts.backgroundColor).lighten(0.025).toHex())
+        setBgColor(r, "--background", "#070707", ts.backgroundColor)
+        setBgColor(r, "--paper", colord("rgba(11 11 11)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
         setBgColor(r, "--media-card-popup-background", colord("rgb(16 16 16)").toHex(), colord(ts.backgroundColor).lighten(0.025).toHex())
         setBgColor(r,
             "--hover-from-background-color",
@@ -57,14 +57,13 @@ export function CustomThemeProvider(props: CustomColorProviderProps) {
             colord(ts.backgroundColor).lighten(0.025).desaturate(0.05).toHex())
 
 
-
-        setBgColor(r, "--color-gray-950", "16 16 16", colord(ts.backgroundColor).lighten(0.008).desaturate(0.05).toRgb())
-        setBgColor(r, "--color-gray-900", "23 23 23", colord(ts.backgroundColor).lighten(0.04).desaturate(0.05).toRgb())
-        setBgColor(r, "--color-gray-800", "38 38 38", colord(ts.backgroundColor).lighten(0.06).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-700", "64 64 64", colord(ts.backgroundColor).lighten(0.08).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-600", "82 82 82", colord(ts.backgroundColor).lighten(0.1).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-500", "115 115 115", colord(ts.backgroundColor).lighten(0.15).desaturate(0.2).toRgb())
-        setBgColor(r, "--color-gray-400", "163 163 163", colord(ts.backgroundColor).lighten(0.3).desaturate(0.2).toRgb())
+        setBgColor(r, "--color-gray-400", "143 143 143", colord(ts.backgroundColor).lighten(0.3).desaturate(0.2).toRgb())
+        setBgColor(r, "--color-gray-500", "90 90 90", colord(ts.backgroundColor).lighten(0.15).desaturate(0.2).toRgb())
+        setBgColor(r, "--color-gray-600", "72 72 72", colord(ts.backgroundColor).lighten(0.1).desaturate(0.2).toRgb())
+        setBgColor(r, "--color-gray-700", "54 54 54", colord(ts.backgroundColor).lighten(0.08).desaturate(0.2).toRgb())
+        setBgColor(r, "--color-gray-800", "28 28 28", colord(ts.backgroundColor).lighten(0.06).desaturate(0.2).toRgb())
+        setBgColor(r, "--color-gray-900", "16 16 16", colord(ts.backgroundColor).lighten(0.04).desaturate(0.05).toRgb())
+        setBgColor(r, "--color-gray-950", "11 11 11", colord(ts.backgroundColor).lighten(0.008).desaturate(0.05).toRgb())
         // setColor(r, "--color-gray-300", null, colord(ts.backgroundColor).lighten(0.4).desaturate(0.2).toRgb())
 
     }, [ts.enableColorSettings, ts.backgroundColor])

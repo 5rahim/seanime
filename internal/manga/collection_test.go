@@ -2,8 +2,9 @@ package manga
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/test_utils"
+	"seanime/internal/api/anilist"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
 	"testing"
 )
 
@@ -11,16 +12,17 @@ func TestNewCollection(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, nil)
 
-	mangaCollection, err := anilistClientWrapper.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	mangaCollection, err := anilistClient.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatalf("Failed to get manga collection: %v", err)
 	}
 
 	opts := &NewCollectionOptions{
-		MangaCollection:      mangaCollection,
-		AnilistClientWrapper: anilistClientWrapper,
+		MangaCollection: mangaCollection,
+		Platform:        anilistPlatform,
 	}
 
 	collection, err := NewCollection(opts)

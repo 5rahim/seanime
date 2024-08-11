@@ -12,12 +12,12 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"seanime/internal/util"
 	"slices"
 	"strings"
 	"sync"
@@ -484,7 +484,7 @@ func (ts *Stream) run(start int32) error {
 		outpath,
 	)
 
-	cmd := exec.CommandContext(context.Background(), ts.settings.FfmpegPath, args...)
+	cmd := util.NewCmdCtx(context.Background(), ts.settings.FfmpegPath, args...)
 	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d of %s", start, end, ts.kind)
 
 	stdout, err := cmd.StdoutPipe()

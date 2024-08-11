@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
 	"strings"
 )
 
@@ -26,7 +27,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.Me
 	path = filepath.ToSlash(strings.ToLower(path))
 
 	// Find the local file from the path
-	lfs, _, err := pm.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(pm.Database)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("error getting local files: %s", err.Error())
 	}
@@ -56,7 +57,11 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.Me
 		return nil, nil, nil, errors.New("local file has not been matched")
 	}
 
-	ret, ok := pm.animeCollection.GetListEntryFromMediaId(lf.MediaId)
+	if pm.animeCollection.IsAbsent() {
+		return nil, nil, nil, fmt.Errorf("error getting anime collection: %s", err.Error())
+	}
+
+	ret, ok := pm.animeCollection.MustGet().GetListEntryFromAnimeId(lf.MediaId)
 	if !ok {
 		return nil, nil, nil, errors.New("anilist list entry not found")
 	}
@@ -76,7 +81,11 @@ func (pm *PlaybackManager) getStreamPlaybackDetails(mId int) mo.Option[*anilist.
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	ret, ok := pm.animeCollection.GetListEntryFromMediaId(mId)
+	if pm.animeCollection.IsAbsent() {
+		return mo.None[*anilist.MediaListEntry]()
+	}
+
+	ret, ok := pm.animeCollection.MustGet().GetListEntryFromAnimeId(mId)
 	if !ok {
 		return mo.None[*anilist.MediaListEntry]()
 	}

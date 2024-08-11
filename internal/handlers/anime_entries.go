@@ -1,27 +1,26 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/adrg/strutil/metrics"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/mal"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/library/summary"
-	"github.com/seanime-app/seanime/internal/util/limiter"
-	"github.com/seanime-app/seanime/internal/util/result"
 	"github.com/sourcegraph/conc/pool"
 	"gorm.io/gorm"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/mal"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/scanner"
+	"seanime/internal/library/summary"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
+	"seanime/internal/util/result"
 	"slices"
 	"sort"
 	"strconv"
@@ -35,7 +34,7 @@ import (
 //	@desc This includes episodes and metadata (if any), AniList list data, download info...
 //	@route /api/v1/library/anime-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
-//	@returns anime.MediaEntry
+//	@returns anime.AnimeEntry
 func HandleGetAnimeEntry(c *RouteCtx) error {
 
 	mId, err := c.Fiber.ParamsInt("id")
@@ -44,7 +43,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -55,14 +54,18 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if animeCollection == nil {
+		return c.RespondWithError(errors.New("anime collection not found"))
+	}
+
 	// Create a new media entry
-	entry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
-		MediaId:              mId,
-		LocalFiles:           lfs,
-		AnizipCache:          c.App.AnizipCache,
-		AnimeCollection:      animeCollection,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		MetadataProvider:     c.App.MetadataProvider,
+	entry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
+		MediaId:          mId,
+		LocalFiles:       lfs,
+		AnizipCache:      c.App.AnizipCache,
+		AnimeCollection:  animeCollection,
+		Platform:         c.App.AnilistPlatform,
+		MetadataProvider: c.App.MetadataProvider,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -95,7 +98,7 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -130,7 +133,7 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -147,7 +150,7 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 //	@desc This finds a common directory for all media entry local files and opens it in the file explorer.
 //	@desc Returns 'true' whether the operation was successful or not, errors are ignored.
 //	@route /api/v1/library/anime-entry/open-in-explorer [POST]
-//	@returns boolean
+//	@returns bool
 func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 
 	type body struct {
@@ -160,7 +163,7 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 	}
 
 	// Get all the local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -190,7 +193,7 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 	default:
 		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
-	cmdObj := exec.Command(cmd, args...)
+	cmdObj := util.NewCmd(cmd, args...)
 	cmdObj.Stdout = os.Stdout
 	cmdObj.Stderr = os.Stderr
 	err = cmdObj.Run()
@@ -203,7 +206,7 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 
 var (
 	entriesMalCache              = result.NewCache[string, []*mal.SearchResultAnime]()
-	entriesAnilistBaseMediaCache = result.NewCache[int, *anilist.BaseMedia]()
+	entriesAnilistBaseAnimeCache = result.NewCache[int, *anilist.BaseAnime]()
 )
 
 // HandleFetchAnimeEntrySuggestions
@@ -212,7 +215,7 @@ var (
 //	@desc This is used by the "Resolve unmatched media" feature to suggest media entries for the local files in the given directory.
 //	@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.
 //	@route /api/v1/library/anime-entry/suggestions [POST]
-//	@returns []anilist.BaseMedia
+//	@returns []anilist.BaseAnime
 func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	type body struct {
@@ -227,7 +230,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 	b.Dir = strings.ToLower(b.Dir)
 
 	// Retrieve local files
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -263,7 +266,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 	if len(malSuggestions) == 0 {
-		return c.RespondWithData([]*anilist.BaseMedia{})
+		return c.RespondWithData([]*anilist.BaseAnime{})
 	}
 
 	dice := metrics.NewSorensenDice()
@@ -300,28 +303,27 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 	malSuggestions = _malSuggestions
 
 	anilistRateLimit := limiter.NewAnilistLimiter()
-	p2 := pool.NewWithResults[*anilist.BaseMedia]()
+	p2 := pool.NewWithResults[*anilist.BaseAnime]()
 	for _, s := range malSuggestions {
-		p2.Go(func() *anilist.BaseMedia {
+		p2.Go(func() *anilist.BaseAnime {
 			anilistRateLimit.Wait()
 			// Check if the media has already been fetched
-			media, found := entriesAnilistBaseMediaCache.Get(s.ID)
+			media, found := entriesAnilistBaseAnimeCache.Get(s.ID)
 			if found {
 				return media
 			}
 			// Otherwise, fetch the media
-			mediaRes, err := c.App.AnilistClientWrapper.BaseMediaByMalID(context.Background(), &s.ID)
+			media, err = c.App.AnilistPlatform.GetAnimeByMalID(s.ID)
 			if err != nil {
 				return nil
 			}
-			media = mediaRes.GetMedia()
 			// Cache the media
-			entriesAnilistBaseMediaCache.Set(s.ID, media)
+			entriesAnilistBaseAnimeCache.Set(s.ID, media)
 			return media
 		})
 	}
 	anilistMedia := p2.Wait()
-	anilistMedia = lo.Filter(anilistMedia, func(item *anilist.BaseMedia, _ int) bool {
+	anilistMedia = lo.Filter(anilistMedia, func(item *anilist.BaseAnime, _ int) bool {
 		return item != nil
 	})
 
@@ -351,18 +353,13 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	acc, err := c.App.GetAccount()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	animeCollectionWithRelations, err := c.App.AnilistClientWrapper.AnimeCollectionWithRelations(context.Background(), &acc.Username)
+	animeCollectionWithRelations, err := c.App.AnilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Retrieve local files
-	lfs, lfsId, err := c.App.Database.GetLocalFiles()
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -387,14 +384,14 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	})
 
 	// Get the media
-	mediaRes, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
+	media, err := c.App.AnilistPlatform.GetAnime(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Create a slice of normalized media
 	normalizedMedia := []*anime.NormalizedMedia{
-		anime.NewNormalizedMedia(mediaRes.GetMedia()),
+		anime.NewNormalizedMedia(media),
 	}
 
 	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)
@@ -406,16 +403,16 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	scanSummaryLogger := summary.NewScanSummaryLogger()
 
 	fh := scanner.FileHydrator{
-		LocalFiles:           selectedLfs,
-		CompleteMediaCache:   anilist.NewCompleteMediaCache(),
-		AnizipCache:          anizip.NewCache(),
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		AnilistRateLimiter:   limiter.NewAnilistLimiter(),
-		Logger:               c.App.Logger,
-		ScanLogger:           scanLogger,
-		ScanSummaryLogger:    scanSummaryLogger,
-		AllMedia:             normalizedMedia,
-		ForceMediaId:         mediaRes.GetMedia().GetID(),
+		LocalFiles:         selectedLfs,
+		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
+		AnizipCache:        anizip.NewCache(),
+		Platform:           c.App.AnilistPlatform,
+		AnilistRateLimiter: limiter.NewAnilistLimiter(),
+		Logger:             c.App.Logger,
+		ScanLogger:         scanLogger,
+		ScanSummaryLogger:  scanSummaryLogger,
+		AllMedia:           normalizedMedia,
+		ForceMediaId:       media.GetID(),
 	}
 
 	fh.HydrateMetadata()
@@ -425,7 +422,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	// Save the scan summary
 	go func() {
-		err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+		err = db_bridge.InsertScanSummary(c.App.Database, scanSummaryLogger.GenerateSummary())
 	}()
 
 	// Remove select local files from the database slice, we will add them (hydrated) later
@@ -441,7 +438,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	lfs = append(lfs, selectedLfs...)
 
 	// Update the local files
-	retLfs, err := c.App.Database.SaveLocalFiles(lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -471,7 +468,7 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -505,7 +502,7 @@ func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("invalid id"))
 	}
 
-	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
+	animeEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.RespondWithData(false)
@@ -514,7 +511,7 @@ func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
 		}
 	}
 
-	return c.RespondWithData(mediaEntry)
+	return c.RespondWithData(animeEntry)
 }
 
 // HandleToggleAnimeEntrySilenceStatus
@@ -534,7 +531,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
+	animeEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = c.App.Database.InsertSilencedMediaEntry(uint(b.MediaId))
@@ -547,7 +544,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 		}
 	}
 
-	err = c.App.Database.DeleteSilencedMediaEntry(mediaEntry.ID)
+	err = c.App.Database.DeleteSilencedMediaEntry(animeEntry.ID)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -564,7 +561,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 //	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
 //	@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
 //	@route /api/v1/library/anime-entry/update-progress [POST]
-//	@returns boolean
+//	@returns bool
 func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 
 	type body struct {
@@ -580,10 +577,9 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 	}
 
 	// Update the progress on AniList
-	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
-		context.Background(),
-		&b.MediaId,
-		&b.EpisodeNumber,
+	err := c.App.AnilistPlatform.UpdateEntryProgress(
+		b.MediaId,
+		b.EpisodeNumber,
 		&b.TotalEpisodes,
 	)
 	if err != nil {
@@ -591,28 +587,6 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 	}
 
 	_, _ = c.App.RefreshAnimeCollection() // Refresh the AniList collection
-
-	go func() {
-		// Update the progress on MAL if an account is linked
-		malInfo, _ := c.App.Database.GetMalInfo()
-		if malInfo != nil && malInfo.AccessToken != "" && b.MalId > 0 {
-
-			// Verify MAL auth
-			malInfo, err = mal.VerifyMALAuth(malInfo, c.App.Database, c.App.Logger)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-				return
-			}
-
-			client := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
-			err = client.UpdateAnimeProgress(&mal.AnimeListProgressParams{
-				NumEpisodesWatched: &b.EpisodeNumber,
-			}, b.MalId)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-			}
-		}
-	}()
 
 	return c.RespondWithData(true)
 }

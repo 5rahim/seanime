@@ -6,21 +6,21 @@ import (
 )
 
 type MockHydratedLocalFileOptions struct {
-	filePath             string
-	libraryPath          string
-	mediaId              int
-	metadataEpisode      int
-	metadataAniDbEpisode string
-	metadataType         LocalFileType
+	FilePath             string
+	LibraryPath          string
+	MediaId              int
+	MetadataEpisode      int
+	MetadataAniDbEpisode string
+	MetadataType         LocalFileType
 }
 
 func MockHydratedLocalFile(opts MockHydratedLocalFileOptions) *LocalFile {
-	lf := NewLocalFile(opts.filePath, opts.libraryPath)
-	lf.MediaId = opts.mediaId
+	lf := NewLocalFile(opts.FilePath, opts.LibraryPath)
+	lf.MediaId = opts.MediaId
 	lf.Metadata = &LocalFileMetadata{
-		AniDBEpisode: opts.metadataAniDbEpisode,
-		Episode:      opts.metadataEpisode,
-		Type:         opts.metadataType,
+		AniDBEpisode: opts.MetadataAniDbEpisode,
+		Episode:      opts.MetadataEpisode,
+		Type:         opts.MetadataType,
 	}
 	return lf
 }
@@ -31,11 +31,11 @@ func MockHydratedLocalFile(opts MockHydratedLocalFileOptions) *LocalFile {
 //
 //	MockHydratedLocalFiles(
 //		MockHydratedLocalFileOptions{
-//			filePath:             "/mnt/anime/One Piece/One Piece - 1070.mkv",
-//			libraryPath:          "/mnt/anime/",
-//			metadataEpisode:      1070,
-//			metadataAniDbEpisode: "1070",
-//			metadataType:         LocalFileTypeMain,
+//			FilePath:             "/mnt/anime/One Piece/One Piece - 1070.mkv",
+//			LibraryPath:          "/mnt/anime/",
+//			MetadataEpisode:      1070,
+//			MetadataAniDbEpisode: "1070",
+//			MetadataType:         LocalFileTypeMain,
 //		},
 //		MockHydratedLocalFileOptions{
 //			...
@@ -52,9 +52,9 @@ func MockHydratedLocalFiles(opts ...[]MockHydratedLocalFileOptions) []*LocalFile
 }
 
 type MockHydratedLocalFileWrapperOptionsMetadata struct {
-	metadataEpisode      int
-	metadataAniDbEpisode string
-	metadataType         LocalFileType
+	MetadataEpisode      int
+	MetadataAniDbEpisode string
+	MetadataType         LocalFileType
 }
 
 // MockGenerateHydratedLocalFileGroupOptions generates a slice of MockHydratedLocalFileOptions based on a template string and metadata
@@ -62,18 +62,18 @@ type MockHydratedLocalFileWrapperOptionsMetadata struct {
 // Example:
 //
 //	MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "One Piece/One Piece - %ep.mkv", 21, []MockHydratedLocalFileWrapperOptionsMetadata{
-//		{metadataEpisode: 1070, metadataAniDbEpisode: "1070", metadataType: LocalFileTypeMain},
+//		{MetadataEpisode: 1070, MetadataAniDbEpisode: "1070", MetadataType: LocalFileTypeMain},
 //	})
 func MockGenerateHydratedLocalFileGroupOptions(libraryPath string, template string, mId int, m []MockHydratedLocalFileWrapperOptionsMetadata) []MockHydratedLocalFileOptions {
 	opts := make([]MockHydratedLocalFileOptions, 0, len(m))
 	for _, metadata := range m {
 		opts = append(opts, MockHydratedLocalFileOptions{
-			filePath:             strings.ReplaceAll(template, "%ep", strconv.Itoa(metadata.metadataEpisode)),
-			libraryPath:          libraryPath,
-			mediaId:              mId,
-			metadataEpisode:      metadata.metadataEpisode,
-			metadataAniDbEpisode: metadata.metadataAniDbEpisode,
-			metadataType:         metadata.metadataType,
+			FilePath:             strings.ReplaceAll(template, "%ep", strconv.Itoa(metadata.MetadataEpisode)),
+			LibraryPath:          libraryPath,
+			MediaId:              mId,
+			MetadataEpisode:      metadata.MetadataEpisode,
+			MetadataAniDbEpisode: metadata.MetadataAniDbEpisode,
+			MetadataType:         metadata.MetadataType,
 		})
 	}
 	return opts

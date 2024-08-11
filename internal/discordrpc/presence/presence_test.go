@@ -1,8 +1,8 @@
 package discordrpc_presence
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/database/models"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )
@@ -16,7 +16,7 @@ func TestPresence(t *testing.T) {
 	}
 
 	presence := New(nil, util.NewLogger())
-	presence.SetSettings(settings)
+	presence.SetSettings(settings, "test")
 	defer presence.Close()
 
 	presence.SetMangaActivity(&MangaActivity{
@@ -30,7 +30,7 @@ func TestPresence(t *testing.T) {
 	// Simulate settings being updated
 
 	settings.EnableMangaRichPresence = false
-	presence.SetSettings(settings)
+	presence.SetSettings(settings, "test")
 
 	time.Sleep(5 * time.Second)
 
@@ -43,7 +43,7 @@ func TestPresence(t *testing.T) {
 	// Simulate settings being updated
 
 	settings.EnableMangaRichPresence = true
-	presence.SetSettings(settings)
+	presence.SetSettings(settings, "test")
 
 	time.Sleep(5 * time.Second)
 

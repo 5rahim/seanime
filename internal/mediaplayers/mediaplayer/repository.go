@@ -5,16 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/events"
-	mpchc2 "github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
-	vlc2 "github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/events"
+	mpchc2 "seanime/internal/mediaplayers/mpchc"
+	"seanime/internal/mediaplayers/mpv"
+	vlc2 "seanime/internal/mediaplayers/vlc"
+	"seanime/internal/util/result"
 	"sync"
 	"time"
 )
-
-type MpvType string
 
 type (
 	// Repository provides a common interface to interact with media players
@@ -24,14 +22,15 @@ type (
 		VLC                   *vlc2.VLC
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
-		MpvType               MpvType
-		WSEventManager        events.WSEventManagerInterface
+		wsEventManager        events.WSEventManagerInterface
+		playerInUse           string
 		completionThreshold   float64
 		mu                    sync.Mutex
 		isRunning             bool
 		currentPlaybackStatus *PlaybackStatus
 		subscribers           *result.Map[string, *RepositorySubscriber]
 		cancel                context.CancelFunc
+		exitedCh              chan struct{} // Closed when the media player exits
 	}
 
 	NewRepositoryOptions struct {
@@ -71,14 +70,16 @@ type (
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 
 	return &Repository{
-		Logger:              opts.Logger,
-		Default:             opts.Default,
-		VLC:                 opts.VLC,
-		MpcHc:               opts.MpcHc,
-		Mpv:                 opts.Mpv,
-		WSEventManager:      opts.WSEventManager,
-		completionThreshold: 0.8,
-		subscribers:         result.NewResultMap[string, *RepositorySubscriber](),
+		Logger:                opts.Logger,
+		Default:               opts.Default,
+		VLC:                   opts.VLC,
+		MpcHc:                 opts.MpcHc,
+		Mpv:                   opts.Mpv,
+		wsEventManager:        opts.WSEventManager,
+		completionThreshold:   0.8,
+		subscribers:           result.NewResultMap[string, *RepositorySubscriber](),
+		currentPlaybackStatus: &PlaybackStatus{},
+		exitedCh:              make(chan struct{}),
 	}
 }
 
@@ -130,6 +131,7 @@ func (m *Repository) Play(path string) error {
 				return errors.New("could not open and play video, make sure VLC is running or specify the application path in your settings")
 			}
 		}
+		//m.exitedCh = make(chan struct{})
 		return nil
 	case "mpc-hc":
 		err := m.MpcHc.Start()
@@ -140,12 +142,14 @@ func (m *Repository) Play(path string) error {
 		if err != nil {
 			return errors.New("could not open and play video, verify your settings")
 		}
+		//m.exitedCh = make(chan struct{})
 		return nil
 	case "mpv":
 		err := m.Mpv.OpenAndPlay(path)
 		if err != nil {
 			return fmt.Errorf("could not open and play video, %s", err.Error())
 		}
+		//m.exitedCh = m.Mpv.Exited()
 		return nil
 	default:
 		return errors.New("no default media player set")
@@ -177,10 +181,13 @@ func (m *Repository) Stream(streamUrl string) error {
 	switch m.Default {
 	case "vlc":
 		err = m.VLC.AddAndPlay(streamUrl)
+		//m.exitedCh = make(chan struct{})
 	case "mpc-hc":
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
+		//m.exitedCh = make(chan struct{})
 	case "mpv":
 		err = m.Mpv.OpenAndPlay(streamUrl, "--no-cache", "--force-window")
+		//m.exitedCh = m.Mpv.Exited()
 	}
 
 	if err != nil {
@@ -254,6 +261,9 @@ func (m *Repository) StartTrackingTorrentStream() {
 		defer func() {
 			m.mu.Lock()
 			m.isRunning = false
+			if m.cancel != nil {
+				m.cancel()
+			}
 			m.mu.Unlock()
 		}()
 		for {
@@ -270,6 +280,13 @@ func (m *Repository) StartTrackingTorrentStream() {
 				m.isRunning = false
 				m.mu.Unlock()
 				return
+			//case <-m.exitedCh:
+			//	m.mu.Lock()
+			//	m.Logger.Debug().Msg("media player: Player exited")
+			//	m.isRunning = false
+			//	m.streamingTrackingStopped("Player closed")
+			//	m.mu.Unlock()
+			//	return
 			default:
 				time.Sleep(3 * time.Second)
 				status, err := m.getStatus()
@@ -307,7 +324,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 				}
 
 				trackingStarted = true
-				playback, ok := m.processStreamStatus(m.Default, status)
+				ok := m.processStreamStatus(m.Default, status)
 
 				if !ok {
 					m.streamingTrackingRetry("Failed to get player status")
@@ -322,24 +339,22 @@ func (m *Repository) StartTrackingTorrentStream() {
 					continue
 				}
 
-				m.currentPlaybackStatus = playback
-
 				// New video has started playing \/
-				if filename == "" || filename != playback.Filename {
+				if filename == "" || filename != m.currentPlaybackStatus.Filename {
 					m.Logger.Debug().Msg("media player: Video loaded")
-					m.streamingTrackingStarted(playback)
-					filename = playback.Filename
+					m.streamingTrackingStarted(m.currentPlaybackStatus)
+					filename = m.currentPlaybackStatus.Filename
 					completed = false
 				}
 
 				// Video completed \/
-				if playback.CompletionPercentage > m.completionThreshold && !completed {
+				if m.currentPlaybackStatus.CompletionPercentage > m.completionThreshold && !completed {
 					m.Logger.Debug().Msg("media player: Video completed")
-					m.streamingVideoCompleted(playback)
+					m.streamingVideoCompleted(m.currentPlaybackStatus)
 					completed = true
 				}
 
-				m.streamingPlaybackStatus(playback)
+				m.streamingPlaybackStatus(m.currentPlaybackStatus)
 			}
 		}
 	}()
@@ -383,6 +398,13 @@ func (m *Repository) StartTracking() {
 				m.isRunning = false
 				m.mu.Unlock()
 				return
+			//case <-m.exitedCh:
+			//	m.mu.Lock()
+			//	m.Logger.Debug().Msg("media player: Player exited")
+			//	m.isRunning = false
+			//	m.trackingStopped("Player closed")
+			//	m.mu.Unlock()
+			//	return
 			default:
 				time.Sleep(3 * time.Second)
 				status, err := m.getStatus()
@@ -408,7 +430,7 @@ func (m *Repository) StartTracking() {
 					continue
 				}
 
-				playback, ok := m.processStatus(m.Default, status)
+				ok := m.processStatus(m.Default, status)
 
 				if !ok {
 					m.trackingRetry("Failed to get player status")
@@ -422,25 +444,22 @@ func (m *Repository) StartTracking() {
 					continue
 				}
 
-				m.currentPlaybackStatus = playback
-
 				// New video has started playing \/
-				if filename == "" || filename != playback.Filename {
+				if filename == "" || filename != m.currentPlaybackStatus.Filename {
 					m.Logger.Debug().Msg("media player: Video started playing")
-					m.trackingStarted(playback)
-					filename = playback.Filename
+					m.trackingStarted(m.currentPlaybackStatus)
+					filename = m.currentPlaybackStatus.Filename
 					completed = false
 				}
 
 				// Video completed \/
-				if playback.CompletionPercentage > m.completionThreshold && !completed {
+				if m.currentPlaybackStatus.CompletionPercentage > m.completionThreshold && !completed {
 					m.Logger.Debug().Msg("media player: Video completed")
-					m.videoCompleted(playback)
+					m.videoCompleted(m.currentPlaybackStatus)
 					completed = true
 				}
 
-				m.playbackStatus(playback)
-
+				m.playbackStatus(m.currentPlaybackStatus)
 			}
 		}
 	}()
@@ -530,107 +549,193 @@ func (m *Repository) getStatus() (interface{}, error) {
 	return nil, errors.New("unsupported media player")
 }
 
-func (m *Repository) processStatus(player string, status interface{}) (*PlaybackStatus, bool) {
+func (m *Repository) processStatus(player string, status interface{}) bool {
 	switch player {
 	case "vlc":
 		// Process VLC status
-		st := status.(*vlc2.Status)
-		if st == nil {
-			return nil, false
+		st, ok := status.(*vlc2.Status)
+		if !ok || st == nil {
+			return false
 		}
 
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position,
-			Playing:              st.State == "playing",
-			Filename:             st.Information.Category["meta"].Filename,
-			Duration:             int(st.Length * 1000),
-			Filepath:             "", // VLC does not provide the filepath
-		}
+		m.currentPlaybackStatus.CompletionPercentage = st.Position
+		m.currentPlaybackStatus.Playing = st.State == "playing"
+		m.currentPlaybackStatus.Filename = st.Information.Category["meta"].Filename
+		m.currentPlaybackStatus.Duration = int(st.Length * 1000)
+		m.currentPlaybackStatus.Filepath = "" // VLC does not provide the filepath
 
-		return ret, true
+		return true
 	case "mpc-hc":
 		// Process MPC-HC status
-		st := status.(*mpchc2.Variables)
-		if st == nil || st.Duration == 0 {
-			return nil, false
-		}
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position / st.Duration,
-			Playing:              st.State == 2,
-			Filename:             st.File,
-			Duration:             int(st.Duration),
-			Filepath:             st.FilePath,
+		st, ok := status.(*mpchc2.Variables)
+		if !ok || st == nil || st.Duration == 0 {
+			return false
 		}
 
-		return ret, true
+		m.currentPlaybackStatus.CompletionPercentage = st.Position / st.Duration
+		m.currentPlaybackStatus.Playing = st.State == 2
+		m.currentPlaybackStatus.Filename = st.File
+		m.currentPlaybackStatus.Duration = int(st.Duration)
+		m.currentPlaybackStatus.Filepath = st.FilePath
+
+		return true
 	case "mpv":
 		// Process MPV status
-		st := status.(*mpv.Playback)
-		if st == nil || st.Duration == 0 || st.IsRunning == false {
-			return nil, false
+		st, ok := status.(*mpv.Playback)
+		if !ok || st == nil || st.Duration == 0 || st.IsRunning == false {
+			return false
 		}
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position / st.Duration,
-			Playing:              !st.Paused,
-			Filename:             st.Filename,
-			Duration:             int(st.Duration),
-			Filepath:             st.Filepath,
-		}
-		return ret, true
+
+		m.currentPlaybackStatus.CompletionPercentage = st.Position / st.Duration
+		m.currentPlaybackStatus.Playing = !st.Paused
+		m.currentPlaybackStatus.Filename = st.Filename
+		m.currentPlaybackStatus.Duration = int(st.Duration)
+		m.currentPlaybackStatus.Filepath = st.Filepath
+
+		return true
 	default:
-		return nil, false
+		return false
 	}
 }
 
-func (m *Repository) processStreamStatus(player string, status interface{}) (*PlaybackStatus, bool) {
+func (m *Repository) processStreamStatus(player string, status interface{}) bool {
 	switch player {
 	case "vlc":
 		// Process VLC status
-		st := status.(*vlc2.Status)
-		if st == nil {
-			return nil, false
+		st, ok := status.(*vlc2.Status)
+		if !ok || st == nil {
+			return false
 		}
 
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position,
-			Playing:              st.State == "playing",
-			Filename:             st.Information.Category["meta"].Filename,
-			Duration:             int(st.Length * 1000),
-			Filepath:             "", // VLC does not provide the filepath
-		}
+		m.currentPlaybackStatus.CompletionPercentage = st.Position
+		m.currentPlaybackStatus.Playing = st.State == "playing"
+		m.currentPlaybackStatus.Filename = st.Information.Category["meta"].Filename
+		m.currentPlaybackStatus.Duration = int(st.Length * 1000)
+		m.currentPlaybackStatus.Filepath = "" // VLC does not provide the filepath
 
-		return ret, true
+		return true
 	case "mpc-hc":
 		// Process MPC-HC status
-		st := status.(*mpchc2.Variables)
-		if st == nil {
-			return nil, false
+		st, ok := status.(*mpchc2.Variables)
+		if !ok || st == nil {
+			return false
 		}
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position / st.Duration,
-			Playing:              st.State == 2,
-			Filename:             st.File,
-			Duration:             int(st.Duration),
-			Filepath:             st.FilePath,
-		}
-		return ret, true
+
+		m.currentPlaybackStatus.CompletionPercentage = st.Position / st.Duration
+		m.currentPlaybackStatus.Playing = st.State == 2
+		m.currentPlaybackStatus.Filename = st.File
+		m.currentPlaybackStatus.Duration = int(st.Duration)
+		m.currentPlaybackStatus.Filepath = st.FilePath
+
+		return true
 	case "mpv":
 		// Process MPV status
-		st := status.(*mpv.Playback)
-		if st == nil || st.Duration == 0 || st.IsRunning == false {
-			return nil, false
+		st, ok := status.(*mpv.Playback)
+		if !ok || st == nil || st.Duration == 0 || st.IsRunning == false {
+			return false
 		}
-		ret := &PlaybackStatus{
-			CompletionPercentage: st.Position / st.Duration,
-			Playing:              !st.Paused,
-			Filename:             st.Filename,
-			Duration:             int(st.Duration),
-			Filepath:             st.Filepath,
-		}
-		return ret, true
+
+		m.currentPlaybackStatus.CompletionPercentage = st.Position / st.Duration
+		m.currentPlaybackStatus.Playing = !st.Paused
+		m.currentPlaybackStatus.Filename = st.Filename
+		m.currentPlaybackStatus.Duration = int(st.Duration)
+		m.currentPlaybackStatus.Filepath = st.Filepath
+
+		return true
 	default:
-		return nil, false
+		return false
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//type PlayMediaOptions struct {
+//	Type       PlayMediaType
+//	Path       string
+//	Player     string
+//	ClientId   string
+//	ClientInfo *hibikemediaplayer.ClientInfo
+//}
+//
+//type PlayMediaType string
+//
+//const (
+//	PlayMediaTypeLocal  PlayMediaType = "local"
+//	PlayMediaTypeStream PlayMediaType = "stream"
+//)
+//
+//type PlayMediaResponse struct {
+//	ShouldStartTracking bool
+//}
+//
+//func (m *Repository) PlayMedia(opts *PlayMediaOptions) (*PlayMediaResponse, error) {
+//	m.Logger.Debug().Str("path", opts.Path).Str("player", opts.Player).Msg("media player: Media requested")
+//
+//	m.playerInUse = opts.Player
+//
+//	// Handle built-in player integrations
+//	switch m.playerInUse {
+//	case "vlc", "mpc-hc", "mpv":
+//		switch opts.Type {
+//		case PlayMediaTypeLocal:
+//			err := m.Play(opts.Path)
+//			if err != nil {
+//				return nil, err
+//			}
+//		case PlayMediaTypeStream:
+//			err := m.Stream(opts.Path)
+//			if err != nil {
+//				return nil, err
+//			}
+//		}
+//		return &PlayMediaResponse{ShouldStartTracking: true}, nil
+//	}
+//
+//	providerExt, found := extension.GetExtension[extension.MediaPlayerExtension](m.extensionBank, opts.Player)
+//	if !found {
+//		return nil, fmt.Errorf("media player '%s' not found", opts.Player)
+//	}
+//
+//	var playResponse *hibikemediaplayer.PlayResponse
+//	var err error
+//
+//	switch opts.Type {
+//	case PlayMediaTypeLocal:
+//		playResponse, err = providerExt.GetMediaPlayer().Play(hibikemediaplayer.PlayRequest{
+//			Path:       opts.Path,
+//			ClientInfo: *opts.ClientInfo,
+//		})
+//	case PlayMediaTypeStream:
+//		playResponse, err = providerExt.GetMediaPlayer().Stream(hibikemediaplayer.PlayRequest{
+//			Path:       opts.Path,
+//			ClientInfo: *opts.ClientInfo,
+//		})
+//	}
+//
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	resp := &PlayMediaResponse{
+//		ShouldStartTracking: providerExt.GetMediaPlayer().GetSettings().CanTrackProgress,
+//	}
+//
+//	if playResponse == nil {
+//		return resp, nil
+//	}
+//
+//	// If the response involves opening a URL,
+//	// send the corresponding event to the client
+//	if playResponse.OpenURL != "" {
+//		m.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, playResponse.OpenURL)
+//		return resp, nil
+//	}
+//
+//	if playResponse.Cmd != "" {
+//		return nil, fmt.Errorf("command execution not supported yet")
+//	}
+//
+//	return resp, nil
+//}

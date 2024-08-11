@@ -1,15 +1,16 @@
 package offline
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	db2 "github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
+	db2 "seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/manga"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 
@@ -25,7 +26,8 @@ func getHub(t *testing.T) *Hub {
 		t.Fatal(err)
 	}
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
 		Logger:     logger,
@@ -36,23 +38,23 @@ func getHub(t *testing.T) *Hub {
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      "",
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),
+		Database:       db,
 	})
 
 	offlineHub := NewHub(&NewHubOptions{
-		AnilistClientWrapper: anilistClientWrapper,
-		WSEventManager:       events.NewMockWSEventManager(logger),
-		MetadataProvider:     metadataProvider,
-		MangaRepository:      mangaRepository,
-		Db:                   db,
-		FileCacher:           fileCacher,
-		Logger:               logger,
-		OfflineDir:           filepath.Join(test_utils.ConfigData.Path.DataDir, "offline"),
-		AssetDir:             filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets"),
-		IsOffline:            false,
+		Platform:         anilistPlatform,
+		WSEventManager:   events.NewMockWSEventManager(logger),
+		MetadataProvider: metadataProvider,
+		MangaRepository:  mangaRepository,
+		Database:         db,
+		FileCacher:       fileCacher,
+		Logger:           logger,
+		OfflineDir:       filepath.Join(test_utils.ConfigData.Path.DataDir, "offline"),
+		AssetDir:         filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets"),
+		IsOffline:        false,
 	})
 
 	return offlineHub

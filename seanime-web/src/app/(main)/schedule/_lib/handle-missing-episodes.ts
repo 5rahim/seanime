@@ -20,7 +20,7 @@ export function useHandleMissingEpisodes(data: Anime_MissingEpisodes | undefined
             if (serverStatus?.settings?.anilist?.enableAdultContent) {
                 setAtom(data?.episodes ?? [])
             } else {
-                setAtom(data?.episodes?.filter(episode => !episode?.baseMedia?.isAdult) ?? [])
+                setAtom(data?.episodes?.filter(episode => !episode?.baseAnime?.isAdult) ?? [])
             }
             setSilencedAtom(data?.silencedEpisodes ?? [])
         }
@@ -29,7 +29,7 @@ export function useHandleMissingEpisodes(data: Anime_MissingEpisodes | undefined
     return {
         missingEpisodes: serverStatus?.settings?.anilist?.enableAdultContent
             ? (data?.episodes ?? [])
-            : (data?.episodes?.filter(episode => !episode?.baseMedia?.isAdult) ?? []),
+            : (data?.episodes?.filter(episode => !episode?.baseAnime?.isAdult) ?? []),
         silencedEpisodes: data?.silencedEpisodes ?? [],
     }
 

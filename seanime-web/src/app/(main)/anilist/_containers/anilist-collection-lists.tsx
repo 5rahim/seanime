@@ -1,6 +1,6 @@
 import { AL_AnimeCollection_MediaListCollection_Lists } from "@/api/generated/types"
 import { useGetAniListStats } from "@/api/hooks/anilist.hooks"
-import { AnilistMediaEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
+import { AnilistAnimeEntryList } from "@/app/(main)/_features/anime/_components/anilist-media-entry-list"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AnilistStats } from "@/app/(main)/anilist/_containers/anilist-stats"
 import {
@@ -43,12 +43,7 @@ import { useMount } from "react-use"
 const selectedIndexAtom = atom("-")
 const watchListSearchInputAtom = atom<string>("")
 
-type AnimeCollectionListsProps = {}
-
-export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
-
-    const {} = props
-
+export function AnilistCollectionLists() {
     const serverStatus = useServerStatus()
     const [pageType, setPageType] = useAtom(__myLists_selectedTypeAtom)
     const [selectedIndex, setSelectedIndex] = useAtom(selectedIndexAtom)
@@ -115,25 +110,25 @@ export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
                     <SearchOptions customLists={customLists} />
 
                     <div className="py-6 space-y-6">
-                        {(!!currentList?.entries?.length && ["-", "current"].includes(selectedIndex)) && <>
+                        {(!!currentList?.entries?.length && ["-", "CURRENT"].includes(selectedIndex)) && <>
                             <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={currentList} />
+                            <AnilistAnimeEntryList type={pageType} list={currentList} />
                         </>}
-                        {(!!planningList?.entries?.length && ["-", "planning"].includes(selectedIndex)) && <>
+                        {(!!planningList?.entries?.length && ["-", "PLANNING"].includes(selectedIndex)) && <>
                             <h2>Planning <span className="text-[--muted] font-medium ml-3">{planningList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={planningList} />
+                            <AnilistAnimeEntryList type={pageType} list={planningList} />
                         </>}
-                        {(!!pausedList?.entries?.length && ["-", "paused"].includes(selectedIndex)) && <>
+                        {(!!pausedList?.entries?.length && ["-", "PAUSED"].includes(selectedIndex)) && <>
                             <h2>Paused <span className="text-[--muted] font-medium ml-3">{pausedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={pausedList} />
+                            <AnilistAnimeEntryList type={pageType} list={pausedList} />
                         </>}
-                        {(!!completedList?.entries?.length && ["-", "completed"].includes(selectedIndex)) && <>
+                        {(!!completedList?.entries?.length && ["-", "COMPLETED"].includes(selectedIndex)) && <>
                             <h2>Completed <span className="text-[--muted] font-medium ml-3">{completedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={completedList} />
+                            <AnilistAnimeEntryList type={pageType} list={completedList} />
                         </>}
-                        {(!!droppedList?.entries?.length && ["-", "dropped"].includes(selectedIndex)) && <>
+                        {(!!droppedList?.entries?.length && ["-", "DROPPED"].includes(selectedIndex)) && <>
                             <h2>Dropped <span className="text-[--muted] font-medium ml-3">{droppedList?.entries?.length}</span></h2>
-                            <AnilistMediaEntryList list={droppedList} />
+                            <AnilistAnimeEntryList type={pageType} list={droppedList} />
                         </>}
                         {customLists?.map(list => {
                             return (!!list.entries?.length && ["-", list.name || "N/A"].includes(selectedIndex)) ? <div
@@ -141,7 +136,7 @@ export function AnimeCollectionLists(props: AnimeCollectionListsProps) {
                                 className="space-y-6"
                             >
                                 <h2>{list.name}</h2>
-                                <AnilistMediaEntryList list={list} />
+                                <AnilistAnimeEntryList type={pageType} list={list} />
                             </div> : null
                         })}
                     </div>
@@ -218,11 +213,11 @@ export function SearchOptions({
                     fieldClass="lg:w-[200px]"
                     options={[
                         { value: "-", label: "All lists" },
-                        { value: "current", label: "Watching" },
-                        { value: "planning", label: "Planning" },
-                        { value: "paused", label: "Paused" },
-                        { value: "completed", label: "Completed" },
-                        { value: "dropped", label: "Dropped" },
+                        { value: "CURRENT", label: "Watching" },
+                        { value: "PLANNING", label: "Planning" },
+                        { value: "PAUSED", label: "Paused" },
+                        { value: "COMPLETED", label: "Completed" },
+                        { value: "DROPPED", label: "Dropped" },
                         ...(customLists || []).map(list => ({ value: list.name || "N/A", label: list.name || "N/A" })),
                     ]}
                     value={selectedIndex || "-"}

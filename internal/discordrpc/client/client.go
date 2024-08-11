@@ -3,7 +3,7 @@ package discordrpc_client
 import (
 	"fmt"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/discordrpc/ipc"
+	"seanime/internal/discordrpc/ipc"
 )
 
 // Client wrapper for the Discord RPC client

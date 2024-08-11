@@ -1,7 +1,8 @@
-import { AL_BaseManga, AL_BaseMedia, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import {
+    AnimeEntryCardNextAiring,
     MediaEntryCardBody,
     MediaEntryCardContainer,
     MediaEntryCardHoverPopup,
@@ -9,7 +10,6 @@ import {
     MediaEntryCardHoverPopupBody,
     MediaEntryCardHoverPopupFooter,
     MediaEntryCardHoverPopupTitleSection,
-    MediaEntryCardNextAiring,
     MediaEntryCardOverlay,
     MediaEntryCardTitleSection,
 } from "@/app/(main)/_features/media/_components/media-entry-card-components"
@@ -34,7 +34,7 @@ type OfflineMediaEntryCardBasedProps = {
 
 type OfflineMediaEntryCardProps<T extends "anime" | "manga"> = {
     type: T
-    media: T extends "anime" ? AL_BaseMedia : T extends "manga" ? AL_BaseManga : never
+    media: T extends "anime" ? AL_BaseAnime : T extends "manga" ? AL_BaseManga : never
 } & OfflineMediaEntryCardBasedProps
 
 export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: OfflineMediaEntryCardProps<T>) {
@@ -51,13 +51,13 @@ export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: Offlin
 
     const showProgressBar = React.useMemo(() => {
         return !!listData?.progress
-        && type === "anime" ? !!(media as AL_BaseMedia)?.episodes : !!(media as AL_BaseManga)?.chapters
+        && type === "anime" ? !!(media as AL_BaseAnime)?.episodes : !!(media as AL_BaseManga)?.chapters
             && listData?.status !== "COMPLETED"
     }, [listData?.progress, media, listData?.status])
 
     const link = type === "anime" ? `/offline/anime?id=${media.id}` : `/offline/manga?id=${media.id}`
 
-    const progressTotal = type === "anime" ? (media as AL_BaseMedia)?.episodes : (media as AL_BaseManga)?.chapters
+    const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
 
     if (!media) return null
 
@@ -96,7 +96,7 @@ export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: Offlin
                     />
 
                     {type === "anime" && (
-                        <MediaEntryCardNextAiring nextAiring={(media as AL_BaseMedia).nextAiringEpisode} />
+                        <AnimeEntryCardNextAiring nextAiring={(media as AL_BaseAnime).nextAiringEpisode} />
                     )}
 
                     {type === "anime" && <div className="py-1">

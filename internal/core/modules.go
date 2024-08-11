@@ -2,24 +2,26 @@ package core
 
 import (
 	"github.com/cli/browser"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/discordrpc/presence"
-	"github.com/seanime-app/seanime/internal/library/autodownloader"
-	"github.com/seanime-app/seanime/internal/library/autoscanner"
-	"github.com/seanime-app/seanime/internal/library/fillermanager"
-	"github.com/seanime-app/seanime/internal/library/playbackmanager"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
-	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/mediastream"
-	"github.com/seanime-app/seanime/internal/offline"
-	"github.com/seanime-app/seanime/internal/torrents/qbittorrent"
-	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
-	"github.com/seanime-app/seanime/internal/torrents/transmission"
-	"github.com/seanime-app/seanime/internal/torrentstream"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/models"
+	"seanime/internal/discordrpc/presence"
+	"seanime/internal/library/autodownloader"
+	"seanime/internal/library/autoscanner"
+	"seanime/internal/library/fillermanager"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/manga"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/mediaplayers/mpchc"
+	"seanime/internal/mediaplayers/mpv"
+	"seanime/internal/mediaplayers/vlc"
+	"seanime/internal/mediastream"
+	"seanime/internal/notifier"
+	"seanime/internal/offline"
+	"seanime/internal/torrent_clients/qbittorrent"
+	"seanime/internal/torrent_clients/torrent_client"
+	"seanime/internal/torrent_clients/transmission"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/torrentstream"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -33,16 +35,16 @@ func (a *App) initModulesOnce() {
 
 	// Will exit if offline mode is enabled and no snapshots are found
 	a.OfflineHub = offline.NewHub(&offline.NewHubOptions{
-		AnilistClientWrapper: a.AnilistClientWrapper,
-		MetadataProvider:     a.MetadataProvider,
-		MangaRepository:      a.MangaRepository,
-		WSEventManager:       a.WSEventManager,
-		Database:             a.Database,
-		FileCacher:           a.FileCacher,
-		Logger:               a.Logger,
-		OfflineDir:           a.Config.Offline.Dir,
-		AssetDir:             a.Config.Offline.AssetDir,
-		IsOffline:            a.Config.Server.Offline,
+		Platform:         a.AnilistPlatform,
+		MetadataProvider: a.MetadataProvider,
+		MangaRepository:  a.MangaRepository,
+		WSEventManager:   a.WSEventManager,
+		Database:         a.Database,
+		FileCacher:       a.FileCacher,
+		Logger:           a.Logger,
+		OfflineDir:       a.Config.Offline.Dir,
+		AssetDir:         a.Config.Offline.AssetDir,
+		IsOffline:        a.Config.Server.Offline,
 		RefreshAnimeCollectionsFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 			_, _ = a.RefreshMangaCollection()
@@ -53,7 +55,6 @@ func (a *App) initModulesOnce() {
 	// |     Discord RPC     |
 	// +---------------------+
 
-	// Settings are set in InitOrRefreshModules
 	a.DiscordPresence = discordrpc_presence.New(nil, a.Logger)
 	a.AddCleanupFunction(func() {
 		a.DiscordPresence.Close()
@@ -74,17 +75,25 @@ func (a *App) initModulesOnce() {
 
 	// Playback Manager
 	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		Logger:               a.Logger,
-		WSEventManager:       a.WSEventManager,
-		AnilistClientWrapper: a.AnilistClientWrapper,
-		Database:             a.Database,
-		AnimeCollection:      nil, // Will be set and refreshed in app.RefreshAnimeCollection
-		DiscordPresence:      a.DiscordPresence,
-		IsOffline:            a.IsOffline(),
-		OfflineHub:           a.OfflineHub,
+		Logger:          a.Logger,
+		WSEventManager:  a.WSEventManager,
+		Platform:        a.AnilistPlatform,
+		Database:        a.Database,
+		DiscordPresence: a.DiscordPresence,
+		IsOffline:       a.IsOffline(),
+		OfflineHub:      a.OfflineHub,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 		},
+	})
+
+	// +---------------------+
+	// |  Torrent Repository |
+	// +---------------------+
+
+	a.TorrentRepository = torrent.NewRepository(&torrent.NewRepositoryOptions{
+		Logger:           a.Logger,
+		MetadataProvider: a.MetadataProvider,
 	})
 
 	// +---------------------+
@@ -94,7 +103,7 @@ func (a *App) initModulesOnce() {
 	a.AutoDownloader = autodownloader.New(&autodownloader.NewAutoDownloaderOptions{
 		Logger:                  a.Logger,
 		TorrentClientRepository: a.TorrentClientRepository,
-		AnimeCollection:         nil, // Will be set and refreshed in app.RefreshAnimeCollection
+		TorrentRepository:       a.TorrentRepository,
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		AnizipCache:             a.AnizipCache,
@@ -110,12 +119,12 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
-		Database:             a.Database,
-		Enabled:              false, // Will be set in InitOrRefreshModules
-		AutoDownloader:       a.AutoDownloader,
-		AnilistClientWrapper: a.AnilistClientWrapper,
-		Logger:               a.Logger,
-		WSEventManager:       a.WSEventManager,
+		Database:       a.Database,
+		Enabled:        false, // Will be set in InitOrRefreshModules
+		AutoDownloader: a.AutoDownloader,
+		Platform:       a.AnilistPlatform,
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
 	})
 
 	// This is run in a goroutine
@@ -157,17 +166,15 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
-		Logger:                a.Logger,
-		AnizipCache:           a.AnizipCache,
-		BaseMediaCache:        anilist.NewBaseMediaCache(),
-		CompleteMediaCache:    anilist.NewCompleteMediaCache(),
-		NyaaSearchCache:       a.NyaaSearchCache,
-		AnimeToshoSearchCache: a.AnimeToshoSearchCache,
-		MetadataProvider:      a.MetadataProvider,
-		AnilistClientWrapper:  a.AnilistClientWrapper,
-		PlaybackManager:       a.PlaybackManager,
-		WSEventManager:        a.WSEventManager,
-		AnimeCollection:       nil, // Will be set in app.RefreshAnimeCollection
+		Logger:             a.Logger,
+		AnizipCache:        a.AnizipCache,
+		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
+		MetadataProvider:   a.MetadataProvider,
+		TorrentRepository:  a.TorrentRepository,
+		Platform:           a.AnilistPlatform,
+		PlaybackManager:    a.PlaybackManager,
+		WSEventManager:     a.WSEventManager,
 	})
 
 }
@@ -200,11 +207,16 @@ func (a *App) InitOrRefreshModules() {
 	}
 
 	a.Settings = settings // Store settings instance in app
+	if settings != nil && settings.Library != nil {
+		a.LibraryDir = settings.Library.LibraryPath
+	}
 
 	// +---------------------+
 	// |   Module settings   |
 	// +---------------------+
 	// Refresh settings of modules that were initialized in initModulesOnce
+
+	notifier.GlobalNotifier.SetSettings(a.Config.Data.AppDataDir, a.Settings.Notifications, a.Logger)
 
 	// Refresh updater settings
 	if settings.Library != nil && a.Updater != nil {
@@ -213,7 +225,13 @@ func (a *App) InitOrRefreshModules() {
 
 	// Refresh auto scanner settings
 	if settings.Library != nil && a.AutoScanner != nil {
+
 		a.AutoScanner.SetEnabled(settings.Library.AutoScan)
+
+		// Torrent Repository
+		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{
+			DefaultAnimeProvider: settings.Library.TorrentProvider,
+		})
 	}
 
 	if settings.MediaPlayer != nil {
@@ -250,7 +268,7 @@ func (a *App) InitOrRefreshModules() {
 	}
 
 	// +---------------------+
-	// |   Torrent Client    |
+	// |       Torrents      |
 	// +---------------------+
 
 	if settings.Torrent != nil {
@@ -275,11 +293,12 @@ func (a *App) InitOrRefreshModules() {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize transmission client")
 		}
 
-		// Set Repository
+		// Torrent Client Repository
 		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
 			Logger:            a.Logger,
 			QbittorrentClient: qbit,
 			Transmission:      trans,
+			TorrentRepository: a.TorrentRepository,
 			Provider:          settings.Torrent.Default,
 		})
 
@@ -314,7 +333,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Discord != nil && a.DiscordPresence != nil {
-		a.DiscordPresence.SetSettings(settings.Discord)
+		a.DiscordPresence.SetSettings(settings.Discord, "")
 	}
 
 	a.Logger.Info().Msg("app: Refreshed modules")
@@ -346,7 +365,7 @@ func (a *App) InitOrRefreshMediastreamSettings() {
 		}
 	}
 
-	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir)
+	a.MediastreamRepository.InitializeModules(settings, a.Config.Cache.Dir, a.Config.Cache.TranscodeDir)
 
 	// Cleanup cache
 	go func() {
@@ -376,12 +395,13 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			Enabled:             false,
-			AutoSelect:          true,
-			AddToLibrary:        false,
-			StreamingServerHost: "0.0.0.0",
-			StreamingServerPort: 43214,
-			TorrentClientPort:   43213,
+			Enabled:                        false,
+			AutoSelect:                     true,
+			AddToLibrary:                   false,
+			StreamingServerHost:            "0.0.0.0",
+			StreamingServerPort:            43214,
+			TorrentClientPort:              43213,
+			FallbackToTorrentStreamingView: false,
 		})
 		if err != nil {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")
@@ -398,6 +418,8 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		a.TorrentstreamRepository.Shutdown()
 	})
 
+	// Set torrent streaming settings in secondary settings
+	// so the client can use them
 	a.SecondarySettings.Torrentstream = settings
 }
 
@@ -415,6 +437,9 @@ func (a *App) InitOrRefreshAnilistData() {
 		return
 	}
 
+	// Set username to Anilist platform
+	a.AnilistPlatform.SetUsername(acc.Username)
+
 	// Set account
 	a.account = acc
 	a.Logger.Info().Msg("app: Authenticated to AniList as " + acc.Username)
@@ -424,6 +449,10 @@ func (a *App) InitOrRefreshAnilistData() {
 		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
 		return
 	}
+
+	go func(username string) {
+		a.DiscordPresence.SetUsername(username)
+	}(a.account.Username)
 
 	a.Logger.Info().Msg("app: Fetched Anilist data")
 }

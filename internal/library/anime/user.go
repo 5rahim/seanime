@@ -3,8 +3,8 @@ package anime
 import (
 	"errors"
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/models"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/models"
 )
 
 type User struct {

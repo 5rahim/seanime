@@ -2,11 +2,13 @@ package onlinestream_sources
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"regexp"
+	"seanime/internal/util"
 	"strings"
+
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 )
 
 type (
@@ -21,12 +23,12 @@ func NewStreamtape() *Streamtape {
 	}
 }
 
-func (s *Streamtape) Extract(uri string) (vs []*VideoSource, err error) {
+func (s *Streamtape) Extract(uri string) (vs []*hibikeonlinestream.VideoSource, err error) {
 	defer util.HandlePanicInModuleThen("onlinestream/sources/streamtape/Extract", func() {
 		err = ErrVideoSourceExtraction
 	})
 
-	var ret []*VideoSource
+	var ret []*hibikeonlinestream.VideoSource
 
 	resp, err := s.Client.Get(uri)
 	if err != nil {
@@ -52,9 +54,9 @@ func (s *Streamtape) Extract(uri string) (vs []*VideoSource, err error) {
 
 	url := "https:" + fh + sh
 
-	ret = append(ret, &VideoSource{
+	ret = append(ret, &hibikeonlinestream.VideoSource{
 		URL:     url,
-		Type:    map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(url, ".m3u8")],
+		Type:    map[bool]hibikeonlinestream.VideoSourceType{true: hibikeonlinestream.VideoSourceM3U8, false: hibikeonlinestream.VideoSourceMP4}[strings.Contains(url, ".m3u8")],
 		Quality: QualityAuto,
 	})
 

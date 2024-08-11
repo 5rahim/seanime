@@ -40,24 +40,32 @@ jobs:
           path: seanime-web/out # output dir of the build
 
   create-release-draft:
-    runs-on: ubuntu-latest
-    needs: build-webapp
-    steps:
+    runs-on: macos-14
 
+    steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Ownership exception
+        run: git config --global --add safe.directory /__w/seanime/seanime
 
       - name: Fetch all tags
         run: git fetch --force --tags
 
-        # Download the web/ folder artifact
+      # Download the web/ folder artifact
       - name: Download web folder artifact
         uses: actions/download-artifact@v2
         with:
           name: web
           path: web
+
+      - name: Install C dependencies
+        run: |
+          brew install filosottile/musl-cross/musl-cross
+          brew install llvm
+          brew install mingw-w64
 
       # Python
       - name: Set up Python

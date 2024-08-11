@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
+	"seanime/internal/database/models"
 )
 
 func (db *Database) GetAutoDownloaderItems() ([]*models.AutoDownloaderItem, error) {

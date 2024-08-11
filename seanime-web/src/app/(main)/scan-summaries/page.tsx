@@ -1,6 +1,7 @@
 "use client"
 import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from "@/api/generated/types"
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
+import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
@@ -40,133 +41,136 @@ export default function Page() {
     }, [selectedSummaryId, data])
 
     return (
-        <PageWrapper
-            className="p-4 sm:p-8 space-y-4"
-        >
-            <div className="flex justify-between items-center w-full relative">
-                <div>
-                    <h2>Scan summaries</h2>
-                    <p className="text-[--muted]">
-                        View the logs and details of your latest scans
-                    </p>
-                </div>
-            </div>
-
-            <div className="">
-                {isLoading && <LoadingSpinner />}
-                {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
-                {!!data?.length && (
+        <>
+            <CustomLibraryBanner discrete />
+            <PageWrapper
+                className="p-4 sm:p-8 space-y-4"
+            >
+                <div className="flex justify-between items-center w-full relative">
                     <div>
-                        <Select
-                            value={selectedSummaryId || "-"}
-                            options={data?.filter(n => !!n.scanSummary)
-                                .map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt!), value: summary.scanSummary!.id || "-" }))
-                                .toReversed()}
-                            onValueChange={v => setSelectedSummaryId(v)}
-                        />
-                        {!!selectedSummary && (
-                            <div className="mt-4 space-y-4 rounded-[--radius] ">
-                                <div>
-                                    <p className="text-[--muted]">Seanime successfully scanned {selectedSummary.groups?.length} media</p>
-                                    {!!selectedSummary?.unmatchedFiles?.length && (
-                                        <p className="text-orange-300">{selectedSummary?.unmatchedFiles?.length} file{selectedSummary?.unmatchedFiles?.length > 1
-                                            ? "s were "
-                                            : " was "}not matched</p>
-                                    )}
-                                </div>
-
-                                {!!selectedSummary?.unmatchedFiles?.length && <div className="space-y-2">
-                                    <h5>Unmatched files</h5>
-                                    <Accordion type="single" collapsible>
-                                        <div className="grid grid-cols-1 gap-4">
-                                            {selectedSummary?.unmatchedFiles?.map(file => (
-                                                <ScanSummaryGroupItem file={file} key={file.id} />
-                                            ))}
-                                        </div>
-                                    </Accordion>
-                                </div>}
-
-                                {!!selectedSummary?.groups?.length && <div>
-                                    <h5>Media scanned</h5>
-
-                                    <div className="space-y-4 divide-y">
-                                        {selectedSummary?.groups?.map(group => !!group?.files?.length ? (
-                                            <div className="space-y-4 pt-4" key={group.id}>
-                                                <div className="flex gap-2">
-
-                                                    <div
-                                                        className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
-                                                    >
-                                                        <Image
-                                                            src={group.mediaImage}
-                                                            alt="banner"
-                                                            fill
-                                                            quality={80}
-                                                            priority
-                                                            sizes="20rem"
-                                                            className="object-cover object-center"
-                                                        />
-                                                    </div>
-
-                                                    <div className="space-y-1">
-                                                        <Link
-                                                            href={`/entry?id=${group.mediaId}`}
-                                                            className="font-medium tracking-wide"
-                                                        >{group.mediaTitle}</Link>
-                                                        <p className="flex gap-1 items-center text-sm text-[--muted]">
-                                                            <span className="text-lg">{group.mediaIsInCollection ?
-                                                                <BiCheckCircle className="text-green-200" /> :
-                                                                <BiXCircle className="text-red-300" />}</span> Anime {group.mediaIsInCollection
-                                                            ? "is present"
-                                                            : "is not present"} in your AniList collection</p>
-                                                        <p className="text-sm flex gap-1 items-center text-[--muted]">
-                                                            <span className="text-base"><LuFileSearch className="text-brand-200" /></span>{group.files.length} file{group.files.length > 1 && "s"} scanned
-                                                        </p>
-                                                    </div>
-
-                                                </div>
-
-                                                {group.files.flatMap(n => n.logs).some(n => n?.level === "error") &&
-                                                    <p className="text-sm flex gap-1 text-red-300 items-center text-[--muted]">
-                                                        <span className="text-base"><BiXCircle className="" /></span> Errors found
-                                                    </p>}
-                                                {group.files.flatMap(n => n.logs).some(n => n?.level === "warning") &&
-                                                    <p className="text-sm flex gap-1 text-orange-300 items-center text-[--muted]">
-                                                        <span className="text-base"><AiFillWarning className="" /></span> Warnings found
-                                                    </p>}
-
-                                                <div>
-
-
-                                                    <Accordion type="single" collapsible>
-                                                        <AccordionItem value="i1">
-                                                            <AccordionTrigger className="p-0 dark:hover:bg-transparent text-[--muted] dark:hover:text-white">
-                                                                <span className="inline-flex text-base items-center gap-2"><LuTextSelect /> View
-                                                                                                                                            scanner
-                                                                                                                                            logs</span>
-                                                            </AccordionTrigger>
-                                                            <AccordionContent className="p-0 bg-[--paper] border mt-4 rounded-[--radius] overflow-hidden relative">
-                                                                <Accordion type="single" collapsible>
-                                                                    <div className="grid grid-cols-1">
-                                                                        {group.files.map(file => (
-                                                                            <ScanSummaryGroupItem file={file} key={file.id} />
-                                                                        ))}
-                                                                    </div>
-                                                                </Accordion>
-                                                            </AccordionContent>
-                                                        </AccordionItem>
-                                                    </Accordion>
-                                                </div>
-                                            </div>
-                                        ) : null)}
-                                    </div>
-                                </div>}
-                            </div>
-                        )}
+                        <h2>Scan summaries</h2>
+                        <p className="text-[--muted]">
+                            View the logs and details of your latest scans
+                        </p>
                     </div>
-                )}
-            </div>
-        </PageWrapper>
+                </div>
+
+                <div className="">
+                    {isLoading && <LoadingSpinner />}
+                    {(!isLoading && !data?.length) && <div className="p-4 text-[--muted] text-center">No scan summaries available</div>}
+                    {!!data?.length && (
+                        <div>
+                            <Select
+                                value={selectedSummaryId || "-"}
+                                options={data?.filter(n => !!n.scanSummary)
+                                    .map((summary) => ({ label: formatDateAndTimeShort(summary.createdAt!), value: summary.scanSummary!.id || "-" }))
+                                    .toReversed()}
+                                onValueChange={v => setSelectedSummaryId(v)}
+                            />
+                            {!!selectedSummary && (
+                                <div className="mt-4 space-y-4 rounded-[--radius] ">
+                                    <div>
+                                        <p className="text-[--muted]">Seanime successfully scanned {selectedSummary.groups?.length} media</p>
+                                        {!!selectedSummary?.unmatchedFiles?.length && (
+                                            <p className="text-orange-300">{selectedSummary?.unmatchedFiles?.length} file{selectedSummary?.unmatchedFiles?.length > 1
+                                                ? "s were "
+                                                : " was "}not matched</p>
+                                        )}
+                                    </div>
+
+                                    {!!selectedSummary?.unmatchedFiles?.length && <div className="space-y-2">
+                                        <h5>Unmatched files</h5>
+                                        <Accordion type="single" collapsible>
+                                            <div className="grid grid-cols-1 gap-4">
+                                                {selectedSummary?.unmatchedFiles?.map(file => (
+                                                    <ScanSummaryGroupItem file={file} key={file.id} />
+                                                ))}
+                                            </div>
+                                        </Accordion>
+                                    </div>}
+
+                                    {!!selectedSummary?.groups?.length && <div>
+                                        <h5>Media scanned</h5>
+
+                                        <div className="space-y-4 divide-y">
+                                            {selectedSummary?.groups?.map(group => !!group?.files?.length ? (
+                                                <div className="space-y-4 pt-4" key={group.id}>
+                                                    <div className="flex gap-2">
+
+                                                        <div
+                                                            className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
+                                                        >
+                                                            <Image
+                                                                src={group.mediaImage}
+                                                                alt="banner"
+                                                                fill
+                                                                quality={80}
+                                                                priority
+                                                                sizes="20rem"
+                                                                className="object-cover object-center"
+                                                            />
+                                                        </div>
+
+                                                        <div className="space-y-1">
+                                                            <Link
+                                                                href={`/entry?id=${group.mediaId}`}
+                                                                className="font-medium tracking-wide"
+                                                            >{group.mediaTitle}</Link>
+                                                            <p className="flex gap-1 items-center text-sm text-[--muted]">
+                                                                <span className="text-lg">{group.mediaIsInCollection ?
+                                                                    <BiCheckCircle className="text-green-200" /> :
+                                                                    <BiXCircle className="text-red-300" />}</span> Anime {group.mediaIsInCollection
+                                                                ? "is present"
+                                                                : "is not present"} in your AniList collection</p>
+                                                            <p className="text-sm flex gap-1 items-center text-[--muted]">
+                                                                <span className="text-base"><LuFileSearch className="text-brand-200" /></span>{group.files.length} file{group.files.length > 1 && "s"} scanned
+                                                            </p>
+                                                        </div>
+
+                                                    </div>
+
+                                                    {group.files.flatMap(n => n.logs).some(n => n?.level === "error") &&
+                                                        <p className="text-sm flex gap-1 text-red-300 items-center text-[--muted]">
+                                                            <span className="text-base"><BiXCircle className="" /></span> Errors found
+                                                        </p>}
+                                                    {group.files.flatMap(n => n.logs).some(n => n?.level === "warning") &&
+                                                        <p className="text-sm flex gap-1 text-orange-300 items-center text-[--muted]">
+                                                            <span className="text-base"><AiFillWarning className="" /></span> Warnings found
+                                                        </p>}
+
+                                                    <div>
+
+
+                                                        <Accordion type="single" collapsible>
+                                                            <AccordionItem value="i1">
+                                                                <AccordionTrigger className="p-0 dark:hover:bg-transparent text-[--muted] dark:hover:text-white">
+                                                                    <span className="inline-flex text-base items-center gap-2"><LuTextSelect /> View
+                                                                                                                                                scanner
+                                                                                                                                                logs</span>
+                                                                </AccordionTrigger>
+                                                                <AccordionContent className="p-0 bg-[--paper] border mt-4 rounded-[--radius] overflow-hidden relative">
+                                                                    <Accordion type="single" collapsible>
+                                                                        <div className="grid grid-cols-1">
+                                                                            {group.files.map(file => (
+                                                                                <ScanSummaryGroupItem file={file} key={file.id} />
+                                                                            ))}
+                                                                        </div>
+                                                                    </Accordion>
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        </Accordion>
+                                                    </div>
+                                                </div>
+                                            ) : null)}
+                                        </div>
+                                    </div>}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </PageWrapper>
+        </>
     )
 
 }
@@ -205,7 +209,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
                 </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-2 overflow-x-auto">
-                <p className="text-sm text-left text-gray-500 italic line-clamp-1 max-w-full">{file.localFile.path}</p>
+                <p className="text-sm text-left text-[--muted] italic line-clamp-1 max-w-full">{file.localFile.path}</p>
                 <ScanSummaryFileParsedData localFile={file.localFile} />
                 {file.logs.map(log => (
                     <ScanSummaryLog key={log.id} log={log} />

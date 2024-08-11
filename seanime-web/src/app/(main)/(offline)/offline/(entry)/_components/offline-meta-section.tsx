@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseManga, AL_BaseMedia, Offline_AnimeEntry, Offline_AssetMapImageMap, Offline_MangaEntry } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, Offline_AnimeEntry, Offline_AssetMapImageMap, Offline_MangaEntry } from "@/api/generated/types"
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
@@ -24,7 +24,6 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
     return (
         <MediaPageHeader
-            size="smaller"
             backgroundImage={offline_getAssetUrl(entry.media?.bannerImage, assetMap)
                 || offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)}
         >
@@ -40,13 +39,13 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
                     romajiTitle={entry.media?.title?.romaji}
                     startDate={entry.media?.startDate}
                     season={entry.media?.season}
-                    progressTotal={type === "anime" ? (entry.media as AL_BaseMedia)?.episodes : (entry.media as AL_BaseManga)?.chapters}
+                    progressTotal={type === "anime" ? (entry.media as AL_BaseAnime)?.episodes : (entry.media as AL_BaseManga)?.chapters}
                     status={entry.media?.status}
                     description={entry.media?.description}
                     listData={entry.listData}
                     media={entry.media}
                     type={type}
-                    offlineAnilistMediaEntryModal={<OfflineAnilistMediaEntryModal
+                    offlineAnilistAnimeEntryModal={<OfflineAnilistMediaEntryModal
                         media={entry.media}
                         assetMap={assetMap}
                         type={type}

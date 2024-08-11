@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/library/anime"
 	"sync"
 )
 
@@ -27,6 +27,8 @@ type (
 		completedCurrent      bool                    // Whether the current episode has been completed
 
 		currentState *PlaylistState // This is sent to the client to show the current playlist state
+
+		playbackManager *PlaybackManager
 	}
 
 	PlaylistState struct {
@@ -41,10 +43,11 @@ type (
 	}
 )
 
-func newPlaylistHub(logger *zerolog.Logger, wsEventManager events.WSEventManagerInterface) *playlistHub {
+func newPlaylistHub(pm *PlaybackManager) *playlistHub {
 	return &playlistHub{
-		logger:           logger,
-		wsEventManager:   wsEventManager,
+		logger:           pm.Logger,
+		wsEventManager:   pm.wsEventManager,
+		playbackManager:  pm,
 		requestNewFileCh: make(chan string, 1),
 		endOfPlaylistCh:  make(chan struct{}, 1),
 	}
@@ -112,7 +115,7 @@ func (h *playlistHub) playNextFile() (*anime.LocalFile, bool) {
 	return nil, false
 }
 
-func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, animeCollection *anilist.AnimeCollection, ps PlaybackState) {
+func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf *anime.LocalFile, ps PlaybackState) {
 	if !h.check(currListEntry, currLf, ps) {
 		return
 	}
@@ -123,6 +126,10 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf
 
 	h.nextLocalFile, _ = h.findNextFile()
 
+	if h.playbackManager.animeCollection.IsAbsent() {
+		return
+	}
+
 	// Refresh current playlist state
 	playlistState := &PlaylistState{}
 	playlistState.Current = &PlaylistStateItem{
@@ -130,7 +137,7 @@ func (h *playlistHub) onVideoStart(currListEntry *anilist.MediaListEntry, currLf
 		MediaImage: currListEntry.GetMedia().GetCoverImageSafe(),
 	}
 	if h.nextLocalFile != nil {
-		lfe, found := animeCollection.GetListEntryFromMediaId(h.nextLocalFile.MediaId)
+		lfe, found := h.playbackManager.animeCollection.MustGet().GetListEntryFromAnimeId(h.nextLocalFile.MediaId)
 		if found {
 			playlistState.Next = &PlaylistStateItem{
 				Name:       fmt.Sprintf("%s - Episode %d", lfe.GetMedia().GetPreferredTitle(), h.nextLocalFile.GetEpisodeNumber()),

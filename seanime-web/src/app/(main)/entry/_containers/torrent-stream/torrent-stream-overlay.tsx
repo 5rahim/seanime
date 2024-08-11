@@ -130,7 +130,7 @@ export function TorrentStreamOverlay() {
                     <ProgressBar isIndeterminate />
                 </div>}
                 <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
-                    <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center">
+                    <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center text-sm lg:text-base">
                         <BiGroup className="inline-block text-2xl" />
                         <span>{status.seeders}</span>
                         {`  `}
@@ -166,7 +166,7 @@ export function TorrentStreamOverlay() {
                 <ProgressBar isIndeterminate />
             </div>
             <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
-                <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center">
+                <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center text-sm lg:text-base">
                     <Spinner className="w-4 h-4" />
                     <div className="truncate">
                         {loadingState === "SEARCHING_TORRENTS" ? "Searching for torrents..." : ""}

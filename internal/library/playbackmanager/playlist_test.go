@@ -1,14 +1,14 @@
 package playbackmanager_test
 
 import (
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
-	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/events"
+	"seanime/internal/library/anime"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/mediaplayers/mpchc"
+	"seanime/internal/mediaplayers/mpv"
+	"seanime/internal/mediaplayers/vlc"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"strconv"
 	"testing"
 )
@@ -24,16 +24,15 @@ var mediaId = 153518
 func TestPlaylists(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer())
 
-	playbackManager, anilistClientWrapper, animeCollection, err := getPlaybackManager(t)
+	playbackManager, animeCollection, err := getPlaybackManager(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	repo := getRepo()
 
-	playbackManager.SetAnilistClientWrapper(anilistClientWrapper)
-	playbackManager.SetAnimeCollection(animeCollection)
 	playbackManager.SetMediaPlayerRepository(repo)
+	playbackManager.SetAnimeCollection(animeCollection)
 
 	// Test the playlist hub
 	lfs := make([]*anime.LocalFile, 0)

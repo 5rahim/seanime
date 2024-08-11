@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_LibraryCollectionEntry, Anime_LocalFile } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_LibraryCollectionEntry, Anime_LocalFile } from "@/api/generated/types"
 import { useGetLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
@@ -78,7 +78,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
                     >Add an episode</Button>}
                 >
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {libraryCollection?.lists?.filter(n => n.type === "planned" || n.type === "paused" || n.type === "current")
+                        {libraryCollection?.lists?.filter(n => n.type === "PLANNING" || n.type === "PAUSED" || n.type === "CURRENT")
                             ?.flatMap(n => n.entries)
                             ?.filter(Boolean)
                             ?.map(entry => {
@@ -151,7 +151,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
 function SortableItem({ localFile, id, media, setPaths }: {
     id: string,
     localFile: Anime_LocalFile | undefined,
-    media: AL_BaseMedia | undefined,
+    media: AL_BaseAnime | undefined,
     setPaths: any
 }) {
     const {

@@ -15,6 +15,7 @@ export function DiscoverUpcoming() {
             gap="xl"
             opts={{
                 align: "start",
+                dragFree: true,
             }}
             autoScroll
         >

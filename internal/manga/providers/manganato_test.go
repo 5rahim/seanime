@@ -1,8 +1,9 @@
 package manga_providers
 
 import (
-	"github.com/seanime-app/seanime/internal/util"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -24,7 +25,7 @@ func TestManganato_Search(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			searchRes, err := provider.Search(SearchOptions{
+			searchRes, err := provider.Search(hibikemanga.SearchOptions{
 				Query: tt.query,
 			})
 			if assert.NoError(t, err, "provider.Search() error") {

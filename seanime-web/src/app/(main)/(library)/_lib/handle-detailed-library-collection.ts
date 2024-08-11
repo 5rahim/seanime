@@ -49,11 +49,11 @@ export function useHandleDetailedLibraryCollection() {
             }
         })
         return [
-            _lists.find(n => n.type === "current"),
-            _lists.find(n => n.type === "paused"),
-            _lists.find(n => n.type === "planned"),
-            _lists.find(n => n.type === "completed"),
-            _lists.find(n => n.type === "dropped"),
+            _lists.find(n => n.type === "CURRENT"),
+            _lists.find(n => n.type === "PAUSED"),
+            _lists.find(n => n.type === "PLANNING"),
+            _lists.find(n => n.type === "COMPLETED"),
+            _lists.find(n => n.type === "DROPPED"),
         ].filter(Boolean)
     }, [data, debouncedParams, serverStatus?.settings?.anilist?.enableAdultContent])
 
@@ -73,7 +73,7 @@ export function useHandleDetailedLibraryCollection() {
         if (!data?.continueWatchingList) return []
 
         if (!serverStatus?.settings?.anilist?.enableAdultContent || serverStatus?.settings?.anilist?.blurAdultContent) {
-            return data.continueWatchingList.filter(entry => entry.baseMedia?.isAdult === false)
+            return data.continueWatchingList.filter(entry => entry.baseAnime?.isAdult === false)
         }
 
         return data.continueWatchingList

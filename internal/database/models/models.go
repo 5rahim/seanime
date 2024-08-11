@@ -44,6 +44,7 @@ type Settings struct {
 	ListSync       *ListSyncSettings       `gorm:"embedded" json:"listSync"`
 	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
 	Discord        *DiscordSettings        `gorm:"embedded" json:"discord"`
+	Notifications  *NotificationSettings   `gorm:"embedded" json:"notifications"`
 }
 
 type AnilistSettings struct {
@@ -101,9 +102,18 @@ type ListSyncSettings struct {
 }
 
 type DiscordSettings struct {
-	EnableRichPresence      bool `gorm:"column:enable_rich_presence" json:"enableRichPresence"`
-	EnableAnimeRichPresence bool `gorm:"column:enable_anime_rich_presence" json:"enableAnimeRichPresence"`
-	EnableMangaRichPresence bool `gorm:"column:enable_manga_rich_presence" json:"enableMangaRichPresence"`
+	EnableRichPresence                      bool `gorm:"column:enable_rich_presence" json:"enableRichPresence"`
+	EnableAnimeRichPresence                 bool `gorm:"column:enable_anime_rich_presence" json:"enableAnimeRichPresence"`
+	EnableMangaRichPresence                 bool `gorm:"column:enable_manga_rich_presence" json:"enableMangaRichPresence"`
+	RichPresenceHideSeanimeRepositoryButton bool `gorm:"column:rich_presence_hide_seanime_repository_button" json:"richPresenceHideSeanimeRepositoryButton"`
+	RichPresenceShowAniListMediaButton      bool `gorm:"column:rich_presence_show_anilist_media_button" json:"richPresenceShowAniListMediaButton"`
+	RichPresenceShowAniListProfileButton    bool `gorm:"column:rich_presence_show_anilist_profile_button" json:"richPresenceShowAniListProfileButton"`
+}
+
+type NotificationSettings struct {
+	DisableNotifications               bool `gorm:"column:disable_notifications" json:"disableNotifications"`
+	DisableAutoDownloaderNotifications bool `gorm:"column:disable_auto_downloader_notifications" json:"disableAutoDownloaderNotifications"`
+	DisableAutoScannerNotifications    bool `gorm:"column:disable_auto_scanner_notifications" json:"disableAutoScannerNotifications"`
 }
 
 // +---------------------+
@@ -153,6 +163,7 @@ type AutoDownloaderSettings struct {
 	Interval              int    `gorm:"column:auto_downloader_interval" json:"interval"`
 	Enabled               bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
 	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
+	EnableEnhancedQueries bool   `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
 }
 
 // +---------------------+
@@ -169,22 +180,33 @@ type SilencedMediaEntry struct {
 
 type Theme struct {
 	BaseModel
-	AnimeEntryScreenLayout     string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"`
-	SmallerEpisodeCarouselSize bool   `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
-	ExpandSidebarOnHover       bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
-	EnableColorSettings        bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`
-	BackgroundColor            string `gorm:"column:background_color" json:"backgroundColor"`
-	AccentColor                string `gorm:"column:accent_color" json:"accentColor"`
-	SidebarBackgroundColor     string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`
-	// Library Screen Banner
-	LibraryScreenBannerType              string `gorm:"column:library_screen_banner_type" json:"libraryScreenBannerType"`
-	LibraryScreenCustomBannerImage       string `gorm:"column:library_screen_custom_banner_image" json:"libraryScreenCustomBannerImage"`
-	LibraryScreenCustomBannerPosition    string `gorm:"column:library_screen_custom_banner_position" json:"libraryScreenCustomBannerPosition"`
-	LibraryScreenCustomBannerOpacity     int    `gorm:"column:library_screen_custom_banner_opacity" json:"libraryScreenCustomBannerOpacity"`
+	// Main
+	EnableColorSettings              bool   `gorm:"column:enable_color_settings" json:"enableColorSettings"`
+	BackgroundColor                  string `gorm:"column:background_color" json:"backgroundColor"`
+	AccentColor                      string `gorm:"column:accent_color" json:"accentColor"`
+	SidebarBackgroundColor           string `gorm:"column:sidebar_background_color" json:"sidebarBackgroundColor"`  // DEPRECATED
+	AnimeEntryScreenLayout           string `gorm:"column:anime_entry_screen_layout" json:"animeEntryScreenLayout"` // DEPRECATED
+	ExpandSidebarOnHover             bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
+	HideTopNavbar                    bool   `gorm:"column:hide_top_navbar" json:"hideTopNavbar"`
+	EnableMediaCardBlurredBackground bool   `gorm:"column:enable_media_card_blurred_background" json:"enableMediaCardBlurredBackground"`
+	// These are named "libraryScreen" but are used on all pages
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`
-	// Library
-	DisableLibraryScreenGenreSelector bool `gorm:"column:disable_library_screen_genre_selector" json:"disableLibraryScreenGenreSelector"`
+	// Anime
+	SmallerEpisodeCarouselSize bool `gorm:"column:smaller_episode_carousel_size" json:"smallerEpisodeCarouselSize"`
+	// Library Screen (Anime & Manga)
+	// LibraryScreenBannerType: "dynamic", "custom"
+	LibraryScreenBannerType           string `gorm:"column:library_screen_banner_type" json:"libraryScreenBannerType"`
+	LibraryScreenCustomBannerImage    string `gorm:"column:library_screen_custom_banner_image" json:"libraryScreenCustomBannerImage"`
+	LibraryScreenCustomBannerPosition string `gorm:"column:library_screen_custom_banner_position" json:"libraryScreenCustomBannerPosition"`
+	LibraryScreenCustomBannerOpacity  int    `gorm:"column:library_screen_custom_banner_opacity" json:"libraryScreenCustomBannerOpacity"`
+	DisableLibraryScreenGenreSelector bool   `gorm:"column:disable_library_screen_genre_selector" json:"disableLibraryScreenGenreSelector"`
+
+	LibraryScreenCustomBackgroundBlur string `gorm:"column:library_screen_custom_background_blur" json:"libraryScreenCustomBackgroundBlur"`
+	EnableMediaPageBlurredBackground  bool   `gorm:"column:enable_media_page_blurred_background" json:"enableMediaPageBlurredBackground"`
+	DisableSidebarTransparency        bool   `gorm:"column:disable_sidebar_transparency" json:"disableSidebarTransparency"`
+	UseLegacyEpisodeCard              bool   `gorm:"column:use_legacy_episode_card" json:"useLegacyEpisodeCard"`
+	DisableCarouselAutoScroll         bool   `gorm:"column:disable_carousel_auto_scroll" json:"disableCarouselAutoScroll"`
 }
 
 // +---------------------+
@@ -221,12 +243,12 @@ type MediastreamSettings struct {
 	TranscodeHwAccel              string `gorm:"column:transcode_hw_accel" json:"transcodeHwAccel"`
 	TranscodeThreads              int    `gorm:"column:transcode_threads" json:"transcodeThreads"`
 	TranscodePreset               string `gorm:"column:transcode_preset" json:"transcodePreset"`
-	TranscodeTempDir              string `gorm:"column:transcode_temp_dir" json:"transcodeTempDir"`
 	DisableAutoSwitchToDirectPlay bool   `gorm:"column:disable_auto_switch_to_direct_play" json:"disableAutoSwitchToDirectPlay"`
 	PreTranscodeEnabled           bool   `gorm:"column:pre_transcode_enabled" json:"preTranscodeEnabled"`
 	PreTranscodeLibraryDir        string `gorm:"column:pre_transcode_library_dir" json:"preTranscodeLibraryDir"`
 	FfmpegPath                    string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
 	FfprobePath                   string `gorm:"column:ffprobe_path" json:"ffprobePath"`
+	//TranscodeTempDir              string `gorm:"column:transcode_temp_dir" json:"transcodeTempDir"` // DEPRECATED
 }
 
 // +---------------------+
@@ -235,15 +257,17 @@ type MediastreamSettings struct {
 
 type TorrentstreamSettings struct {
 	BaseModel
-	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
-	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
-	PreferredResolution string `gorm:"column:preferred_resolution" json:"preferredResolution"`
-	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
-	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
-	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`
-	TorrentClientPort   int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
-	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
-	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
+	Enabled                        bool   `gorm:"column:enabled" json:"enabled"`
+	AutoSelect                     bool   `gorm:"column:auto_select" json:"autoSelect"`
+	PreferredResolution            string `gorm:"column:preferred_resolution" json:"preferredResolution"`
+	DisableIPV6                    bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
+	DownloadDir                    string `gorm:"column:download_dir" json:"downloadDir"`
+	AddToLibrary                   bool   `gorm:"column:add_to_library" json:"addToLibrary"`
+	TorrentClientPort              int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
+	StreamingServerHost            string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
+	StreamingServerPort            int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
+	FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"`
+	IncludeInLibrary               bool   `gorm:"column:include_in_library" json:"includeInLibrary"`
 }
 
 // +---------------------+
@@ -257,4 +281,15 @@ type MediaFiller struct {
 	MediaID       int       `gorm:"column:media_id" json:"mediaId"`
 	LastFetchedAt time.Time `gorm:"column:last_fetched_at" json:"lastFetchedAt"`
 	Data          []byte    `gorm:"column:data" json:"data"`
+}
+
+// +---------------------+
+// |        Manga        |
+// +---------------------+
+
+type MangaMapping struct {
+	BaseModel
+	Provider string `gorm:"column:provider" json:"provider"`
+	MediaID  int    `gorm:"column:media_id" json:"mediaId"`
+	MangaID  string `gorm:"column:manga_id" json:"mangaId"` // ID from search result, used to fetch chapters
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func ListMediaM(
+func ListAnimeM(
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -20,7 +20,7 @@ func ListMediaM(
 	Format *MediaFormat,
 	IsAdult *bool,
 	logger *zerolog.Logger,
-) (*ListMedia, error) {
+) (*ListAnime, error) {
 
 	variables := map[string]interface{}{}
 	if Page != nil {
@@ -58,7 +58,7 @@ func ListMediaM(
 	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"query":     ListMediaQuery,
+		"query":     ListAnimeDocument,
 		"variables": variables,
 	})
 	if err != nil {
@@ -70,7 +70,7 @@ func ListMediaM(
 		return nil, err
 	}
 
-	var listMediaF ListMedia
+	var listMediaF ListAnime
 	m, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func ListMangaM(
 	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"query":     ListMangaQuery,
+		"query":     ListMangaDocument,
 		"variables": variables,
 	})
 	if err != nil {
@@ -154,14 +154,14 @@ func ListMangaM(
 	return &listMediaF, nil
 }
 
-func ListRecentAiringMediaM(
+func ListRecentAiringAnimeM(
 	Page *int,
 	Search *string,
 	PerPage *int,
 	AiringAtGreater *int,
 	AiringAtLesser *int,
 	logger *zerolog.Logger,
-) (*ListRecentMedia, error) {
+) (*ListRecentAnime, error) {
 
 	variables := map[string]interface{}{}
 	if Page != nil {
@@ -181,7 +181,7 @@ func ListRecentAiringMediaM(
 	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"query":     ListRecentAiringMediaQuery,
+		"query":     ListRecentAiringAnimeQuery,
 		"variables": variables,
 	})
 	if err != nil {
@@ -193,7 +193,7 @@ func ListRecentAiringMediaM(
 		return nil, err
 	}
 
-	var listMediaF ListRecentMedia
+	var listMediaF ListRecentAnime
 	m, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func ListRecentAiringMediaM(
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func ListMediaCacheKey(
+func ListAnimeCacheKey(
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -221,7 +221,7 @@ func ListMediaCacheKey(
 	IsAdult *bool,
 ) string {
 
-	key := "ListMedia"
+	key := "ListAnime"
 	if Page != nil {
 		key += fmt.Sprintf("_%d", *Page)
 	}
@@ -260,7 +260,7 @@ func ListMediaCacheKey(
 
 }
 
-func ListRecentAiringMediaCacheKey(
+func ListRecentAiringAnimeCacheKey(
 	Page *int,
 	Search *string,
 	PerPage *int,
@@ -268,7 +268,7 @@ func ListRecentAiringMediaCacheKey(
 	AiringAtLesser *int,
 ) string {
 
-	key := "ListRecentMedia"
+	key := "ListRecentAnime"
 	if Page != nil {
 		key += fmt.Sprintf("_%d", *Page)
 	}
@@ -289,174 +289,8 @@ func ListRecentAiringMediaCacheKey(
 
 }
 
-const ListMediaQuery = `query ListMedia(
-      $page: Int
-      $search: String
-      $perPage: Int
-      $sort: [MediaSort]
-      $status: [MediaStatus]
-      $genres: [String]
-      $averageScore_greater: Int
-      $season: MediaSeason
-      $seasonYear: Int
-      $format: MediaFormat
-      $isAdult: Boolean
-    ) {
-      Page(page: $page, perPage: $perPage) {
-        pageInfo {
-          hasNextPage
-          total
-          perPage
-          currentPage
-          lastPage
-        }
-        media(
-          type: ANIME
-          search: $search
-          sort: $sort
-          status_in: $status
-          isAdult: $isAdult
-          format: $format
-          genre_in: $genres
-          averageScore_greater: $averageScore_greater
-          season: $season
-          seasonYear: $seasonYear
-          format_not: MUSIC
-        ) {
-          ...baseMedia
-        }
-      }
-    }
-    fragment baseMedia on Media {
-		id
-		idMal
-		siteUrl
-		status(version: 2)
-		season
-		type
-		format
-		bannerImage
-		episodes
-		synonyms
-		isAdult
-		countryOfOrigin
-		meanScore
-		description
-		genres
-		duration
-		trailer {
-			id
-			site
-			thumbnail
-		}
-		title {
-			userPreferred
-			romaji
-			english
-			native
-		}
-		coverImage {
-			extraLarge
-			large
-			medium
-			color
-		}
-		startDate {
-			year
-			month
-			day
-		}
-		endDate {
-			year
-			month
-			day
-		}
-		nextAiringEpisode {
-			airingAt
-			timeUntilAiring
-			episode
-		}
-    }`
-
-const ListMangaQuery = `query ListManga(
-      $page: Int
-      $search: String
-      $perPage: Int
-      $sort: [MediaSort]
-      $status: [MediaStatus]
-      $genres: [String]
-      $averageScore_greater: Int
-      $startDate_greater: FuzzyDateInt
-      $startDate_lesser: FuzzyDateInt
-      $format: MediaFormat
-      $isAdult: Boolean
-    ) {
-        Page(page: $page, perPage: $perPage){
-		pageInfo{
-		  hasNextPage
-		  total
-		  perPage
-		  currentPage
-		  lastPage
-		},
-		media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
-		  ...baseMedia
-		}
-	  }
-    }
-    fragment baseMedia on Media {
-		id
-		idMal
-		siteUrl
-		status(version: 2)
-		season
-		type
-		format
-		bannerImage
-		episodes
-		synonyms
-		isAdult
-		countryOfOrigin
-		meanScore
-		description
-		genres
-		duration
-		trailer {
-			id
-			site
-			thumbnail
-		}
-		title {
-			userPreferred
-			romaji
-			english
-			native
-		}
-		coverImage {
-			extraLarge
-			large
-			medium
-			color
-		}
-		startDate {
-			year
-			month
-			day
-		}
-		endDate {
-			year
-			month
-			day
-		}
-		nextAiringEpisode {
-			airingAt
-			timeUntilAiring
-			episode
-		}
-}`
-
-const ListRecentAiringMediaQuery = `
-    query ListRecentMedia($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
+const ListRecentAiringAnimeQuery = `
+    query ListRecentAnime($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
         Page(page: $page, perPage: $perPage){
             pageInfo{
                 hasNextPage
@@ -472,12 +306,12 @@ const ListRecentAiringMediaQuery = `
                 timeUntilAiring
                 media {
                     isAdult
-                    ...baseMedia
+                    ...baseAnime
                 }
             }
         }
     }
-    fragment baseMedia on Media {
+    fragment baseAnime on Media {
 		id
 		idMal
 		siteUrl

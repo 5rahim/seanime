@@ -2,14 +2,12 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
-	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
-	"github.com/sourcegraph/conc/pool"
-	"strings"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/events"
+	"seanime/internal/torrent_clients/torrent_client"
+	"seanime/internal/util"
 )
 
 // HandleGetActiveTorrentList
@@ -80,7 +78,7 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 		if b.Dir == "" {
 			return c.RespondWithError(errors.New("directory not found"))
 		}
-		openDirInExplorer(b.Dir)
+		OpenDirInExplorer(b.Dir)
 	}
 
 	return c.RespondWithData(true)
@@ -97,13 +95,13 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	type body struct {
-		Urls        []string `json:"urls"`
-		Destination string   `json:"destination"`
+		Torrents    []hibiketorrent.AnimeTorrent `json:"torrents"`
+		Destination string                       `json:"destination"`
 		SmartSelect struct {
 			Enabled               bool  `json:"enabled"`
 			MissingEpisodeNumbers []int `json:"missingEpisodeNumbers"`
 		} `json:"smartSelect"`
-		Media *anilist.BaseMedia `json:"media"`
+		Media *anilist.BaseAnime `json:"media"`
 	}
 
 	var b body
@@ -117,47 +115,48 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("could not contact torrent client, verify your settings or make sure it's running"))
 	}
 
-	// get magnets
-	p := pool.NewWithResults[string]().WithErrors()
-	for _, url := range b.Urls {
-		p.Go(func() (string, error) {
-			if strings.HasPrefix(url, "http") {
-				return torrent.ScrapeMagnet(url)
-			} else {
-				return fmt.Sprintf("magnet:?xt=urn:btih:%s", url), nil
-			}
-		})
-	}
-	// if we couldn't get a magnet, return error
-	magnets, err := p.Wait()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	completeMedia, err := anilist.GetCompleteMediaById(c.App.AnilistClientWrapper, b.Media.ID)
+	completeAnime, err := c.App.AnilistPlatform.GetAnimeWithRelations(b.Media.ID)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	if b.SmartSelect.Enabled {
-		if len(b.Urls) > 1 {
+		if len(b.Torrents) > 1 {
 			return c.RespondWithError(errors.New("smart select is not supported for multiple torrents"))
 		}
 
 		// smart select
 		err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelectParams{
-			Url:                  b.Urls[0],
-			EpisodeNumbers:       b.SmartSelect.MissingEpisodeNumbers,
-			Media:                completeMedia,
-			Destination:          b.Destination,
-			AnilistClientWrapper: c.App.AnilistClientWrapper,
-			ShouldAddTorrent:     true,
+			Torrent:          &b.Torrents[0],
+			EpisodeNumbers:   b.SmartSelect.MissingEpisodeNumbers,
+			Media:            completeAnime,
+			Destination:      b.Destination,
+			Platform:         c.App.AnilistPlatform,
+			ShouldAddTorrent: true,
 		})
 		if err != nil {
 			return c.RespondWithError(err)
 		}
 	} else {
-		// try to add torrents to qbittorrent, on error return error
+
+		// Get magnets
+		magnets := make([]string, 0)
+		for _, t := range b.Torrents {
+			// Get the torrent's provider extension
+			providerExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(t.Provider)
+			if !ok {
+				return c.RespondWithError(errors.New("provider extension not found for torrent"))
+			}
+			// Get the torrent magnet link
+			magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(&t)
+			if err != nil {
+				return c.RespondWithError(err)
+			}
+
+			magnets = append(magnets, magnet)
+		}
+
+		// try to add torrents to client, on error return error
 		err = c.App.TorrentClientRepository.AddMagnets(magnets, b.Destination)
 		if err != nil {
 			return c.RespondWithError(err)
@@ -166,22 +165,24 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 
 	// Add the media to the collection (if it wasn't already)
 	go func() {
-		util.HandlePanicInModuleThen("handlers/HandleTorrentClientDownload", func() {})
+		defer util.HandlePanicInModuleThen("handlers/HandleTorrentClientDownload", func() {})
 		if b.Media != nil {
 			// Check if the media is already in the collection
 			animeCollection, err := c.App.GetAnimeCollection(false)
 			if err != nil {
 				return
 			}
-			_, found := animeCollection.FindMedia(b.Media.ID)
+			_, found := animeCollection.FindAnime(b.Media.ID)
 			if found {
 				return
 			}
 			// Add the media to the collection
-			err = c.App.AnilistClientWrapper.AddMediaToPlanning([]int{b.Media.ID}, limiter.NewAnilistLimiter(), c.App.Logger)
+			err = c.App.AnilistPlatform.AddMediaToCollection([]int{b.Media.ID})
 			if err != nil {
 				c.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
 			}
+			ac, _ := c.App.RefreshAnimeCollection()
+			c.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, ac)
 		}
 	}()
 
@@ -215,7 +216,7 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	}
 
 	// Get rule from database
-	rule, err := c.App.Database.GetAutoDownloaderRule(b.RuleId)
+	rule, err := db_bridge.GetAutoDownloaderRule(c.App.Database, b.RuleId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

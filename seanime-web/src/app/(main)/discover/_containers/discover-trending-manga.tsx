@@ -72,6 +72,7 @@ export function DiscoverTrendingManga() {
             gap="md"
             opts={{
                 align: "start",
+                dragFree: true,
             }}
             autoScroll
         >
@@ -146,6 +147,7 @@ export function DiscoverMangaSearchBar() {
                 gap="md"
                 opts={{
                     align: "start",
+                    dragFree: true,
                 }}
                 autoScroll
             >

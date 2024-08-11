@@ -1,47 +1,59 @@
 package torrentstream
 
 import (
-	"context"
 	"fmt"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	itorrent "github.com/seanime-app/seanime/internal/torrents/torrent"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/events"
+	"seanime/internal/library/playbackmanager"
+	"strconv"
 	"time"
 )
 
+type PlaybackType string
+
+const (
+	PlaybackTypeDefault        PlaybackType = "default"
+	PlaybackTypeExternalPlayer PlaybackType = "externalPlayerLink"
+)
+
 type StartStreamOptions struct {
-	MediaId       int                    `json:"mediaId"`
-	EpisodeNumber int                    `json:"episodeNumber"` // RELATIVE Episode number to identify the file
-	AniDBEpisode  string                 `json:"aniDBEpisode"`  // Anizip episode
-	AutoSelect    bool                   `json:"autoSelect"`    // Automatically select the best file to stream
-	Torrent       *itorrent.AnimeTorrent `json:"torrent"`       // Selected torrent
+	MediaId       int
+	EpisodeNumber int                         // RELATIVE Episode number to identify the file
+	AniDBEpisode  string                      // Anizip episode
+	AutoSelect    bool                        // Automatically select the best file to stream
+	Torrent       *hibiketorrent.AnimeTorrent // Selected torrent (Manual selection)
+	FileIndex     *int                        // Index of the file to stream (Manual selection)
+	UserAgent     string
+	ClientId      string
+	PlaybackType  PlaybackType
 }
 
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	// MY DUMBASS SHUT DOWN THE CLIENT BEFORE STARTING THE STREAM
-	// NOT SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
+	// NO SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
 	//r.Shutdown()
 
-	r.logger.Info().Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
+	r.logger.Info().
+		Str("clientId", opts.ClientId).
+		Any("playbackType", opts.PlaybackType).
+		Int("mediaId", opts.MediaId).Msgf("torrentstream: Starting stream for episode %s", opts.AniDBEpisode)
 
 	r.wsEventManager.SendEvent(eventTorrentLoading, nil)
 
 	//
 	// Get the media info
 	//
-	media, anizipMedia, err := r.getMediaInfo(opts.MediaId)
-	if err != nil {
-		return err
-	}
-
-	anizipEpisode, err := r.getEpisodeInfo(anizipMedia, opts.AniDBEpisode)
+	media, _, err := r.getMediaInfo(opts.MediaId)
 	if err != nil {
 		return err
 	}
 
 	episodeNumber := opts.EpisodeNumber
+	aniDbEpisode := strconv.Itoa(episodeNumber)
 
 	//
 	// Find the best torrent / Select the torrent
@@ -49,7 +61,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	var torrentToStream *playbackTorrent
 	switch opts.AutoSelect {
 	case true:
-		torrentToStream, err = r.findBestTorrent(media, anizipMedia, anizipEpisode, episodeNumber)
+		torrentToStream, err = r.findBestTorrent(media, aniDbEpisode, episodeNumber)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
@@ -58,7 +70,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 		if opts.Torrent == nil {
 			return fmt.Errorf("torrentstream: No torrent provided")
 		}
-		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent.Link, media, anizipEpisode, episodeNumber)
+		torrentToStream, err = r.findBestTorrentFromManualSelection(opts.Torrent, media, aniDbEpisode, opts.FileIndex)
 		if err != nil {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
@@ -91,19 +103,42 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 				return
 			}
 			r.logger.Debug().Msg("torrentstream: Waiting for playable threshold to be reached")
-			time.Sleep(3 * time.Second)
+			time.Sleep(3 * time.Second) // Wait for 3 secs before checking again
 		}
 
-		//
-		// Start the stream
-		//
-		r.logger.Debug().Msg("torrentstream: Starting the media player")
-		err = r.playbackManager.StartStreamingUsingMediaPlayer(r.client.GetStreamingUrl(), media.ToBaseMedia(), anizipMedia, anizipEpisode)
-		if err != nil {
-			// Failed to start the stream, we'll drop the torrents and stop the server
-			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
-			r.StopStream()
-			r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+		switch opts.PlaybackType {
+		case PlaybackTypeDefault:
+			//
+			// Start the stream
+			//
+			r.logger.Debug().Msg("torrentstream: Starting the media player")
+			err = r.playbackManager.StartStreamingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+				Payload:   r.client.GetStreamingUrl(),
+				UserAgent: opts.UserAgent,
+				ClientId:  opts.ClientId,
+			}, media.ToBaseAnime(), aniDbEpisode)
+			if err != nil {
+				// Failed to start the stream, we'll drop the torrents and stop the server
+				r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+				_ = r.StopStream()
+				r.logger.Error().Err(err).Msg("torrentstream: Failed to start the stream")
+			}
+
+		case PlaybackTypeExternalPlayer:
+			// Send the external player link
+			r.wsEventManager.SendEventTo(opts.ClientId, events.ExternalPlayerOpenURL, struct {
+				Url           string `json:"url"`
+				MediaId       int    `json:"mediaId"`
+				EpisodeNumber int    `json:"episodeNumber"`
+			}{
+				Url:           r.client.GetStreamingUrl(),
+				MediaId:       opts.MediaId,
+				EpisodeNumber: opts.EpisodeNumber,
+			})
+
+			// Signal to the client that the torrent has started playing (remove loading status)
+			// We can't know for sure
+			r.wsEventManager.SendEvent(eventTorrentStartedPlaying, nil)
 		}
 	}()
 
@@ -148,17 +183,16 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteMedia, anizipMedia *anizip.Media, err error) {
+func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, anizipMedia *anizip.Media, err error) {
 	// Get the media
 	var found bool
-	media, found = r.completeMediaCache.Get(mediaId)
+	media, found = r.completeAnimeCache.Get(mediaId)
 	if !found {
 		// Fetch the media
-		mediaF, err := r.anilistClientWrapper.CompleteMediaByID(context.Background(), &mediaId)
+		media, err = r.platform.GetAnimeWithRelations(mediaId)
 		if err != nil {
 			return nil, nil, fmt.Errorf("torrentstream: failed to fetch media: %w", err)
 		}
-		media = mediaF.GetMedia()
 	}
 
 	// Get the media
@@ -171,6 +205,10 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteMedia, an
 }
 
 func (r *Repository) getEpisodeInfo(anizipMedia *anizip.Media, aniDBEpisode string) (episode *anizip.Episode, err error) {
+	if anizipMedia == nil {
+		return nil, fmt.Errorf("torrentstream: Anizip media is nil")
+	}
+
 	// Get the episode
 	var found bool
 	episode, found = anizipMedia.FindEpisode(aniDBEpisode)

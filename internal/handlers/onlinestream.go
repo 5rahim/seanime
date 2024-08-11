@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/onlinestream"
+	"seanime/internal/api/anilist"
+	"seanime/internal/onlinestream"
 )
 
 // HandleGetOnlineStreamEpisodeList
@@ -20,7 +20,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 	type body struct {
 		MediaId  int    `json:"mediaId"`
 		Dubbed   bool   `json:"dubbed"`
-		Provider string `json:"provider"`
+		Provider string `json:"provider,omitempty"` // Can be empty since we still have the media id
 	}
 
 	var b body
@@ -34,7 +34,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 	// Get media
 	// This is cached
-	media, err := c.App.Onlinestream.GetMedia(b.MediaId)
+	media, err := c.App.OnlinestreamRepository.GetMedia(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -45,7 +45,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 
 	// Get episode list
 	// This is cached using file cache
-	episodes, err := c.App.Onlinestream.GetMediaEpisodes(b.Provider, media, b.Dubbed)
+	episodes, err := c.App.OnlinestreamRepository.GetMediaEpisodes(b.Provider, media, b.Dubbed)
 	//if err != nil {
 	//	return c.RespondWithError(err)
 	//}
@@ -77,7 +77,7 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	sources, err := c.App.Onlinestream.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed)
+	sources, err := c.App.OnlinestreamRepository.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -101,7 +101,7 @@ func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err := c.App.Onlinestream.EmptyCache(b.MediaId)
+	err := c.App.OnlinestreamRepository.EmptyCache(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

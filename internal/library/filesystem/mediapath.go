@@ -3,10 +3,10 @@ package filesystem
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/util"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"seanime/internal/util"
 	"strings"
 )
 

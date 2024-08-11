@@ -1,25 +1,26 @@
 package scanner
 
 import (
-	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/anime"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 	"testing"
 )
 
 func TestScanLogger(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollectionWithRelations(context.Background(), nil)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
 		t.Fatal(err.Error())
 	}
-	allMedia := animeCollection.GetAllMedia()
+	allMedia := animeCollection.GetAllAnime()
 
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
@@ -80,7 +81,7 @@ func TestScanLogger(t *testing.T) {
 			matcher := &Matcher{
 				LocalFiles:         lfs,
 				MediaContainer:     mc,
-				CompleteMediaCache: nil,
+				CompleteAnimeCache: nil,
 				Logger:             util.NewLogger(),
 				ScanLogger:         scanLogger,
 			}
@@ -95,14 +96,14 @@ func TestScanLogger(t *testing.T) {
 			// +---------------------+
 
 			fh := FileHydrator{
-				LocalFiles:           lfs,
-				AllMedia:             mc.NormalizedMedia,
-				CompleteMediaCache:   completeMediaCache,
-				AnizipCache:          anizipCache,
-				AnilistClientWrapper: anilistClientWrapper,
-				AnilistRateLimiter:   anilistRateLimiter,
-				Logger:               logger,
-				ScanLogger:           scanLogger,
+				LocalFiles:         lfs,
+				AllMedia:           mc.NormalizedMedia,
+				CompleteAnimeCache: completeAnimeCache,
+				AnizipCache:        anizipCache,
+				Platform:           anilistPlatform,
+				AnilistRateLimiter: anilistRateLimiter,
+				Logger:             logger,
+				ScanLogger:         scanLogger,
 			}
 
 			fh.HydrateMetadata()

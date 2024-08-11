@@ -1,15 +1,13 @@
 package handlers
 
 import (
-	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/mal"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/api/anilist"
+	"seanime/internal/manga"
+	"seanime/internal/util/result"
 	"time"
 )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
 	baseMangaCache    = result.NewCache[int, *anilist.BaseManga]()
@@ -74,8 +72,8 @@ func HandleGetMangaCollection(c *RouteCtx) error {
 	}
 
 	collection, err := manga.NewCollection(&manga.NewCollectionOptions{
-		MangaCollection:      animeCollection,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
+		MangaCollection: animeCollection,
+		Platform:        c.App.AnilistPlatform,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -104,11 +102,11 @@ func HandleGetMangaEntry(c *RouteCtx) error {
 	}
 
 	entry, err := manga.NewEntry(&manga.NewEntryOptions{
-		MediaId:              id,
-		Logger:               c.App.Logger,
-		FileCacher:           c.App.FileCacher,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		MangaCollection:      animeCollection,
+		MediaId:         id,
+		Logger:          c.App.Logger,
+		FileCacher:      c.App.FileCacher,
+		Platform:        c.App.AnilistPlatform,
+		MangaCollection: animeCollection,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
@@ -139,14 +137,14 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 		return c.RespondWithData(detailsMedia)
 	}
 
-	details, err := c.App.AnilistClientWrapper.MangaDetailsByID(context.Background(), &id)
+	details, err := c.App.AnilistPlatform.GetMangaDetails(id)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	mangaDetailsCache.SetT(id, details.GetMedia(), time.Hour)
+	mangaDetailsCache.SetT(id, details, 1*time.Hour)
 
-	return c.RespondWithData(details.GetMedia())
+	return c.RespondWithData(details)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,8 +184,8 @@ func HandleEmptyMangaEntryCache(c *RouteCtx) error {
 func HandleGetMangaEntryChapters(c *RouteCtx) error {
 
 	type body struct {
-		MediaId  int                      `json:"mediaId"`
-		Provider manga_providers.Provider `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+		Provider string `json:"provider"`
 	}
 
 	var b body
@@ -198,11 +196,13 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 	var titles []*string
 	baseManga, found := baseMangaCache.Get(b.MediaId)
 	if !found {
-		mangaF, err := c.App.AnilistClientWrapper.BaseMangaByID(context.Background(), &b.MediaId)
+		var err error
+		baseManga, err = c.App.AnilistPlatform.GetManga(b.MediaId)
 		if err != nil {
 			return c.RespondWithError(err)
 		}
-		titles = mangaF.GetMedia().GetAllTitles()
+		titles = baseManga.GetAllTitles()
+		baseMangaCache.SetT(b.MediaId, baseManga, 24*time.Hour)
 	} else {
 		titles = baseManga.GetAllTitles()
 	}
@@ -228,10 +228,10 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 func HandleGetMangaEntryPages(c *RouteCtx) error {
 
 	type body struct {
-		MediaId    int                      `json:"mediaId"`
-		Provider   manga_providers.Provider `json:"provider"`
-		ChapterId  string                   `json:"chapterId"`
-		DoublePage bool                     `json:"doublePage"`
+		MediaId    int    `json:"mediaId"`
+		Provider   string `json:"provider"`
+		ChapterId  string `json:"chapterId"`
+		DoublePage bool   `json:"doublePage"`
 	}
 
 	var b body
@@ -289,7 +289,7 @@ func HandleAnilistListManga(c *RouteCtx) error {
 		isAdult = *p.IsAdult && c.App.Settings.Anilist.EnableAdultContent
 	}
 
-	cacheKey := anilist.ListMediaCacheKey(
+	cacheKey := anilist.ListAnimeCacheKey(
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -353,10 +353,9 @@ func HandleUpdateMangaProgress(c *RouteCtx) error {
 	}
 
 	// Update the progress on AniList
-	err := c.App.AnilistClientWrapper.UpdateMediaListEntryProgress(
-		context.Background(),
-		&b.MediaId,
-		&b.ChapterNumber,
+	err := c.App.AnilistPlatform.UpdateEntryProgress(
+		b.MediaId,
+		b.ChapterNumber,
 		&b.TotalChapters,
 	)
 	if err != nil {
@@ -365,27 +364,111 @@ func HandleUpdateMangaProgress(c *RouteCtx) error {
 
 	_, _ = c.App.RefreshMangaCollection() // Refresh the AniList collection
 
-	go func() {
-		// Update the progress on MAL if an account is linked
-		malInfo, _ := c.App.Database.GetMalInfo()
-		if malInfo != nil && malInfo.AccessToken != "" && b.MalId > 0 {
+	return c.RespondWithData(true)
+}
 
-			// Verify MAL auth
-			malInfo, err = mal.VerifyMALAuth(malInfo, c.App.Database, c.App.Logger)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-				return
-			}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-			client := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
-			err = client.UpdateMangaProgress(&mal.MangaListProgressParams{
-				NumChaptersRead: &b.ChapterNumber,
-			}, b.MalId)
-			if err != nil {
-				c.App.WSEventManager.SendEvent(events.WarningToast, "Failed to update progress on MyAnimeList")
-			}
-		}
-	}()
+// HandleMangaManualSearch
+//
+//	@summary returns search results for a manual search.
+//	@desc Returns search results for a manual search.
+//	@route /api/v1/manga/search [POST]
+//	@returns []vendor_hibike_manga.SearchResult
+func HandleMangaManualSearch(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		Query    string `json:"query"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret, err := c.App.MangaRepository.ManualSearch(b.Provider, b.Query)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(ret)
+}
+
+// HandleMangaManualMapping
+//
+//	@summary manually maps a manga entry to a manga ID from the provider.
+//	@desc This is used to manually map a manga entry to a manga ID from the provider.
+//	@desc The client should re-fetch the chapter container after this.
+//	@route /api/v1/manga/manual-mapping [POST]
+//	@returns bool
+func HandleMangaManualMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+		MangaId  string `json:"mangaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.MangaRepository.ManualMapping(b.Provider, b.MediaId, b.MangaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandleGetMangaMapping
+//
+//	@summary returns the mapping for a manga entry.
+//	@desc This is used to get the mapping for a manga entry.
+//	@desc An empty string is returned if there's no manual mapping. If there is, the manga ID will be returned.
+//	@route /api/v1/manga/get-mapping [POST]
+//	@returns manga.MappingResponse
+func HandleGetMangaMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	mapping := c.App.MangaRepository.GetMapping(b.Provider, b.MediaId)
+	return c.RespondWithData(mapping)
+}
+
+// HandleRemoveMangaMapping
+//
+//	@summary removes the mapping for a manga entry.
+//	@desc This is used to remove the mapping for a manga entry.
+//	@desc The client should re-fetch the chapter container after this.
+//	@route /api/v1/manga/remove-mapping [POST]
+//	@returns bool
+func HandleRemoveMangaMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.MangaRepository.RemoveMapping(b.Provider, b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
 	return c.RespondWithData(true)
 }

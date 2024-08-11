@@ -1,64 +1,37 @@
 "use client"
-import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
-import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
-import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
+import { useHandleEpisodeSection } from "@/app/(main)/entry/_lib/handle-episode-section"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { useThemeSettings } from "@/lib/theme/hooks"
-import React, { useMemo } from "react"
+import React from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 
+type EpisodeSectionProps = {
+    entry: Anime_AnimeEntry
+    details: AL_AnimeDetailsById_Media | undefined
+    bottomSection: React.ReactNode
+}
 
-export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_MediaDetailsById_Media | undefined }) {
-    const { entry, details } = props
-    const media = entry.media
-
+export function EpisodeSection({ entry, details, bottomSection }: EpisodeSectionProps) {
     const ts = useThemeSettings()
 
-    const { playMediaFile } = useHandlePlayMedia()
-
-    usePlayNextVideoOnMount({
-        onPlay: () => {
-            if (entry.nextEpisode) {
-                playMediaFile({ path: entry.nextEpisode.localFile?.path ?? "", mediaId: entry.mediaId })
-                // playVideo({ path: entry.nextEpisode.localFile?.path ?? "" })
-            }
-        },
-    })
-
-    const mainEpisodes = useMemo(() => {
-        return entry.episodes?.filter(ep => ep.type === "main") ?? []
-    }, [entry.episodes])
-
-    const specialEpisodes = useMemo(() => {
-        return entry.episodes?.filter(ep => ep.type === "special") ?? []
-    }, [entry.episodes])
-
-    const ncEpisodes = useMemo(() => {
-        return entry.episodes?.filter(ep => ep.type === "nc") ?? []
-    }, [entry.episodes])
-
-    const hasInvalidEpisodes = useMemo(() => {
-        return entry.episodes?.some(ep => ep.isInvalid) ?? false
-    }, [entry.episodes])
-
-    const episodesToWatch = useMemo(() => {
-        const ret = mainEpisodes.filter(ep => {
-            if (!entry.nextEpisode) {
-                return true
-            } else {
-                return ep.progressNumber > (entry.listData?.progress ?? 0)
-            }
-        })
-        return (!!entry.listData?.progress && !entry.nextEpisode) ? ret.reverse() : ret
-    }, [mainEpisodes, entry.nextEpisode, entry.listData?.progress])
+    const {
+        media,
+        hasInvalidEpisodes,
+        episodesToWatch,
+        mainEpisodes,
+        specialEpisodes,
+        ncEpisodes,
+        playMediaFile,
+    } = useHandleEpisodeSection({ entry, details })
 
     if (!media) return null
 
@@ -105,12 +78,11 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                                     >
                                         <EpisodeCard
                                             key={episode.localFile?.path || ""}
-                                            image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
-                                            topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
+                                            image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+                                            topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                             title={episode.displayTitle}
-                                            meta={episode.episodeMetadata?.airDate ?? undefined}
                                             isInvalid={episode.isInvalid}
-                                            progressTotal={episode.baseMedia?.episodes}
+                                            progressTotal={episode.baseAnime?.episodes}
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
                                             length={episode.episodeMetadata?.length}
@@ -170,7 +142,7 @@ export function EpisodeSection(props: { entry: Anime_MediaEntry, details: AL_Med
                         </EpisodeListGrid>
                     </>}
 
-                    <RelationsRecommendationsSection entry={entry} details={details} />
+                    {bottomSection}
 
                 </div>
             </AppLayoutStack>

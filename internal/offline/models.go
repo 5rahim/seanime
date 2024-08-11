@@ -1,6 +1,6 @@
 package offline
 
-import "github.com/seanime-app/seanime/internal/database/models"
+import "seanime/internal/database/models"
 
 type SnapshotEntry struct {
 	models.BaseModel

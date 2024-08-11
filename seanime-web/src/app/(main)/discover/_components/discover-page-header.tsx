@@ -1,10 +1,13 @@
-import { AL_BaseMedia } from "@/api/generated/types"
+import { AL_BaseAnime } from "@/api/generated/types"
+import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
+import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -19,7 +22,7 @@ export const __discover_hoveringHeaderAtom = atom(false)
 const MotionImage = motion(Image)
 
 export function DiscoverPageHeader() {
-
+    const ts = useThemeSettings()
     const pathname = usePathname()
 
     const [pageType, setPageType] = useAtom(__discord_pageTypeAtom)
@@ -48,12 +51,18 @@ export function DiscoverPageHeader() {
             }}
         >
             <div
-                className="CUSTOM_LIB_BANNER_FADE_BG w-full absolute z-[1] top-0 h-[48rem] opacity-100 bg-gradient-to-b from-[--background] via-[--background] via-75% to-transparent via"
-            />
-            <div
 
-                className="lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0 overflow-hidden"
+                className={cn(
+                    "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0",
+                    !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                )}
             >
+                <div
+                    className={cn(
+                        "w-full z-[2] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
+                    )}
+                />
+
                 <div
                     className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
@@ -71,7 +80,6 @@ export function DiscoverPageHeader() {
                             fill
                             quality={100}
                             priority
-                            sizes="100vw"
                             {...{
                                 initial: { opacity: 1 },
                                 animate: { opacity: 1 },
@@ -87,17 +95,22 @@ export function DiscoverPageHeader() {
                     )}
                 </AnimatePresence>
 
-                <Image
-                    src={"/mask.png"}
-                    alt="mask"
-                    fill
-                    quality={100}
-                    priority
-                    sizes="100vw"
+                {/*RIGHT FADE*/}
+                <div
                     className={cn(
-                        "object-cover object-right z-[2] transition-opacity duration-1000 opacity-60 hidden lg:block",
+                        "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute right-0 bg-gradient-to-l from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "opacity-100 duration-500",
                     )}
                 />
+
+                {/*LEFT FADE IF SIDEBAR IS TRANSPARENT*/}
+                {!ts.disableSidebarTransparency && <div
+                    className={cn(
+                        "hidden lg:block max-w-[10rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
+                        "opacity-70 duration-500",
+                    )}
+                />}
+
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 <AnimatePresence>
                     {(!!randomTrending && !isTransitioning) && (
@@ -121,7 +134,7 @@ export function DiscoverPageHeader() {
                             >
                                 <div className="flex-none">
                                     {randomTrending.coverImage?.large && <div
-                                        className="w-[180px] h-[240px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
+                                        className="w-[200px] h-[300px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
                                     >
                                         <Image
                                             src={randomTrending.coverImage.large}
@@ -136,22 +149,26 @@ export function DiscoverPageHeader() {
                                         />
                                     </div>}
                                 </div>
-                                <div className="flex-auto space-y-1 z-[1] text-center">
+                                <div className="flex-auto space-y-2 z-[1] text-center">
                                     <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
-                                    {!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode &&
-                                        <div className="flex items-center justify-center max-w-md gap-4">
-                                            {!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode?.airingAt &&
-                                                <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
-                                                    <RiSignalTowerLine /> Releasing now
-                                                </p>}
-                                            {(!!(randomTrending as AL_BaseMedia)?.nextAiringEpisode || !!(randomTrending as AL_BaseMedia).episodes) && (
-                                                <p className="text-lg font-semibold">
-                                                    {!!(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode ?
-                                                        <span>{(randomTrending as AL_BaseMedia).nextAiringEpisode?.episode} episodes</span> :
-                                                        <span>{(randomTrending as AL_BaseMedia).episodes} episodes</span>}
-                                                </p>
-                                            )}
+                                    <div className="flex items-center max-w-md gap-4">
+                                        {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
+                                            <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
+                                                <RiSignalTowerLine /> Releasing now
+                                            </p>}
+                                        {(!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (
+                                            <p className="text-lg font-semibold">
+                                                {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
+                                                    <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episodes</span> :
+                                                    <span>{(randomTrending as AL_BaseAnime).episodes} episodes</span>}
+                                            </p>
+                                        )}
+                                        {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
+                                            <MediaEntryAudienceScore
+                                                meanScore={randomTrending.meanScore}
+                                            />
                                         </div>}
+                                    </div>
                                     <div className="pt-2">
                                         <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
                                             /(<([^>]+)>)/ig,

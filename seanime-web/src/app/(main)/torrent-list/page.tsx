@@ -2,6 +2,7 @@
 import { TorrentClientAction_Variables } from "@/api/generated/endpoint.types"
 import { TorrentClient_Torrent } from "@/api/generated/types"
 import { useGetActiveTorrentList, useTorrentClientAction } from "@/api/hooks/torrent_client.hooks"
+import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -23,28 +24,31 @@ export default function Page() {
     const serverStatus = useServerStatus()
 
     return (
-        <PageWrapper
-            className="space-y-4 p-4 sm:p-8"
-        >
-            <div className="flex items-center w-full justify-between">
-                <div>
-                    <h2>Active torrents</h2>
-                    <p className="text-[--muted]">
-                        See torrents currently being downloaded
-                    </p>
+        <>
+            <CustomLibraryBanner discrete />
+            <PageWrapper
+                className="space-y-4 p-4 sm:p-8"
+            >
+                <div className="flex items-center w-full justify-between">
+                    <div>
+                        <h2>Active torrents</h2>
+                        <p className="text-[--muted]">
+                            See torrents currently being downloaded
+                        </p>
+                    </div>
+                    <div>
+                        {/*Show embedded client button only for qBittorrent*/}
+                        {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <Link href={`/qbittorrent`}>
+                            <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
+                        </Link>}
+                    </div>
                 </div>
-                <div>
-                    {/*Show embedded client button only for qBittorrent*/}
-                    {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <Link href={`/qbittorrent`}>
-                        <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
-                    </Link>}
-                </div>
-            </div>
 
-            <div className="pb-10">
-                <Content />
-            </div>
-        </PageWrapper>
+                <div className="pb-10">
+                    <Content />
+                </div>
+            </PageWrapper>
+        </>
     )
 }
 

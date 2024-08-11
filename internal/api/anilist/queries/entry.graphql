@@ -1,31 +1,3 @@
-mutation UpdateEntry (
-    $mediaId: Int
-    $status: MediaListStatus
-    $score: Float
-    $progress: Int
-    $repeat: Int
-    $private: Boolean
-    $notes: String
-    $hiddenFromStatusLists: Boolean
-    $startedAt: FuzzyDateInput
-    $completedAt: FuzzyDateInput
-) {
-    SaveMediaListEntry(
-        mediaId: $mediaId
-        status: $status
-        score: $score
-        progress: $progress
-        repeat: $repeat
-        private: $private
-        notes: $notes
-        hiddenFromStatusLists: $hiddenFromStatusLists
-        startedAt: $startedAt
-        completedAt: $completedAt
-    ) {
-        id
-    }
-}
-
 mutation UpdateMediaListEntry (
     $mediaId: Int
     $status: MediaListStatus
@@ -55,22 +27,6 @@ mutation UpdateMediaListEntryProgress (
         mediaId: $mediaId
         progress: $progress
         status: $status
-    ) {
-        id
-    }
-}
-
-mutation UpdateMediaListEntryStatus (
-    $mediaId: Int
-    $progress: Int
-    $status: MediaListStatus
-    $scoreRaw: Int
-) {
-    SaveMediaListEntry(
-        mediaId: $mediaId
-        progress: $progress
-        status: $status
-        scoreRaw: $scoreRaw
     ) {
         id
     }

@@ -10,9 +10,12 @@ import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-libra
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useAnimeCollectionListener } from "@/app/(main)/_listeners/anilist-collection.listeners"
 import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownloader.listeners"
+import { useExtensionListener } from "@/app/(main)/_listeners/extensions.listeners"
+import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-player-link.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
+import { AnimePreviewModal } from "@/app/(main)/entry/anime-preview-modal"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import React from "react"
@@ -32,7 +35,9 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     useAutoDownloaderItemListener()
     useAnimeCollectionListener()
     useToastEventListeners()
+    useExtensionListener()
     useMangaListener()
+    useExternalPlayerLinkListener()
 
     return (
         <>
@@ -43,6 +48,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaylistsModal />
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
+            <AnimePreviewModal />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

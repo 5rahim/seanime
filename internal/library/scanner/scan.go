@@ -5,28 +5,28 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/filesystem"
-	"github.com/seanime-app/seanime/internal/library/summary"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/events"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/filesystem"
+	"seanime/internal/library/summary"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 )
 
 type Scanner struct {
-	DirPath              string
-	Username             string
-	Enhanced             bool
-	AnilistClientWrapper anilist.ClientWrapperInterface
-	Logger               *zerolog.Logger
-	WSEventManager       events.WSEventManagerInterface
-	ExistingLocalFiles   []*anime.LocalFile
-	SkipLockedFiles      bool
-	SkipIgnoredFiles     bool
-	ScanSummaryLogger    *summary.ScanSummaryLogger
-	ScanLogger           *ScanLogger
+	DirPath            string
+	Enhanced           bool
+	Platform           platform.Platform
+	Logger             *zerolog.Logger
+	WSEventManager     events.WSEventManagerInterface
+	ExistingLocalFiles []*anime.LocalFile
+	SkipLockedFiles    bool
+	SkipIgnoredFiles   bool
+	ScanSummaryLogger  *summary.ScanSummaryLogger
+	ScanLogger         *ScanLogger
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -34,7 +34,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	defer util.HandlePanicWithError(&err)
 
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anizipCache := anizip.NewCache()
 
 	// Create a new Anilist rate limiter
@@ -140,15 +140,14 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:             scn.Enhanced,
-		Username:             scn.Username,
-		AnilistClientWrapper: scn.AnilistClientWrapper,
-		LocalFiles:           localFiles,
-		CompleteMediaCache:   completeMediaCache,
-		AnizipCache:          anizipCache,
-		Logger:               scn.Logger,
-		AnilistRateLimiter:   anilistRateLimiter,
-		ScanLogger:           scn.ScanLogger,
+		Enhanced:           scn.Enhanced,
+		Platform:           scn.Platform,
+		LocalFiles:         localFiles,
+		CompleteAnimeCache: completeAnimeCache,
+		AnizipCache:        anizipCache,
+		Logger:             scn.Logger,
+		AnilistRateLimiter: anilistRateLimiter,
+		ScanLogger:         scn.ScanLogger,
 	})
 	if err != nil {
 		return nil, err
@@ -179,7 +178,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	matcher := &Matcher{
 		LocalFiles:         localFiles,
 		MediaContainer:     mc,
-		CompleteMediaCache: completeMediaCache,
+		CompleteAnimeCache: completeAnimeCache,
 		Logger:             scn.Logger,
 		ScanLogger:         scn.ScanLogger,
 		ScanSummaryLogger:  scn.ScanSummaryLogger,
@@ -207,15 +206,15 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	// Create a new hydrator
 	hydrator := &FileHydrator{
-		AllMedia:             mc.NormalizedMedia,
-		LocalFiles:           localFiles,
-		AnizipCache:          anizipCache,
-		AnilistClientWrapper: scn.AnilistClientWrapper,
-		CompleteMediaCache:   completeMediaCache,
-		AnilistRateLimiter:   anilistRateLimiter,
-		Logger:               scn.Logger,
-		ScanLogger:           scn.ScanLogger,
-		ScanSummaryLogger:    scn.ScanSummaryLogger,
+		AllMedia:           mc.NormalizedMedia,
+		LocalFiles:         localFiles,
+		AnizipCache:        anizipCache,
+		Platform:           scn.Platform,
+		CompleteAnimeCache: completeAnimeCache,
+		AnilistRateLimiter: anilistRateLimiter,
+		Logger:             scn.Logger,
+		ScanLogger:         scn.ScanLogger,
+		ScanSummaryLogger:  scn.ScanSummaryLogger,
 	}
 	hydrator.HydrateMetadata()
 
@@ -230,7 +229,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	if len(mf.UnknownMediaIds) < 5 {
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Adding missing media to AniList...")
 
-		if err = scn.AnilistClientWrapper.AddMediaToPlanning(mf.UnknownMediaIds, anilistRateLimiter, scn.Logger); err != nil {
+		if err = scn.Platform.AddMediaToCollection(mf.UnknownMediaIds); err != nil {
 			scn.Logger.Warn().Msg("scanner: An error occurred while adding media to planning list: " + err.Error())
 		}
 	}

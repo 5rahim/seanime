@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"context"
-	"github.com/seanime-app/seanime/internal/api/anizip"
+	"seanime/internal/api/anizip"
 )
 
 // HandlePopulateTVDBEpisodes
@@ -26,11 +25,10 @@ func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaF, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
+	media, err := c.App.AnilistPlatform.GetAnime(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
-	media := mediaF.GetMedia()
 
 	// Create media wrapper
 	mw := c.App.MetadataProvider.NewMediaWrapper(media, anizipMedia)
@@ -66,11 +64,10 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	mediaF, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
+	media, err := c.App.AnilistPlatform.GetAnime(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
-	media := mediaF.GetMedia()
 
 	// Create media wrapper
 	mw := c.App.MetadataProvider.NewMediaWrapper(media, anizipMedia)
@@ -108,14 +105,13 @@ func HandlePopulateFillerData(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	media, found := animeCollection.FindMedia(b.MediaId)
+	media, found := animeCollection.FindAnime(b.MediaId)
 	if !found {
 		// Fetch media
-		mediaF, err := c.App.AnilistClientWrapper.BaseMediaByID(context.Background(), &b.MediaId)
+		media, err = c.App.AnilistPlatform.GetAnime(b.MediaId)
 		if err != nil {
 			return c.RespondWithError(err)
 		}
-		media = mediaF.GetMedia()
 	}
 
 	// Fetch filler data

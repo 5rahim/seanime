@@ -57,8 +57,10 @@ export function GettingStartedPage({ status }: { status: Status }) {
             <Card className="relative p-4">
                 <AppLayoutStack>
                     <div className="space-y-4 p-1">
-                        <h3>Getting started</h3>
-                        <em className="text-[--muted]">These settings can be modified later.</em>
+                        <div>
+                            <h3 className="text-center">Getting started</h3>
+                            <p className="italic text-[--muted] text-center">These settings can be modified later.</p>
+                        </div>
                         <Form
                             schema={gettingStartedSchema}
                             onSubmit={data => {
@@ -93,6 +95,9 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         enableRichPresence: data.enableRichPresence,
                                         enableAnimeRichPresence: true,
                                         enableMangaRichPresence: true,
+                                        richPresenceHideSeanimeRepositoryButton: false,
+                                        richPresenceShowAniListMediaButton: false,
+                                        richPresenceShowAniListProfileButton: false,
                                     },
                                     torrent: {
                                         defaultTorrentClient: data.defaultTorrentClient,
@@ -114,6 +119,11 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     },
                                     enableTorrentStreaming: data.enableTorrentStreaming,
                                     enableTranscode: data.enableTranscode,
+                                    notifications: {
+                                        disableNotifications: false,
+                                        disableAutoDownloaderNotifications: false,
+                                        disableAutoScannerNotifications: false,
+                                    },
                                 })
                             }}
                             defaultValues={{
@@ -131,7 +141,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 mpcPath: "C:/Program Files/MPC-HC/mpc-hc64.exe",
                                 torrentProvider: DEFAULT_TORRENT_PROVIDER,
                                 mpvSocket: mpvSocketPath,
-                                enableRichPresence: true,
+                                enableRichPresence: false,
                                 autoScan: false,
                                 enableManga: true,
                                 enableOnlinestream: false,
@@ -149,10 +159,10 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             />
 
                             <div>
-                                <h4 className="text-center">Media Player</h4>
+                                <h4 className="text-center">Desktop Media Player</h4>
 
                                 <p className="text-[--muted] text-center">
-                                    Software used to play media files and track your progress automatically.
+                                    Used to play media files and track your progress automatically.
                                 </p>
                             </div>
 
@@ -165,7 +175,6 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                     { label: "VLC", value: "vlc" },
                                     { label: "MPC-HC", value: "mpc-hc" },
                                 ]}
-                                help="Player that will be used to open files and track your progress automatically."
                             />
 
                             <Accordion
@@ -260,10 +269,11 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             </Accordion>
 
                             <div>
-                                <h4 className="text-center">Torrent Provider</h4>
+                                <h4 className="text-center">Torrent Provider Extension</h4>
 
                                 <p className="text-[--muted] text-center">
-                                    Indexer used by the search engine and auto downloader. AnimeTosho is recommended for better results.
+                                    Built-in torrent provider extension used by the search engine and auto downloader. AnimeTosho is recommended for
+                                    more accurate results.
                                 </p>
                             </div>
 
@@ -372,10 +382,10 @@ export function GettingStartedPage({ status }: { status: Status }) {
                             </Accordion>
 
                             <div>
-                                <h4 className="text-center">Additional features</h4>
+                                <h4 className="text-center">More features</h4>
 
                                 <p className="text-[--muted] text-center">
-                                    Select which additional features you want to use.
+                                    Select additional features you want to use.
                                 </p>
                             </div>
 
@@ -386,20 +396,20 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 size="lg"
                             />
 
+                            <Field.Checkbox
+                                name="enableTranscode"
+                                label={<span>Media streaming / Transcoding</span>}
+                                help="Stream downloaded episodes to other devices using transcoding or direct play. FFmpeg is required."
+                                size="lg"
+                            />
 
-                            {/*<Field.Checkbox*/}
-                            {/*    name="enableTorrentStreaming"*/}
-                            {/*    label={<span>Torrent streaming <BetaBadge /></span>}*/}
-                            {/*    help="Stream torrents directly to your media player without having to wait for the download to complete."*/}
-                            {/*    size="lg"*/}
-                            {/*/>*/}
 
-                            {/*<Field.Checkbox*/}
-                            {/*    name="enableTranscode"*/}
-                            {/*    label={<span>Media streaming / Transcoding <BetaBadge /></span>}*/}
-                            {/*    help="Stream downloaded episodes to other devices. Some additional configuration is required."*/}
-                            {/*    size="lg"*/}
-                            {/*/>*/}
+                            <Field.Checkbox
+                                name="enableTorrentStreaming"
+                                label={<span>Torrent streaming</span>}
+                                help="Stream torrents directly to your media player without having to wait for the download to complete."
+                                size="lg"
+                            />
 
                             <Field.Checkbox
                                 name="enableOnlinestream"
@@ -421,7 +431,6 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 label={<span>NSFW</span>}
                                 help={<div>
                                     <p>Show adult content in your library and search results.</p>
-                                    <p>Note that this is different from blurring content, which can be enabled in the settings.</p>
                                 </div>}
                                 size="lg"
                             />

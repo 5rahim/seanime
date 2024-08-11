@@ -1,9 +1,10 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { __openDrawersAtom } from "@/components/ui/drawer"
-import { __DEV_SERVER_PORT } from "@/lib/server/config"
 import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
+import { useCookies } from "react-cookie"
 import { LuLoader } from "react-icons/lu"
 import { RemoveScrollBar } from "react-remove-scroll-bar"
 import { useEffectOnce } from "react-use"
@@ -18,17 +19,28 @@ function uuidv4(): string {
 
 export const websocketConnectedAtom = atom(false)
 
+export const clientIdAtom = atom<string | null>(null)
+
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
     const openDrawers = useAtomValue(__openDrawersAtom)
 
-    useEffectOnce(() => {
+    const [cookies, setCookie, removeCookie] = useCookies(["Seanime-Client-Id"])
 
+    const [, setClientId] = useAtom(clientIdAtom)
+    React.useEffect(() => {
+        if (cookies["Seanime-Client-Id"]) {
+            setClientId(cookies["Seanime-Client-Id"])
+        }
+    }, [cookies])
+
+
+    useEffectOnce(() => {
         function connectWebSocket() {
-            const newSocket = new WebSocket(`${document.location.protocol == "https:" ? "wss" : "ws"}://${process.env.NODE_ENV === "development"
-                ? `${window?.location?.hostname}:${__DEV_SERVER_PORT}`
-                : window?.location?.host}/events?id=${uuidv4()}`)
+            const newSocket = new WebSocket(`${document.location.protocol == "https:"
+                ? "wss"
+                : "ws"}://${getServerBaseUrl(true)}/events?id=${cookies["Seanime-Client-Id"] || uuidv4()}`)
 
             newSocket.addEventListener("open", () => {
                 console.log("WebSocket connection opened")

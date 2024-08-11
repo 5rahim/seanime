@@ -5,6 +5,10 @@ import {
     GetAnilistMangaCollection_Variables,
     GetMangaEntryChapters_Variables,
     GetMangaEntryPages_Variables,
+    GetMangaMapping_Variables,
+    MangaManualMapping_Variables,
+    MangaManualSearch_Variables,
+    RemoveMangaMapping_Variables,
     UpdateMangaProgress_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
@@ -12,13 +16,16 @@ import {
     AL_ListManga,
     AL_MangaCollection,
     AL_MangaDetailsById_Media,
+    HibikeManga_SearchResult,
     Manga_ChapterContainer,
     Manga_Collection,
     Manga_Entry,
+    Manga_MappingResponse,
     Manga_PageContainer,
     Nullish,
 } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export function useGetAnilistMangaCollection() {
     return useServerQuery<AL_MangaCollection, GetAnilistMangaCollection_Variables>({
@@ -125,3 +132,55 @@ export function useUpdateMangaProgress(id: Nullish<string | number>) {
     })
 }
 
+////
+
+export function useMangaManualSearch(mediaId: Nullish<number>, provider: string) {
+    return useServerMutation<Array<HibikeManga_SearchResult>, MangaManualSearch_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.MangaManualSearch.endpoint,
+        method: API_ENDPOINTS.MANGA.MangaManualSearch.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.MangaManualSearch.key, String(mediaId), provider],
+        gcTime: 0,
+    })
+}
+
+export function useMangaManualMapping() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<boolean, MangaManualMapping_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.MangaManualMapping.endpoint,
+        method: API_ENDPOINTS.MANGA.MangaManualMapping.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.MangaManualMapping.key],
+        onSuccess: async () => {
+            toast.success("Mapping added")
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaMapping.key] })
+        },
+    })
+}
+
+export function useGetMangaMapping(variables: Partial<GetMangaMapping_Variables>) {
+    return useServerQuery<Manga_MappingResponse, GetMangaMapping_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaMapping.endpoint,
+        method: API_ENDPOINTS.MANGA.GetMangaMapping.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaMapping.key, String(variables.mediaId), variables.provider],
+        data: variables as GetMangaMapping_Variables,
+        enabled: !!variables.provider && !!variables.mediaId,
+    })
+}
+
+export function useRemoveMangaMapping() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<boolean, RemoveMangaMapping_Variables>({
+        endpoint: API_ENDPOINTS.MANGA.RemoveMangaMapping.endpoint,
+        method: API_ENDPOINTS.MANGA.RemoveMangaMapping.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.RemoveMangaMapping.key],
+        onSuccess: async () => {
+            toast.success("Mapping removed")
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaMapping.key] })
+        },
+    })
+}

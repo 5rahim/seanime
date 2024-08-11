@@ -1,4 +1,4 @@
-import { Anime_LocalFile, Anime_MediaEntry } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_LocalFile } from "@/api/generated/types"
 import { useDeleteLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import React from "react"
 import * as upath from "upath"
 
 export type AnimeEntryBulkDeleteFilesModalProps = {
-    entry: Anime_MediaEntry
+    entry: Anime_AnimeEntry
 }
 
 export const __bulkDeleteFilesModalIsOpenAtom = atom(false)
@@ -38,7 +38,7 @@ export function AnimeEntryBulkDeleteFilesModal({ entry }: AnimeEntryBulkDeleteFi
 
 }
 
-function Content({ entry }: { entry: Anime_MediaEntry }) {
+function Content({ entry }: { entry: Anime_AnimeEntry }) {
 
     const [state, setState] = useAtom(__bulkDeleteFilesModalIsOpenAtom)
     const [files, setFiles] = useAtom(__episodeDeleteActionFilesAtom)

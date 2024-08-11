@@ -1,6 +1,6 @@
 # db
 
-This package contains all the database related logic.
+Should only import `models` internal package.
 
 ### 🚫 Do not
 

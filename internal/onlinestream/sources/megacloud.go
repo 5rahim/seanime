@@ -7,10 +7,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/seanime-app/seanime/internal/util"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"io"
 	"net/http"
 	"regexp"
+	"seanime/internal/util"
 	"strconv"
 	"strings"
 )
@@ -29,7 +30,7 @@ func NewMegaCloud() *MegaCloud {
 	}
 }
 
-func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
+func (m *MegaCloud) Extract(uri string) (vs []*hibikeonlinestream.VideoSource, err error) {
 	defer util.HandlePanicInModuleThen("onlinestream/sources/megacloud/Extract", func() {
 		err = ErrVideoSourceExtraction
 	})
@@ -60,12 +61,12 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 		return nil, err
 	}
 
-	subtitles := make([]*VideoSubtitle, 0)
+	subtitles := make([]*hibikeonlinestream.VideoSubtitle, 0)
 	for idx, s := range srcData["tracks"].([]interface{}) {
 		sub := s.(map[string]interface{})
 		label, ok := sub["label"].(string)
 		if ok {
-			subtitle := &VideoSubtitle{
+			subtitle := &hibikeonlinestream.VideoSubtitle{
 				URL:       sub["file"].(string),
 				ID:        label,
 				Language:  label,
@@ -81,13 +82,13 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 			if len(encryptedString.([]interface{})) == 0 {
 				return nil, ErrNoVideoSourceFound
 			}
-			videoSources := make([]*VideoSource, 0)
+			videoSources := make([]*hibikeonlinestream.VideoSource, 0)
 			if e, ok := encryptedString.([]interface{})[0].(map[string]interface{}); ok {
 				file, ok := e["file"].(string)
 				if ok {
-					videoSources = append(videoSources, &VideoSource{
+					videoSources = append(videoSources, &hibikeonlinestream.VideoSource{
 						URL:       file,
-						Type:      map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(file, ".m3u8")],
+						Type:      map[bool]hibikeonlinestream.VideoSourceType{true: hibikeonlinestream.VideoSourceM3U8, false: hibikeonlinestream.VideoSourceMP4}[strings.Contains(file, ".m3u8")],
 						Subtitles: subtitles,
 						Quality:   QualityAuto,
 					})
@@ -102,11 +103,11 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 
 		case []map[string]interface{}:
 			if srcData["encrypted"].(bool) && ok {
-				videoSources := make([]*VideoSource, 0)
+				videoSources := make([]*hibikeonlinestream.VideoSource, 0)
 				for _, e := range encryptedString.([]map[string]interface{}) {
-					videoSources = append(videoSources, &VideoSource{
+					videoSources = append(videoSources, &hibikeonlinestream.VideoSource{
 						URL:       e["file"].(string),
-						Type:      map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(e["file"].(string), ".m3u8")],
+						Type:      map[bool]hibikeonlinestream.VideoSourceType{true: hibikeonlinestream.VideoSourceM3U8, false: hibikeonlinestream.VideoSourceMP4}[strings.Contains(e["file"].(string), ".m3u8")],
 						Subtitles: subtitles,
 						Quality:   QualityAuto,
 					})
@@ -149,11 +150,11 @@ func (m *MegaCloud) Extract(uri string) (vs []*VideoSource, err error) {
 				return nil, err
 			}
 
-			sources := make([]*VideoSource, 0)
+			sources := make([]*hibikeonlinestream.VideoSource, 0)
 			for _, e := range decryptedData {
-				sources = append(sources, &VideoSource{
+				sources = append(sources, &hibikeonlinestream.VideoSource{
 					URL:       e["file"].(string),
-					Type:      map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(e["file"].(string), ".m3u8")],
+					Type:      map[bool]hibikeonlinestream.VideoSourceType{true: hibikeonlinestream.VideoSourceM3U8, false: hibikeonlinestream.VideoSourceMP4}[strings.Contains(e["file"].(string), ".m3u8")],
 					Subtitles: subtitles,
 					Quality:   QualityAuto,
 				})

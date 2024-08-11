@@ -47,8 +47,8 @@ export const API_ENDPOINTS = {
          *  Route returns more details about an AniList anime entry.
          *  This fetches more fields omitted from the base queries.
          */
-        GetAnilistMediaDetails: {
-            key: "ANILIST-get-anilist-media-details",
+        GetAnilistAnimeDetails: {
+            key: "ANILIST-get-anilist-anime-details",
             methods: ["GET"],
             endpoint: "/api/v1/anilist/media-details/{id}",
         },
@@ -404,6 +404,58 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/open-in-explorer",
         },
     },
+    EXTENSIONS: {
+        FetchExternalExtensionData: {
+            key: "EXTENSIONS-fetch-external-extension-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/fetch",
+        },
+        InstallExternalExtension: {
+            key: "EXTENSIONS-install-external-extension",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/install",
+        },
+        UninstallExternalExtension: {
+            key: "EXTENSIONS-uninstall-external-extension",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/uninstall",
+        },
+        UpdateExtensionCode: {
+            key: "EXTENSIONS-update-extension-code",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/edit-payload",
+        },
+        ReloadExternalExtensions: {
+            key: "EXTENSIONS-reload-external-extensions",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/reload",
+        },
+        ListExtensionData: {
+            key: "EXTENSIONS-list-extension-data",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list",
+        },
+        GetAllExtensions: {
+            key: "EXTENSIONS-get-all-extensions",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/all",
+        },
+        ListMangaProviderExtensions: {
+            key: "EXTENSIONS-list-manga-provider-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/manga-provider",
+        },
+        ListOnlinestreamProviderExtensions: {
+            key: "EXTENSIONS-list-onlinestream-provider-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/onlinestream-provider",
+        },
+        ListAnimeTorrentProviderExtensions: {
+            key: "EXTENSIONS-list-anime-torrent-provider-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/anime-torrent-provider",
+        },
+    },
     FILECACHE: {
         /**
          *  @description
@@ -445,33 +497,6 @@ export const API_ENDPOINTS = {
             key: "FILECACHE-clear-file-cache-mediastream-video-files",
             methods: ["DELETE"],
             endpoint: "/api/v1/filecache/mediastream/videofiles",
-        },
-    },
-    LIST_SYNC: {
-        /**
-         *  @description
-         *  Route deletes the list sync cache.
-         *  This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.
-         */
-        DeleteListSyncCache: {
-            key: "LIST-SYNC-delete-list-sync-cache",
-            methods: ["POST"],
-            endpoint: "/api/v1/list-sync/cache",
-        },
-        /**
-         *  @description
-         *  Route returns the anime diffs from the list sync instance.
-         *  If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes
-         */
-        GetListSyncAnimeDiffs: {
-            key: "LIST-SYNC-get-list-sync-anime-diffs",
-            methods: ["GET"],
-            endpoint: "/api/v1/list-sync/anime-diffs",
-        },
-        SyncAnime: {
-            key: "LIST-SYNC-sync-anime",
-            methods: ["POST"],
-            endpoint: "/api/v1/list-sync/anime",
         },
     },
     LOCALFILES: {
@@ -644,6 +669,49 @@ export const API_ENDPOINTS = {
             key: "MANGA-update-manga-progress",
             methods: ["POST"],
             endpoint: "/api/v1/manga/update-progress",
+        },
+        /**
+         *  @description
+         *  Route returns search results for a manual search.
+         *  Returns search results for a manual search.
+         */
+        MangaManualSearch: {
+            key: "MANGA-manga-manual-search",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/search",
+        },
+        /**
+         *  @description
+         *  Route manually maps a manga entry to a manga ID from the provider.
+         *  This is used to manually map a manga entry to a manga ID from the provider.
+         *  The client should re-fetch the chapter container after this.
+         */
+        MangaManualMapping: {
+            key: "MANGA-manga-manual-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/manual-mapping",
+        },
+        /**
+         *  @description
+         *  Route returns the mapping for a manga entry.
+         *  This is used to get the mapping for a manga entry.
+         *  An empty string is returned if there's no manual mapping. If there is, the manga ID will be returned.
+         */
+        GetMangaMapping: {
+            key: "MANGA-get-manga-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/get-mapping",
+        },
+        /**
+         *  @description
+         *  Route removes the mapping for a manga entry.
+         *  This is used to remove the mapping for a manga entry.
+         *  The client should re-fetch the chapter container after this.
+         */
+        RemoveMangaMapping: {
+            key: "MANGA-remove-manga-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/remove-mapping",
         },
     },
     MANGA_DOWNLOAD: {
@@ -998,6 +1066,28 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/playback-manager/playlist-next",
         },
+        /**
+         *  @description
+         *  Route starts manual tracking of a media.
+         *  Used for tracking progress of media that is not played through any integrated media player.
+         *  This should only be used for trackable episodes (episodes that count towards progress).
+         *  This returns 'true' if the tracking was successfully started.
+         */
+        PlaybackStartManualTracking: {
+            key: "PLAYBACK-MANAGER-playback-start-manual-tracking",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/manual-tracking/start",
+        },
+        /**
+         *  @description
+         *  Route cancels manual tracking of a media.
+         *  This will stop the server from expecting progress updates for the media.
+         */
+        PlaybackCancelManualTracking: {
+            key: "PLAYBACK-MANAGER-playback-cancel-manual-tracking",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/manual-tracking/cancel",
+        },
     },
     PLAYLIST: {
         /**
@@ -1108,16 +1198,6 @@ export const API_ENDPOINTS = {
             methods: ["PATCH"],
             endpoint: "/api/v1/settings",
         },
-        /**
-         *  @description
-         *  Route updates the list sync settings
-         *  This will update the ListSync settings and clear the ListSync cache.
-         */
-        SaveListSyncSettings: {
-            key: "SETTINGS-save-list-sync-settings",
-            methods: ["PATCH"],
-            endpoint: "/api/v1/settings/list-sync",
-        },
         SaveAutoDownloaderSettings: {
             key: "SETTINGS-save-auto-downloader-settings",
             methods: ["PATCH"],
@@ -1213,16 +1293,6 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/torrent/search",
         },
-        /**
-         *  @description
-         *  Route searches NSFW torrents and returns a list of torrents without previews.
-         *  This will search for NSFW torrents and return a list of torrents without previews.
-         */
-        SearchNsfwTorrent: {
-            key: "TORRENT-SEARCH-search-nsfw-torrent",
-            methods: ["POST"],
-            endpoint: "/api/v1/torrent/nsfw-search",
-        },
     },
     TORRENTSTREAM: {
         /**
@@ -1255,6 +1325,16 @@ export const API_ENDPOINTS = {
             key: "TORRENTSTREAM-save-torrentstream-settings",
             methods: ["PATCH"],
             endpoint: "/api/v1/torrentstream/settings",
+        },
+        /**
+         *  @description
+         *  Route get list of torrent files from a batch
+         *  This returns a list of file previews from the torrent
+         */
+        GetTorrentstreamTorrentFilePreviews: {
+            key: "TORRENTSTREAM-get-torrentstream-torrent-file-previews",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/torrent-file-previews",
         },
         /**
          *  @description

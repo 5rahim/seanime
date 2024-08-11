@@ -5,21 +5,23 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/core"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/fiberlogger"
-	util2 "github.com/seanime-app/seanime/internal/util/proxies"
 	"runtime"
+	"seanime/internal/core"
+	"seanime/internal/util"
+	"seanime/internal/util/fiberlogger"
+	util2 "seanime/internal/util/proxies"
 	"strings"
 	"sync"
+	"time"
 )
 
 func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	fiberApp.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, X-Seanime-Mediastream-Client-Id",
+		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
 	// Set up a custom logger for fiber.
@@ -40,6 +42,34 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	})
 	fiberApp.Use(fiberLogger)
 
+	fiberApp.Use(func(c *fiber.Ctx) error {
+		// Check if the client has a UUID cookie
+		cookie := c.Cookies("Seanime-Client-Id")
+
+		if cookie == "" {
+			// Generate a new UUID for the client
+			u := uuid.New().String()
+
+			// Create a cookie with the UUID
+			cookie := new(fiber.Cookie)
+			cookie.Name = "Seanime-Client-Id"
+			cookie.Value = u
+			cookie.HTTPOnly = false // Make the cookie accessible via JS
+			cookie.Expires = time.Now().Add(24 * time.Hour)
+
+			// Set the cookie
+			c.Cookie(cookie)
+
+			// Store the UUID in the context for use in the request
+			c.Locals("Seanime-Client-Id", u)
+		} else {
+			// Store the existing UUID in the context for use in the request
+			c.Locals("Seanime-Client-Id", cookie)
+		}
+
+		return c.Next()
+	})
+
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")
 
@@ -57,6 +87,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 					strings.HasPrefix(uriS[1], "/playlists") ||
 					strings.HasPrefix(uriS[1], "/directory-selector") ||
 					strings.HasPrefix(uriS[1], "/manga") ||
+					strings.HasPrefix(uriS[1], "/mediastream") ||
+					strings.HasPrefix(uriS[1], "/torrentstream") ||
+					strings.HasPrefix(uriS[1], "/extensions") ||
 					strings.HasPrefix(uriS[1], "/open-in-explorer") {
 					return c.Next()
 				} else {
@@ -66,6 +99,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			return c.Next()
 		})
 	}
+
+	//fiberApp.Use(pprof.New(pprof.Config{
+	//	Prefix: "/api/v1",
+	//}))
 
 	v1.Get("/internal/docs", makeHandler(app, HandleGetDocs))
 
@@ -86,13 +123,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/settings", makeHandler(app, HandleGetSettings))
 	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
 	v1.Post("/start", makeHandler(app, HandleGettingStarted))
-	v1.Patch("/settings/list-sync", makeHandler(app, HandleSaveListSyncSettings))
 	v1.Patch("/settings/auto-downloader", makeHandler(app, HandleSaveAutoDownloaderSettings))
-
-	// List Sync
-	v1.Get("/list-sync/anime-diffs", makeHandler(app, HandleGetListSyncAnimeDiffs))
-	v1.Post("/list-sync/cache", makeHandler(app, HandleDeleteListSyncCache))
-	v1.Post("/list-sync/anime", makeHandler(app, HandleSyncAnime))
 
 	// Auto Downloader
 	v1.Post("/auto-downloader/run", makeHandler(app, HandleRunAutoDownloader))
@@ -126,7 +157,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Anilist.Get("/collection/raw", makeHandler(app, HandleGetRawAnimeCollection))
 	v1Anilist.Post("/collection/raw", makeHandler(app, HandleGetRawAnimeCollection))
 
-	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistMediaDetails))
+	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistAnimeDetails))
 
 	v1Anilist.Get("/studio-details/:id", makeHandler(app, HandleGetAnilistStudioDetails))
 
@@ -195,7 +226,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1.Post("/torrent/search", makeHandler(app, HandleSearchTorrent))
-	v1.Post("/torrent/nsfw-search", makeHandler(app, HandleSearchNsfwTorrent))
 	v1.Post("/torrent-client/download", makeHandler(app, HandleTorrentClientDownload))
 	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
 	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))
@@ -233,6 +263,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playback-manager/next-episode", makeHandler(app, HandlePlaybackPlayNextEpisode))
 	v1.Post("/playback-manager/play", makeHandler(app, HandlePlaybackPlayVideo))
 	v1.Post("/playback-manager/play-random", makeHandler(app, HandlePlaybackPlayRandomVideo))
+	//------------
+	v1.Post("/playback-manager/manual-tracking/start", makeHandler(app, HandlePlaybackStartManualTracking))
+	v1.Post("/playback-manager/manual-tracking/cancel", makeHandler(app, HandlePlaybackCancelManualTracking))
 
 	//
 	// Playlists
@@ -291,6 +324,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Delete("/download-queue", makeHandler(app, HandleClearAllChapterDownloadQueue))
 	v1Manga.Post("/download-queue/reset-errored", makeHandler(app, HandleResetErroredChapterDownloadQueue))
 
+	v1Manga.Post("/search", makeHandler(app, HandleMangaManualSearch))
+	v1Manga.Post("/manual-mapping", makeHandler(app, HandleMangaManualMapping))
+	v1Manga.Post("/get-mapping", makeHandler(app, HandleGetMangaMapping))
+	v1Manga.Post("/remove-mapping", makeHandler(app, HandleRemoveMangaMapping))
+
 	//
 	// File Cache
 	//
@@ -335,6 +373,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirectPlay))
 
+	v1.Get("/mediastream/file/*", makeHandler(app, HandleMediastreamFile))
+
 	//
 	// Torrent stream
 	//
@@ -344,6 +384,25 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/torrentstream/start", makeHandler(app, HandleTorrentstreamStartStream))
 	v1.Post("/torrentstream/stop", makeHandler(app, HandleTorrentstreamStopStream))
 	v1.Post("/torrentstream/drop", makeHandler(app, HandleTorrentstreamDropTorrent))
+	v1.Post("/torrentstream/torrent-file-previews", makeHandler(app, HandleGetTorrentstreamTorrentFilePreviews))
+
+	//
+	// Extensions
+	//
+
+	v1Extensions := v1.Group("/extensions")
+
+	v1Extensions.Post("/external/fetch", makeHandler(app, HandleFetchExternalExtensionData))
+	v1Extensions.Post("/external/install", makeHandler(app, HandleInstallExternalExtension))
+	v1Extensions.Post("/external/uninstall", makeHandler(app, HandleUninstallExternalExtension))
+	v1Extensions.Post("/external/edit-payload", makeHandler(app, HandleUpdateExtensionCode))
+	v1Extensions.Post("/external/reload", makeHandler(app, HandleReloadExternalExtensions))
+
+	v1Extensions.Post("/all", makeHandler(app, HandleGetAllExtensions))
+	v1Extensions.Get("/list", makeHandler(app, HandleListExtensionData))
+	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
+	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
+	v1Extensions.Get("/list/anime-torrent-provider", makeHandler(app, HandleListAnimeTorrentProviderExtensions))
 
 	//
 	// Websocket

@@ -1,7 +1,7 @@
 package mal
 
 import (
-	"github.com/seanime-app/seanime/internal/test_utils"
+	"seanime/internal/test_utils"
 	"testing"
 )
 

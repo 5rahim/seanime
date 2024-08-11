@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
+	"seanime/internal/util"
 	"strings"
+
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 )
 
 type StreamSB struct {
@@ -29,13 +31,13 @@ func (s *StreamSB) Payload(hex string) string {
 	return "566d337678566f743674494a7c7c" + hex + "7c7c346b6767586d6934774855537c7c73747265616d7362/6565417268755339773461447c7c346133383438333436313335376136323337373433383634376337633465366534393338373136643732373736343735373237613763376334363733353737303533366236333463353333363534366137633763373337343732363536313664373336327c7c6b586c3163614468645a47617c7c73747265616d7362"
 }
 
-func (s *StreamSB) Extract(uri string) (vs []*VideoSource, err error) {
+func (s *StreamSB) Extract(uri string) (vs []*hibikeonlinestream.VideoSource, err error) {
 
 	defer util.HandlePanicInModuleThen("onlinestream/sources/streamsb/Extract", func() {
 		err = ErrVideoSourceExtraction
 	})
 
-	var ret []*VideoSource
+	var ret []*hibikeonlinestream.VideoSource
 
 	id := strings.Split(uri, "/e/")[1]
 	if strings.Contains(id, "html") {
@@ -92,17 +94,17 @@ func (s *StreamSB) Extract(uri string) (vs []*VideoSource, err error) {
 		quality := strings.Split(strings.Split(video, "RESOLUTION=")[1], ",")[0]
 		quality = strings.Split(quality, "x")[1]
 
-		ret = append(ret, &VideoSource{
+		ret = append(ret, &hibikeonlinestream.VideoSource{
 			URL:     url,
 			Quality: quality + "p",
-			Type:    VideoSourceM3U8,
+			Type:    hibikeonlinestream.VideoSourceM3U8,
 		})
 	}
 
-	ret = append(ret, &VideoSource{
+	ret = append(ret, &hibikeonlinestream.VideoSource{
 		URL:     streamData["file"].(string),
 		Quality: "auto",
-		Type:    map[bool]VideoSourceType{true: VideoSourceM3U8, false: VideoSourceMP4}[strings.Contains(streamData["file"].(string), ".m3u8")],
+		Type:    map[bool]hibikeonlinestream.VideoSourceType{true: hibikeonlinestream.VideoSourceM3U8, false: hibikeonlinestream.VideoSourceMP4}[strings.Contains(streamData["file"].(string), ".m3u8")],
 	})
 
 	return ret, nil

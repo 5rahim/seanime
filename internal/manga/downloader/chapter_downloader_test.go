@@ -1,12 +1,13 @@
 package chapter_downloader
 
 import (
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/manga/providers"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )
@@ -22,9 +23,7 @@ func TestQueue(t *testing.T) {
 		t.Fatalf("Failed to create database: %v", err)
 	}
 
-	t.Log(tempDir)
-
-	downloadDir := "./test"
+	downloadDir := t.TempDir()
 
 	downloader := NewDownloader(&NewDownloaderOptions{
 		Logger:         logger,
@@ -37,8 +36,8 @@ func TestQueue(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		providerName manga_providers.Provider
-		provider     manga_providers.MangaProvider
+		providerName string
+		provider     hibikemanga.Provider
 		mangaId      string
 		mediaId      int
 		chapterIndex uint
@@ -71,7 +70,7 @@ func TestQueue(t *testing.T) {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
-				var chapterInfo *manga_providers.ChapterDetails
+				var chapterInfo *hibikemanga.ChapterDetails
 				for _, chapter := range chapters {
 					if chapter.Index == tt.chapterIndex {
 						chapterInfo = chapter

@@ -3,26 +3,26 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/updater"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/updater"
+	"seanime/internal/util"
 )
 
 // HandleDownloadTorrentFile
 //
 //	@summary downloads torrent files to the destination folder
 //	@route /api/v1/download-torrent-file [POST]
-//	@returns boolean
+//	@returns bool
 func HandleDownloadTorrentFile(c *RouteCtx) error {
 
 	type body struct {
 		DownloadUrls []string           `json:"download_urls"`
 		Destination  string             `json:"destination"`
-		Media        *anilist.BaseMedia `json:"media"`
+		Media        *anilist.BaseAnime `json:"media"`
 	}
 
 	var b body

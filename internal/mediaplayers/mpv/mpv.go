@@ -5,9 +5,10 @@ import (
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpvipc"
 	"os/exec"
 	"runtime"
+	"seanime/internal/mediaplayers/mpvipc"
+	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
@@ -35,6 +36,7 @@ type (
 		conn           *mpvipc.Connection     // Reference to the mpv connection
 		cmd            *exec.Cmd
 		prevSocketName string
+		exitedCh       chan struct{}
 	}
 
 	Subscriber struct {
@@ -62,6 +64,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		SocketName:  sn,
 		AppPath:     appPath,
 		subscribers: make(map[string]*Subscriber),
+		exitedCh:    make(chan struct{}),
 	}
 }
 
@@ -124,14 +127,20 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 			}
 		}
 		if err := scanner.Err(); err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Error reading from stdout")
+			if strings.Contains(err.Error(), "file already closed") {
+				m.Logger.Debug().Msg("mpv: File closed")
+				//close(m.exitedCh)
+				//m.exitedCh = make(chan struct{})
+			} else {
+				m.Logger.Error().Err(err).Msg("mpv: Error reading from stdout")
+			}
 		}
 	}()
 
 	go func() {
 		err := m.cmd.Wait()
 		if err != nil {
-			m.Logger.Error().Err(err).Msg("mpv: Player has exited")
+			m.Logger.Warn().Err(err).Msg("mpv: Player has exited")
 		}
 	}()
 
@@ -152,6 +161,10 @@ func (m *Mpv) replaceFile(filePath string) error {
 	}
 
 	return nil
+}
+
+func (m *Mpv) Exited() chan struct{} {
+	return m.exitedCh
 }
 
 func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
@@ -397,7 +410,7 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 		binaryPath = m.AppPath
 	}
 
-	cmd = exec.CommandContext(cmdCtx, binaryPath, args...)
+	cmd = util.NewCmdCtx(cmdCtx, binaryPath, args...)
 
 	m.Logger.Trace().Msgf("mpv: Command: %s", strings.Join(cmd.Args, " "))
 

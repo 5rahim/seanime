@@ -1,11 +1,12 @@
 package scanner
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/library/anime"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -14,7 +15,8 @@ import (
 func TestScanner_Scan(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	wsEventManager := events.NewMockWSEventManager(util.NewLogger())
 	dir := "E:/Anime"
 
@@ -48,17 +50,16 @@ func TestScanner_Scan(t *testing.T) {
 			// +---------------------+
 
 			scanner := &Scanner{
-				DirPath:              dir,
-				Username:             test_utils.ConfigData.Provider.AnilistUsername,
-				Enhanced:             false,
-				AnilistClientWrapper: anilistClientWrapper,
-				Logger:               util.NewLogger(),
-				WSEventManager:       wsEventManager,
-				ExistingLocalFiles:   existingLfs,
-				SkipLockedFiles:      false,
-				SkipIgnoredFiles:     false,
-				ScanLogger:           nil,
-				ScanSummaryLogger:    nil,
+				DirPath:            dir,
+				Enhanced:           false,
+				Platform:           anilistPlatform,
+				Logger:             util.NewLogger(),
+				WSEventManager:     wsEventManager,
+				ExistingLocalFiles: existingLfs,
+				SkipLockedFiles:    false,
+				SkipIgnoredFiles:   false,
+				ScanLogger:         nil,
+				ScanSummaryLogger:  nil,
 			}
 
 			lfs, err := scanner.Scan()

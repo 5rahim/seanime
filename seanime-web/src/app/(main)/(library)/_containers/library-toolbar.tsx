@@ -13,6 +13,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Tooltip } from "@/components/ui/tooltip"
+import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
@@ -42,6 +43,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
         hasScanned,
     } = props
 
+    const ts = useThemeSettings()
     const setBulkActionIsOpen = useSetAtom(__bulkAction_modalAtomIsOpen)
 
     const status = useServerStatus()
@@ -55,111 +57,114 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const { mutate: openInExplorer } = useOpenInExplorer()
 
     return (
-        <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]">
-            <div className="flex flex-1"></div>
-            {(!!status?.settings?.library?.libraryPath && hasScanned) && (
-                <>
-                    <Tooltip
-                        trigger={<IconButton
-                            intent={libraryView === "base" ? "white-subtle" : "primary"}
-                            icon={<IoLibrary className="text-2xl" />}
-                            onClick={() => setLibraryView(p => p === "detailed" ? "base" : "detailed")}
-                        />}
-                    >
-                        Switch view
-                    </Tooltip>
+        <>
+            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasScanned) && <div className="h-20"></div>}
+            <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]">
+                <div className="flex flex-1"></div>
+                {(!!status?.settings?.library?.libraryPath && hasScanned) && (
+                    <>
+                        <Tooltip
+                            trigger={<IconButton
+                                intent={libraryView === "base" ? "white-subtle" : "primary"}
+                                icon={<IoLibrary className="text-2xl" />}
+                                onClick={() => setLibraryView(p => p === "detailed" ? "base" : "detailed")}
+                            />}
+                        >
+                            Switch view
+                        </Tooltip>
 
-                    <Tooltip
-                        trigger={<IconButton
-                            intent={"white-subtle"}
-                            icon={<MdOutlineVideoLibrary className="text-2xl" />}
-                            onClick={() => setPlaylistsModalOpen(true)}
-                        />}
-                    >Playlists</Tooltip>
+                        <Tooltip
+                            trigger={<IconButton
+                                intent={"white-subtle"}
+                                icon={<MdOutlineVideoLibrary className="text-2xl" />}
+                                onClick={() => setPlaylistsModalOpen(true)}
+                            />}
+                        >Playlists</Tooltip>
 
-                    <PlayRandomEpisodeButton />
+                        <PlayRandomEpisodeButton />
 
 
-                    <Button
-                        intent={hasScanned ? "primary-subtle" : "primary"}
-                        leftIcon={hasScanned ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
-                        onClick={() => setScannerModalOpen(true)}
-                        hideTextOnSmallScreen
-                    >
-                        {hasScanned ? "Refresh library" : "Scan your library"}
-                    </Button>
-                </>
-            )}
-            {(unmatchedLocalFiles.length > 0) && <Button
-                intent="alert"
-                leftIcon={<IoLibrarySharp />}
-                className=""
-                onClick={() => setUnmatchedFileManagerOpen(true)}
-            >
-                Resolve unmatched ({unmatchedLocalFiles.length})
-            </Button>}
-            {(unknownGroups.length > 0) && <Button
-                intent="warning"
-                leftIcon={<IoLibrarySharp />}
-                className=""
-                onClick={() => setUnknownMediaManagerOpen(true)}
-            >
-                Resolve hidden media ({unknownGroups.length})
-            </Button>}
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
-                {/*<DropdownMenuItem*/}
-                {/*    disabled={!hasScanned}*/}
-                {/*    className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}*/}
-                {/*    onClick={() => {*/}
-
-                {/*    }}*/}
-                {/*>*/}
-                {/*    <FaSearch />*/}
-                {/*    <span>Find</span>*/}
-                {/*</DropdownMenuItem>*/}
-
-                <DropdownMenuItem
-                    disabled={!status?.settings?.library?.libraryPath}
-                    className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
-                    onClick={() => {
-                        openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
-                    }}
+                        <Button
+                            intent={hasScanned ? "primary-subtle" : "primary"}
+                            leftIcon={hasScanned ? <TbReload className="text-xl" /> : <FiSearch className="text-xl" />}
+                            onClick={() => setScannerModalOpen(true)}
+                            hideTextOnSmallScreen
+                        >
+                            {hasScanned ? "Refresh library" : "Scan your library"}
+                        </Button>
+                    </>
+                )}
+                {(unmatchedLocalFiles.length > 0) && <Button
+                    intent="alert"
+                    leftIcon={<IoLibrarySharp />}
+                    className=""
+                    onClick={() => setUnmatchedFileManagerOpen(true)}
                 >
-                    <BiFolder />
-                    <span>Open folder</span>
-                </DropdownMenuItem>
-
-                {/*<DropdownMenu.Item*/}
-                {/*    onClick={() => {*/}
-                {/*    }}*/}
-                {/*    disabled={ignoredLocalFiles.length === 0}*/}
-                {/*    className={cn({ "!text-[--muted]": ignoredLocalFiles.length === 0 })}*/}
-                {/*>*/}
-                {/*    <GoDiffIgnored/>*/}
-                {/*    <span>Manage ignored files</span>*/}
-                {/*</DropdownMenu.Item>*/}
-
-                <DropdownMenuItem
-                    onClick={() => setBulkActionIsOpen(true)}
-                    disabled={!hasScanned}
-                    className={cn({ "!text-[--muted]": !hasScanned })}
+                    Resolve unmatched ({unmatchedLocalFiles.length})
+                </Button>}
+                {(unknownGroups.length > 0) && <Button
+                    intent="warning"
+                    leftIcon={<IoLibrarySharp />}
+                    className=""
+                    onClick={() => setUnknownMediaManagerOpen(true)}
                 >
-                    <BiCollection />
-                    <span>Bulk actions</span>
-                </DropdownMenuItem>
+                    Resolve hidden media ({unknownGroups.length})
+                </Button>}
+                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+                    {/*<DropdownMenuItem*/}
+                    {/*    disabled={!hasScanned}*/}
+                    {/*    className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}*/}
+                    {/*    onClick={() => {*/}
 
-                <Link href="/scan-summaries">
+                    {/*    }}*/}
+                    {/*>*/}
+                    {/*    <FaSearch />*/}
+                    {/*    <span>Find</span>*/}
+                    {/*</DropdownMenuItem>*/}
+
                     <DropdownMenuItem
+                        disabled={!status?.settings?.library?.libraryPath}
+                        className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}
+                        onClick={() => {
+                            openInExplorer({ path: status?.settings?.library?.libraryPath ?? "" })
+                        }}
+                    >
+                        <BiFolder />
+                        <span>Open folder</span>
+                    </DropdownMenuItem>
 
+                    {/*<DropdownMenu.Item*/}
+                    {/*    onClick={() => {*/}
+                    {/*    }}*/}
+                    {/*    disabled={ignoredLocalFiles.length === 0}*/}
+                    {/*    className={cn({ "!text-[--muted]": ignoredLocalFiles.length === 0 })}*/}
+                    {/*>*/}
+                    {/*    <GoDiffIgnored/>*/}
+                    {/*    <span>Manage ignored files</span>*/}
+                    {/*</DropdownMenu.Item>*/}
+
+                    <DropdownMenuItem
+                        onClick={() => setBulkActionIsOpen(true)}
+                        disabled={!hasScanned}
                         className={cn({ "!text-[--muted]": !hasScanned })}
                     >
-                        <PiClockCounterClockwiseFill />
-                        <span>Scan summaries</span>
+                        <BiCollection />
+                        <span>Bulk actions</span>
                     </DropdownMenuItem>
-                </Link>
-            </DropdownMenu>
 
-        </div>
+                    <Link href="/scan-summaries">
+                        <DropdownMenuItem
+
+                            className={cn({ "!text-[--muted]": !hasScanned })}
+                        >
+                            <PiClockCounterClockwiseFill />
+                            <span>Scan summaries</span>
+                        </DropdownMenuItem>
+                    </Link>
+                </DropdownMenu>
+
+            </div>
+        </>
     )
 
 }

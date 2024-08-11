@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm/clause"
+	"seanime/internal/database/models"
 )
 
 func (db *Database) UpsertToken(token *models.Token) (*models.Token, error) {
@@ -13,7 +13,7 @@ func (db *Database) UpsertToken(token *models.Token) (*models.Token, error) {
 	}).Create(token).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("Failed to save token in the database")
+		db.Logger.Error().Err(err).Msg("Failed to save token in the database")
 		return nil, err
 	}
 	return token, nil

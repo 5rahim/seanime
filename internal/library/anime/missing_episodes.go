@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/util/limiter"
 	"sort"
 	"time"
 )
 
 type (
 	MissingEpisodes struct {
-		Episodes         []*MediaEntryEpisode `json:"episodes"`
-		SilencedEpisodes []*MediaEntryEpisode `json:"silencedEpisodes"`
+		Episodes         []*AnimeEntryEpisode `json:"episodes"`
+		SilencedEpisodes []*AnimeEntryEpisode `json:"silencedEpisodes"`
 	}
 
 	NewMissingEpisodesOptions struct {
@@ -35,10 +35,10 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 	groupedLfs := GroupLocalFilesByMediaID(opts.LocalFiles)
 
-	p := pool.NewWithResults[[]*MediaEntryDownloadEpisode]()
+	p := pool.NewWithResults[[]*AnimeEntryDownloadEpisode]()
 	for mId, lfs := range groupedLfs {
-		p.Go(func() []*MediaEntryDownloadEpisode {
-			entry, found := opts.AnimeCollection.GetListEntryFromMediaId(mId)
+		p.Go(func() []*AnimeEntryDownloadEpisode {
+			entry, found := opts.AnimeCollection.GetListEntryFromAnimeId(mId)
 			if !found {
 				return nil
 			}
@@ -59,7 +59,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			}
 
 			// Get download info
-			downloadInfo, err := NewMediaEntryDownloadInfo(&NewMediaEntryDownloadInfoOptions{
+			downloadInfo, err := NewAnimeEntryDownloadInfo(&NewAnimeEntryDownloadInfoOptions{
 				LocalFiles:       lfs,
 				AnizipMedia:      anizipMedia,
 				Progress:         entry.Progress,
@@ -83,13 +83,13 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		})
 	}
 	epsToDownload := p.Wait()
-	epsToDownload = lo.Filter(epsToDownload, func(item []*MediaEntryDownloadEpisode, _ int) bool {
+	epsToDownload = lo.Filter(epsToDownload, func(item []*AnimeEntryDownloadEpisode, _ int) bool {
 		return item != nil
 	})
 
 	// Flatten
 	flattenedEpsToDownload := lo.Flatten(epsToDownload)
-	eps := lop.Map(flattenedEpsToDownload, func(item *MediaEntryDownloadEpisode, _ int) *MediaEntryEpisode {
+	eps := lop.Map(flattenedEpsToDownload, func(item *AnimeEntryDownloadEpisode, _ int) *AnimeEntryEpisode {
 		return item.Episode
 	})
 	// Sort
@@ -97,15 +97,15 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		return eps[i].GetEpisodeNumber() < eps[j].GetEpisodeNumber()
 	})
 	sort.Slice(eps, func(i, j int) bool {
-		return eps[i].BaseMedia.ID < eps[j].BaseMedia.ID
+		return eps[i].BaseAnime.ID < eps[j].BaseAnime.ID
 	})
 
-	missing.Episodes = lo.Filter(eps, func(item *MediaEntryEpisode, _ int) bool {
-		return !lo.Contains(opts.SilencedMediaIds, item.BaseMedia.ID)
+	missing.Episodes = lo.Filter(eps, func(item *AnimeEntryEpisode, _ int) bool {
+		return !lo.Contains(opts.SilencedMediaIds, item.BaseAnime.ID)
 	})
 
-	missing.SilencedEpisodes = lo.Filter(eps, func(item *MediaEntryEpisode, _ int) bool {
-		return lo.Contains(opts.SilencedMediaIds, item.BaseMedia.ID)
+	missing.SilencedEpisodes = lo.Filter(eps, func(item *AnimeEntryEpisode, _ int) bool {
+		return lo.Contains(opts.SilencedMediaIds, item.BaseAnime.ID)
 	})
 
 	return missing

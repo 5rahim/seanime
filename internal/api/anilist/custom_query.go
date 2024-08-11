@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
+	"seanime/internal/util"
 	"strconv"
 	"time"
 )

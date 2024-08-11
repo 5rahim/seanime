@@ -1,21 +1,21 @@
 package anime
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/api/anilist"
+	"seanime/internal/util/result"
 )
 
 type NormalizedMedia struct {
-	*anilist.BaseMedia
+	*anilist.BaseAnime
 }
 
 type NormalizedMediaCache struct {
 	*result.Cache[int, *NormalizedMedia]
 }
 
-func NewNormalizedMedia(m *anilist.BaseMedia) *NormalizedMedia {
+func NewNormalizedMedia(m *anilist.BaseAnime) *NormalizedMedia {
 	return &NormalizedMedia{
-		BaseMedia: m,
+		BaseAnime: m,
 	}
 }
 

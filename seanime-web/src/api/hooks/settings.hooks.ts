@@ -1,10 +1,5 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import {
-    GettingStarted_Variables,
-    SaveAutoDownloaderSettings_Variables,
-    SaveListSyncSettings_Variables,
-    SaveSettings_Variables,
-} from "@/api/generated/endpoint.types"
+import { GettingStarted_Variables, SaveAutoDownloaderSettings_Variables, SaveSettings_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Models_Settings, Status } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -40,21 +35,6 @@ export function useSaveSettings() {
         endpoint: API_ENDPOINTS.SETTINGS.SaveSettings.endpoint,
         method: API_ENDPOINTS.SETTINGS.SaveSettings.methods[0],
         mutationKey: [API_ENDPOINTS.SETTINGS.SaveSettings.key],
-        onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })
-            toast.success("Settings saved")
-        },
-    })
-}
-
-export function useSaveListSyncSettings() {
-    const queryClient = useQueryClient()
-
-    return useServerMutation<boolean, SaveListSyncSettings_Variables>({
-        endpoint: API_ENDPOINTS.SETTINGS.SaveListSyncSettings.endpoint,
-        method: API_ENDPOINTS.SETTINGS.SaveListSyncSettings.methods[0],
-        mutationKey: [API_ENDPOINTS.SETTINGS.SaveListSyncSettings.key],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SETTINGS.GetSettings.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STATUS.GetStatus.key] })

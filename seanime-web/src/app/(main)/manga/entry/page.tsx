@@ -1,5 +1,6 @@
 "use client"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
+import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { MetaSection } from "@/app/(main)/manga/_components/meta-section"
@@ -35,13 +36,13 @@ export default function Page() {
 
     return (
         <div>
-
             <MetaSection entry={mangaEntry} details={mangaDetails} />
 
             <div className="px-4 md:px-8 relative z-[8]">
 
                 <PageWrapper
-                    className="relative 2xl:order-first pb-10 pt-4"
+                    key="chapter-list"
+                    className="relative 2xl:order-first pb-10 pt-4 space-y-10"
                     {...{
                         initial: { opacity: 0, y: 60 },
                         animate: { opacity: 1, y: 0 },
@@ -56,7 +57,7 @@ export default function Page() {
                 >
 
                     <div
-                        className="grid gap-4 xl:grid-cols-[1fr,380px] 2xl:grid-cols-[1fr,650px]"
+                        className="grid gap-8 xl:grid-cols-[1fr,480px] 2xl:grid-cols-[1fr,650px]"
                     >
                         <div className="space-y-2">
                             <ChapterList
@@ -68,11 +69,12 @@ export default function Page() {
                             />
                         </div>
 
-                        <div>
-                            <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
+                        <div className="pt-12">
+                            <MediaEntryCharactersSection details={mangaDetails} isMangaPage />
                         </div>
                     </div>
 
+                    <MangaRecommendations entry={mangaEntry} details={mangaDetails} />
 
                 </PageWrapper>
             </div>

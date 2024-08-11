@@ -1,13 +1,14 @@
 package anime
 
 import (
-	"context"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/test_utils"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -16,9 +17,10 @@ func TestNewLibraryCollection(t *testing.T) {
 
 	metadataProvider := metadata.TestGetMockProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 
 	if assert.NoError(t, err) {
 
@@ -31,13 +33,13 @@ func TestNewLibraryCollection(t *testing.T) {
 		mediaId := 154587
 		lfs = append(lfs, MockHydratedLocalFiles(
 			MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - %ep (1080p) [F02B9CEE].mkv", mediaId, []MockHydratedLocalFileWrapperOptionsMetadata{
-				{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 3, metadataAniDbEpisode: "3", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 4, metadataAniDbEpisode: "4", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 5, metadataAniDbEpisode: "5", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 6, metadataAniDbEpisode: "6", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 7, metadataAniDbEpisode: "7", metadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 4, MetadataAniDbEpisode: "4", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 5, MetadataAniDbEpisode: "5", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 6, MetadataAniDbEpisode: "6", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 7, MetadataAniDbEpisode: "7", MetadataType: LocalFileTypeMain},
 			}),
 		)...)
 		anilist.TestModifyAnimeCollectionEntry(animeCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
@@ -50,12 +52,12 @@ func TestNewLibraryCollection(t *testing.T) {
 		mediaId = 21
 		lfs = append(lfs, MockHydratedLocalFiles(
 			MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\One Piece\\[SubsPlease] One Piece - %ep (1080p) [F02B9CEE].mkv", mediaId, []MockHydratedLocalFileWrapperOptionsMetadata{
-				{metadataEpisode: 1070, metadataAniDbEpisode: "1070", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 1071, metadataAniDbEpisode: "1071", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 1072, metadataAniDbEpisode: "1072", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 1073, metadataAniDbEpisode: "1073", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 1074, metadataAniDbEpisode: "1074", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 1075, metadataAniDbEpisode: "1075", metadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1070, MetadataAniDbEpisode: "1070", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1071, MetadataAniDbEpisode: "1071", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1072, MetadataAniDbEpisode: "1072", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1073, MetadataAniDbEpisode: "1073", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1074, MetadataAniDbEpisode: "1074", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1075, MetadataAniDbEpisode: "1075", MetadataType: LocalFileTypeMain},
 			}),
 		)...)
 		anilist.TestModifyAnimeCollectionEntry(animeCollection, mediaId, anilist.TestModifyAnimeCollectionEntryInput{
@@ -67,19 +69,19 @@ func TestNewLibraryCollection(t *testing.T) {
 		mediaId = 0
 		lfs = append(lfs, MockHydratedLocalFiles(
 			MockGenerateHydratedLocalFileGroupOptions("E:/Anime", "E:\\Anime\\Unmatched\\[SubsPlease] Unmatched - %ep (1080p) [F02B9CEE].mkv", mediaId, []MockHydratedLocalFileWrapperOptionsMetadata{
-				{metadataEpisode: 1, metadataAniDbEpisode: "1", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 2, metadataAniDbEpisode: "2", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 3, metadataAniDbEpisode: "3", metadataType: LocalFileTypeMain},
-				{metadataEpisode: 4, metadataAniDbEpisode: "4", metadataType: LocalFileTypeMain},
+				{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: LocalFileTypeMain},
+				{MetadataEpisode: 4, MetadataAniDbEpisode: "4", MetadataType: LocalFileTypeMain},
 			}),
 		)...)
 
 		libraryCollection, err := NewLibraryCollection(&NewLibraryCollectionOptions{
-			AnimeCollection:      animeCollection,
-			LocalFiles:           lfs,
-			AnizipCache:          anizip.NewCache(),
-			AnilistClientWrapper: anilistClientWrapper,
-			MetadataProvider:     metadataProvider,
+			AnimeCollection:  animeCollection,
+			LocalFiles:       lfs,
+			AnizipCache:      anizip.NewCache(),
+			Platform:         anilistPlatform,
+			MetadataProvider: metadataProvider,
 		})
 
 		if assert.NoError(t, err) {

@@ -1,12 +1,12 @@
 package mediaplayer
 
 import (
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
-	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/events"
+	"seanime/internal/mediaplayers/mpchc"
+	"seanime/internal/mediaplayers/mpv"
+	"seanime/internal/mediaplayers/vlc"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 

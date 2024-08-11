@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"seanime/internal/util"
+	"seanime/internal/util/crashlog"
 )
 
 func GetFileSubsCacheDir(outDir string, hash string) string {
@@ -40,7 +41,14 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 		}
 	}
 
-	cmd := exec.CommandContext(
+	// Instantiate a new crash logger
+	crashLogger := crashlog.GlobalCrashLogger.InitArea("ffmpeg")
+	defer crashLogger.Close()
+
+	crashLogger.LogInfof("Extracting attachments from %s", path)
+
+	// DEVNOTE: All paths fed into this command should be absolute
+	cmd := util.NewCmdCtx(
 		context.Background(),
 		ffmpegPath,
 		"-dump_attachment:t", "",
@@ -48,6 +56,7 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 		"-y",
 		"-i", path,
 	)
+	// The working directory for the command is the attachment directory
 	cmd.Dir = attachmentPath
 
 	for _, sub := range mediaInfo.Subtitles {
@@ -61,11 +70,12 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 		}
 	}
 
-	cmd.Stdout = nil
-	//cmd.Stderr = os.Stderr
+	cmd.Stdout = crashLogger.Stdout()
+	cmd.Stderr = crashLogger.Stdout()
 	err = cmd.Run()
 	if err != nil {
 		logger.Error().Err(err).Msgf("videofile: Error starting FFmepg")
+		crashlog.GlobalCrashLogger.WriteAreaLogToFile(crashLogger)
 	}
 
 	return err

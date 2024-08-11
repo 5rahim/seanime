@@ -9,12 +9,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gocolly/colly"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"net/http"
 	"net/url"
 	"regexp"
+	"seanime/internal/util"
 	"strings"
+
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 )
 
 type cdnKeys struct {
@@ -43,7 +45,7 @@ func NewGogoCDN() *GogoCDN {
 }
 
 // Extract fetches and extracts video sources from the provided URI.
-func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
+func (g *GogoCDN) Extract(uri string) (vs []*hibikeonlinestream.VideoSource, err error) {
 
 	defer util.HandlePanicInModuleThen("onlinestream/sources/gogocdn/Extract", func() {
 		err = ErrVideoSourceExtraction
@@ -119,7 +121,7 @@ func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
 		return nil, ErrNoVideoSourceFound
 	}
 
-	var results []*VideoSource
+	var results []*hibikeonlinestream.VideoSource
 
 	urls := make([]string, 0)
 	for _, src := range source {
@@ -147,11 +149,11 @@ func (g *GogoCDN) Extract(uri string) (vs []*VideoSource, err error) {
 	return results, nil
 }
 
-func (g *GogoCDN) urlToVideoSource(url string, source []interface{}, sourceBK []interface{}) (vs []*VideoSource, ok bool) {
+func (g *GogoCDN) urlToVideoSource(url string, source []interface{}, sourceBK []interface{}) (vs []*hibikeonlinestream.VideoSource, ok bool) {
 	defer util.HandlePanicInModuleThen("onlinestream/sources/gogocdn/urlToVideoSource", func() {
 		ok = false
 	})
-	ret := make([]*VideoSource, 0)
+	ret := make([]*hibikeonlinestream.VideoSource, 0)
 	if strings.Contains(url, ".m3u8") {
 		resResult, err := http.Get(url)
 		if err != nil {
@@ -171,23 +173,23 @@ func (g *GogoCDN) urlToVideoSource(url string, source []interface{}, sourceBK []
 		for _, res := range resolutions {
 			quality := strings.Split(strings.Split(res[2], "x")[1], ",")[0]
 			url := fmt.Sprintf("%s/%s", baseURL, strings.TrimSpace(res[4]))
-			ret = append(ret, &VideoSource{URL: url, Type: VideoSourceM3U8, Quality: quality + "p"})
+			ret = append(ret, &hibikeonlinestream.VideoSource{URL: url, Type: hibikeonlinestream.VideoSourceM3U8, Quality: quality + "p"})
 		}
 
-		ret = append(ret, &VideoSource{URL: url, Type: VideoSourceM3U8, Quality: "default"})
+		ret = append(ret, &hibikeonlinestream.VideoSource{URL: url, Type: hibikeonlinestream.VideoSourceM3U8, Quality: "default"})
 	} else {
 		for _, src := range source {
 			s := src.(map[string]interface{})
 			if s["file"].(string) == url {
 				quality := strings.Split(s["label"].(string), " ")[0] + "p"
-				ret = append(ret, &VideoSource{URL: url, Type: VideoSourceMP4, Quality: quality})
+				ret = append(ret, &hibikeonlinestream.VideoSource{URL: url, Type: hibikeonlinestream.VideoSourceMP4, Quality: quality})
 			}
 		}
 		if sourceBK != nil {
 			for _, src := range sourceBK {
 				s := src.(map[string]interface{})
 				if s["file"].(string) == url {
-					ret = append(ret, &VideoSource{URL: url, Type: VideoSourceMP4, Quality: "backup"})
+					ret = append(ret, &hibikeonlinestream.VideoSource{URL: url, Type: hibikeonlinestream.VideoSourceMP4, Quality: "backup"})
 				}
 			}
 		}

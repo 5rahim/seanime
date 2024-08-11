@@ -2,6 +2,7 @@
 
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { MediastreamPlaybackSubmenu } from "@/app/(main)/mediastream/_components/mediastream-video-addons"
 import {
@@ -48,21 +49,21 @@ export default function Page() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
-    const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
+    const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const playerRef = React.useRef<MediaPlayerInstance>(null)
     const { filePath } = useMediastreamCurrentFile()
 
     const mainEpisodes = React.useMemo(() => {
-        return mediaEntry?.episodes?.filter(ep => ep.type === "main") ?? []
-    }, [mediaEntry?.episodes])
+        return animeEntry?.episodes?.filter(ep => ep.type === "main") ?? []
+    }, [animeEntry?.episodes])
 
     const specialEpisodes = React.useMemo(() => {
-        return mediaEntry?.episodes?.filter(ep => ep.type === "special") ?? []
-    }, [mediaEntry?.episodes])
+        return animeEntry?.episodes?.filter(ep => ep.type === "special") ?? []
+    }, [animeEntry?.episodes])
 
     const ncEpisodes = React.useMemo(() => {
-        return mediaEntry?.episodes?.filter(ep => ep.type === "nc") ?? []
-    }, [mediaEntry?.episodes])
+        return animeEntry?.episodes?.filter(ep => ep.type === "nc") ?? []
+    }, [animeEntry?.episodes])
 
     const episodes = React.useMemo(() => {
         return [...mainEpisodes, ...specialEpisodes, ...ncEpisodes]
@@ -97,7 +98,7 @@ export default function Page() {
     }, [episodes, filePath])
 
     /** AniSkip **/
-    const { data: aniSkipData } = useSkipData(mediaEntry?.media?.idMal, episodeNumber)
+    const { data: aniSkipData } = useSkipData(animeEntry?.media?.idMal, episodeNumber)
     const [showSkipIntroButton, setShowSkipIntroButton] = React.useState(false)
     const [showSkipEndingButton, setShowSkipEndingButton] = React.useState(false)
 
@@ -124,13 +125,13 @@ export default function Page() {
      * - Reset current progress
      */
     React.useEffect(() => {
-        if (!mediaId || (!mediaEntryLoading && !mediaEntry) || (!mediaEntryLoading && !!mediaEntry && !filePath)) {
+        if (!mediaId || (!animeEntryLoading && !animeEntry) || (!animeEntryLoading && !!animeEntry && !filePath)) {
             router.push("/")
         }
-        if (mediaEntry) {
-            setCurrentProgress(mediaEntry.listData?.progress ?? 0)
+        if (animeEntry) {
+            setCurrentProgress(animeEntry.listData?.progress ?? 0)
         }
-    }, [mediaId, mediaEntry, mediaEntryLoading, filePath])
+    }, [mediaId, animeEntry, animeEntryLoading, filePath])
 
     /** Scroll to selected episode element when the episode list changes (on mount) **/
     const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
@@ -150,7 +151,7 @@ export default function Page() {
 
     const checkTimeRef = React.useRef<number>(0)
 
-    if (mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
+    if (animeEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
@@ -172,10 +173,10 @@ export default function Page() {
 
                 <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
-                        <Link href={`/entry?id=${mediaEntry?.mediaId}`}>
+                        <Link href={`/entry?id=${animeEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
                         </Link>
-                        <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{mediaEntry?.media?.title?.userPreferred}</h3>
+                        <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{animeEntry?.media?.title?.userPreferred}</h3>
                     </div>
 
                     <div className="flex gap-2 items-center">
@@ -265,16 +266,16 @@ export default function Page() {
                             </div>
                         )}
 
-                        {(!!progressItem && mediaEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
+                        {(!!progressItem && animeEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
                             className="animate-pulse"
                             loading={isUpdatingProgress}
                             disabled={hasUpdatedProgress}
                             onClick={() => {
                                 updateProgress({
                                     episodeNumber: progressItem.episodeNumber,
-                                    mediaId: mediaEntry.media!.id,
-                                    totalEpisodes: mediaEntry.media!.episodes || 0,
-                                    malId: mediaEntry.media!.idMal || undefined,
+                                    mediaId: animeEntry.media!.id,
+                                    totalEpisodes: animeEntry.media!.episodes || 0,
+                                    malId: animeEntry.media!.idMal || undefined,
                                 }, {
                                     onSuccess: () => setProgressItem(undefined),
                                 })
@@ -312,7 +313,7 @@ export default function Page() {
                                     } : url}
                                     aspectRatio="16/9"
                                     // poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image ||
-                                    // mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
+                                    // animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge || ""}
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
                                     onTimeUpdate={e => {
@@ -416,9 +417,9 @@ export default function Page() {
                                 <EpisodeGridItem
                                     key={episode.localFile?.path || ""}
                                     id={`episode-${String(episode.episodeNumber)}`}
-                                    media={episode?.baseMedia as any}
-                                    title={episode?.displayTitle || episode?.baseMedia?.title?.userPreferred || ""}
-                                    image={episode?.episodeMetadata?.image || episode?.baseMedia?.coverImage?.large}
+                                    media={episode?.baseAnime as any}
+                                    title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
+                                    image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
                                     episodeTitle={episode?.episodeTitle}
                                     fileName={episode?.localFile?.parsedInfo?.original}
                                     onClick={() => {
@@ -461,28 +462,8 @@ export default function Page() {
 
 
             </AppLayoutStack>
-            <div
-                className="h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
-            >
-                <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
-                />
-                <div className="absolute w-full h-full">
-                    {(!!mediaEntry?.media?.bannerImage || !!mediaEntry?.media?.coverImage?.extraLarge) && <Image
-                        src={mediaEntry?.media?.bannerImage || mediaEntry?.media?.coverImage?.extraLarge || ""}
-                        alt="banner image"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className="object-cover object-center z-[1]"
-                    />}
-                </div>
-                <div
-                    className="w-full z-[3] absolute bottom-0 h-[32rem] bg-gradient-to-t from-[--background] via-[--background] via-50% to-transparent"
-                />
 
-            </div>
+            <MediaEntryPageSmallBanner bannerImage={animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge} />
         </>
     )
 

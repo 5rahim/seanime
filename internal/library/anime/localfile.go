@@ -1,8 +1,8 @@
 package anime
 
 import (
-	"github.com/seanime-app/seanime/internal/library/filesystem"
-	"github.com/seanime-app/seanime/seanime-parser"
+	"seanime/internal/library/filesystem"
+	"seanime/seanime-parser"
 )
 
 const (

@@ -2,10 +2,8 @@ package manga
 
 import (
 	"bytes"
+	"errors"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	_ "golang.org/x/image/bmp"  // Register BMP format
 	_ "golang.org/x/image/tiff" // Register Tiff format
 	_ "golang.org/x/image/webp" // Register WebP format
@@ -13,51 +11,68 @@ import (
 	_ "image/jpeg" // Register JPEG format
 	_ "image/png"  // Register PNG format
 	"net/http"
+	"seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/extension"
+	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
 
+var (
+	ErrNoResults            = errors.New("no results found for this media")
+	ErrNoChapters           = errors.New("no manga chapters found")
+	ErrChapterNotFound      = errors.New("chapter not found")
+	ErrChapterNotDownloaded = errors.New("chapter not downloaded")
+	ErrNoTitlesProvided     = errors.New("no titles provided")
+)
+
 type (
 	Repository struct {
-		logger         *zerolog.Logger
-		fileCacher     *filecache.Cacher
-		comick         *manga_providers.ComicK
-		mangasee       *manga_providers.Mangasee
-		mangadex       *manga_providers.Mangadex
-		mangapill      *manga_providers.Mangapill
-		manganato      *manga_providers.Manganato
-		serverUri      string
-		wsEventManager events.WSEventManagerInterface
-		mu             sync.Mutex
-		downloadDir    string
+		logger                *zerolog.Logger
+		fileCacher            *filecache.Cacher
+		providerExtensionBank *extension.UnifiedBank
+		serverUri             string
+		wsEventManager        events.WSEventManagerInterface
+		mu                    sync.Mutex
+		downloadDir           string
+		db                    *db.Database
 	}
 
 	NewRepositoryOptions struct {
 		Logger         *zerolog.Logger
 		FileCacher     *filecache.Cacher
-		BackupDir      string
 		ServerURI      string
 		WsEventManager events.WSEventManagerInterface
 		DownloadDir    string
+		Database       *db.Database
 	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
-		logger:         opts.Logger,
-		fileCacher:     opts.FileCacher,
-		comick:         manga_providers.NewComicK(opts.Logger),
-		mangasee:       manga_providers.NewMangasee(opts.Logger),
-		mangadex:       manga_providers.NewMangadex(opts.Logger),
-		mangapill:      manga_providers.NewMangapill(opts.Logger),
-		manganato:      manga_providers.NewManganato(opts.Logger),
-		serverUri:      opts.ServerURI,
-		wsEventManager: opts.WsEventManager,
-		downloadDir:    opts.DownloadDir,
+		logger:                opts.Logger,
+		fileCacher:            opts.FileCacher,
+		serverUri:             opts.ServerURI,
+		wsEventManager:        opts.WsEventManager,
+		downloadDir:           opts.DownloadDir,
+		providerExtensionBank: extension.NewUnifiedBank(),
+		db:                    opts.Database,
 	}
 	return r
+}
+
+func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.providerExtensionBank = bank
+	r.logger.Debug().Msg("manga: Initialized provider extension bank")
+}
+
+func (r *Repository) RemoveProvider(id string) {
+	r.providerExtensionBank.Delete(id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +90,10 @@ const (
 // getFcProviderBucket returns a bucket for the provider and mediaId.
 //
 //	e.g., manga_comick_chapters_123, manga_mangasee_pages_456
-func (r *Repository) getFcProviderBucket(provider manga_providers.Provider, mediaId int, bucketType bucketType) filecache.Bucket {
-	return filecache.NewBucket("manga_"+string(provider)+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
+//
+// Note: Each bucket contains only 1 key-value pair.
+func (r *Repository) getFcProviderBucket(provider string, mediaId int, bucketType bucketType) filecache.Bucket {
+	return filecache.NewBucket("manga_"+provider+"_"+string(bucketType)+"_"+strconv.Itoa(mediaId), time.Hour*24*7)
 }
 
 // EmptyMangaCache deletes all manga buckets associated with the given mediaId.
@@ -88,8 +105,6 @@ func (r *Repository) EmptyMangaCache(mediaId int) (err error) {
 	return
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Backups
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func getImageNaturalSize(url string) (int, int, error) {

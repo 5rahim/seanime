@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/components/ui/core/styling"
-import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { atom } from "jotai"
@@ -22,7 +22,7 @@ import { MdClear } from "react-icons/md"
 import { PiWarningOctagonDuotone } from "react-icons/pi"
 import { TbWorldDownload } from "react-icons/tb"
 
-export const __manga__chapterDownloadsDrawerIsOpenAtom = atom(false)
+export const __manga_chapterDownloadsDrawerIsOpenAtom = atom(false)
 
 type ChapterDownloadQueueDrawerProps = {}
 
@@ -30,16 +30,16 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
 
     const {} = props
 
-    const [isOpen, setIsOpen] = useAtom(__manga__chapterDownloadsDrawerIsOpenAtom)
+    const [isOpen, setIsOpen] = useAtom(__manga_chapterDownloadsDrawerIsOpenAtom)
 
     const { data: mangaCollection } = useGetMangaCollection()
 
     return (
         <>
-            <Drawer
+            <Modal
                 open={isOpen}
                 onOpenChange={setIsOpen}
-                size="xl"
+                contentClass="max-w-5xl"
                 title="Downloaded chapters"
             >
 
@@ -49,7 +49,7 @@ export function ChapterDownloadsDrawer(props: ChapterDownloadQueueDrawerProps) {
                     <ChapterDownloadList />
                 </div>
 
-            </Drawer>
+            </Modal>
         </>
     )
 }

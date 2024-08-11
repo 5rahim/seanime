@@ -5,6 +5,7 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
+    transpilePackages: ["@uiw/react-textarea-code-editor"],
 }
 
 module.exports = nextConfig

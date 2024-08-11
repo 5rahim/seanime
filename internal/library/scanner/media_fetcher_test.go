@@ -2,22 +2,24 @@ package scanner
 
 import (
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/anime"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 	"testing"
 )
 
 func TestNewMediaFetcher(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	dir := "E:/Anime"
@@ -77,10 +79,9 @@ func TestNewMediaFetcher(t *testing.T) {
 
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
 				Enhanced:               tt.enhanced,
-				Username:               test_utils.ConfigData.Provider.AnilistUsername,
-				AnilistClientWrapper:   anilistClientWrapper,
+				Platform:               anilistPlatform,
 				LocalFiles:             lfs,
-				CompleteMediaCache:     completeMediaCache,
+				CompleteAnimeCache:     completeAnimeCache,
 				AnizipCache:            anizipCache,
 				Logger:                 util.NewLogger(),
 				AnilistRateLimiter:     anilistRateLimiter,
@@ -108,9 +109,10 @@ func TestNewMediaFetcher(t *testing.T) {
 
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	dir := "E:/Anime"
@@ -156,15 +158,14 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 			// +---------------------+
 
 			mf, err := NewMediaFetcher(&MediaFetcherOptions{
-				Enhanced:             tt.enhanced,
-				Username:             "-",
-				AnilistClientWrapper: anilistClientWrapper,
-				LocalFiles:           lfs,
-				CompleteMediaCache:   completeMediaCache,
-				AnizipCache:          anizipCache,
-				Logger:               util.NewLogger(),
-				AnilistRateLimiter:   anilistRateLimiter,
-				ScanLogger:           scanLogger,
+				Enhanced:           tt.enhanced,
+				Platform:           anilistPlatform,
+				LocalFiles:         lfs,
+				CompleteAnimeCache: completeAnimeCache,
+				AnizipCache:        anizipCache,
+				Logger:             util.NewLogger(),
+				AnilistRateLimiter: anilistRateLimiter,
+				ScanLogger:         scanLogger,
 			})
 			if err != nil {
 				t.Fatal("expected result, got error:", err.Error())
@@ -187,9 +188,10 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 	anizipCache := anizip.NewCache()
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	tests := []struct {
@@ -235,9 +237,9 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 			// +--------------------------+
 
 			media, ok := FetchMediaFromLocalFiles(
-				anilistClientWrapper,
+				anilistPlatform,
 				lfs,
-				completeMediaCache,
+				completeAnimeCache,
 				anizipCache,
 				anilistRateLimiter,
 				scanLogger,
@@ -246,7 +248,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 				t.Fatal("could not fetch media from local files")
 			}
 
-			ids := lo.Map(media, func(k *anilist.CompleteMedia, _ int) int {
+			ids := lo.Map(media, func(k *anilist.CompleteAnime, _ int) int {
 				return k.ID
 			})
 

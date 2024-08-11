@@ -34,7 +34,10 @@ export function OfflineAnimeLists() {
 
     return (
         <>
-            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingEpisodeList} />}
+            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <>
+                <LibraryHeader list={continueWatchingEpisodeList} />
+                <div className="h-28"></div>
+            </>}
             <PageWrapper
                 className="pt-4 relative space-y-8"
             >

@@ -5,7 +5,7 @@ query StudioDetails($id: Int) {
     name
     media (perPage: 80, sort: TRENDING_DESC, isMain: true) {
       nodes {
-        ...baseMedia
+        ...baseAnime
       }
     }
   }

@@ -4,16 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	alog "github.com/anacrolix/log"
 	"github.com/anacrolix/sync"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/dustin/go-humanize"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
+	"seanime/internal/mediaplayers/mediaplayer"
 	"strings"
 	"time"
 )
@@ -87,6 +89,7 @@ func (c *Client) initializeClient() error {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
 	cfg.DisableIPv6 = true
+	cfg.Logger = alog.Logger{}
 	//cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
 	if settings.TorrentClientPort == 0 {
@@ -224,11 +227,15 @@ func (c *Client) GetStreamingUrl() string {
 		return ""
 	}
 
+	if c.currentFile.IsAbsent() {
+		return ""
+	}
+
 	settings := c.repository.settings.MustGet()
 	if settings.StreamingServerHost == "0.0.0.0" {
-		return fmt.Sprintf("http://127.0.0.1:%d/stream", settings.StreamingServerPort)
+		return fmt.Sprintf("http://127.0.0.1:%d/stream/%s", settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
 	}
-	return fmt.Sprintf("http://%s:%d/stream", settings.StreamingServerHost, settings.StreamingServerPort)
+	return fmt.Sprintf("http://%s:%d/stream/%s", settings.StreamingServerHost, settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
 }
 
 func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {
@@ -384,7 +391,7 @@ func (c *Client) dropTorrents() {
 	if c.torrentClient.IsAbsent() {
 		return
 	}
-	c.repository.logger.Debug().Msg("torrentstream: Dropping all torrents")
+	c.repository.logger.Trace().Msg("torrentstream: Dropping all torrents")
 
 	for _, t := range c.torrentClient.MustGet().Torrents() {
 		t.Drop()

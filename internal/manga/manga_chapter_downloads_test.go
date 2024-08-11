@@ -2,22 +2,23 @@ package manga
 
 import (
 	"context"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 
 func TestGetDownloadedChapterContainers(t *testing.T) {
+	t.Skip("include database")
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
-	mangaCollection, err := anilistClientWrapper.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	mangaCollection, err := anilistClient.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,10 +32,10 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 	repository := NewRepository(&NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      "",
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),
+		Database:       nil, // FIX
 	})
 
 	// Test

@@ -1,4 +1,4 @@
-import { Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
@@ -7,7 +7,7 @@ import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 
 type SliderEpisodeItemProps = {
-    episode: Anime_MediaEntryEpisode
+    episode: Anime_AnimeEntryEpisode
     onPlay?: ({ path }: { path: string }) => void
 } & Omit<React.ComponentPropsWithoutRef<"div">, "onPlay">
 
@@ -58,9 +58,9 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
                 <p className="w-[80%] line-clamp-1 text-[--muted] font-semibold">{episode.episodeTitle?.replaceAll("`", "'")}</p>
                 <div className="w-full justify-between flex items-center">
                     <p className="text-base md:text-xl lg:text-2xl font-semibold line-clamp-2">
-                        <span>{episode.displayTitle} {!!episode.baseMedia?.episodes &&
-                            (episode.baseMedia.episodes != 1 &&
-                                <span className="opacity-40">/{` `}{episode.baseMedia.episodes - offset}</span>)}
+                        <span>{episode.displayTitle} {!!episode.baseAnime?.episodes &&
+                            (episode.baseAnime.episodes != 1 &&
+                                <span className="opacity-40">/{` `}{episode.baseAnime.episodes - offset}</span>)}
                         </span>
                     </p>
                     <div className="flex flex-1"></div>

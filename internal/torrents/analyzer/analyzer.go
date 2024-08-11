@@ -4,30 +4,31 @@ import (
 	"errors"
 	"github.com/rs/zerolog"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/scanner"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
+	"seanime/internal/util/limiter"
 )
 
 type (
 	// Analyzer is a service similar to the scanner, but it is used to analyze torrent files.
 	// i.e. torrent files instead of local files.
 	Analyzer struct {
-		files                []*File
-		media                *anilist.CompleteMedia
-		anilistClientWrapper anilist.ClientWrapperInterface
-		logger               *zerolog.Logger
+		files    []*File
+		media    *anilist.CompleteAnime
+		platform platform.Platform
+		logger   *zerolog.Logger
 	}
 
 	// Analysis contains the results of the analysis.
 	Analysis struct {
 		files         []*File // Hydrated after scanFiles is called
 		selectedFiles []*File // Hydrated after findCorrespondingFiles is called
-		media         *anilist.CompleteMedia
+		media         *anilist.CompleteAnime
 	}
 
 	// File represents a torrent file and contains its metadata.
@@ -40,10 +41,10 @@ type (
 
 type (
 	NewAnalyzerOptions struct {
-		Logger               *zerolog.Logger
-		Filepaths            []string               // Filepath of the torrent files
-		Media                *anilist.CompleteMedia // The media to compare the files with
-		AnilistClientWrapper anilist.ClientWrapperInterface
+		Logger    *zerolog.Logger
+		Filepaths []string               // Filepath of the torrent files
+		Media     *anilist.CompleteAnime // The media to compare the files with
+		Platform  platform.Platform
 	}
 )
 
@@ -52,16 +53,16 @@ func NewAnalyzer(opts *NewAnalyzerOptions) *Analyzer {
 		return newFile(idx, filepath)
 	})
 	return &Analyzer{
-		files:                files,
-		media:                opts.Media,
-		anilistClientWrapper: opts.AnilistClientWrapper,
-		logger:               opts.Logger,
+		files:    files,
+		media:    opts.Media,
+		platform: opts.Platform,
+		logger:   opts.Logger,
 	}
 }
 
 // AnalyzeTorrentFiles scans the files and returns an Analysis struct containing methods to get the results.
 func (a *Analyzer) AnalyzeTorrentFiles() (*Analysis, error) {
-	if a.anilistClientWrapper == nil {
+	if a.platform == nil {
 		return nil, errors.New("anilist client wrapper is nil")
 	}
 
@@ -186,7 +187,7 @@ func (f *File) GetIndex() int {
 // scanFiles scans the files and matches them with the media.
 func (a *Analyzer) scanFiles() error {
 
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -196,8 +197,8 @@ func (a *Analyzer) scanFiles() error {
 	// |   MediaContainer    |
 	// +---------------------+
 
-	tree := anilist.NewCompleteMediaRelationTree()
-	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.anilistClientWrapper, anilistRateLimiter, tree, completeMediaCache); err != nil {
+	tree := anilist.NewCompleteAnimeRelationTree()
+	if err := a.media.FetchMediaTree(anilist.FetchMediaTreeAll, a.platform.GetAnilistClient(), anilistRateLimiter, tree, completeAnimeCache); err != nil {
 		return err
 	}
 
@@ -214,7 +215,7 @@ func (a *Analyzer) scanFiles() error {
 	matcher := &scanner.Matcher{
 		LocalFiles:         lfs,
 		MediaContainer:     mc,
-		CompleteMediaCache: completeMediaCache,
+		CompleteAnimeCache: completeAnimeCache,
 		Logger:             util.NewLogger(),
 	}
 
@@ -228,13 +229,13 @@ func (a *Analyzer) scanFiles() error {
 	// +---------------------+
 
 	fh := &scanner.FileHydrator{
-		LocalFiles:           lfs,
-		AllMedia:             mc.NormalizedMedia,
-		CompleteMediaCache:   completeMediaCache,
-		AnizipCache:          anizipCache,
-		AnilistClientWrapper: a.anilistClientWrapper,
-		AnilistRateLimiter:   anilistRateLimiter,
-		Logger:               a.logger,
+		LocalFiles:         lfs,
+		AllMedia:           mc.NormalizedMedia,
+		CompleteAnimeCache: completeAnimeCache,
+		AnizipCache:        anizipCache,
+		Platform:           a.platform,
+		AnilistRateLimiter: anilistRateLimiter,
+		Logger:             a.logger,
 	}
 
 	fh.HydrateMetadata()

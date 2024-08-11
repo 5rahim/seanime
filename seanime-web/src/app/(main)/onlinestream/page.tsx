@@ -3,6 +3,7 @@ import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
+import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
     OnlinestreamParametersButton,
@@ -35,7 +36,6 @@ import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/l
 import HLS from "hls.js"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
-import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
@@ -50,13 +50,12 @@ const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 export const dynamic = "force-static"
 
 export default function Page() {
-
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
     const urlEpNumber = searchParams.get("episode")
-    const { data: mediaEntry, isLoading: mediaEntryLoading } = useGetAnimeEntry(mediaId)
+    const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
 
     const ref = React.useRef<MediaPlayerInstance>(null)
 
@@ -64,12 +63,12 @@ export default function Page() {
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
     const [progressItem, setProgressItem] = useAtom(progressItemAtom)
 
-    const [currentProgress, setCurrentProgress] = React.useState(mediaEntry?.listData?.progress ?? 0)
+    const [currentProgress, setCurrentProgress] = React.useState(animeEntry?.listData?.progress ?? 0)
 
     const progress = React.useMemo(() => {
-        setCurrentProgress(mediaEntry?.listData?.progress ?? 0)
-        return mediaEntry?.listData?.progress ?? 0
-    }, [mediaEntry?.listData?.progress])
+        setCurrentProgress(animeEntry?.listData?.progress ?? 0)
+        return animeEntry?.listData?.progress ?? 0
+    }, [animeEntry?.listData?.progress])
 
     const {
         episodes,
@@ -88,13 +87,13 @@ export default function Page() {
         episodeLoading,
         isErrorEpisodeSource,
         isErrorProvider,
+        provider,
     } = useHandleOnlinestream({
         mediaId,
         ref,
     })
 
     const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
-
 
     /** AniSkip **/
     const { data: aniSkipData } = useSkipData(media?.idMal, currentEpisodeNumber)
@@ -115,7 +114,7 @@ export default function Page() {
         if (!!media && firstRenderRef.current) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
-            const progress = mediaEntry?.listData?.progress ?? 0
+            const progress = animeEntry?.listData?.progress ?? 0
             const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
             handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
             firstRenderRef.current = false
@@ -227,7 +226,7 @@ export default function Page() {
 
     const checkTimeRef = React.useRef<number>(0)
 
-    if (!loadPage || !media || mediaEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
+    if (!loadPage || !media || animeEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
@@ -288,13 +287,17 @@ export default function Page() {
                             "flex gap-4 w-full flex-col 2xl:flex-row",
                         )}
                     >
-                        {/*<div className="space-y-4">*/}
                         <div
                             className={cn(
                                 "aspect-video relative w-full self-start mx-auto",
                             )}
                         >
-                            {isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
+                            {!provider ? (
+                                <div className="flex items-center flex-col justify-center w-full h-full">
+                                    <LuffyError title="No provider selected" />
+                                    {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
+                                </div>
+                            ) : isErrorProvider ? <LuffyError title="Provider error" /> : !!url ? <MediaPlayer
                                 streamType="on-demand"
                                 playsInline
                                 ref={ref}
@@ -486,28 +489,7 @@ export default function Page() {
 
             </div>
 
-            <div
-                className="h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]"
-            >
-                <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
-                />
-                <div className="absolute w-full h-full">
-                    {(!!media?.bannerImage || !!media?.coverImage?.extraLarge) && <Image
-                        src={media?.bannerImage || media?.coverImage?.extraLarge || ""}
-                        alt="banner image"
-                        fill
-                        quality={100}
-                        priority
-                        sizes="100vw"
-                        className="object-cover object-center z-[1]"
-                    />}
-                </div>
-                <div
-                    className="w-full z-[3] absolute bottom-0 h-[32rem] bg-gradient-to-t from-[--background] via-[--background] via-50% to-transparent"
-                />
-
-            </div>
+            <MediaEntryPageSmallBanner bannerImage={media?.bannerImage || media?.coverImage?.extraLarge} />
         </>
     )
 

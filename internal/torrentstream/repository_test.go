@@ -1,28 +1,26 @@
 package torrentstream
 
 import (
-	"context"
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/playbackmanager"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/offline"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/database/db"
+	"seanime/internal/database/models"
+	"seanime/internal/events"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/offline"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 
 func TestTorrentstream(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer(), test_utils.Torrentstream())
 
@@ -36,8 +34,9 @@ func TestTorrentstream(t *testing.T) {
 		t.Fatal(err)
 	}
 	wsEventManager := events.NewMockWSEventManager(logger)
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
-	animeCollection, err := anilistClientWrapper.AnimeCollection(context.Background(), nil)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,11 +51,10 @@ func TestTorrentstream(t *testing.T) {
 	mediaPlayerRepo := mediaplayer.NewTestRepository(t, "mpv")
 
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		WSEventManager:       wsEventManager,
-		Logger:               logger,
-		AnilistClientWrapper: anilistClientWrapper,
-		AnimeCollection:      animeCollection,
-		Database:             database,
+		WSEventManager: wsEventManager,
+		Logger:         logger,
+		Platform:       anilistPlatform,
+		Database:       database,
 		RefreshAnimeCollectionFunc: func() {
 
 		},
@@ -65,18 +63,14 @@ func TestTorrentstream(t *testing.T) {
 		OfflineHub:      offline.NewMockHub(),
 	})
 
-	playbackManager.SetAnimeCollection(animeCollection)
 	playbackManager.SetMediaPlayerRepository(mediaPlayerRepo)
 
 	repo := NewRepository(&NewRepositoryOptions{
-		Logger:                logger,
-		AnizipCache:           anizip.NewCache(),
-		BaseMediaCache:        anilist.NewBaseMediaCache(),
-		CompleteMediaCache:    anilist.NewCompleteMediaCache(),
-		AnimeCollection:       animeCollection,
-		AnilistClientWrapper:  anilistClientWrapper,
-		AnimeToshoSearchCache: animetosho.NewSearchCache(),
-		NyaaSearchCache:       nyaa.NewSearchCache(),
+		Logger:             logger,
+		AnizipCache:        anizip.NewCache(),
+		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
+		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
+		Platform:           anilistPlatform,
 		MetadataProvider: metadata.NewProvider(&metadata.NewProviderOptions{
 			Logger:     logger,
 			FileCacher: filecacher,
@@ -85,7 +79,6 @@ func TestTorrentstream(t *testing.T) {
 		WSEventManager:  wsEventManager,
 	})
 	repo.SetMediaPlayerRepository(mediaPlayerRepo)
-	repo.SetAnimeCollection(animeCollection)
 	defer repo.Shutdown()
 
 	fmt.Println(repo.GetDownloadDir())

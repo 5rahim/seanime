@@ -1,8 +1,8 @@
 package scanner
 
 import (
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/util"
 	"testing"
 )
 

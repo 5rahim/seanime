@@ -3,17 +3,19 @@ package onlinestream_providers
 import (
 	"errors"
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/onlinestream/sources"
-	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
 	"net/url"
+	"seanime/internal/onlinestream/sources"
 	"strconv"
 	"strings"
+
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 )
 
 type Zoro struct {
@@ -23,17 +25,21 @@ type Zoro struct {
 	logger    *zerolog.Logger
 }
 
-func NewZoro(logger *zerolog.Logger) *Zoro {
+func NewZoro(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	return &Zoro{
 		BaseURL:   "https://hianime.to",
-		UserAgent: util.GetRandomUserAgent(),
+		UserAgent: browser.Firefox(),
 		Client:    &http.Client{},
 		logger:    logger,
 	}
 }
 
-func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
-	var results []*SearchResult
+func (z *Zoro) GetEpisodeServers() []string {
+	return []string{VidcloudServer, VidstreamingServer}
+}
+
+func (z *Zoro) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {
+	var results []*hibikeonlinestream.SearchResult
 
 	z.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("zoro: Searching anime")
 
@@ -43,7 +49,7 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 		id := strings.Split(strings.Split(e.ChildAttr(".film-name a", "href"), "/")[1], "?")[0]
 		title := e.ChildText(".film-name a")
 		url := strings.Split(z.BaseURL+e.ChildAttr(".film-name a", "href"), "?")[0]
-		subOrDub := Sub
+		subOrDub := hibikeonlinestream.Sub
 		foundSub := false
 		foundDub := false
 		if e.ChildText(".tick-item.tick-dub") != "" {
@@ -53,11 +59,11 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 			foundSub = true
 		}
 		if foundSub && foundDub {
-			subOrDub = SubAndDub
+			subOrDub = hibikeonlinestream.SubAndDub
 		} else if foundDub {
-			subOrDub = Dub
+			subOrDub = hibikeonlinestream.Dub
 		}
-		results = append(results, &SearchResult{
+		results = append(results, &hibikeonlinestream.SearchResult{
 			ID:       id,
 			Title:    title,
 			URL:      url,
@@ -73,8 +79,8 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	}
 
 	if dubbed {
-		results = lo.Filter(results, func(r *SearchResult, _ int) bool {
-			return r.SubOrDub == Dub || r.SubOrDub == SubAndDub
+		results = lo.Filter(results, func(r *hibikeonlinestream.SearchResult, _ int) bool {
+			return r.SubOrDub == hibikeonlinestream.Dub || r.SubOrDub == hibikeonlinestream.SubAndDub
 		})
 	}
 
@@ -83,22 +89,22 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (z *Zoro) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
-	var episodes []*EpisodeDetails
+func (z *Zoro) FindEpisode(id string) ([]*hibikeonlinestream.EpisodeDetails, error) {
+	var episodes []*hibikeonlinestream.EpisodeDetails
 
 	z.logger.Debug().Str("id", id).Msg("zoro: Fetching episodes")
 
 	c := colly.NewCollector()
 
-	subOrDub := Sub
+	subOrDub := hibikeonlinestream.Sub
 
 	c.OnHTML("div.film-stats > div.tick", func(e *colly.HTMLElement) {
 		if e.ChildText(".tick-item.tick-dub") != "" {
-			subOrDub = Dub
+			subOrDub = hibikeonlinestream.Dub
 		}
 		if e.ChildText(".tick-item.tick-sub") != "" {
-			if subOrDub == Dub {
-				subOrDub = SubAndDub
+			if subOrDub == hibikeonlinestream.Dub {
+				subOrDub = hibikeonlinestream.SubAndDub
 			}
 		}
 	})
@@ -145,14 +151,14 @@ func (z *Zoro) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
 			if len(hrefParts) < 2 {
 				return
 			}
-			if subOrDub == SubAndDub {
+			if subOrDub == hibikeonlinestream.SubAndDub {
 				subOrDub = "both"
 			}
 			id = fmt.Sprintf("%s$%s", strings.Replace(hrefParts[2], "?ep=", "$episode$", 1), subOrDub)
 			epNumber, _ := strconv.Atoi(s.AttrOr("data-number", ""))
 			url := z.BaseURL + s.AttrOr("href", "")
 			title := s.AttrOr("title", "")
-			episodes = append(episodes, &EpisodeDetails{
+			episodes = append(episodes, &hibikeonlinestream.EpisodeDetails{
 				Provider: ZoroProvider,
 				ID:       id,
 				Number:   epNumber,
@@ -173,14 +179,14 @@ func (z *Zoro) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
 	return episodes, nil
 }
 
-func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*EpisodeServer, error) {
-	var source *EpisodeServer
+func (z *Zoro) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDetails, server string) (*hibikeonlinestream.EpisodeServer, error) {
+	var source *hibikeonlinestream.EpisodeServer
 
 	if server == DefaultServer {
 		server = VidcloudServer
 	}
 
-	z.logger.Debug().Str("server", string(server)).Str("episodeID", episodeInfo.ID).Msg("zoro: Fetching server sources")
+	z.logger.Debug().Str("server", server).Str("episodeID", episodeInfo.ID).Msg("zoro: Fetching server sources")
 
 	episodeParts := strings.Split(episodeInfo.ID, "$")
 
@@ -189,9 +195,9 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*E
 	}
 
 	episodeID := fmt.Sprintf("%s?ep=%s", episodeParts[0], episodeParts[2])
-	subOrDub := Sub
+	subOrDub := hibikeonlinestream.Sub
 	if episodeParts[len(episodeParts)-1] == "dub" {
-		subOrDub = Dub
+		subOrDub = hibikeonlinestream.Dub
 	}
 
 	// Get server
@@ -260,7 +266,7 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*E
 			if err != nil {
 				return
 			}
-			source = &EpisodeServer{
+			source = &hibikeonlinestream.EpisodeServer{
 				Provider:     ZoroProvider,
 				Server:       server,
 				Headers:      map[string]string{},
@@ -272,7 +278,7 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*E
 			if err != nil {
 				return
 			}
-			source = &EpisodeServer{
+			source = &hibikeonlinestream.EpisodeServer{
 				Provider: ZoroProvider,
 				Server:   server,
 				Headers: map[string]string{
@@ -287,7 +293,7 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*E
 			if err != nil {
 				return
 			}
-			source = &EpisodeServer{
+			source = &hibikeonlinestream.EpisodeServer{
 				Provider: ZoroProvider,
 				Server:   server,
 				Headers: map[string]string{
@@ -307,16 +313,16 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*E
 	}
 
 	if source == nil {
-		z.logger.Warn().Str("server", string(server)).Msg("zoro: No sources found")
+		z.logger.Warn().Str("server", server).Msg("zoro: No sources found")
 		return nil, ErrSourceNotFound
 	}
 
-	z.logger.Debug().Str("server", string(server)).Int("videoSources", len(source.VideoSources)).Msg("zoro: Fetched server sources")
+	z.logger.Debug().Str("server", server).Int("videoSources", len(source.VideoSources)).Msg("zoro: Fetched server sources")
 
 	return source, nil
 }
 
-func (z *Zoro) findServerId(doc *goquery.Document, idx int, subOrDub SubOrDub) string {
+func (z *Zoro) findServerId(doc *goquery.Document, idx int, subOrDub hibikeonlinestream.SubOrDub) string {
 	var serverId string
 	doc.Find(fmt.Sprintf(".ps_-block.ps_-block-sub.servers-%s > .ps__-list > div", subOrDub)).Each(func(i int, s *goquery.Selection) {
 		_serverId := s.AttrOr("data-server-id", "")

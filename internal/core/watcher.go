@@ -2,8 +2,8 @@ package core
 
 import (
 	"github.com/dustin/go-humanize"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/library/scanner"
+	"seanime/internal/util"
 )
 
 // initLibraryWatcher will initialize the library watcher.

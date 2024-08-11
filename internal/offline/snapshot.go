@@ -1,14 +1,14 @@
 package offline
 
 import (
-	"context"
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
+	"seanime/internal/manga"
+	"seanime/internal/util/limiter"
 	"slices"
 	"time"
 )
@@ -27,7 +27,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	h.logger.Debug().Msg("offline hub: Creating snapshot")
 
 	// Get local files
-	lfs, _, err := h.db.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(h.db)
 	if err != nil {
 		return err
 	}
@@ -49,12 +49,12 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	//
 	// Collections
 	//
-	animeCollection, err := h.anilistClientWrapper.AnimeCollection(context.Background(), &user.Viewer.Name)
+	animeCollection, err := h.platform.GetAnimeCollection(false)
 	if err != nil {
 		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get Anilist anime collection")
 		return err
 	}
-	mangaCollection, err := h.anilistClientWrapper.MangaCollection(context.Background(), &user.Viewer.Name)
+	mangaCollection, err := h.platform.GetMangaCollection(false)
 	if err != nil {
 		h.logger.Error().Err(err).Msg("offline hub: [Snapshot] Failed to get Anilist manga collection")
 		return err
@@ -84,7 +84,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		}
 
 		// Get the media
-		listEntry, ok := animeCollection.GetListEntryFromMediaId(lfEntry.GetMediaId())
+		listEntry, ok := animeCollection.GetListEntryFromAnimeId(lfEntry.GetMediaId())
 		if !ok {
 			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to get Anilist media %d", lfEntry.GetMediaId())
 			return err
@@ -97,13 +97,13 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		h.logger.Debug().Msgf("offline hub: Creating media entry snapshot for media %d", lfEntry.GetMediaId())
 
 		rateLimiter.Wait()
-		_mediaEntry, err := anime.NewMediaEntry(&anime.NewMediaEntryOptions{
-			MediaId:              lfEntry.GetMediaId(),
-			LocalFiles:           lfs,
-			AnizipCache:          anizipCache,
-			AnimeCollection:      animeCollection,
-			AnilistClientWrapper: h.anilistClientWrapper,
-			MetadataProvider:     h.metadataProvider,
+		_mediaEntry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
+			MediaId:          lfEntry.GetMediaId(),
+			LocalFiles:       lfs,
+			AnizipCache:      anizipCache,
+			AnimeCollection:  animeCollection,
+			Platform:         h.platform,
+			MetadataProvider: h.metadataProvider,
 		})
 		if err != nil {
 			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to create media entry for anime %d", lfEntry.GetMediaId())
@@ -111,10 +111,10 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		}
 
 		mediaEpisodes := _mediaEntry.Episodes
-		// Note: We don't need the BaseMedia in each episode for the snapshot
+		// Note: We don't need the BaseAnime in each episode for the snapshot
 		// it's a waste of space
 		for _, episode := range mediaEpisodes {
-			episode.BaseMedia = nil
+			episode.BaseAnime = nil
 		}
 
 		// Create the AnimeEntry
@@ -124,8 +124,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 				Score:       int(*listEntry.GetScore()),
 				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
-				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
-				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
+				StartedAt:   anilist.FuzzyDateToString(listEntry.StartedAt),
+				CompletedAt: anilist.FuzzyDateToString(listEntry.CompletedAt),
 			},
 			Media:    listEntry.GetMedia(),
 			Episodes: mediaEpisodes,
@@ -187,8 +187,8 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 				Score:       int(*listEntry.GetScore()),
 				Status:      *listEntry.GetStatus(),
 				Progress:    *listEntry.GetProgress(),
-				StartedAt:   anilist.ToEntryDate(listEntry.StartedAt),
-				CompletedAt: anilist.ToEntryDate(listEntry.CompletedAt),
+				StartedAt:   anilist.FuzzyDateToString(listEntry.StartedAt),
+				CompletedAt: anilist.FuzzyDateToString(listEntry.CompletedAt),
 			},
 			Media:             listEntry.GetMedia(),
 			ChapterContainers: eContainers,

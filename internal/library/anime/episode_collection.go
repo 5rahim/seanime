@@ -1,8 +1,8 @@
 package anime
 
 type (
-	// MediaEntryEpisodeCollection represents a collection of episodes.
-	MediaEntryEpisodeCollection struct {
-		Episodes []*MediaEntryEpisode `json:"episodes"`
+	// AnimeEntryEpisodeCollection represents a collection of episodes.
+	AnimeEntryEpisodeCollection struct {
+		Episodes []*AnimeEntryEpisode `json:"episodes"`
 	}
 )

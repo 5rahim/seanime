@@ -3,11 +3,11 @@ package mediastream
 import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
 	"net/url"
 	"os"
 	"path/filepath"
+	"seanime/internal/events"
+	"seanime/internal/mediastream/videofile"
 )
 
 // ServeFiberExtractedSubtitles serves the extracted subtitles

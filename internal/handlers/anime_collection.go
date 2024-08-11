@@ -3,11 +3,13 @@ package handlers
 import (
 	"errors"
 	"github.com/dustin/go-humanize"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
+	"seanime/internal/torrentstream"
+	"seanime/internal/util/result"
 )
 
-//var libraryCollectionMap = result.NewResultMap[string, *anime.LibraryCollection]()
+var libraryCollectionCache = result.NewResultMap[int, *anime.LibraryCollection]()
 
 // HandleGetLibraryCollection
 //
@@ -20,27 +22,37 @@ import (
 //	@returns anime.LibraryCollection
 func HandleGetLibraryCollection(c *RouteCtx) error {
 
-	bypassCache := c.Fiber.Method() == "POST"
-
-	animeCollection, err := c.App.GetAnimeCollection(bypassCache)
+	animeCollection, err := c.App.GetAnimeCollection(false)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	lfs, _, err := c.App.Database.GetLocalFiles()
+	if animeCollection == nil {
+		return c.RespondWithData(&anime.LibraryCollection{})
+	}
+
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
-		AnimeCollection:      animeCollection,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		AnizipCache:          c.App.AnizipCache,
-		LocalFiles:           lfs,
-		MetadataProvider:     c.App.MetadataProvider,
+		AnimeCollection:  animeCollection,
+		Platform:         c.App.AnilistPlatform,
+		AnizipCache:      c.App.AnizipCache,
+		LocalFiles:       lfs,
+		MetadataProvider: c.App.MetadataProvider,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if c.App.SecondarySettings.Torrentstream != nil && c.App.SecondarySettings.Torrentstream.IncludeInLibrary {
+		c.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
+			AnimeCollection:   animeCollection,
+			LibraryCollection: libraryCollection,
+			AnizipCache:       c.App.AnizipCache,
+		})
 	}
 
 	// Hydrate total library size
@@ -68,7 +80,7 @@ func HandleAddUnknownMedia(c *RouteCtx) error {
 	}
 
 	// Add non-added media entries to AniList collection
-	if err := c.App.AnilistClientWrapper.AddMediaToPlanning(b.MediaIds, limiter.NewAnilistLimiter(), c.App.Logger); err != nil {
+	if err := c.App.AnilistPlatform.AddMediaToCollection(b.MediaIds); err != nil {
 		return c.RespondWithError(errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
 	}
 

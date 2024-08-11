@@ -1,5 +1,5 @@
 import {
-    AL_BaseMedia,
+    AL_BaseAnime,
     Anime_AutoDownloaderRule,
     Anime_AutoDownloaderRuleEpisodeType,
     Anime_AutoDownloaderRuleTitleComparisonType,
@@ -147,10 +147,10 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
 
 type RuleFormFormProps = {
     form: UseFormReturn<InferType<typeof schema>>
-    allMedia: AL_BaseMedia[]
+    allMedia: AL_BaseAnime[]
     type: "create" | "edit"
     isPending: boolean
-    notFinishedMedia: AL_BaseMedia[]
+    notFinishedMedia: AL_BaseAnime[]
     libraryCollection?: Anime_LibraryCollection | undefined
     rule?: Anime_AutoDownloaderRule
 }

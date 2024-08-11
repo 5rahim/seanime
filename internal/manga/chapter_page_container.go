@@ -1,0 +1,221 @@
+package manga
+
+import (
+	"errors"
+	"fmt"
+	"seanime/internal/extension"
+	"seanime/internal/manga/providers"
+	"seanime/internal/util"
+	"sync"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+)
+
+type (
+	// PageContainer is used to display the list of pages from a chapter in the client.
+	// It is cached in the file cache bucket with a key of the format: {provider}${mediaId}${chapterId}
+	PageContainer struct {
+		MediaId        int                        `json:"mediaId"`
+		Provider       string                     `json:"provider"`
+		ChapterId      string                     `json:"chapterId"`
+		Pages          []*hibikemanga.ChapterPage `json:"pages"`
+		PageDimensions map[int]*PageDimension     `json:"pageDimensions"` // Indexed by page number
+		IsDownloaded   bool                       `json:"isDownloaded"`   // TODO remove
+	}
+
+	// PageDimension is used to store the dimensions of a page.
+	// It is used by the client for 'Double Page' mode.
+	PageDimension struct {
+		Width  int `json:"width"`
+		Height int `json:"height"`
+	}
+)
+
+// GetMangaPageContainer returns the PageContainer for a manga chapter based on the provider.
+func (r *Repository) GetMangaPageContainer(
+	provider string,
+	mediaId int,
+	chapterId string,
+	doublePage bool,
+	isOffline bool,
+) (*PageContainer, error) {
+
+	// +---------------------+
+	// |      Downloads      |
+	// +---------------------+
+
+	if isOffline {
+		ret, err := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+		if err != nil {
+			return nil, err
+		}
+		return ret, nil
+	}
+
+	ret, _ := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+	if ret != nil {
+		return ret, nil
+	}
+
+	// +---------------------+
+	// |      Get Pages      |
+	// +---------------------+
+
+	// PageContainer key
+	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
+
+	r.logger.Trace().
+		Str("provider", provider).
+		Int("mediaId", mediaId).
+		Str("key", key).
+		Str("chapterId", chapterId).
+		Msgf("manga: Getting pages")
+
+	// +---------------------+
+	// |       Cache         |
+	// +---------------------+
+
+	var container *PageContainer
+
+	// PageContainer bucket
+	// e.g., manga_comick_pages_123
+	//         -> { "comick$123$10010": PageContainer }, { "comick$123$10011": PageContainer }
+	bucket := r.getFcProviderBucket(provider, mediaId, bucketTypePage)
+
+	// Check if the container is in the cache
+	if found, _ := r.fileCacher.Get(bucket, key, &container); found {
+
+		// Hydrate page dimensions
+		pageDimensions, _ := r.getPageDimensions(doublePage, provider, mediaId, chapterId, container.Pages)
+		container.PageDimensions = pageDimensions
+
+		r.logger.Debug().Str("key", key).Msg("manga: Page Container Cache HIT")
+		return container, nil
+	}
+
+	// +---------------------+
+	// |     Fetch pages     |
+	// +---------------------+
+
+	// Search for the chapter in the cache
+	chapterBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
+
+	var chapterContainer *ChapterContainer
+	if found, _ := r.fileCacher.Get(chapterBucket, fmt.Sprintf("%s$%d", provider, mediaId), &chapterContainer); !found {
+		r.logger.Error().Msg("manga: Chapter Container not found")
+		return nil, ErrNoChapters
+	}
+
+	// Get the chapter from the container
+	var chapter *hibikemanga.ChapterDetails
+	for _, c := range chapterContainer.Chapters {
+		if c.ID == chapterId {
+			chapter = c
+			break
+		}
+	}
+
+	if chapter == nil {
+		r.logger.Error().Msg("manga: Chapter not found")
+		return nil, ErrChapterNotFound
+	}
+
+	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
+	if !ok {
+		r.logger.Error().Str("provider", provider).Msg("manga: Provider not found")
+		return nil, errors.New("manga: Provider not found")
+	}
+
+	// Get the chapter pages
+	var pages []*hibikemanga.ChapterPage
+	var err error
+
+	pages, err = providerExtension.GetProvider().FindChapterPages(chapter.ID)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Could not get chapter pages")
+		return nil, err
+	}
+
+	// Overwrite provider just in case
+	for _, page := range pages {
+		page.Provider = provider
+	}
+
+	pageDimensions, _ := r.getPageDimensions(doublePage, provider, mediaId, chapterId, pages)
+
+	container = &PageContainer{
+		MediaId:        mediaId,
+		Provider:       provider,
+		ChapterId:      chapterId,
+		Pages:          pages,
+		PageDimensions: pageDimensions,
+		IsDownloaded:   false,
+	}
+
+	// Set cache
+	err = r.fileCacher.Set(bucket, key, container)
+	if err != nil {
+		r.logger.Warn().Err(err).Msg("manga: Failed to populate cache")
+	}
+
+	r.logger.Debug().Str("key", key).Msg("manga: Retrieved pages")
+
+	return container, nil
+}
+
+func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId int, chapterId string, pages []*hibikemanga.ChapterPage) (ret map[int]*PageDimension, err error) {
+	defer util.HandlePanicInModuleWithError("manga/getPageDimensions", &err)
+
+	if !enabled {
+		return nil, nil
+	}
+
+	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
+
+	// Page dimensions bucket
+	// e.g., manga_comick_page-dimensions_123
+	//         -> { "comick$123$10010": PageDimensions }, { "comick$123$10011": PageDimensions }
+	bucket := r.getFcProviderBucket(provider, mediaId, bucketTypePageDimensions)
+
+	if found, _ := r.fileCacher.Get(bucket, fmt.Sprintf(key, provider, mediaId), &ret); found {
+		r.logger.Debug().Str("key", key).Msg("manga: Page Dimensions Cache HIT")
+		return
+	}
+
+	r.logger.Trace().Str("key", key).Msg("manga: Getting page dimensions")
+
+	// Get the page dimensions
+	pageDimensions := make(map[int]*PageDimension)
+	mu := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	for _, page := range pages {
+		wg.Add(1)
+		go func(page *hibikemanga.ChapterPage) {
+			defer wg.Done()
+			buf, err := manga_providers.GetImageByProxy(page.URL, page.Headers)
+			if err != nil {
+				return
+			}
+			width, height, err := getImageNaturalSizeB(buf)
+			if err != nil {
+				//r.logger.Warn().Err(err).Int("index", page.Index).Msg("manga: failed to get image size")
+				return
+			}
+
+			mu.Lock()
+			// DEVNOTE: Index by page index
+			pageDimensions[page.Index] = &PageDimension{
+				Width:  width,
+				Height: height,
+			}
+			mu.Unlock()
+		}(page)
+	}
+	wg.Wait()
+
+	_ = r.fileCacher.Set(bucket, key, pageDimensions)
+
+	r.logger.Info().Str("key", key).Msg("manga: Retrieved page dimensions")
+
+	return pageDimensions, nil
+}

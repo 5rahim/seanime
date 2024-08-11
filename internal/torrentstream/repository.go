@@ -4,18 +4,18 @@ import (
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/playbackmanager"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"github.com/seanime-app/seanime/internal/util"
 	"os"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/database/models"
+	"seanime/internal/events"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/util"
 )
 
 type (
@@ -27,14 +27,12 @@ type (
 		currentEpisodeCollection mo.Option[*EpisodeCollection] // Refreshed in [list.go] when the user opens the streaming page for a media
 
 		// Injected dependencies
+		torrentRepository               *torrent.Repository
 		anizipCache                     *anizip.Cache
-		baseMediaCache                  *anilist.BaseMediaCache
-		completeMediaCache              *anilist.CompleteMediaCache
-		animeCollection                 *anilist.AnimeCollection
-		anilistClientWrapper            anilist.ClientWrapperInterface
+		baseAnimeCache                  *anilist.BaseAnimeCache
+		completeAnimeCache              *anilist.CompleteAnimeCache
+		platform                        platform.Platform
 		wsEventManager                  events.WSEventManagerInterface
-		nyaaSearchCache                 *nyaa.SearchCache
-		animetoshoSearchCache           *animetosho.SearchCache
 		metadataProvider                *metadata.Provider
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
@@ -47,34 +45,30 @@ type (
 	}
 
 	NewRepositoryOptions struct {
-		Logger                *zerolog.Logger
-		AnizipCache           *anizip.Cache
-		BaseMediaCache        *anilist.BaseMediaCache
-		CompleteMediaCache    *anilist.CompleteMediaCache
-		AnimeCollection       *anilist.AnimeCollection
-		AnilistClientWrapper  anilist.ClientWrapperInterface
-		NyaaSearchCache       *nyaa.SearchCache
-		AnimeToshoSearchCache *animetosho.SearchCache
-		MetadataProvider      *metadata.Provider
-		PlaybackManager       *playbackmanager.PlaybackManager
-		WSEventManager        events.WSEventManagerInterface
+		Logger             *zerolog.Logger
+		AnizipCache        *anizip.Cache
+		TorrentRepository  *torrent.Repository
+		BaseAnimeCache     *anilist.BaseAnimeCache
+		CompleteAnimeCache *anilist.CompleteAnimeCache
+		Platform           platform.Platform
+		MetadataProvider   *metadata.Provider
+		PlaybackManager    *playbackmanager.PlaybackManager
+		WSEventManager     events.WSEventManagerInterface
 	}
 )
 
 // NewRepository creates a new injectable Repository instance
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
-		logger:                opts.Logger,
-		anizipCache:           opts.AnizipCache,
-		baseMediaCache:        opts.BaseMediaCache,
-		completeMediaCache:    opts.CompleteMediaCache,
-		animeCollection:       opts.AnimeCollection,
-		anilistClientWrapper:  opts.AnilistClientWrapper,
-		nyaaSearchCache:       opts.NyaaSearchCache,
-		animetoshoSearchCache: opts.AnimeToshoSearchCache,
-		metadataProvider:      opts.MetadataProvider,
-		playbackManager:       opts.PlaybackManager,
-		wsEventManager:        opts.WSEventManager,
+		logger:             opts.Logger,
+		anizipCache:        opts.AnizipCache,
+		baseAnimeCache:     opts.BaseAnimeCache,
+		completeAnimeCache: opts.CompleteAnimeCache,
+		platform:           opts.Platform,
+		metadataProvider:   opts.MetadataProvider,
+		playbackManager:    opts.PlaybackManager,
+		wsEventManager:     opts.WSEventManager,
+		torrentRepository:  opts.TorrentRepository,
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = newServerManager(ret)
@@ -101,12 +95,6 @@ func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
 func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer.Repository) {
 	r.mediaPlayerRepository = mediaPlayerRepository
 	r.listenToMediaPlayerEvents()
-}
-
-// SetAnimeCollection sets the anime collection in the repository.
-// This should be called after the anime collection has been refreshed.
-func (r *Repository) SetAnimeCollection(ac *anilist.AnimeCollection) {
-	r.animeCollection = ac
 }
 
 // InitModules sets the settings for the torrentstream module.

@@ -1,7 +1,7 @@
 package image_downloader
 
 import (
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )

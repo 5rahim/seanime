@@ -5,21 +5,30 @@ import (
 	"errors"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/database/db"
-	discordrpc_presence "github.com/seanime-app/seanime/internal/discordrpc/presence"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/offline"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/discordrpc/presence"
+	"seanime/internal/events"
+	"seanime/internal/library/anime"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/offline"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"sync"
 )
 
 const (
-	LocalFilePlayback PlaybackType = "localfile"
-	StreamPlayback    PlaybackType = "stream"
+	LocalFilePlayback      PlaybackType = "localfile"
+	StreamPlayback         PlaybackType = "stream"
+	ManualTrackingPlayback PlaybackType = "manual"
 )
+
+var playbackStatePool = sync.Pool{
+	New: func() interface{} {
+		return &PlaybackState{}
+	},
+}
 
 type (
 	PlaybackType string
@@ -36,8 +45,7 @@ type (
 		discordPresence            *discordrpc_presence.Presence     // DiscordPresence is used to update the user's Discord presence
 		mediaPlayerRepoSubscriber  *mediaplayer.RepositorySubscriber // Used to listen for media player events
 		wsEventManager             events.WSEventManagerInterface
-		anilistClientWrapper       anilist.ClientWrapperInterface
-		animeCollection            *anilist.AnimeCollection
+		platform                   platform.Platform
 		refreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		mu                         sync.Mutex
 		eventMu                    sync.Mutex
@@ -49,27 +57,31 @@ type (
 		currentPlaybackType        PlaybackType
 		currentMediaPlaybackStatus *mediaplayer.PlaybackStatus // The current video playback status (can be nil)
 
-		// + Local file playback & stream playback
+		// \/ Local file playback & stream playback
 		// For Local file playback, it MUST be set
 		// For Stream playback, it is optional
-		// See [progress_tracking.go] for it is handled
+		// See [progress_tracking.go] for how it is handled
 		currentMediaListEntry mo.Option[*anilist.MediaListEntry] // List Entry for the current video playback
-		// + Local file playback
+		// \/ Local file playback
 		currentLocalFile             mo.Option[*anime.LocalFile]             // Local file for the current video playback
 		currentLocalFileWrapperEntry mo.Option[*anime.LocalFileWrapperEntry] // This contains the current media entry local file data
-		// + Stream playback
+		// \/ Stream playback
 		// DEVOTE: currentStreamEpisodeCollection and currentStreamEpisode can be absent when the user is streaming a video,
 		// we will just not track the progress in that case
-		currentStreamEpisodeCollection mo.Option[*anime.MediaEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
-		currentStreamEpisode           mo.Option[*anime.MediaEntryEpisode]           // The current episode being streamed
-		currentStreamMedia             mo.Option[*anilist.BaseMedia]                 // The current media being streamed
-		currentStreamAnizipMedia       mo.Option[*anizip.Media]                      // The current anizip media being streamed
-		currentStreamAnizipEpisode     mo.Option[*anizip.Episode]                    // The current anizip episode being streamed
-
+		currentStreamEpisodeCollection mo.Option[*anime.AnimeEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
+		currentStreamEpisode           mo.Option[*anime.AnimeEntryEpisode]           // The current episode being streamed
+		currentStreamMedia             mo.Option[*anilist.BaseAnime]                 // The current media being streamed
+		// \/ Manual progress tracking (non-integrated external player)
+		manualTrackingCtx           context.Context
+		manualTrackingCtxCancel     context.CancelFunc
+		manualTrackingPlaybackState PlaybackState
+		currentManualTrackingState  mo.Option[*ManualTrackingState]
+		// \/ Playlist
 		playlistHub *playlistHub // The playlist hub
 
-		isOffline  bool
-		offlineHub offline.HubInterface
+		isOffline       bool
+		offlineHub      offline.HubInterface
+		animeCollection mo.Option[*anilist.AnimeCollection]
 	}
 
 	PlaybackStateType string
@@ -90,8 +102,7 @@ type (
 	NewPlaybackManagerOptions struct {
 		WSEventManager             events.WSEventManagerInterface
 		Logger                     *zerolog.Logger
-		AnilistClientWrapper       anilist.ClientWrapperInterface
-		AnimeCollection            *anilist.AnimeCollection
+		Platform                   platform.Platform
 		Database                   *db.Database
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
@@ -101,73 +112,44 @@ type (
 )
 
 func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
-	return &PlaybackManager{
-		Logger:                     opts.Logger,
-		Database:                   opts.Database,
-		discordPresence:            opts.DiscordPresence,
-		wsEventManager:             opts.WSEventManager,
-		anilistClientWrapper:       opts.AnilistClientWrapper,
-		animeCollection:            opts.AnimeCollection,
-		refreshAnimeCollectionFunc: opts.RefreshAnimeCollectionFunc,
-		playlistHub:                newPlaylistHub(opts.Logger, opts.WSEventManager),
-		mu:                         sync.Mutex{},
-		historyMap:                 make(map[string]PlaybackState),
-		isOffline:                  opts.IsOffline,
-		offlineHub:                 opts.OfflineHub,
+	pm := &PlaybackManager{
+		Logger:                         opts.Logger,
+		Database:                       opts.Database,
+		discordPresence:                opts.DiscordPresence,
+		wsEventManager:                 opts.WSEventManager,
+		platform:                       opts.Platform,
+		refreshAnimeCollectionFunc:     opts.RefreshAnimeCollectionFunc,
+		mu:                             sync.Mutex{},
+		historyMap:                     make(map[string]PlaybackState),
+		isOffline:                      opts.IsOffline,
+		offlineHub:                     opts.OfflineHub,
+		currentStreamEpisodeCollection: mo.None[*anime.AnimeEntryEpisodeCollection](),
+		currentStreamEpisode:           mo.None[*anime.AnimeEntryEpisode](),
+		currentStreamMedia:             mo.None[*anilist.BaseAnime](),
+		animeCollection:                mo.None[*anilist.AnimeCollection](),
+		currentManualTrackingState:     mo.None[*ManualTrackingState](),
+		currentLocalFile:               mo.None[*anime.LocalFile](),
+		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
+		currentMediaListEntry:          mo.None[*anilist.MediaListEntry](),
 	}
+
+	pm.playlistHub = newPlaylistHub(pm)
+
+	return pm
 }
 
-func (pm *PlaybackManager) SetAnilistClientWrapper(anilistClientWrapper anilist.ClientWrapperInterface) {
-	pm.anilistClientWrapper = anilistClientWrapper
-}
-
-func (pm *PlaybackManager) SetAnimeCollection(animeCollection *anilist.AnimeCollection) {
-	go func() {
-		pm.mu.Lock()
-		defer pm.mu.Unlock()
-		pm.animeCollection = animeCollection
-	}()
-}
-
-func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.MediaEntryEpisode) {
+func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.AnimeEntryEpisode) {
 	// DEVNOTE: This is called from the torrentstream repository instance
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	pm.currentStreamEpisodeCollection = mo.Some(&anime.MediaEntryEpisodeCollection{
+	pm.currentStreamEpisodeCollection = mo.Some(&anime.AnimeEntryEpisodeCollection{
 		Episodes: ec,
 	})
 }
 
-// PlayNextEpisode plays the next episode of the media that has been watched
-//   - Called when the user clicks on the "Next" button in the client
-//   - Should not be called when the user is watching a playlist
-//   - Should not be called when no next episode is available
-func (pm *PlaybackManager) PlayNextEpisode() error {
-	switch pm.currentPlaybackType {
-	case LocalFilePlayback:
-		if pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() || pm.currentLocalFileWrapperEntry.IsAbsent() {
-			return errors.New("could not play next episode")
-		}
-
-		nextLf, found := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
-		if !found {
-			return errors.New("could not play next episode")
-		}
-
-		err := pm.MediaPlayerRepository.Play(nextLf.Path)
-		if err != nil {
-			return err
-		}
-		// Start tracking the video
-		pm.MediaPlayerRepository.StartTracking()
-
-	case StreamPlayback:
-		// TODO: Implement it for torrentstream
-		// Check if torrent stream etc...
-	}
-
-	return nil
+func (pm *PlaybackManager) SetAnimeCollection(ac *anilist.AnimeCollection) {
+	pm.animeCollection = mo.Some(ac)
 }
 
 // SetMediaPlayerRepository sets the media player repository and starts listening to media player events
@@ -200,29 +182,46 @@ func (pm *PlaybackManager) SetMediaPlayerRepository(mediaPlayerRepository *media
 	}()
 }
 
-func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(videopath string) error {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type StartPlayingOptions struct {
+	Payload   string // url or path
+	UserAgent string
+	ClientId  string
+}
+
+func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOptions) error {
 	pm.playlistHub.reset()
-	if err := pm.checkOrLoadOfflineAnimeCollection(); err != nil {
+	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
 	}
 
-	err := pm.MediaPlayerRepository.Play(videopath)
+	// Cancel manual tracking if active
+	if pm.manualTrackingCtxCancel != nil {
+		pm.manualTrackingCtxCancel()
+	}
+
+	// Send the media file to the media player
+	err := pm.MediaPlayerRepository.Play(opts.Payload)
 	if err != nil {
 		return err
 	}
 
+	// Start tracking
 	pm.MediaPlayerRepository.StartTracking()
 
 	return nil
 }
 
-func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *anilist.BaseMedia, anizipMedia *anizip.Media, anizipEpisode *anizip.Episode) error {
+func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartStreamingUsingMediaPlayer", &err)
+
 	pm.playlistHub.reset()
 	if pm.isOffline {
 		return errors.New("cannot stream when offline")
 	}
 
-	if media == nil || anizipMedia == nil || anizipEpisode == nil {
+	if media == nil || aniDbEpisode == "" {
 		pm.Logger.Error().Msg("playback manager: cannot start streaming, missing options [StartStreamingUsingMediaPlayer]")
 		return errors.New("cannot start streaming, not enough data provided")
 	}
@@ -230,22 +229,25 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *ani
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
+	// Cancel manual tracking if active
+	if pm.manualTrackingCtxCancel != nil {
+		pm.manualTrackingCtxCancel()
+	}
+
 	pm.currentStreamMedia = mo.Some(media)
-	pm.currentStreamAnizipMedia = mo.Some(anizipMedia)
-	pm.currentStreamAnizipEpisode = mo.Some(anizipEpisode)
 
 	// Set the current episode being streamed
 	// If the episode collection is not set, we'll still let the stream start. The progress will just not be tracked
 	if pm.currentStreamEpisodeCollection.IsPresent() {
 		for _, episode := range pm.currentStreamEpisodeCollection.MustGet().Episodes {
-			if episode.AniDBEpisode == anizipEpisode.Episode {
+			if episode.AniDBEpisode == aniDbEpisode {
 				pm.currentStreamEpisode = mo.Some(episode)
 				break
 			}
 		}
 	}
 
-	err := pm.MediaPlayerRepository.Stream(url)
+	err = pm.MediaPlayerRepository.Stream(opts.Payload)
 	if err != nil {
 		return err
 	}
@@ -254,6 +256,43 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(url string, media *ani
 
 	return nil
 }
+
+// PlayNextEpisode plays the next episode of the media that has been watched
+//   - Called when the user clicks on the "Next" button in the client
+//   - Should not be called when the user is watching a playlist
+//   - Should not be called when no next episode is available
+func (pm *PlaybackManager) PlayNextEpisode() (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/PlayNextEpisode", &err)
+
+	switch pm.currentPlaybackType {
+	case LocalFilePlayback:
+		if pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() || pm.currentLocalFileWrapperEntry.IsAbsent() {
+			return errors.New("could not play next episode")
+		}
+
+		nextLf, found := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
+		if !found {
+			return errors.New("could not play next episode")
+		}
+
+		err := pm.MediaPlayerRepository.Play(nextLf.Path)
+		if err != nil {
+			return err
+		}
+		// Start tracking the video
+		pm.MediaPlayerRepository.StartTracking()
+
+	case StreamPlayback:
+		// TODO: Implement it for torrentstream
+		// Check if torrent stream etc...
+	}
+
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Playlist
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // CancelCurrentPlaylist cancels the current playlist.
 // This is an action triggered by the client.
@@ -271,22 +310,18 @@ func (pm *PlaybackManager) RequestNextPlaylistFile() error {
 
 // StartPlaylist starts a playlist.
 // This action is triggered by the client.
-func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
+func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartPlaylist", &err)
+
 	pm.playlistHub.loadPlaylist(playlist)
 
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.animeCollection == nil {
-		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-		if !found {
-			return errors.New("could not retrieve anime collection")
-		}
-		pm.animeCollection = snapshot.Collections.AnimeCollection
-	}
+	_ = pm.checkOrLoadAnimeCollection()
 
 	// Play the first video in the playlist
 	firstVidPath := playlist.LocalFiles[0].Path
-	err := pm.MediaPlayerRepository.Play(firstVidPath)
+	err = pm.MediaPlayerRepository.Play(firstVidPath)
 	if err != nil {
 		return err
 	}
@@ -340,7 +375,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 	// Delete playlist in goroutine
 	go func() {
-		err := pm.Database.DeletePlaylist(playlist.DbId)
+		err := db_bridge.DeletePlaylist(pm.Database, playlist.DbId)
 		if err != nil {
 			pm.Logger.Error().Err(err).Str("name", playlist.Name).Msgf("playback manager: Failed to delete playlist")
 			return
@@ -353,16 +388,25 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (pm *PlaybackManager) checkOrLoadOfflineAnimeCollection() error {
+func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/checkOrLoadAnimeCollection", &err)
+
 	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
 	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.animeCollection == nil {
+	if pm.isOffline && pm.animeCollection.IsAbsent() {
 		pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
 		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
 		if !found {
 			return errors.New("could not retrieve anime collection")
 		}
-		pm.animeCollection = snapshot.Collections.AnimeCollection
+		pm.animeCollection = mo.Some(snapshot.Collections.AnimeCollection)
+	} else if pm.animeCollection.IsAbsent() {
+		// If the anime collection is not present, we retrieve it from the platform
+		collection, err := pm.platform.GetAnimeCollection(false)
+		if err != nil {
+			return err
+		}
+		pm.animeCollection = mo.Some(collection)
 	}
 	return nil
 }

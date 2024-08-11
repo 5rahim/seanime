@@ -38,7 +38,7 @@ export function useHandleLibraryCollection() {
         const allGenres = data?.lists?.flatMap(l => {
             return l.entries?.flatMap(e => e.media?.genres) ?? []
         })
-        return [...new Set(allGenres)].filter(Boolean)
+        return [...new Set(allGenres)].filter(Boolean)?.sort((a, b) => a.localeCompare(b))
     }, [data])
 
     const [params, setParams] = useAtom(__mainLibrary_paramsAtom)
@@ -57,6 +57,25 @@ export function useHandleLibraryCollection() {
     const sortedCollection = React.useMemo(() => {
         if (!data || !data.lists) return []
 
+        // Stream
+        if (data.stream) {
+            // Add to current list
+            let currentList = data.lists.find(n => n.type === "CURRENT")
+            if (currentList) {
+                let entries = [...(currentList.entries ?? [])]
+                for (let anime of (data.stream.anime ?? [])) {
+                    if (!entries.some(e => e.mediaId === anime.id)) {
+                        entries.push({
+                            media: anime,
+                            mediaId: anime.id,
+                            listData: data.stream.listData?.[anime.id],
+                        })
+                    }
+                }
+                data.lists.find(n => n.type === "CURRENT")!.entries = entries
+            }
+        }
+
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
             const arr = filterCollectionEntries(obj.entries, MAIN_LIBRARY_DEFAULT_PARAMS, serverStatus?.settings?.anilist?.enableAdultContent)
@@ -67,11 +86,11 @@ export function useHandleLibraryCollection() {
             }
         })
         return [
-            _lists.find(n => n.type === "current"),
-            _lists.find(n => n.type === "paused"),
-            _lists.find(n => n.type === "planned"),
-            _lists.find(n => n.type === "completed"),
-            _lists.find(n => n.type === "dropped"),
+            _lists.find(n => n.type === "CURRENT"),
+            _lists.find(n => n.type === "PAUSED"),
+            _lists.find(n => n.type === "PLANNING"),
+            _lists.find(n => n.type === "COMPLETED"),
+            _lists.find(n => n.type === "DROPPED"),
         ].filter(Boolean)
     }, [data, params, serverStatus?.settings?.anilist?.enableAdultContent])
 
@@ -88,23 +107,35 @@ export function useHandleLibraryCollection() {
             }
         })
         return [
-            _lists.find(n => n.type === "current"),
-            _lists.find(n => n.type === "paused"),
-            _lists.find(n => n.type === "planned"),
-            _lists.find(n => n.type === "completed"),
-            _lists.find(n => n.type === "dropped"),
+            _lists.find(n => n.type === "CURRENT"),
+            _lists.find(n => n.type === "PAUSED"),
+            _lists.find(n => n.type === "PLANNING"),
+            _lists.find(n => n.type === "COMPLETED"),
+            _lists.find(n => n.type === "DROPPED"),
         ].filter(Boolean)
     }, [data, params, serverStatus?.settings?.anilist?.enableAdultContent])
 
     const continueWatchingList = React.useMemo(() => {
         if (!data?.continueWatchingList) return []
 
-        if (!serverStatus?.settings?.anilist?.enableAdultContent || serverStatus?.settings?.anilist?.blurAdultContent) {
-            return data.continueWatchingList.filter(entry => entry.baseMedia?.isAdult === false)
+        let list = [...data.continueWatchingList]
+
+
+        if (data.stream) {
+            for (let entry of (data.stream.continueWatchingList ?? [])) {
+                list = [...list, entry]
+            }
         }
 
-        return data.continueWatchingList
+        list.sort((a, b) => a.displayTitle?.localeCompare(b.displayTitle)).sort((a, b) => b.episodeNumber - a.episodeNumber)
+
+        if (!serverStatus?.settings?.anilist?.enableAdultContent || serverStatus?.settings?.anilist?.blurAdultContent) {
+            return list.filter(entry => entry.baseAnime?.isAdult === false)
+        }
+
+        return list
     }, [
+        data?.stream,
         data?.continueWatchingList,
         serverStatus?.settings?.anilist?.enableAdultContent,
         serverStatus?.settings?.anilist?.blurAdultContent,

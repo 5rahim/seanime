@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/scanner"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/scanner"
 )
 
 // DUMMY HANDLER
@@ -31,17 +31,16 @@ func HandleTestDump(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	completeMediaCache := anilist.NewCompleteMediaCache()
+	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anizipCache := anizip.NewCache()
 
 	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
-		Enhanced:             false,
-		Username:             body.Username,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		LocalFiles:           localFiles,
-		CompleteMediaCache:   completeMediaCache,
-		AnizipCache:          anizipCache,
-		Logger:               c.App.Logger,
+		Enhanced:           false,
+		Platform:           c.App.AnilistPlatform,
+		LocalFiles:         localFiles,
+		CompleteAnimeCache: completeAnimeCache,
+		AnizipCache:        anizipCache,
+		Logger:             c.App.Logger,
 	})
 
 	if err != nil {

@@ -2,9 +2,10 @@ package onlinestream_providers
 
 import (
 	"errors"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -71,7 +72,7 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := gogo.FindEpisodeDetails(tt.id)
+			episodes, err := gogo.FindEpisode(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -96,12 +97,12 @@ func TestGogoanime_FetchSources(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		episode *EpisodeDetails
-		server  Server
+		episode *hibikeonlinestream.EpisodeDetails
+		server  string
 	}{
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -110,7 +111,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
@@ -119,7 +120,7 @@ func TestGogoanime_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",

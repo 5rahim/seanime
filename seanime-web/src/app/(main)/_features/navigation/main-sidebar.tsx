@@ -1,6 +1,7 @@
 "use client"
 import { useLogout } from "@/api/hooks/auth.hooks"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
+import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { UpdateModal } from "@/app/(main)/_features/update/update-modal"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-queue-count"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
@@ -19,15 +20,16 @@ import { ANILIST_OAUTH_URL } from "@/lib/server/config"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { BiCalendarAlt, BiChart, BiCollection, BiDownload, BiLogOut } from "react-icons/bi"
-import { FaBookReader, FaRssSquare } from "react-icons/fa"
+import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
+import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { IoCloudOffline, IoLibrary } from "react-icons/io5"
+import { IoLibrary } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
-import { SiMyanimelist } from "react-icons/si"
+import { RiWifiOffLine } from "react-icons/ri"
+import { SiAnilist } from "react-icons/si"
+import { TbWorldDownload } from "react-icons/tb"
 
 /**
  * @description
@@ -89,11 +91,21 @@ export function MainSidebar() {
         <>
             <AppSidebar
                 className={cn(
-                    "h-full flex flex-col justify-between transition-gpu w-full transition-[width]",
-                    { "w-[400px]": !ctx.isBelowBreakpoint && expandedSidebar },
+                    "group/main-sidebar h-full flex flex-col justify-between transition-gpu w-full transition-[width] duration-300",
+                    (!ctx.isBelowBreakpoint && expandedSidebar) && "w-[260px]",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency) && "bg-transparent",
+                    (!ctx.isBelowBreakpoint && !ts.disableSidebarTransparency && ts.expandSidebarOnHover) && "hover:bg-[--background]",
                 )}
-                // sidebarClass="h-full"
+                onMouseEnter={handleExpandSidebar}
+                onMouseLeave={handleUnexpandedSidebar}
             >
+                {(!ctx.isBelowBreakpoint && ts.expandSidebarOnHover && ts.disableSidebarTransparency) && <div
+                    className={cn(
+                        "fixed h-full translate-x-0 w-[50px] bg-gradient bg-gradient-to-r via-[--background] from-[--background] to-transparent",
+                        "group-hover/main-sidebar:translate-x-[250px] transition opacity-0 duration-300 group-hover/main-sidebar:opacity-100",
+                    )}
+                ></div>}
+
                 <div>
                     <div className="mb-4 p-4 pb-0 flex justify-center w-full">
                         <img src="/logo.png" alt="logo" className="w-15 h-10" />
@@ -102,8 +114,7 @@ export function MainSidebar() {
                         className="px-4"
                         collapsed={isCollapsed}
                         itemClass="relative"
-                        onMouseEnter={handleExpandSidebar}
-                        onMouseLeave={handleUnexpandedSidebar}
+
                         items={[
                             {
                                 iconType: IoLibrary,
@@ -128,19 +139,19 @@ export function MainSidebar() {
                                 isCurrent: pathname.startsWith("/manga"),
                             }],
                             {
-                                iconType: BiChart,
+                                iconType: BiNews,
                                 name: "Discover",
                                 href: "/discover",
                                 isCurrent: pathname === "/discover",
                             },
                             {
-                                iconType: BiCollection,
+                                iconType: SiAnilist,
                                 name: "AniList",
                                 href: "/anilist",
                                 isCurrent: pathname === "/anilist",
                             },
                             ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
-                                iconType: FaRssSquare,
+                                iconType: TbWorldDownload,
                                 name: "Auto downloader",
                                 href: "/auto-downloader",
                                 isCurrent: pathname === "/auto-downloader",
@@ -161,12 +172,6 @@ export function MainSidebar() {
                                 href: "/scan-summaries",
                                 isCurrent: pathname === "/scan-summaries",
                             },
-                            // {
-                            //     iconType: MdSyncAlt,
-                            //     name: "List sync",
-                            //     href: "/list-sync",
-                            //     isCurrent: pathname === "/list-sync",
-                            // },
                             {
                                 iconType: FiSearch,
                                 name: "Search",
@@ -178,6 +183,13 @@ export function MainSidebar() {
                         ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
+
+                    <SidebarNavbar
+                        isCollapsed={isCollapsed}
+                        handleExpandSidebar={() => {}}
+                        handleUnexpandedSidebar={() => {}}
+                    />
+
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
                     <UpdateModal collapsed={isCollapsed} />
@@ -185,22 +197,22 @@ export function MainSidebar() {
                         <VerticalMenu
                             collapsed={isCollapsed}
                             itemClass="relative"
-                            onMouseEnter={handleExpandSidebar}
-                            onMouseLeave={handleUnexpandedSidebar}
+                            onMouseEnter={() => {}}
+                            onMouseLeave={() => {}}
                             onLinkItemClick={() => ctx.setOpen(false)}
                             items={[
                                 {
-                                    iconType: IoCloudOffline,
+                                    iconType: BiExtension,
+                                    name: "Extensions",
+                                    href: "/extensions",
+                                    isCurrent: pathname.includes("/extensions"),
+                                },
+                                {
+                                    iconType: RiWifiOffLine,
                                     name: "Offline mode",
                                     href: "/offline-mode",
                                     isCurrent: pathname.includes("/offline-mode"),
                                 },
-                                // {
-                                //     iconType: LuLayoutDashboard,
-                                //     name: "UI Settings",
-                                //     href: "/settings/ui",
-                                //     isCurrent: pathname.includes("/settings/ui"),
-                                // },
                                 {
                                     iconType: FiSettings,
                                     name: "Settings",
@@ -208,11 +220,6 @@ export function MainSidebar() {
                                     isCurrent: pathname === ("/settings"),
                                 },
                                 ...(ctx.isBelowBreakpoint ? [
-                                    {
-                                        iconType: SiMyanimelist,
-                                        name: "MyAnimeList",
-                                        href: "/mal",
-                                    },
                                     {
                                         iconType: BiLogOut,
                                         name: "Sign out",
@@ -254,11 +261,6 @@ export function MainSidebar() {
                             open={dropdownOpen}
                             onOpenChange={setDropdownOpen}
                         >
-                            <Link href="/mal">
-                                <DropdownMenuItem>
-                                    <SiMyanimelist className="text-lg text-indigo-200" /> MyAnimeList
-                                </DropdownMenuItem>
-                            </Link>
                             <DropdownMenuItem onClick={confirmSignOut.open}>
                                 <BiLogOut /> Sign out
                             </DropdownMenuItem>

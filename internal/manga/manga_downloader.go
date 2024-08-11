@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/downloader"
-	"github.com/seanime-app/seanime/internal/manga/providers"
 	"os"
+	"seanime/internal/api/anilist"
+	"seanime/internal/database/db"
+	"seanime/internal/database/models"
+	"seanime/internal/events"
+	"seanime/internal/manga/downloader"
+	"seanime/internal/manga/providers"
 	"strconv"
 	"strings"
 	"sync"
@@ -38,7 +38,7 @@ type (
 	//
 	//	e.g., downloadDir/comick_1234_abc_13/
 	//	      downloadDir/comick_1234_def_13.5/
-	// -> map[1234]["comick"] = [{"abc", "13"}, {"def", "13.5"}]
+	// -> { 1234: { "comick": [ { "chapterId": "abc", "chapterNumber": "13" }, { "chapterId": "def", "chapterNumber": "13.5" } ] } }
 	MediaMap map[int]ProviderDownloadMap
 
 	// ProviderDownloadMap is used to store all downloaded chapters for a specific media and provider.
@@ -65,7 +65,7 @@ type (
 	}
 
 	DownloadChapterOptions struct {
-		Provider  manga_providers.Provider
+		Provider  string
 		MediaId   int
 		ChapterId string
 		StartNow  bool
@@ -115,13 +115,21 @@ func (d *Downloader) Start() {
 // and invokes the chapter_downloader.Downloader 'Download' method to add the chapter to the download queue.
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
+	// Find chapter container in the file cache
+	// e.g. comick$1234 from bucket 'manga_comick_chapters_1234'
+	// Note: Each bucket contains only 1 key-value pair.
 	chapterKey := fmt.Sprintf("%s$%d", opts.Provider, opts.MediaId)
 	chapterBucket := d.repository.getFcProviderBucket(opts.Provider, opts.MediaId, bucketTypeChapter)
 	var chapterContainer *ChapterContainer
+	// Get the only key-value pair in the bucket
 	if found, _ := d.repository.fileCacher.Get(chapterBucket, chapterKey, &chapterContainer); !found {
+		// If the chapter container is not found, return an error
+		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
 		return errors.New("chapters not found")
 	}
 
+	// Find the chapter in the chapter container
+	// e.g. Wind-Breaker$0062
 	chapter, ok := chapterContainer.GetChapter(opts.ChapterId)
 	if !ok {
 		return errors.New("chapter not found")
@@ -136,10 +144,10 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 	// Add the chapter to the download queue
 	return d.chapterDownloader.AddToQueue(chapter_downloader.DownloadOptions{
 		DownloadID: chapter_downloader.DownloadID{
-			Provider:      string(opts.Provider),
+			Provider:      opts.Provider,
 			MediaId:       opts.MediaId,
 			ChapterId:     opts.ChapterId,
-			ChapterNumber: chapter.GetNormalizedChapter(),
+			ChapterNumber: manga_providers.GetNormalizedChapter(chapter.Chapter),
 		},
 		Pages: pageContainer.Pages,
 	})
@@ -182,7 +190,6 @@ func (d *Downloader) DeleteChapters(ids []chapter_downloader.DownloadID) (err er
 }
 
 func (d *Downloader) GetMediaDownloads(mediaId int, cached bool) (MediaDownloadData, error) {
-
 	if !cached {
 		d.refreshMediaMap()
 	}
@@ -331,6 +338,7 @@ func (d *Downloader) refreshMediaMap() {
 		d.logger.Error().Err(err).Msg("manga downloader: Failed to read download directory")
 	}
 
+	// Hydrate MediaMap by going through all chapter directories
 	mu := sync.Mutex{}
 	wg := sync.WaitGroup{}
 	for _, file := range files {
@@ -339,6 +347,7 @@ func (d *Downloader) refreshMediaMap() {
 			defer wg.Done()
 
 			if file.IsDir() {
+				// e.g. comick_1234_abc_13.5
 				parts := strings.SplitN(file.Name(), "_", 4)
 				if len(parts) != 4 {
 					return
@@ -354,27 +363,19 @@ func (d *Downloader) refreshMediaMap() {
 				}
 
 				mu.Lock()
+				newMapInfo := ProviderDownloadMapChapterInfo{
+					ChapterID:     chapterID,
+					ChapterNumber: chapterNumber,
+				}
+
 				if _, ok := ret[mediaID]; !ok {
 					ret[mediaID] = make(map[string][]ProviderDownloadMapChapterInfo)
-					ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{
-						{
-							ChapterID:     chapterID,
-							ChapterNumber: chapterNumber,
-						},
-					}
+					ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
 				} else {
 					if _, ok := ret[mediaID][provider]; !ok {
-						ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{
-							{
-								ChapterID:     chapterID,
-								ChapterNumber: chapterNumber,
-							},
-						}
+						ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
 					} else {
-						ret[mediaID][provider] = append(ret[mediaID][provider], ProviderDownloadMapChapterInfo{
-							ChapterID:     chapterID,
-							ChapterNumber: chapterNumber,
-						})
+						ret[mediaID][provider] = append(ret[mediaID][provider], newMapInfo)
 					}
 				}
 				mu.Unlock()

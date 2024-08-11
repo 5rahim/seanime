@@ -1,7 +1,8 @@
-import { AL_MangaDetailsById_Media_Rankings, AL_MediaDetailsById_Media_Rankings } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media_Rankings, AL_MangaDetailsById_Media_Rankings } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
@@ -35,12 +36,14 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
 
 type MediaEntryAudienceScoreProps = {
     meanScore?: number | null
+    badgeClass?: string
 }
 
 export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
 
     const {
         meanScore,
+        badgeClass,
         ...rest
     } = props
 
@@ -69,26 +72,26 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                         <Badge
                             intent="unstyled"
                             size="lg"
-                            className={getScoreColor(meanScore, "audience")}
-                            leftIcon={<BiHeart />}
+                            className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
+                            leftIcon={<BiHeart className="text-xs" />}
                         >{meanScore / 10}</Badge>
                     </DisclosureContent>
                 </DisclosureItem>
             </Disclosure> : <Badge
                 intent="unstyled"
                 size="lg"
-                className={getScoreColor(meanScore, "audience")}
-                leftIcon={<BiHeart />}
+                className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
+                leftIcon={<BiHeart className="text-xs" />}
             >{meanScore / 10}</Badge>}
         </>
     )
 }
 
-type MediaEntryRankingsProps = {
-    rankings?: AL_MediaDetailsById_Media_Rankings[] | AL_MangaDetailsById_Media_Rankings[]
+type AnimeEntryRankingsProps = {
+    rankings?: AL_AnimeDetailsById_Media_Rankings[] | AL_MangaDetailsById_Media_Rankings[]
 }
 
-export function MediaEntryRankings(props: MediaEntryRankingsProps) {
+export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
 
     const {
         rankings,
@@ -114,7 +117,7 @@ export function MediaEntryRankings(props: MediaEntryRankingsProps) {
                     intent="gray"
                     leftIcon={<AiFillStar />}
                     iconClass="text-yellow-500"
-                    className="rounded-md border-transparent px-2"
+                    className="rounded-full border-transparent px-2"
                 >
                     #{String(allTimeHighestRated.rank)} Highest
                     Rated {formatFormat(allTimeHighestRated.format)} of All
@@ -125,7 +128,7 @@ export function MediaEntryRankings(props: MediaEntryRankingsProps) {
                     intent="gray"
                     leftIcon={<AiOutlineStar />}
                     iconClass="text-yellow-500"
-                    className="rounded-md border-transparent px-2"
+                    className="rounded-full border-transparent px-2"
                 >
                     #{String(seasonHighestRated.rank)} Highest
                     Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
@@ -135,7 +138,7 @@ export function MediaEntryRankings(props: MediaEntryRankingsProps) {
                     intent="gray"
                     leftIcon={<AiOutlineHeart />}
                     iconClass="text-pink-500"
-                    className="rounded-md border-transparent px-2"
+                    className="rounded-full border-transparent px-2"
                 >
                     #{(String(seasonMostPopular.rank))} Most
                     Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}

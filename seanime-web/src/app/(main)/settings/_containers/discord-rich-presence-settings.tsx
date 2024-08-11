@@ -43,6 +43,23 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
                     fieldClass="w-fit"
                 />
             </div>
+
+            <Field.Switch
+                name="richPresenceHideSeanimeRepositoryButton"
+                label="Hide Seanime Repository Button"
+            />
+
+            <Field.Switch
+                name="richPresenceShowAniListMediaButton"
+                label="Show AniList Media Button"
+                help="Show a button to open the media page on AniList."
+            />
+
+            <Field.Switch
+                name="richPresenceShowAniListProfileButton"
+                label="Show AniList Profile Button"
+                help="Show a button to open your profile page on AniList."
+            />
         </>
     )
 }

@@ -1,4 +1,5 @@
 import { AL_MangaDetailsById_Media, Manga_Entry } from "@/api/generated/types"
+import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { Badge } from "@/components/ui/badge"
 import capitalize from "lodash/capitalize"
@@ -28,8 +29,8 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
         <div className="space-y-4">
             {!!anime?.length && (
                 <>
-                    <h3>Relations</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+                    <h2>Relations</h2>
+                    <MediaCardGrid>
                         {anime?.toSorted((a, b) => (a.node?.format === "TV" && b.node?.format !== "TV")
                             ? -1
                             : (a.node?.format !== "TV" && b.node?.format === "TV") ? 1 : 0).map(edge => {
@@ -49,20 +50,22 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
                                 />
                             </div>
                         })}
-                    </div>
+                    </MediaCardGrid>
                 </>
             )}
-            <h3>Recommendations</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-                {recommendations.map(media => {
-                    return <div key={media.id} className="col-span-1">
-                        <MediaEntryCard
-                            media={media!}
-                            type="manga"
-                        />
-                    </div>
-                })}
-            </div>
+            {recommendations.length > 0 && <>
+                <h2>Recommendations</h2>
+                <MediaCardGrid>
+                    {recommendations.map(media => {
+                        return <div key={media.id} className="col-span-1">
+                            <MediaEntryCard
+                                media={media!}
+                                type="manga"
+                            />
+                        </div>
+                    })}
+                </MediaCardGrid>
+            </>}
         </div>
     )
 }

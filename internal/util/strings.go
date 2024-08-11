@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -8,6 +10,14 @@ import (
 	"time"
 	"unicode"
 )
+
+func GenerateCryptoID() string {
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
+}
 
 func IsMostlyLatinString(str string) bool {
 	if len(str) <= 0 {
@@ -45,27 +55,6 @@ func ToHumanReadableSpeed(bytesPerSecond int) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB/s", float64(bytesPerSecond)/float64(div), "KMGTPE"[exp])
-}
-
-// ToHumanReadableSize converts total size in bytes to a human-readable string
-func ToHumanReadableSize(bytes int64) string { // FIXME incorrect
-	if bytes < 0 {
-		return "Invalid size"
-	}
-
-	// Define the size units
-	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"}
-
-	// Loop through units and divide by 1024 until the size is less than 1024
-	size := float64(bytes)
-	unitIndex := 0
-	for size >= 1024 && unitIndex < len(units)-1 {
-		size /= 1024
-		unitIndex++
-	}
-
-	// Use a format string to limit the number of decimal places
-	return fmt.Sprintf("%.1f %s", size, units[unitIndex])
 }
 
 func StringSizeToBytes(str string) (int64, error) {
@@ -135,4 +124,11 @@ func FormatETA(etaInSeconds int) string {
 	default:
 		return fmt.Sprintf("%d seconds left", seconds)
 	}
+}
+
+func Pluralize(count int, singular, plural string) string {
+	if count == 1 {
+		return singular
+	}
+	return plural
 }

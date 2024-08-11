@@ -1,5 +1,5 @@
 query MangaCollection ($userName: String) {
-  MediaListCollection(userName: $userName, type: MANGA) {
+  MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: MANGA) {
     lists {
       status
       name
@@ -64,6 +64,16 @@ query MangaDetailsById ($id: Int) {
       allTime
       season
     }
+    characters(sort: [ROLE]) {
+      edges {
+        id
+        role
+        name
+        node {
+          ...baseCharacter
+        }
+      }
+    }
     recommendations(page: 1, perPage: 8, sort: RATING_DESC) {
       edges {
         node {
@@ -113,7 +123,7 @@ query MangaDetailsById ($id: Int) {
       edges {
         relationType(version: 2)
         node {
-          ...baseMedia
+          ...baseManga
         }
       }
     }
@@ -142,7 +152,7 @@ query ListManga(
       lastPage
     },
     media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
-      ...baseMedia
+      ...baseManga
     }
   }
 }

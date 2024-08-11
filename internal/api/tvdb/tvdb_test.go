@@ -3,17 +3,17 @@ package tvdb
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 
 func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -31,7 +31,7 @@ func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}
@@ -171,7 +171,7 @@ func TestTVDB_FetchSeasons(t *testing.T) {
 func TestTVDB_fetchEpisodes(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -217,7 +217,7 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}
@@ -292,7 +292,7 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
 		name          string
@@ -332,13 +332,17 @@ func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 			name:      "One Piece",
 			anilistId: 21,
 		},
+		{
+			name:      "Hibike! Euphonium 3",
+			anilistId: 109731,
+		},
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.BaseMediaByID(context.Background(), &tt.anilistId)
+			mediaF, err := anilistClient.BaseAnimeByID(context.Background(), &tt.anilistId)
 			if err != nil {
 				t.Fatalf("could not media")
 			}

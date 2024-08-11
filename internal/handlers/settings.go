@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/torrents/torrent"
 	"runtime"
+	"seanime/internal/database/models"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/util"
 	"time"
 )
 
@@ -36,13 +37,14 @@ func HandleGetSettings(c *RouteCtx) error {
 func HandleGettingStarted(c *RouteCtx) error {
 
 	type body struct {
-		Library                models.LibrarySettings     `json:"library"`
-		MediaPlayer            models.MediaPlayerSettings `json:"mediaPlayer"`
-		Torrent                models.TorrentSettings     `json:"torrent"`
-		Anilist                models.AnilistSettings     `json:"anilist"`
-		Discord                models.DiscordSettings     `json:"discord"`
-		EnableTranscode        bool                       `json:"enableTranscode"`
-		EnableTorrentStreaming bool                       `json:"enableTorrentStreaming"`
+		Library                models.LibrarySettings      `json:"library"`
+		MediaPlayer            models.MediaPlayerSettings  `json:"mediaPlayer"`
+		Torrent                models.TorrentSettings      `json:"torrent"`
+		Anilist                models.AnilistSettings      `json:"anilist"`
+		Discord                models.DiscordSettings      `json:"discord"`
+		Notifications          models.NotificationSettings `json:"notifications"`
+		EnableTranscode        bool                        `json:"enableTranscode"`
+		EnableTorrentStreaming bool                        `json:"enableTorrentStreaming"`
 	}
 	var b body
 
@@ -50,12 +52,8 @@ func HandleGettingStarted(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	listSyncSettings := &models.ListSyncSettings{}
 	autoDownloaderSettings := &models.AutoDownloaderSettings{}
 	prevSettings, err := c.App.Database.GetSettings()
-	if err == nil && prevSettings.ListSync != nil {
-		listSyncSettings = prevSettings.ListSync
-	}
 	if err == nil && prevSettings.AutoDownloader != nil {
 		autoDownloaderSettings = prevSettings.AutoDownloader
 	}
@@ -70,12 +68,34 @@ func HandleGettingStarted(c *RouteCtx) error {
 		Torrent:        &b.Torrent,
 		Anilist:        &b.Anilist,
 		Discord:        &b.Discord,
-		ListSync:       listSyncSettings,
+		Notifications:  &b.Notifications,
 		AutoDownloader: autoDownloaderSettings,
 	})
 
 	if err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if b.EnableTorrentStreaming {
+		go func() {
+			defer util.HandlePanicThen(func() {})
+			prev, found := c.App.Database.GetTorrentstreamSettings()
+			if found {
+				prev.Enabled = true
+				_, _ = c.App.Database.UpsertTorrentstreamSettings(prev)
+			}
+		}()
+	}
+
+	if b.EnableTranscode {
+		go func() {
+			defer util.HandlePanicThen(func() {})
+			prev, found := c.App.Database.GetMediastreamSettings()
+			if found {
+				prev.TranscodeEnabled = true
+				_, _ = c.App.Database.UpsertMediastreamSettings(prev)
+			}
+		}()
 	}
 
 	c.App.WSEventManager.SendEvent("settings", settings)
@@ -98,11 +118,12 @@ func HandleGettingStarted(c *RouteCtx) error {
 func HandleSaveSettings(c *RouteCtx) error {
 
 	type body struct {
-		Library     models.LibrarySettings     `json:"library"`
-		MediaPlayer models.MediaPlayerSettings `json:"mediaPlayer"`
-		Torrent     models.TorrentSettings     `json:"torrent"`
-		Anilist     models.AnilistSettings     `json:"anilist"`
-		Discord     models.DiscordSettings     `json:"discord"`
+		Library       models.LibrarySettings      `json:"library"`
+		MediaPlayer   models.MediaPlayerSettings  `json:"mediaPlayer"`
+		Torrent       models.TorrentSettings      `json:"torrent"`
+		Anilist       models.AnilistSettings      `json:"anilist"`
+		Discord       models.DiscordSettings      `json:"discord"`
+		Notifications models.NotificationSettings `json:"notifications"`
 	}
 	var b body
 
@@ -110,12 +131,8 @@ func HandleSaveSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	listSyncSettings := &models.ListSyncSettings{}
 	autoDownloaderSettings := &models.AutoDownloaderSettings{}
 	prevSettings, err := c.App.Database.GetSettings()
-	if err == nil && prevSettings.ListSync != nil {
-		listSyncSettings = prevSettings.ListSync
-	}
 	if err == nil && prevSettings.AutoDownloader != nil {
 		autoDownloaderSettings = prevSettings.AutoDownloader
 	}
@@ -135,7 +152,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		Torrent:        &b.Torrent,
 		Anilist:        &b.Anilist,
 		Discord:        &b.Discord,
-		ListSync:       listSyncSettings,
+		Notifications:  &b.Notifications,
 		AutoDownloader: autoDownloaderSettings,
 	})
 
@@ -153,58 +170,6 @@ func HandleSaveSettings(c *RouteCtx) error {
 	return c.RespondWithData(status)
 }
 
-// HandleSaveListSyncSettings
-//
-//	@summary updates the list sync settings
-//	@desc This will update the ListSync settings and clear the ListSync cache.
-//	@route /api/v1/settings/list-sync [PATCH]
-//	@returns bool
-func HandleSaveListSyncSettings(c *RouteCtx) error {
-
-	type body struct {
-		Automatic bool   `json:"automatic"`
-		Origin    string `json:"origin"`
-	}
-
-	var b body
-
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
-	}
-
-	prevSettings, err := c.App.Database.GetSettings()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	_, err = c.App.Database.UpsertSettings(&models.Settings{
-		BaseModel: models.BaseModel{
-			ID:        1,
-			UpdatedAt: time.Now(),
-		},
-		Library:        prevSettings.Library,
-		MediaPlayer:    prevSettings.MediaPlayer,
-		Torrent:        prevSettings.Torrent,
-		Anilist:        prevSettings.Anilist,
-		AutoDownloader: prevSettings.AutoDownloader,
-		Discord:        prevSettings.Discord,
-		ListSync: &models.ListSyncSettings{
-			Automatic: b.Automatic,
-			Origin:    b.Origin,
-		},
-	})
-
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	c.App.ListSyncCache.Delete(0)
-
-	// DEVNOTE: Refetch server status from client
-
-	return c.RespondWithData(true)
-}
-
 // HandleSaveAutoDownloaderSettings
 //
 //	@summary updates the auto-downloader settings.
@@ -216,6 +181,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Interval              int  `json:"interval"`
 		Enabled               bool `json:"enabled"`
 		DownloadAutomatically bool `json:"downloadAutomatically"`
+		EnableEnhancedQueries bool `json:"enableEnhancedQueries"`
 	}
 
 	var b body
@@ -239,6 +205,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Interval:              b.Interval,
 		Enabled:               b.Enabled,
 		DownloadAutomatically: b.DownloadAutomatically,
+		EnableEnhancedQueries: b.EnableEnhancedQueries,
 	}
 
 	_, err = c.App.Database.UpsertSettings(&models.Settings{
@@ -252,6 +219,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Anilist:        prevSettings.Anilist,
 		ListSync:       prevSettings.ListSync,
 		Discord:        prevSettings.Discord,
+		Notifications:  prevSettings.Notifications,
 		AutoDownloader: autoDownloaderSettings,
 	})
 	if err != nil {

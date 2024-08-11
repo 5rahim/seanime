@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { useGetOfflineSnapshot } from "@/api/hooks/offline.hooks"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
 import { groupBy } from "lodash"
@@ -50,7 +50,7 @@ export function useHandleOfflineSnapshot() {
                     ...ep.episodeMetadata,
                     image: offline_getAssetUrl(ep.episodeMetadata?.image, snapshot.assetMap),
                 },
-                baseMedia: {
+                baseAnime: {
                     ...entry.media,
                     bannerImage: offline_getAssetUrl(entry.media?.bannerImage, snapshot.assetMap),
                     coverImage: {
@@ -59,9 +59,9 @@ export function useHandleOfflineSnapshot() {
                         large: offline_getAssetUrl(entry.media?.coverImage?.large, snapshot.assetMap),
                         medium: offline_getAssetUrl(entry.media?.coverImage?.medium, snapshot.assetMap),
                     },
-                } as AL_BaseMedia,
+                } as AL_BaseAnime,
             }
-        })?.filter(Boolean) || [] as Anime_MediaEntryEpisode[]
+        })?.filter(Boolean) || [] as Anime_AnimeEntryEpisode[]
     }, [snapshot?.entries?.animeEntries])
 
     return {

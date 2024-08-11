@@ -78,7 +78,7 @@ export function Content(props: ContentProps) {
                     loading="lazy" // Lazy load the iframe
                 />
                 {/*<video*/}
-                {/*    src={`https://yewtu.be/latest_version?id=${mediaDetails?.trailer?.id}&itag=18`}*/}
+                {/*    src={`https://yewtu.be/latest_version?id=${animeDetails?.trailer?.id}&itag=18`}*/}
                 {/*    className={cn(*/}
                 {/*        "w-full h-full absolute left-0",*/}
                 {/*    )}*/}

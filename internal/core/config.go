@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/constants"
 	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+	"seanime/internal/constants"
+	"seanime/internal/util"
 	"strconv"
 )
 
@@ -18,6 +19,7 @@ type Config struct {
 		Port          int
 		Offline       bool
 		UseBinaryPath bool // Makes $SEANIME_WORKING_DIR point to the binary's directory
+		Systray       bool
 	}
 	Database struct {
 		Name string
@@ -29,19 +31,22 @@ type Config struct {
 		Dir string
 	}
 	Cache struct {
-		Dir string
+		Dir          string
+		TranscodeDir string
 	}
 	Offline struct {
 		Dir      string
 		AssetDir string
 	}
 	Manga struct {
-		BackupDir   string
 		DownloadDir string
 	}
 	Data struct { // Hydrated after config is loaded
 		AppDataDir string
 		WorkingDir string
+	}
+	Extensions struct {
+		Dir string
 	}
 	Anilist struct {
 		ClientID string
@@ -51,6 +56,7 @@ type Config struct {
 type ConfigOptions struct {
 	DataDir         string // The path to the Seanime data directory, if any
 	OnVersionChange []func(oldVersion string, newVersion string)
+	EmbeddedLogo    []byte // The embedded logo
 }
 
 // NewConfig initializes the config
@@ -100,14 +106,16 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	viper.SetDefault("server.offline", false)
 	// Use the binary's directory as the working directory environment variable on macOS
 	viper.SetDefault("server.useBinaryPath", true)
+	//viper.SetDefault("server.systray", true)
 	viper.SetDefault("database.name", "seanime")
 	viper.SetDefault("web.assetDir", "$SEANIME_DATA_DIR/assets")
 	viper.SetDefault("cache.dir", "$SEANIME_DATA_DIR/cache")
-	viper.SetDefault("manga.backupDir", "$SEANIME_DATA_DIR/cache/manga")
+	viper.SetDefault("cache.transcodeDir", "$SEANIME_DATA_DIR/cache/transcode")
 	viper.SetDefault("manga.downloadDir", "$SEANIME_DATA_DIR/manga")
 	viper.SetDefault("logs.dir", "$SEANIME_DATA_DIR/logs")
 	viper.SetDefault("offline.dir", "$SEANIME_DATA_DIR/offline")
 	viper.SetDefault("offline.assetDir", "$SEANIME_DATA_DIR/offline/assets")
+	viper.SetDefault("extensions.dir", "$SEANIME_DATA_DIR/extensions")
 
 	// Create and populate the config file if it doesn't exist
 	if err = createConfigFile(configPath); err != nil {
@@ -144,6 +152,8 @@ func NewConfig(options *ConfigOptions, logger *zerolog.Logger) (*Config, error) 
 	if err := validateConfig(cfg, logger); err != nil {
 		return nil, err
 	}
+
+	go loadLogo(options.EmbeddedLogo, dataDir)
 
 	return cfg, nil
 }
@@ -238,25 +248,62 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if cfg.Web.AssetDir == "" {
 		return errInvalidConfigValue("web.assetDir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Web.AssetDir); err != nil {
+		return wrapInvalidConfigValue("web.assetDir", err)
+	}
+
 	if cfg.Cache.Dir == "" {
 		return errInvalidConfigValue("cache.dir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Cache.Dir); err != nil {
+		return wrapInvalidConfigValue("cache.dir", err)
+	}
+
+	if cfg.Cache.TranscodeDir == "" {
+		return errInvalidConfigValue("cache.transcodeDir", "cannot be empty")
+	}
+	if err := checkIsValidPath(cfg.Cache.TranscodeDir); err != nil {
+		return wrapInvalidConfigValue("cache.transcodeDir", err)
+	}
+
 	if cfg.Logs.Dir == "" {
 		return errInvalidConfigValue("logs.dir", "cannot be empty")
 	}
-	if cfg.Manga.BackupDir == "" {
-		return errInvalidConfigValue("manga.backupDir", "cannot be empty")
+	if err := checkIsValidPath(cfg.Logs.Dir); err != nil {
+		return wrapInvalidConfigValue("logs.dir", err)
 	}
+
 	if cfg.Manga.DownloadDir == "" {
 		return errInvalidConfigValue("manga.downloadDir", "cannot be empty")
 	}
+	if err := checkIsValidPath(cfg.Manga.DownloadDir); err != nil {
+		return wrapInvalidConfigValue("manga.downloadDir", err)
+	}
 
+	if cfg.Extensions.Dir == "" {
+		return errInvalidConfigValue("extensions.dir", "cannot be empty")
+	}
+	if err := checkIsValidPath(cfg.Extensions.Dir); err != nil {
+		return wrapInvalidConfigValue("extensions.dir", err)
+	}
+
+	return nil
+}
+
+func checkIsValidPath(path string) error {
+	ok := filepath.IsAbs(path)
+	if !ok {
+		return errors.New("path is not an absolute path")
+	}
 	return nil
 }
 
 // errInvalidConfigValue returns an error for an invalid config value
 func errInvalidConfigValue(s string, s2 string) error {
 	return errors.New(fmt.Sprintf("invalid config value: \"%s\" %s", s, s2))
+}
+func wrapInvalidConfigValue(s string, err error) error {
+	return fmt.Errorf("invalid config value: \"%s\" %w", s, err)
 }
 
 func updateVersion(cfg *Config, opts *ConfigOptions) error {
@@ -286,11 +333,12 @@ func expandEnvironmentValues(cfg *Config) {
 	}()
 	cfg.Web.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Web.AssetDir))
 	cfg.Cache.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.Dir))
+	cfg.Cache.TranscodeDir = filepath.FromSlash(os.ExpandEnv(cfg.Cache.TranscodeDir))
 	cfg.Logs.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Logs.Dir))
-	cfg.Manga.BackupDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.BackupDir))
 	cfg.Manga.DownloadDir = filepath.FromSlash(os.ExpandEnv(cfg.Manga.DownloadDir))
 	cfg.Offline.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.Dir))
 	cfg.Offline.AssetDir = filepath.FromSlash(os.ExpandEnv(cfg.Offline.AssetDir))
+	cfg.Extensions.Dir = filepath.FromSlash(os.ExpandEnv(cfg.Extensions.Dir))
 }
 
 // createConfigFile creates a default config file if it doesn't exist
@@ -311,8 +359,16 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 
 	// User defined data directory
 	if definedDataDir != "" {
-		// Normalize the data directory path
-		dataDir = filepath.FromSlash(os.ExpandEnv(definedDataDir))
+
+		// Expand environment variables
+		definedDataDir = filepath.FromSlash(os.ExpandEnv(definedDataDir))
+
+		if !filepath.IsAbs(definedDataDir) {
+			return "", "", errors.New("app: Data directory path must be absolute")
+		}
+
+		// Replace the default data directory
+		dataDir = definedDataDir
 
 		logger.Trace().Str("dataDir", dataDir).Msg("app: Overriding default data directory")
 	} else {
@@ -340,4 +396,22 @@ func initAppDataDir(definedDataDir string, logger *zerolog.Logger) (dataDir stri
 	dataDir = filepath.FromSlash(dataDir)
 
 	return
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func loadLogo(embeddedLogo []byte, dataDir string) (err error) {
+	defer util.HandlePanicInModuleWithError("core/loadLogo", &err)
+
+	if len(embeddedLogo) == 0 {
+		return nil
+	}
+
+	logoPath := filepath.Join(dataDir, "logo.png")
+	if _, err = os.Stat(logoPath); os.IsNotExist(err) {
+		if err = os.WriteFile(logoPath, embeddedLogo, 0644); err != nil {
+			return err
+		}
+	}
+	return nil
 }

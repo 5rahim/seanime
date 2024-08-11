@@ -1,5 +1,5 @@
 "use client"
-import { Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode } from "@/api/generated/types"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
@@ -12,10 +12,10 @@ import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useDeferredValue, useEffect } from "react"
 
-export const __libraryHeaderEpisodeAtom = atom<Anime_MediaEntryEpisode | null>(null)
+export const __libraryHeaderEpisodeAtom = atom<Anime_AnimeEntryEpisode | null>(null)
 
 export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
-    episodes: Anime_MediaEntryEpisode[],
+    episodes: Anime_AnimeEntryEpisode[],
     isLoading: boolean
     linkTemplate?: string
 }) {
@@ -77,7 +77,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                 const randomIndex = inViewEpisodes[Math.floor(Math.random() * inViewEpisodes.length)]
                 const episode = episodes[randomIndex]
                 if (episode) {
-                    setHeaderImage(episode.baseMedia?.bannerImage || episode.episodeMetadata?.image || null)
+                    setHeaderImage(episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null)
                 }
             }
         }, 500)
@@ -91,9 +91,9 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     if (episodes.length > 0) return (
         <PageWrapper className="space-y-3 lg:space-y-6 p-4 relative z-[4]">
             <h2>Continue watching</h2>
-            {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.baseMedia?.title?.userPreferred}</h1>*/}
-            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseMedia) && <TextGenerateEffect
-                words={headerEpisode?.baseMedia?.title?.userPreferred || ""}
+            {/*<h1 className="w-full lg:max-w-[50%] line-clamp-1 truncate hidden lg:block pb-1">{headerEpisode?.baseAnime?.title?.userPreferred}</h1>*/}
+            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerEpisode?.baseAnime) && <TextGenerateEffect
+                words={headerEpisode?.baseAnime?.title?.userPreferred || ""}
                 className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
             />}
             <Carousel
@@ -127,7 +127,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
 }
 
 const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
-    episode: Anime_MediaEntryEpisode,
+    episode: Anime_AnimeEntryEpisode,
     mRef: React.RefObject<any>,
     overrideLink?: string
 }) => {
@@ -138,7 +138,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
     useEffect(() => {
         setHeaderImage(prev => {
             if (prev === null) {
-                return episode.baseMedia?.bannerImage || episode.episodeMetadata?.image || null
+                return episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null
             }
             return prev
         })
@@ -153,26 +153,27 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
     return (
         <EpisodeCard
             key={episode.localFile?.path || ""}
-            image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
-            topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
+            image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+            topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
             title={episode.displayTitle}
             // meta={episode.episodeMetadata?.airDate ?? undefined}
             isInvalid={episode.isInvalid}
-            progressTotal={episode.baseMedia?.episodes}
+            progressTotal={episode.baseAnime?.episodes}
             progressNumber={episode.progressNumber}
             episodeNumber={episode.episodeNumber}
             length={episode.episodeMetadata?.length}
+            hasDiscrepancy={episode.episodeNumber !== episode.progressNumber}
             onMouseEnter={() => {
                 React.startTransition(() => {
-                    setHeaderImage(episode.baseMedia?.bannerImage || episode.episodeMetadata?.image || null)
+                    setHeaderImage(episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null)
                 })
             }}
             mRef={mRef}
             onClick={() => {
                 if (!overrideLink) {
-                    router.push(`/entry?id=${episode.baseMedia?.id}&playNext=true`)
+                    router.push(`/entry?id=${episode.baseAnime?.id}&playNext=true`)
                 } else {
-                    router.push(overrideLink.replace("{id}", episode.baseMedia?.id ? String(episode.baseMedia.id) : ""))
+                    router.push(overrideLink.replace("{id}", episode.baseAnime?.id ? String(episode.baseAnime.id) : ""))
                 }
             }}
         />

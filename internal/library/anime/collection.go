@@ -3,41 +3,41 @@ package anime
 import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
 	"slices"
 	"sort"
-)
-
-const (
-	LibraryCollectionEntryCurrent   LibraryCollectionListType = "current"
-	LibraryCollectionEntryPlanned   LibraryCollectionListType = "planned"
-	LibraryCollectionEntryCompleted LibraryCollectionListType = "completed"
-	LibraryCollectionEntryPaused    LibraryCollectionListType = "paused"
-	LibraryCollectionEntryDropped   LibraryCollectionListType = "dropped"
 )
 
 type (
 	// LibraryCollection holds the main data for the library collection.
 	// It consists of:
-	//  - ContinueWatchingList: a list of MediaEntryEpisode for the "continue watching" feature.
+	//  - ContinueWatchingList: a list of AnimeEntryEpisode for the "continue watching" feature.
 	//  - Lists: a list of LibraryCollectionList (one for each status).
 	//  - UnmatchedLocalFiles: a list of unmatched local files (Media id == 0). "Resolve unmatched" feature.
 	//  - UnmatchedGroups: a list of UnmatchedGroup instances. Like UnmatchedLocalFiles, but grouped by directory. "Resolve unmatched" feature.
 	//  - IgnoredLocalFiles: a list of ignored local files. (DEVNOTE: Unused for now)
 	//  - UnknownGroups: a list of UnknownGroup instances. Group of files whose media is not in the user's AniList "Resolve unknown media" feature.
 	LibraryCollection struct {
-		ContinueWatchingList []*MediaEntryEpisode     `json:"continueWatchingList"`
+		ContinueWatchingList []*AnimeEntryEpisode     `json:"continueWatchingList"`
 		Lists                []*LibraryCollectionList `json:"lists"`
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
 		IgnoredLocalFiles    []*LocalFile             `json:"ignoredLocalFiles"`
 		UnknownGroups        []*UnknownGroup          `json:"unknownGroups"`
 		Stats                *LibraryCollectionStats  `json:"stats"`
+		Stream               *StreamCollection        `json:"stream,omitempty"` // Hydrated by the route handler
+	}
+
+	StreamCollection struct {
+		ContinueWatchingList []*AnimeEntryEpisode        `json:"continueWatchingList"`
+		Anime                []*anilist.BaseAnime        `json:"anime"`
+		ListData             map[int]*AnimeEntryListData `json:"listData"`
 	}
 
 	LibraryCollectionListType string
@@ -52,25 +52,25 @@ type (
 	}
 
 	LibraryCollectionList struct {
-		Type    LibraryCollectionListType `json:"type"`
+		Type    anilist.MediaListStatus   `json:"type"`
 		Status  anilist.MediaListStatus   `json:"status"`
 		Entries []*LibraryCollectionEntry `json:"entries"`
 	}
 
 	// LibraryCollectionEntry holds the data for a single entry in a LibraryCollectionList.
-	// It is a slimmed down version of MediaEntry. It holds the media, media id, library data, and list data.
+	// It is a slimmed down version of AnimeEntry. It holds the media, media id, library data, and list data.
 	LibraryCollectionEntry struct {
-		Media                 *anilist.BaseMedia     `json:"media"`
+		Media                 *anilist.BaseAnime     `json:"media"`
 		MediaId               int                    `json:"mediaId"`
-		MediaEntryLibraryData *MediaEntryLibraryData `json:"libraryData"` // Library data
-		MediaEntryListData    *MediaEntryListData    `json:"listData"`    // AniList list data
+		AnimeEntryLibraryData *AnimeEntryLibraryData `json:"libraryData"` // Library data
+		AnimeEntryListData    *AnimeEntryListData    `json:"listData"`    // AniList list data
 	}
 
 	// UnmatchedGroup holds the data for a group of unmatched local files.
 	UnmatchedGroup struct {
 		Dir         string               `json:"dir"`
 		LocalFiles  []*LocalFile         `json:"localFiles"`
-		Suggestions []*anilist.BaseMedia `json:"suggestions"`
+		Suggestions []*anilist.BaseAnime `json:"suggestions"`
 	}
 	// UnknownGroup holds the data for a group of local files whose media is not in the user's AniList.
 	// The client will use this data to suggest media to the user, so they can add it to their AniList.
@@ -83,11 +83,11 @@ type (
 type (
 	// NewLibraryCollectionOptions is a struct that holds the data needed for creating a new LibraryCollection.
 	NewLibraryCollectionOptions struct {
-		AnimeCollection      *anilist.AnimeCollection
-		LocalFiles           []*LocalFile
-		AnizipCache          *anizip.Cache
-		AnilistClientWrapper anilist.ClientWrapperInterface
-		MetadataProvider     *metadata.Provider
+		AnimeCollection  *anilist.AnimeCollection
+		LocalFiles       []*LocalFile
+		AnizipCache      *anizip.Cache
+		Platform         platform.Platform
+		MetadataProvider *metadata.Provider
 	}
 )
 
@@ -114,7 +114,7 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 		opts.LocalFiles,
 		opts.AnimeCollection,
 		opts.AnizipCache,
-		opts.AnilistClientWrapper,
+		opts.Platform,
 		opts.MetadataProvider,
 	)
 
@@ -173,7 +173,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 					if slices.Contains(mIds, entry.Media.ID) {
 
 						entryLfs, _ := groupedLfs[entry.Media.ID]
-						libraryData, _ := NewMediaEntryLibraryData(&NewMediaEntryLibraryDataOptions{
+						libraryData, _ := NewAnimeEntryLibraryData(&NewAnimeEntryLibraryDataOptions{
 							EntryLocalFiles: entryLfs,
 							MediaId:         entry.Media.ID,
 						})
@@ -181,8 +181,8 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 						return &LibraryCollectionEntry{
 							MediaId:               entry.Media.ID,
 							Media:                 entry.Media,
-							MediaEntryLibraryData: libraryData,
-							MediaEntryListData: &MediaEntryListData{
+							AnimeEntryLibraryData: libraryData,
+							AnimeEntryListData: &AnimeEntryListData{
 								Progress:    *entry.Progress,
 								Score:       *entry.Score,
 								Status:      entry.Status,
@@ -235,7 +235,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 			currentList.Entries = append(currentList.Entries, repeatingList.Entries...)
 		} else if len(repeatingList.Entries) > 0 {
 			newCurrentList := repeatingList
-			newCurrentList.Type = LibraryCollectionEntryCurrent
+			newCurrentList.Type = anilist.MediaListStatusCurrent
 			lists = append(lists, newCurrentList)
 		}
 		// Remove repeating from lists
@@ -282,7 +282,7 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 		TotalShows:    0,
 		TotalMovies:   0,
 		TotalSpecials: 0,
-		TotalSize:     "",
+		TotalSize:     "", // Will be set by the route handler
 	}
 
 	for _, list := range lc.Lists {
@@ -305,13 +305,13 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// hydrateContinueWatchingList creates a list of MediaEntryEpisode for the "continue watching" feature.
+// hydrateContinueWatchingList creates a list of AnimeEntryEpisode for the "continue watching" feature.
 // This should be called after the LibraryCollectionList's have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
-	anilistClientWrapper anilist.ClientWrapperInterface,
+	platform platform.Platform,
 	metadataProvider *metadata.Provider,
 ) {
 
@@ -322,7 +322,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 
 	// If no currently watching list is found, return an empty slice
 	if !found {
-		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Set empty slice
+		lc.ContinueWatchingList = make([]*AnimeEntryEpisode, 0) // Set empty slice
 		return
 	}
 	// Get media ids from current list
@@ -331,57 +331,57 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 		mIds[i] = entry.MediaId
 	}
 
-	// Create a new MediaEntry for each media id
-	mEntryPool := pool.NewWithResults[*MediaEntry]()
+	// Create a new AnimeEntry for each media id
+	mEntryPool := pool.NewWithResults[*AnimeEntry]()
 	for _, mId := range mIds {
-		mEntryPool.Go(func() *MediaEntry {
-			me, _ := NewMediaEntry(&NewMediaEntryOptions{
-				MediaId:              mId,
-				LocalFiles:           localFiles,
-				AnimeCollection:      animeCollection,
-				AnizipCache:          anizipCache,
-				AnilistClientWrapper: anilistClientWrapper,
-				MetadataProvider:     metadataProvider,
+		mEntryPool.Go(func() *AnimeEntry {
+			me, _ := NewAnimeEntry(&NewAnimeEntryOptions{
+				MediaId:          mId,
+				LocalFiles:       localFiles,
+				AnimeCollection:  animeCollection,
+				AnizipCache:      anizipCache,
+				Platform:         platform,
+				MetadataProvider: metadataProvider,
 			})
 			return me
 		})
 	}
 	mEntries := mEntryPool.Wait()
-	mEntries = lo.Filter(mEntries, func(item *MediaEntry, index int) bool {
+	mEntries = lo.Filter(mEntries, func(item *AnimeEntry, index int) bool {
 		return item != nil
 	}) // Filter out nil entries
 
 	// If there are no entries, return an empty slice
 	if len(mEntries) == 0 {
-		lc.ContinueWatchingList = make([]*MediaEntryEpisode, 0) // Return empty slice
+		lc.ContinueWatchingList = make([]*AnimeEntryEpisode, 0) // Return empty slice
 		return
 	}
 
 	// Sort by progress
 	sort.Slice(mEntries, func(i, j int) bool {
-		return mEntries[i].MediaEntryListData.Progress > mEntries[j].MediaEntryListData.Progress
+		return mEntries[i].AnimeEntryListData.Progress > mEntries[j].AnimeEntryListData.Progress
 	})
 
 	// Remove entries the user has watched all episodes of
-	mEntries = lop.Map(mEntries, func(mEntry *MediaEntry, index int) *MediaEntry {
+	mEntries = lop.Map(mEntries, func(mEntry *AnimeEntry, index int) *AnimeEntry {
 		if !mEntry.HasWatchedAll() {
 			return mEntry
 		}
 		return nil
 	})
-	mEntries = lo.Filter(mEntries, func(item *MediaEntry, index int) bool {
+	mEntries = lo.Filter(mEntries, func(item *AnimeEntry, index int) bool {
 		return item != nil
 	})
 
 	// Get the next episode for each media entry
-	mEpisodes := lop.Map(mEntries, func(mEntry *MediaEntry, index int) *MediaEntryEpisode {
+	mEpisodes := lop.Map(mEntries, func(mEntry *AnimeEntry, index int) *AnimeEntryEpisode {
 		ep, ok := mEntry.FindNextEpisode()
 		if ok {
 			return ep
 		}
 		return nil
 	})
-	mEpisodes = lo.Filter(mEpisodes, func(item *MediaEntryEpisode, index int) bool {
+	mEpisodes = lo.Filter(mEpisodes, func(item *AnimeEntryEpisode, index int) bool {
 		return item != nil
 	})
 
@@ -407,7 +407,7 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 		groups = append(groups, &UnmatchedGroup{
 			Dir:         key,
 			LocalFiles:  value,
-			Suggestions: make([]*anilist.BaseMedia, 0),
+			Suggestions: make([]*anilist.BaseAnime, 0),
 		})
 	}
 
@@ -420,21 +420,10 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 //----------------------------------------------------------------------------------------------------------------------
 
 // getLibraryCollectionEntryFromListStatus maps anilist.MediaListStatus to LibraryCollectionListType.
-func getLibraryCollectionEntryFromListStatus(st anilist.MediaListStatus) LibraryCollectionListType {
-	switch st {
-	case anilist.MediaListStatusCurrent:
-		return LibraryCollectionEntryCurrent
-	case anilist.MediaListStatusRepeating:
-		return LibraryCollectionEntryCurrent
-	case anilist.MediaListStatusPlanning:
-		return LibraryCollectionEntryPlanned
-	case anilist.MediaListStatusCompleted:
-		return LibraryCollectionEntryCompleted
-	case anilist.MediaListStatusPaused:
-		return LibraryCollectionEntryPaused
-	case anilist.MediaListStatusDropped:
-		return LibraryCollectionEntryDropped
-	default:
-		return LibraryCollectionEntryCurrent
+func getLibraryCollectionEntryFromListStatus(st anilist.MediaListStatus) anilist.MediaListStatus {
+	if st == anilist.MediaListStatusRepeating {
+		return anilist.MediaListStatusCurrent
 	}
+
+	return st
 }

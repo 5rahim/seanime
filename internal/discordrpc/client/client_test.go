@@ -1,7 +1,7 @@
 package discordrpc_client
 
 import (
-	"github.com/seanime-app/seanime/internal/constants"
+	"seanime/internal/constants"
 	"testing"
 	"time"
 )

@@ -2,9 +2,11 @@ package db
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/database/models"
 	"gorm.io/gorm/clause"
+	"seanime/internal/database/models"
 )
+
+var accountCache *models.Account
 
 func (db *Database) UpsertAccount(acc *models.Account) (*models.Account, error) {
 	err := db.gormdb.Clauses(clause.OnConflict{
@@ -13,13 +15,21 @@ func (db *Database) UpsertAccount(acc *models.Account) (*models.Account, error) 
 	}).Create(acc).Error
 
 	if err != nil {
-		db.logger.Error().Err(err).Msg("Failed to save account in the database")
+		db.Logger.Error().Err(err).Msg("Failed to save account in the database")
 		return nil, err
 	}
+
+	accountCache = acc
+
 	return acc, nil
 }
 
 func (db *Database) GetAccount() (*models.Account, error) {
+
+	if accountCache != nil {
+		return accountCache, nil
+	}
+
 	var acc models.Account
 	err := db.gormdb.Last(&acc).Error
 	if err != nil {
@@ -28,6 +38,9 @@ func (db *Database) GetAccount() (*models.Account, error) {
 	if acc.Username == "" || acc.Token == "" || acc.Viewer == nil {
 		return nil, errors.New("account does not exist")
 	}
+
+	accountCache = &acc
+
 	return &acc, err
 }
 

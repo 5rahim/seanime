@@ -1,7 +1,7 @@
 package result
 
 import (
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/util"
 )
 
 type Map[K interface{}, V any] struct {

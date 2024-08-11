@@ -1,9 +1,9 @@
-import { AL_BaseMedia, Anime_MediaEntry, Torrent_AnimeTorrent } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
-import { __torrentSearch_drawerIsOpenAtom, TorrentSearchType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -20,9 +20,9 @@ import * as upath from "upath"
 const isOpenAtom = atom(false)
 
 export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
-    onToggleTorrent: (t: Torrent_AnimeTorrent) => void,
-    media: AL_BaseMedia,
-    entry: Anime_MediaEntry
+    onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void,
+    media: AL_BaseAnime,
+    entry: Anime_AnimeEntry
 }) {
 
     const router = useRouter()
@@ -88,7 +88,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         }
         if (smartSelect) {
             mutate({
-                urls: selectedTorrents.map(n => n.provider === "seadex" ? n.infoHash : n.link),
+                torrents: selectedTorrents,
                 destination,
                 smartSelect: {
                     enabled: true,
@@ -98,7 +98,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             })
         } else {
             mutate({
-                urls: selectedTorrents.map(n => n.provider === "seadex" ? n.infoHash : n.link),
+                torrents: selectedTorrents,
                 destination,
                 smartSelect: {
                     enabled: false,
@@ -111,7 +111,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 
     function handleDownloadFiles() {
         downloadTorrentFiles({
-            download_urls: selectedTorrents.map(n => n.link),
+            download_urls: selectedTorrents.map(n => n.downloadUrl),
             destination,
             media,
         })
@@ -172,7 +172,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 ))}
                 <div className="!mt-4 flex w-full justify-between gap-2 items-center">
                     <div>
-                        {!selectedTorrents?.some(t => t.provider === "seadex") && <Button
+                        {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
                             leftIcon={<BiDownload />}
                             intent="gray-outline"
                             onClick={() => handleDownloadFiles()}
@@ -216,7 +216,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
 }
 
 
-export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: { type: TorrentSearchType, onTorrentValidated: () => void }) {
+export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: { type: TorrentSelectionType, onTorrentValidated: () => void }) {
 
     const st = useAtomValue(__torrentSearch_selectedTorrentsAtom)
     const setter = useSetAtom(isOpenAtom)
@@ -230,8 +230,7 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
             onClick={() => {
                 if (type === "download") {
                     setter(true)
-                }
-                if (type === "select") {
+                } else {
                     onTorrentValidated()
                 }
             }}

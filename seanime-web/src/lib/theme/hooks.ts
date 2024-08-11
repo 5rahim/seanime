@@ -7,9 +7,11 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     animeEntryScreenLayout: "stacked",
     smallerEpisodeCarouselSize: false,
     expandSidebarOnHover: false,
-    backgroundColor: "#0c0c0c",
+    backgroundColor: "#070707",
     accentColor: "#6152df",
-    sidebarBackgroundColor: "#0c0c0c",
+    sidebarBackgroundColor: "#070707",
+    hideTopNavbar: false,
+    enableMediaCardBlurredBackground: false,
     libraryScreenBannerType: ThemeLibraryScreenBannerType.Dynamic,
     libraryScreenCustomBannerImage: "",
     libraryScreenCustomBannerPosition: "50% 50%",
@@ -17,6 +19,11 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     libraryScreenCustomBackgroundImage: "",
     libraryScreenCustomBackgroundOpacity: 10,
     disableLibraryScreenGenreSelector: false,
+    libraryScreenCustomBackgroundBlur: "",
+    enableMediaPageBlurredBackground: false,
+    disableSidebarTransparency: false,
+    useLegacyEpisodeCard: false,
+    disableCarouselAutoScroll: false,
 }
 
 export const enum ThemeLibraryScreenBannerType {
@@ -41,6 +48,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         expandSidebarOnHover: getThemeValue("expandSidebarOnHover", serverStatus?.themeSettings),
         backgroundColor: getThemeValue("backgroundColor", serverStatus?.themeSettings),
         accentColor: getThemeValue("accentColor", serverStatus?.themeSettings),
+        hideTopNavbar: getThemeValue("hideTopNavbar", serverStatus?.themeSettings),
+        enableMediaCardBlurredBackground: getThemeValue("enableMediaCardBlurredBackground", serverStatus?.themeSettings),
         sidebarBackgroundColor: getThemeValue("sidebarBackgroundColor", serverStatus?.themeSettings),
         libraryScreenBannerType: getThemeValue("libraryScreenBannerType", serverStatus?.themeSettings),
         libraryScreenCustomBannerImage: getThemeValue("libraryScreenCustomBannerImage", serverStatus?.themeSettings),
@@ -49,6 +58,11 @@ export function useThemeSettings(): ThemeSettingsHook {
         libraryScreenCustomBackgroundImage: getThemeValue("libraryScreenCustomBackgroundImage", serverStatus?.themeSettings),
         libraryScreenCustomBackgroundOpacity: getThemeValue("libraryScreenCustomBackgroundOpacity", serverStatus?.themeSettings),
         disableLibraryScreenGenreSelector: getThemeValue("disableLibraryScreenGenreSelector", serverStatus?.themeSettings),
+        libraryScreenCustomBackgroundBlur: getThemeValue("libraryScreenCustomBackgroundBlur", serverStatus?.themeSettings),
+        enableMediaPageBlurredBackground: getThemeValue("enableMediaPageBlurredBackground", serverStatus?.themeSettings),
+        disableSidebarTransparency: getThemeValue("disableSidebarTransparency", serverStatus?.themeSettings),
+        useLegacyEpisodeCard: getThemeValue("useLegacyEpisodeCard", serverStatus?.themeSettings),
+        disableCarouselAutoScroll: getThemeValue("disableCarouselAutoScroll", serverStatus?.themeSettings),
 
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
     }

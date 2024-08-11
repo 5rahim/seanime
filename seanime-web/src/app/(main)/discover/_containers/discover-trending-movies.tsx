@@ -15,6 +15,7 @@ export function DiscoverTrendingMovies() {
             gap="xl"
             opts={{
                 align: "start",
+                dragFree: true,
             }}
             autoScroll
         >

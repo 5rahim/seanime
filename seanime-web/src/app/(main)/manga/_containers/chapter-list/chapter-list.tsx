@@ -1,10 +1,11 @@
-import { AL_MangaDetailsById_Media, Manga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
-import { useEmptyMangaEntryCache, useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
+import { AL_MangaDetailsById_Media, HibikeManga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
+import { useEmptyMangaEntryCache } from "@/api/hooks/manga.hooks"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
+import { MangaManualMappingModal } from "@/app/(main)/manga/_containers/chapter-list/manga-manual-mapping-modal"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
-import { MANGA_PROVIDER_OPTIONS, useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
+import { useHandleMangaChapters } from "@/app/(main)/manga/_lib/handle-manga-chapters"
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
@@ -17,9 +18,11 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { useSetAtom } from "jotai/react"
 import React from "react"
-import { FaDownload, FaRedo } from "react-icons/fa"
+import { FaRedo } from "react-icons/fa"
 import { GiOpenBook } from "react-icons/gi"
+import { HiOutlineSearchCircle } from "react-icons/hi"
 import { IoBookOutline, IoLibrary } from "react-icons/io5"
+import { MdOutlineDownloadForOffline, MdOutlineOfflinePin } from "react-icons/md"
 
 type ChapterListProps = {
     mediaId: string | null
@@ -39,22 +42,20 @@ export function ChapterList(props: ChapterListProps) {
         downloadDataLoading,
         ...rest
     } = props
-    /**
-     * Current provider
-     */
-    const { provider, setProvider } = useMangaProvider(mediaId)
 
     /**
-     * Fetch chapter container
+     * Find chapter container
      */
     const {
-        data: chapterContainer,
-        isLoading: chapterContainerLoading,
-        isError: chapterContainerError,
-    } = useGetMangaEntryChapters({
-        mediaId: Number(mediaId),
-        provider: provider,
-    })
+        selectedProvider,
+        setSelectedProvider,
+        providerExtensionsLoading,
+        providerOptions,
+        chapterContainer,
+        chapterContainerLoading,
+        chapterContainerError,
+    } = useHandleMangaChapters(mediaId)
+
 
     // Keep track of chapter numbers as integers
     // This is used to filter the chapters
@@ -95,7 +96,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Function to filter unread chapters
      */
-    const retainUnreadChapters = React.useCallback((chapter: Manga_ChapterDetails) => {
+    const retainUnreadChapters = React.useCallback((chapter: HibikeManga_ChapterDetails) => {
         if (!entry.listData || !chapterIdToNumbersMap.has(chapter.id) || !entry.listData?.progress) return true
 
         const chapterNumber = chapterIdToNumbersMap.get(chapter.id)
@@ -117,7 +118,7 @@ export function ChapterList(props: ChapterListProps) {
     /**
      * Chapter columns
      */
-    const columns = React.useMemo(() => defineDataGridColumns<Manga_ChapterDetails>(() => [
+    const columns = React.useMemo(() => defineDataGridColumns<HibikeManga_ChapterDetails>(() => [
         {
             accessorKey: "title",
             header: "Name",
@@ -145,10 +146,10 @@ export function ChapterList(props: ChapterListProps) {
                             size="sm"
                             disabled={isSendingDownloadRequest}
                             onClick={() => downloadChapters([row.original])}
-                            icon={<FaDownload className="text-sm" />}
+                            icon={<MdOutlineDownloadForOffline className="text-2xl" />}
                         />}
                         {isChapterQueued(row.original) && <p className="text-[--muted]">Queued</p>}
-                        {isChapterDownloaded(row.original) && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
+                        {isChapterDownloaded(row.original) && <p className="text-[--muted] px-1"><MdOutlineOfflinePin className="text-2xl" /></p>}
                         <IconButton
                             intent="gray-subtle"
                             size="sm"
@@ -200,19 +201,21 @@ export function ChapterList(props: ChapterListProps) {
         resetRowSelection()
     }, [chapters])
 
+    if (providerExtensionsLoading) return <LoadingSpinner />
+
     return (
         <div
-            className="space-y-2"
+            className="space-y-4"
         >
 
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center">
                 <Select
                     fieldClass="w-fit"
-                    options={MANGA_PROVIDER_OPTIONS}
-                    value={provider}
-                    onValueChange={v => setProvider({
+                    options={providerOptions}
+                    value={selectedProvider}
+                    onValueChange={v => setSelectedProvider({
                         mId: mediaId,
-                        provider: v as Manga_Provider,
+                        provider: v,
                     })}
                     leftAddon="Source"
                     intent="filled"
@@ -229,6 +232,16 @@ export function ChapterList(props: ChapterListProps) {
                 >
                     Reload sources
                 </Button>
+
+                <MangaManualMappingModal entry={entry}>
+                    <Button
+                        leftIcon={<HiOutlineSearchCircle className="text-lg" />}
+                        intent="white-subtle"
+                        size="sm"
+                    >
+                        Manual match
+                    </Button>
+                </MangaManualMappingModal>
             </div>
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
@@ -242,7 +255,7 @@ export function ChapterList(props: ChapterListProps) {
                         {!!chapterContainer?.chapters?.length && (
                             <>
                                 <div className="flex gap-2 items-center w-full pb-2">
-                                    <h3 className="px-1">Chapters</h3>
+                                    <h2 className="px-1">Chapters</h2>
                                     <div className="flex flex-1"></div>
                                     <div>
                                         {!!unreadChapters?.length && <Button
@@ -290,7 +303,7 @@ export function ChapterList(props: ChapterListProps) {
                                         }}
                                     />
 
-                                    <DataGrid<Manga_ChapterDetails>
+                                    <DataGrid<HibikeManga_ChapterDetails>
                                         columns={columns}
                                         data={chapters}
                                         rowCount={chapters.length}

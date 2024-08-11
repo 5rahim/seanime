@@ -2,9 +2,9 @@ package offline
 
 import (
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/manga"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
+	"seanime/internal/manga"
 )
 
 type (
@@ -41,8 +41,8 @@ type (
 	AnimeEntry struct {
 		MediaId          int                        `json:"mediaId"`
 		ListData         *ListData                  `json:"listData"`
-		Media            *anilist.BaseMedia         `json:"media"`
-		Episodes         []*anime.MediaEntryEpisode `json:"episodes"`
+		Media            *anilist.BaseAnime         `json:"media"`
+		Episodes         []*anime.AnimeEntryEpisode `json:"episodes"`
 		DownloadedAssets bool                       `json:"downloadedAssets"`
 	}
 

@@ -3,10 +3,10 @@ package discordrpc_presence
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/constants"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/discordrpc/client"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/constants"
+	"seanime/internal/database/models"
+	"seanime/internal/discordrpc/client"
+	"seanime/internal/util"
 	"sync"
 	"time"
 )
@@ -17,6 +17,7 @@ type Presence struct {
 	logger   *zerolog.Logger
 	lastSet  time.Time
 	hasSent  bool
+	username string
 	mu       sync.Mutex
 }
 
@@ -54,7 +55,7 @@ func (p *Presence) Close() {
 	p.client = nil
 }
 
-func (p *Presence) SetSettings(settings *models.DiscordSettings) {
+func (p *Presence) SetSettings(settings *models.DiscordSettings, username string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -64,6 +65,7 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 	p.Close()
 
 	p.settings = settings
+	p.username = username
 
 	// Create a new client if rich presence is enabled
 	if settings.EnableRichPresence {
@@ -72,6 +74,13 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 	} else {
 		p.client = nil
 	}
+}
+
+func (p *Presence) SetUsername(username string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.username = username
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,12 +98,22 @@ func (p *Presence) setClient() {
 	}
 }
 
+var isChecking bool
+
 // check executes multiple checks to determine if the presence should be set.
 // It returns true if the presence should be set.
 func (p *Presence) check() (proceed bool) {
 	defer util.HandlePanicInModuleThen("discordrpc/presence/check", func() {
 		proceed = false
 	})
+
+	if isChecking {
+		return false
+	}
+	isChecking = true
+	defer func() {
+		isChecking = false
+	}()
 
 	// If the client is nil, return false
 	if p.settings == nil {
@@ -124,7 +143,8 @@ func (p *Presence) check() (proceed bool) {
 
 	// If the last set time is less than 5 seconds ago, return false
 	if time.Since(p.lastSet) < 5*time.Second {
-		return false
+		rest := 5*time.Second - time.Since(p.lastSet)
+		time.Sleep(rest)
 	}
 
 	return true
@@ -157,6 +177,7 @@ var (
 )
 
 type AnimeActivity struct {
+	ID            int
 	Title         string
 	Image         string
 	IsMovie       bool
@@ -189,6 +210,28 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()
+	activity.Buttons = make([]*discordrpc_client.Button, 0)
+
+	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "View Anime",
+			Url:   fmt.Sprintf("https://anilist.co/anime/%d", a.ID),
+		})
+	}
+
+	if p.settings.RichPresenceShowAniListProfileButton {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "View Profile",
+			Url:   fmt.Sprintf("https://anilist.co/user/%s", p.username),
+		})
+	}
+
+	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "Seanime",
+			Url:   "https://github.com/5rahim/seanime",
+		})
+	}
 
 	p.logger.Debug().Msgf("discordrpc: setting anime activity: %s", a.Title)
 	_ = p.client.SetActivity(activity)
@@ -196,6 +239,7 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 }
 
 type MangaActivity struct {
+	ID      int
 	Title   string
 	Image   string
 	Chapter string
@@ -222,6 +266,28 @@ func (p *Presence) SetMangaActivity(a *MangaActivity) {
 	activity.Assets.LargeImage = a.Image
 	activity.Assets.LargeText = a.Title
 	activity.Timestamps.Start.Time = time.Now()
+	activity.Buttons = make([]*discordrpc_client.Button, 0)
+
+	if p.settings.RichPresenceShowAniListMediaButton && a.ID != 0 {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "View Manga",
+			Url:   fmt.Sprintf("https://anilist.co/manga/%d", a.ID),
+		})
+	}
+
+	if p.settings.RichPresenceShowAniListProfileButton && p.username != "" {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "View Profile",
+			Url:   fmt.Sprintf("https://anilist.co/user/%s", p.username),
+		})
+	}
+
+	if !(p.settings.RichPresenceHideSeanimeRepositoryButton || len(activity.Buttons) > 1) {
+		activity.Buttons = append(activity.Buttons, &discordrpc_client.Button{
+			Label: "Seanime",
+			Url:   "https://github.com/5rahim/seanime",
+		})
+	}
 
 	p.logger.Debug().Msgf("discordrpc: setting manga activity: %s", a.Title)
 	_ = p.client.SetActivity(activity)

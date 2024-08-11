@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/util/limiter"
+	"seanime/internal/util/limiter"
 	"sync"
 )
 

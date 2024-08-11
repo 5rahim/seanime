@@ -75,7 +75,7 @@
       "\t@desc This is used to edit an entry on AniList.",
       "\t@desc The \"type\" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.",
       "\t@desc The client should refetch collection-dependent queries after this mutation.",
-      "\t@returns anilist.UpdateMediaListEntry",
+      "\t@returns true",
       "\t@route /api/v1/anilist/list-entry [POST]",
       ""
     ],
@@ -158,21 +158,21 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.UpdateMediaListEntry",
-      "returnGoType": "anilist.UpdateMediaListEntry",
-      "returnTypescriptType": "AL_UpdateMediaListEntry"
+      "returns": "true",
+      "returnGoType": "true",
+      "returnTypescriptType": "true"
     }
   },
   {
-    "name": "HandleGetAnilistMediaDetails",
-    "trimmedName": "GetAnilistMediaDetails",
+    "name": "HandleGetAnilistAnimeDetails",
+    "trimmedName": "GetAnilistAnimeDetails",
     "comments": [
-      "HandleGetAnilistMediaDetails",
+      "HandleGetAnilistAnimeDetails",
       "",
       "\t@summary returns more details about an AniList anime entry.",
       "\t@desc This fetches more fields omitted from the base queries.",
       "\t@param id - int - true - \"The AniList anime ID\"",
-      "\t@returns anilist.MediaDetailsById_Media",
+      "\t@returns anilist.AnimeDetailsById_Media",
       "\t@route /api/v1/anilist/media-details/{id} [GET]",
       ""
     ],
@@ -201,9 +201,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "anilist.MediaDetailsById_Media",
-      "returnGoType": "anilist.MediaDetailsById_Media",
-      "returnTypescriptType": "AL_MediaDetailsById_Media"
+      "returns": "anilist.AnimeDetailsById_Media",
+      "returnGoType": "anilist.AnimeDetailsById_Media",
+      "returnTypescriptType": "AL_AnimeDetailsById_Media"
     }
   },
   {
@@ -260,7 +260,7 @@
       "\t@desc The \"type\" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.",
       "\t@desc The client should refetch collection-dependent queries after this mutation.",
       "\t@route /api/v1/anilist/list-entry [DELETE]",
-      "\t@returns anilist.DeleteEntry",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -297,9 +297,9 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.DeleteEntry",
-      "returnGoType": "anilist.DeleteEntry",
-      "returnTypescriptType": "AL_DeleteEntry"
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -311,7 +311,7 @@
       "\t@summary returns a list of anime based on the search parameters.",
       "\t@desc This is used by the \"Discover\" and \"Advanced Search\".",
       "\t@route /api/v1/anilist/list-anime [POST]",
-      "\t@returns anilist.ListMedia",
+      "\t@returns anilist.ListAnime",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -427,9 +427,9 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.ListMedia",
-      "returnGoType": "anilist.ListMedia",
-      "returnTypescriptType": "AL_ListMedia"
+      "returns": "anilist.ListAnime",
+      "returnGoType": "anilist.ListAnime",
+      "returnTypescriptType": "AL_ListAnime"
     }
   },
   {
@@ -441,7 +441,7 @@
       "\t@summary returns a list of recently aired anime.",
       "\t@desc This is used by the \"Schedule\" page to display recently aired anime.",
       "\t@route /api/v1/anilist/list-recent-anime [POST]",
-      "\t@returns anilist.ListRecentMedia",
+      "\t@returns anilist.ListRecentAnime",
       ""
     ],
     "filepath": "internal/handlers/anilist.go",
@@ -503,9 +503,9 @@
           "descriptions": []
         }
       ],
-      "returns": "anilist.ListRecentMedia",
-      "returnGoType": "anilist.ListRecentMedia",
-      "returnTypescriptType": "AL_ListRecentMedia"
+      "returns": "anilist.ListRecentAnime",
+      "returnGoType": "anilist.ListRecentAnime",
+      "returnTypescriptType": "AL_ListRecentAnime"
     }
   },
   {
@@ -628,7 +628,7 @@
       "\t@desc This includes episodes and metadata (if any), AniList list data, download info...",
       "\t@route /api/v1/library/anime-entry/{id} [GET]",
       "\t@param id - int - true - \"AniList anime media ID\"",
-      "\t@returns anime.MediaEntry",
+      "\t@returns anime.AnimeEntry",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -657,9 +657,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "anime.MediaEntry",
-      "returnGoType": "anime.MediaEntry",
-      "returnTypescriptType": "Anime_MediaEntry"
+      "returns": "anime.AnimeEntry",
+      "returnGoType": "anime.AnimeEntry",
+      "returnTypescriptType": "Anime_AnimeEntry"
     }
   },
   {
@@ -723,7 +723,7 @@
       "\t@desc This finds a common directory for all media entry local files and opens it in the file explorer.",
       "\t@desc Returns 'true' whether the operation was successful or not, errors are ignored.",
       "\t@route /api/v1/library/anime-entry/open-in-explorer [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -750,8 +750,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -765,7 +765,7 @@
       "\t@desc This is used by the \"Resolve unmatched media\" feature to suggest media entries for the local files in the given directory.",
       "\t@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.",
       "\t@route /api/v1/library/anime-entry/suggestions [POST]",
-      "\t@returns []anilist.BaseMedia",
+      "\t@returns []anilist.BaseAnime",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -792,9 +792,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]anilist.BaseMedia",
-      "returnGoType": "anilist.BaseMedia",
-      "returnTypescriptType": "Array\u003cAL_BaseMedia\u003e"
+      "returns": "[]anilist.BaseAnime",
+      "returnGoType": "anilist.BaseAnime",
+      "returnTypescriptType": "Array\u003cAL_BaseAnime\u003e"
     }
   },
   {
@@ -973,7 +973,7 @@
       "\t@desc The response is not used in the frontend, the client should just refetch the entire media entry data.",
       "\t@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.",
       "\t@route /api/v1/library/anime-entry/update-progress [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -1028,8 +1028,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1552,7 +1552,7 @@
       "",
       "\t@summary sets manga activity for discord rich presence.",
       "\t@route /api/v1/discord/presence/manga [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/discord.go",
@@ -1566,6 +1566,15 @@
       ],
       "params": [],
       "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
         {
           "name": "Title",
           "jsonName": "title",
@@ -1594,8 +1603,8 @@
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1607,7 +1616,7 @@
       "",
       "\t@summary cancels the current discord rich presence activity.",
       "\t@route /api/v1/discord/presence/cancel [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/discord.go",
@@ -1621,8 +1630,8 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1661,7 +1670,7 @@
       "",
       "\t@summary downloads torrent files to the destination folder",
       "\t@route /api/v1/download-torrent-file [POST]",
-      "\t@returns boolean",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/download.go",
@@ -1696,15 +1705,15 @@
         {
           "name": "Media",
           "jsonName": "media",
-          "goType": "anilist.BaseMedia",
-          "usedStructType": "anilist.BaseMedia",
-          "typescriptType": "AL_BaseMedia",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
           "required": false,
           "descriptions": []
         }
       ],
-      "returns": "boolean",
-      "returnGoType": "boolean",
+      "returns": "bool",
+      "returnGoType": "bool",
       "returnTypescriptType": "boolean"
     }
   },
@@ -1801,6 +1810,335 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleFetchExternalExtensionData",
+    "trimmedName": "FetchExternalExtensionData",
+    "comments": [
+      "HandleFetchExternalExtensionData",
+      "",
+      "\t@summary returns the extension data from the given manifest uri.",
+      "\t@route /api/v1/extensions/external/fetch [POST]",
+      "\t@returns extension.Extension",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the extension data from the given manifest uri.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/fetch",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ManifestURI",
+          "jsonName": "manifestUri",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension.Extension",
+      "returnGoType": "extension.Extension",
+      "returnTypescriptType": "Extension_Extension"
+    }
+  },
+  {
+    "name": "HandleInstallExternalExtension",
+    "trimmedName": "InstallExternalExtension",
+    "comments": [
+      "HandleInstallExternalExtension",
+      "",
+      "\t@summary installs the extension from the given manifest uri.",
+      "\t@route /api/v1/extensions/external/install [POST]",
+      "\t@returns extension_repo.ExtensionInstallResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "installs the extension from the given manifest uri.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/install",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ManifestURI",
+          "jsonName": "manifestUri",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension_repo.ExtensionInstallResponse",
+      "returnGoType": "extension_repo.ExtensionInstallResponse",
+      "returnTypescriptType": "ExtensionRepo_ExtensionInstallResponse"
+    }
+  },
+  {
+    "name": "HandleUninstallExternalExtension",
+    "trimmedName": "UninstallExternalExtension",
+    "comments": [
+      "HandleUninstallExternalExtension",
+      "",
+      "\t@summary uninstalls the extension with the given ID.",
+      "\t@route /api/v1/extensions/external/uninstall [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "uninstalls the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/uninstall",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleUpdateExtensionCode",
+    "trimmedName": "UpdateExtensionCode",
+    "comments": [
+      "HandleUpdateExtensionCode",
+      "",
+      "\t@summary updates the extension code with the given ID and reloads the extensions.",
+      "\t@route /api/v1/extensions/external/edit-payload [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "updates the extension code with the given ID and reloads the extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/edit-payload",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Payload",
+          "jsonName": "payload",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleReloadExternalExtensions",
+    "trimmedName": "ReloadExternalExtensions",
+    "comments": [
+      "HandleReloadExternalExtensions",
+      "",
+      "\t@summary reloads the external extensions.",
+      "\t@route /api/v1/extensions/external/reload [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "reloads the external extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/external/reload",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleListExtensionData",
+    "trimmedName": "ListExtensionData",
+    "comments": [
+      "HandleListExtensionData",
+      "",
+      "\t@summary returns the loaded extensions",
+      "\t@route /api/v1/extensions/list [GET]",
+      "\t@returns []extension.Extension",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the loaded extensions",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension.Extension",
+      "returnGoType": "extension.Extension",
+      "returnTypescriptType": "Array\u003cExtension_Extension\u003e"
+    }
+  },
+  {
+    "name": "HandleGetAllExtensions",
+    "trimmedName": "GetAllExtensions",
+    "comments": [
+      "HandleGetAllExtensions",
+      "",
+      "\t@summary returns all loaded and invalid extensions.",
+      "\t@route /api/v1/extensions/all [POST]",
+      "\t@returns extension_repo.AllExtensions",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns all loaded and invalid extensions.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/all",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "WithUpdates",
+          "jsonName": "withUpdates",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension_repo.AllExtensions",
+      "returnGoType": "extension_repo.AllExtensions",
+      "returnTypescriptType": "ExtensionRepo_AllExtensions"
+    }
+  },
+  {
+    "name": "HandleListMangaProviderExtensions",
+    "trimmedName": "ListMangaProviderExtensions",
+    "comments": [
+      "HandleListMangaProviderExtensions",
+      "",
+      "\t@summary returns the installed manga providers.",
+      "\t@route /api/v1/extensions/list/manga-provider [GET]",
+      "\t@returns []extension_repo.MangaProviderExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the installed manga providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/manga-provider",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.MangaProviderExtensionItem",
+      "returnGoType": "extension_repo.MangaProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_MangaProviderExtensionItem\u003e"
+    }
+  },
+  {
+    "name": "HandleListOnlinestreamProviderExtensions",
+    "trimmedName": "ListOnlinestreamProviderExtensions",
+    "comments": [
+      "HandleListOnlinestreamProviderExtensions",
+      "",
+      "\t@summary returns the installed online streaming providers.",
+      "\t@route /api/v1/extensions/list/onlinestream-provider [GET]",
+      "\t@returns []extension_repo.OnlinestreamProviderExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the installed online streaming providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/onlinestream-provider",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.OnlinestreamProviderExtensionItem",
+      "returnGoType": "extension_repo.OnlinestreamProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_OnlinestreamProviderExtensionItem\u003e"
+    }
+  },
+  {
+    "name": "HandleListAnimeTorrentProviderExtensions",
+    "trimmedName": "ListAnimeTorrentProviderExtensions",
+    "comments": [
+      "HandleListAnimeTorrentProviderExtensions",
+      "",
+      "\t@summary returns the installed torrent providers.",
+      "\t@route /api/v1/extensions/list/anime-torrent-provider [GET]",
+      "\t@returns []extension_repo.AnimeTorrentProviderExtensionItem",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the installed torrent providers.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/list/anime-torrent-provider",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]extension_repo.AnimeTorrentProviderExtensionItem",
+      "returnGoType": "extension_repo.AnimeTorrentProviderExtensionItem",
+      "returnTypescriptType": "Array\u003cExtensionRepo_AnimeTorrentProviderExtensionItem\u003e"
     }
   },
   {
@@ -1933,103 +2271,6 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleDeleteListSyncCache",
-    "trimmedName": "DeleteListSyncCache",
-    "comments": [
-      "HandleDeleteListSyncCache",
-      "",
-      "\t@summary deletes the list sync cache.",
-      "\t@desc This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request.",
-      "\t@route /api/v1/list-sync/cache [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/list_sync.go",
-    "filename": "list_sync.go",
-    "api": {
-      "summary": "deletes the list sync cache.",
-      "descriptions": [
-        "This will delete the list sync cache and allows the client to fetch an up-to-date list sync instance in the next request."
-      ],
-      "endpoint": "/api/v1/list-sync/cache",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleGetListSyncAnimeDiffs",
-    "trimmedName": "GetListSyncAnimeDiffs",
-    "comments": [
-      "HandleGetListSyncAnimeDiffs",
-      "",
-      "\t@summary returns the anime diffs from the list sync instance.",
-      "\t@desc If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes",
-      "\t@route /api/v1/list-sync/anime-diffs [GET]",
-      "\t@returns []listsync.AnimeDiff",
-      ""
-    ],
-    "filepath": "internal/handlers/list_sync.go",
-    "filename": "list_sync.go",
-    "api": {
-      "summary": "returns the anime diffs from the list sync instance.",
-      "descriptions": [
-        "If the instance is not cached, it will generate a new listsync.ListSync and cache them for 10 minutes"
-      ],
-      "endpoint": "/api/v1/list-sync/anime-diffs",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "[]listsync.AnimeDiff",
-      "returnGoType": "listsync.AnimeDiff",
-      "returnTypescriptType": "Array\u003cListSync_AnimeDiff\u003e"
-    }
-  },
-  {
-    "name": "HandleSyncAnime",
-    "trimmedName": "SyncAnime",
-    "comments": [
-      "HandleSyncAnime",
-      "",
-      "\t@summary syncs the anime based on the provided diff kind",
-      "\t@route /api/v1/list-sync/anime [POST]",
-      "\t@returns []listsync.AnimeDiff",
-      ""
-    ],
-    "filepath": "internal/handlers/list_sync.go",
-    "filename": "list_sync.go",
-    "api": {
-      "summary": "syncs the anime based on the provided diff kind",
-      "descriptions": [],
-      "endpoint": "/api/v1/list-sync/anime",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Kind",
-          "jsonName": "kind",
-          "goType": "listsync.AnimeDiffKind",
-          "usedStructType": "listsync.AnimeDiffKind",
-          "typescriptType": "ListSync_AnimeDiffKind",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "[]listsync.AnimeDiff",
-      "returnGoType": "listsync.AnimeDiff",
-      "returnTypescriptType": "Array\u003cListSync_AnimeDiff\u003e"
     }
   },
   {
@@ -2648,9 +2889,9 @@
         {
           "name": "Provider",
           "jsonName": "provider",
-          "goType": "manga_providers.Provider",
-          "usedStructType": "manga_providers.Provider",
-          "typescriptType": "Manga_Provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         }
@@ -2705,9 +2946,9 @@
         {
           "name": "Provider",
           "jsonName": "provider",
-          "goType": "manga_providers.Provider",
-          "usedStructType": "manga_providers.Provider",
-          "typescriptType": "Manga_Provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         },
@@ -2924,6 +3165,217 @@
     }
   },
   {
+    "name": "HandleMangaManualSearch",
+    "trimmedName": "MangaManualSearch",
+    "comments": [
+      "HandleMangaManualSearch",
+      "",
+      "\t@summary returns search results for a manual search.",
+      "\t@desc Returns search results for a manual search.",
+      "\t@route /api/v1/manga/search [POST]",
+      "\t@returns []vendor_hibike_manga.SearchResult",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns search results for a manual search.",
+      "descriptions": [
+        "Returns search results for a manual search."
+      ],
+      "endpoint": "/api/v1/manga/search",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Query",
+          "jsonName": "query",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]vendor_hibike_manga.SearchResult",
+      "returnGoType": "vendor_hibike_manga.SearchResult",
+      "returnTypescriptType": "Array\u003cHibikeManga_SearchResult\u003e"
+    }
+  },
+  {
+    "name": "HandleMangaManualMapping",
+    "trimmedName": "MangaManualMapping",
+    "comments": [
+      "HandleMangaManualMapping",
+      "",
+      "\t@summary manually maps a manga entry to a manga ID from the provider.",
+      "\t@desc This is used to manually map a manga entry to a manga ID from the provider.",
+      "\t@desc The client should re-fetch the chapter container after this.",
+      "\t@route /api/v1/manga/manual-mapping [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "manually maps a manga entry to a manga ID from the provider.",
+      "descriptions": [
+        "This is used to manually map a manga entry to a manga ID from the provider.",
+        "The client should re-fetch the chapter container after this."
+      ],
+      "endpoint": "/api/v1/manga/manual-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MangaId",
+          "jsonName": "mangaId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetMangaMapping",
+    "trimmedName": "GetMangaMapping",
+    "comments": [
+      "HandleGetMangaMapping",
+      "",
+      "\t@summary returns the mapping for a manga entry.",
+      "\t@desc This is used to get the mapping for a manga entry.",
+      "\t@desc An empty string is returned if there's no manual mapping. If there is, the manga ID will be returned.",
+      "\t@route /api/v1/manga/get-mapping [POST]",
+      "\t@returns manga.MappingResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the mapping for a manga entry.",
+      "descriptions": [
+        "This is used to get the mapping for a manga entry.",
+        "An empty string is returned if there's no manual mapping. If there is, the manga ID will be returned."
+      ],
+      "endpoint": "/api/v1/manga/get-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "manga.MappingResponse",
+      "returnGoType": "manga.MappingResponse",
+      "returnTypescriptType": "Manga_MappingResponse"
+    }
+  },
+  {
+    "name": "HandleRemoveMangaMapping",
+    "trimmedName": "RemoveMangaMapping",
+    "comments": [
+      "HandleRemoveMangaMapping",
+      "",
+      "\t@summary removes the mapping for a manga entry.",
+      "\t@desc This is used to remove the mapping for a manga entry.",
+      "\t@desc The client should re-fetch the chapter container after this.",
+      "\t@route /api/v1/manga/remove-mapping [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "removes the mapping for a manga entry.",
+      "descriptions": [
+        "This is used to remove the mapping for a manga entry.",
+        "The client should re-fetch the chapter container after this."
+      ],
+      "endpoint": "/api/v1/manga/remove-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleDownloadMangaChapters",
     "trimmedName": "DownloadMangaChapters",
     "comments": [
@@ -2957,9 +3409,9 @@
         {
           "name": "Provider",
           "jsonName": "provider",
-          "goType": "manga_providers.Provider",
-          "usedStructType": "manga_providers.Provider",
-          "typescriptType": "Manga_Provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         },
@@ -3995,7 +4447,7 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
-          "required": true,
+          "required": false,
           "descriptions": []
         }
       ],
@@ -4335,6 +4787,98 @@
         "This is non-blocking so the client should prevent multiple calls until the next status is received."
       ],
       "endpoint": "/api/v1/playback-manager/playlist-next",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandlePlaybackStartManualTracking",
+    "trimmedName": "PlaybackStartManualTracking",
+    "comments": [
+      "HandlePlaybackStartManualTracking",
+      "",
+      "\t@summary starts manual tracking of a media.",
+      "\t@desc Used for tracking progress of media that is not played through any integrated media player.",
+      "\t@desc This should only be used for trackable episodes (episodes that count towards progress).",
+      "\t@desc This returns 'true' if the tracking was successfully started.",
+      "\t@route /api/v1/playback-manager/manual-tracking/start [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "starts manual tracking of a media.",
+      "descriptions": [
+        "Used for tracking progress of media that is not played through any integrated media player.",
+        "This should only be used for trackable episodes (episodes that count towards progress).",
+        "This returns 'true' if the tracking was successfully started."
+      ],
+      "endpoint": "/api/v1/playback-manager/manual-tracking/start",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandlePlaybackCancelManualTracking",
+    "trimmedName": "PlaybackCancelManualTracking",
+    "comments": [
+      "HandlePlaybackCancelManualTracking",
+      "",
+      "\t@summary cancels manual tracking of a media.",
+      "\t@desc This will stop the server from expecting progress updates for the media.",
+      "\t@route /api/v1/playback-manager/manual-tracking/cancel [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "cancels manual tracking of a media.",
+      "descriptions": [
+        "This will stop the server from expecting progress updates for the media."
+      ],
+      "endpoint": "/api/v1/playback-manager/manual-tracking/cancel",
       "methods": [
         "POST"
       ],
@@ -4909,6 +5453,15 @@
           "descriptions": []
         },
         {
+          "name": "Notifications",
+          "jsonName": "notifications",
+          "goType": "models.NotificationSettings",
+          "usedStructType": "models.NotificationSettings",
+          "typescriptType": "Models_NotificationSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "EnableTranscode",
           "jsonName": "enableTranscode",
           "goType": "bool",
@@ -5003,60 +5556,20 @@
           "typescriptType": "Models_DiscordSettings",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "Notifications",
+          "jsonName": "notifications",
+          "goType": "models.NotificationSettings",
+          "usedStructType": "models.NotificationSettings",
+          "typescriptType": "Models_NotificationSettings",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "handlers.Status",
       "returnGoType": "handlers.Status",
       "returnTypescriptType": "Status"
-    }
-  },
-  {
-    "name": "HandleSaveListSyncSettings",
-    "trimmedName": "SaveListSyncSettings",
-    "comments": [
-      "HandleSaveListSyncSettings",
-      "",
-      "\t@summary updates the list sync settings",
-      "\t@desc This will update the ListSync settings and clear the ListSync cache.",
-      "\t@route /api/v1/settings/list-sync [PATCH]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/settings.go",
-    "filename": "settings.go",
-    "api": {
-      "summary": "updates the list sync settings",
-      "descriptions": [
-        "This will update the ListSync settings and clear the ListSync cache."
-      ],
-      "endpoint": "/api/v1/settings/list-sync",
-      "methods": [
-        "PATCH"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Automatic",
-          "jsonName": "automatic",
-          "goType": "bool",
-          "usedStructType": "",
-          "typescriptType": "boolean",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Origin",
-          "jsonName": "origin",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -5102,6 +5615,15 @@
         {
           "name": "DownloadAutomatically",
           "jsonName": "downloadAutomatically",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EnableEnhancedQueries",
+          "jsonName": "enableEnhancedQueries",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
@@ -5356,11 +5878,11 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "Urls",
-          "jsonName": "urls",
-          "goType": "[]string",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cstring\u003e",
+          "name": "Torrents",
+          "jsonName": "torrents",
+          "goType": "[]hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
           "required": true,
           "descriptions": []
         },
@@ -5385,9 +5907,9 @@
         {
           "name": "Media",
           "jsonName": "media",
-          "goType": "anilist.BaseMedia",
-          "usedStructType": "anilist.BaseMedia",
-          "typescriptType": "AL_BaseMedia",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
           "required": false,
           "descriptions": []
         }
@@ -5487,11 +6009,24 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "SmartSearch",
-          "jsonName": "smartSearch",
-          "goType": "bool",
+          "name": "Type",
+          "jsonName": "type",
+          "goType": "string",
           "usedStructType": "",
-          "typescriptType": "boolean",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": [
+            "\"smart\" or \"simple\"",
+            "",
+            "\"smart\" or \"simple\""
+          ]
+        },
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": false,
           "descriptions": []
         },
@@ -5525,9 +6060,9 @@
         {
           "name": "Media",
           "jsonName": "media",
-          "goType": "anilist.BaseMedia",
-          "usedStructType": "anilist.BaseMedia",
-          "typescriptType": "AL_BaseMedia",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
           "required": false,
           "descriptions": []
         },
@@ -5550,52 +6085,12 @@
           "descriptions": []
         },
         {
-          "name": "Best",
-          "jsonName": "best",
+          "name": "BestRelease",
+          "jsonName": "bestRelease",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
           "required": false,
-          "descriptions": []
-        }
-      ],
-      "returns": "torrent.SearchData",
-      "returnGoType": "torrent.SearchData",
-      "returnTypescriptType": "Torrent_SearchData"
-    }
-  },
-  {
-    "name": "HandleSearchNsfwTorrent",
-    "trimmedName": "SearchNsfwTorrent",
-    "comments": [
-      "HandleSearchNsfwTorrent",
-      "",
-      "\t@summary searches NSFW torrents and returns a list of torrents without previews.",
-      "\t@desc This will search for NSFW torrents and return a list of torrents without previews.",
-      "\t@route /api/v1/torrent/nsfw-search [POST]",
-      "\t@returns torrent.SearchData",
-      ""
-    ],
-    "filepath": "internal/handlers/torrent_search.go",
-    "filename": "torrent_search.go",
-    "api": {
-      "summary": "searches NSFW torrents and returns a list of torrents without previews.",
-      "descriptions": [
-        "This will search for NSFW torrents and return a list of torrents without previews."
-      ],
-      "endpoint": "/api/v1/torrent/nsfw-search",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "Query",
-          "jsonName": "query",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
           "descriptions": []
         }
       ],
@@ -5720,6 +6215,64 @@
     }
   },
   {
+    "name": "HandleGetTorrentstreamTorrentFilePreviews",
+    "trimmedName": "GetTorrentstreamTorrentFilePreviews",
+    "comments": [
+      "HandleGetTorrentstreamTorrentFilePreviews",
+      "",
+      "\t@summary get list of torrent files from a batch",
+      "\t@desc This returns a list of file previews from the torrent",
+      "\t@returns []torrentstream.FilePreview",
+      "\t@route /api/v1/torrentstream/torrent-file-previews [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "get list of torrent files from a batch",
+      "descriptions": [
+        "This returns a list of file previews from the torrent"
+      ],
+      "endpoint": "/api/v1/torrentstream/torrent-file-previews",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]torrentstream.FilePreview",
+      "returnGoType": "torrentstream.FilePreview",
+      "returnTypescriptType": "Array\u003cTorrentstream_FilePreview\u003e"
+    }
+  },
+  {
     "name": "HandleTorrentstreamStartStream",
     "trimmedName": "TorrentstreamStartStream",
     "comments": [
@@ -5783,10 +6336,37 @@
         {
           "name": "Torrent",
           "jsonName": "torrent",
-          "goType": "torrent.AnimeTorrent",
-          "usedStructType": "torrent.AnimeTorrent",
-          "typescriptType": "Torrent_AnimeTorrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
           "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "FileIndex",
+          "jsonName": "fileIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "PlaybackType",
+          "jsonName": "playbackType",
+          "goType": "torrentstream.PlaybackType",
+          "usedStructType": "torrentstream.PlaybackType",
+          "typescriptType": "Torrentstream_PlaybackType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
           "descriptions": []
         }
       ],
@@ -5857,56 +6437,6 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleTorrentstreamDONOTUSE",
-    "trimmedName": "TorrentstreamDONOTUSE",
-    "comments": [
-      "HandleTorrentstreamDONOTUSE",
-      "",
-      "\t@summary used to generate typescript types",
-      "\t@returns torrentstream.TorrentLoadingStatus",
-      "\t@route /api/v1/torrentstream/DONOTUSE",
-      ""
-    ],
-    "filepath": "internal/handlers/torrentstream.go",
-    "filename": "torrentstream.go",
-    "api": {
-      "summary": "used to generate typescript types",
-      "descriptions": [],
-      "endpoint": "",
-      "methods": null,
-      "params": [],
-      "bodyFields": [],
-      "returns": "torrentstream.TorrentLoadingStatus",
-      "returnGoType": "torrentstream.TorrentLoadingStatus",
-      "returnTypescriptType": "Torrentstream_TorrentLoadingStatus"
-    }
-  },
-  {
-    "name": "HandleTorrentstreamDONOTUSE2",
-    "trimmedName": "TorrentstreamDONOTUSE2",
-    "comments": [
-      "HandleTorrentstreamDONOTUSE2",
-      "",
-      "\t@summary used to generate typescript types",
-      "\t@returns torrentstream.TorrentStatus",
-      "\t@route /api/v1/torrentstream/DONOTUSE",
-      ""
-    ],
-    "filepath": "internal/handlers/torrentstream.go",
-    "filename": "torrentstream.go",
-    "api": {
-      "summary": "used to generate typescript types",
-      "descriptions": [],
-      "endpoint": "",
-      "methods": null,
-      "params": [],
-      "bodyFields": [],
-      "returns": "torrentstream.TorrentStatus",
-      "returnGoType": "torrentstream.TorrentStatus",
-      "returnTypescriptType": "Torrentstream_TorrentStatus"
     }
   },
   {

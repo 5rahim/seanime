@@ -1,9 +1,9 @@
 "use client"
 import { AL_MangaDetailsById_Media, Manga_Entry } from "@/api/generated/types"
 import {
+    AnimeEntryRankings,
     MediaEntryAudienceScore,
     MediaEntryGenresList,
-    MediaEntryRankings,
 } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {
     MediaPageHeader,
@@ -47,18 +47,18 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
 
                 <div className="flex gap-2 items-center">
                     <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
+
+                    <MediaEntryGenresList genres={details?.genres} />
                 </div>
 
-                <MediaEntryGenresList genres={details?.genres} />
-
-                <MediaEntryRankings rankings={details?.rankings} />
+                <AnimeEntryRankings rankings={details?.rankings} />
 
 
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">
 
                     <Link href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
                         <Button intent="gray-link" className="px-0">
-                            Open on AniList
+                            AniList
                         </Button>
                     </Link>
 

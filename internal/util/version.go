@@ -5,6 +5,21 @@ import (
 	"strings"
 )
 
+func IsValidVersion(version string) bool {
+	parts := strings.Split(version, ".")
+	if len(parts) != 3 {
+		return false
+	}
+
+	for _, part := range parts {
+		if _, err := strconv.Atoi(part); err != nil {
+			return false
+		}
+	}
+
+	return true
+}
+
 // CompareVersion compares two versions and returns the difference between them.
 //
 //	 3: Current version is newer by major version.
@@ -55,4 +70,9 @@ func CompareVersion(prevVersion string, currVersion string) (int, bool) {
 	}
 
 	return 0, false
+}
+
+func VersionIsOlderThan(version string, compare string) bool {
+	diff, _ := CompareVersion(version, compare)
+	return diff > 0
 }

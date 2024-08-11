@@ -1,8 +1,8 @@
 package result
 
 import (
-	"github.com/seanime-app/seanime/internal/constants"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/constants"
+	"seanime/internal/util"
 	"time"
 )
 

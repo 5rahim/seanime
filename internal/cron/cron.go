@@ -1,7 +1,7 @@
 package cron
 
 import (
-	"github.com/seanime-app/seanime/internal/core"
+	"seanime/internal/core"
 	"time"
 )
 

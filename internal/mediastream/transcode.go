@@ -4,8 +4,8 @@ import (
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/mediastream/transcoder"
+	"seanime/internal/events"
+	"seanime/internal/mediastream/transcoder"
 	"strconv"
 	"strings"
 	"time"
@@ -190,51 +190,3 @@ func (r *Repository) ShutdownTranscodeStream(clientId string) {
 	// Send event
 	r.wsEventManager.SendEvent(events.MediastreamShutdownStream, nil)
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// Direct Stream
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//func (r *Repository) ServeFiberDirectStream(fiberCtx *fiber.Ctx, clientId string) error {
-//
-//	if !r.IsInitialized() {
-//		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
-//		return errors.New("module not initialized")
-//	}
-//
-//	// Get the route parameters
-//	params := fiberCtx.AllParams()
-//	if len(params) == 0 {
-//		return errors.New("no params")
-//	}
-//
-//	// Get the parameter group
-//	path := params["*1"]
-//
-//	// Get current media
-//	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
-//	if !found {
-//		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "no file has been loaded")
-//		return errors.New("no file has been loaded")
-//	}
-//
-//	r.logger.Trace().Any("path", mediaContainer.Filepath).Msg("mediastream: Direct stream")
-//
-//	tempFileDir := r.directStream.GetFileOutDir(r.settings.MustGet().TranscodeTempDir, mediaContainer.Hash)
-//
-//	// /master.m3u8
-//	if path == "master.m3u8" {
-//		contentB, err := os.ReadFile(filepath.Join(tempFileDir, "master.m3u8"))
-//		if err != nil {
-//			return err
-//		}
-//		return fiberCtx.SendString(string(contentB))
-//	}
-//
-//	// Segments
-//	if strings.HasSuffix(path, ".ts") {
-//		return fiberCtx.SendFile(filepath.Join(tempFileDir, path))
-//	}
-//
-//	return fiberCtx.SendFile(mediaContainer.Filepath)
-//}

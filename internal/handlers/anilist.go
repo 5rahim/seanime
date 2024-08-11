@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/util/result"
 	"strconv"
 	"time"
 )
@@ -28,10 +28,7 @@ func HandleGetAnimeCollection(c *RouteCtx) error {
 	}
 
 	go func() {
-		if c.App.Settings == nil {
-			return
-		}
-		if c.App.Settings.Library.EnableManga {
+		if c.App.Settings != nil && c.App.Settings.Library.EnableManga {
 			_, _ = c.App.GetMangaCollection(bypassCache)
 			if bypassCache {
 				c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
@@ -67,7 +64,7 @@ func HandleGetRawAnimeCollection(c *RouteCtx) error {
 //	@desc This is used to edit an entry on AniList.
 //	@desc The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.
 //	@desc The client should refetch collection-dependent queries after this mutation.
-//	@returns anilist.UpdateMediaListEntry
+//	@returns true
 //	@route /api/v1/anilist/list-entry [POST]
 func HandleEditAnilistListEntry(c *RouteCtx) error {
 
@@ -86,9 +83,8 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	ret, err := c.App.AnilistClientWrapper.UpdateMediaListEntry(
-		c.Fiber.Context(),
-		p.MediaId,
+	err := c.App.AnilistPlatform.UpdateEntry(
+		*p.MediaId,
 		p.Status,
 		p.Score,
 		p.Progress,
@@ -109,23 +105,23 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 		_, _ = c.App.RefreshMangaCollection()
 	}
 
-	return c.RespondWithData(ret)
+	return c.RespondWithData(true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 var (
-	detailsCache = result.NewCache[int, *anilist.MediaDetailsById_Media]()
+	detailsCache = result.NewCache[int, *anilist.AnimeDetailsById_Media]()
 )
 
-// HandleGetAnilistMediaDetails
+// HandleGetAnilistAnimeDetails
 //
 //	@summary returns more details about an AniList anime entry.
 //	@desc This fetches more fields omitted from the base queries.
 //	@param id - int - true - "The AniList anime ID"
-//	@returns anilist.MediaDetailsById_Media
+//	@returns anilist.AnimeDetailsById_Media
 //	@route /api/v1/anilist/media-details/{id} [GET]
-func HandleGetAnilistMediaDetails(c *RouteCtx) error {
+func HandleGetAnilistAnimeDetails(c *RouteCtx) error {
 
 	mId, err := strconv.Atoi(c.Fiber.Params("id"))
 	if err != nil {
@@ -135,13 +131,13 @@ func HandleGetAnilistMediaDetails(c *RouteCtx) error {
 	if details, ok := detailsCache.Get(mId); ok {
 		return c.RespondWithData(details)
 	}
-	details, err := c.App.AnilistClientWrapper.MediaDetailsByID(c.Fiber.Context(), &mId)
+	details, err := c.App.AnilistPlatform.GetAnimeDetails(mId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
-	detailsCache.Set(mId, details.GetMedia())
+	detailsCache.Set(mId, details)
 
-	return c.RespondWithData(details.GetMedia())
+	return c.RespondWithData(details)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -165,7 +161,7 @@ func HandleGetAnilistStudioDetails(c *RouteCtx) error {
 	if details, ok := studioDetailsMap.Get(mId); ok {
 		return c.RespondWithData(details)
 	}
-	details, err := c.App.AnilistClientWrapper.StudioDetails(c.Fiber.Context(), &mId)
+	details, err := c.App.AnilistPlatform.GetStudioDetails(mId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -188,7 +184,7 @@ func HandleGetAnilistStudioDetails(c *RouteCtx) error {
 //	@desc The "type" field is used to determine if the entry is an anime or manga and refreshes the collection accordingly.
 //	@desc The client should refetch collection-dependent queries after this mutation.
 //	@route /api/v1/anilist/list-entry [DELETE]
-//	@returns anilist.DeleteEntry
+//	@returns bool
 func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 
 	type body struct {
@@ -215,7 +211,7 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 			return c.RespondWithError(err)
 		}
 
-		listEntry, found := animeCollection.GetListEntryFromMediaId(*p.MediaId)
+		listEntry, found := animeCollection.GetListEntryFromAnimeId(*p.MediaId)
 		if !found {
 			return c.RespondWithError(errors.New("list entry not found"))
 		}
@@ -235,10 +231,7 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 	}
 
 	// Delete the list entry
-	ret, err := c.App.AnilistClientWrapper.DeleteEntry(
-		c.Fiber.Context(),
-		&listEntryID,
-	)
+	err := c.App.AnilistPlatform.DeleteEntry(listEntryID)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -250,14 +243,14 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 		_, _ = c.App.RefreshMangaCollection()
 	}
 
-	return c.RespondWithData(ret)
+	return c.RespondWithData(true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 var (
-	anilistListMediaCache       = result.NewCache[string, *anilist.ListMedia]()
-	anilistListRecentMediaCache = result.NewCache[string, *anilist.ListRecentMedia]() // holds 1 value
+	anilistListAnimeCache       = result.NewCache[string, *anilist.ListAnime]()
+	anilistListRecentAnimeCache = result.NewCache[string, *anilist.ListRecentAnime]() // holds 1 value
 )
 
 // HandleAnilistListAnime
@@ -265,7 +258,7 @@ var (
 //	@summary returns a list of anime based on the search parameters.
 //	@desc This is used by the "Discover" and "Advanced Search".
 //	@route /api/v1/anilist/list-anime [POST]
-//	@returns anilist.ListMedia
+//	@returns anilist.ListAnime
 func HandleAnilistListAnime(c *RouteCtx) error {
 
 	type body struct {
@@ -297,7 +290,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		isAdult = *p.IsAdult && c.App.Settings.Anilist.EnableAdultContent
 	}
 
-	cacheKey := anilist.ListMediaCacheKey(
+	cacheKey := anilist.ListAnimeCacheKey(
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -311,12 +304,12 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		&isAdult,
 	)
 
-	cached, ok := anilistListMediaCache.Get(cacheKey)
+	cached, ok := anilistListAnimeCache.Get(cacheKey)
 	if ok {
 		return c.RespondWithData(cached)
 	}
 
-	ret, err := anilist.ListMediaM(
+	ret, err := anilist.ListAnimeM(
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -335,7 +328,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 	}
 
 	if ret != nil {
-		anilistListMediaCache.SetT(cacheKey, ret, time.Minute*10)
+		anilistListAnimeCache.SetT(cacheKey, ret, time.Minute*10)
 	}
 
 	return c.RespondWithData(ret)
@@ -346,7 +339,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 //	@summary returns a list of recently aired anime.
 //	@desc This is used by the "Schedule" page to display recently aired anime.
 //	@route /api/v1/anilist/list-recent-anime [POST]
-//	@returns anilist.ListRecentMedia
+//	@returns anilist.ListRecentAnime
 func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	type body struct {
@@ -369,12 +362,12 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	cacheKey := "recent_airing_anime"
 
-	cached, ok := anilistListRecentMediaCache.Get(cacheKey)
+	cached, ok := anilistListRecentAnimeCache.Get(cacheKey)
 	if ok {
 		return c.RespondWithData(cached)
 	}
 
-	ret, err := anilist.ListRecentAiringMediaM(
+	ret, err := anilist.ListRecentAiringAnimeM(
 		p.Page,
 		p.Search,
 		p.PerPage,
@@ -386,7 +379,7 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anilistListRecentMediaCache.SetT(cacheKey, ret, time.Minute*10)
+	anilistListRecentAnimeCache.SetT(cacheKey, ret, time.Minute*10)
 
 	return c.RespondWithData(ret)
 }
@@ -407,7 +400,7 @@ func HandleGetAniListStats(c *RouteCtx) error {
 
 	ret, err := anilist.GetStats(
 		c.Fiber.Context(),
-		c.App.AnilistClientWrapper,
+		c.App.AnilistClient,
 	)
 	if err != nil {
 		return c.RespondWithError(err)

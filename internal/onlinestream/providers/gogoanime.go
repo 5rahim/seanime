@@ -2,14 +2,16 @@ package onlinestream_providers
 
 import (
 	"fmt"
+	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/onlinestream/sources"
-	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
 	"net/url"
+	"seanime/internal/onlinestream/sources"
 	"strconv"
 	"strings"
+
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 )
 
 type Gogoanime struct {
@@ -20,18 +22,22 @@ type Gogoanime struct {
 	logger    *zerolog.Logger
 }
 
-func NewGogoanime(logger *zerolog.Logger) *Gogoanime {
+func NewGogoanime(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	return &Gogoanime{
 		BaseURL:   "https://anitaku.to",
 		AjaxURL:   "https://ajax.gogocdn.net",
 		Client:    http.Client{},
-		UserAgent: util.GetRandomUserAgent(),
+		UserAgent: browser.Firefox(),
 		logger:    logger,
 	}
 }
 
-func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
-	var results []*SearchResult
+func (g *Gogoanime) GetEpisodeServers() []string {
+	return []string{GogocdnServer, VidstreamingServer}
+}
+
+func (g *Gogoanime) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {
+	var results []*hibikeonlinestream.SearchResult
 
 	g.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("gogoanime: Searching anime")
 
@@ -47,11 +53,11 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 		}
 		title := e.ChildText("p.name > a")
 		url := g.BaseURL + e.ChildAttr("p.name > a", "href")
-		subOrDub := Sub
+		subOrDub := hibikeonlinestream.Sub
 		if strings.Contains(strings.ToLower(e.ChildText("p.name > a")), "dub") {
-			subOrDub = Dub
+			subOrDub = hibikeonlinestream.Dub
 		}
-		results = append(results, &SearchResult{
+		results = append(results, &hibikeonlinestream.SearchResult{
 			ID:       id,
 			Title:    title,
 			URL:      url,
@@ -74,8 +80,8 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*SearchResult, error) {
 	return results, nil
 }
 
-func (g *Gogoanime) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
-	var episodes []*EpisodeDetails
+func (g *Gogoanime) FindEpisode(id string) ([]*hibikeonlinestream.EpisodeDetails, error) {
+	var episodes []*hibikeonlinestream.EpisodeDetails
 
 	g.logger.Debug().Str("id", id).Msg("gogoanime: Fetching episodes")
 
@@ -126,7 +132,7 @@ func (g *Gogoanime) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
 			g.logger.Error().Err(err).Str("episodeID", episodeID).Msg("failed to parse episode number")
 			return
 		}
-		episodes = append(episodes, &EpisodeDetails{
+		episodes = append(episodes, &hibikeonlinestream.EpisodeDetails{
 			Provider: GogoanimeProvider,
 			ID:       episodeID,
 			Number:   episodeNumber,
@@ -155,8 +161,8 @@ func (g *Gogoanime) FindEpisodeDetails(id string) ([]*EpisodeDetails, error) {
 	return episodes, nil
 }
 
-func (g *Gogoanime) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server) (*EpisodeServer, error) {
-	var source *EpisodeServer
+func (g *Gogoanime) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDetails, server string) (*hibikeonlinestream.EpisodeServer, error) {
+	var source *hibikeonlinestream.EpisodeServer
 
 	if server == DefaultServer {
 		server = GogocdnServer
@@ -172,7 +178,7 @@ func (g *Gogoanime) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &EpisodeServer{
+				source = &hibikeonlinestream.EpisodeServer{
 					Provider: GogoanimeProvider,
 					Server:   server,
 					Headers: map[string]string{
@@ -188,7 +194,7 @@ func (g *Gogoanime) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server
 			gogocdn := onlinestream_sources.NewGogoCDN()
 			videoSources, err := gogocdn.Extract(src)
 			if err == nil {
-				source = &EpisodeServer{
+				source = &hibikeonlinestream.EpisodeServer{
 					Provider: GogoanimeProvider,
 					Server:   server,
 					Headers: map[string]string{
@@ -204,7 +210,7 @@ func (g *Gogoanime) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server
 			streamsb := onlinestream_sources.NewStreamSB()
 			videoSources, err := streamsb.Extract(src)
 			if err == nil {
-				source = &EpisodeServer{
+				source = &hibikeonlinestream.EpisodeServer{
 					Provider: GogoanimeProvider,
 					Server:   server,
 					Headers: map[string]string{
@@ -224,11 +230,11 @@ func (g *Gogoanime) FindEpisodeServer(episodeInfo *EpisodeDetails, server Server
 	}
 
 	if source == nil {
-		g.logger.Warn().Str("server", string(server)).Msg("gogoanime: No sources found")
+		g.logger.Warn().Str("server", server).Msg("gogoanime: No sources found")
 		return nil, ErrSourceNotFound
 	}
 
-	g.logger.Debug().Str("server", string(server)).Int("videoSources", len(source.VideoSources)).Msg("gogoanime: Fetched server sources")
+	g.logger.Debug().Str("server", server).Int("videoSources", len(source.VideoSources)).Msg("gogoanime: Fetched server sources")
 
 	return source, nil
 

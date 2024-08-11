@@ -23,19 +23,20 @@ export default function Page() {
 
     return (
         <div>
-            {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && (
+            {(
+                (!!ts.libraryScreenCustomBannerImage && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom)
+            ) && (
                 <>
-                    <CustomLibraryBanner />
-                    <div className="h-32"></div>
+                    <CustomLibraryBanner isLibraryScreen />
+                    <div className="h-14"></div>
                 </>
             )}
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && (
                 <>
                     <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
-                    <div className="h-10"></div>
+                    <div className="h-20"></div>
                 </>
             )}
-
 
             <MangaLibraryView
                 genres={genres}

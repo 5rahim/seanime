@@ -6,10 +6,10 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"math"
 	"net/http"
+	"seanime/internal/util"
 	"strconv"
 	"strings"
 	"sync"
@@ -32,7 +32,7 @@ type (
 	FilterEpisodeMediaInfo struct {
 		Year           *int
 		Month          *int
-		TotalEp        int // form anizip
+		TotalEp        int // from anizip
 		AbsoluteOffset int // from anizip
 	}
 )

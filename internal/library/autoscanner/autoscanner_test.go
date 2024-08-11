@@ -1,10 +1,11 @@
 package autoscanner
 
 import (
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util"
+	"seanime/internal/api/anilist"
+	"seanime/internal/events"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 	"time"
 )
@@ -15,16 +16,17 @@ func TestAutoScanner(t *testing.T) {
 	doneCh := make(chan struct{})
 
 	logger := util.NewLogger()
-	anilistClientWrapper := anilist.TestGetMockAnilistClientWrapper()
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	as := New(&NewAutoScannerOptions{
-		Database:             nil,
-		Enabled:              false,
-		AutoDownloader:       nil,
-		AnilistClientWrapper: anilistClientWrapper,
-		Logger:               logger,
-		WSEventManager:       events.NewMockWSEventManager(logger),
-		WaitTime:             5 * time.Second, // Set to 5 seconds for testing
+		Database:       nil,
+		Enabled:        false,
+		AutoDownloader: nil,
+		Platform:       anilistPlatform,
+		Logger:         logger,
+		WSEventManager: events.NewMockWSEventManager(logger),
+		WaitTime:       5 * time.Second, // Set to 5 seconds for testing
 	})
 
 	go as.SetEnabled(true)

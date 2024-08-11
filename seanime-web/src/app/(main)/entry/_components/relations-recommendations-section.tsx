@@ -1,4 +1,4 @@
-import { AL_MediaDetailsById_Media, Anime_MediaEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -8,8 +8,8 @@ import capitalize from "lodash/capitalize"
 import React from "react"
 
 type RelationsRecommendationsSectionProps = {
-    entry: Anime_MediaEntry | undefined
-    details: AL_MediaDetailsById_Media | undefined
+    entry: Anime_AnimeEntry | undefined
+    details: AL_AnimeDetailsById_Media | undefined
 }
 
 export function RelationsRecommendationsSection(props: RelationsRecommendationsSectionProps) {

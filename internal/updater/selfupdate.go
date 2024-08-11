@@ -5,13 +5,13 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/constants"
-	"github.com/seanime-app/seanime/internal/util"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"seanime/internal/constants"
+	"seanime/internal/util"
 	"strings"
 	"time"
 )
@@ -260,7 +260,7 @@ func (su *SelfUpdater) Run() error {
 }
 
 func openWindows(path string) error {
-	cmd := exec.Command("cmd", "/c", "start", "cmd", "/k", path)
+	cmd := util.NewCmd("cmd", "/c", "start", "cmd", "/k", path)
 	return cmd.Start()
 }
 

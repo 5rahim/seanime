@@ -5,14 +5,15 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/summary"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/sourcegraph/conc/pool"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/summary"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
+	"seanime/internal/util/limiter"
 	"strconv"
 	"time"
 )
@@ -20,19 +21,19 @@ import (
 // FileHydrator hydrates the metadata of all (matched) LocalFiles.
 // LocalFiles should already have their media ID hydrated.
 type FileHydrator struct {
-	LocalFiles           []*anime.LocalFile       // Local files to hydrate
-	AllMedia             []*anime.NormalizedMedia // All media used to hydrate local files
-	CompleteMediaCache   *anilist.CompleteMediaCache
-	AnizipCache          *anizip.Cache
-	AnilistClientWrapper anilist.ClientWrapperInterface
-	AnilistRateLimiter   *limiter.Limiter
-	Logger               *zerolog.Logger
-	ScanLogger           *ScanLogger                // optional
-	ScanSummaryLogger    *summary.ScanSummaryLogger // optional
-	ForceMediaId         int                        // optional - force all local files to have this media ID
+	LocalFiles         []*anime.LocalFile       // Local files to hydrate
+	AllMedia           []*anime.NormalizedMedia // All media used to hydrate local files
+	CompleteAnimeCache *anilist.CompleteAnimeCache
+	AnizipCache        *anizip.Cache
+	Platform           platform.Platform
+	AnilistRateLimiter *limiter.Limiter
+	Logger             *zerolog.Logger
+	ScanLogger         *ScanLogger                // optional
+	ScanSummaryLogger  *summary.ScanSummaryLogger // optional
+	ForceMediaId       int                        // optional - force all local files to have this media ID
 }
 
-// HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseMedia.
+// HydrateMetadata will hydrate the metadata of each LocalFile with the metadata of the matched anilist.BaseAnime.
 // It will divide the LocalFiles into groups based on their media ID and process each group in parallel.
 func (fh *FileHydrator) HydrateMetadata() {
 	start := time.Now()
@@ -92,7 +93,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 	}
 
 	// Tree contains media relations
-	tree := anilist.NewCompleteMediaRelationTree()
+	tree := anilist.NewCompleteAnimeRelationTree()
 	// Tree analysis used for episode normalization
 	var mediaTreeAnalysis *MediaTreeAnalysis
 	treeFetched := false
@@ -263,7 +264,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				mediaTreeFetchStart := time.Now()
 				// Fetch media tree
 				// The media tree will be used to normalize episode numbers
-				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.AnilistClientWrapper, fh.AnilistRateLimiter, tree, fh.CompleteMediaCache); err == nil {
+				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.Platform.GetAnilistClient(), fh.AnilistRateLimiter, tree, fh.CompleteAnimeCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
 					mta, _ := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
 						tree:        tree,

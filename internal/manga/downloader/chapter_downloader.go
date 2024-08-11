@@ -3,12 +3,9 @@ package chapter_downloader
 import (
 	"bytes"
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/manga/providers"
-	"github.com/seanime-app/seanime/internal/util"
 	_ "golang.org/x/image/bmp"  // Register BMP format
 	_ "golang.org/x/image/tiff" // Register Tiff format
 	_ "golang.org/x/image/webp" // Register WebP format
@@ -19,6 +16,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"seanime/internal/database/db"
+	"seanime/internal/events"
+	"seanime/internal/manga/providers"
+	"seanime/internal/util"
 	"sync"
 )
 
@@ -27,7 +28,7 @@ var (
 )
 
 // 📁 cache/manga
-// └── 📁 {provider}_{mediaId}_{chapterId}_[{chapterNumber}]      <- Downloader generates
+// └── 📁 {provider}_{mediaId}_{chapterId}_{chapterNumber}      <- Downloader generates
 //     ├── 📄 registry.json						                <- Contains Registry
 //     ├── 📄 1.jpg
 //     ├── 📄 2.jpg
@@ -85,7 +86,7 @@ type (
 
 	DownloadOptions struct {
 		DownloadID
-		Pages    []*manga_providers.ChapterPage
+		Pages    []*hibikemanga.ChapterPage
 		StartNow bool
 	}
 )
@@ -209,7 +210,7 @@ func (cd *Downloader) run(queueInfo *QueueInfo) {
 // It also creates a Registry file that contains information about each image.
 //
 //	e.g.,
-//	📁 {provider}_{mediaId}_{chapterId}_[{chapterNumber}]
+//	📁 {provider}_{mediaId}_{chapterId}_{chapterNumber}
 //	   ├── 📄 registry.json
 //	   ├── 📄 1.jpg
 //	   ├── 📄 2.jpg
@@ -248,7 +249,7 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 	for _, page := range queueInfo.Pages {
 		semaphore <- struct{}{} // Acquire semaphore
 		wg.Add(1)
-		go func(page *manga_providers.ChapterPage, registry *Registry) {
+		go func(page *hibikemanga.ChapterPage, registry *Registry) {
 			defer func() {
 				<-semaphore // Release semaphore
 				wg.Done()
@@ -278,7 +279,7 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 
 // downloadPage downloads a single page from the URL and saves it to the destination directory.
 // It also updates the Registry with the page information.
-func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destination string, registry *Registry) {
+func (cd *Downloader) downloadPage(page *hibikemanga.ChapterPage, destination string, registry *Registry) {
 
 	defer util.HandlePanicInModuleThen("manga/downloader/downloadImage", func() {
 	})
@@ -287,7 +288,7 @@ func (cd *Downloader) downloadPage(page *manga_providers.ChapterPage, destinatio
 
 	imgID := fmt.Sprintf("%02d", page.Index+1)
 
-	buf, err := manga_providers.GetImage(page.URL, page.Headers)
+	buf, err := manga_providers.GetImageByProxy(page.URL, page.Headers)
 	if err != nil {
 		cd.logger.Error().Err(err).Msgf("chapter downloader: Failed to get image from URL %s", page.URL)
 		return

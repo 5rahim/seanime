@@ -3,18 +3,18 @@ package anilist
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/test_utils"
-	"github.com/seanime-app/seanime/internal/util/limiter"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/test_utils"
+	"seanime/internal/util/limiter"
 	"testing"
 )
 
-func TestBaseMedia_FetchMediaTree_BaseMedia(t *testing.T) {
+func TestBaseAnime_FetchMediaTree_BaseAnime(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	anilistClientWrapper := TestGetMockAnilistClientWrapper()
+	anilistClient := TestGetMockAnilistClient()
 	lim := limiter.NewAnilistLimiter()
-	completeMediaCache := NewCompleteMediaCache()
+	completeAnimeCache := NewCompleteAnimeCache()
 
 	tests := []struct {
 		name    string
@@ -38,20 +38,20 @@ func TestBaseMedia_FetchMediaTree_BaseMedia(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			mediaF, err := anilistClientWrapper.CompleteMediaByID(context.Background(), &tt.mediaId)
+			mediaF, err := anilistClient.CompleteAnimeByID(context.Background(), &tt.mediaId)
 
 			if assert.NoError(t, err) {
 
 				media := mediaF.GetMedia()
 
-				tree := NewCompleteMediaRelationTree()
+				tree := NewCompleteAnimeRelationTree()
 
 				err = media.FetchMediaTree(
 					FetchMediaTreeAll,
-					anilistClientWrapper,
+					anilistClient,
 					lim,
 					tree,
-					completeMediaCache,
+					completeAnimeCache,
 				)
 
 				if assert.NoError(t, err) {

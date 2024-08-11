@@ -3,12 +3,12 @@
 //  * -----------------------------------------------------------------------------------------------*/
 
 
-import { Manga_Entry, Manga_MediaDownloadData, Manga_Provider } from "@/api/generated/types"
+import { Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
 import { useDeleteMangaDownloadedChapters } from "@/api/hooks/manga_download.hooks"
 
 import { useSetCurrentChapter } from "@/app/(main)/manga/_lib/handle-chapter-reader"
-import { useMangaProvider } from "@/app/(main)/manga/_lib/handle-manga"
 import { MangaDownloadChapterItem, useMangaEntryDownloadedChapters } from "@/app/(main)/manga/_lib/handle-manga-downloads"
+import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { getChapterNumberFromChapter } from "@/app/(main)/manga/_lib/handle-manga-utils"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { Button, IconButton } from "@/components/ui/button"
@@ -19,7 +19,7 @@ import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 import { BiTrash } from "react-icons/bi"
 import { GiOpenBook } from "react-icons/gi"
-import { IoLibrary } from "react-icons/io5"
+import { MdOutlineOfflinePin } from "react-icons/md"
 
 type DownloadedChapterListProps = {
     entry: Manga_Entry
@@ -34,7 +34,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         ...rest
     } = props
 
-    const { provider, setProvider } = useMangaProvider(entry.mediaId)
+    const { selectedProvider } = useSelectedMangaProvider(entry.mediaId)
 
     /**
      * Set selected chapter
@@ -43,7 +43,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
 
     const [showQueued, setShowQueued] = React.useState(false)
 
-    const { mutate: deleteChapters, isPending: isDeletingChapter } = useDeleteMangaDownloadedChapters(String(entry.mediaId), provider)
+    const { mutate: deleteChapters, isPending: isDeletingChapter } = useDeleteMangaDownloadedChapters(String(entry.mediaId), selectedProvider)
 
     const downloadedOrQueuedChapters = useMangaEntryDownloadedChapters()
 
@@ -99,7 +99,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                 return (
                     <div className="flex justify-end gap-2 items-center w-full">
                         {row.original.queued && <p className="text-[--muted]">Queued</p>}
-                        {row.original.downloaded && <p className="text-[--muted] px-1"><IoLibrary className="text-lg" /></p>}
+                        {row.original.downloaded && <p className="text-[--muted] px-1"><MdOutlineOfflinePin className="text-2xl" /></p>}
 
                         {row.original.downloaded && <IconButton
                             intent="gray-subtle"
@@ -118,7 +118,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                                     setCurrentChapter({
                                         chapterId: row.original.chapterId,
                                         chapterNumber: row.original.chapterNumber,
-                                        provider: row.original.provider as Manga_Provider,
+                                        provider: row.original.provider,
                                         mediaId: Number(entry.mediaId),
                                     })
                                 })

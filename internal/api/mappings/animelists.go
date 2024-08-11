@@ -2,8 +2,8 @@ package mappings
 
 import (
 	"github.com/goccy/go-json"
-	"github.com/seanime-app/seanime/internal/util"
 	"net/http"
+	"seanime/internal/util"
 )
 
 type (

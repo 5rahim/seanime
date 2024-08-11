@@ -1,5 +1,6 @@
 "use client"
 import { AL_MediaFormat, AL_MediaSeason, AL_MediaSort, AL_MediaStatus } from "@/api/generated/types"
+import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { AdvancedSearchList } from "@/app/(main)/search/_components/advanced-search-list"
 import { AdvancedSearchOptions } from "@/app/(main)/search/_components/advanced-search-options"
 import { AdvancedSearchPageTitle } from "@/app/(main)/search/_components/advanced-search-page-title"
@@ -45,22 +46,25 @@ export default function Page({ params: urlParams }: {
     })
 
     return (
-        <PageWrapper className="space-y-6 px-4 md:p-8 pt-0 pb-10">
-            <div className="flex items-center gap-4">
-                <Link href={`/discover`}>
-                    <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />
-                </Link>
-                <h3>Discover</h3>
-            </div>
-            <div className="text-center xl:text-left">
-                <AdvancedSearchPageTitle/>
-            </div>
-            <AppLayoutGrid cols={6} spacing="lg">
-                <AdvancedSearchOptions/>
-                <div className="col-span-5">
-                    <AdvancedSearchList/>
+        <>
+            <CustomLibraryBanner discrete />
+            <PageWrapper className="space-y-6 px-4 md:p-8 pt-0 pb-10">
+                <div className="flex items-center gap-4">
+                    <Link href={`/discover`}>
+                        <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />
+                    </Link>
+                    <h3>Discover</h3>
                 </div>
-            </AppLayoutGrid>
-        </PageWrapper>
+                <div className="text-center xl:text-left">
+                    <AdvancedSearchPageTitle />
+                </div>
+                <AppLayoutGrid cols={6} spacing="lg">
+                    <AdvancedSearchOptions />
+                    <div className="col-span-5">
+                        <AdvancedSearchList />
+                    </div>
+                </AppLayoutGrid>
+            </PageWrapper>
+        </>
     )
 }

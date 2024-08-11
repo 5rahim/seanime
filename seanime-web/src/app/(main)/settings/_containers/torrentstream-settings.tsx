@@ -17,6 +17,8 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     streamingServerHost: z.string(),
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
+    fallbackToTorrentStreamingView: z.boolean(),
+    includeInLibrary: z.boolean(),
 }))
 
 
@@ -64,25 +66,50 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     streamingServerHost: settings.streamingServerHost,
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
+                    fallbackToTorrentStreamingView: settings.fallbackToTorrentStreamingView,
+                    includeInLibrary: settings.includeInLibrary,
                 }}
                 stackClass="space-y-6"
             >
                 <Field.Switch
                     name="enabled"
                     label="Enable"
-                    help="Enable torrent streaming."
                 />
+
+                <Separator />
+
+                <h3>
+                    Integration
+                </h3>
+
+                <Field.Switch
+                    name="fallbackToTorrentStreamingView"
+                    label="Fall back to torrent streaming view"
+                    help="If the anime is not in your library, default to the torrent streaming view."
+                />
+
+                <Field.Switch
+                    name="includeInLibrary"
+                    label="Include in library"
+                    help="Make non-downloaded episodes and shows appear in your library for torrent streaming."
+                />
+
+                <Separator />
+
+                <h3>
+                    Torrent selection
+                </h3>
 
                 <Field.Switch
                     name="autoSelect"
                     label="Auto-select torrent"
-                    help="Find the best torrent automatically"
+                    help="Let Seanime find the best torrent automatically."
                 />
 
                 <Field.Select
                     name="preferredResolution"
                     label="Preferred resolution"
-                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
+                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution. 'Any' will prefer the highest resolution available."
                     options={[
                         { label: "Any", value: "-" },
                         { label: "480p", value: "480" },
@@ -107,7 +134,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
                 <Separator />
 
-                <h4>Torrent client</h4>
+                <h3>Torrent client</h3>
 
                 <p>
                     Seanime uses a built-in torrent client to download torrents.
@@ -128,9 +155,9 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
                 <Separator />
 
-                <h4>
+                <h3>
                     Streaming server
-                </h4>
+                </h3>
 
                 <p>
                     Seanime will launch a separate server to stream torrents. You can configure the port and host it uses here.
@@ -160,28 +187,6 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     </Button>
                 </div>
             </Form>
-
-            {/*<Separator />*/}
-
-            {/*<h2>Cache</h2>*/}
-
-            {/*<div className="space-y-4">*/}
-            {/*    <div className="flex gap-2 items-center">*/}
-            {/*        <Button intent="white-subtle" size="sm" onClick={() => getTotalSize()} disabled={isFetchingSize}>*/}
-            {/*            Show total size*/}
-            {/*        </Button>*/}
-            {/*        {!!totalSize && (*/}
-            {/*            <p>*/}
-            {/*                {totalSize}*/}
-            {/*            </p>*/}
-            {/*        )}*/}
-            {/*    </div>*/}
-            {/*    <div className="flex gap-2 flex-wrap items-center">*/}
-            {/*        <Button intent="alert-subtle" size="sm" onClick={() => clearCache()} disabled={isClearing}>*/}
-            {/*            Clear cache*/}
-            {/*        </Button>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
         </>
     )
 }

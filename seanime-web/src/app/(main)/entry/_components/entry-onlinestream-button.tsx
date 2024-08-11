@@ -1,4 +1,4 @@
-import { Anime_MediaEntry } from "@/api/generated/types"
+import { Anime_AnimeEntry } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -7,7 +7,7 @@ import { FiPlayCircle } from "react-icons/fi"
 
 type EntryOnlinestreamButtonProps = {
     children?: React.ReactNode
-    entry: Anime_MediaEntry | undefined
+    entry: Anime_AnimeEntry | undefined
 }
 
 export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {

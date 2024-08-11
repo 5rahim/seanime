@@ -5,20 +5,25 @@ import React from "react"
 type MediaEntryProgressBadgeProps = {
     progress?: number
     progressTotal?: number
+    forceShowTotal?: boolean
 }
 
 export const MediaEntryProgressBadge = (props: MediaEntryProgressBadgeProps) => {
-    const { progress, progressTotal } = props
+    const { progress, progressTotal, forceShowTotal } = props
 
     if (!progress) return null
 
     return (
-        <Badge size="lg" className="rounded-md px-1.5 gap-0">
-            {progress}{!!progressTotal && <span
+        <Badge
+            intent="unstyled"
+            size="lg"
+            className="font-semibold tracking-wide rounded-md rounded-tl-none rounded-br-none border-0 bg-zinc-950/40 px-1.5 gap-0"
+        >
+            {progress}{(!!progressTotal || forceShowTotal) && <span
             className={cn(
-                progress != progressTotal && "text-[--muted]",
+                "text-[--muted]",
             )}
-        >/{progressTotal}</span>}
+        >/{(!!progressTotal) ? progressTotal : "-"}</span>}
         </Badge>
     )
 }

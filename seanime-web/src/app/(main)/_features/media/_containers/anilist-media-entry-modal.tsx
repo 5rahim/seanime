@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseManga, AL_BaseMedia, AL_MediaListStatus, Anime_MediaEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_AnimeEntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { Button, IconButton } from "@/components/ui/button"
@@ -16,8 +16,8 @@ import { useToggle } from "react-use"
 
 type AnilistMediaEntryModalProps = {
     children?: React.ReactNode
-    listData?: Anime_MediaEntryListData | Manga_EntryListData
-    media?: AL_BaseMedia | AL_BaseManga
+    listData?: Anime_AnimeEntryListData | Manga_EntryListData
+    media?: AL_BaseAnime | AL_BaseManga
     hideButton?: boolean
     type?: "anime" | "manga"
 }
@@ -50,7 +50,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         <>
             {!hideButton && <>
                 {!!listData && <IconButton
-                    intent="gray-subtle"
+                    intent="white-subtle"
                     icon={<AiFillEdit />}
                     rounded
                     size="sm"
@@ -180,10 +180,10 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                 label="Progress"
                                 name="progress"
                                 min={0}
-                                max={type === "anime" ? (!!(media as AL_BaseMedia)?.nextAiringEpisode?.episode
-                                    ? (media as AL_BaseMedia)?.nextAiringEpisode?.episode! - 1
-                                    : ((media as AL_BaseMedia)?.episodes
-                                        ? (media as AL_BaseMedia).episodes
+                                max={type === "anime" ? (!!(media as AL_BaseAnime)?.nextAiringEpisode?.episode
+                                    ? (media as AL_BaseAnime)?.nextAiringEpisode?.episode! - 1
+                                    : ((media as AL_BaseAnime)?.episodes
+                                        ? (media as AL_BaseAnime).episodes
                                         : undefined)) : (media as AL_BaseManga)?.chapters}
                                 formatOptions={{
                                     maximumFractionDigits: 0,

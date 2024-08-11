@@ -15,12 +15,12 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/2/showcase.png" alt="preview" width="100%"/>
+<img src="docs/images/v2/showcase.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
-<img src="docs/images/2/rec_anime-01.gif" alt="preview" width="49%"/>
-<img src="docs/images/2/rec_manga-01.gif" alt="preview" width="48.75%"/>
+<img src="docs/images/v2/rec_anime.gif" alt="preview" width="48.5%"/>
+<img src="docs/images/v2/rec_manga.gif" alt="preview" width="49%"/>
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 
 ## About
 
-Seanime is a free and open-source media server built around AniList and other anime APIs to provide a seamless experience for anime and manga enthusiasts. 
+Seanime is a free and open-source media server built around APIs to provide a seamless experience for anime and manga enthusiasts. 
 It combines a lightweight server and a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
 
@@ -67,37 +67,39 @@ How to install Seanime
 
 ### ⬇️ Download new episodes & movies
 
-- Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei) with SeaDex support
+- Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei, SeaDex)
 - Integration with **qBittorrent** & **Transmission** for a seamless download experience
 - View upcoming and missing episodes to never miss a release
-- **Automate everything** by creating custom rules and let Seanime download new episodes or movies for you
+- Let Seanime **automatically download** new episodes or movies for you by creating custom rules
+- Support for extensions to add more sources
 
 
 ### 🎞️ Watch, anytime, anywhere
 - **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
 - Create **playlists** to binge-watch seamlessly
+- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📱 Media streaming / Transcoding
-- Watch your downloaded episodes on any device with a web browser
-- On-the-fly transcoding with seeking support powered by **FFmpeg**
+- Watch your downloaded episodes on any device
+- Built-in player with **on-the-fly transcoding** powered by **FFmpeg** & **Direct Play**
 - Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
-- Built-in player with subtitle support
-- Direct play support
+- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📽️ Torrent streaming
-- Stream torrents directly to your media player without waiting for the download to complete
+- Stream torrents directly to your media player (desktop or mobile) without waiting for the download to complete
 - Automatic torrent selection with no input required - click and play
-- Auto-selection of single episodes from batches
-- Support for seeding in the background after streaming
+- Auto-selection or manual selection of files from batches
+- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📺 Online streaming
-  - Watch episodes from online sources using the built-in player
-  - Support for multiple sources
+- Watch episodes from online sources using the built-in player
+- Support for multiple sources & extensions
 
 ### 📕 Browse and manage your manga collection
-  - Browse your AniList manga collection, search for new manga, get recommendations
+- Browse your AniList manga collection, search for new manga, get recommendations
 - **Read chapters** from various sources with the built-in, customizable manga reader
 - **Download chapters** for offline reading
+- Support for extensions to add more sources
 
 ### Other features
 - **Advanced anime/manga search**
@@ -139,58 +141,59 @@ Development and testing might require additional configuration.
 
 ### Scanning
 
-<img src="docs/images/2/rec_scanning-01-cropped.gif" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_scanning.gif" alt="preview" width="100%"/>
 
 ### Progress tracking
 
-<img src="docs/images/2/anime_entry-watching--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/anime-desktop-media-player_02--squashed.jpg" alt="preview" width="100%"/>
 
 ### Downloading
 
-<img src="docs/images/2/rec_anime_entry-download-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_anime-download_02.gif" alt="preview" width="100%"/>
 
 ### Manga
 
-<img src="docs/images/2/manga-03--squashed.jpg" alt="preview" width="100%"/>
-<img src="docs/images/v1/manga-reader.png" alt="preview" width="100%"/>
+<img src="docs/images/v2/manga_01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/manga-reader_01.png" alt="preview" width="100%"/>
 
 ### Torrent streaming
 
-<img src="docs/images/2/rec_torrent_streaming-01.gif" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_torrent-streaming.gif" alt="preview" width="100%"/>
 
 ### Media streaming / Transcoding
 
-<img src="docs/images/2/media_streaming-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_mediastream.gif" alt="preview" width="100%"/>
 <p align="center">
-<img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="250px"/>
+<img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="200px"/>
 </p>
 
 ### Schedule
 
-<img src="docs/images/2/schedule-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/schedule_01--squashed.jpg" alt="preview" width="100%"/>
 
 <details>
 <summary><b>View more</b></summary>
 
 ### Online streaming
 
-<img src="docs/images/2/online_streaming-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/online-streaming--squashed.jpg" alt="preview" width="100%"/>
 
 ### Detailed library view
 
-<img src="docs/images/2/my_library_detailed_view-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/my-library_02--squashed.jpg" alt="preview" width="100%"/>
 
 ### Discover
 
-<img src="docs/images/2/discover-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/discover_02--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/discover_03--squashed.jpg" alt="preview" width="100%"/>
 
 ### AniList integration
 
-<img src="docs/images/2/anilist-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/anilist_01--squashed.jpg" alt="preview" width="100%"/>
 
 ### UI customization
 
-<img src="docs/images/2/ui_customization-01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/customization_01--squashed.jpg" alt="preview" width="100%"/>
 
 </details>
 
@@ -203,6 +206,3 @@ The acquisition and legitimacy of this content are external to the developer's c
 - Seanime may, at its discretion, provide links or an interface to external websites or applications. These external websites are independently maintained by third parties, and Seanime has no control
   over the legitimacy of their content or operations. Please contact the website's owners for any concerns.
 - Seanime does not collect any kind of personal data or information from its users. You are responsible for maintaining the privacy and security of the third-party authentication tokens stored within your device.
-
-## Stargazers
-[![Stargazers over time](https://starchart.cc/5rahim/seanime.svg?variant=adaptive)](https://starchart.cc/5rahim/seanime)

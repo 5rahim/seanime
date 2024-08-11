@@ -1,5 +1,10 @@
 package handlers
 
+import (
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/playbackmanager"
+)
+
 // HandlePlaybackPlayVideo
 //
 //	@summary plays the video with the given path using the default media player.
@@ -8,7 +13,6 @@ package handlers
 //	@route /api/v1/playback-manager/play [POST]
 //	@returns bool
 func HandlePlaybackPlayVideo(c *RouteCtx) error {
-
 	type body struct {
 		Path string `json:"path"`
 	}
@@ -17,7 +21,11 @@ func HandlePlaybackPlayVideo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	err := c.App.PlaybackManager.StartPlayingUsingMediaPlayer(b.Path)
+	err := c.App.PlaybackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+		Payload:   b.Path,
+		UserAgent: c.Fiber.Get("User-Agent"),
+		ClientId:  "",
+	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -35,7 +43,10 @@ func HandlePlaybackPlayVideo(c *RouteCtx) error {
 //	@returns bool
 func HandlePlaybackPlayRandomVideo(c *RouteCtx) error {
 
-	err := c.App.PlaybackManager.StartRandomVideo()
+	err := c.App.PlaybackManager.StartRandomVideo(&playbackmanager.StartRandomVideoOptions{
+		UserAgent: c.Fiber.Get("User-Agent"),
+		ClientId:  "",
+	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -79,6 +90,8 @@ func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // HandlePlaybackStartPlaylist
 //
 //	@summary starts playing a playlist.
@@ -97,7 +110,7 @@ func HandlePlaybackStartPlaylist(c *RouteCtx) error {
 	}
 
 	// Get playlist
-	playlist, err := c.App.Database.GetPlaylist(b.DbId)
+	playlist, err := db_bridge.GetPlaylist(c.App.Database, b.DbId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -138,6 +151,52 @@ func HandlePlaybackPlaylistNext(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	return c.RespondWithData(true)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandlePlaybackStartManualTracking
+//
+//	@summary starts manual tracking of a media.
+//	@desc Used for tracking progress of media that is not played through any integrated media player.
+//	@desc This should only be used for trackable episodes (episodes that count towards progress).
+//	@desc This returns 'true' if the tracking was successfully started.
+//	@route /api/v1/playback-manager/manual-tracking/start [POST]
+//	@returns bool
+func HandlePlaybackStartManualTracking(c *RouteCtx) error {
+	type body struct {
+		MediaId       int    `json:"mediaId"`
+		EpisodeNumber int    `json:"episodeNumber"`
+		ClientId      string `json:"clientId"`
+	}
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.PlaybackManager.StartManualProgressTracking(&playbackmanager.StartManualProgressTrackingOptions{
+		ClientId:      b.ClientId,
+		MediaId:       b.MediaId,
+		EpisodeNumber: b.EpisodeNumber,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandlePlaybackCancelManualTracking
+//
+//	@summary cancels manual tracking of a media.
+//	@desc This will stop the server from expecting progress updates for the media.
+//	@route /api/v1/playback-manager/manual-tracking/cancel [POST]
+//	@returns bool
+func HandlePlaybackCancelManualTracking(c *RouteCtx) error {
+
+	c.App.PlaybackManager.CancelManualProgressTracking()
 
 	return c.RespondWithData(true)
 }

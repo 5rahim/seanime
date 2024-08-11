@@ -2,8 +2,8 @@ package util
 
 import (
 	"errors"
-	"fmt"
 	"github.com/fatih/color"
+	"log"
 	"runtime/debug"
 )
 
@@ -11,15 +11,15 @@ func printRuntimeError(r any, module string) string {
 	debugStr := string(debug.Stack())
 	logger := NewLogger()
 	red := color.New(color.FgRed, color.Bold)
-	fmt.Println()
+	log.Println()
 	red.Print("PANIC")
 	if module != "" {
-		fmt.Printf(" \"%s\"", module)
+		log.Printf(" \"%s\"", module)
 	}
-	fmt.Printf(" Please report this issue on the GitHub repository\n")
-	fmt.Println("========================================= Stack Trace =========================================")
+	log.Printf(" Please report this issue on the GitHub repository\n")
+	log.Println("========================================= Stack Trace =========================================")
 	logger.Error().Msgf("%+v\n\n%+v", r, debugStr)
-	fmt.Println("===================================== End of Stack Trace ======================================")
+	log.Println("===================================== End of Stack Trace ======================================")
 	return debugStr
 }
 

@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"os"
-	"os/exec"
 	"runtime"
+	"seanime/internal/util"
 	"strings"
 )
 
@@ -24,13 +24,17 @@ func HandleOpenInExplorer(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	openDirInExplorer(p.Path)
+	OpenDirInExplorer(p.Path)
 
 	return c.RespondWithData(true)
 
 }
 
-func openDirInExplorer(dir string) {
+func OpenDirInExplorer(dir string) {
+	if dir == "" {
+		return
+	}
+
 	cmd := ""
 	var args []string
 
@@ -47,7 +51,7 @@ func openDirInExplorer(dir string) {
 	default:
 		return
 	}
-	cmdObj := exec.Command(cmd, args...)
+	cmdObj := util.NewCmd(cmd, args...)
 	cmdObj.Stdout = os.Stdout
 	cmdObj.Stderr = os.Stderr
 	_ = cmdObj.Run()

@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/seanime-app/seanime/internal/core"
+	"seanime/internal/core"
 )
 
 // newWebSocketEventHandler creates a new websocket handler for real-time event communication
@@ -26,10 +26,10 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 		for {
 			if _, msg, err = c.ReadMessage(); err != nil {
 				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-					app.Logger.Debug().Msg("ws: Client disconnected")
+					app.Logger.Debug().Str("id", id).Msg("ws: Client disconnected")
 					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				} else {
-					app.Logger.Debug().Msg("ws: Client disconnection")
+					app.Logger.Debug().Str("id", id).Msg("ws: Client disconnection")
 					app.WSEventManager.RemoveConn(c.Locals("id").(string))
 				}
 				break

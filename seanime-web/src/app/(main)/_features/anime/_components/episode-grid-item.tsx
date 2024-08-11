@@ -1,4 +1,4 @@
-import { AL_BaseMedia } from "@/api/generated/types"
+import { AL_BaseAnime } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
@@ -8,7 +8,7 @@ import React from "react"
 import { AiFillPlayCircle, AiFillWarning } from "react-icons/ai"
 
 type EpisodeGridItemProps = {
-    media: AL_BaseMedia,
+    media: AL_BaseAnime,
     children?: React.ReactNode
     action?: React.ReactNode
     image?: string | null
@@ -103,6 +103,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     )}
                     onClick={onClick}
                 >
+                    <div className="absolute z-[1] rounded-md w-full h-full"></div>
                     <div className="bg-[--background] absolute z-[0] rounded-md w-full h-full"></div>
                     {!!onClick && <div
                         className={cn(
@@ -120,21 +121,11 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         placeholder={imageShimmer(700, 475)}
                         sizes="10rem"
                         className={cn("object-cover object-center transition select-none", {
-                            "opacity-25 group-hover/episode-list-item:opacity-100": isWatched,
+                            "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched,
                         }, imageClassName)}
                         data-src={image}
                     />}
                 </div>
-                {(image && unoptimizedImage) && <div
-                    className="h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden"
-                >
-                    <img
-                        src={image}
-                        alt="episode image"
-                        className="object-cover object-center absolute w-full h-full"
-                        data-src={image}
-                    />
-                </div>}
 
                 <div className="relative overflow-hidden">
                     {isInvalid && <p className="flex gap-2 text-red-300 items-center"><AiFillWarning
@@ -151,7 +142,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     >
                         <span
                             className={cn(
-                                "font-medium text-white",
+                                "font-medium text-[--foreground]",
                                 isSelected && "text-[--brand]",
                             )}
                         >

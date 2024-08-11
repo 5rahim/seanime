@@ -2,9 +2,10 @@ package onlinestream_providers
 
 import (
 	"errors"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/seanime-app/seanime/internal/util"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -83,7 +84,7 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := zoro.FindEpisodeDetails(tt.id)
+			episodes, err := zoro.FindEpisode(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -109,12 +110,12 @@ func TestZoro_FetchSources(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		episode *EpisodeDetails
-		server  Server
+		episode *hibikeonlinestream.EpisodeDetails
+		server  string
 	}{
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -123,7 +124,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -132,7 +133,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -141,7 +142,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "One Piece",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "one-piece-100$episode$120118$both",
 				Number: 1095,
 				URL:    "https://hianime.to/watch/one-piece-100?ep=120118",
@@ -150,7 +151,7 @@ func TestZoro_FetchSources(t *testing.T) {
 		},
 		{
 			name: "Apothecary Diaries",
-			episode: &EpisodeDetails{
+			episode: &hibikeonlinestream.EpisodeDetails{
 				ID:     "the-apothecary-diaries-18578$episode$122954$dub",
 				Number: 24,
 				URL:    "https://hianime.to/watch/the-apothecary-diaries-18578?ep=122954",

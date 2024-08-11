@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
-	"github.com/seanime-app/seanime/internal/mediastream/videofile"
-	"github.com/seanime-app/seanime/internal/util/result"
+	"seanime/internal/mediastream/videofile"
+	"seanime/internal/util/result"
 )
 
 const (

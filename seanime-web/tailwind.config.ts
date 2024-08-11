@@ -23,6 +23,7 @@ const config: Config = {
         "bg-red-900", "bg-red-800", "bg-red-700", "bg-red-600", "bg-red-500", "bg-red-400", "bg-red-400", "bg-red-300", "text-red-300",
         "bg-emerald-900", "bg-emerald-800", "bg-emerald-700", "bg-emerald-600", "bg-emerald-500", "bg-emerald-400", "bg-emerald-400",
         "bg-emerald-300", "text-emerald-300",
+        "bg-purple-900", "bg-purple-800", "bg-purple-700", "bg-purple-600", "bg-purple-500", "bg-purple-400", "bg-purple-400",
         "bg-opacity-70",
         "bg-opacity-80",
         "bg-opacity-70",

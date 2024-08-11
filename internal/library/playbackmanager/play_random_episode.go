@@ -3,13 +3,25 @@ package playbackmanager
 import (
 	"fmt"
 	"github.com/samber/lo"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
 )
 
+type StartRandomVideoOptions struct {
+	UserAgent string
+	ClientId  string
+}
+
 // StartRandomVideo starts a random video from the collection.
-func (pm *PlaybackManager) StartRandomVideo() error {
+// Note that this might now be suited if the user has multiple seasons of the same anime.
+func (pm *PlaybackManager) StartRandomVideo(opts *StartRandomVideoOptions) error {
 	pm.playlistHub.reset()
-	if err := pm.checkOrLoadOfflineAnimeCollection(); err != nil {
+	if err := pm.checkOrLoadAnimeCollection(); err != nil {
+		return err
+	}
+
+	animeCollection, err := pm.platform.GetAnimeCollection(false)
+	if err != nil {
 		return err
 	}
 
@@ -18,7 +30,7 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 	//
 
 	// Get lfs
-	lfs, _, err := pm.Database.GetLocalFiles()
+	lfs, _, err := db_bridge.GetLocalFiles(pm.Database)
 	if err != nil {
 		return fmt.Errorf("error getting local files: %s", err.Error())
 	}
@@ -37,7 +49,7 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 	continueLfs := make([]*anime.LocalFile, 0)
 	otherLfs := make([]*anime.LocalFile, 0)
 	for _, e := range lfEntries {
-		anilistEntry, ok := pm.animeCollection.GetListEntryFromMediaId(e.GetMediaId())
+		anilistEntry, ok := animeCollection.GetListEntryFromAnimeId(e.GetMediaId())
 		if !ok {
 			continue
 		}
@@ -71,12 +83,14 @@ func (pm *PlaybackManager) StartRandomVideo() error {
 
 	lfs = lo.Shuffle(lfs)
 
-	err = pm.MediaPlayerRepository.Play(lfs[0].GetPath())
+	err = pm.StartPlayingUsingMediaPlayer(&StartPlayingOptions{
+		Payload:   lfs[0].GetPath(),
+		UserAgent: opts.UserAgent,
+		ClientId:  opts.ClientId,
+	})
 	if err != nil {
 		return err
 	}
-
-	pm.MediaPlayerRepository.StartTracking()
 
 	return nil
 }

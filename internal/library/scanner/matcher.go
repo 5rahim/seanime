@@ -6,20 +6,20 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/summary"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/comparison"
 	"github.com/sourcegraph/conc/pool"
 	"math"
+	"seanime/internal/api/anilist"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/summary"
+	"seanime/internal/util"
+	"seanime/internal/util/comparison"
 	"time"
 )
 
 type Matcher struct {
 	LocalFiles         []*anime.LocalFile
 	MediaContainer     *MediaContainer
-	CompleteMediaCache *anilist.CompleteMediaCache
+	CompleteAnimeCache *anilist.CompleteAnimeCache
 	Logger             *zerolog.Logger
 	ScanLogger         *ScanLogger
 	ScanSummaryLogger  *summary.ScanSummaryLogger // optional
@@ -29,7 +29,7 @@ var (
 	ErrNoLocalFiles = errors.New("[matcher] no local files")
 )
 
-// MatchLocalFilesWithMedia will match each anime.LocalFile with a specific anilist.BaseMedia and modify the LocalFile's `mediaId`
+// MatchLocalFilesWithMedia will match each anime.LocalFile with a specific anilist.BaseAnime and modify the LocalFile's `mediaId`
 func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	start := time.Now()

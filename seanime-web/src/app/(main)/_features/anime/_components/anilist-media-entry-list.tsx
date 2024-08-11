@@ -4,17 +4,19 @@ import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-e
 import React from "react"
 
 
-type AnilistMediaEntryListProps = {
+type AnilistAnimeEntryListProps = {
     list: AL_AnimeCollection_MediaListCollection_Lists | undefined
+    type: "anime" | "manga"
 }
 
 /**
  * Displays a list of media entry card from an Anilist media list collection.
  */
-export function AnilistMediaEntryList(props: AnilistMediaEntryListProps) {
+export function AnilistAnimeEntryList(props: AnilistAnimeEntryListProps) {
 
     const {
         list,
+        type,
         ...rest
     } = props
 
@@ -37,7 +39,7 @@ export function AnilistMediaEntryList(props: AnilistMediaEntryListProps) {
                     showLibraryBadge
                     media={entry.media!}
                     showListDataButton
-                    type="anime"
+                    type={type}
                 />
             ))}
         </MediaCardLazyGrid>

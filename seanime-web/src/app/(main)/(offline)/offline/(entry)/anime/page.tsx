@@ -1,6 +1,6 @@
 "use client"
 
-import { AL_BaseMedia, Anime_MediaEntryEpisode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntryEpisode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
 
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_components/offline-meta-section"
@@ -113,6 +113,8 @@ function EpisodeLists(props: EpisodeListsProps) {
 
     return (
         <div className="space-y-10">
+            <h2>Episodes</h2>
+
             {episodesToWatch.length > 0 && (
                 <>
                     <Carousel
@@ -131,12 +133,11 @@ function EpisodeLists(props: EpisodeListsProps) {
                                 >
                                     <EpisodeCard
                                         key={episode.localFile?.path || ""}
-                                        image={episode.episodeMetadata?.image || episode.baseMedia?.bannerImage || episode.baseMedia?.coverImage?.extraLarge}
-                                        topTitle={episode.episodeTitle || episode?.baseMedia?.title?.userPreferred}
+                                        image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+                                        topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
                                         title={episode.displayTitle}
-                                        meta={episode.episodeMetadata?.airDate ?? undefined}
                                         isInvalid={episode.isInvalid}
-                                        progressTotal={episode.baseMedia?.episodes}
+                                        progressTotal={episode.baseAnime?.episodes}
                                         progressNumber={episode.progressNumber}
                                         episodeNumber={episode.episodeNumber}
                                         length={episode.episodeMetadata?.length}
@@ -150,7 +151,6 @@ function EpisodeLists(props: EpisodeListsProps) {
             )}
 
             <div className="space-y-10 pb-10">
-                <h2>Episodes</h2>
                 <EpisodeListGrid>
                     {mainEpisodes.map(episode => (
                         <EpisodeItem
@@ -197,8 +197,8 @@ function EpisodeLists(props: EpisodeListsProps) {
 }
 
 const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
-    episode: Anime_MediaEntryEpisode,
-    media: AL_BaseMedia,
+    episode: Anime_AnimeEntryEpisode,
+    media: AL_BaseAnime,
     onPlay: ({ path }: { path: string }) => void,
     isWatched?: boolean
 }) => {

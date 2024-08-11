@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/library/anime"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/anime"
 	"strconv"
 )
 
@@ -34,7 +35,7 @@ func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("invalid id"))
 	}
 
-	rule, err := c.App.Database.GetAutoDownloaderRule(uint(id))
+	rule, err := db_bridge.GetAutoDownloaderRule(c.App.Database, uint(id))
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -49,7 +50,7 @@ func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/rules [GET]
 //	@returns []anime.AutoDownloaderRule
 func HandleGetAutoDownloaderRules(c *RouteCtx) error {
-	rules, err := c.App.Database.GetAutoDownloaderRules()
+	rules, err := db_bridge.GetAutoDownloaderRules(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -95,7 +96,7 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 		Destination:         b.Destination,
 	}
 
-	if err := c.App.Database.InsertAutoDownloaderRule(rule); err != nil {
+	if err := db_bridge.InsertAutoDownloaderRule(c.App.Database, rule); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -130,7 +131,7 @@ func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 	}
 
 	// Update the rule based on its DbID (primary key)
-	if err := c.App.Database.UpdateAutoDownloaderRule(b.Rule.DbID, b.Rule); err != nil {
+	if err := db_bridge.UpdateAutoDownloaderRule(c.App.Database, b.Rule.DbID, b.Rule); err != nil {
 		return c.RespondWithError(err)
 	}
 
@@ -150,7 +151,7 @@ func HandleDeleteAutoDownloaderRule(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("invalid id"))
 	}
 
-	if err := c.App.Database.DeleteAutoDownloaderRule(uint(id)); err != nil {
+	if err := db_bridge.DeleteAutoDownloaderRule(c.App.Database, uint(id)); err != nil {
 		return c.RespondWithError(err)
 	}
 

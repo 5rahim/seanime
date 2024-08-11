@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/library/summary"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/library/scanner"
+	"seanime/internal/library/summary"
 )
 
 // HandleScanLocalFiles
@@ -35,19 +36,8 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// +---------------------+
-	// |      Account        |
-	// +---------------------+
-
-	// Get the user's account
-	// If the account is not defined, return an error
-	acc, err := c.App.GetAccount()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
 	// Get the latest local files
-	existingLfs, _, err := c.App.Database.GetLocalFiles()
+	existingLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -67,17 +57,16 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 
 	// Create a new scanner
 	sc := scanner.Scanner{
-		DirPath:              libraryPath,
-		Username:             acc.Username,
-		Enhanced:             b.Enhanced,
-		AnilistClientWrapper: c.App.AnilistClientWrapper,
-		Logger:               c.App.Logger,
-		WSEventManager:       c.App.WSEventManager,
-		ExistingLocalFiles:   existingLfs,
-		SkipLockedFiles:      b.SkipLockedFiles,
-		SkipIgnoredFiles:     b.SkipIgnoredFiles,
-		ScanSummaryLogger:    scanSummaryLogger,
-		ScanLogger:           scanLogger,
+		DirPath:            libraryPath,
+		Enhanced:           b.Enhanced,
+		Platform:           c.App.AnilistPlatform,
+		Logger:             c.App.Logger,
+		WSEventManager:     c.App.WSEventManager,
+		ExistingLocalFiles: existingLfs,
+		SkipLockedFiles:    b.SkipLockedFiles,
+		SkipIgnoredFiles:   b.SkipIgnoredFiles,
+		ScanSummaryLogger:  scanSummaryLogger,
+		ScanLogger:         scanLogger,
 	}
 
 	// Scan the library
@@ -91,13 +80,13 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	}
 
 	// Insert the local files
-	lfs, err := c.App.Database.InsertLocalFiles(allLfs)
+	lfs, err := db_bridge.InsertLocalFiles(c.App.Database, allLfs)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Save the scan summary
-	err = c.App.Database.InsertScanSummary(scanSummaryLogger.GenerateSummary())
+	err = db_bridge.InsertScanSummary(c.App.Database, scanSummaryLogger.GenerateSummary())
 
 	go c.App.AutoDownloader.CleanUpDownloadedItems()
 

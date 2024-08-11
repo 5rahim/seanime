@@ -16,11 +16,6 @@ import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
 
-export const ONLINESTREAM_PROVIDERS = [
-    { value: "gogoanime", label: "Gogoanime" },
-    { value: "zoro", label: "Hianime" },
-]
-
 export function useOnlinestreamEpisodeList(mId: string | null) {
     const router = useRouter()
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
@@ -321,6 +316,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
 
     return {
         currentEpisodeDetails: episodeDetails,
+        provider,
         servers,
         videoSource,
         onMediaDetached,

@@ -1,6 +1,6 @@
 package offline
 
-import "github.com/seanime-app/seanime/internal/api/anilist"
+import "seanime/internal/api/anilist"
 
 type (
 	MockHub struct {

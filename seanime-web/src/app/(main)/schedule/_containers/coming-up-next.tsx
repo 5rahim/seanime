@@ -1,13 +1,12 @@
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
-import { AnimeListItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MonthCalendar } from "@/app/(main)/schedule/_components/month-calendar"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { addSeconds, formatDistanceToNow } from "date-fns"
-import Image from "next/image"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import React from "react"
 
 /**
@@ -16,13 +15,16 @@ import React from "react"
  */
 export function ComingUpNext() {
     const serverStatus = useServerStatus()
+    const router = useRouter()
 
     const { data: animeCollection } = useGetAnimeCollection()
     const missingEpisodes = useMissingEpisodes()
 
     const media = React.useMemo(() => {
         // get all media
-        const _media = (animeCollection?.MediaListCollection?.lists?.map(n => n?.entries).flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
+        const _media = (animeCollection?.MediaListCollection?.lists?.filter(n => n.status !== "DROPPED")
+            .map(n => n?.entries)
+            .flat() ?? []).map(entry => entry?.media)?.filter(Boolean)
         // keep media with next airing episodes
         let ret = _media.filter(item => !!item.nextAiringEpisode?.episode)
             .sort((a, b) => a.nextAiringEpisode!.timeUntilAiring - b.nextAiringEpisode!.timeUntilAiring)
@@ -66,39 +68,19 @@ export function ComingUpNext() {
                                 key={item.id}
                                 className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
                             >
-                                <div
-                                    className="rounded-md border bg-[--background] border-gray-800 overflow-hidden aspect-[4/2] relative flex items-end flex-none group/upcoming-episode-item"
-                                >
-                                    <div
-                                        className="absolute w-full h-full rounded-md rounded-b-none overflow-hidden z-[1]"
-                                    >
-                                        {(!!item.bannerImage || !!item.coverImage?.large) ? <Image
-                                            src={item.bannerImage || item.coverImage?.large || ""}
-                                            alt={""}
-                                            fill
-                                            quality={100}
-                                            sizes="20rem"
-                                            className="object-cover object-top transition-opacity opacity-20 group-hover/upcoming-episode-item:opacity-30"
-                                        /> : <div
-                                            className="h-full block absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
-                                        ></div>}
-                                        <AnimeListItemBottomGradient />
-                                    </div>
-                                    <div className="relative z-[3] w-full p-4 space-y-1">
-                                        <Link
-                                            href={`/entry?id=${item.id}`}
-                                            className="w-[80%] line-clamp-1 text-[--muted] font-semibold cursor-pointer"
-                                        >
-                                            {item.title?.userPreferred}
-                                        </Link>
-                                        <div className="w-full justify-between flex items-center">
-                                            <p className="text-xl font-semibold">Episode {item.nextAiringEpisode?.episode}</p>
-                                            {item.nextAiringEpisode?.timeUntilAiring &&
-                                                <p className="text-[--muted]">{formatDistanceToNow(addSeconds(new Date(),
-                                                    item.nextAiringEpisode?.timeUntilAiring), { addSuffix: true })}</p>}
-                                        </div>
-                                    </div>
-                                </div>
+                                <EpisodeCard
+                                    key={item.id}
+                                    image={item.bannerImage || item.coverImage?.large}
+                                    topTitle={item.title?.userPreferred}
+                                    title={`Episode ${item.nextAiringEpisode?.episode}`}
+                                    meta={formatDistanceToNow(addSeconds(new Date(), item.nextAiringEpisode?.timeUntilAiring!),
+                                        { addSuffix: true })}
+                                    imageClass="opacity-50"
+                                    actionIcon={null}
+                                    onClick={() => {
+                                        router.push(`/entry?id=${item.id}`)
+                                    }}
+                                />
                             </CarouselItem>
                         )
                     })}

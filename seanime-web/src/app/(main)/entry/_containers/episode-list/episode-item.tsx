@@ -1,4 +1,4 @@
-import { AL_BaseMedia, Anime_LocalFileType, Anime_MediaEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_AnimeEntryEpisode, Anime_LocalFileType } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { IconButton } from "@/components/ui/button"
@@ -19,12 +19,10 @@ import { toast } from "sonner"
 export const EpisodeItemIsolation = createIsolation()
 
 const __metadataModalIsOpenAtom = atom(false)
-export const __episodeItem_infoModalIsOpenAtom = atom(false)
-
 
 export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
-    episode: Anime_MediaEntryEpisode,
-    media: AL_BaseMedia,
+    episode: Anime_AnimeEntryEpisode,
+    media: AL_BaseAnime,
     onPlay?: ({ path, mediaId }: { path: string, mediaId: number }) => void,
     isWatched?: boolean
 }) => {
@@ -102,11 +100,11 @@ const metadataSchema = defineSchema(({ z }) => z.object({
     type: z.string().min(0),
 }))
 
-function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
+function MetadataModal({ episode }: { episode: Anime_AnimeEntryEpisode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
-    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseMedia?.id)
+    const { updateLocalFile, isPending } = useUpdateLocalFileData(episode.baseAnime?.id)
 
     return (
         <Modal
@@ -117,7 +115,7 @@ function MetadataModal({ episode }: { episode: Anime_MediaEntryEpisode }) {
             titleClass="text-center"
             contentClass="max-w-xl"
         >
-            <p className="w-full line-clamp-2 text-sm text-[--muted] px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
+            <p className="w-full line-clamp-2 text-sm px-4 text-center py-2 flex-none">{episode.localFile?.name}</p>
             <Form
                 schema={metadataSchema}
                 onSubmit={(data) => {
@@ -171,10 +169,10 @@ function MetadataModalButton() {
     return <DropdownMenuItem onClick={() => setIsOpen(true)}>Update metadata</DropdownMenuItem>
 }
 
-function EpisodeItemInfoModalButton({ episode }: { episode: Anime_MediaEntryEpisode }) {
+function EpisodeItemInfoModalButton({ episode }: { episode: Anime_AnimeEntryEpisode }) {
     return <Modal
         title={episode.displayTitle}
-        contentClass="max-w-2xl"
+        contentClass="max-w-2xl overflow-hidden"
         titleClass="text-xl"
         trigger={<IconButton
             icon={<MdInfo />}

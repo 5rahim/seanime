@@ -2,37 +2,39 @@ package core
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/seanime-app/seanime/internal/api/anilist"
-	"github.com/seanime-app/seanime/internal/api/anizip"
-	"github.com/seanime-app/seanime/internal/api/listsync"
-	"github.com/seanime-app/seanime/internal/api/metadata"
-	"github.com/seanime-app/seanime/internal/constants"
-	"github.com/seanime-app/seanime/internal/database/db"
-	"github.com/seanime-app/seanime/internal/database/models"
-	"github.com/seanime-app/seanime/internal/discordrpc/presence"
-	"github.com/seanime-app/seanime/internal/events"
-	"github.com/seanime-app/seanime/internal/library/anime"
-	"github.com/seanime-app/seanime/internal/library/autodownloader"
-	"github.com/seanime-app/seanime/internal/library/autoscanner"
-	"github.com/seanime-app/seanime/internal/library/fillermanager"
-	"github.com/seanime-app/seanime/internal/library/playbackmanager"
-	"github.com/seanime-app/seanime/internal/library/scanner"
-	"github.com/seanime-app/seanime/internal/manga"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mediaplayer"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpchc"
-	"github.com/seanime-app/seanime/internal/mediaplayers/mpv"
-	"github.com/seanime-app/seanime/internal/mediaplayers/vlc"
-	"github.com/seanime-app/seanime/internal/mediastream"
-	"github.com/seanime-app/seanime/internal/offline"
-	"github.com/seanime-app/seanime/internal/onlinestream"
-	"github.com/seanime-app/seanime/internal/torrents/animetosho"
-	"github.com/seanime-app/seanime/internal/torrents/nyaa"
-	"github.com/seanime-app/seanime/internal/torrents/torrent_client"
-	"github.com/seanime-app/seanime/internal/torrentstream"
-	"github.com/seanime-app/seanime/internal/updater"
-	"github.com/seanime-app/seanime/internal/util"
-	"github.com/seanime-app/seanime/internal/util/filecache"
 	"runtime"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
+	"seanime/internal/constants"
+	"seanime/internal/database/db"
+	"seanime/internal/database/db_bridge"
+	"seanime/internal/database/models"
+	"seanime/internal/discordrpc/presence"
+	"seanime/internal/events"
+	"seanime/internal/extension_repo"
+	"seanime/internal/library/anime"
+	"seanime/internal/library/autodownloader"
+	"seanime/internal/library/autoscanner"
+	"seanime/internal/library/fillermanager"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/library/scanner"
+	"seanime/internal/manga"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/mediaplayers/mpchc"
+	"seanime/internal/mediaplayers/mpv"
+	"seanime/internal/mediaplayers/vlc"
+	"seanime/internal/mediastream"
+	"seanime/internal/offline"
+	"seanime/internal/onlinestream"
+	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/platforms/platform"
+	"seanime/internal/torrent_clients/torrent_client"
+	"seanime/internal/torrents/torrent"
+	"seanime/internal/torrentstream"
+	"seanime/internal/updater"
+	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"sync"
 )
 
@@ -42,15 +44,15 @@ type (
 		Database                *db.Database
 		Logger                  *zerolog.Logger
 		TorrentClientRepository *torrent_client.Repository
+		TorrentRepository       *torrent.Repository
 		Watcher                 *scanner.Watcher
 		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClientWrapper    anilist.ClientWrapperInterface
-		NyaaSearchCache         *nyaa.SearchCache
-		AnimeToshoSearchCache   *animetosho.SearchCache
+		AnilistClient           anilist.AnilistClient
+		AnilistPlatform         platform.Platform
 		FillerManager           *fillermanager.FillerManager
 		WSEventManager          *events.WSEventManager
-		ListSyncCache           *listsync.Cache
 		AutoDownloader          *autodownloader.AutoDownloader
+		ExtensionRepository     *extension_repo.Repository
 		MediaPlayer             struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
@@ -63,7 +65,7 @@ type (
 		AutoScanner             *autoscanner.AutoScanner
 		PlaybackManager         *playbackmanager.PlaybackManager
 		FileCacher              *filecache.Cacher
-		Onlinestream            *onlinestream.OnlineStream
+		OnlinestreamRepository  *onlinestream.Repository
 		MangaRepository         *manga.Repository
 		MetadataProvider        *metadata.Provider
 		DiscordPresence         *discordrpc_presence.Presence
@@ -76,9 +78,10 @@ type (
 		SecondarySettings       struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
-		}
+		} // Struct for other settings sent to client
 		SelfUpdater        *updater.SelfUpdater
-		TotalLibrarySize   uint64                   // Initialized in modules.go
+		TotalLibrarySize   uint64 // Initialized in modules.go
+		LibraryDir         string
 		animeCollection    *anilist.AnimeCollection // TODO: Rename to animeCollection
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection    *anilist.MangaCollection
@@ -91,6 +94,7 @@ type (
 
 // NewApp creates a new server instance
 func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
+
 	logger := util.NewLogger()
 
 	logger.Info().Msgf("app: Seanime %s-%s", constants.Version, constants.VersionName)
@@ -124,24 +128,27 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Add default local file entries if there are none
-	if _, _, err = database.GetLocalFiles(); err != nil {
-		_, err = database.InsertLocalFiles(make([]*anime.LocalFile, 0))
+	if _, _, err = db_bridge.GetLocalFiles(database); err != nil {
+		_, err = db_bridge.InsertLocalFiles(database, make([]*anime.LocalFile, 0))
 		if err != nil {
 			logger.Fatal().Err(err).Msgf("app: Failed to initialize local files in the database")
 		}
 	}
 
-	database.TrimLocalFileEntries()
-	database.TrimScanSummaryEntries()
+	database.TrimLocalFileEntries()   // ran in goroutine
+	database.TrimScanSummaryEntries() // ran in goroutine
 
 	// Get token from stored account or return empty string
 	anilistToken := database.GetAnilistToken()
 
 	// Anilist Client Wrapper
-	anilistCW := anilist.NewClientWrapper(anilistToken)
+	anilistCW := anilist.NewAnilistClient(anilistToken)
 
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
+
+	// Anilist Platform
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 
 	// AniZip Cache
 	anizipCache := anizip.NewCache()
@@ -153,11 +160,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	}
 
 	// Online Stream
-	onlineStream := onlinestream.New(&onlinestream.NewOnlineStreamOptions{
-		Logger:               logger,
-		FileCacher:           fileCacher,
-		AnizipCache:          anizipCache,
-		AnilistClientWrapper: anilistCW,
+	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
+		Logger:      logger,
+		FileCacher:  fileCacher,
+		AnizipCache: anizipCache,
+		Platform:    anilistPlatform,
 	})
 
 	// Metadata Provider
@@ -170,28 +177,35 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
-		BackupDir:      cfg.Manga.DownloadDir,
 		ServerURI:      cfg.GetServerURI(),
 		WsEventManager: wsEventManager,
 		DownloadDir:    cfg.Manga.DownloadDir,
+		Database:       database,
+	})
+
+	// Extension Repository
+	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
+		Logger:         logger,
+		ExtensionDir:   cfg.Extensions.Dir,
+		WSEventManager: wsEventManager,
 	})
 
 	app := &App{
 		Config:                  cfg,
 		Database:                database,
-		AnilistClientWrapper:    anilistCW,
+		AnilistClient:           anilistCW,
+		AnilistPlatform:         anilistPlatform,
 		AnizipCache:             anizipCache,
-		NyaaSearchCache:         nyaa.NewSearchCache(),
-		AnimeToshoSearchCache:   animetosho.NewSearchCache(),
 		WSEventManager:          wsEventManager,
-		ListSyncCache:           listsync.NewCache(),
 		Logger:                  logger,
 		Version:                 constants.Version,
 		Updater:                 updater.New(constants.Version, logger),
 		FileCacher:              fileCacher,
-		Onlinestream:            onlineStream,
+		OnlinestreamRepository:  onlinestreamRepository,
 		MetadataProvider:        metadataProvider,
 		MangaRepository:         mangaRepository,
+		ExtensionRepository:     extensionRepository,
+		TorrentRepository:       nil, // Initialized in App.initModulesOnce
 		FillerManager:           nil, // Initialized in App.initModulesOnce
 		MangaDownloader:         nil, // Initialized in App.initModulesOnce
 		PlaybackManager:         nil, // Initialized in App.initModulesOnce
@@ -221,6 +235,11 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Initialize all setting-dependent modules
 	app.InitOrRefreshModules()
+
+	// Load built-in extensions
+	app.LoadBuiltInExtensions()
+	// Load external extensions
+	app.LoadOrRefreshExternalExtensions()
 
 	// Fetch Anilist collection and set account if not offline
 	if !app.IsOffline() {
