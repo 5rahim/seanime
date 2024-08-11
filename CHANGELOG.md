@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.0.0
+
+- 🎉 Extension System
+  - Create or install torrent provider, online streaming, and manga source extensions
+  - Support for JavaScript, TypeScript, and Go
+  - Easily share extensions by hosting them on GitHub or any public URL
+  - Extensions are sandboxed for security and have access only to essential APIs
+- 🎉 Windows System Tray App
+  - Seanime now runs as a system tray app on Windows, offering quick and easy access
+- 🎉 External Media Player Link (Custom scheme)
+  - Open media in external player apps like VLC, MX Player, Outplayer, and more, using custom URL schemes
+  - Stream both downloaded media and torrents directly to your preferred player that supports custom schemes
+- ✨ Torrent Streaming Enhancements
+  - Stream torrents to other devices using the external player link settings
+  - Manually select files for torrent streaming (#103)
+  - View torrent streaming episodes alongside downloaded ones in your library
+  - Improved handling of Specials & Adult content (#103)
+  - Torrent streaming now passes filenames to media players (#99)
+  - Option to switch to torrent streaming view if media isn't in your library
+- ⚡️ Enhanced Auto Downloader
+  - Improved accuracy with a new option to filter by release group using multiple queries
+- ✨ UI Enhancements
+  - Customize your experience with new user interface settings
+  - Updated design for media cards, episode cards, headers, and more
+- ✨ Manga Enhancements
+  - Manually match manga series for more accurate results
+  - Updated page layout
+- ✨ Notifications
+  - Stay informed with new in-app notifications
+- ⚡️ Smart Search Improvements
+  - Enhanced search results for current torrent providers
+  - Reduced latency for torrent searches
+- ⚡️ Media Streaming Enhancements
+  - Defaults to the cache directory for storing video segments, removing the need for a transcode directory
+- ⚡️ Library Enhancements
+  - Filter by title in the detailed library view (#102)
+  - More options for Discord Rich Presence (#104)
+- 🦺 Bug Fixes & Stability
+  - Fixed incorrect listing on the schedule calendar
+  - Resolved runtime error when manually syncing offline progress
+  - Resolved runtime error caused by torrent streaming
+  - Corrected links on the AniList page's manga cards
+- 🏗️ Logging & Output
+  - Continuous logging of terminal output to a file in the logs directory
+  - FFmpeg crashes are now logged to a file
+  - Enforced absolute paths for the `-datadir` flag
+- 🏗️ Codebase Improvements
+  - Refactored code related to the AniList API for better consistency
+  - Enhanced modularity of the codebase for easier maintenance
+  - Updated release workflow and dependencies
+
 ## v1.7.3
 
 - ⚡️ Perf: Optimized queries
