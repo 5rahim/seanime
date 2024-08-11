@@ -15,6 +15,7 @@ import { GrInstallOption } from "react-icons/gr"
 import { PiBookFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { TbReload } from "react-icons/tb"
+import { toast } from "sonner"
 
 type ExtensionListProps = {
     children?: React.ReactNode
@@ -67,6 +68,7 @@ export function ExtensionList(props: ExtensionListProps) {
                             setCheckForUpdates(true)
                             React.startTransition(() => {
                                 refetch()
+                                toast.info("Fetching updates")
                             })
                         }}
                     >
