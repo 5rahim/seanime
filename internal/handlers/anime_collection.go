@@ -31,10 +31,6 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithData(&anime.LibraryCollection{})
 	}
 
-	//if lc, found := libraryCollectionCache.Get(core.AnimeCollectionCacheId); found {
-	//	return c.RespondWithData(lc)
-	//}
-
 	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -61,9 +57,6 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	// Hydrate total library size
 	libraryCollection.Stats.TotalSize = humanize.Bytes(c.App.TotalLibrarySize)
-
-	//libraryCollectionCache.Clear()
-	//libraryCollectionCache.Set(core.AnimeCollectionCacheId, libraryCollection)
 
 	return c.RespondWithData(libraryCollection)
 }

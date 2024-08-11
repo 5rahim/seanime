@@ -14,10 +14,10 @@ import { MdOutlineDevices } from "react-icons/md"
 const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeEnabled: z.boolean(),
     transcodeHwAccel: z.string(),
-    transcodeThreads: z.number(),
     transcodePreset: z.string().min(2),
-    preTranscodeEnabled: z.boolean(),
-    preTranscodeLibraryDir: z.string(),
+    // transcodeThreads: z.number(),
+    // preTranscodeEnabled: z.boolean(),
+    // preTranscodeLibraryDir: z.string(),
     disableAutoSwitchToDirectPlay: z.boolean(),
     ffmpegPath: z.string().min(0),
     ffprobePath: z.string().min(0),
@@ -71,6 +71,9 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             settings: {
                                 ...settings,
                                 ...data,
+                                preTranscodeLibraryDir: "",
+                                preTranscodeEnabled: false,
+                                transcodeThreads: 0,
                             },
                         })
                     }
@@ -78,10 +81,10 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 defaultValues={{
                     transcodeEnabled: settings?.transcodeEnabled ?? false,
                     transcodeHwAccel: settings?.transcodeHwAccel || "cpu",
-                    transcodeThreads: settings?.transcodeThreads,
                     transcodePreset: settings?.transcodePreset || "fast",
-                    preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,
-                    preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
+                    // transcodeThreads: settings?.transcodeThreads,
+                    // preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,
+                    // preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
                     disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay ?? false,
                     ffmpegPath: settings?.ffmpegPath || "",
                     ffprobePath: settings?.ffprobePath || "",

@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"seanime/internal/api/anilist"
-	"seanime/internal/core"
 	"seanime/internal/events"
 	"seanime/internal/util/result"
 	"strconv"
@@ -29,20 +28,13 @@ func HandleGetAnimeCollection(c *RouteCtx) error {
 	}
 
 	go func() {
-		if c.App.Settings == nil {
-			return
-		}
-		if c.App.Settings.Library.EnableManga {
+		if c.App.Settings != nil && c.App.Settings.Library.EnableManga {
 			_, _ = c.App.GetMangaCollection(bypassCache)
 			if bypassCache {
 				c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 			}
 		}
 	}()
-
-	if bypassCache {
-		core.AnimeCollectionCacheId++
-	}
 
 	return c.RespondWithData(animeCollection)
 }
