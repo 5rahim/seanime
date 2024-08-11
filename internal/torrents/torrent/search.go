@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"github.com/dustin/go-humanize"
+	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
@@ -198,6 +199,9 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 	// sort both by seeders
 	slices.SortFunc(torrents, func(i, j *hibiketorrent.AnimeTorrent) int {
 		return cmp.Compare(j.Seeders, i.Seeders)
+	})
+	previews = lo.Filter(previews, func(p *Preview, _ int) bool {
+		return p.Torrent != nil
 	})
 	slices.SortFunc(previews, func(i, j *Preview) int {
 		return cmp.Compare(j.Torrent.Seeders, i.Torrent.Seeders)
