@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	SeaDexProviderName = "nyaa"
+	ProviderName = "seadex"
 )
 
 type Provider struct {
@@ -66,7 +66,7 @@ func (n *Provider) findTorrents(media *hibiketorrent.Media) (ret []*hibiketorren
 		go func(t *Torrent) {
 			defer wg.Done()
 			mu.Lock()
-			ret = append(ret, t.toAnimeTorrent(SeaDexProviderName))
+			ret = append(ret, t.toAnimeTorrent(ProviderName))
 			mu.Unlock()
 		}(t)
 	}
