@@ -78,12 +78,12 @@ searchLoop:
 
 		// This whole thing below just means that
 		// If we are looking for batches, there should be at least 3 torrents found or the max seeders should be at least 15
-		if searchBatch == true {
+		if searchBatch {
 			nbFound := len(data.Torrents)
 			seedersArr := lo.Map(data.Torrents, func(t *hibiketorrent.AnimeTorrent, _ int) int {
 				return t.Seeders
 			})
-			if seedersArr == nil || len(seedersArr) == 0 {
+			if len(seedersArr) == 0 {
 				searchBatch = false
 				continue
 			}

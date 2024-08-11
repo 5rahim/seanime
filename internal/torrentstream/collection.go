@@ -67,12 +67,14 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 
 			mu.Lock()
 			if _, found := visitedMediaIds[entry.GetMedia().GetID()]; found {
+				mu.Unlock()
 				return
 			}
 			// Get the next episode to watch
 			// i.e. if the user has watched episode 1, the next episode to watch is 2
 			nextEpisodeToWatch := entry.GetProgressSafe() + 1
 			if nextEpisodeToWatch > entry.GetMedia().GetCurrentEpisodeCount() {
+				mu.Unlock()
 				return // Skip this entry if the user has watched all episodes
 			}
 			mediaId := entry.GetMedia().GetID()
