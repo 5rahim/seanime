@@ -27,6 +27,10 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if animeCollection == nil {
+		return c.RespondWithData(&anime.LibraryCollection{})
+	}
+
 	//if lc, found := libraryCollectionCache.Get(core.AnimeCollectionCacheId); found {
 	//	return c.RespondWithData(lc)
 	//}
@@ -49,6 +53,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 
 	if c.App.SecondarySettings.Torrentstream != nil && c.App.SecondarySettings.Torrentstream.IncludeInLibrary {
 		c.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
+			AnimeCollection:   animeCollection,
 			LibraryCollection: libraryCollection,
 			AnizipCache:       c.App.AnizipCache,
 		})

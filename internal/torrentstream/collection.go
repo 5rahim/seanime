@@ -19,6 +19,7 @@ type (
 	}
 
 	HydrateStreamCollectionOptions struct {
+		AnimeCollection   *anilist.AnimeCollection
 		LibraryCollection *anime.LibraryCollection
 		AnizipCache       *anizip.Cache
 	}
@@ -29,13 +30,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		return
 	}
 
-	animeCollection, err := r.platform.GetAnimeCollection(false)
-	if err != nil {
-		r.logger.Error().Err(err).Msg("torrentstream: could not get anime collection")
-		return
-	}
-
-	lists := animeCollection.MediaListCollection.GetLists()
+	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched
 	var currentlyWatching *anilist.AnimeCollection_MediaListCollection_Lists
 	for _, list := range lists {

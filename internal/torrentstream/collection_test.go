@@ -80,6 +80,7 @@ func TestStreamCollection(t *testing.T) {
 
 	// Create the stream collection
 	repo.HydrateStreamCollection(&HydrateStreamCollectionOptions{
+		AnimeCollection:   animeCollection,
 		LibraryCollection: libraryCollection,
 		AnizipCache:       anizipCache,
 	})

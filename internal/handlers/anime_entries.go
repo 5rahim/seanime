@@ -55,6 +55,10 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if animeCollection == nil {
+		return c.RespondWithError(errors.New("anime collection not found"))
+	}
+
 	// Create a new media entry
 	entry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
 		MediaId:          mId,
