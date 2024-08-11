@@ -18,7 +18,7 @@ func NewCmd(arg string, args ...string) *exec.Cmd {
 	cmd := exec.Command(arg, args...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		CreationFlags: 0x08000000,
-		HideWindow:    true,
+		//HideWindow:    true,
 	}
 	return cmd
 }
@@ -31,7 +31,7 @@ func NewCmdCtx(ctx context.Context, arg string, args ...string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, arg, args...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		CreationFlags: 0x08000000,
-		HideWindow:    true,
+		//HideWindow:    true,
 	}
 	return cmd
 }
