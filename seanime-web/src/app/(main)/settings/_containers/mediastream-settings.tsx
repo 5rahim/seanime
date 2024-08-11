@@ -16,7 +16,6 @@ const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeHwAccel: z.string(),
     transcodeThreads: z.number(),
     transcodePreset: z.string().min(2),
-    transcodeTempDir: z.string().min(2),
     preTranscodeEnabled: z.boolean(),
     preTranscodeLibraryDir: z.string(),
     disableAutoSwitchToDirectPlay: z.boolean(),
@@ -60,12 +59,6 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     const { activeOnDevice, setActiveOnDevice } = useMediastreamActiveOnDevice()
 
-    // const { data: totalSize, mutate: getTotalSize, isPending: isFetchingSize } = useGetFileCacheMediastreamVideoFilesTotalSize()
-
-    // const { mutate: clearCache, isPending: isClearing } = useClearFileCacheMediastreamVideoFiles(() => {
-    //     getTotalSize()
-    // })
-
     if (!settings) return <LoadingSpinner />
 
     return (
@@ -83,15 +76,15 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     }
                 }}
                 defaultValues={{
-                    transcodeEnabled: settings?.transcodeEnabled,
+                    transcodeEnabled: settings?.transcodeEnabled ?? false,
                     transcodeHwAccel: settings?.transcodeHwAccel || "cpu",
                     transcodeThreads: settings?.transcodeThreads,
-                    transcodePreset: settings?.transcodePreset,
-                    preTranscodeEnabled: settings?.preTranscodeEnabled,
+                    transcodePreset: settings?.transcodePreset || "fast",
+                    preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,
                     preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
-                    disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay,
-                    ffmpegPath: settings?.ffmpegPath,
-                    ffprobePath: settings?.ffprobePath,
+                    disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay ?? false,
+                    ffmpegPath: settings?.ffmpegPath || "",
+                    ffprobePath: settings?.ffprobePath || "",
                 }}
                 stackClass="space-y-6"
             >

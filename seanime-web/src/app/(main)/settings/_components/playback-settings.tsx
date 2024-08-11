@@ -49,7 +49,6 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 help="Player to use for downloaded media."
                 value={downloadedMediaPlayback}
                 onValueChange={v => setDownloadedMediaPlayback(v)}
-                disabled={!serverStatus?.mediastreamSettings?.transcodeEnabled}
                 options={playbackDownloadedMediaOptions}
             />
 
@@ -59,7 +58,6 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 help="Player to use for torrent streaming."
                 value={torrentStreamingPlayback}
                 onValueChange={v => setTorrentStreamingPlayback(v)}
-                disabled={!serverStatus?.torrentstreamSettings?.enabled}
                 options={playbackTorrentStreamingOptions}
             />
 
