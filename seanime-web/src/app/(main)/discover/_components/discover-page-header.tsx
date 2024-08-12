@@ -41,7 +41,10 @@ export function DiscoverPageHeader() {
 
     return (
         <motion.div
-            className="__header lg:h-[26rem]"
+            className={cn(
+                "__header lg:h-[26rem]",
+                ts.hideTopNavbar && "lg:h-[32rem]",
+            )}
             {...{
                 initial: { opacity: 0 },
                 animate: { opacity: 1 },
@@ -151,7 +154,7 @@ export function DiscoverPageHeader() {
                                 </div>
                                 <div className="flex-auto space-y-2 z-[1] text-center">
                                     <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
-                                    <div className="flex items-center max-w-md gap-4">
+                                    <div className="flex justify-center items-center max-w-md gap-4">
                                         {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
                                             <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
                                                 <RiSignalTowerLine /> Releasing now

@@ -4,6 +4,7 @@ import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_comp
 import { LibraryHeader } from "@/app/(main)/manga/_components/library-header"
 import { useHandleMangaCollection } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { MangaLibraryView } from "@/app/(main)/manga/_screens/manga-library-view"
+import { cn } from "@/components/ui/core/styling"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
@@ -28,13 +29,20 @@ export default function Page() {
             ) && (
                 <>
                     <CustomLibraryBanner isLibraryScreen />
-                    <div className="h-14"></div>
+                    <div
+                        className={cn("h-14")}
+                    ></div>
                 </>
             )}
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && (
                 <>
                     <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
-                    <div className="h-20"></div>
+                    <div
+                        className={cn(
+                            "h-28",
+                            ts.hideTopNavbar && "h-40",
+                        )}
+                    ></div>
                 </>
             )}
 

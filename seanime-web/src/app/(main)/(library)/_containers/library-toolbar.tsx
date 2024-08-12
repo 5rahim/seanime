@@ -58,7 +58,12 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
     return (
         <>
-            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasScanned) && <div className="h-20"></div>}
+            {(ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && hasScanned) && <div
+                className={cn(
+                    "h-28",
+                    ts.hideTopNavbar && "h-40",
+                )}
+            ></div>}
             <div className="flex flex-wrap w-full justify-end gap-2 p-4 relative z-[10]">
                 <div className="flex flex-1"></div>
                 {(!!status?.settings?.library?.libraryPath && hasScanned) && (

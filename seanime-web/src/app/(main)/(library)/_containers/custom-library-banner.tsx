@@ -38,7 +38,12 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
 
     return (
         <>
-            {!discrete && <div className="py-20"></div>}
+            {!discrete && <div
+                className={cn(
+                    "py-20",
+                    ts.hideTopNavbar && "py-28",
+                )}
+            ></div>}
             <div
                 className={cn(
                     "__header h-[30rem] z-[1] top-0 w-full fixed group/library-header transition-opacity duration-1000",

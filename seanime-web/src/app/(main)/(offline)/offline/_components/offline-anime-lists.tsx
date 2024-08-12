@@ -4,6 +4,7 @@ import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-wa
 import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { OfflineMediaEntryCard } from "@/app/(main)/_features/media/_components/offline-media-entry-card"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { cn } from "@/components/ui/core/styling"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 
@@ -36,7 +37,12 @@ export function OfflineAnimeLists() {
         <>
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <>
                 <LibraryHeader list={continueWatchingEpisodeList} />
-                <div className="h-28"></div>
+                <div
+                    className={cn(
+                        "h-28",
+                        ts.hideTopNavbar && "h-40",
+                    )}
+                ></div>
             </>}
             <PageWrapper
                 className="pt-4 relative space-y-8"
