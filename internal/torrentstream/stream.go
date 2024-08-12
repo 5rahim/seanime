@@ -93,11 +93,9 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	r.sendTorrentLoadingStatus(TLSStateSendingStreamToMediaPlayer, "")
 
 	go func() {
-		r.selectionHistoryMap.Clear()
-
 		// Add the torrent to the history if it is a batch & manually selected
 		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
-			r.selectionHistoryMap.Set(opts.MediaId, opts.Torrent)
+			r.addBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
 		}
 
 		for {

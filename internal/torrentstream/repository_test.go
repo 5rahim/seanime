@@ -77,6 +77,7 @@ func TestTorrentstream(t *testing.T) {
 		}),
 		PlaybackManager: playbackManager,
 		WSEventManager:  wsEventManager,
+		Database:        database,
 	})
 	repo.SetMediaPlayerRepository(mediaPlayerRepo)
 	defer repo.Shutdown()

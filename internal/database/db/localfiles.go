@@ -12,14 +12,14 @@ func (db *Database) TrimLocalFileEntries() {
 		var count int64
 		err := db.gormdb.Model(&models.LocalFiles{}).Count(&count).Error
 		if err != nil {
-			db.Logger.Error().Err(err).Msg("Failed to count local file entries")
+			db.Logger.Error().Err(err).Msg("database: Failed to count local file entries")
 			return
 		}
 		if count > 10 {
 			// Leave 5 entries
 			err = db.gormdb.Delete(&models.LocalFiles{}, "id IN (SELECT id FROM local_files ORDER BY id ASC LIMIT ?)", count-5).Error
 			if err != nil {
-				db.Logger.Error().Err(err).Msg("Failed to delete old local file entries")
+				db.Logger.Error().Err(err).Msg("database: Failed to delete old local file entries")
 				return
 			}
 		}

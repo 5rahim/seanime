@@ -175,6 +175,7 @@ func (a *App) initModulesOnce() {
 		Platform:           a.AnilistPlatform,
 		PlaybackManager:    a.PlaybackManager,
 		WSEventManager:     a.WSEventManager,
+		Database:           a.Database,
 	})
 
 }

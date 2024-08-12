@@ -270,6 +270,12 @@ type TorrentstreamSettings struct {
 	IncludeInLibrary               bool   `gorm:"column:include_in_library" json:"includeInLibrary"`
 }
 
+type TorrentstreamHistory struct {
+	BaseModel
+	MediaId int    `gorm:"column:media_id" json:"mediaId"`
+	Torrent []byte `gorm:"column:torrent" json:"torrent"`
+}
+
 // +---------------------+
 // |        Filler       |
 // +---------------------+

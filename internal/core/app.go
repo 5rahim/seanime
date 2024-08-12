@@ -135,8 +135,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		}
 	}
 
-	database.TrimLocalFileEntries()   // ran in goroutine
-	database.TrimScanSummaryEntries() // ran in goroutine
+	database.TrimLocalFileEntries()     // ran in goroutine
+	database.TrimScanSummaryEntries()   // ran in goroutine
+	database.TrimTorrentstreamHistory() // ran in goroutine
 
 	// Get token from stored account or return empty string
 	anilistToken := database.GetAnilistToken()

@@ -10,6 +10,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
+	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
@@ -42,6 +43,7 @@ type (
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
 		logger                          *zerolog.Logger
+		db                              *db.Database
 	}
 
 	Settings struct {
@@ -58,6 +60,7 @@ type (
 		MetadataProvider   *metadata.Provider
 		PlaybackManager    *playbackmanager.PlaybackManager
 		WSEventManager     events.WSEventManagerInterface
+		Database           *db.Database
 	}
 )
 
@@ -74,6 +77,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		wsEventManager:      opts.WSEventManager,
 		torrentRepository:   opts.TorrentRepository,
 		selectionHistoryMap: result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
+		db:                  opts.Database,
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = newServerManager(ret)
