@@ -83,7 +83,7 @@ func (n *Provider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (stri
 }
 
 func (n *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (string, error) {
-	return torrent.MagnetLink, nil
+	return nyaa.TorrentMagnet(torrent.Link)
 }
 
 func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorrent {

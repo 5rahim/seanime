@@ -70,7 +70,7 @@ export const TorrentPreviewList = React.memo((
                             )}
                             <TorrentResolutionBadge resolution={item.torrent.resolution} />
                             <TorrentSeedersBadge seeders={item.torrent.seeders} />
-                            {!!item.torrent.formattedSize && <p className="text-gray-300 text-sm flex items-center gap-1">
+                            {!!item.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
                                 <BiFile /> {item.torrent.formattedSize}</p>}
                             <p className="text-[--muted] text-sm flex items-center gap-1">
                                 <BiCalendarAlt /> {formatDistanceToNowSafe(item.torrent.date)}

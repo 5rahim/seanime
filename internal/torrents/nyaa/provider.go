@@ -168,7 +168,7 @@ func (n *Provider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret 
 }
 
 func (n *Provider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (string, error) {
-	return torrent.MagnetLink, nil
+	return torrent.InfoHash, nil
 }
 
 func (n *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (string, error) {
