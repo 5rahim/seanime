@@ -244,7 +244,7 @@ export default function Page() {
 
     return (
         <>
-            <div className="relative px-4 lg:px-8 z-[5] space-y-4">
+            <div className="relative p-4 lg:p-8 z-[5] space-y-4">
                 <OnlinestreamManagerProvider
                     opts={opts}
                 >
