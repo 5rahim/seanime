@@ -2701,6 +2701,15 @@ export type TorrentClient_TorrentStatus = "downloading" | "seeding" | "paused" |
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/torrentstream/history.go
+ * - Filename: history.go
+ * - Package: torrentstream
+ */
+export type Torrentstream_BatchHistoryResponse = {
+    torrent?: HibikeTorrent_AnimeTorrent
+}
+
+/**
  * - Filepath: internal/torrentstream/list.go
  * - Filename: list.go
  * - Package: torrentstream

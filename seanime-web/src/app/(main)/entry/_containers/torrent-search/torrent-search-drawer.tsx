@@ -48,6 +48,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_AnimeEntry }) {
 
 }
 
+
 function EpisodeList({ episodes }: { episodes: Anime_AnimeEntryDownloadEpisode[] | undefined }) {
 
     if (!episodes || !episodes.length) return null
@@ -59,25 +60,6 @@ function EpisodeList({ episodes }: { episodes: Anime_AnimeEntryDownloadEpisode[]
                 ? `, ..., ${episodes[episodes.length - 1].episodeNumber}`
                 : ""}
             </p>
-            {/*<HorizontalDraggableScroll>*/}
-            {/*    {episodes.filter(Boolean).slice(0, 10).map(item => {*/}
-            {/*        return (*/}
-            {/*            <EpisodeGridItem*/}
-            {/*                key={item.episode + item.aniDBEpisode}*/}
-            {/*                media={item.episode?.baseAnime as any}*/}
-            {/*                title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}*/}
-            {/*                image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large}*/}
-            {/*                description={item?.episode?.episodeTitle}*/}
-            {/*                // description={item.episode?.absoluteEpisodeNumber !== item.episodeNumber*/}
-            {/*                //     ? `(Episode ${item?.episode?.absoluteEpisodeNumber})`*/}
-            {/*                //     : undefined}*/}
-            {/*                imageContainerClassName="size-20 lg:h-20 lg:w-28"*/}
-            {/*                className="flex-none w-72"*/}
-            {/*                episodeTitleClassName="text-sm lg:text-sm line-clamp-1"*/}
-            {/*            />*/}
-            {/*        )*/}
-            {/*    })}*/}
-            {/*</HorizontalDraggableScroll>*/}
         </div>
     )
 

@@ -75,6 +75,22 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalE
 	}
 
 	status := anilist.MediaListStatusCurrent
+	// Check if the anime is in the repeating list
+	// If it is, set the status to repeating
+	if ap.rawAnimeCollection.IsPresent() {
+		for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
+			if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
+				if list.Entries != nil {
+					for _, entry := range list.Entries {
+						if entry.GetMedia().GetID() == mediaID {
+							status = anilist.MediaListStatusRepeating
+							break
+						}
+					}
+				}
+			}
+		}
+	}
 	if totalEp > 0 && progress >= totalEp {
 		status = anilist.MediaListStatusCompleted
 	}

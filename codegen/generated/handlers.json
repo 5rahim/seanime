@@ -6440,6 +6440,46 @@
     }
   },
   {
+    "name": "HandleGetTorrentstreamBatchHistory",
+    "trimmedName": "GetTorrentstreamBatchHistory",
+    "comments": [
+      "HandleGetTorrentstreamBatchHistory",
+      "",
+      "\t@summary returns the most recent batch selected.",
+      "\t@desc This returns the most recent batch selected.",
+      "\t@returns torrentstream.BatchHistoryResponse",
+      "\t@route /api/v1/torrentstream/batch-history [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "returns the most recent batch selected.",
+      "descriptions": [
+        "This returns the most recent batch selected."
+      ],
+      "endpoint": "/api/v1/torrentstream/batch-history",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaID",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "torrentstream.BatchHistoryResponse",
+      "returnGoType": "torrentstream.BatchHistoryResponse",
+      "returnTypescriptType": "Torrentstream_BatchHistoryResponse"
+    }
+  },
+  {
     "name": "newWebSocketEventHandler",
     "trimmedName": "newWebSocketEventHandler",
     "comments": [

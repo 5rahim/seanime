@@ -101,144 +101,147 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      * - If auto-select is enabled, send the streaming request
      * - If auto-select is disabled, open the torrent drawer
      */
+        // const setTorrentStreamLoader = useSetTorrentStreamLoader()
     const handleEpisodeClick = (episode: Anime_AnimeEntryEpisode) => {
-        if (isPending) return
+            if (isPending) return
 
-        setTorrentStreamingSelectedEpisode(episode)
+            setTorrentStreamingSelectedEpisode(episode)
 
-        React.startTransition(() => {
-            if (autoSelect) {
-                if (episode.aniDBEpisode) {
-                    handleAutoSelectTorrentStream({
-                        entry,
-                        episodeNumber: episode.episodeNumber,
-                        aniDBEpisode: episode.aniDBEpisode,
+            React.startTransition(() => {
+                if (autoSelect) {
+                    if (episode.aniDBEpisode) {
+                        handleAutoSelectTorrentStream({
+                            entry,
+                            episodeNumber: episode.episodeNumber,
+                            aniDBEpisode: episode.aniDBEpisode,
+                        })
+                    }
+                } else if (!manuallySelectFile) {
+                    setTorrentSearchEpisode(episode.episodeNumber)
+                    React.startTransition(() => {
+                        setTorrentDrawerIsOpen("select")
+                    })
+                } else {
+                    setTorrentSearchEpisode(episode.episodeNumber)
+                    React.startTransition(() => {
+                        setTorrentDrawerIsOpen("select-file")
                     })
                 }
-            } else if (!manuallySelectFile) {
-                setTorrentSearchEpisode(episode.episodeNumber)
-                React.startTransition(() => {
-                    setTorrentDrawerIsOpen("select")
-                })
-            } else {
-                setTorrentSearchEpisode(episode.episodeNumber)
-                React.startTransition(() => {
-                    setTorrentDrawerIsOpen("select-file")
-                })
-            }
-        })
-        // toast.info("Starting torrent stream...")
-    }
+            })
+            // toast.info("Starting torrent stream...")
+        }
 
     if (!entry.media) return null
     if (isLoading) return <LoadingSpinner />
 
     return (
-        <AppLayoutStack>
-            <div className="absolute right-0 top-[-3rem]">
-                <h2 className="text-xl lg:text-3xl flex items-center gap-3">Torrent streaming</h2>
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-4">
-                <Switch
-                    label="Auto-select"
-                    value={autoSelect}
-                    onValueChange={v => {
-                        setAutoSelect(v)
-                    }}
-                    help="Automatically select the best torrent and file to stream"
-                    fieldClass="w-fit"
-                />
-
-                {!autoSelect && (
-                    <Switch
-                        label="Manually select file"
-                        value={manuallySelectFile}
-                        onValueChange={v => {
-                            setManuallySelectFile(v)
-                        }}
-                        help="Manually select the file to stream after selecting a torrent"
-                        fieldClass="w-fit"
-                    />
-                )}
-            </div>
-
-            {episodeCollection?.hasMappingError && (
-                <div className="">
-                    <p className="text-red-200 opacity-50">
-                        No metadata info available for this anime. You may need to manually select the file to stream.
-                    </p>
+        <>
+            <AppLayoutStack>
+                <div className="absolute right-0 top-[-3rem]">
+                    <h2 className="text-xl lg:text-3xl flex items-center gap-3">Torrent streaming</h2>
                 </div>
 
-            )}
-
-            <Carousel
-                className="w-full max-w-full"
-                gap="md"
-                opts={{
-                    align: "start",
-                }}
-            >
-                <CarouselDotButtons />
-                <CarouselContent>
-                    {episodesToWatch.map((episode, idx) => (
-                        <CarouselItem
-                            key={episode?.localFile?.path || idx}
-                            className={episodeCardCarouselItemClass(ts.smallerEpisodeCarouselSize)}
-                        >
-                            <EpisodeCard
-                                key={episode.localFile?.path || ""}
-                                image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
-                                topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
-                                title={episode.displayTitle}
-                                // meta={episode.episodeMetadata?.airDate ?? undefined}
-                                isInvalid={episode.isInvalid}
-                                progressTotal={episode.baseAnime?.episodes}
-                                progressNumber={episode.progressNumber}
-                                episodeNumber={episode.episodeNumber}
-                                length={episode.episodeMetadata?.length}
-                                hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
-                                onClick={() => {
-                                    handleEpisodeClick(episode)
-                                }}
-                            />
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-            </Carousel>
-
-            <EpisodeListGrid>
-                {episodeCollection?.episodes?.map(episode => (
-                    <EpisodeGridItem
-                        key={episode.episodeNumber + episode.displayTitle}
-                        media={episode?.baseAnime as any}
-                        title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
-                        image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
-                        episodeTitle={episode?.episodeTitle}
-                        onClick={() => {
-                            handleEpisodeClick(episode)
+                <div className="flex flex-col md:flex-row gap-4">
+                    <Switch
+                        label="Auto-select"
+                        value={autoSelect}
+                        onValueChange={v => {
+                            setAutoSelect(v)
                         }}
-                        description={episode?.episodeMetadata?.overview}
-                        isFiller={episode?.episodeMetadata?.isFiller}
-                        length={episode?.episodeMetadata?.length}
-                        isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
-                        className="flex-none w-full"
-                        action={<>
-                            <MediaEpisodeInfoModal
-                                title={episode.displayTitle}
-                                image={episode.episodeMetadata?.image}
-                                episodeTitle={episode.episodeTitle}
-                                airDate={episode.episodeMetadata?.airDate}
-                                length={episode.episodeMetadata?.length}
-                                summary={episode.episodeMetadata?.summary}
-                                isInvalid={episode.isInvalid}
-                            />
-                        </>}
+                        help="Automatically select the best torrent and file to stream"
+                        fieldClass="w-fit"
                     />
-                ))}
-            </EpisodeListGrid>
 
-            {bottomSection}
-        </AppLayoutStack>
+                    {!autoSelect && (
+                        <Switch
+                            label="Manually select file"
+                            value={manuallySelectFile}
+                            onValueChange={v => {
+                                setManuallySelectFile(v)
+                            }}
+                            help="Manually select the file to stream after selecting a torrent"
+                            fieldClass="w-fit"
+                        />
+                    )}
+                </div>
+
+                {episodeCollection?.hasMappingError && (
+                    <div className="">
+                        <p className="text-red-200 opacity-50">
+                            No metadata info available for this anime. You may need to manually select the file to stream.
+                        </p>
+                    </div>
+
+                )}
+
+                <Carousel
+                    className="w-full max-w-full"
+                    gap="md"
+                    opts={{
+                        align: "start",
+                    }}
+                >
+                    <CarouselDotButtons />
+                    <CarouselContent>
+                        {episodesToWatch.map((episode, idx) => (
+                            <CarouselItem
+                                key={episode?.localFile?.path || idx}
+                                className={episodeCardCarouselItemClass(ts.smallerEpisodeCarouselSize)}
+                            >
+                                <EpisodeCard
+                                    key={episode.localFile?.path || ""}
+                                    image={episode.episodeMetadata?.image || episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge}
+                                    topTitle={episode.episodeTitle || episode?.baseAnime?.title?.userPreferred}
+                                    title={episode.displayTitle}
+                                    // meta={episode.episodeMetadata?.airDate ?? undefined}
+                                    isInvalid={episode.isInvalid}
+                                    progressTotal={episode.baseAnime?.episodes}
+                                    progressNumber={episode.progressNumber}
+                                    episodeNumber={episode.episodeNumber}
+                                    length={episode.episodeMetadata?.length}
+                                    hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
+                                    onClick={() => {
+                                        handleEpisodeClick(episode)
+                                    }}
+                                />
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                </Carousel>
+
+                <EpisodeListGrid>
+                    {episodeCollection?.episodes?.map(episode => (
+                        <EpisodeGridItem
+                            key={episode.episodeNumber + episode.displayTitle}
+                            media={episode?.baseAnime as any}
+                            title={episode?.displayTitle || episode?.baseAnime?.title?.userPreferred || ""}
+                            image={episode?.episodeMetadata?.image || episode?.baseAnime?.coverImage?.large}
+                            episodeTitle={episode?.episodeTitle}
+                            onClick={() => {
+                                handleEpisodeClick(episode)
+                            }}
+                            description={episode?.episodeMetadata?.overview}
+                            isFiller={episode?.episodeMetadata?.isFiller}
+                            length={episode?.episodeMetadata?.length}
+                            isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
+                            className="flex-none w-full"
+                            action={<>
+                                <MediaEpisodeInfoModal
+                                    title={episode.displayTitle}
+                                    image={episode.episodeMetadata?.image}
+                                    episodeTitle={episode.episodeTitle}
+                                    airDate={episode.episodeMetadata?.airDate}
+                                    length={episode.episodeMetadata?.length}
+                                    summary={episode.episodeMetadata?.summary}
+                                    isInvalid={episode.isInvalid}
+                                />
+                            </>}
+                        />
+                    ))}
+                </EpisodeListGrid>
+
+                {bottomSection}
+            </AppLayoutStack>
+        </>
     )
 }

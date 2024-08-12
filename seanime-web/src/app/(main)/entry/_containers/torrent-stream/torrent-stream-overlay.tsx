@@ -169,7 +169,7 @@ export function TorrentStreamOverlay() {
                 <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center text-sm lg:text-base">
                     <Spinner className="w-4 h-4" />
                     <div className="truncate">
-                        {loadingState === "SEARCHING_TORRENTS" ? "Searching for torrents..." : ""}
+                        {loadingState === "SEARCHING_TORRENTS" ? "Selecting file..." : ""}
                         {loadingState === "ADDING_TORRENT" ? `Adding torrent "${torrentBeingLoaded}"` : ""}
                         {loadingState === "CHECKING_TORRENT" ? `Checking torrent "${torrentBeingLoaded}"` : ""}
                         {loadingState === "SELECTING_FILE" ? `Selecting file` : ""}

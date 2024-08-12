@@ -1,4 +1,7 @@
 import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
+import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
@@ -15,16 +18,22 @@ import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torr
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { Badge } from "@/components/ui/badge"
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
+import { Tooltip } from "@/components/ui/tooltip"
+import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
+import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
@@ -179,6 +188,9 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     return (
         <>
+            {(type === "select" || type === "select-file") &&
+                <TorrentSearchTorrentStreamBatchHistory type={type} entry={entry} />}
+
             <div className="py-4 space-y-4">
                 <div className="max-w-[400px]">
                     <Select
@@ -351,4 +363,83 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
         </>
     )
 
+}
+
+function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
+    entry: Anime_AnimeEntry | undefined,
+    type: TorrentSelectionType,
+}) {
+
+    const { data: batchHistory } = useGetTorrentstreamBatchHistory(entry?.mediaId, true)
+
+    const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+    const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
+    const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+
+    if (!batchHistory?.torrent || !entry) return null
+
+    return (
+        <AppLayoutStack>
+            <h4>Previous selection</h4>
+
+            <TorrentPreviewItem
+                confirmed={batchHistory?.torrent?.confirmed}
+                key={batchHistory?.torrent.link}
+                title={""}
+                releaseGroup={batchHistory?.torrent.releaseGroup || ""}
+                filename={batchHistory?.torrent.name}
+                isBatch={batchHistory?.torrent.isBatch ?? false}
+                image={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
+                fallbackImage={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
+                onClick={() => {
+                    if (type === "select") {
+                        if (batchHistory?.torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+                            handleManualTorrentStreamSelection({
+                                torrent: batchHistory?.torrent,
+                                entry,
+                                aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
+                                episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                                chosenFileIndex: undefined,
+                            })
+                            setter(undefined)
+                        }
+                    } else if (type === "select-file") {
+                        // Open the drawer to select the file
+                        if (!!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+                            // This opens the file selection drawer
+                            setTorrentstreamSelectedTorrent(batchHistory?.torrent)
+                        }
+                    }
+                }}
+                action={<Tooltip
+                    side="left"
+                    trigger={<IconButton
+                        icon={<BiLinkExternal />}
+                        intent="primary-basic"
+                        size="sm"
+                        onClick={() => window.open(batchHistory?.torrent?.link, "_blank")}
+                    />}
+                >Open in browser</Tooltip>}
+            >
+                <div className="flex flex-wrap gap-2 items-center">
+                    {batchHistory?.torrent.isBestRelease && (
+                        <Badge
+                            className="rounded-md text-[0.8rem] bg-green-700 border-green-400 border"
+                            intent="success-solid"
+                        >
+                            Best release
+                        </Badge>
+                    )}
+                    <TorrentResolutionBadge resolution={batchHistory?.torrent.resolution} />
+                    <TorrentSeedersBadge seeders={batchHistory?.torrent.seeders} />
+                    {!!batchHistory?.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
+                        <BiFile /> {batchHistory?.torrent.formattedSize}</p>}
+                    <p className="text-[--muted] text-sm flex items-center gap-1">
+                        <BiCalendarAlt /> {formatDistanceToNowSafe(batchHistory?.torrent.date)}
+                    </p>
+                </div>
+            </TorrentPreviewItem>
+        </AppLayoutStack>
+    )
 }

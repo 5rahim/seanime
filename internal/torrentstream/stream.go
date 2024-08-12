@@ -93,6 +93,13 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	r.sendTorrentLoadingStatus(TLSStateSendingStreamToMediaPlayer, "")
 
 	go func() {
+		r.selectionHistoryMap.Clear()
+
+		// Add the torrent to the history if it is a batch & manually selected
+		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
+			r.selectionHistoryMap.Set(opts.MediaId, opts.Torrent)
+		}
+
 		for {
 			// This is to make sure the client is ready to stream before we start the stream
 			if r.client.readyToStream() {

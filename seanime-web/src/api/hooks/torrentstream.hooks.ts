@@ -1,11 +1,18 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
+    GetTorrentstreamBatchHistory_Variables,
     GetTorrentstreamTorrentFilePreviews_Variables,
     SaveTorrentstreamSettings_Variables,
     TorrentstreamStartStream_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Models_TorrentstreamSettings, Torrentstream_EpisodeCollection, Torrentstream_FilePreview } from "@/api/generated/types"
+import {
+    Models_TorrentstreamSettings,
+    Nullish,
+    Torrentstream_BatchHistoryResponse,
+    Torrentstream_EpisodeCollection,
+    Torrentstream_FilePreview,
+} from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -80,5 +87,17 @@ export function useGetTorrentstreamTorrentFilePreviews(variables: Partial<GetTor
         queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamTorrentFilePreviews.key, variables],
         data: variables as GetTorrentstreamTorrentFilePreviews_Variables,
         enabled: enabled,
+    })
+}
+
+export function useGetTorrentstreamBatchHistory(mediaId: Nullish<string | number>, enabled: boolean) {
+    return useServerQuery<Torrentstream_BatchHistoryResponse, GetTorrentstreamBatchHistory_Variables>({
+        endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.endpoint,
+        method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.methods[0],
+        queryKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.key, String(mediaId), enabled],
+        data: {
+            mediaId: Number(mediaId)!,
+        },
+        enabled: !!mediaId,
     })
 }

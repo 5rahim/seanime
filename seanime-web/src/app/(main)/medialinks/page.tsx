@@ -61,7 +61,17 @@ export default function Page() {
             const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filePath)
             logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
             urlToSend.replace("127.0.0.1,", window.location.hostname).replace("localhost", window.location.hostname)
-            window.open(externalPlayerLink.replace("{url}", urlToSend), "_blank")
+
+            // e.g. "mpv://http://localhost:3000/api/v1/mediastream/file/..."
+            // e.g. "intent://http://localhost:3000/api/v1/mediastream/file/...#Intent;package=org.videolan.vlc;scheme=http;end"
+            let url = externalPlayerLink.replace("{url}", urlToSend)
+
+            if (externalPlayerLink.startsWith("intent://")) {
+                // e.g. "intent://localhost:3000/api/v1/mediastream/file/...#Intent;package=org.videolan.vlc;scheme=http;end"
+                url = url.replace("intent://http://", "intent://").replace("intent://https://", "intent://")
+            }
+
+            window.open(url, "_blank")
 
             // Start manual tracking
             React.startTransition(() => {

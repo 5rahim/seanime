@@ -49140,6 +49140,16 @@
     "package": "torrentstream",
     "fields": [
       {
+        "name": "AnimeCollection",
+        "jsonName": "AnimeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "LibraryCollection",
         "jsonName": "LibraryCollection",
         "goType": "anime.LibraryCollection",
@@ -49210,6 +49220,26 @@
         "\"SENDING_STREAM_TO_MEDIA_PLAYER\""
       ]
     },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/history.go",
+    "filename": "history.go",
+    "name": "BatchHistoryResponse",
+    "formattedName": "Torrentstream_BatchHistoryResponse",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -49428,6 +49458,17 @@
         "public": false,
         "comments": [
           " Refreshed in [list.go] when the user opens the streaming page for a media"
+        ]
+      },
+      {
+        "name": "selectionHistoryMap",
+        "jsonName": "selectionHistoryMap",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Key: AniList media ID"
         ]
       },
       {

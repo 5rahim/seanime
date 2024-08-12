@@ -51,6 +51,7 @@ export const TorrentPreviewList = React.memo((
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent!)}
                         action={<Tooltip
+                            side="left"
                             trigger={<IconButton
                                 icon={<BiLinkExternal />}
                                 intent="primary-basic"

@@ -1612,3 +1612,14 @@
 //     })
 // }
 
+// export function useGetTorrentstreamBatchHistory() {
+//     return useServerMutation<Torrentstream_BatchHistoryResponse, GetTorrentstreamBatchHistory_Variables>({
+//         endpoint: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.endpoint,
+//         method: API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.methods[0],
+//         mutationKey: [API_ENDPOINTS.TORRENTSTREAM.GetTorrentstreamBatchHistory.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+

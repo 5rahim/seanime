@@ -2,6 +2,7 @@ package torrentstream
 
 import (
 	"errors"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 )
 
 type (
@@ -25,6 +27,8 @@ type (
 		playback                 playback
 		settings                 mo.Option[Settings]           // None by default, set and refreshed by [SetSettings]
 		currentEpisodeCollection mo.Option[*EpisodeCollection] // Refreshed in [list.go] when the user opens the streaming page for a media
+
+		selectionHistoryMap *result.Map[int, *hibiketorrent.AnimeTorrent] // Key: AniList media ID
 
 		// Injected dependencies
 		torrentRepository               *torrent.Repository
@@ -60,15 +64,16 @@ type (
 // NewRepository creates a new injectable Repository instance
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
-		logger:             opts.Logger,
-		anizipCache:        opts.AnizipCache,
-		baseAnimeCache:     opts.BaseAnimeCache,
-		completeAnimeCache: opts.CompleteAnimeCache,
-		platform:           opts.Platform,
-		metadataProvider:   opts.MetadataProvider,
-		playbackManager:    opts.PlaybackManager,
-		wsEventManager:     opts.WSEventManager,
-		torrentRepository:  opts.TorrentRepository,
+		logger:              opts.Logger,
+		anizipCache:         opts.AnizipCache,
+		baseAnimeCache:      opts.BaseAnimeCache,
+		completeAnimeCache:  opts.CompleteAnimeCache,
+		platform:            opts.Platform,
+		metadataProvider:    opts.MetadataProvider,
+		playbackManager:     opts.PlaybackManager,
+		wsEventManager:      opts.WSEventManager,
+		torrentRepository:   opts.TorrentRepository,
+		selectionHistoryMap: result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = newServerManager(ret)

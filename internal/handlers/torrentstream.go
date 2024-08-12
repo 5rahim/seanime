@@ -204,3 +204,22 @@ func HandleTorrentstreamDropTorrent(c *RouteCtx) error {
 
 	return c.RespondWithData(true)
 }
+
+// HandleGetTorrentstreamBatchHistory
+//
+//	@summary returns the most recent batch selected.
+//	@desc This returns the most recent batch selected.
+//	@returns torrentstream.BatchHistoryResponse
+//	@route /api/v1/torrentstream/batch-history [POST]
+func HandleGetTorrentstreamBatchHistory(c *RouteCtx) error {
+	type body struct {
+		MediaID int `json:"mediaId"`
+	}
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret := c.App.TorrentstreamRepository.GetBatchHistory(b.MediaID)
+	return c.RespondWithData(ret)
+}

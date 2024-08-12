@@ -52,6 +52,7 @@ export function AnilistCollectionLists() {
 
     const {
         currentList,
+        repeatingList,
         planningList,
         pausedList,
         completedList,
@@ -113,6 +114,10 @@ export function AnilistCollectionLists() {
                         {(!!currentList?.entries?.length && ["-", "CURRENT"].includes(selectedIndex)) && <>
                             <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
                             <AnilistAnimeEntryList type={pageType} list={currentList} />
+                        </>}
+                        {(!!repeatingList?.entries?.length && ["-", "REPEATING"].includes(selectedIndex)) && <>
+                            <h2>Repeating <span className="text-[--muted] font-medium ml-3">{repeatingList?.entries?.length}</span></h2>
+                            <AnilistAnimeEntryList type={pageType} list={repeatingList} />
                         </>}
                         {(!!planningList?.entries?.length && ["-", "PLANNING"].includes(selectedIndex)) && <>
                             <h2>Planning <span className="text-[--muted] font-medium ml-3">{planningList?.entries?.length}</span></h2>
@@ -214,6 +219,7 @@ export function SearchOptions({
                     options={[
                         { value: "-", label: "All lists" },
                         { value: "CURRENT", label: "Watching" },
+                        { value: "REPEATING", label: "Repeating" },
                         { value: "PLANNING", label: "Planning" },
                         { value: "PAUSED", label: "Paused" },
                         { value: "COMPLETED", label: "Completed" },

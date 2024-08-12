@@ -1368,6 +1368,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/torrentstream/drop",
         },
+        /**
+         *  @description
+         *  Route returns the most recent batch selected.
+         *  This returns the most recent batch selected.
+         */
+        GetTorrentstreamBatchHistory: {
+            key: "TORRENTSTREAM-get-torrentstream-batch-history",
+            methods: ["POST"],
+            endpoint: "/api/v1/torrentstream/batch-history",
+        },
     },
 } satisfies ApiEndpoints
 

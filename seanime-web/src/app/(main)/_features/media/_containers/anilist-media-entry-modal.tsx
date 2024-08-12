@@ -161,6 +161,10 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                                     value: "DROPPED",
                                     label: "Dropped",
                                 } : undefined,
+                                media?.status !== "NOT_YET_RELEASED" ? {
+                                    value: "REPEATING",
+                                    label: "Repeating",
+                                } : undefined,
                             ].filter(Boolean)}
                         />
                         {media?.status !== "NOT_YET_RELEASED" && <>
