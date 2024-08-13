@@ -26,7 +26,8 @@ type (
 
 var searchResultCache = result.NewCache[string, []*hibikemanga.SearchResult]()
 
-func (r *Repository) ManualSearch(provider string, query string) ([]*hibikemanga.SearchResult, error) {
+func (r *Repository) ManualSearch(provider string, query string) (ret []*hibikemanga.SearchResult, err error) {
+	defer util.HandlePanicInModuleWithError("manga/ManualSearch", &err)
 
 	if query == "" {
 		return make([]*hibikemanga.SearchResult, 0), nil
@@ -46,7 +47,7 @@ func (r *Repository) ManualSearch(provider string, query string) ([]*hibikemanga
 		return searchRes, nil
 	}
 
-	searchRes, err := providerExtension.GetProvider().Search(hibikemanga.SearchOptions{
+	searchRes, err = providerExtension.GetProvider().Search(hibikemanga.SearchOptions{
 		Query: normalizedQuery,
 	})
 	if err != nil {
@@ -66,7 +67,8 @@ func (r *Repository) ManualSearch(provider string, query string) ([]*hibikemanga
 
 // ManualMapping is used to manually map a manga to a provider.
 // After calling this, the client should re-fetch the chapter container.
-func (r *Repository) ManualMapping(provider string, mediaId int, mangaId string) error {
+func (r *Repository) ManualMapping(provider string, mediaId int, mangaId string) (err error) {
+	defer util.HandlePanicInModuleWithError("manga/ManualMapping", &err)
 
 	r.logger.Trace().Msgf("manga: Removing cached bucket for %s, media ID: %d", provider, mediaId)
 
@@ -81,7 +83,7 @@ func (r *Repository) ManualMapping(provider string, mediaId int, mangaId string)
 		Msg("manga: Manual mapping")
 
 	// Insert the mapping into the database
-	err := r.db.InsertMangaMapping(provider, mediaId, mangaId)
+	err = r.db.InsertMangaMapping(provider, mediaId, mangaId)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("manga: Failed to insert mapping")
 		return err
@@ -96,7 +98,11 @@ type MappingResponse struct {
 	MangaID *string `json:"mangaId"`
 }
 
-func (r *Repository) GetMapping(provider string, mediaId int) MappingResponse {
+func (r *Repository) GetMapping(provider string, mediaId int) (ret MappingResponse) {
+	defer util.HandlePanicInModuleThen("manga/GetMapping", func() {
+		ret = MappingResponse{}
+	})
+
 	mapping, found := r.db.GetMangaMapping(provider, mediaId)
 	if !found {
 		return MappingResponse{}
@@ -107,10 +113,11 @@ func (r *Repository) GetMapping(provider string, mediaId int) MappingResponse {
 	}
 }
 
-func (r *Repository) RemoveMapping(provider string, mediaId int) error {
+func (r *Repository) RemoveMapping(provider string, mediaId int) (err error) {
+	defer util.HandlePanicInModuleWithError("manga/RemoveMapping", &err)
 
 	// Delete the mapping from the database
-	err := r.db.DeleteMangaMapping(provider, mediaId)
+	err = r.db.DeleteMangaMapping(provider, mediaId)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("manga: Failed to delete mapping")
 		return err
@@ -130,7 +137,8 @@ func (r *Repository) RemoveMapping(provider string, mediaId int) error {
 
 // GetMangaChapterContainer returns the ChapterContainer for a manga entry based on the provider.
 // If it isn't cached, it will search for the manga, create a ChapterContainer and cache it.
-func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titles []*string) (*ChapterContainer, error) {
+func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titles []*string) (ret *ChapterContainer, err error) {
+	defer util.HandlePanicInModuleWithError("manga/GetMangaChapterContainer", &err)
 
 	key := fmt.Sprintf("%s$%d", provider, mediaId)
 

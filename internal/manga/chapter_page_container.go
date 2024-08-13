@@ -38,21 +38,22 @@ func (r *Repository) GetMangaPageContainer(
 	chapterId string,
 	doublePage bool,
 	isOffline bool,
-) (*PageContainer, error) {
+) (ret *PageContainer, err error) {
+	defer util.HandlePanicInModuleWithError("manga/GetMangaPageContainer", &err)
 
 	// +---------------------+
 	// |      Downloads      |
 	// +---------------------+
 
 	if isOffline {
-		ret, err := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+		ret, err = r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
 		if err != nil {
 			return nil, err
 		}
 		return ret, nil
 	}
 
-	ret, _ := r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
+	ret, _ = r.getDownloadedMangaPageContainer(provider, mediaId, chapterId)
 	if ret != nil {
 		return ret, nil
 	}
@@ -128,12 +129,16 @@ func (r *Repository) GetMangaPageContainer(
 
 	// Get the chapter pages
 	var pages []*hibikemanga.ChapterPage
-	var err error
 
 	pages, err = providerExtension.GetProvider().FindChapterPages(chapter.ID)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("manga: Could not get chapter pages")
 		return nil, err
+	}
+
+	if pages == nil || len(pages) == 0 {
+		r.logger.Error().Msg("manga: No pages found")
+		return nil, fmt.Errorf("manga: No pages found")
 	}
 
 	// Overwrite provider just in case

@@ -61,6 +61,8 @@ func NewLogger() *zerolog.Logger {
 }
 
 func WriteGlobalLogBufferToFile(file *os.File) {
+	defer HandlePanicInModuleThen("util/WriteGlobalLogBufferToFile", func() {})
+
 	if file == nil {
 		return
 	}
