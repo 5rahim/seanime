@@ -111,7 +111,7 @@ func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorren
 	}
 
 	var seeders, leechers, downloads int
-	var title, downloadUrl string
+	var title, downloadUrl, formattedSize string
 
 	// Try scraping from Nyaa
 	// Since nyaa tends to be blocked, try for a few seconds only
@@ -128,13 +128,15 @@ func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorren
 			if err == nil {
 				defer resp.Body.Close()
 
-				title, seeders, leechers, downloads, _, _, err = nyaa.TorrentInfo(ret.Link + "fail")
+				title, seeders, leechers, downloads, formattedSize, _, _, err = nyaa.TorrentInfo(ret.Link)
 				if err == nil && title != "" {
 					ret.Name = title // Override title
 					ret.Seeders = seeders
 					ret.Leechers = leechers
 					ret.DownloadCount = downloads
 					ret.DownloadUrl = downloadUrl
+					ret.Size = 1
+					ret.FormattedSize = formattedSize
 				}
 			}
 		}

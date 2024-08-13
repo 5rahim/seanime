@@ -28,10 +28,16 @@ func TestTorrentMagnet(t *testing.T) {
 
 func TestTorrentInfo(t *testing.T) {
 
-	title, a, b, c, d, e, err := TorrentInfo("https://nyaa.si/view/1741691")
+	title, a, b, c, fs, d, e, err := TorrentInfo("https://nyaa.si/view/1727922")
 	assert.NoError(t, err)
 
-	t.Log(title, a, b, c, d, e)
+	t.Logf("Title: %s\n", title)
+	t.Logf("Seeders: %d\n", a)
+	t.Logf("Leechers: %d\n", b)
+	t.Logf("Downloads: %d\n", c)
+	t.Logf("Formatted Size: %s\n", fs)
+	t.Logf("Info Hash: %s\n", d)
+	t.Logf("Download link: %s\n", e)
 
 }
 

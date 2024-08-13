@@ -10,7 +10,11 @@ type BatchHistoryResponse struct {
 	Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
 }
 
-func (r *Repository) GetBatchHistory(mId int) *BatchHistoryResponse {
+func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
+	defer util.HandlePanicInModuleThen("torrentstream/GetBatchHistory", func() {
+		ret = &BatchHistoryResponse{}
+	})
+
 	torrent, err := db_bridge.GetTorrentstreamHistory(r.db, mId)
 	if err != nil {
 		return &BatchHistoryResponse{}

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.0.1
+
+- ⚡️ Torrent streaming: Show previously selected torrent
+- ⚡️ Support for AniList 'repeating' status
+- 🦺 Fixed External Player Link not working on Android
+- 🦺 Fixed UI inconsistencies
+- 🦺 Fixed SeaDex provider
+
 ## v2.0.0
 
 - 🎉 Extension System

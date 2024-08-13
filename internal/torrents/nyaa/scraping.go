@@ -65,7 +65,7 @@ func TorrentMagnet(viewURL string) (string, error) {
 	return magnetLink, nil
 }
 
-func TorrentInfo(viewURL string) (title string, seeders int, leechers int, completed int, infoHash string, magnetLink string, err error) {
+func TorrentInfo(viewURL string) (title string, seeders int, leechers int, completed int, formattedSize string, infoHash string, magnetLink string, err error) {
 
 	c := colly.NewCollector()
 
@@ -107,6 +107,16 @@ func TorrentInfo(viewURL string) (title string, seeders int, leechers int, compl
 			})
 		}
 
+		if formattedSize == "" {
+			// Extract completed
+			e.ForEach("div:contains('File size:')", func(_ int, el *colly.HTMLElement) {
+				text := el.DOM.Parent().ChildrenFiltered("div:nth-child(2)").Text()
+				if !strings.Contains(text, "\t") {
+					formattedSize = text
+				}
+			})
+		}
+
 		if infoHash == "" {
 			// Extract info hash
 			e.ForEach("div:contains('Info hash:') kbd", func(_ int, el *colly.HTMLElement) {
@@ -124,7 +134,7 @@ func TorrentInfo(viewURL string) (title string, seeders int, leechers int, compl
 		return
 	}
 
-	c.Visit(viewURL)
+	_ = c.Visit(viewURL)
 
 	if magnetLink == "" {
 		err = errors.New("magnet link not found")
