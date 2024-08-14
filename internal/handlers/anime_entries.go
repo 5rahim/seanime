@@ -6,7 +6,6 @@ import (
 	"github.com/adrg/strutil/metrics"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 	"gorm.io/gorm"
 	"os"
 	"path/filepath"
@@ -25,6 +24,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // HandleGetAnimeEntry
@@ -205,8 +205,8 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 var (
-	entriesMalCache              = result.NewCache[string, []*mal.SearchResultAnime]()
-	entriesAnilistBaseAnimeCache = result.NewCache[int, *anilist.BaseAnime]()
+	entriesMalCache         = result.NewCache[string, []*mal.SearchResultAnime]()
+	entriesSuggestionsCache = result.NewCache[string, []*anilist.BaseAnime]()
 )
 
 // HandleFetchAnimeEntrySuggestions
@@ -228,6 +228,11 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 	}
 
 	b.Dir = strings.ToLower(b.Dir)
+
+	suggestions, found := entriesSuggestionsCache.Get(b.Dir)
+	if found {
+		return c.RespondWithData(suggestions)
+	}
 
 	// Retrieve local files
 	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
@@ -265,12 +270,14 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
 	if len(malSuggestions) == 0 {
 		return c.RespondWithData([]*anilist.BaseAnime{})
 	}
 
 	dice := metrics.NewSorensenDice()
 	dice.CaseSensitive = false
+
 	// Sort by top 4 suggestions
 	malRatings := lo.Map(malSuggestions, func(item *mal.SearchResultAnime, _ int) struct {
 		OriginalValue string
@@ -284,6 +291,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 			Rating:        dice.Compare(title, item.Name),
 		}
 	})
+
 	// Sort by top 4 suggestions
 	sort.SliceStable(malRatings, func(i, j int) bool {
 		return malRatings[i].Rating > malRatings[j].Rating
@@ -300,32 +308,46 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 			}
 		}
 	}
-	malSuggestions = _malSuggestions
 
-	anilistRateLimit := limiter.NewAnilistLimiter()
-	p2 := pool.NewWithResults[*anilist.BaseAnime]()
-	for _, s := range malSuggestions {
-		p2.Go(func() *anilist.BaseAnime {
-			anilistRateLimit.Wait()
-			// Check if the media has already been fetched
-			media, found := entriesAnilistBaseAnimeCache.Get(s.ID)
-			if found {
-				return media
-			}
-			// Otherwise, fetch the media
-			media, err = c.App.AnilistPlatform.GetAnimeByMalID(s.ID)
+	var anilistIds []int
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(_malSuggestions))
+	mu := sync.Mutex{}
+	for _, s := range _malSuggestions {
+		go func(s *mal.SearchResultAnime) {
+			defer wg.Done()
+			anizipMedia, err := anizip.FetchAniZipMediaC("mal", s.ID, c.App.AnizipCache)
 			if err != nil {
-				return nil
+				return
 			}
-			// Cache the media
-			entriesAnilistBaseAnimeCache.Set(s.ID, media)
-			return media
-		})
+			if anizipMedia == nil || anizipMedia.GetMappings() == nil {
+				return
+			}
+			if anizipMedia.GetMappings().MalID == 0 {
+				return
+			}
+			mu.Lock()
+			anilistIds = append(anilistIds, anizipMedia.GetMappings().AnilistID)
+			mu.Unlock()
+		}(s)
 	}
-	anilistMedia := p2.Wait()
-	anilistMedia = lo.Filter(anilistMedia, func(item *anilist.BaseAnime, _ int) bool {
-		return item != nil
-	})
+	wg.Wait()
+
+	animeMap, err := anilist.FetchBaseAnimeMap(anilistIds)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.Logger.Debug().Msgf("anilist: Fetched %d suggestions for %s", len(animeMap), title)
+
+	var anilistMedia []*anilist.BaseAnime
+	for _, ani := range animeMap {
+		anilistMedia = append(anilistMedia, ani)
+	}
+
+	// Cache the results
+	entriesSuggestionsCache.Set(b.Dir, anilistMedia)
 
 	return c.RespondWithData(anilistMedia)
 
