@@ -374,6 +374,11 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(errors.New("no local files found for selected directory"))
 	}
 
+	// Filter out local files that are already matched
+	selectedLfs = lo.Filter(selectedLfs, func(item *anime.LocalFile, _ int) bool {
+		return item.MediaId == 0
+	})
+
 	// Add the media id to the selected local files
 	// Also, lock the files
 	selectedLfs = lop.Map(selectedLfs, func(item *anime.LocalFile, _ int) *anime.LocalFile {
