@@ -102,9 +102,9 @@ How to install Seanime
 - Support for extensions to add more sources
 
 ### Other features
+- **Extension system**
 - **Advanced anime/manga search**
 - **Discord Rich Presence**
-- **MyAnimeList integration** for syncing progress
 - **Logs and scan summaries**
 
 ## Philosophy
