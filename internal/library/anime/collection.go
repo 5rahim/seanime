@@ -1,6 +1,7 @@
 package anime
 
 import (
+	"cmp"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/sourcegraph/conc/pool"
@@ -119,11 +120,15 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	)
 
 	lc.UnmatchedLocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, index int) bool {
-		return lf.MediaId == 0
+		return lf.MediaId == 0 && !lf.Ignored
 	})
 
 	lc.IgnoredLocalFiles = lo.Filter(opts.LocalFiles, func(lf *LocalFile, index int) bool {
 		return lf.Ignored == true
+	})
+
+	slices.SortStableFunc(lc.IgnoredLocalFiles, func(i, j *LocalFile) int {
+		return cmp.Compare(i.GetPath(), j.GetPath())
 	})
 
 	lc.hydrateUnmatchedGroups()
@@ -410,6 +415,10 @@ func (lc *LibraryCollection) hydrateUnmatchedGroups() {
 			Suggestions: make([]*anilist.BaseAnime, 0),
 		})
 	}
+
+	slices.SortStableFunc(groups, func(i, j *UnmatchedGroup) int {
+		return cmp.Compare(i.Dir, j.Dir)
+	})
 
 	// Assign the created groups
 	lc.UnmatchedGroups = groups

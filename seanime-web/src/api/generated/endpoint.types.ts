@@ -521,6 +521,19 @@ export type UpdateLocalFileData_Variables = {
  * - Filename: localfiles.go
  * - Endpoint: /api/v1/library/local-files
  * @description
+ * Route updates local files with the given paths.
+ */
+export type UpdateLocalFiles_Variables = {
+    paths: Array<string>
+    action: string
+    mediaId?: number
+}
+
+/**
+ * - Filepath: internal/handlers/localfiles.go
+ * - Filename: localfiles.go
+ * - Endpoint: /api/v1/library/local-files
+ * @description
  * Route deletes the local file with the given paths.
  */
 export type DeleteLocalFiles_Variables = {

@@ -186,7 +186,7 @@ func (m *Repository) Stream(streamUrl string) error {
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 		//m.exitedCh = make(chan struct{})
 	case "mpv":
-		err = m.Mpv.OpenAndPlay(streamUrl, "--no-cache", "--force-window")
+		err = m.Mpv.OpenAndPlay(streamUrl, "--force-window")
 		//m.exitedCh = m.Mpv.Exited()
 	}
 

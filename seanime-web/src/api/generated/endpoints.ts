@@ -534,6 +534,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route updates local files with the given paths.
+         *  The client should refetch the entire library collection and media entry.
+         */
+        UpdateLocalFiles: {
+            key: "LOCALFILES-update-local-files",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/library/local-files",
+        },
+        /**
+         *  @description
          *  Route deletes the local file with the given paths.
          *  The response is ignored, the client should refetch the entire library collection and media entry.
          */

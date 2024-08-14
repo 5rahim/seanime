@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/adrg/strutil/metrics"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
@@ -21,10 +20,8 @@ import (
 	"seanime/internal/util/limiter"
 	"seanime/internal/util/result"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 // HandleGetAnimeEntry
@@ -257,101 +254,28 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	title := selectedLfs[0].GetParsedTitle()
 
-	// Fetch 8 suggestions from MAL
-	malSuggestions, err := entriesMalCache.GetOrSet(title, func() ([]*mal.SearchResultAnime, error) {
-		malSuggestions, err := mal.SearchWithMAL(title, 8)
-		if err != nil {
-			return nil, err
-		}
-		// Cache the results
-		entriesMalCache.Set(title, malSuggestions)
-		return malSuggestions, nil
-	})
+	res, err := anilist.ListAnimeM(
+		lo.ToPtr(1),
+		&title,
+		lo.ToPtr(8),
+		nil,
+		[]*anilist.MediaStatus{lo.ToPtr(anilist.MediaStatusFinished), lo.ToPtr(anilist.MediaStatusReleasing), lo.ToPtr(anilist.MediaStatusCancelled), lo.ToPtr(anilist.MediaStatusHiatus)},
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+		c.App.Logger,
+	)
 	if err != nil {
 		return c.RespondWithError(err)
-	}
-
-	if len(malSuggestions) == 0 {
-		return c.RespondWithData([]*anilist.BaseAnime{})
-	}
-
-	dice := metrics.NewSorensenDice()
-	dice.CaseSensitive = false
-
-	// Sort by top 4 suggestions
-	malRatings := lo.Map(malSuggestions, func(item *mal.SearchResultAnime, _ int) struct {
-		OriginalValue string
-		Rating        float64
-	} {
-		return struct {
-			OriginalValue string
-			Rating        float64
-		}{
-			OriginalValue: item.Name,
-			Rating:        dice.Compare(title, item.Name),
-		}
-	})
-
-	// Sort by top 4 suggestions
-	sort.SliceStable(malRatings, func(i, j int) bool {
-		return malRatings[i].Rating > malRatings[j].Rating
-	})
-
-	_malSuggestions := make([]*mal.SearchResultAnime, 0)
-	for idx, item := range malRatings {
-		if idx < 4 {
-			s, ok := lo.Find(malSuggestions, func(i *mal.SearchResultAnime) bool {
-				return i.Name == item.OriginalValue
-			})
-			if ok {
-				_malSuggestions = append(_malSuggestions, s)
-			}
-		}
-	}
-
-	var anilistIds []int
-
-	wg := sync.WaitGroup{}
-	wg.Add(len(_malSuggestions))
-	mu := sync.Mutex{}
-	for _, s := range _malSuggestions {
-		go func(s *mal.SearchResultAnime) {
-			defer wg.Done()
-			anizipMedia, err := anizip.FetchAniZipMediaC("mal", s.ID, c.App.AnizipCache)
-			if err != nil {
-				return
-			}
-			if anizipMedia == nil || anizipMedia.GetMappings() == nil {
-				return
-			}
-			if anizipMedia.GetMappings().AnilistID == 0 {
-				return
-			}
-			mu.Lock()
-			anilistIds = append(anilistIds, anizipMedia.GetMappings().AnilistID)
-			mu.Unlock()
-		}(s)
-	}
-	wg.Wait()
-
-	c.App.Logger.Trace().Msgf("anilist: Fetching suggestions for %s, ids: %v", title, anilistIds)
-
-	animeMap, err := anilist.FetchBaseAnimeMap(anilistIds)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	c.App.Logger.Debug().Msgf("anilist: Fetched %d suggestions for %s", len(animeMap), title)
-
-	var anilistMedia []*anilist.BaseAnime
-	for _, ani := range animeMap {
-		anilistMedia = append(anilistMedia, ani)
 	}
 
 	// Cache the results
-	entriesSuggestionsCache.Set(b.Dir, anilistMedia)
+	entriesSuggestionsCache.Set(b.Dir, res.GetPage().GetMedia())
 
-	return c.RespondWithData(anilistMedia)
+	return c.RespondWithData(res.GetPage().GetMedia())
 
 }
 

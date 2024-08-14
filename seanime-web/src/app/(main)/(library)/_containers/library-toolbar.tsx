@@ -2,6 +2,7 @@
 import { Anime_LibraryCollectionList, Anime_LocalFile, Anime_UnknownGroup } from "@/api/generated/types"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { __bulkAction_modalAtomIsOpen } from "@/app/(main)/(library)/_containers/bulk-action-modal"
+import { __ignoredFileManagerIsOpen } from "@/app/(main)/(library)/_containers/ignored-file-manager"
 import { PlayRandomEpisodeButton } from "@/app/(main)/(library)/_containers/play-random-episode-button"
 import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
@@ -17,7 +18,7 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { useAtom, useSetAtom } from "jotai/react"
 import Link from "next/link"
 import React from "react"
-import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
+import { BiCollection, BiDotsVerticalRounded, BiFile, BiFolder } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
 import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
 import { MdOutlineVideoLibrary } from "react-icons/md"
@@ -49,6 +50,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
     const status = useServerStatus()
     const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
     const setUnmatchedFileManagerOpen = useSetAtom(__unmatchedFileManagerIsOpen)
+    const setIgnoredFileManagerOpen = useSetAtom(__ignoredFileManagerIsOpen)
     const setUnknownMediaManagerOpen = useSetAtom(__unknownMedia_drawerIsOpen)
     const setPlaylistsModalOpen = useSetAtom(__playlists_modalOpenAtom)
 
@@ -155,6 +157,15 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     >
                         <BiCollection />
                         <span>Bulk actions</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                        onClick={() => setIgnoredFileManagerOpen(true)}
+                        disabled={!hasScanned}
+                        className={cn({ "!text-[--muted]": !hasScanned })}
+                    >
+                        <BiFile />
+                        <span>Ignored files</span>
                     </DropdownMenuItem>
 
                     <Link href="/scan-summaries">

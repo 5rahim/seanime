@@ -637,6 +637,17 @@
 //     })
 // }
 
+// export function useUpdateLocalFiles() {
+//     return useServerMutation<boolean, UpdateLocalFiles_Variables>({
+//         endpoint: API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.endpoint,
+//         method: API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCALFILES.UpdateLocalFiles.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useDeleteLocalFiles() {
 //     return useServerMutation<Array<Anime_LocalFile>, DeleteLocalFiles_Variables>({
 //         endpoint: API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.endpoint,

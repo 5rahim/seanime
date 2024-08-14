@@ -131,6 +131,74 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// HandleUpdateLocalFiles
+//
+//	@summary updates local files with the given paths.
+//	@desc The client should refetch the entire library collection and media entry.
+//	@route /api/v1/library/local-files [PATCH]
+//	@returns bool
+func HandleUpdateLocalFiles(c *RouteCtx) error {
+
+	type body struct {
+		Paths   []string `json:"paths"`
+		Action  string   `json:"action"`
+		MediaId int      `json:"mediaId,omitempty"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Get all the local files
+	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	// Update the files
+	for _, path := range b.Paths {
+		lf, found := lo.Find(lfs, func(i *anime.LocalFile) bool {
+			return i.HasSamePath(path)
+		})
+		if !found {
+			continue
+		}
+		switch b.Action {
+		case "lock":
+			lf.Locked = true
+		case "unlock":
+			lf.Locked = false
+		case "ignore":
+			lf.MediaId = 0
+			lf.Ignored = true
+			lf.Locked = false
+		case "unignore":
+			lf.Ignored = false
+			lf.Locked = false
+		case "unmatch":
+			lf.MediaId = 0
+			lf.Locked = false
+			lf.Ignored = false
+		case "match":
+			lf.MediaId = b.MediaId
+			lf.Locked = true
+			lf.Ignored = false
+		}
+	}
+
+	// Save the local files
+	_, err = db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 // HandleDeleteLocalFiles
 //
 //	@summary deletes the local file with the given paths.

@@ -1,22 +1,26 @@
 import { Anime_UnmatchedGroup } from "@/api/generated/types"
-import { useAnimeEntryManualMatch, useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
+import { useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
+import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/components/ui/core/styling"
 import { Drawer } from "@/components/ui/drawer"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { NumberInput } from "@/components/ui/number-input"
 import { RadioGroup } from "@/components/ui/radio-group"
-import { Separator } from "@/components/ui/separator"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
-import React, { useCallback, useEffect, useState } from "react"
+import Link from "next/link"
+import React from "react"
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
 import { FiSearch } from "react-icons/fi"
+import { TbFileSad } from "react-icons/tb"
 import { toast } from "sonner"
+import upath from "upath"
 
 export const __unmatchedFileManagerIsOpen = atom(false)
 
@@ -29,11 +33,13 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
     const { unmatchedGroups } = props
 
     const [isOpen, setIsOpen] = useAtom(__unmatchedFileManagerIsOpen)
-    const [page, setPage] = useState(0)
+    const [page, setPage] = React.useState(0)
     const maxPage = unmatchedGroups.length - 1
-    const [currentGroup, setCurrentGroup] = useState(unmatchedGroups?.[0])
+    const [currentGroup, setCurrentGroup] = React.useState(unmatchedGroups?.[0])
 
-    const [anilistId, setAnilistId] = useState(0)
+    const [selectedPaths, setSelectedPaths] = React.useState<string[]>([])
+
+    const [anilistId, setAnilistId] = React.useState(0)
 
     const { mutate: openInExplorer } = useOpenInExplorer()
 
@@ -44,35 +50,36 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         reset: resetSuggestions,
     } = useFetchAnimeEntrySuggestions()
 
-    const { mutate: manuallyMatchEntry, isPending: matchingLoading } = useAnimeEntryManualMatch()
+    const { mutate: updateLocalFiles, isPending: isUpdating } = useUpdateLocalFiles()
 
-    const [_r, setR] = useState(0)
+    const [_r, setR] = React.useState(0)
 
-    const handleFetchSuggestions = useCallback(() => {
-        fetchSuggestions({
-            dir: currentGroup.dir,
-        })
-    }, [currentGroup?.dir, fetchSuggestions])
-
-    const handleSelectAnime = useCallback((value: string | null) => {
+    const handleSelectAnime = React.useCallback((value: string | null) => {
         if (value && !isNaN(Number(value))) {
             setAnilistId(Number(value))
             setR(r => r + 1)
         }
     }, [])
 
-    useEffect(() => {
+    // Reset the selected paths when the current group changes
+    React.useLayoutEffect(() => {
+        setSelectedPaths(currentGroup?.localFiles?.map(lf => lf.path) ?? [])
+    }, [currentGroup])
+
+    // Reset the current group and page when the drawer is opened
+    React.useEffect(() => {
         setPage(0)
         setCurrentGroup(unmatchedGroups[0])
     }, [isOpen, unmatchedGroups])
 
-    useEffect(() => {
+    // Set the current group when the page changes
+    React.useEffect(() => {
         setCurrentGroup(unmatchedGroups[page])
         setAnilistId(0)
         resetSuggestions()
     }, [page, unmatchedGroups])
 
-    const AnilistIdInput = useCallback(() => {
+    const AnilistIdInput = React.useCallback(() => {
         return <NumberInput
             value={anilistId}
             onValueChange={v => setAnilistId(v)}
@@ -82,32 +89,56 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         />
     }, [currentGroup?.dir, _r])
 
+    function onActionSuccess() {
+        if (page === 0 && unmatchedGroups.length === 1) {
+            setIsOpen(false)
+        }
+        setAnilistId(0)
+        resetSuggestions()
+        setPage(0)
+        setCurrentGroup(unmatchedGroups[0])
+    }
+
     /**
      * Manually match the current group with the specified Anilist ID.
      * If the current group is the last group and there are no more unmatched groups, close the drawer.
      */
-    function handleManuallyMatchEntry() {
-        if (!!currentGroup && anilistId > 0) {
-            manuallyMatchEntry({
-                dir: currentGroup?.dir,
+    function handleMatchSelected() {
+        if (!!currentGroup && anilistId > 0 && selectedPaths.length > 0) {
+            updateLocalFiles({
+                paths: selectedPaths,
+                action: "match",
                 mediaId: anilistId,
             }, {
                 onSuccess: () => {
-                    if (page === 0 && unmatchedGroups.length === 1) {
-                        setIsOpen(false)
-                    }
-                    setAnilistId(0)
-                    resetSuggestions()
-                    setPage(0)
-                    setCurrentGroup(unmatchedGroups[0])
+                    onActionSuccess()
+                    toast.success("Files matched")
                 },
             })
-        } else {
-            toast.error("Invalid Anilist ID")
         }
     }
 
-    useEffect(() => {
+    const handleFetchSuggestions = React.useCallback(() => {
+        fetchSuggestions({
+            dir: currentGroup.dir,
+        })
+    }, [currentGroup?.dir, fetchSuggestions])
+
+    function handleIgnoreSelected() {
+        if (selectedPaths.length > 0) {
+            updateLocalFiles({
+                paths: selectedPaths,
+                action: "ignore",
+            }, {
+                onSuccess: () => {
+                    onActionSuccess()
+                    toast.success("Files ignored")
+                },
+            })
+        }
+    }
+
+    React.useEffect(() => {
         if (!currentGroup) {
             setIsOpen(false)
         }
@@ -119,9 +150,9 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
         <Drawer
             open={isOpen}
             onOpenChange={() => setIsOpen(false)}
+            // contentClass="max-w-5xl"
             size="xl"
-            title="Resolve unmatched"
-
+            title="Unmatched files"
         >
             <AppLayoutStack className="mt-4">
 
@@ -135,6 +166,11 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         }}
                         className={cn("transition-opacity", { "opacity-0": page === 0 })}
                     >Previous</Button>
+
+                    <p>
+                        {page + 1} / {maxPage + 1}
+                    </p>
+
                     <Button
                         intent="gray-subtle"
                         rightIcon={<FaArrowRight />}
@@ -147,7 +183,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 </div>
 
                 <div
-                    className="bg-gray-800 border  p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
+                    className="bg-gray-900 border  p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer({
                         path: currentGroup.dir,
                     })}
@@ -156,36 +192,110 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     {currentGroup.dir}
                 </div>
 
-                <ul className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-28 max-w-full overflow-x-auto overflow-y-auto text-sm">
+                <div className="flex items-center flex-wrap gap-2">
+                    <div className="flex gap-2 items-center w-full">
+                        <p className="flex-none text-lg mr-2 font-semibold">Anilist ID</p>
+                        <AnilistIdInput />
+                        <Button
+                            intent="white"
+                            onClick={handleMatchSelected}
+                            loading={isUpdating}
+                        >Match selection</Button>
+                    </div>
+
+                    {/*<div className="flex flex-1">*/}
+                    {/*</div>*/}
+                </div>
+
+                <div className="bg-gray-950 border p-2 px-2 divide-y divide-[--border] rounded-md max-h-[50vh] max-w-full overflow-x-auto overflow-y-auto text-sm">
+
+                    <div className="p-2">
+                        <Checkbox
+                            label={`Select all files`}
+                            value={(selectedPaths.length === currentGroup?.localFiles?.length) ? true : (selectedPaths.length === 0
+                                ? false
+                                : "indeterminate")}
+                            onValueChange={checked => {
+                                if (typeof checked === "boolean") {
+                                    setSelectedPaths(draft => {
+                                        if (draft.length === currentGroup?.localFiles?.length) {
+                                            return []
+                                        } else {
+                                            return currentGroup?.localFiles?.map(lf => lf.path) ?? []
+                                        }
+                                    })
+                                }
+                            }}
+                            fieldClass="w-[fit-content]"
+                        />
+                    </div>
+
                     {currentGroup.localFiles?.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
-                        .map(lf => {
-                            return <li key={lf.path} className="text-sm tracking-wide line-clamp-1">
-                                {lf.parsedInfo?.original || lf.path}
-                            </li>
-                        })}
-                </ul>
+                        .map((lf, index) => (
+                            <div
+                                key={`${lf.path}-${index}`}
+                                className="p-2 "
+                            >
+                                <div className="flex items-center">
+                                    <Checkbox
+                                        label={`${upath.basename(lf.path)}`}
+                                        value={selectedPaths.includes(lf.path)}
+                                        onValueChange={checked => {
+                                            if (typeof checked === "boolean") {
+                                                setSelectedPaths(draft => {
+                                                    if (checked) {
+                                                        return [...draft, lf.path]
+                                                    } else {
+                                                        return draft.filter(p => p !== lf.path)
+                                                    }
+                                                })
+                                            }
+                                        }}
+                                        fieldClass="w-[fit-content]"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                </div>
 
                 {/*<Separator />*/}
 
-                <div className="flex gap-2 items-center">
-                    <p className="flex-none text-lg mr-2 font-semibold">Anilist ID</p>
-                    <AnilistIdInput />
+                {/*<Separator />*/}
+
+
+                <div className="flex flex-wrap items-center gap-1">
                     <Button
-                        intent="primary-outline"
-                        onClick={handleManuallyMatchEntry}
-                        loading={matchingLoading}
-                    >Match</Button>
+                        leftIcon={<FiSearch />}
+                        intent="primary-subtle"
+                        onClick={handleFetchSuggestions}
+                    >
+                        Fetch suggestions
+                    </Button>
+
+                    <Link
+                        target="_blank"
+                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || "")}`}
+                    >
+                        <Button
+                            intent="white-link"
+                        >
+                            Search on AniList
+                        </Button>
+                    </Link>
+
+                    <div className="flex flex-1"></div>
+
+                    <Button
+                        leftIcon={<TbFileSad className="text-lg" />}
+                        intent="warning-subtle"
+                        size="sm"
+                        rounded
+                        loading={isUpdating}
+                        onClick={handleIgnoreSelected}
+                    >
+                        Ignore selection
+                    </Button>
                 </div>
-
-                <Separator />
-
-                <Button
-                    leftIcon={<FiSearch />}
-                    intent="success-subtle"
-                    onClick={handleFetchSuggestions}
-                >
-                    Fetch suggestions
-                </Button>
 
                 {suggestionsLoading && <LoadingSpinner />}
 

@@ -193,6 +193,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Library.Post("/local-files", makeHandler(app, HandleLocalFileBulkAction))
 
+	v1Library.Patch("/local-files", makeHandler(app, HandleUpdateLocalFiles))
+
 	v1Library.Delete("/local-files", makeHandler(app, HandleDeleteLocalFiles))
 
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))

@@ -2424,6 +2424,64 @@
     }
   },
   {
+    "name": "HandleUpdateLocalFiles",
+    "trimmedName": "UpdateLocalFiles",
+    "comments": [
+      "HandleUpdateLocalFiles",
+      "",
+      "\t@summary updates local files with the given paths.",
+      "\t@desc The client should refetch the entire library collection and media entry.",
+      "\t@route /api/v1/library/local-files [PATCH]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/localfiles.go",
+    "filename": "localfiles.go",
+    "api": {
+      "summary": "updates local files with the given paths.",
+      "descriptions": [
+        "The client should refetch the entire library collection and media entry."
+      ],
+      "endpoint": "/api/v1/library/local-files",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Paths",
+          "jsonName": "paths",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Action",
+          "jsonName": "action",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleDeleteLocalFiles",
     "trimmedName": "DeleteLocalFiles",
     "comments": [

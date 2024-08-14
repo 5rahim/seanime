@@ -2,6 +2,7 @@
 import { LibraryHeader } from "@/app/(main)/(library)/_components/library-header"
 import { BulkActionModal } from "@/app/(main)/(library)/_containers/bulk-action-modal"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { IgnoredFileManager } from "@/app/(main)/(library)/_containers/ignored-file-manager"
 import { LibraryToolbar } from "@/app/(main)/(library)/_containers/library-toolbar"
 import { UnknownMediaManager } from "@/app/(main)/(library)/_containers/unknown-media-manager"
 import { UnmatchedFileManager } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
@@ -101,6 +102,9 @@ export default function Library() {
             />
             <UnknownMediaManager
                 unknownGroups={unknownGroups}
+            />
+            <IgnoredFileManager
+                files={ignoredLocalFiles}
             />
             <BulkActionModal />
         </div>

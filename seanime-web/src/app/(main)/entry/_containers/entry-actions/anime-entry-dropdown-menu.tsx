@@ -28,9 +28,9 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
     // Open entry in explorer
     const { mutate: openEntryInExplorer } = useOpenAnimeEntryInExplorer()
     // File bulk actions
-    const { mutate: performBulkAction, isPending } = useAnimeEntryBulkAction(entry.mediaId)
+    const { mutate: performBulkAction, isPending: isUpdating } = useAnimeEntryBulkAction(entry.mediaId)
 
-    const confirmDeleteFiles = useConfirmationDialog({
+    const confirmUnmatchFiles = useConfirmationDialog({
         title: "Unmatch all files",
         description: "Are you sure you want to unmatch all files?",
         onConfirm: () => {
@@ -79,15 +79,15 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
                     <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
                     <DropdownMenuItem
                         className="text-red-500 dark:text-red-200 flex justify-between"
-                        onClick={confirmDeleteFiles.open}
-                        disabled={isPending}
+                        onClick={confirmUnmatchFiles.open}
+                        disabled={isUpdating}
                     >
                         <span>Unmatch all files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className="text-red-500 dark:text-red-200 flex justify-between"
                         onClick={() => setBulkDeleteFilesModalOpen(true)}
-                        disabled={isPending}
+                        disabled={isUpdating}
                     >
                         <span>Delete some files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
@@ -95,7 +95,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
             </DropdownMenu>
 
             <AnimeEntryMetadataManager entry={entry} />
-            <ConfirmationDialog {...confirmDeleteFiles} />
+            <ConfirmationDialog {...confirmUnmatchFiles} />
             <AnimeEntryBulkDeleteFilesModal entry={entry} />
         </>
     )
