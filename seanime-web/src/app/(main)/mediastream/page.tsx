@@ -442,7 +442,7 @@ export default function Page() {
                                             episodeTitle={episode.episodeTitle}
                                             airDate={episode.episodeMetadata?.airDate}
                                             length={episode.episodeMetadata?.length}
-                                            summary={episode.episodeMetadata?.summary}
+                                            summary={episode.episodeMetadata?.summary || episode.episodeMetadata?.overview}
                                             isInvalid={episode.isInvalid}
                                             filename={episode.localFile?.parsedInfo?.original}
                                         />

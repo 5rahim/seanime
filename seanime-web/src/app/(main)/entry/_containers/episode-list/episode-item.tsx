@@ -208,7 +208,7 @@ function EpisodeItemInfoModalButton({ episode }: { episode: Anime_AnimeEntryEpis
                 {episode.episodeMetadata?.airDate || "Unknown airing date"} - {episode.episodeMetadata?.length || "N/A"} minutes
             </p>
             <p className="text-gray-300">
-                {episode.episodeMetadata?.summary?.replaceAll("`", "'") || "No summary"}
+                {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'") || "No summary"}
             </p>
             {
                 (!!episode.episodeMetadata?.aniDBId) && <>
