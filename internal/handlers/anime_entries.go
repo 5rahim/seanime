@@ -324,7 +324,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 			if anizipMedia == nil || anizipMedia.GetMappings() == nil {
 				return
 			}
-			if anizipMedia.GetMappings().MalID == 0 {
+			if anizipMedia.GetMappings().AnilistID == 0 {
 				return
 			}
 			mu.Lock()
@@ -333,6 +333,8 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 		}(s)
 	}
 	wg.Wait()
+
+	c.App.Logger.Trace().Msgf("anilist: Fetching suggestions for %s, ids: %v", title, anilistIds)
 
 	animeMap, err := anilist.FetchBaseAnimeMap(anilistIds)
 	if err != nil {
