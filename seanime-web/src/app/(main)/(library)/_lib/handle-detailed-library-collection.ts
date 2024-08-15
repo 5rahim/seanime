@@ -9,12 +9,11 @@ import React from "react"
 
 export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
     ...DEFAULT_COLLECTION_PARAMS,
-    sorting: "PROGRESS_DESC",
+    sorting: "TITLE",
 }
 
-export const __library_paramsAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
-
-export const __library_paramsInputAtom = atomWithImmer<CollectionParams>(DETAILED_LIBRARY_DEFAULT_PARAMS)
+// export const __library_paramsAtom = atomWithStorage("sea-library-sorting-params", DETAILED_LIBRARY_DEFAULT_PARAMS, undefined, { getOnInit: true })
+export const __library_paramsAtom = atomWithImmer(DETAILED_LIBRARY_DEFAULT_PARAMS)
 
 export const __library_selectedListAtom = atomWithImmer<string>("-")
 
@@ -23,15 +22,18 @@ export const __library_debouncedSearchInputAtom = atomWithImmer<string>("")
 export function useHandleDetailedLibraryCollection() {
     const serverStatus = useServerStatus()
 
+
     /**
      * Fetch the library collection data
      */
     const { data, isLoading } = useGetLibraryCollection()
 
-    const params = useAtomValue(__library_paramsAtom)
-    const debouncedParams = useDebounce(params, 500)
+    const paramsToDebounce = useAtomValue(__library_paramsAtom)
+    const debouncedParams = useDebounce(paramsToDebounce, 500)
 
     const debouncedSearchInput = useAtomValue(__library_debouncedSearchInputAtom)
+
+    console.log(debouncedParams)
 
     /**
      * Sort and filter the collection data
@@ -41,7 +43,7 @@ export function useHandleDetailedLibraryCollection() {
 
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
-            const arr = filterCollectionEntries(obj.entries, params, serverStatus?.settings?.anilist?.enableAdultContent)
+            const arr = filterCollectionEntries(obj.entries, paramsToDebounce, serverStatus?.settings?.anilist?.enableAdultContent)
             return {
                 type: obj.type,
                 status: obj.status,

@@ -2,7 +2,6 @@ import { Anime_AnimeEntryEpisode, Anime_LibraryCollectionEntry, Anime_LibraryCol
 import {
     __library_debouncedSearchInputAtom,
     __library_paramsAtom,
-    __library_paramsInputAtom,
     __library_selectedListAtom,
     DETAILED_LIBRARY_DEFAULT_PARAMS,
     useHandleDetailedLibraryCollection,
@@ -21,6 +20,7 @@ import {
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -191,15 +191,8 @@ const SearchInput = () => {
 export function SearchOptions() {
 
     const serverStatus = useServerStatus()
-    const [params, setParams] = useAtom(__library_paramsInputAtom)
-    const setActualParams = useSetAtom(__library_paramsAtom)
-    const debouncedParams = useDebounce(params, 500)
-
+    const [params, setParams] = useAtom(__library_paramsAtom)
     const [selectedIndex, setSelectedIndex] = useAtom(__library_selectedListAtom)
-
-    React.useEffect(() => {
-        setActualParams(params)
-    }, [debouncedParams])
 
     return (
         <AppLayoutStack className="px-4 xl:px-0">
@@ -220,12 +213,12 @@ export function SearchOptions() {
             <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto_auto] gap-4">
                 <Select
                     label="Sorting"
-                    leftAddon={<FaSortAmountDown />}
+                    leftAddon={<FaSortAmountDown className={cn(params.sorting !== "TITLE" && "text-indigo-300 font-bold text-xl")} />}
                     className="w-full"
                     fieldClass="flex items-center"
                     inputContainerClass="w-full"
                     options={COLLECTION_SORTING_OPTIONS}
-                    value={params.sorting || "SCORE_DESC"}
+                    value={params.sorting || "TITLE"}
                     onValueChange={v => setParams(draft => {
                         draft.sorting = v as any
                         return
@@ -234,7 +227,8 @@ export function SearchOptions() {
                     // disabled={!!params.title && params.title.length > 0}
                 />
                 <Select
-                    leftAddon={<MdPersonalVideo />}
+                    leftAddon={
+                        <MdPersonalVideo className={cn((params.format as any) !== null && (params.format as any) !== "" && "text-indigo-300 font-bold text-xl")} />}
                     label="Format" placeholder="All formats"
                     className="w-full"
                     fieldClass="w-full"
@@ -247,7 +241,8 @@ export function SearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<RiSignalTowerLine />}
+                    leftAddon={
+                        <RiSignalTowerLine className={cn((params.status as any) !== null && (params.status as any) !== "" && "text-indigo-300 font-bold text-xl")} />}
                     label="Status" placeholder="All statuses"
                     className="w-full"
                     fieldClass="w-full"
@@ -262,7 +257,8 @@ export function SearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<LuLeaf />}
+                    leftAddon={
+                        <LuLeaf className={cn((params.season as any) !== null && (params.season as any) !== "" && "text-indigo-300 font-bold text-xl")} />}
                     label="Season"
                     placeholder="All seasons"
                     className="w-full"
@@ -277,7 +273,7 @@ export function SearchOptions() {
                     fieldLabelClass="hidden"
                 />
                 <Select
-                    leftAddon={<LuCalendar />}
+                    leftAddon={<LuCalendar className={cn((params.year !== null && params.year !== "") && "text-indigo-300 font-bold text-xl")} />}
                     label="Year" placeholder="Timeless"
                     className="w-full"
                     fieldClass="w-full"
@@ -294,7 +290,7 @@ export function SearchOptions() {
                 />
                 <div className="flex gap-4 items-center w-full">
                     <IconButton
-                        icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
+                        icon={<BiTrash />} intent="alert-subtle" className="flex-none" onClick={() => {
                         setParams(DETAILED_LIBRARY_DEFAULT_PARAMS)
                     }}
                     />
@@ -317,14 +313,7 @@ export function SearchOptions() {
 }
 
 function GenreSelector() {
-    const [params, setParams] = useAtom(__library_paramsInputAtom)
-    const setActualParams = useSetAtom(__library_paramsAtom)
-    const debouncedParams = useDebounce(params, 500)
-
-    React.useEffect(() => {
-        setActualParams(params)
-    }, [debouncedParams])
-
+    const [params, setParams] = useAtom(__library_paramsAtom)
     return (
         <MediaGenreSelector
             items={[
