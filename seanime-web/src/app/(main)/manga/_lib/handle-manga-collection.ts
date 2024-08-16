@@ -4,11 +4,11 @@ import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries } 
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
-import React, { useMemo } from "react"
+import React from "react"
 
 export const MANGA_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
     ...DEFAULT_COLLECTION_PARAMS,
-    sorting: "PROGRESS_DESC",
+    sorting: "TITLE",
 }
 
 export const __mangaLibrary_paramsAtom = atomWithImmer<CollectionParams>(MANGA_LIBRARY_DEFAULT_PARAMS)
@@ -49,7 +49,7 @@ export function useHandleMangaCollection() {
         return Array.from(genresSet)?.sort((a, b) => a.localeCompare(b))
     }, [data])
 
-    const sortedCollection = useMemo(() => {
+    const sortedCollection = React.useMemo(() => {
         if (!data || !data.lists) return data
         return {
             lists: [

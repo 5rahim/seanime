@@ -133,7 +133,7 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 			Image:        coverURL,
 			Year:         result.Year,
 			SearchRating: compRes.Rating,
-			Provider:     string(ComickProvider),
+			Provider:     ComickProvider,
 		})
 	}
 
@@ -203,7 +203,7 @@ func (c *ComicK) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) 
 				count++
 			}
 			chaptersMap[chapter.Chap] = &hibikemanga.ChapterDetails{
-				Provider:  string(ComickProvider),
+				Provider:  ComickProvider,
 				ID:        chapter.HID,
 				Title:     title,
 				Index:     uint(count),
@@ -273,7 +273,7 @@ func (c *ComicK) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error)
 
 	for index, image := range data.Chapter.MdImages {
 		ret = append(ret, &hibikemanga.ChapterPage{
-			Provider: string(ComickProvider),
+			Provider: ComickProvider,
 			URL:      fmt.Sprintf("https://meo.comick.pictures/%s?width=%d", image.B2Key, image.W),
 			Index:    index,
 			Headers:  make(map[string]string),

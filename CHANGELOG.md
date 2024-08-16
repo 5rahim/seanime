@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.0.2
+
+- ✨ Ignore files
+- ⚡️ Improved 'resolve unmatched' feature
+  - Select individual files to match / ignore
+  - Suggestions are fetched faster
+- 🦺 Torrent streaming: Fixed MPV cache
+- 🦺 Fixed manual match overwriting locked files
+- 🦺 Fixed episode summaries
+
 ## v2.0.1
 
 - ✨ Torrent streaming: Show previously selected torrent
