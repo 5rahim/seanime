@@ -14,6 +14,7 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
+import { getExternalPlayerURL } from "@/lib/helpers/external-player-link"
 import { useAtomValue } from "jotai"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -60,18 +61,8 @@ export default function Page() {
             // Send video to external player
             const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filePath)
             logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
-            urlToSend.replace("127.0.0.1,", window.location.hostname).replace("localhost", window.location.hostname)
 
-            // e.g. "mpv://http://localhost:3000/api/v1/mediastream/file/..."
-            // e.g. "intent://http://localhost:3000/api/v1/mediastream/file/...#Intent;package=org.videolan.vlc;scheme=http;end"
-            let url = externalPlayerLink.replace("{url}", urlToSend)
-
-            if (externalPlayerLink.startsWith("intent://")) {
-                // e.g. "intent://localhost:3000/api/v1/mediastream/file/...#Intent;package=org.videolan.vlc;scheme=http;end"
-                url = url.replace("intent://http://", "intent://").replace("intent://https://", "intent://")
-            }
-
-            window.open(url, "_blank")
+            window.open(getExternalPlayerURL(externalPlayerLink, urlToSend), "_blank")
 
             // Start manual tracking
             React.startTransition(() => {

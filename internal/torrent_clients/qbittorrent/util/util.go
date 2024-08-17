@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -36,7 +35,7 @@ func GetInto(client *http.Client, target interface{}, url string, body interface
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("invalid response status %s", resp.Status)
 	}
-	buf, err := ioutil.ReadAll(resp.Body)
+	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -216,7 +215,7 @@ func GetIntoWithContentType(client *http.Client, target interface{}, url string,
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("invalid response status %s", resp.Status)
 	}
-	buf, err := ioutil.ReadAll(resp.Body)
+	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

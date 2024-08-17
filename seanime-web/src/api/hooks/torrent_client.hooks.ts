@@ -14,7 +14,7 @@ export function useGetActiveTorrentList(enabled: boolean) {
         endpoint: API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.endpoint,
         method: API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.methods[0],
         queryKey: [API_ENDPOINTS.TORRENT_CLIENT.GetActiveTorrentList.key],
-        refetchInterval: 2500,
+        refetchInterval: 1500,
         gcTime: 0,
         enabled: enabled,
     })
