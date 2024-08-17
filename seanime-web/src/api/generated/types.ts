@@ -1857,6 +1857,7 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
     id: string
     name: string
     episodeServers?: Array<string>
+    supportsDub: boolean
 }
 
 /**
@@ -2881,6 +2882,7 @@ export type HibikeManga_ChapterPage = {
  */
 export type HibikeManga_SearchResult = {
     provider: string
+    language?: string
     id: string
     title: string
     synonyms?: Array<string>

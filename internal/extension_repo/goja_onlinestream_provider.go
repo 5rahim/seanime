@@ -137,3 +137,18 @@ func (g *GojaOnlinestreamProvider) FindEpisodeServer(episode *hibikeonlinestream
 
 	return
 }
+
+func (g *GojaOnlinestreamProvider) GetSettings() (ret hibikeonlinestream.Settings) {
+	defer util.HandlePanicInModuleThen(g.ext.ID, func() {
+		ret = hibikeonlinestream.Settings{}
+	})
+
+	method, err := g.callClassMethod("getSettings")
+
+	err = g.unmarshalValue(method, &ret)
+	if err != nil {
+		return
+	}
+
+	return
+}

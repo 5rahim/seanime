@@ -34,8 +34,11 @@ func NewZoro(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	}
 }
 
-func (z *Zoro) GetEpisodeServers() []string {
-	return []string{VidcloudServer, VidstreamingServer}
+func (z *Zoro) GetSettings() hibikeonlinestream.Settings {
+	return hibikeonlinestream.Settings{
+		EpisodeServers: []string{VidcloudServer, VidstreamingServer},
+		SupportsDub:    true,
+	}
 }
 
 func (z *Zoro) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {

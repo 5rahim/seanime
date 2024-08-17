@@ -1,5 +1,6 @@
-import { Onlinestream_EpisodeSource } from "@/api/generated/types"
+import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
+import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_autoPlayAtom,
     __onlinestream_qualityAtom,
@@ -40,17 +41,19 @@ export function useOnlinestreamEpisodeList(mId: string | null) {
 }
 
 
-export function useOnlinestreamEpisodeSource(mId: string | null, isSuccess: boolean) {
+export function useOnlinestreamEpisodeSource(extensions: ExtensionRepo_OnlinestreamProviderExtensionItem[], mId: string | null, isSuccess: boolean) {
 
     const provider = useAtomValue(__onlinestream_selectedProviderAtom)
     const episodeNumber = useAtomValue(__onlinestream_selectedEpisodeNumberAtom)
     const dubbed = useAtomValue(__onlinestream_selectedDubbedAtom)
 
+    const extension = React.useMemo(() => extensions.find(p => p.id === provider), [extensions, provider])
+
     const { data, isLoading, isFetching, isError } = useGetOnlineStreamEpisodeSource(
         mId,
         provider,
         episodeNumber,
-        dubbed,
+        (!!extension?.supportsDub) && dubbed,
         !!mId && episodeNumber !== undefined && isSuccess,
     )
 
@@ -118,6 +121,8 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
 
     const { mediaId, ref: playerRef } = props
 
+    const { providerExtensions, providerExtensionOptions } = useHandleOnlinestreamProviderExtensions()
+
     /**
      * 1. Get the list of episodes
      */
@@ -131,7 +136,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         isLoading: isLoadingEpisodeSource,
         isFetching: isFetchingEpisodeSource,
         isError: isErrorEpisodeSource,
-    } = useOnlinestreamEpisodeSource(mediaId, isSuccess)
+    } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, isSuccess)
 
     /**
      * Variables used for episode source query
@@ -238,12 +243,12 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
                         setErroredServers((prev) => [...prev, videoSource?.server])
                         setServer(otherServers[0])
                     } else {
-                        setProvider((prev) => (prev === "gogoanime" ? "zoro" : "gogoanime"))
+                        setProvider((prev) => providerExtensionOptions.find((p) => p.value !== prev)?.value ?? null)
                     }
                 }
             }, 500)
         }
-    }, [provider, videoSource])
+    }, [provider, videoSource, providerExtensionOptions])
 
     /**
      * Handle provider setup
@@ -281,29 +286,45 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     }, [episodeSource])
 
     const changeQuality = React.useCallback((quality: string) => {
-        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-        previousIsPlayingRef.current = playerRef.current?.paused === false
+        try {
+            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+            previousIsPlayingRef.current = playerRef.current?.paused === false
+        }
+        catch {
+        }
         setQuality(quality)
     }, [videoSource])
 
     // Provider
     const changeProvider = React.useCallback((provider: string) => {
-        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-        previousIsPlayingRef.current = playerRef.current?.paused === false
+        try {
+            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+            previousIsPlayingRef.current = playerRef.current?.paused === false
+        }
+        catch {
+        }
         setProvider(provider)
     }, [videoSource])
 
     // Server
     const changeServer = React.useCallback((server: string) => {
-        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-        previousIsPlayingRef.current = playerRef.current?.paused === false
+        try {
+            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+            previousIsPlayingRef.current = playerRef.current?.paused === false
+        }
+        catch {
+        }
         setServer(server)
     }, [videoSource])
 
     // Dubbed
     const toggleDubbed = React.useCallback(() => {
-        previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
-        previousIsPlayingRef.current = playerRef.current?.paused === false
+        try {
+            previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
+            previousIsPlayingRef.current = playerRef.current?.paused === false
+        }
+        catch {
+        }
         setDubbed((prev) => !prev)
     }, [videoSource])
 
@@ -313,6 +334,8 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             return epNumber
         })
     }
+
+    const selectedExtension = React.useMemo(() => providerExtensions.find(p => p.id === provider), [providerExtensions, provider])
 
     return {
         currentEpisodeDetails: episodeDetails,
@@ -334,7 +357,10 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         isErrorEpisodeSource,
         isErrorProvider: isError,
         opts: {
+            selectedExtension,
             currentEpisodeDetails: episodeDetails,
+            providerExtensions,
+            providerExtensionOptions,
             servers,
             videoSource,
             customQualities,

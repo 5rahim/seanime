@@ -32,8 +32,11 @@ func NewGogoanime(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	}
 }
 
-func (g *Gogoanime) GetEpisodeServers() []string {
-	return []string{GogocdnServer, VidstreamingServer}
+func (g *Gogoanime) GetSettings() hibikeonlinestream.Settings {
+	return hibikeonlinestream.Settings{
+		EpisodeServers: []string{GogocdnServer, VidstreamingServer},
+		SupportsDub:    true,
+	}
 }
 
 func (g *Gogoanime) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {

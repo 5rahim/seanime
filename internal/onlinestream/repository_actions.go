@@ -177,7 +177,7 @@ func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}
 
-	for _, episodeServer := range providerExtension.GetProvider().GetEpisodeServers() {
+	for _, episodeServer := range providerExtension.GetProvider().GetSettings().EpisodeServers {
 		res, err := providerExtension.GetProvider().FindEpisodeServer(episodeDetails, episodeServer)
 		if err == nil {
 			// Add the server to the list for the episode

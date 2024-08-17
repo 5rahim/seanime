@@ -13,7 +13,6 @@ func init() {
 		"Dub":             reflect.ValueOf(onlinestream.Dub),
 		"Sub":             reflect.ValueOf(onlinestream.Sub),
 		"SubAndDub":       reflect.ValueOf(onlinestream.SubAndDub),
-		"VideoSourceDash": reflect.ValueOf(onlinestream.VideoSourceDash),
 		"VideoSourceM3U8": reflect.ValueOf(onlinestream.VideoSourceM3U8),
 		"VideoSourceMP4":  reflect.ValueOf(onlinestream.VideoSourceMP4),
 
@@ -22,6 +21,7 @@ func init() {
 		"EpisodeServer":   reflect.ValueOf((*onlinestream.EpisodeServer)(nil)),
 		"Provider":        reflect.ValueOf((*onlinestream.Provider)(nil)),
 		"SearchResult":    reflect.ValueOf((*onlinestream.SearchResult)(nil)),
+		"Settings":        reflect.ValueOf((*onlinestream.Settings)(nil)),
 		"SubOrDub":        reflect.ValueOf((*onlinestream.SubOrDub)(nil)),
 		"VideoExtractor":  reflect.ValueOf((*onlinestream.VideoExtractor)(nil)),
 		"VideoSource":     reflect.ValueOf((*onlinestream.VideoSource)(nil)),
@@ -39,7 +39,7 @@ type _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider struct {
 	IValue             interface{}
 	WFindEpisode       func(id string) ([]*onlinestream.EpisodeDetails, error)
 	WFindEpisodeServer func(episode *onlinestream.EpisodeDetails, server string) (*onlinestream.EpisodeServer, error)
-	WGetEpisodeServers func() []string
+	WGetSettings       func() onlinestream.Settings
 	WSearch            func(query string, dub bool) ([]*onlinestream.SearchResult, error)
 }
 
@@ -49,8 +49,8 @@ func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpiso
 func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpisodeServer(episode *onlinestream.EpisodeDetails, server string) (*onlinestream.EpisodeServer, error) {
 	return W.WFindEpisodeServer(episode, server)
 }
-func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) GetEpisodeServers() []string {
-	return W.WGetEpisodeServers()
+func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) GetSettings() onlinestream.Settings {
+	return W.WGetSettings()
 }
 func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) Search(query string, dub bool) ([]*onlinestream.SearchResult, error) {
 	return W.WSearch(query, dub)

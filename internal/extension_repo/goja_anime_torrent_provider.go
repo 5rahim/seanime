@@ -171,15 +171,18 @@ func (g *GojaAnimeTorrentProvider) GetLatest() (ret []*hibiketorrent.AnimeTorren
 }
 
 func (g *GojaAnimeTorrentProvider) GetSettings() (ret hibiketorrent.AnimeProviderSettings) {
+	defer util.HandlePanicInModuleThen(g.ext.ID, func() {
+		ret = hibiketorrent.AnimeProviderSettings{}
+	})
 
 	res, err := g.callClassMethod("getSettings")
 	if err != nil {
-		return hibiketorrent.AnimeProviderSettings{}
+		return
 	}
 
 	err = g.unmarshalValue(res, &ret)
 	if err != nil {
-		return hibiketorrent.AnimeProviderSettings{}
+		return
 	}
 
 	return

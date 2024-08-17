@@ -9,6 +9,13 @@ type (
 		// FindEpisodeServer returns the episode server for the given episode.
 		// "server" can be "default"
 		FindEpisodeServer(episode *EpisodeDetails, server string) (*EpisodeServer, error)
+		// GetSettings returns the provider settings.
+		GetSettings() Settings
+	}
+
+	Settings struct {
+		EpisodeServers []string `json:"episodeServers"`
+		SupportsDub    bool     `json:"supportsDub"`
 	}
 
 	SearchResult struct {
@@ -25,8 +32,7 @@ type (
 	// EpisodeDetails contains the episode information from a provider.
 	// It is obtained by scraping the list of episodes.
 	EpisodeDetails struct {
-		// Provider is the ID of the provider.
-		// This should be the same as the extension ID and follow the same format.
+		// "ID" of the extension.
 		Provider string `json:"provider"`
 		// ID is the episode slug.
 		// e.g. "the-apothecary-diaries-18578".
@@ -43,13 +49,12 @@ type (
 
 	// EpisodeServer contains the server, headers and video sources for an episode.
 	EpisodeServer struct {
-		// Provider is the ID of the provider.
-		// This should be the same as the extension ID and follow the same format.
+		// "ID" of the extension.
 		Provider string `json:"provider"`
-		// Server is the video server name.
+		// Episode server name.
 		// e.g. "vidcloud".
 		Server string `json:"server"`
-		// Headers are the HTTP headers for the video request.
+		// HTTP headers for the video request.
 		Headers map[string]string `json:"headers"`
 		// Video sources for the episode.
 		VideoSources []*VideoSource `json:"videoSources"`
@@ -72,8 +77,9 @@ type (
 	}
 
 	VideoSubtitle struct {
-		ID        string `json:"id"`
-		URL       string `json:"url"`
+		ID  string `json:"id"`
+		URL string `json:"url"`
+		// e.g. "en", "fr"
 		Language  string `json:"language"`
 		IsDefault bool   `json:"isDefault"`
 	}
@@ -92,5 +98,4 @@ const (
 const (
 	VideoSourceMP4  VideoSourceType = "mp4"
 	VideoSourceM3U8 VideoSourceType = "m3u8"
-	VideoSourceDash VideoSourceType = "dash"
 )

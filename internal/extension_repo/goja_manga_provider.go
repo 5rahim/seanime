@@ -67,10 +67,10 @@ func (g *GojaMangaProvider) GetVM() *goja.Runtime {
 	return g.vm
 }
 
-func (g *GojaMangaProvider) Search(query hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
+func (g *GojaMangaProvider) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(query)))
+	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -96,7 +96,7 @@ func (g *GojaMangaProvider) Search(query hibikemanga.SearchOptions) (ret []*hibi
 			compTitles = append(compTitles, &syn)
 		}
 
-		compRes, ok := comparison.FindBestMatchWithSorensenDice(&query.Query, compTitles)
+		compRes, ok := comparison.FindBestMatchWithSorensenDice(&opts.Query, compTitles)
 		if ok {
 			ret[i].SearchRating = compRes.Rating
 		}

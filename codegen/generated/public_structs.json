@@ -27599,13 +27599,58 @@
   {
     "filepath": "../internal/extension/vendoring/manga/types.go",
     "filename": "types.go",
+    "name": "ChapterFilter",
+    "formattedName": "HibikeManga_ChapterFilter",
+    "package": "vendor_hibike_manga",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"language\"",
+        "\"group\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filename": "types.go",
+    "name": "SelectOption",
+    "formattedName": "HibikeManga_SelectOption",
+    "package": "vendor_hibike_manga",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filename": "types.go",
     "name": "SearchOptions",
     "formattedName": "HibikeManga_SearchOptions",
     "package": "vendor_hibike_manga",
     "fields": [
       {
         "name": "Query",
-        "jsonName": "Query",
+        "jsonName": "query",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27614,7 +27659,7 @@
       },
       {
         "name": "Year",
-        "jsonName": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -27637,6 +27682,15 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       },
@@ -28023,6 +28077,34 @@
   {
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
+    "name": "Settings",
+    "formattedName": "Settings",
+    "package": "vender_hibike_onlinestream",
+    "fields": [
+      {
+        "name": "EpisodeServers",
+        "jsonName": "episodeServers",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SupportsDub",
+        "jsonName": "supportsDub",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filename": "types.go",
     "name": "SearchResult",
     "formattedName": "SearchResult",
     "package": "vender_hibike_onlinestream",
@@ -28199,8 +28281,7 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"mp4\"",
-        "\"m3u8\"",
-        "\"dash\""
+        "\"m3u8\""
       ]
     },
     "comments": []
@@ -29182,6 +29263,15 @@
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SupportsDub",
+        "jsonName": "supportsDub",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }

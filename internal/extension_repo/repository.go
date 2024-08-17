@@ -56,6 +56,7 @@ type (
 		ID             string   `json:"id"`
 		Name           string   `json:"name"`
 		EpisodeServers []string `json:"episodeServers"`
+		SupportsDub    bool     `json:"supportsDub"`
 	}
 
 	AnimeTorrentProviderExtensionItem struct {
@@ -146,7 +147,8 @@ func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProvide
 		ret = append(ret, &OnlinestreamProviderExtensionItem{
 			ID:             ext.GetID(),
 			Name:           ext.GetName(),
-			EpisodeServers: ext.GetProvider().GetEpisodeServers(),
+			EpisodeServers: ext.GetProvider().GetSettings().EpisodeServers,
+			SupportsDub:    ext.GetProvider().GetSettings().SupportsDub,
 		})
 		return true
 	})

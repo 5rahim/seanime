@@ -1,5 +1,4 @@
 import { useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
-import { useHandleOnlinestreamProviders } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
     __onlinestream_autoNextAtom,
@@ -119,9 +118,8 @@ export function OnlinestreamPlaybackSubmenu() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
-    const { providerOptions } = useHandleOnlinestreamProviders()
 
-    const { servers, changeProvider, changeServer } = useOnlinestreamManagerContext()
+    const { servers, providerExtensionOptions, changeProvider, changeServer } = useOnlinestreamManagerContext()
 
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
@@ -140,7 +138,7 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
             <Select
                 label="Provider"
                 value={provider || ""}
-                options={providerOptions}
+                options={providerExtensionOptions}
                 onValueChange={(v) => {
                     changeProvider(v)
                 }}
@@ -175,9 +173,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
         ...rest
     } = props
 
-    const { providerOptions } = useHandleOnlinestreamProviders()
-
-    const { changeProvider, servers, changeServer } = useOnlinestreamManagerContext()
+    const { changeProvider, providerExtensionOptions, servers, changeServer } = useOnlinestreamManagerContext()
 
     const [provider] = useAtom(__onlinestream_selectedProviderAtom)
     const [selectedServer] = useAtom(__onlinestream_selectedServerAtom)
@@ -199,7 +195,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
             <Menu.Content className={menuClass} placement="top">
                 <RadioGroup
                     value={provider || ""}
-                    options={providerOptions}
+                    options={providerExtensionOptions}
                     onValueChange={(v) => {
                         changeProvider(v)
                     }}
@@ -265,9 +261,10 @@ export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function SwitchSubOrDubButton() {
-
     const [dubbed] = useAtom(__onlinestream_selectedDubbedAtom)
-    const { toggleDubbed } = useOnlinestreamManagerContext()
+    const { selectedExtension, toggleDubbed } = useOnlinestreamManagerContext()
+
+    if (!selectedExtension || !selectedExtension?.supportsDub) return null
 
     return (
         <CTooltip

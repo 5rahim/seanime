@@ -103,23 +103,20 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		}
 
 		// Now that we have the container, we'll filter out the chapters that are not downloaded
-		chapters := make([]*hibikemanga.ChapterDetails, 0)
 		// Go through each chapter and check if it's downloaded
 		for _, chapter := range container.Chapters {
 			// For each chapter, check if the chapter directory exists
 			for _, dir := range chapterDirs {
 				if dir == fmt.Sprintf("%s_%d_%s_%s", provider, mediaId, chapter.ID, chapter.Chapter) {
-					chapters = append(chapters, chapter)
+					container.Chapters = append(container.Chapters, chapter)
 					break
 				}
 			}
 		}
 
-		if len(chapters) == 0 {
+		if len(container.Chapters) == 0 {
 			continue
 		}
-
-		container.Chapters = chapters
 
 		ret = append(ret, container)
 	}
