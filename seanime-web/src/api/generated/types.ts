@@ -2257,6 +2257,15 @@ export type Models_Mal = {
  * - Filename: models.go
  * - Package: models
  */
+export type Models_MangaSettings = {
+    defaultMangaProvider: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
 export type Models_MediaPlayerSettings = {
     /**
      * "vlc" or "mpc-hc"
@@ -2313,6 +2322,7 @@ export type Models_Settings = {
     library?: Models_LibrarySettings
     mediaPlayer?: Models_MediaPlayerSettings
     torrent?: Models_TorrentSettings
+    manga?: Models_MangaSettings
     anilist?: Models_AnilistSettings
     listSync?: Models_ListSyncSettings
     autoDownloader?: Models_AutoDownloaderSettings

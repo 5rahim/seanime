@@ -5511,6 +5511,15 @@
           "descriptions": []
         },
         {
+          "name": "Manga",
+          "jsonName": "manga",
+          "goType": "models.MangaSettings",
+          "usedStructType": "models.MangaSettings",
+          "typescriptType": "Models_MangaSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "Notifications",
           "jsonName": "notifications",
           "goType": "models.NotificationSettings",
@@ -5612,6 +5621,15 @@
           "goType": "models.DiscordSettings",
           "usedStructType": "models.DiscordSettings",
           "typescriptType": "Models_DiscordSettings",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Manga",
+          "jsonName": "manga",
+          "goType": "models.MangaSettings",
+          "usedStructType": "models.MangaSettings",
+          "typescriptType": "Models_MangaSettings",
           "required": true,
           "descriptions": []
         },

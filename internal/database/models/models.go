@@ -40,6 +40,7 @@ type Settings struct {
 	Library        *LibrarySettings        `gorm:"embedded" json:"library"`
 	MediaPlayer    *MediaPlayerSettings    `gorm:"embedded" json:"mediaPlayer"`
 	Torrent        *TorrentSettings        `gorm:"embedded" json:"torrent"`
+	Manga          *MangaSettings          `gorm:"embedded" json:"manga"`
 	Anilist        *AnilistSettings        `gorm:"embedded" json:"anilist"`
 	ListSync       *ListSyncSettings       `gorm:"embedded" json:"listSync"`
 	AutoDownloader *AutoDownloaderSettings `gorm:"embedded" json:"autoDownloader"`
@@ -67,6 +68,10 @@ type LibrarySettings struct {
 	OpenTorrentClientOnStart bool   `gorm:"column:open_torrent_client_on_start" json:"openTorrentClientOnStart"`
 	OpenWebURLOnStart        bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
 	RefreshLibraryOnStart    bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
+}
+
+type MangaSettings struct {
+	DefaultProvider string `gorm:"column:default_manga_provider" json:"defaultMangaProvider"`
 }
 
 type MediaPlayerSettings struct {

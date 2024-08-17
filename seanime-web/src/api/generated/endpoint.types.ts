@@ -18,6 +18,7 @@ import type {
     Models_AnilistSettings,
     Models_DiscordSettings,
     Models_LibrarySettings,
+    Models_MangaSettings,
     Models_MediaPlayerSettings,
     Models_MediastreamSettings,
     Models_NotificationSettings,
@@ -1099,6 +1100,7 @@ export type GettingStarted_Variables = {
     torrent: Models_TorrentSettings
     anilist: Models_AnilistSettings
     discord: Models_DiscordSettings
+    manga: Models_MangaSettings
     notifications: Models_NotificationSettings
     enableTranscode: boolean
     enableTorrentStreaming: boolean
@@ -1117,6 +1119,7 @@ export type SaveSettings_Variables = {
     torrent: Models_TorrentSettings
     anilist: Models_AnilistSettings
     discord: Models_DiscordSettings
+    manga: Models_MangaSettings
     notifications: Models_NotificationSettings
 }
 

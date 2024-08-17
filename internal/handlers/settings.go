@@ -42,6 +42,7 @@ func HandleGettingStarted(c *RouteCtx) error {
 		Torrent                models.TorrentSettings      `json:"torrent"`
 		Anilist                models.AnilistSettings      `json:"anilist"`
 		Discord                models.DiscordSettings      `json:"discord"`
+		Manga                  models.MangaSettings        `json:"manga"`
 		Notifications          models.NotificationSettings `json:"notifications"`
 		EnableTranscode        bool                        `json:"enableTranscode"`
 		EnableTorrentStreaming bool                        `json:"enableTorrentStreaming"`
@@ -52,24 +53,25 @@ func HandleGettingStarted(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	autoDownloaderSettings := &models.AutoDownloaderSettings{}
-	prevSettings, err := c.App.Database.GetSettings()
-	if err == nil && prevSettings.AutoDownloader != nil {
-		autoDownloaderSettings = prevSettings.AutoDownloader
-	}
-
 	settings, err := c.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
 		},
-		Library:        &b.Library,
-		MediaPlayer:    &b.MediaPlayer,
-		Torrent:        &b.Torrent,
-		Anilist:        &b.Anilist,
-		Discord:        &b.Discord,
-		Notifications:  &b.Notifications,
-		AutoDownloader: autoDownloaderSettings,
+		Library:       &b.Library,
+		MediaPlayer:   &b.MediaPlayer,
+		Torrent:       &b.Torrent,
+		Anilist:       &b.Anilist,
+		Discord:       &b.Discord,
+		Manga:         &b.Manga,
+		Notifications: &b.Notifications,
+		AutoDownloader: &models.AutoDownloaderSettings{
+			Provider:              b.Library.TorrentProvider,
+			Interval:              5,
+			Enabled:               false,
+			DownloadAutomatically: true,
+			EnableEnhancedQueries: true,
+		},
 	})
 
 	if err != nil {
@@ -123,6 +125,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		Torrent       models.TorrentSettings      `json:"torrent"`
 		Anilist       models.AnilistSettings      `json:"anilist"`
 		Discord       models.DiscordSettings      `json:"discord"`
+		Manga         models.MangaSettings        `json:"manga"`
 		Notifications models.NotificationSettings `json:"notifications"`
 	}
 	var b body
@@ -131,13 +134,13 @@ func HandleSaveSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	autoDownloaderSettings := &models.AutoDownloaderSettings{}
+	autoDownloaderSettings := models.AutoDownloaderSettings{}
 	prevSettings, err := c.App.Database.GetSettings()
 	if err == nil && prevSettings.AutoDownloader != nil {
-		autoDownloaderSettings = prevSettings.AutoDownloader
+		autoDownloaderSettings = *prevSettings.AutoDownloader
 	}
 	// Disable auto-downloader if the torrent provider is set to none
-	if b.Library.TorrentProvider == torrent.ProviderNone {
+	if b.Library.TorrentProvider == torrent.ProviderNone && autoDownloaderSettings.Enabled {
 		c.App.Logger.Debug().Msg("app: Disabling auto-downloader because the torrent provider is set to none")
 		autoDownloaderSettings.Enabled = false
 	}
@@ -151,9 +154,10 @@ func HandleSaveSettings(c *RouteCtx) error {
 		MediaPlayer:    &b.MediaPlayer,
 		Torrent:        &b.Torrent,
 		Anilist:        &b.Anilist,
+		Manga:          &b.Manga,
 		Discord:        &b.Discord,
 		Notifications:  &b.Notifications,
-		AutoDownloader: autoDownloaderSettings,
+		AutoDownloader: &autoDownloaderSettings,
 	})
 
 	if err != nil {
@@ -190,7 +194,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	prevSettings, err := c.App.Database.GetSettings()
+	currSettings, err := c.App.Database.GetSettings()
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -201,33 +205,26 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
-		Provider:              prevSettings.Library.TorrentProvider,
+		Provider:              currSettings.Library.TorrentProvider,
 		Interval:              b.Interval,
 		Enabled:               b.Enabled,
 		DownloadAutomatically: b.DownloadAutomatically,
 		EnableEnhancedQueries: b.EnableEnhancedQueries,
 	}
 
-	_, err = c.App.Database.UpsertSettings(&models.Settings{
-		BaseModel: models.BaseModel{
-			ID:        1,
-			UpdatedAt: time.Now(),
-		},
-		Library:        prevSettings.Library,
-		MediaPlayer:    prevSettings.MediaPlayer,
-		Torrent:        prevSettings.Torrent,
-		Anilist:        prevSettings.Anilist,
-		ListSync:       prevSettings.ListSync,
-		Discord:        prevSettings.Discord,
-		Notifications:  prevSettings.Notifications,
-		AutoDownloader: autoDownloaderSettings,
-	})
+	currSettings.AutoDownloader = autoDownloaderSettings
+	currSettings.BaseModel = models.BaseModel{
+		ID:        1,
+		UpdatedAt: time.Now(),
+	}
+
+	_, err = c.App.Database.UpsertSettings(currSettings)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
 	// Update Auto Downloader - This runs in a goroutine
-	c.App.AutoDownloader.SetSettings(autoDownloaderSettings, prevSettings.Library.TorrentProvider)
+	c.App.AutoDownloader.SetSettings(autoDownloaderSettings, currSettings.Library.TorrentProvider)
 
 	return c.RespondWithData(true)
 }

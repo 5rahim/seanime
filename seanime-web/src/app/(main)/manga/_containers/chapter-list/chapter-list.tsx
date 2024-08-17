@@ -212,7 +212,7 @@ export function ChapterList(props: ChapterListProps) {
                 <Select
                     fieldClass="w-fit"
                     options={providerOptions}
-                    value={selectedProvider}
+                    value={selectedProvider || ""}
                     onValueChange={v => setSelectedProvider({
                         mId: mediaId,
                         provider: v,

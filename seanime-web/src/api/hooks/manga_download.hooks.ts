@@ -97,7 +97,7 @@ export function useResetErroredChapterDownloadQueue() {
     })
 }
 
-export function useDeleteMangaDownloadedChapters(id: Nullish<string | number>, provider: string) {
+export function useDeleteMangaDownloadedChapters(id: Nullish<string | number>, provider: string | null) {
     const queryClient = useQueryClient()
     return useServerMutation<boolean, DeleteMangaDownloadedChapters_Variables>({
         endpoint: API_ENDPOINTS.MANGA_DOWNLOAD.DeleteMangaDownloadedChapters.endpoint,

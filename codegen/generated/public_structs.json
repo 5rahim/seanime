@@ -24676,6 +24676,16 @@
         "comments": []
       },
       {
+        "name": "Manga",
+        "jsonName": "manga",
+        "goType": "MangaSettings",
+        "typescriptType": "Models_MangaSettings",
+        "usedStructName": "models.MangaSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Anilist",
         "jsonName": "anilist",
         "goType": "AnilistSettings",
@@ -24879,6 +24889,25 @@
         "jsonName": "refreshLibraryOnStart",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "MangaSettings",
+    "formattedName": "Models_MangaSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "DefaultProvider",
+        "jsonName": "defaultMangaProvider",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []

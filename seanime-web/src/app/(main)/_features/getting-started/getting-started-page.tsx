@@ -72,12 +72,15 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         torrentProvider: data.torrentProvider || DEFAULT_TORRENT_PROVIDER,
                                         autoScan: false,
                                         disableAnimeCardTrailers: false,
-                                        enableOnlinestream: data.enableOnlinestream,
                                         enableManga: data.enableManga,
+                                        enableOnlinestream: data.enableOnlinestream,
                                         dohProvider: DEFAULT_DOH_PROVIDER,
                                         openTorrentClientOnStart: false,
                                         openWebURLOnStart: false,
                                         refreshLibraryOnStart: false,
+                                    },
+                                    manga: {
+                                        defaultMangaProvider: "",
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,

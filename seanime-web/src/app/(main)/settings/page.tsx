@@ -9,6 +9,7 @@ import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplay
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
+import { MangaSettings } from "@/app/(main)/settings/_containers/manga-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
@@ -136,6 +137,9 @@ export default function Page() {
                                         openWebURLOnStart: data.openWebURLOnStart,
                                         refreshLibraryOnStart: data.refreshLibraryOnStart,
                                     },
+                                    manga: {
+                                        defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
+                                    },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
                                         defaultPlayer: data.defaultPlayer,
@@ -228,6 +232,7 @@ export default function Page() {
                                 disableNotifications: status?.settings?.notifications?.disableNotifications ?? false,
                                 disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
                                 disableAutoScannerNotifications: status?.settings?.notifications?.disableAutoScannerNotifications ?? false,
+                                defaultMangaProvider: status?.settings?.manga?.defaultMangaProvider || "-",
                             }}
                             stackClass="space-y-4"
                         >
@@ -347,15 +352,7 @@ export default function Page() {
 
                             <TabsContent value="manga" className="space-y-6">
 
-                                <h3>Manga</h3>
-
-                                <Field.Switch
-                                    name="enableManga"
-                                    label={<span className="flex gap-1 items-center">Enable</span>}
-                                    help="Read manga series, download chapters and track your progress."
-                                />
-
-                                <SettingsSubmitButton isPending={isPending} />
+                                <MangaSettings isPending={isPending} />
 
                             </TabsContent>
 

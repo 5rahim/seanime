@@ -1,44 +1,86 @@
 import { Nullish } from "@/api/generated/types"
-import { atom } from "jotai"
-import { useAtom, useSetAtom } from "jotai/react"
+import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
-
-const DEFAULT_MANGA_PROVIDER = "mangapill"
 
 /**
  * Stores the selected provider for each manga entry
  */
 export const __manga_entryProviderAtom = atomWithStorage<Record<string, string>>("sea-manga-entry-provider", {})
 
-// Atom to retrieve the provider for a specific manga entry
-export const __manga_getEntryProviderAtom = atom(get => get(__manga_entryProviderAtom), (get, set, mId: Nullish<string | number>): string => {
-    if (!mId) return DEFAULT_MANGA_PROVIDER
-    return get(__manga_entryProviderAtom)[String(mId)] || DEFAULT_MANGA_PROVIDER
-})
-// Atom to set the provider for a specific manga entry
-export const __manga_setEntryProviderAtom = atom(null, (get, set, payload: { mId: Nullish<string | number>, provider: string }) => {
-    if (!payload.mId) return
-    set(__manga_entryProviderAtom, {
-        ...get(__manga_entryProviderAtom),
-        [String(payload.mId)]: payload.provider,
-    })
-})
-
 /**
  * - Get the manga provider for a specific manga entry
  * - Set the manga provider for a specific manga entry
  */
 export function useSelectedMangaProvider(mId: Nullish<string | number>) {
-    const [_, getProvider] = useAtom(__manga_getEntryProviderAtom)
-    const selectedProvider = React.useMemo(() => {
-        return getProvider(mId)
-    }, [mId, _])
+    const serverStatus = useServerStatus()
+    const { data: _extensions } = useListMangaProviderExtensions()
 
-    const setSelectedProvider = useSetAtom(__manga_setEntryProviderAtom)
+    const extensions = React.useMemo(() => {
+        return _extensions?.toSorted((a, b) => a.name.localeCompare(b.name))
+    }, [_extensions])
+
+    const [storedProvider, setStoredProvider] = useAtom(__manga_entryProviderAtom)
+
+    React.useLayoutEffect(() => {
+        if (!extensions || !serverStatus) return
+        const defaultProvider = serverStatus?.settings?.manga?.defaultMangaProvider || extensions[0]?.id || null
+
+
+        if (!defaultProvider || extensions.length === 0) {
+            setStoredProvider(prev => {
+                delete prev[String(mId)]
+                return prev
+            })
+            return
+        }
+
+        // Set the default provider if it's not already set
+        if (!storedProvider?.[String(mId)]) {
+            setStoredProvider(prev => {
+                return {
+                    ...prev,
+                    [String(mId)]: defaultProvider,
+                }
+            })
+        } else {
+            // Check if the selected provider is still available
+            const isProviderAvailable = extensions.some(provider => provider.id === storedProvider?.[String(mId)])
+
+            // Fall back to the first provider if the selected provider is not available
+            if (!isProviderAvailable && extensions.length > 0) {
+                setStoredProvider(prev => {
+                    return {
+                        ...prev,
+                        [String(mId)]: defaultProvider,
+                    }
+                })
+            }
+        }
+
+        if (!extensions.some(provider => provider.id === storedProvider?.[String(mId)])) {
+            setStoredProvider(prev => {
+                return {
+                    ...prev,
+                    [String(mId)]: defaultProvider,
+                }
+            })
+        }
+
+    }, [mId, storedProvider, extensions, serverStatus])
 
     return {
-        selectedProvider,
-        setSelectedProvider,
+        selectedProvider: storedProvider?.[String(mId)] || null,
+        setSelectedProvider: ({ mId, provider }: { mId: Nullish<string | number>, provider: string }) => {
+            if (!mId) return
+            setStoredProvider(prev => {
+                return {
+                    ...prev,
+                    [String(mId)]: provider,
+                }
+            })
+        },
     }
 }

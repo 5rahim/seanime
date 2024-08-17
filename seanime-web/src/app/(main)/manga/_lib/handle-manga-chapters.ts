@@ -26,7 +26,7 @@ export function useHandleMangaChapters(
         isError: chapterContainerError,
     } = useGetMangaEntryChapters({
         mediaId: Number(mediaId),
-        provider: selectedProvider,
+        provider: selectedProvider || undefined,
     })
 
 
