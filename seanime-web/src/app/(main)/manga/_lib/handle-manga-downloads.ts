@@ -8,6 +8,7 @@ import {
     useStartMangaDownloadQueue,
     useStopMangaDownloadQueue,
 } from "@/api/hooks/manga_download.hooks"
+import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
@@ -87,7 +88,7 @@ export function useMangaEntryDownloadData() {
  * Handle downloading manga chapters
  */
 export function useHandleDownloadMangaChapter(mediaId: string | undefined | null) {
-    const { selectedProvider } = useSelectedMangaProvide3r(mediaId)
+    const { selectedProvider } = useSelectedMangaProvider(mediaId)
 
     const { mutate, isPending } = useDownloadMangaChapters(mediaId, selectedProvider)
 
