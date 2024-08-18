@@ -98,7 +98,6 @@ func (m *WSEventManager) SendEventTo(clientId string, t string, payload interfac
 	defer m.mu.Unlock()
 
 	for _, conn := range m.Conns {
-		spew.Dump(conn.ID, clientId)
 		if conn.ID == clientId {
 			m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
 			_ = conn.Conn.WriteJSON(WSEvent{

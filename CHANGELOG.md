@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.0.3
+
+- ✨ Settings: Choose default manga source
+- 🦺 Fixed 'resolve unmatched' feature
+  - Fixed incorrect hydration when manually resolving unmatched files
+- 🦺 Torrent streaming: Fixed external player link on Android
+- 🦺 UI: Display characters for undownloaded anime
+- 🏗️ Updated extension SDK
+
 ## v2.0.2
 
 - ✨ Ignore files
