@@ -292,8 +292,8 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	type body struct {
-		Dir     string `json:"dir"`
-		MediaId int    `json:"mediaId"`
+		Paths   []string `json:"paths"`
+		MediaId int      `json:"mediaId"`
 	}
 
 	b := new(body)
@@ -312,19 +312,14 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Group local files by dir
-	groupedLfs := lop.GroupBy(lfs, func(item *anime.LocalFile) string {
-		return filepath.Dir(item.GetNormalizedPath())
-	})
-
-	selectedLfs, found := groupedLfs[strings.ToLower(b.Dir)]
-	if !found {
-		return c.RespondWithError(errors.New("no local files found for selected directory"))
+	compPaths := make(map[string]struct{})
+	for _, p := range b.Paths {
+		compPaths[strings.ToLower(filepath.ToSlash(p))] = struct{}{}
 	}
 
-	// Filter out local files that are already matched
-	selectedLfs = lo.Filter(selectedLfs, func(item *anime.LocalFile, _ int) bool {
-		return item.MediaId == 0
+	selectedLfs := lo.Filter(lfs, func(item *anime.LocalFile, _ int) bool {
+		_, found := compPaths[item.GetNormalizedPath()]
+		return found && item.MediaId == 0
 	})
 
 	// Add the media id to the selected local files

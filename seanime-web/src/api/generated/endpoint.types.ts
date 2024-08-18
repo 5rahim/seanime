@@ -200,7 +200,7 @@ export type FetchAnimeEntrySuggestions_Variables = {
  * Route matches un-matched local files in the given directory to the given media.
  */
 export type AnimeEntryManualMatch_Variables = {
-    dir: string
+    paths: Array<string>
     mediaId: number
 }
 

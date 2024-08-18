@@ -827,11 +827,11 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "Dir",
-          "jsonName": "dir",
-          "goType": "string",
+          "name": "Paths",
+          "jsonName": "paths",
+          "goType": "[]string",
           "usedStructType": "",
-          "typescriptType": "string",
+          "typescriptType": "Array\u003cstring\u003e",
           "required": true,
           "descriptions": []
         },

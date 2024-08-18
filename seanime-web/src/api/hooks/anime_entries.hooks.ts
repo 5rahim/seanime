@@ -67,7 +67,7 @@ export function useAnimeEntryManualMatch() {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
-            toast.success("Manual match completed successfully")
+            toast.success("Files matched")
         },
     })
 }
