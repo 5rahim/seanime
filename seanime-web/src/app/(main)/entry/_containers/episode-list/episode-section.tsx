@@ -2,7 +2,6 @@
 import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
-import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
 import { useHandleEpisodeSection } from "@/app/(main)/entry/_lib/handle-episode-section"
@@ -45,7 +44,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                     downloadInfo={entry.downloadInfo}
                     media={media}
                 />
-                <RelationsRecommendationsSection entry={entry} details={details} />
+                {bottomSection}
             </div>
         </div>
     }
