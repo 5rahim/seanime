@@ -52,7 +52,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
 
     // Get current mapping
     const { data: existingMapping, isLoading: mappingLoading } = useGetMangaMapping({
-        provider: selectedProvider,
+        provider: selectedProvider || undefined,
         mediaId: entry.mediaId,
     })
 
@@ -60,10 +60,12 @@ function Content({ entry }: { entry: Manga_Entry }) {
     const { mutate: search, data: searchResults, isPending: searchLoading, reset } = useMangaManualSearch(entry.mediaId, selectedProvider)
 
     function handleSearch(data: InferType<typeof searchSchema>) {
-        search({
-            provider: selectedProvider,
-            query: data.query,
-        })
+        if (selectedProvider) {
+            search({
+                provider: selectedProvider,
+                query: data.query,
+            })
+        }
     }
 
     // Match
@@ -79,7 +81,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
         actionText: "Confirm",
         actionIntent: "success",
         onConfirm: () => {
-            if (mangaId) {
+            if (mangaId && selectedProvider) {
                 match({
                     provider: selectedProvider,
                     mediaId: entry.mediaId,
@@ -104,10 +106,14 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                     Current mapping: <span>{existingMapping.mangaId}</span>
                                 </p>
                                 <Button
-                                    intent="alert-subtle" loading={isUnmatching} onClick={() => unmatch({
-                                    provider: selectedProvider,
-                                    mediaId: entry.mediaId,
-                                })}
+                                    intent="alert-subtle" loading={isUnmatching} onClick={() => {
+                                    if (selectedProvider) {
+                                        unmatch({
+                                            provider: selectedProvider,
+                                            mediaId: entry.mediaId,
+                                        })
+                                    }
+                                }}
                                 >
                                     Remove mapping
                                 </Button>
@@ -168,7 +174,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                         {/*</Badge>*/}
                                         <Tooltip
                                             trigger={<p className="line-clamp-2 text-sm absolute m-2 bottom-0 font-semibold z-[10]">
-                                            {item.title} {item.year && `(${item.year})`}
+                                                {item.title} {item.year && `(${item.year})`}
                                             </p>}
                                             className="z-[10]"
                                         >

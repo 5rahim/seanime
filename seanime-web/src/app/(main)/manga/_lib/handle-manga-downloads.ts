@@ -8,7 +8,6 @@ import {
     useStartMangaDownloadQueue,
     useStopMangaDownloadQueue,
 } from "@/api/hooks/manga_download.hooks"
-import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { atom } from "jotai"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
@@ -88,22 +87,24 @@ export function useMangaEntryDownloadData() {
  * Handle downloading manga chapters
  */
 export function useHandleDownloadMangaChapter(mediaId: string | undefined | null) {
-    const { selectedProvider } = useSelectedMangaProvider(mediaId)
+    const { selectedProvider } = useSelectedMangaProvide3r(mediaId)
 
     const { mutate, isPending } = useDownloadMangaChapters(mediaId, selectedProvider)
 
     return {
         downloadChapters: (chapters: HibikeManga_ChapterDetails[]) => {
-            mutate({
-                mediaId: Number(mediaId),
-                provider: selectedProvider,
-                chapterIds: chapters.map(ch => ch.id),
-                startNow: false,
-            }, {
-                onSuccess: () => {
-                    toast.success("Chapters added to download queue")
-                },
-            })
+            if (selectedProvider) {
+                mutate({
+                    mediaId: Number(mediaId),
+                    provider: selectedProvider,
+                    chapterIds: chapters.map(ch => ch.id),
+                    startNow: false,
+                }, {
+                    onSuccess: () => {
+                        toast.success("Chapters added to download queue")
+                    },
+                })
+            }
         },
         isSendingDownloadRequest: isPending,
     }

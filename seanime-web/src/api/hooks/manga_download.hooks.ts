@@ -9,7 +9,7 @@ import { Manga_DownloadListItem, Manga_MediaDownloadData, Models_ChapterDownload
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-export function useDownloadMangaChapters(id: Nullish<string | number>, provider: string) {
+export function useDownloadMangaChapters(id: Nullish<string | number>, provider: Nullish<string>) {
     const queryClient = useQueryClient()
 
     return useServerMutation<boolean, DownloadMangaChapters_Variables>({
