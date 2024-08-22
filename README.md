@@ -15,7 +15,7 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/v2/showcase.png" alt="preview" width="100%"/>
+<img src="docs/images/v2/devices_02.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
