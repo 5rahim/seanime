@@ -21,18 +21,26 @@ import (
 )
 
 const (
-	JsonFeedUrl            = "https://feed.animetosho.org/json"
-	AnimeToshoProviderName = "animetosho"
+	JsonFeedUrl  = "https://feed.animetosho.org/json"
+	ProviderName = "animetosho"
 )
 
-type Provider struct {
-	logger *zerolog.Logger
-}
+type (
+	Provider struct {
+		logger         *zerolog.Logger
+		sneedexNyaaIDs map[int]struct{}
+	}
+)
 
 func NewProvider(logger *zerolog.Logger) hibiketorrent.AnimeProvider {
-	return &Provider{
-		logger: logger,
+	ret := &Provider{
+		logger:         logger,
+		sneedexNyaaIDs: make(map[int]struct{}),
 	}
+
+	go ret.loadSneedex()
+
+	return ret
 }
 
 func (at *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
@@ -43,6 +51,7 @@ func (at *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
 			hibiketorrent.AnimeProviderSmartSearchFilterBatch,
 			hibiketorrent.AnimeProviderSmartSearchFilterEpisodeNumber,
 			hibiketorrent.AnimeProviderSmartSearchFilterResolution,
+			hibiketorrent.AnimeProviderSmartSearchFilterBestReleases,
 		},
 		SupportsAdult: false,
 	}
@@ -51,31 +60,34 @@ func (at *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
 // GetLatest returns all the latest torrents currently visible on the site
 func (at *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	at.logger.Debug().Msg("animetosho: Fetching latest torrents")
-	query := "?qx=1&q=&filter[0][t]=nyaa_class&order="
+	query := "?qx=1&q="
 	torrents, err := fetchTorrents(query)
 	if err != nil {
 		return nil, err
 	}
 
-	ret = torrentSliceToAnimeTorrentSlice(torrents, false, &hibiketorrent.Media{})
+	ret = at.torrentSliceToAnimeTorrentSlice(torrents, false, &hibiketorrent.Media{})
 
 	return ret, nil
 }
 
 func (at *Provider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	at.logger.Debug().Str("query", opts.Query).Msg("animetosho: Searching for torrents")
-	query := fmt.Sprintf("?qx=1&q=%s&filter[0][t]=nyaa_class&order=", url.QueryEscape(sanitizeTitle(opts.Query)))
+	query := fmt.Sprintf("?qx=1&q=%s", url.QueryEscape(sanitizeTitle(opts.Query)))
 	atTorrents, err := fetchTorrents(query)
 	if err != nil {
 		return nil, err
 	}
 
-	ret = torrentSliceToAnimeTorrentSlice(atTorrents, false, &opts.Media)
+	ret = at.torrentSliceToAnimeTorrentSlice(atTorrents, false, &opts.Media)
 
 	return ret, nil
 }
 
 func (at *Provider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) ([]*hibiketorrent.AnimeTorrent, error) {
+	if opts.BestReleases {
+		return at.smartSearchBestReleases(&opts)
+	}
 	if opts.Batch {
 		return at.smartSearchBatch(&opts)
 	}
@@ -106,7 +118,7 @@ func (at *Provider) smartSearchSingleEpisode(opts *hibiketorrent.AnimeSmartSearc
 		atTorrents = lo.Filter(atTorrents, func(t *Torrent, _ int) bool {
 			return t.NumFiles == 1
 		})
-		ret = torrentSliceToAnimeTorrentSlice(atTorrents, true, &opts.Media)
+		ret = at.torrentSliceToAnimeTorrentSlice(atTorrents, true, &opts.Media)
 		return
 	}
 
@@ -124,7 +136,7 @@ func (at *Provider) smartSearchSingleEpisode(opts *hibiketorrent.AnimeSmartSearc
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class", url.QueryEscape(query)))
+			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -183,7 +195,7 @@ func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions
 	}
 
 	if foundByID {
-		ret = torrentSliceToAnimeTorrentSlice(atTorrents, true, &opts.Media)
+		ret = at.torrentSliceToAnimeTorrentSlice(atTorrents, true, &opts.Media)
 		return
 	}
 
@@ -201,7 +213,7 @@ func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&filter[0][t]=nyaa_class&order=size-d", url.QueryEscape(query)))
+			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&order=size-d", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -225,6 +237,69 @@ func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions
 	})
 
 	return
+}
+
+type sneedexItem struct {
+	NyaaIDs []int  `json:"nyaaIDs"`
+	EntryID string `json:"entryID"`
+}
+
+func (at *Provider) loadSneedex() {
+	// Load Sneedex Nyaa IDs
+	resp, err := http.Get("https://sneedex.moe/api/public/nyaa")
+	if err != nil {
+		at.logger.Error().Err(err).Msg("animetosho: Failed to fetch Sneedex Nyaa IDs")
+		return
+	}
+	defer resp.Body.Close()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		at.logger.Error().Err(err).Msg("animetosho: Failed to read Sneedex Nyaa IDs response")
+		return
+	}
+
+	var sneedexItems []*sneedexItem
+	if err := json.Unmarshal(b, &sneedexItems); err != nil {
+		at.logger.Error().Err(err).Msg("animetosho: Failed to unmarshal Sneedex Nyaa IDs")
+		return
+	}
+
+	for _, item := range sneedexItems {
+		for _, nyaaID := range item.NyaaIDs {
+			at.sneedexNyaaIDs[nyaaID] = struct{}{}
+		}
+	}
+
+	at.logger.Debug().Int("count", len(at.sneedexNyaaIDs)).Msg("animetosho: Loaded Sneedex Nyaa IDs")
+}
+
+func (at *Provider) smartSearchBestReleases(opts *hibiketorrent.AnimeSmartSearchOptions) ([]*hibiketorrent.AnimeTorrent, error) {
+	return at.findSneedexBestReleases(opts)
+}
+
+func (at *Provider) findSneedexBestReleases(opts *hibiketorrent.AnimeSmartSearchOptions) ([]*hibiketorrent.AnimeTorrent, error) {
+	ret := make([]*hibiketorrent.AnimeTorrent, 0)
+
+	at.logger.Debug().Int("aid", opts.AniDbAID).Msg("animetosho: Searching best releases by Anime ID")
+
+	if opts.AniDbAID > 0 {
+		// Get all torrents by Anime ID
+		atTorrents, err := at.searchByAID(opts.AniDbAID, opts.Resolution)
+		if err != nil {
+			return nil, err
+		}
+
+		// Filter by Sneedex Nyaa IDs
+		atTorrents = lo.Filter(atTorrents, func(t *Torrent, _ int) bool {
+			_, found := at.sneedexNyaaIDs[t.NyaaId]
+			return found
+		})
+
+		ret = at.torrentSliceToAnimeTorrentSlice(atTorrents, true, &opts.Media)
+	}
+
+	return ret, nil
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -582,7 +657,7 @@ func buildBatchGroup(m *hibiketorrent.Media) string {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func torrentSliceToAnimeTorrentSlice(torrents []*Torrent, confirmed bool, media *hibiketorrent.Media) []*hibiketorrent.AnimeTorrent {
+func (at *Provider) torrentSliceToAnimeTorrentSlice(torrents []*Torrent, confirmed bool, media *hibiketorrent.Media) []*hibiketorrent.AnimeTorrent {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
@@ -591,9 +666,11 @@ func torrentSliceToAnimeTorrentSlice(torrents []*Torrent, confirmed bool, media 
 		wg.Add(1)
 		go func(torrent *Torrent) {
 			defer wg.Done()
-			mu.Lock()
 			t := torrent.toAnimeTorrent(media)
+			_, isBest := at.sneedexNyaaIDs[torrent.NyaaId]
+			t.IsBestRelease = isBest
 			t.Confirmed = confirmed
+			mu.Lock()
 			ret = append(ret, t)
 			mu.Unlock()
 		}(torrent)
@@ -626,7 +703,7 @@ func (t *Torrent) toAnimeTorrent(media *hibiketorrent.Media) *hibiketorrent.Anim
 		IsBatch:       t.NumFiles > 1,
 		EpisodeNumber: 0,
 		ReleaseGroup:  metadata.ReleaseGroup,
-		Provider:      AnimeToshoProviderName,
+		Provider:      ProviderName,
 		IsBestRelease: false,
 		Confirmed:     false,
 	}
