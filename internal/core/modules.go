@@ -282,6 +282,7 @@ func (a *App) InitOrRefreshModules() {
 			Host:     settings.Torrent.QBittorrentHost,
 			Path:     settings.Torrent.QBittorrentPath,
 		})
+		_ = qbit.Login()
 		// Init Transmission
 		trans, err := transmission.New(&transmission.NewTransmissionOptions{
 			Logger:   a.Logger,
