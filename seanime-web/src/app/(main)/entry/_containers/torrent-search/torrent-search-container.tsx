@@ -392,6 +392,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
                 isBatch={batchHistory?.torrent.isBatch ?? false}
                 image={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
                 fallbackImage={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
+                isBestRelease={batchHistory?.torrent.isBestRelease}
                 onClick={() => {
                     if (type === "select") {
                         if (batchHistory?.torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
@@ -425,7 +426,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
                 <div className="flex flex-wrap gap-2 items-center">
                     {batchHistory?.torrent.isBestRelease && (
                         <Badge
-                            className="rounded-md text-[0.8rem] bg-green-700 border-green-400 border"
+                            className="rounded-md text-[0.8rem] bg-pink-800 border-pink-600 border"
                             intent="success-solid"
                         >
                             Best release

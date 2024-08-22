@@ -18,6 +18,7 @@ type TorrentPreviewItemProps = {
     action?: React.ReactNode
     image?: string | null
     fallbackImage?: string
+    isBestRelease?: boolean
     confirmed?: boolean
 }
 
@@ -36,6 +37,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
         action,
         image,
         fallbackImage,
+        isBestRelease,
         confirmed,
     } = props
 
@@ -56,7 +58,12 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
         >
 
             {confirmed && <div className="absolute left-2 top-2">
-                <MdVerified className="text-[--green] text-xl" />
+                <MdVerified
+                    className={cn(
+                        "text-[--green] text-xl",
+                        isBestRelease && "text-[--pink]",
+                    )}
+                />
             </div>}
 
             <div className="absolute left-0 top-0 w-full h-full max-w-[180px]">

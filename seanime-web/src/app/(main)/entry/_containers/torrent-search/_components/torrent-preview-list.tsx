@@ -45,6 +45,7 @@ export const TorrentPreviewList = React.memo((
                         releaseGroup={item.torrent.releaseGroup || ""}
                         filename={item.torrent.name}
                         isBatch={item.torrent.isBatch ?? false}
+                        isBestRelease={item.torrent.isBestRelease}
                         image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
                             (item.torrent.confirmed ? (entry.media?.coverImage?.large || entry.media?.bannerImage) : null)}
                         fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
@@ -63,7 +64,7 @@ export const TorrentPreviewList = React.memo((
                         <div className="flex flex-wrap gap-2 items-center">
                             {item.torrent.isBestRelease && (
                                 <Badge
-                                    className="rounded-md text-[0.8rem] bg-green-700 border-green-400 border"
+                                    className="rounded-md text-[0.8rem] bg-pink-800 border-pink-600 border"
                                     intent="success-solid"
                                 >
                                     Best release
