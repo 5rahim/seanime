@@ -6,6 +6,9 @@ import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
+import { Select } from "@/components/ui/select"
+import { TextInput } from "@/components/ui/text-input"
+import { useDebounce } from "@/hooks/use-debounce"
 import { DndContext, DragEndEvent } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
@@ -63,6 +66,25 @@ export function PlaylistManager(props: PlaylistManagerProps) {
         }
     }, [])
 
+    const [selectedCategory, setSelectedCategory] = React.useState("CURRENT")
+    const [searchInput, setSearchInput] = React.useState("")
+    const debouncedSearchInput = useDebounce(searchInput, 500)
+
+    const entries = React.useMemo(() => {
+        if (debouncedSearchInput.length !== 0) return (libraryCollection?.lists
+            ?.filter(n => n.type === "PLANNING" || n.type === "PAUSED" || n.type === "CURRENT")
+            ?.flatMap(n => n.entries)
+            ?.filter(Boolean) ?? []).filter(n => n?.media?.title?.english?.toLowerCase().includes(debouncedSearchInput.toLowerCase()) ||
+            n?.media?.title?.romaji?.toLowerCase().includes(debouncedSearchInput.toLowerCase()))
+
+        return libraryCollection?.lists?.filter(n => {
+                if (selectedCategory === "-") return n.type === "PLANNING" || n.type === "PAUSED" || n.type === "CURRENT"
+                return n.type === selectedCategory
+            })
+            ?.flatMap(n => n.entries)
+            ?.filter(Boolean) ?? []
+    }, [libraryCollection, debouncedSearchInput, selectedCategory])
+
 
     return (
         <div className="space-y-4">
@@ -70,6 +92,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
             <div className="space-y-2">
                 <Modal
                     title="Select an anime"
+                    contentClass="max-w-4xl"
                     trigger={<Button
                         leftIcon={<BiPlus className="text-2xl" />}
                         intent="white"
@@ -77,44 +100,34 @@ export function PlaylistManager(props: PlaylistManagerProps) {
                         disabled={paths.length >= 10}
                     >Add an episode</Button>}
                 >
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {libraryCollection?.lists?.filter(n => n.type === "PLANNING" || n.type === "PAUSED" || n.type === "CURRENT")
-                            ?.flatMap(n => n.entries)
-                            ?.filter(Boolean)
-                            ?.map(entry => {
-                                return (
-                                    <Modal
-                                        title={entry.media?.title?.userPreferred || entry.media?.title?.romaji || ""}
-                                        trigger={(
-                                            <div
-                                                key={entry.mediaId}
-                                                className="col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative transition cursor-pointer bg-[var(--background)] md:opacity-60 md:hover:opacity-100 md:hover:scale-105"
-                                            >
-                                                <Image
-                                                    src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
-                                                    placeholder={imageShimmer(700, 475)}
-                                                    sizes="10rem"
-                                                    fill
-                                                    alt=""
-                                                    className="object-center object-cover"
-                                                />
-                                                <p className="line-clamp-2 text-sm absolute m-2 bottom-0 font-semibold z-[10]">
-                                                    {entry.media?.title?.userPreferred || entry.media?.title?.romaji}
-                                                </p>
-                                                <div
-                                                    className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
-                                                />
-                                            </div>
-                                        )}
-                                    >
-                                        <EntryEpisodeList
-                                            selectedPaths={paths}
-                                            setSelectedPaths={setPaths}
-                                            entry={entry}
-                                        />
-                                    </Modal>
-                                )
-                            })}
+
+                    <div className="grid grid-cols-[150px,1fr] gap-2">
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={v => setSelectedCategory(v)}
+                            options={[
+                                { label: "Current", value: "CURRENT" },
+                                { label: "Paused", value: "PAUSED" },
+                                { label: "Planning", value: "PLANNING" },
+                                { label: "All", value: "-" },
+                            ]}
+                            disabled={searchInput.length !== 0}
+                        />
+
+                        <TextInput
+                            placeholder="Search"
+                            value={searchInput}
+                            onChange={e => setSearchInput(e.target.value)}
+                        />
+
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        {entries?.map(entry => {
+                            return (
+                                <PlaylistMediaEntry key={entry.mediaId} entry={entry} paths={paths} setPaths={setPaths} />
+                            )
+                        })}
                     </div>
                 </Modal>
             </div>
@@ -146,6 +159,46 @@ export function PlaylistManager(props: PlaylistManagerProps) {
             </DndContext>
         </div>
     )
+}
+
+type PlaylistMediaEntryProps = {
+    entry: Anime_LibraryCollectionEntry
+    paths: string[]
+    setPaths: React.Dispatch<React.SetStateAction<string[]>>
+}
+
+function PlaylistMediaEntry(props: PlaylistMediaEntryProps) {
+    const { entry, paths, setPaths } = props
+    return <Modal
+        title={entry.media?.title?.userPreferred || entry.media?.title?.romaji || ""}
+        trigger={(
+            <div
+                key={entry.mediaId}
+                className="col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative transition cursor-pointer bg-[var(--background)] md:opacity-60 md:hover:opacity-100"
+            >
+                <Image
+                    src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
+                    placeholder={imageShimmer(700, 475)}
+                    sizes="10rem"
+                    fill
+                    alt=""
+                    className="object-center object-cover"
+                />
+                <p className="line-clamp-2 text-sm absolute m-2 bottom-0 font-semibold z-[10]">
+                    {entry.media?.title?.userPreferred || entry.media?.title?.romaji}
+                </p>
+                <div
+                    className="z-[5] absolute bottom-0 w-full h-[80%] bg-gradient-to-t from-[--background] to-transparent"
+                />
+            </div>
+        )}
+    >
+        <EntryEpisodeList
+            selectedPaths={paths}
+            setSelectedPaths={setPaths}
+            entry={entry}
+        />
+    </Modal>
 }
 
 function SortableItem({ localFile, id, media, setPaths }: {
