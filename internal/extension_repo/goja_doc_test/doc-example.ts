@@ -58,7 +58,6 @@ class Provider {
 
         console.log("Document created")
 
-        console.log(document.find("section").children().length())
 
         console.log(">>> Last post by string selector")
         const article = document.find("article:last-child")

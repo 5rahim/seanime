@@ -3,8 +3,6 @@ package extension_repo
 import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dop251/goja"
-	"reflect"
-	"seanime/internal/util"
 	"strings"
 )
 
@@ -86,23 +84,6 @@ type GojaDocSelection struct {
 // Document
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (d *GojaDoc) Find(call goja.FunctionCall) goja.Value {
-	if d.doc == nil {
-		return goja.Undefined().ToObject(d.vm)
-	}
-	// Validate the number of arguments
-	if len(call.Arguments) < 1 {
-		return goja.Null().ToObject(d.vm)
-	}
-	// Validate the type of the argument
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return goja.Null().ToObject(d.vm)
-	}
-	selectorStr := call.Argument(0).String()
-	selection := d.doc.Find(selectorStr)
-	return newGojaDocSelectionValue(d, selection)
-}
-
 func newGojaDocSelectionValue(d *GojaDoc, selection *goquery.Selection) goja.Value {
 	gojaDocSelection := &GojaDocSelection{
 		gojaDoc:   d,
@@ -144,6 +125,14 @@ func newGojaDocSelectionValue(d *GojaDoc, selection *goquery.Selection) goja.Val
 // Selection
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (s *GojaDocSelection) getFirstStringArg(call goja.FunctionCall) string {
+	selectorStr, ok := call.Argument(0).Export().(string)
+	if !ok {
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a string").ToString())
+	}
+	return selectorStr
+}
+
 func (s *GojaDocSelection) Length(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		return s.gojaDoc.vm.ToValue(0)
@@ -154,20 +143,11 @@ func (s *GojaDocSelection) Length(call goja.FunctionCall) goja.Value {
 // Find gets the descendants of each element in the current set of matched elements, filtered by a selector.
 //
 //	find(selector: string): DocSelection;
-func (s *GojaDocSelection) Find(call goja.FunctionCall) goja.Value {
+func (s *GojaDocSelection) Find(call goja.FunctionCall) (ret goja.Value) {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	// Validate the number of arguments
-	if len(call.Arguments) < 1 {
-		return goja.Null()
-	}
-
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Find(""))
-	}
-
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Find(selectorStr))
 }
 
@@ -195,15 +175,11 @@ func (s *GojaDocSelection) Text(call goja.FunctionCall) goja.Value {
 //	attr(name: string): string | undefined;
 func (s *GojaDocSelection) Attr(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Null()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return goja.Null()
-	}
-	attrName := call.Argument(0).String()
-	attr, found := s.selection.Attr(attrName)
+	attr, found := s.selection.Attr(s.getFirstStringArg(call))
 	if !found {
-		return goja.Null()
+		return goja.Undefined()
 	}
 	return s.gojaDoc.vm.ToValue(attr)
 }
@@ -213,15 +189,9 @@ func (s *GojaDocSelection) Attr(call goja.FunctionCall) goja.Value {
 //	parent(selector?: string): DocSelection;
 func (s *GojaDocSelection) Parent(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parent())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parent())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ParentFiltered(selectorStr))
 }
 
@@ -230,15 +200,9 @@ func (s *GojaDocSelection) Parent(call goja.FunctionCall) goja.Value {
 //	parents(selector?: string): DocSelection;
 func (s *GojaDocSelection) Parents(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parents())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parents())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ParentsFiltered(selectorStr))
 }
 
@@ -248,19 +212,10 @@ func (s *GojaDocSelection) Parents(call goja.FunctionCall) goja.Value {
 //	parentsUntil(selector?: string, until?: string): DocSelection;
 func (s *GojaDocSelection) ParentsUntil(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parents())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parents())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	if len(call.Arguments) < 2 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.ParentsUntil(selectorStr))
-	}
-	if call.Argument(1).ExportType().Kind() != reflect.String {
 		return newGojaDocSelectionValue(s.gojaDoc, s.selection.ParentsUntil(selectorStr))
 	}
 	untilStr := call.Argument(1).String()
@@ -272,7 +227,7 @@ func (s *GojaDocSelection) ParentsUntil(call goja.FunctionCall) goja.Value {
 //	end(): DocSelection;
 func (s *GojaDocSelection) End(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.End())
 }
@@ -282,17 +237,9 @@ func (s *GojaDocSelection) End(call goja.FunctionCall) goja.Value {
 //	closest(selector?: string): DocSelection;
 func (s *GojaDocSelection) Closest(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	// Validate the number of arguments
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Closest(""))
-	}
-
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Closest(""))
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Closest(selectorStr))
 }
 
@@ -301,15 +248,9 @@ func (s *GojaDocSelection) Closest(call goja.FunctionCall) goja.Value {
 //	next(selector?: string): DocSelection;
 func (s *GojaDocSelection) Next(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Next())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Next())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextFiltered(selectorStr))
 }
 
@@ -318,15 +259,9 @@ func (s *GojaDocSelection) Next(call goja.FunctionCall) goja.Value {
 //	prev(selector?: string): DocSelection;
 func (s *GojaDocSelection) Prev(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Prev())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Prev())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevFiltered(selectorStr))
 }
 
@@ -335,15 +270,9 @@ func (s *GojaDocSelection) Prev(call goja.FunctionCall) goja.Value {
 //	siblings(selector?: string): DocSelection;
 func (s *GojaDocSelection) Siblings(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Siblings())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Siblings())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.SiblingsFiltered(selectorStr))
 }
 
@@ -352,15 +281,9 @@ func (s *GojaDocSelection) Siblings(call goja.FunctionCall) goja.Value {
 //	children(selector?: string): DocSelection;
 func (s *GojaDocSelection) Children(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Children())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Children())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ChildrenFiltered(selectorStr))
 }
 
@@ -370,7 +293,7 @@ func (s *GojaDocSelection) Children(call goja.FunctionCall) goja.Value {
 //	contents(): DocSelection;
 func (s *GojaDocSelection) Contents(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Contents())
 }
@@ -382,15 +305,9 @@ func (s *GojaDocSelection) Contents(call goja.FunctionCall) goja.Value {
 //	contentsFiltered(selector: string): DocSelection;
 func (s *GojaDocSelection) ContentsFiltered(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Contents())
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Contents())
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ContentsFiltered(selectorStr))
 }
 
@@ -400,15 +317,9 @@ func (s *GojaDocSelection) ContentsFiltered(call goja.FunctionCall) goja.Value {
 //	filter(selector: string): DocSelection;
 func (s *GojaDocSelection) Filter(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return goja.Undefined()
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return goja.Undefined()
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Filter(selectorStr))
 }
 
@@ -417,15 +328,9 @@ func (s *GojaDocSelection) Filter(call goja.FunctionCall) goja.Value {
 //	not(selector: string): DocSelection;
 func (s *GojaDocSelection) Not(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return goja.Undefined()
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return goja.Undefined()
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Not(selectorStr))
 }
 
@@ -434,15 +339,9 @@ func (s *GojaDocSelection) Not(call goja.FunctionCall) goja.Value {
 //	is(selector: string): boolean;
 func (s *GojaDocSelection) Is(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return goja.Undefined()
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return goja.Undefined()
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return s.gojaDoc.vm.ToValue(s.selection.Is(selectorStr))
 }
 
@@ -452,15 +351,9 @@ func (s *GojaDocSelection) Is(call goja.FunctionCall) goja.Value {
 //	has(selector: string): DocSelection;
 func (s *GojaDocSelection) Has(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return goja.Undefined()
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.String {
-		return goja.Undefined()
-	}
-	selectorStr := call.Argument(0).String()
+	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Has(selectorStr))
 }
 
@@ -470,22 +363,12 @@ func (s *GojaDocSelection) Has(call goja.FunctionCall) goja.Value {
 //
 //	each(callback: (index: number, element: DocSelection) => void): DocSelection;
 func (s *GojaDocSelection) Each(call goja.FunctionCall) (ret goja.Value) {
-	defer util.HandlePanicInModuleThen("extension_repo/goja_document_bindings/Each", func() {
-		ret = goja.Undefined()
-	})
-
 	if s.selection == nil {
-		return goja.Undefined()
-	}
-	if len(call.Arguments) < 1 {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection)
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.Func {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection)
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
 	callback, ok := call.Argument(0).Export().(func(call goja.FunctionCall) goja.Value)
 	if !ok {
-		return newGojaDocSelectionValue(s.gojaDoc, s.selection)
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a function").ToString())
 	}
 	s.selection.Each(func(i int, selection *goquery.Selection) {
 		callback(goja.FunctionCall{Arguments: []goja.Value{
@@ -503,24 +386,19 @@ func (s *GojaDocSelection) Each(call goja.FunctionCall) (ret goja.Value) {
 //	map(callback: (index: number, element: DocSelection) => DocSelection): DocSelection[];
 func (s *GojaDocSelection) Map(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
-	}
-	if len(call.Arguments) < 1 {
-		return goja.Undefined()
-	}
-	if call.Argument(0).ExportType().Kind() != reflect.Func {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
 	callback, ok := call.Argument(0).Export().(func(call goja.FunctionCall) goja.Value)
 	if !ok {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a function").ToString())
 	}
 	var ret []goja.Value
 	s.selection.Each(func(i int, selection *goquery.Selection) {
-		ret = append(ret, callback(goja.FunctionCall{Arguments: []goja.Value{
+		val := callback(goja.FunctionCall{Arguments: []goja.Value{
 			s.gojaDoc.vm.ToValue(i),
 			newGojaDocSelectionValue(s.gojaDoc, selection),
-		}}))
+		}})
+		ret = append(ret, val)
 	})
 	return s.gojaDoc.vm.ToValue(ret)
 }
@@ -531,7 +409,7 @@ func (s *GojaDocSelection) Map(call goja.FunctionCall) goja.Value {
 //	first(): DocSelection;
 func (s *GojaDocSelection) First(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.First())
 }
@@ -542,7 +420,7 @@ func (s *GojaDocSelection) First(call goja.FunctionCall) goja.Value {
 //	last(): DocSelection;
 func (s *GojaDocSelection) Last(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Last())
 }
@@ -553,14 +431,11 @@ func (s *GojaDocSelection) Last(call goja.FunctionCall) goja.Value {
 //	eq(index: number): DocSelection;
 func (s *GojaDocSelection) Eq(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return goja.Undefined()
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) < 1 {
-		return goja.Undefined()
+	index, ok := call.Argument(0).Export().(int64)
+	if !ok {
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a number").String())
 	}
-	if call.Argument(0).ExportType().Kind() != reflect.Int {
-		return goja.Undefined()
-	}
-	index := call.Argument(0).ToInteger()
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Eq(int(index)))
 }
