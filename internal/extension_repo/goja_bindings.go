@@ -148,32 +148,6 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	return promise
 }
 
-// Function to serialize GojaFormData to multipart/form-data format
-func serializeFormData(formData *goja.Object, vm *goja.Runtime) (io.Reader, string, error) {
-	var buffer bytes.Buffer
-	writer := multipart.NewWriter(&buffer)
-
-	// Iterate over all keys and values in the GojaFormData object
-	for _, key := range formData.Keys() {
-		value := formData.Get(key).String()
-		part, err := writer.CreateFormField(key)
-		if err != nil {
-			return nil, "", err
-		}
-		_, err = part.Write([]byte(value))
-		if err != nil {
-			return nil, "", err
-		}
-	}
-
-	err := writer.Close()
-	if err != nil {
-		return nil, "", err
-	}
-
-	return &buffer, writer.Boundary(), nil
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Console
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

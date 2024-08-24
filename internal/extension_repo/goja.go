@@ -78,6 +78,11 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 		return nil, err
 	}
 
+	err = gojaBindDocument(vm)
+	if err != nil {
+		return nil, err
+	}
+
 	return vm, nil
 }
 

@@ -5,6 +5,7 @@ class Provider {
     api = "https://feed.animetosho.org/json"
 
     async search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]> {
+
         const query = `?q=${opts.query}&only_tor=1`
         const torrents = await this.fetchTorrents(query)
         return torrents.map(t => this.toAnimeTorrent(t))

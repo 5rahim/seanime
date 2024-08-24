@@ -27,7 +27,7 @@ func TestExternalGoOnlinestreamProviderExtension(t *testing.T) {
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(episodes), 1)
 
-	server, err := ext.GetProvider().FindEpisodeServer(episodes[0], ext.GetProvider().GetEpisodeServers()[0])
+	server, err := ext.GetProvider().FindEpisodeServer(episodes[0], ext.GetProvider().GetSettings().EpisodeServers[0])
 	require.NoError(t, err)
 
 	spew.Dump(server)
