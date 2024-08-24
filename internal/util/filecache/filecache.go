@@ -26,6 +26,10 @@ func NewBucket(name string, ttl time.Duration) Bucket {
 	return Bucket{name: name, ttl: ttl}
 }
 
+func (b *Bucket) Name() string {
+	return b.name
+}
+
 // Cacher represents a single-process, file-based, key/value cache.
 type Cacher struct {
 	dir    string

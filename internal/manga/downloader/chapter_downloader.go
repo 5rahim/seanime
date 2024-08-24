@@ -20,11 +20,9 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/manga/providers"
 	"seanime/internal/util"
+	"strconv"
+	"strings"
 	"sync"
-)
-
-var (
-	ErrChapterAlreadyDownloaded = fmt.Errorf("chapter already downloaded")
 )
 
 // 📁 cache/manga
@@ -378,7 +376,64 @@ func (r *Registry) save(queueInfo *QueueInfo, destination string, logger *zerolo
 }
 
 func (cd *Downloader) getChapterDownloadDir(downloadId DownloadID) string {
-	return filepath.Join(cd.downloadDir, fmt.Sprintf("%s_%d_%s_%s", downloadId.Provider, downloadId.MediaId, downloadId.ChapterId, downloadId.ChapterNumber))
+	return filepath.Join(cd.downloadDir, FormatChapterDirName(downloadId.Provider, downloadId.MediaId, downloadId.ChapterId, downloadId.ChapterNumber))
+}
+
+func FormatChapterDirName(provider string, mediaId int, chapterId string, chapterNumber string) string {
+	return fmt.Sprintf("%s_%d_%s_%s", provider, mediaId, EscapeChapterID(chapterId), chapterNumber)
+}
+
+// ParseChapterDirName parses a chapter directory name and returns the DownloadID.
+// e.g. comick_1234_chapter$UNDERSCORE$id_13.5 -> {Provider: "comick", MediaId: 1234, ChapterId: "chapter_id", ChapterNumber: "13.5"}
+func ParseChapterDirName(dirName string) (id DownloadID, ok bool) {
+	parts := strings.Split(dirName, "_")
+	if len(parts) != 4 {
+		return id, false
+	}
+
+	id.Provider = parts[0]
+	var err error
+	id.MediaId, err = strconv.Atoi(parts[1])
+	if err != nil {
+		return id, false
+	}
+	id.ChapterId = UnescapeChapterID(parts[2])
+	id.ChapterNumber = parts[3]
+
+	ok = true
+	return
+}
+
+func EscapeChapterID(id string) string {
+	id = strings.ReplaceAll(id, "/", "$SLASH$")
+	id = strings.ReplaceAll(id, "\\", "$BSLASH$")
+	id = strings.ReplaceAll(id, ":", "$COLON$")
+	id = strings.ReplaceAll(id, "*", "$ASTERISK$")
+	id = strings.ReplaceAll(id, "?", "$QUESTION$")
+	id = strings.ReplaceAll(id, "\"", "$QUOTE$")
+	id = strings.ReplaceAll(id, "<", "$LT$")
+	id = strings.ReplaceAll(id, ">", "$GT$")
+	id = strings.ReplaceAll(id, "|", "$PIPE$")
+	id = strings.ReplaceAll(id, ".", "$DOT$")
+	id = strings.ReplaceAll(id, " ", "$SPACE$")
+	id = strings.ReplaceAll(id, "_", "$UNDERSCORE$")
+	return id
+}
+
+func UnescapeChapterID(id string) string {
+	id = strings.ReplaceAll(id, "$SLASH$", "/")
+	id = strings.ReplaceAll(id, "$BSLASH$", "\\")
+	id = strings.ReplaceAll(id, "$COLON$", ":")
+	id = strings.ReplaceAll(id, "$ASTERISK$", "*")
+	id = strings.ReplaceAll(id, "$QUESTION$", "?")
+	id = strings.ReplaceAll(id, "$QUOTE$", "\"")
+	id = strings.ReplaceAll(id, "$LT$", "<")
+	id = strings.ReplaceAll(id, "$GT$", ">")
+	id = strings.ReplaceAll(id, "$PIPE$", "|")
+	id = strings.ReplaceAll(id, "$DOT$", ".")
+	id = strings.ReplaceAll(id, "$SPACE$", " ")
+	id = strings.ReplaceAll(id, "$UNDERSCORE$", "_")
+	return id
 }
 
 func (cd *Downloader) getChapterRegistryPath(downloadId DownloadID) string {

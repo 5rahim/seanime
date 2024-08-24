@@ -2,7 +2,6 @@ package manga
 
 import (
 	"errors"
-	"fmt"
 	"github.com/rs/zerolog"
 	"os"
 	"seanime/internal/api/anilist"
@@ -11,8 +10,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/manga/downloader"
 	"seanime/internal/manga/providers"
-	"strconv"
-	"strings"
+	"seanime/internal/util"
 	"sync"
 )
 
@@ -42,6 +40,7 @@ type (
 	MediaMap map[int]ProviderDownloadMap
 
 	// ProviderDownloadMap is used to store all downloaded chapters for a specific media and provider.
+	// The key is the provider and the value is a list of chapters.
 	ProviderDownloadMap map[string][]ProviderDownloadMapChapterInfo
 
 	ProviderDownloadMapChapterInfo struct {
@@ -91,7 +90,7 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 
 	_ = os.MkdirAll(d.downloadDir, os.ModePerm)
 
-	go d.refreshMediaMap()
+	go d.hydrateMediaMap()
 
 	return d
 }
@@ -104,7 +103,7 @@ func (d *Downloader) Start() {
 			select {
 			// Refresh the media map when a chapter is downloaded
 			case _ = <-d.chapterDownloader.ChapterDownloaded():
-				d.refreshMediaMap()
+				d.hydrateMediaMap()
 			}
 		}
 	}()
@@ -116,13 +115,10 @@ func (d *Downloader) Start() {
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
 	// Find chapter container in the file cache
-	// e.g. comick$1234 from bucket 'manga_comick_chapters_1234'
-	// Note: Each bucket contains only 1 key-value pair.
-	chapterKey := fmt.Sprintf("%s$%d", opts.Provider, opts.MediaId)
 	chapterBucket := d.repository.getFcProviderBucket(opts.Provider, opts.MediaId, bucketTypeChapter)
 	var chapterContainer *ChapterContainer
 	// Get the only key-value pair in the bucket
-	if found, _ := d.repository.fileCacher.Get(chapterBucket, chapterKey, &chapterContainer); !found {
+	if found, _ := d.repository.fileCacher.Get(chapterBucket, bucketTypeChapterKey, &chapterContainer); !found {
 		// If the chapter container is not found, return an error
 		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
 		return errors.New("chapters not found")
@@ -165,7 +161,7 @@ func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId strin
 		return err
 	}
 
-	d.refreshMediaMap()
+	d.hydrateMediaMap()
 
 	return nil
 }
@@ -184,26 +180,19 @@ func (d *Downloader) DeleteChapters(ids []chapter_downloader.DownloadID) (err er
 		return err
 	}
 
-	d.refreshMediaMap()
+	d.hydrateMediaMap()
 
 	return nil
 }
 
-func (d *Downloader) GetMediaDownloads(mediaId int, cached bool) (MediaDownloadData, error) {
+func (d *Downloader) GetMediaDownloads(mediaId int, cached bool) (ret MediaDownloadData, err error) {
+	defer util.HandlePanicInModuleWithError("manga/GetMediaDownloads", &err)
+
 	if !cached {
-		d.refreshMediaMap()
+		d.hydrateMediaMap()
 	}
 
 	return d.mediaMap.getMediaDownload(mediaId, d.database)
-}
-
-func (d *Downloader) RefreshMediaMap() *MediaMap {
-	d.refreshMediaMap()
-	return d.mediaMap
-}
-
-func (d *Downloader) GetAllMediaDownloads() *MediaMap {
-	return d.mediaMap
 }
 
 func (d *Downloader) RunChapterDownloadQueue() {
@@ -223,13 +212,17 @@ type (
 	}
 
 	DownloadListItem struct {
-		MediaId      int                 `json:"mediaId"`
+		MediaId int `json:"mediaId"`
+		// Media will be nil if the manga is no longer in the user's collection.
+		// The client should handle this case by displaying the download data without the media data.
 		Media        *anilist.BaseManga  `json:"media"`
 		DownloadData ProviderDownloadMap `json:"downloadData"`
 	}
 )
 
+// NewDownloadList returns a list of DownloadListItem for the client to display.
 func (d *Downloader) NewDownloadList(opts *NewDownloadListOptions) (ret []*DownloadListItem, err error) {
+	defer util.HandlePanicInModuleWithError("manga/NewDownloadList", &err)
 
 	mm := d.mediaMap
 
@@ -273,6 +266,7 @@ func (d *Downloader) NewDownloadList(opts *NewDownloadListOptions) (ret []*Downl
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (mm *MediaMap) getMediaDownload(mediaId int, db *db.Database) (MediaDownloadData, error) {
+
 	if mm == nil {
 		return MediaDownloadData{}, errors.New("could not check downloaded chapters")
 	}
@@ -315,7 +309,8 @@ func (mm *MediaMap) getMediaDownload(mediaId int, db *db.Database) (MediaDownloa
 
 }
 
-func (d *Downloader) refreshMediaMap() {
+// hydrateMediaMap hydrates the MediaMap by reading the download directory.
+func (d *Downloader) hydrateMediaMap() {
 
 	if d.readingDownloadDir {
 		return
@@ -348,34 +343,25 @@ func (d *Downloader) refreshMediaMap() {
 
 			if file.IsDir() {
 				// e.g. comick_1234_abc_13.5
-				parts := strings.SplitN(file.Name(), "_", 4)
-				if len(parts) != 4 {
-					return
-				}
-
-				provider := parts[0]
-				mediaID, err := strconv.Atoi(parts[1])
-				chapterID := parts[2]
-				chapterNumber := parts[3]
-
-				if err != nil {
+				id, ok := chapter_downloader.ParseChapterDirName(file.Name())
+				if !ok {
 					return
 				}
 
 				mu.Lock()
 				newMapInfo := ProviderDownloadMapChapterInfo{
-					ChapterID:     chapterID,
-					ChapterNumber: chapterNumber,
+					ChapterID:     id.ChapterId,
+					ChapterNumber: id.ChapterNumber,
 				}
 
-				if _, ok := ret[mediaID]; !ok {
-					ret[mediaID] = make(map[string][]ProviderDownloadMapChapterInfo)
-					ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
+				if _, ok := ret[id.MediaId]; !ok {
+					ret[id.MediaId] = make(map[string][]ProviderDownloadMapChapterInfo)
+					ret[id.MediaId][id.Provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
 				} else {
-					if _, ok := ret[mediaID][provider]; !ok {
-						ret[mediaID][provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
+					if _, ok := ret[id.MediaId][id.Provider]; !ok {
+						ret[id.MediaId][id.Provider] = []ProviderDownloadMapChapterInfo{newMapInfo}
 					} else {
-						ret[mediaID][provider] = append(ret[mediaID][provider], newMapInfo)
+						ret[id.MediaId][id.Provider] = append(ret[id.MediaId][id.Provider], newMapInfo)
 					}
 				}
 				mu.Unlock()

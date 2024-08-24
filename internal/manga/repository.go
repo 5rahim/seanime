@@ -82,6 +82,7 @@ func (r *Repository) RemoveProvider(id string) {
 type bucketType string
 
 const (
+	bucketTypeChapterKey                = "1"
 	bucketTypeChapter        bucketType = "chapters"
 	bucketTypePage           bucketType = "pages"
 	bucketTypePageDimensions bucketType = "page-dimensions"

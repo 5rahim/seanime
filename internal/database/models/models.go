@@ -304,3 +304,11 @@ type MangaMapping struct {
 	MediaID  int    `gorm:"column:media_id" json:"mediaId"`
 	MangaID  string `gorm:"column:manga_id" json:"mangaId"` // ID from search result, used to fetch chapters
 }
+
+type MangaChapterContainer struct {
+	BaseModel
+	Provider  string `gorm:"column:provider" json:"provider"`
+	MediaID   int    `gorm:"column:media_id" json:"mediaId"`
+	ChapterID string `gorm:"column:chapter_id" json:"chapterId"`
+	Data      []byte `gorm:"column:data" json:"data"`
+}

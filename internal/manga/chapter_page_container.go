@@ -63,12 +63,12 @@ func (r *Repository) GetMangaPageContainer(
 	// +---------------------+
 
 	// PageContainer key
-	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
+	pageContainerKey := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
 
 	r.logger.Trace().
 		Str("provider", provider).
 		Int("mediaId", mediaId).
-		Str("key", key).
+		Str("key", pageContainerKey).
 		Str("chapterId", chapterId).
 		Msgf("manga: Getting pages")
 
@@ -81,16 +81,16 @@ func (r *Repository) GetMangaPageContainer(
 	// PageContainer bucket
 	// e.g., manga_comick_pages_123
 	//         -> { "comick$123$10010": PageContainer }, { "comick$123$10011": PageContainer }
-	bucket := r.getFcProviderBucket(provider, mediaId, bucketTypePage)
+	pageBucket := r.getFcProviderBucket(provider, mediaId, bucketTypePage)
 
 	// Check if the container is in the cache
-	if found, _ := r.fileCacher.Get(bucket, key, &container); found {
+	if found, _ := r.fileCacher.Get(pageBucket, pageContainerKey, &container); found {
 
 		// Hydrate page dimensions
 		pageDimensions, _ := r.getPageDimensions(doublePage, provider, mediaId, chapterId, container.Pages)
 		container.PageDimensions = pageDimensions
 
-		r.logger.Debug().Str("key", key).Msg("manga: Page Container Cache HIT")
+		r.logger.Debug().Str("key", pageContainerKey).Msg("manga: Page Container Cache HIT")
 		return container, nil
 	}
 
@@ -99,10 +99,10 @@ func (r *Repository) GetMangaPageContainer(
 	// +---------------------+
 
 	// Search for the chapter in the cache
-	chapterBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
+	containerBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
 
 	var chapterContainer *ChapterContainer
-	if found, _ := r.fileCacher.Get(chapterBucket, fmt.Sprintf("%s$%d", provider, mediaId), &chapterContainer); !found {
+	if found, _ := r.fileCacher.Get(containerBucket, bucketTypeChapterKey, &chapterContainer); !found {
 		r.logger.Error().Msg("manga: Chapter Container not found")
 		return nil, ErrNoChapters
 	}
@@ -158,12 +158,12 @@ func (r *Repository) GetMangaPageContainer(
 	}
 
 	// Set cache
-	err = r.fileCacher.Set(bucket, key, container)
+	err = r.fileCacher.Set(pageBucket, pageContainerKey, container)
 	if err != nil {
 		r.logger.Warn().Err(err).Msg("manga: Failed to populate cache")
 	}
 
-	r.logger.Debug().Str("key", key).Msg("manga: Retrieved pages")
+	r.logger.Debug().Str("key", pageContainerKey).Msg("manga: Retrieved pages")
 
 	return container, nil
 }
@@ -175,14 +175,15 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 		return nil, nil
 	}
 
+	// e.g. comick$123$10010
 	key := fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
 
 	// Page dimensions bucket
 	// e.g., manga_comick_page-dimensions_123
 	//         -> { "comick$123$10010": PageDimensions }, { "comick$123$10011": PageDimensions }
-	bucket := r.getFcProviderBucket(provider, mediaId, bucketTypePageDimensions)
+	dimensionBucket := r.getFcProviderBucket(provider, mediaId, bucketTypePageDimensions)
 
-	if found, _ := r.fileCacher.Get(bucket, fmt.Sprintf(key, provider, mediaId), &ret); found {
+	if found, _ := r.fileCacher.Get(dimensionBucket, key, &ret); found {
 		r.logger.Debug().Str("key", key).Msg("manga: Page Dimensions Cache HIT")
 		return
 	}
@@ -218,9 +219,9 @@ func (r *Repository) getPageDimensions(enabled bool, provider string, mediaId in
 	}
 	wg.Wait()
 
-	_ = r.fileCacher.Set(bucket, key, pageDimensions)
+	_ = r.fileCacher.Set(dimensionBucket, key, pageDimensions)
 
-	r.logger.Info().Str("key", key).Msg("manga: Retrieved page dimensions")
+	r.logger.Info().Str("bucket", dimensionBucket.Name()).Msg("manga: Retrieved page dimensions")
 
 	return pageDimensions, nil
 }

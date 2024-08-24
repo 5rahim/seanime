@@ -2,7 +2,6 @@
 
 class Provider {
 
-    // credit to Anify
     private api = "https://api.comick.fun"
 
     async search(opts: QueryOptions): Promise<SearchResult[]> {

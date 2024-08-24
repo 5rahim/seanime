@@ -50,3 +50,53 @@ func (db *Database) DeleteMangaMapping(provider string, mediaId int) error {
 	mangaMappingCache.Delete(formatMangaMappingCacheKey(provider, mediaId))
 	return nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var mangaChapterContainerCache = result.NewResultMap[string, *models.MangaChapterContainer]()
+
+func formatMangaChapterContainerCacheKey(provider string, mediaId int, chapterId string) string {
+	return fmt.Sprintf("%s$%d$%s", provider, mediaId, chapterId)
+}
+
+func (db *Database) GetMangaChapterContainer(provider string, mediaId int, chapterId string) (*models.MangaChapterContainer, bool) {
+
+	if res, ok := mangaChapterContainerCache.Get(formatMangaChapterContainerCacheKey(provider, mediaId, chapterId)); ok {
+		return res, true
+	}
+
+	var res models.MangaChapterContainer
+	err := db.gormdb.Where("provider = ? AND media_id = ? AND chapter_id = ?", provider, mediaId, chapterId).First(&res).Error
+	if err != nil {
+		return nil, false
+	}
+
+	mangaChapterContainerCache.Set(formatMangaChapterContainerCacheKey(provider, mediaId, chapterId), &res)
+
+	return &res, true
+}
+
+func (db *Database) InsertMangaChapterContainer(provider string, mediaId int, chapterId string, chapterContainer []byte) error {
+	container := models.MangaChapterContainer{
+		Provider:  provider,
+		MediaID:   mediaId,
+		ChapterID: chapterId,
+		Data:      chapterContainer,
+	}
+
+	mangaChapterContainerCache.Set(formatMangaChapterContainerCacheKey(provider, mediaId, chapterId), &container)
+
+	return db.gormdb.Save(&container).Error
+}
+
+func (db *Database) DeleteMangaChapterContainer(provider string, mediaId int, chapterId string) error {
+	err := db.gormdb.Where("provider = ? AND media_id = ? AND chapter_id = ?", provider, mediaId, chapterId).Delete(&models.MangaChapterContainer{}).Error
+	if err != nil {
+		return err
+	}
+
+	mangaChapterContainerCache.Delete(formatMangaChapterContainerCacheKey(provider, mediaId, chapterId))
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

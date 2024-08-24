@@ -5,13 +5,13 @@ class Provider {
     api = "https://feed.animetosho.org/json"
 
     async search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]> {
-        return []
+        const query = `?q=${opts.query}&only_tor=1`
+        const torrents = await this.fetchTorrents(query)
+        return torrents.map(t => this.toAnimeTorrent(t))
     }
 
     async smartSearch(opts: AnimeSmartSearchOptions): Promise<AnimeTorrent[]> {
         const ret: AnimeTorrent[] = []
-
-        console.log("Smart search", opts)
 
         if (opts.batch) {
             if (!opts.aniDbAID) return []
@@ -51,7 +51,9 @@ class Provider {
     }
 
     async getLatest(): Promise<AnimeTorrent[]> {
-        return []
+        const query = `?q=&only_tor=1`
+        const torrents = await this.fetchTorrents(query)
+        return torrents.map(t => this.toAnimeTorrent(t))
     }
 
     getSettings(): AnimeProviderSettings {
@@ -59,7 +61,7 @@ class Provider {
             canSmartSearch: true,
             smartSearchFilters: ["batch", "episodeNumber", "resolution"],
             supportsAdult: false,
-            type: "special",
+            type: "main",
         }
     }
 
@@ -75,8 +77,8 @@ class Provider {
         return this.fetchTorrents(query)
     }
 
-    async fetchTorrents(suffix: string): Promise<ToshoTorrent[]> {
-        const furl = `${this.api}${suffix}`
+    async fetchTorrents(url: string): Promise<ToshoTorrent[]> {
+        const furl = `${this.api}${url}`
 
         try {
             const response = await fetch(furl)

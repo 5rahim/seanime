@@ -107,7 +107,7 @@ func (m *Mangasee) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Search
 			Synonyms:     item.A,
 			Year:         0,
 			Image:        "",
-			Provider:     string(MangaseeProvider),
+			Provider:     MangaseeProvider,
 			SearchRating: compRes.Rating,
 		})
 	}
@@ -167,8 +167,8 @@ func (m *Mangasee) FindChapters(slug string) ([]*hibikemanga.ChapterDetails, err
 		}
 
 		ret[i] = &hibikemanga.ChapterDetails{
-			Provider: string(MangaseeProvider),
-			ID:       slug + "$" + chStr, // e.g. One-Piece
+			Provider: MangaseeProvider,
+			ID:       slug + "$" + chStr, // e.g. One-Piece$0001
 			Title:    fmt.Sprintf("Chapter %s", unpaddedChStr),
 			URL:      fmt.Sprintf("%s/read-online/%s-chapter-%s-page-1.html", m.Url, slug, chStr),
 			Chapter:  unpaddedChStr,

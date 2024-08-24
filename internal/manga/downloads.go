@@ -3,7 +3,6 @@ package manga
 import (
 	"cmp"
 	"errors"
-	"fmt"
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"os"
@@ -11,8 +10,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/manga/downloader"
 	"slices"
-	"strconv"
-	"strings"
 )
 
 func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
@@ -30,8 +27,8 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 	chapterDirs := make([]string, 0)
 	for _, file := range files {
 		if file.IsDir() {
-			parts := strings.SplitN(file.Name(), "_", 4)
-			if len(parts) != 4 {
+			_, ok := chapter_downloader.ParseChapterDirName(file.Name())
+			if !ok {
 				continue
 			}
 			chapterDirs = append(chapterDirs, file.Name())
@@ -46,18 +43,11 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 
 	keys := make([]*chapter_downloader.DownloadID, 0)
 	for _, dir := range chapterDirs {
-		parts := strings.SplitN(dir, "_", 4)
-		provider := parts[0]
-		mediaId, _ := strconv.Atoi(parts[1])
-		chapterId := parts[2]
-		chapterNumber := parts[3]
-
-		keys = append(keys, &chapter_downloader.DownloadID{
-			Provider:      provider,
-			MediaId:       mediaId,
-			ChapterId:     chapterId,
-			ChapterNumber: chapterNumber,
-		})
+		downloadId, ok := chapter_downloader.ParseChapterDirName(dir)
+		if !ok {
+			continue
+		}
+		keys = append(keys, &downloadId)
 	}
 
 	providerAndMediaIdPairs := make(map[struct {
@@ -107,7 +97,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		for _, chapter := range container.Chapters {
 			// For each chapter, check if the chapter directory exists
 			for _, dir := range chapterDirs {
-				if dir == fmt.Sprintf("%s_%d_%s_%s", provider, mediaId, chapter.ID, chapter.Chapter) {
+				if dir == chapter_downloader.FormatChapterDirName(provider, mediaId, chapter.ID, chapter.Chapter) {
 					container.Chapters = append(container.Chapters, chapter)
 					break
 				}
@@ -143,17 +133,18 @@ func (r *Repository) getDownloadedMangaPageContainer(
 		return nil, err
 	}
 
-	chapterDir := "" // e.g., manga_comick_123_10010_13
+	chapterDir := "" // e.g. manga_comick_123_10010_13
 	for _, file := range files {
 		if file.IsDir() {
-			parts := strings.SplitN(file.Name(), "_", 4)
-			if len(parts) != 4 {
+
+			downloadId, ok := chapter_downloader.ParseChapterDirName(file.Name())
+			if !ok {
 				continue
 			}
 
-			mId, _ := strconv.Atoi(parts[1])
-
-			if parts[0] == provider && mId == mediaId && parts[2] == chapterId {
+			if downloadId.Provider == provider &&
+				downloadId.MediaId == mediaId &&
+				downloadId.ChapterId == chapterId {
 				found = true
 				chapterDir = file.Name()
 				break
