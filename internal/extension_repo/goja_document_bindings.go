@@ -56,7 +56,11 @@ func gojaBindDocument(vm *goja.Runtime) error {
 		obj.Set("is", gojaDoc.gojaSelection.Is)
 		obj.Set("has", gojaDoc.gojaSelection.Has)
 		obj.Set("next", gojaDoc.gojaSelection.Next)
+		obj.Set("nextAll", gojaDoc.gojaSelection.NextAll)
+		obj.Set("nextUntil", gojaDoc.gojaSelection.NextUntil)
 		obj.Set("prev", gojaDoc.gojaSelection.Prev)
+		obj.Set("prevAll", gojaDoc.gojaSelection.PrevAll)
+		obj.Set("prevUntil", gojaDoc.gojaSelection.PrevUntil)
 		obj.Set("siblings", gojaDoc.gojaSelection.Siblings)
 		return obj
 	})
@@ -115,8 +119,10 @@ func newGojaDocSelectionValue(d *GojaDoc, selection *goquery.Selection) goja.Val
 	obj.Set("is", gojaDocSelection.Is)
 	obj.Set("has", gojaDocSelection.Has)
 	obj.Set("next", gojaDocSelection.Next)
+	obj.Set("nextAll", gojaDocSelection.NextAll)
 	obj.Set("nextUntil", gojaDocSelection.NextUntil)
 	obj.Set("prev", gojaDocSelection.Prev)
+	obj.Set("prevAll", gojaDocSelection.PrevAll)
 	obj.Set("prevUntil", gojaDocSelection.PrevUntil)
 	obj.Set("siblings", gojaDocSelection.Siblings)
 
@@ -275,6 +281,22 @@ func (s *GojaDocSelection) Next(call goja.FunctionCall) goja.Value {
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextFiltered(selectorStr))
 }
 
+// NextAll gets all following siblings of each element in the Selection, optionally filtered by a selector.
+//
+//	nextAll(selector?: string): DocSelection;
+func (s *GojaDocSelection) NextAll(call goja.FunctionCall) goja.Value {
+	if s.selection == nil {
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
+	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextAll())
+	}
+
+	selectorStr := s.getFirstStringArg(call)
+	return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextAllFiltered(selectorStr))
+}
+
 // NextUntil  gets all following siblings of each element up to but not including the element matched by the selector.
 //
 //	nextUntil(selector: string, until?: string): DocSelection;
@@ -304,6 +326,22 @@ func (s *GojaDocSelection) Prev(call goja.FunctionCall) goja.Value {
 
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevFiltered(selectorStr))
+}
+
+// PrevAll gets all preceding siblings of each element in the Selection, optionally filtered by a selector.
+//
+//	prevAll(selector?: string): DocSelection;
+func (s *GojaDocSelection) PrevAll(call goja.FunctionCall) goja.Value {
+	if s.selection == nil {
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
+	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevAll())
+	}
+
+	selectorStr := s.getFirstStringArg(call)
+	return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevAllFiltered(selectorStr))
 }
 
 // PrevUntil gets all preceding siblings of each element up to but not including the element matched by the selector.

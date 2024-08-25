@@ -29,6 +29,9 @@ declare class DocSelection {
     // Filters the set of matched elements to those that match the selector.
     filter(selector: string | ((index: number, element: DocSelection) => boolean)): DocSelection;
 
+    // Gets the descendants of each element in the DocSelection, filtered by a selector.
+    find(selector: string): DocSelection;
+
     // Reduces the set of matched elements to the first element in the DocSelection.
     first(): DocSelection;
 
@@ -56,6 +59,9 @@ declare class DocSelection {
     // Gets the next sibling of each element in the DocSelection, optionally filtered by a selector.
     next(selector?: string): DocSelection;
 
+    // Gets all following siblings of each element in the DocSelection, optionally filtered by a selector.
+    nextAll(selector?: string): DocSelection;
+
     // Gets the next siblings of each element in the DocSelection, up to but not including the element matched by the selector.
     nextUntil(selector: string, until?: string): DocSelection;
 
@@ -73,6 +79,9 @@ declare class DocSelection {
 
     // Gets the previous sibling of each element in the DocSelection, optionally filtered by a selector.
     prev(selector?: string): DocSelection;
+
+    // Gets all preceding siblings of each element in the DocSelection, optionally filtered by a selector.
+    prevAll(selector?: string): DocSelection;
 
     // Gets the previous siblings of each element in the DocSelection, up to but not including the element matched by the selector.
     prevUntil(selector: string, until?: string): DocSelection;
