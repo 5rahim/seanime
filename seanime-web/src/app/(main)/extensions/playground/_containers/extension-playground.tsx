@@ -12,11 +12,13 @@ import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { Textarea } from "@/components/ui/textarea"
 import { useDebounce } from "@/hooks/use-debounce"
+import { autocompletion } from "@codemirror/autocomplete"
 import { javascript } from "@codemirror/lang-javascript"
 import { StreamLanguage } from "@codemirror/language"
 import { go } from "@codemirror/legacy-modes/mode/go"
+import { vscodeKeymap } from "@replit/codemirror-vscode-keymap"
 import { vscodeDark } from "@uiw/codemirror-theme-vscode"
-import CodeMirror from "@uiw/react-codemirror"
+import CodeMirror, { keymap } from "@uiw/react-codemirror"
 import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
@@ -344,7 +346,12 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                 value={code}
                                                 height="100%"
                                                 theme={vscodeDark}
-                                                extensions={[javascript({ typescript: language === "typescript" }), StreamLanguage.define(go)]}
+                                                extensions={[
+                                                    autocompletion({ defaultKeymap: false }),
+                                                    keymap.of(vscodeKeymap),
+                                                    javascript({ typescript: language === "typescript" }),
+                                                    StreamLanguage.define(go),
+                                                ]}
                                                 onChange={setCode}
                                             />
                                         </div>

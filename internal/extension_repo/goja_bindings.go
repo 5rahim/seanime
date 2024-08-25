@@ -96,7 +96,7 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 		}
 
 		client := &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: 60 * time.Second,
 		}
 		client.Transport = util.AddCloudFlareByPass(client.Transport)
 
@@ -191,7 +191,7 @@ func (c *gojaConsole) Log(t string) (ret func(c goja.FunctionCall) goja.Value) {
 				continue
 			}
 			if arg.ExportType().Kind() == reflect.Struct || arg.ExportType().Kind() == reflect.Map || arg.ExportType().Kind() == reflect.Slice {
-				ret = append(ret, strings.ReplaceAll(spew.Sdump(arg.Export()), "\n", ""))
+				ret = append(ret, strings.ReplaceAll(spew.Sprint(arg.Export()), "\n", ""))
 			} else {
 				ret = append(ret, fmt.Sprintf("%v", arg.Export()))
 			}

@@ -63,31 +63,19 @@ class Provider {
         const article = document.find("article:last-child")
         console.log(article.html())
 
+        console.log(">>> Post titles (map to string)")
 
-        //
-        //
+        const titles = document
+            .find("section")
+            .children("article.post")
+            .filter((i, e) => {
+                return e.attr("data-id") !== "1"
+            })
+            .map((i, e) => {
+                return e.children("h2").text()
+            })
 
-        console.log(">>> Post titles")
-        const titles = document.find("article").children("h2")
-        titles.each((i, e) => {
-            console.log(i, e.text())
-            // Closest
-            console.log(e.closest("article").html())
-        })
-
-        //
-        //
-
-        console.log(">>> Post links")
-        const links = document.find("article").children("a")
-        links.each((i, e) => {
-            console.log(i, e.attr("href"))
-        })
-
-        console.log(">>> Parent of first link")
-        const firstLink = links.first()
-        console.log(firstLink.parent().text())
-
+        console.log(titles)
 
         console.log(">>> END")
 

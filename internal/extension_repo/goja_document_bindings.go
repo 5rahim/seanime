@@ -115,7 +115,9 @@ func newGojaDocSelectionValue(d *GojaDoc, selection *goquery.Selection) goja.Val
 	obj.Set("is", gojaDocSelection.Is)
 	obj.Set("has", gojaDocSelection.Has)
 	obj.Set("next", gojaDocSelection.Next)
+	obj.Set("nextUntil", gojaDocSelection.NextUntil)
 	obj.Set("prev", gojaDocSelection.Prev)
+	obj.Set("prevUntil", gojaDocSelection.PrevUntil)
 	obj.Set("siblings", gojaDocSelection.Siblings)
 
 	return obj
@@ -153,11 +155,11 @@ func (s *GojaDocSelection) Find(call goja.FunctionCall) (ret goja.Value) {
 
 func (s *GojaDocSelection) Html(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
-		return s.gojaDoc.vm.ToValue("")
+		return goja.Null()
 	}
 	htmlStr, err := s.selection.Html()
 	if err != nil {
-		return s.gojaDoc.vm.ToValue("")
+		return goja.Null()
 	}
 	return s.gojaDoc.vm.ToValue(htmlStr)
 }
@@ -191,6 +193,11 @@ func (s *GojaDocSelection) Parent(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parent())
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ParentFiltered(selectorStr))
 }
@@ -202,6 +209,11 @@ func (s *GojaDocSelection) Parents(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Parents())
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ParentsFiltered(selectorStr))
 }
@@ -239,6 +251,10 @@ func (s *GojaDocSelection) Closest(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Closest(""))
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Closest(selectorStr))
 }
@@ -250,8 +266,28 @@ func (s *GojaDocSelection) Next(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Next())
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextFiltered(selectorStr))
+}
+
+// NextUntil  gets all following siblings of each element up to but not including the element matched by the selector.
+//
+//	nextUntil(selector: string, until?: string): DocSelection;
+func (s *GojaDocSelection) NextUntil(call goja.FunctionCall) goja.Value {
+	if s.selection == nil {
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
+	}
+	selectorStr := s.getFirstStringArg(call)
+	if len(call.Arguments) < 2 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextUntil(selectorStr))
+	}
+	untilStr := call.Argument(1).String()
+	return newGojaDocSelectionValue(s.gojaDoc, s.selection.NextFilteredUntil(selectorStr, untilStr))
 }
 
 // Prev gets the previous sibling of each selected element optionally filtered by a selector.
@@ -261,8 +297,28 @@ func (s *GojaDocSelection) Prev(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Prev())
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevFiltered(selectorStr))
+}
+
+// PrevUntil gets all preceding siblings of each element up to but not including the element matched by the selector.
+//
+//	prevUntil(selector: string, until?: string): DocSelection;
+func (s *GojaDocSelection) PrevUntil(call goja.FunctionCall) goja.Value {
+	if s.selection == nil {
+		panic(s.gojaDoc.vm.ToValue("selection is nil"))
+	}
+	selectorStr := s.getFirstStringArg(call)
+	if len(call.Arguments) < 2 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevUntil(selectorStr))
+	}
+	untilStr := call.Argument(1).String()
+	return newGojaDocSelectionValue(s.gojaDoc, s.selection.PrevFilteredUntil(selectorStr, untilStr))
 }
 
 // Siblings gets the siblings of each element (excluding the element) in the set of matched elements, optionally filtered by a selector.
@@ -272,6 +328,11 @@ func (s *GojaDocSelection) Siblings(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Siblings())
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.SiblingsFiltered(selectorStr))
 }
@@ -283,6 +344,11 @@ func (s *GojaDocSelection) Children(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
+
+	if len(call.Arguments) == 0 {
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Children())
+	}
+
 	selectorStr := s.getFirstStringArg(call)
 	return newGojaDocSelectionValue(s.gojaDoc, s.selection.ChildrenFiltered(selectorStr))
 }
@@ -314,35 +380,102 @@ func (s *GojaDocSelection) ContentsFiltered(call goja.FunctionCall) goja.Value {
 // Filter reduces the set of matched elements to those that match the selector string. It returns a new Selection object for this subset of
 // matching elements.
 //
-//	filter(selector: string): DocSelection;
+//	filter(selector: string | (index: number, element: DocSelection) => boolean): DocSelection;
 func (s *GojaDocSelection) Filter(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	selectorStr := s.getFirstStringArg(call)
-	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Filter(selectorStr))
+
+	if len(call.Arguments) == 0 {
+		panic(s.gojaDoc.vm.ToValue("missing argument"))
+	}
+
+	switch call.Argument(0).Export().(type) {
+	case string:
+		selectorStr := s.getFirstStringArg(call)
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Filter(selectorStr))
+
+	case func(call goja.FunctionCall) goja.Value:
+		callback := call.Argument(0).Export().(func(call goja.FunctionCall) goja.Value)
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.FilterFunction(func(i int, selection *goquery.Selection) bool {
+			ret, ok := callback(goja.FunctionCall{Arguments: []goja.Value{
+				s.gojaDoc.vm.ToValue(i),
+				newGojaDocSelectionValue(s.gojaDoc, selection),
+			}}).Export().(bool)
+			if !ok {
+				panic(s.gojaDoc.vm.NewTypeError("callback did not return a boolean").ToString())
+			}
+			return ret
+		}))
+	default:
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a string or function").ToString())
+	}
 }
 
 // Not removes elements from the Selection that match the selector string. It returns a new Selection object with the matching elements removed.
 //
-//	not(selector: string): DocSelection;
+//	not(selector: string | (index: number, element: DocSelection) => boolean): DocSelection;
 func (s *GojaDocSelection) Not(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	selectorStr := s.getFirstStringArg(call)
-	return newGojaDocSelectionValue(s.gojaDoc, s.selection.Not(selectorStr))
+
+	if len(call.Arguments) == 0 {
+		panic(s.gojaDoc.vm.ToValue("missing argument"))
+	}
+
+	switch call.Argument(0).Export().(type) {
+	case string:
+		selectorStr := s.getFirstStringArg(call)
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.Not(selectorStr))
+	case func(call goja.FunctionCall) goja.Value:
+		callback := call.Argument(0).Export().(func(call goja.FunctionCall) goja.Value)
+		return newGojaDocSelectionValue(s.gojaDoc, s.selection.NotFunction(func(i int, selection *goquery.Selection) bool {
+			ret, ok := callback(goja.FunctionCall{Arguments: []goja.Value{
+				s.gojaDoc.vm.ToValue(i),
+				newGojaDocSelectionValue(s.gojaDoc, selection),
+			}}).Export().(bool)
+			if !ok {
+				panic(s.gojaDoc.vm.NewTypeError("callback did not return a boolean").ToString())
+			}
+			return ret
+		}))
+	default:
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a string or function").ToString())
+	}
 }
 
 // Is checks the current matched set of elements against a selector and returns true if at least one of these elements matches.
 //
-//	is(selector: string): boolean;
+//	is(selector: string | (index: number, element: DocSelection) => boolean): boolean;
 func (s *GojaDocSelection) Is(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.gojaDoc.vm.ToValue("selection is nil"))
 	}
-	selectorStr := s.getFirstStringArg(call)
-	return s.gojaDoc.vm.ToValue(s.selection.Is(selectorStr))
+
+	if len(call.Arguments) == 0 {
+		panic(s.gojaDoc.vm.ToValue("missing argument"))
+	}
+
+	switch call.Argument(0).Export().(type) {
+	case string:
+		selectorStr := s.getFirstStringArg(call)
+		return s.gojaDoc.vm.ToValue(s.selection.Is(selectorStr))
+	case func(call goja.FunctionCall) goja.Value:
+		callback := call.Argument(0).Export().(func(call goja.FunctionCall) goja.Value)
+		return s.gojaDoc.vm.ToValue(s.selection.IsFunction(func(i int, selection *goquery.Selection) bool {
+			ret, ok := callback(goja.FunctionCall{Arguments: []goja.Value{
+				s.gojaDoc.vm.ToValue(i),
+				newGojaDocSelectionValue(s.gojaDoc, selection),
+			}}).Export().(bool)
+			if !ok {
+				panic(s.gojaDoc.vm.NewTypeError("callback did not return a boolean").ToString())
+			}
+			return ret
+		}))
+	default:
+		panic(s.gojaDoc.vm.NewTypeError("argument is not a string or function").ToString())
+	}
 }
 
 // Has reduces the set of matched elements to those that have a descendant that matches the selector. It returns a new Selection object with the
@@ -392,15 +525,24 @@ func (s *GojaDocSelection) Map(call goja.FunctionCall) goja.Value {
 	if !ok {
 		panic(s.gojaDoc.vm.NewTypeError("argument is not a function").ToString())
 	}
-	var ret []goja.Value
+	var retStr []interface{}
+	var retDocSelection map[string]interface{}
 	s.selection.Each(func(i int, selection *goquery.Selection) {
 		val := callback(goja.FunctionCall{Arguments: []goja.Value{
 			s.gojaDoc.vm.ToValue(i),
 			newGojaDocSelectionValue(s.gojaDoc, selection),
 		}})
-		ret = append(ret, val)
+
+		if valExport, ok := val.Export().(map[string]interface{}); ok {
+			retDocSelection = valExport
+		}
+		retStr = append(retStr, val.Export())
+
 	})
-	return s.gojaDoc.vm.ToValue(ret)
+	if len(retStr) > 0 {
+		return s.gojaDoc.vm.ToValue(retStr)
+	}
+	return s.gojaDoc.vm.ToValue(retDocSelection)
 }
 
 // First reduces the set of matched elements to the first in the set. It returns a new Selection object, and an empty Selection object if the
