@@ -1,5 +1,7 @@
 package handlers
 
+import "seanime/internal/extension_playground"
+
 // HandleFetchExternalExtensionData
 //
 //	@summary returns the extension data from the given manifest uri.
@@ -160,4 +162,30 @@ func HandleListOnlinestreamProviderExtensions(c *RouteCtx) error {
 func HandleListAnimeTorrentProviderExtensions(c *RouteCtx) error {
 	extensions := c.App.ExtensionRepository.ListAnimeTorrentProviderExtensions()
 	return c.RespondWithData(extensions)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleRunExtensionPlaygroundCode
+//
+//	@summary runs the code in the extension playground.
+//	@desc Returns the logs
+//	@route /api/v1/extensions/playground/run [POST]
+//	@returns extension_playground.RunPlaygroundCodeResponse
+func HandleRunExtensionPlaygroundCode(c *RouteCtx) error {
+	type body struct {
+		Params *extension_playground.RunPlaygroundCodeParams `json:"params"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	res, err := c.App.ExtensionPlaygroundRepository.RunPlaygroundCode(b.Params)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(res)
 }

@@ -116,8 +116,8 @@ func TestSmartSearch(t *testing.T) {
 					Batch:         tt.batch,
 					EpisodeNumber: tt.episodeNumber,
 					Resolution:    tt.resolution,
-					AniDbAID:      anizipMedia.Mappings.AnidbID,
-					AniDbEID:      anizipEpisode.AnidbEid,
+					AnidbAID:      anizipMedia.Mappings.AnidbID,
+					AnidbEID:      anizipEpisode.AnidbEid,
 					BestReleases:  false,
 				})
 

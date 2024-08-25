@@ -12,6 +12,7 @@ import (
 	"seanime/internal/database/models"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
+	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
@@ -40,20 +41,21 @@ import (
 
 type (
 	App struct {
-		Config                  *Config
-		Database                *db.Database
-		Logger                  *zerolog.Logger
-		TorrentClientRepository *torrent_client.Repository
-		TorrentRepository       *torrent.Repository
-		Watcher                 *scanner.Watcher
-		AnizipCache             *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
-		AnilistClient           anilist.AnilistClient
-		AnilistPlatform         platform.Platform
-		FillerManager           *fillermanager.FillerManager
-		WSEventManager          *events.WSEventManager
-		AutoDownloader          *autodownloader.AutoDownloader
-		ExtensionRepository     *extension_repo.Repository
-		MediaPlayer             struct {
+		Config                        *Config
+		Database                      *db.Database
+		Logger                        *zerolog.Logger
+		TorrentClientRepository       *torrent_client.Repository
+		TorrentRepository             *torrent.Repository
+		Watcher                       *scanner.Watcher
+		AnizipCache                   *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
+		AnilistClient                 anilist.AnilistClient
+		AnilistPlatform               platform.Platform
+		FillerManager                 *fillermanager.FillerManager
+		WSEventManager                *events.WSEventManager
+		AutoDownloader                *autodownloader.AutoDownloader
+		ExtensionRepository           *extension_repo.Repository
+		ExtensionPlaygroundRepository *extension_playground.PlaygroundRepository
+		MediaPlayer                   struct {
 			VLC   *vlc.VLC
 			MpcHc *mpchc.MpcHc
 			Mpv   *mpv.Mpv
@@ -191,35 +193,38 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		WSEventManager: wsEventManager,
 	})
 
+	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, anilistPlatform)
+
 	app := &App{
-		Config:                  cfg,
-		Database:                database,
-		AnilistClient:           anilistCW,
-		AnilistPlatform:         anilistPlatform,
-		AnizipCache:             anizipCache,
-		WSEventManager:          wsEventManager,
-		Logger:                  logger,
-		Version:                 constants.Version,
-		Updater:                 updater.New(constants.Version, logger),
-		FileCacher:              fileCacher,
-		OnlinestreamRepository:  onlinestreamRepository,
-		MetadataProvider:        metadataProvider,
-		MangaRepository:         mangaRepository,
-		ExtensionRepository:     extensionRepository,
-		TorrentRepository:       nil, // Initialized in App.initModulesOnce
-		FillerManager:           nil, // Initialized in App.initModulesOnce
-		MangaDownloader:         nil, // Initialized in App.initModulesOnce
-		PlaybackManager:         nil, // Initialized in App.initModulesOnce
-		AutoDownloader:          nil, // Initialized in App.initModulesOnce
-		AutoScanner:             nil, // Initialized in App.initModulesOnce
-		MediastreamRepository:   nil, // Initialized in App.initModulesOnce
-		TorrentstreamRepository: nil, // Initialized in App.initModulesOnce
-		OfflineHub:              nil, // Initialized in App.initModulesOnce
-		TorrentClientRepository: nil, // Initialized in App.InitOrRefreshModules
-		MediaPlayerRepository:   nil, // Initialized in App.InitOrRefreshModules
-		DiscordPresence:         nil, // Initialized in App.InitOrRefreshModules
-		previousVersion:         previousVersion,
-		FeatureFlags:            NewFeatureFlags(cfg, logger),
+		Config:                        cfg,
+		Database:                      database,
+		AnilistClient:                 anilistCW,
+		AnilistPlatform:               anilistPlatform,
+		AnizipCache:                   anizipCache,
+		WSEventManager:                wsEventManager,
+		Logger:                        logger,
+		Version:                       constants.Version,
+		Updater:                       updater.New(constants.Version, logger),
+		FileCacher:                    fileCacher,
+		OnlinestreamRepository:        onlinestreamRepository,
+		MetadataProvider:              metadataProvider,
+		MangaRepository:               mangaRepository,
+		ExtensionRepository:           extensionRepository,
+		ExtensionPlaygroundRepository: extensionPlaygroundRepository,
+		TorrentRepository:             nil, // Initialized in App.initModulesOnce
+		FillerManager:                 nil, // Initialized in App.initModulesOnce
+		MangaDownloader:               nil, // Initialized in App.initModulesOnce
+		PlaybackManager:               nil, // Initialized in App.initModulesOnce
+		AutoDownloader:                nil, // Initialized in App.initModulesOnce
+		AutoScanner:                   nil, // Initialized in App.initModulesOnce
+		MediastreamRepository:         nil, // Initialized in App.initModulesOnce
+		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
+		OfflineHub:                    nil, // Initialized in App.initModulesOnce
+		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
+		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
+		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
+		previousVersion:               previousVersion,
+		FeatureFlags:                  NewFeatureFlags(cfg, logger),
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings

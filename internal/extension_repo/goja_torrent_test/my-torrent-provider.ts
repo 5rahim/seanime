@@ -5,8 +5,8 @@ class Provider {
     api = "https://feed.animetosho.org/json"
 
     async search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]> {
-
         const query = `?q=${opts.query}&only_tor=1`
+        console.log(query)
         const torrents = await this.fetchTorrents(query)
         return torrents.map(t => this.toAnimeTorrent(t))
     }
@@ -79,7 +79,7 @@ class Provider {
     }
 
     async fetchTorrents(url: string): Promise<ToshoTorrent[]> {
-        const furl = `${this.api}${url}`
+        const furl = `${this.api}${encodeURIComponent(url)}`
 
         try {
             const response = await fetch(furl)

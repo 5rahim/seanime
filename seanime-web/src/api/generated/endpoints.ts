@@ -455,6 +455,16 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list/anime-torrent-provider",
         },
+        /**
+         *  @description
+         *  Route runs the code in the extension playground.
+         *  Returns the logs
+         */
+        RunExtensionPlaygroundCode: {
+            key: "EXTENSIONS-run-extension-playground-code",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/playground/run",
+        },
     },
     FILECACHE: {
         /**

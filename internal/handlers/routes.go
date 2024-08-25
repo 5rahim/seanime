@@ -396,6 +396,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Extensions := v1.Group("/extensions")
 
+	v1Extensions.Post("/playground/run", makeHandler(app, HandleRunExtensionPlaygroundCode))
+
 	v1Extensions.Post("/external/fetch", makeHandler(app, HandleFetchExternalExtensionData))
 	v1Extensions.Post("/external/install", makeHandler(app, HandleInstallExternalExtension))
 	v1Extensions.Post("/external/uninstall", makeHandler(app, HandleUninstallExternalExtension))

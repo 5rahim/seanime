@@ -144,8 +144,8 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 			Batch:         opts.Batch,
 			EpisodeNumber: opts.EpisodeNumber,
 			Resolution:    opts.Resolution,
-			AniDbAID:      anidbAID,
-			AniDbEID:      anidbEID,
+			AnidbAID:      anidbAID,
+			AnidbEID:      anidbEID,
 			BestReleases:  opts.BestReleases,
 		})
 

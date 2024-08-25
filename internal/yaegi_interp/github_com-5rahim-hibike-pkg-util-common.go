@@ -10,6 +10,10 @@ import (
 func init() {
 	Symbols["github.com/5rahim/hibike/pkg/util/common/common"] = map[string]reflect.Value{
 		// function, constant and variable definitions
-		"Reverse": reflect.ValueOf(common.Reverse),
+		"ExtractFirstInt":   reflect.ValueOf(common.ExtractFirstInt),
+		"ExtractFirstIntOr": reflect.ValueOf(common.ExtractFirstIntOr),
+		"Reverse":           reflect.ValueOf(common.Reverse),
+		"ToIntMust":         reflect.ValueOf(common.ToIntMust),
+		"ToIntOr":           reflect.ValueOf(common.ToIntOr),
 	}
 }

@@ -23870,6 +23870,16 @@
         "comments": []
       },
       {
+        "name": "ExtensionPlaygroundRepository",
+        "jsonName": "ExtensionPlaygroundRepository",
+        "goType": "extension_playground.PlaygroundRepository",
+        "typescriptType": "PlaygroundRepository",
+        "usedStructName": "extension_playground.PlaygroundRepository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "MediaPlayer",
         "jsonName": "MediaPlayer",
         "goType": "",
@@ -26146,6 +26156,55 @@
     ]
   },
   {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "MangaChapterContainer",
+    "formattedName": "Models_MangaChapterContainer",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterID",
+        "jsonName": "chapterId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Activity",
@@ -27536,36 +27595,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/mediaplayer.go",
-    "filename": "mediaplayer.go",
-    "name": "MediaPlayerExtensionImpl",
-    "formattedName": "Extension_MediaPlayerExtensionImpl",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "ext",
-        "jsonName": "ext",
-        "goType": "Extension",
-        "typescriptType": "Extension_Extension",
-        "usedStructName": "extension.Extension",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "provider",
-        "jsonName": "provider",
-        "goType": "hibikemediaplayer.MediaPlayer",
-        "typescriptType": "HibikeMediaPlayer_MediaPlayer",
-        "usedStructName": "hibikemediaplayer.MediaPlayer",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/extension/onlinestream_provider.go",
     "filename": "onlinestream_provider.go",
     "name": "OnlinestreamProviderExtensionImpl",
@@ -28724,7 +28753,7 @@
         "comments": []
       },
       {
-        "name": "AniDbAID",
+        "name": "AnidbAID",
         "jsonName": "aniDbAID",
         "goType": "int",
         "typescriptType": "number",
@@ -28733,7 +28762,7 @@
         "comments": []
       },
       {
-        "name": "AniDbEID",
+        "name": "AnidbEID",
         "jsonName": "aniDbEID",
         "goType": "int",
         "typescriptType": "number",
@@ -28926,6 +28955,169 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension_playground/playground.go",
+    "filename": "playground.go",
+    "name": "PlaygroundRepository",
+    "formattedName": "PlaygroundRepository",
+    "package": "extension_playground",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseAnimeCache",
+        "jsonName": "baseAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anizipMediaCache",
+        "jsonName": "anizipMediaCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_playground/playground.go",
+    "filename": "playground.go",
+    "name": "RunPlaygroundCodeResponse",
+    "formattedName": "RunPlaygroundCodeResponse",
+    "package": "extension_playground",
+    "fields": [
+      {
+        "name": "Logs",
+        "jsonName": "logs",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_playground/playground.go",
+    "filename": "playground.go",
+    "name": "RunPlaygroundCodeParams",
+    "formattedName": "RunPlaygroundCodeParams",
+    "package": "extension_playground",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "extension.Type",
+        "typescriptType": "Extension_Type",
+        "usedStructName": "extension.Type",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "extension.Language",
+        "typescriptType": "Extension_Language",
+        "usedStructName": "extension.Language",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Code",
+        "jsonName": "code",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Inputs",
+        "jsonName": "inputs",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Function",
+        "jsonName": "function",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_playground/playground.go",
+    "filename": "playground.go",
+    "name": "PlaygroundDebugLogger",
+    "formattedName": "PlaygroundDebugLogger",
+    "package": "extension_playground",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "buff",
+        "jsonName": "buff",
+        "goType": "bytes.Buffer",
+        "typescriptType": "Buffer",
+        "usedStructName": "bytes.Buffer",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/external.go",
     "filename": "external.go",
     "name": "ExtensionInstallResponse",
@@ -29024,22 +29216,80 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension_repo/goja_document_bindings.go",
+    "filename": "goja_document_bindings.go",
+    "name": "GojaDoc",
+    "formattedName": "ExtensionRepo_GojaDoc",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "doc",
+        "jsonName": "doc",
+        "goType": "goquery.Document",
+        "typescriptType": "Document",
+        "usedStructName": "goquery.Document",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "gojaSelection",
+        "jsonName": "gojaSelection",
+        "goType": "GojaDocSelection",
+        "typescriptType": "ExtensionRepo_GojaDocSelection",
+        "usedStructName": "extension_repo.GojaDocSelection",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_document_bindings.go",
+    "filename": "goja_document_bindings.go",
+    "name": "GojaDocSelection",
+    "formattedName": "ExtensionRepo_GojaDocSelection",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "gojaDoc",
+        "jsonName": "gojaDoc",
+        "goType": "GojaDoc",
+        "typescriptType": "ExtensionRepo_GojaDoc",
+        "usedStructName": "extension_repo.GojaDoc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "selection",
+        "jsonName": "selection",
+        "goType": "goquery.Selection",
+        "typescriptType": "Selection",
+        "usedStructName": "goquery.Selection",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/goja_manga_provider.go",
     "filename": "goja_manga_provider.go",
     "name": "GojaMangaProvider",
     "formattedName": "ExtensionRepo_GojaMangaProvider",
-    "package": "extension_repo",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "extension_repo.gojaExtensionImpl"
-    ]
-  },
-  {
-    "filepath": "../internal/extension_repo/goja_mediaplayer.go",
-    "filename": "goja_mediaplayer.go",
-    "name": "GojaMediaPlayer",
-    "formattedName": "ExtensionRepo_GojaMediaPlayer",
     "package": "extension_repo",
     "fields": [],
     "comments": [],
@@ -29058,26 +29308,6 @@
     "embeddedStructNames": [
       "extension_repo.gojaExtensionImpl"
     ]
-  },
-  {
-    "filepath": "../internal/extension_repo/mediaplayer_testdir/mobileplayer.go",
-    "filename": "mobileplayer.go",
-    "name": "MobilePlayer",
-    "formattedName": "MobilePlayer",
-    "package": "mediaplayer_testdir",
-    "fields": [
-      {
-        "name": "config",
-        "jsonName": "config",
-        "goType": "mobilePlayerConfig",
-        "typescriptType": "mobilePlayerConfig",
-        "usedStructName": "mediaplayer_testdir.mobilePlayerConfig",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
   },
   {
     "filepath": "../internal/extension_repo/repository.go",
@@ -34654,8 +34884,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/manga/chapter_container.go",
-    "filename": "chapter_container.go",
+    "filepath": "../internal/manga/chapter_container_mapping.go",
+    "filename": "chapter_container_mapping.go",
     "name": "MappingResponse",
     "formattedName": "Manga_MappingResponse",
     "package": "manga",
@@ -34909,6 +35139,367 @@
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "Downloader",
+    "formattedName": "Manga_Downloader",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "database",
+        "jsonName": "database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadDir",
+        "jsonName": "downloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapterDownloader",
+        "jsonName": "chapterDownloader",
+        "goType": "chapter_downloader.Downloader",
+        "typescriptType": "ChapterDownloader_Downloader",
+        "usedStructName": "chapter_downloader.Downloader",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mediaMap",
+        "jsonName": "mediaMap",
+        "goType": "MediaMap",
+        "typescriptType": "Manga_MediaMap",
+        "usedStructName": "manga.MediaMap",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Refreshed on start and after each download"
+        ]
+      },
+      {
+        "name": "mediaMapMu",
+        "jsonName": "mediaMapMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "chapterDownloadedCh",
+        "jsonName": "chapterDownloadedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "readingDownloadDir",
+        "jsonName": "readingDownloadDir",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "..\\internal\\manga\\download.go",
+    "filename": "download.go",
+    "name": "MediaMap",
+    "formattedName": "Manga_MediaMap",
+    "package": "manga",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[int]ProviderDownloadMap",
+      "typescriptType": "Record\u003cnumber, Manga_ProviderDownloadMap\u003e",
+      "declaredValues": null,
+      "usedStructName": "manga.ProviderDownloadMap"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "..\\internal\\manga\\download.go",
+    "filename": "download.go",
+    "name": "ProviderDownloadMap",
+    "formattedName": "Manga_ProviderDownloadMap",
+    "package": "manga",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[string][]ProviderDownloadMapChapterInfo",
+      "typescriptType": "Record\u003cstring, Array\u003cManga_ProviderDownloadMapChapterInfo\u003e\u003e",
+      "declaredValues": null,
+      "usedStructName": "manga.ProviderDownloadMapChapterInfo"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "ProviderDownloadMapChapterInfo",
+    "formattedName": "Manga_ProviderDownloadMapChapterInfo",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "ChapterID",
+        "jsonName": "chapterId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterNumber",
+        "jsonName": "chapterNumber",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "MediaDownloadData",
+    "formattedName": "Manga_MediaDownloadData",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Downloaded",
+        "jsonName": "downloaded",
+        "goType": "ProviderDownloadMap",
+        "typescriptType": "Manga_ProviderDownloadMap",
+        "usedStructName": "manga.ProviderDownloadMap",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Queued",
+        "jsonName": "queued",
+        "goType": "ProviderDownloadMap",
+        "typescriptType": "Manga_ProviderDownloadMap",
+        "usedStructName": "manga.ProviderDownloadMap",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "NewDownloaderOptions",
+    "formattedName": "Manga_NewDownloaderOptions",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadDir",
+        "jsonName": "DownloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Repository",
+        "jsonName": "Repository",
+        "goType": "Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "DownloadChapterOptions",
+    "formattedName": "Manga_DownloadChapterOptions",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterId",
+        "jsonName": "ChapterId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartNow",
+        "jsonName": "StartNow",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "NewDownloadListOptions",
+    "formattedName": "Manga_NewDownloadListOptions",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "MangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/download.go",
+    "filename": "download.go",
+    "name": "DownloadListItem",
+    "formattedName": "Manga_DownloadListItem",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "media",
+        "goType": "anilist.BaseManga",
+        "typescriptType": "AL_BaseManga",
+        "usedStructName": "anilist.BaseManga",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadData",
+        "jsonName": "downloadData",
+        "goType": "ProviderDownloadMap",
+        "typescriptType": "Manga_ProviderDownloadMap",
+        "usedStructName": "manga.ProviderDownloadMap",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -35381,367 +35972,6 @@
     "embeddedStructNames": [
       "chapter_downloader.DownloadID"
     ]
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "Downloader",
-    "formattedName": "Manga_Downloader",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "wsEventManager",
-        "jsonName": "wsEventManager",
-        "goType": "events.WSEventManagerInterface",
-        "typescriptType": "Events_WSEventManagerInterface",
-        "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "database",
-        "jsonName": "database",
-        "goType": "db.Database",
-        "typescriptType": "DB_Database",
-        "usedStructName": "db.Database",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "downloadDir",
-        "jsonName": "downloadDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "chapterDownloader",
-        "jsonName": "chapterDownloader",
-        "goType": "chapter_downloader.Downloader",
-        "typescriptType": "ChapterDownloader_Downloader",
-        "usedStructName": "chapter_downloader.Downloader",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "repository",
-        "jsonName": "repository",
-        "goType": "Repository",
-        "typescriptType": "Manga_Repository",
-        "usedStructName": "manga.Repository",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mediaMap",
-        "jsonName": "mediaMap",
-        "goType": "MediaMap",
-        "typescriptType": "Manga_MediaMap",
-        "usedStructName": "manga.MediaMap",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Refreshed on start and after each download"
-        ]
-      },
-      {
-        "name": "mediaMapMu",
-        "jsonName": "mediaMapMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "chapterDownloadedCh",
-        "jsonName": "chapterDownloadedCh",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "readingDownloadDir",
-        "jsonName": "readingDownloadDir",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "..\\internal\\manga\\manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "MediaMap",
-    "formattedName": "Manga_MediaMap",
-    "package": "manga",
-    "fields": [],
-    "aliasOf": {
-      "goType": "map[int]ProviderDownloadMap",
-      "typescriptType": "Record\u003cnumber, Manga_ProviderDownloadMap\u003e",
-      "declaredValues": null,
-      "usedStructName": "manga.ProviderDownloadMap"
-    },
-    "comments": null
-  },
-  {
-    "filepath": "..\\internal\\manga\\manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "ProviderDownloadMap",
-    "formattedName": "Manga_ProviderDownloadMap",
-    "package": "manga",
-    "fields": [],
-    "aliasOf": {
-      "goType": "map[string][]ProviderDownloadMapChapterInfo",
-      "typescriptType": "Record\u003cstring, Array\u003cManga_ProviderDownloadMapChapterInfo\u003e\u003e",
-      "declaredValues": null,
-      "usedStructName": "manga.ProviderDownloadMapChapterInfo"
-    },
-    "comments": null
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "ProviderDownloadMapChapterInfo",
-    "formattedName": "Manga_ProviderDownloadMapChapterInfo",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "ChapterID",
-        "jsonName": "chapterId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterNumber",
-        "jsonName": "chapterNumber",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "MediaDownloadData",
-    "formattedName": "Manga_MediaDownloadData",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "Downloaded",
-        "jsonName": "downloaded",
-        "goType": "ProviderDownloadMap",
-        "typescriptType": "Manga_ProviderDownloadMap",
-        "usedStructName": "manga.ProviderDownloadMap",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Queued",
-        "jsonName": "queued",
-        "goType": "ProviderDownloadMap",
-        "typescriptType": "Manga_ProviderDownloadMap",
-        "usedStructName": "manga.ProviderDownloadMap",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "NewDownloaderOptions",
-    "formattedName": "Manga_NewDownloaderOptions",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "Database",
-        "jsonName": "Database",
-        "goType": "db.Database",
-        "typescriptType": "DB_Database",
-        "usedStructName": "db.Database",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WSEventManager",
-        "jsonName": "WSEventManager",
-        "goType": "events.WSEventManagerInterface",
-        "typescriptType": "Events_WSEventManagerInterface",
-        "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadDir",
-        "jsonName": "DownloadDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Repository",
-        "jsonName": "Repository",
-        "goType": "Repository",
-        "typescriptType": "Manga_Repository",
-        "usedStructName": "manga.Repository",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "DownloadChapterOptions",
-    "formattedName": "Manga_DownloadChapterOptions",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "Provider",
-        "jsonName": "Provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MediaId",
-        "jsonName": "MediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterId",
-        "jsonName": "ChapterId",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartNow",
-        "jsonName": "StartNow",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "NewDownloadListOptions",
-    "formattedName": "Manga_NewDownloadListOptions",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MangaCollection",
-        "jsonName": "MangaCollection",
-        "goType": "anilist.MangaCollection",
-        "typescriptType": "AL_MangaCollection",
-        "usedStructName": "anilist.MangaCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/manga_downloader.go",
-    "filename": "manga_downloader.go",
-    "name": "DownloadListItem",
-    "formattedName": "Manga_DownloadListItem",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseManga",
-        "typescriptType": "AL_BaseManga",
-        "usedStructName": "anilist.BaseManga",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadData",
-        "jsonName": "downloadData",
-        "goType": "ProviderDownloadMap",
-        "typescriptType": "Manga_ProviderDownloadMap",
-        "usedStructName": "manga.ProviderDownloadMap",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
   },
   {
     "filepath": "../internal/manga/manga_entry.go",
@@ -48051,6 +48281,15 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "sneedexNyaaIDs",
+        "jsonName": "sneedexNyaaIDs",
+        "goType": "map[int]",
+        "typescriptType": "Record\u003cnumber, any\u003e",
         "required": false,
         "public": false,
         "comments": []

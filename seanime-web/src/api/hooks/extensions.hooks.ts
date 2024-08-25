@@ -3,6 +3,7 @@ import {
     FetchExternalExtensionData_Variables,
     GetAllExtensions_Variables,
     InstallExternalExtension_Variables,
+    RunExtensionPlaygroundCode_Variables,
     UninstallExternalExtension_Variables,
     UpdateExtensionCode_Variables,
 } from "@/api/generated/endpoint.types"
@@ -15,6 +16,7 @@ import {
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
     Nullish,
+    RunPlaygroundCodeResponse,
 } from "@/api/generated/types"
 import { toast } from "sonner"
 
@@ -119,5 +121,16 @@ export function useAnimeListTorrentProviderExtensions() {
         method: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.methods[0],
         queryKey: [API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.key],
         enabled: true,
+    })
+}
+
+export function useRunExtensionPlaygroundCode() {
+    return useServerMutation<RunPlaygroundCodeResponse, RunExtensionPlaygroundCode_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.key],
+        onSuccess: async () => {
+
+        },
     })
 }

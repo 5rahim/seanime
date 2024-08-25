@@ -131,8 +131,8 @@ func TestSmartSearch(t *testing.T) {
 				Batch:         tt.batch,
 				EpisodeNumber: tt.episodeNumber,
 				Resolution:    tt.resolution,
-				AniDbAID:      0,     // Not supported
-				AniDbEID:      0,     // Not supported
+				AnidbAID:      0,     // Not supported
+				AnidbEID:      0,     // Not supported
 				BestReleases:  false, // Not supported
 			})
 			require.NoError(t, err, "error searching nyaa")

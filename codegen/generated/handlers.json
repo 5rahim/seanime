@@ -2142,6 +2142,46 @@
     }
   },
   {
+    "name": "HandleRunExtensionPlaygroundCode",
+    "trimmedName": "RunExtensionPlaygroundCode",
+    "comments": [
+      "HandleRunExtensionPlaygroundCode",
+      "",
+      "\t@summary runs the code in the extension playground.",
+      "\t@desc Returns the logs",
+      "\t@route /api/v1/extensions/playground/run [POST]",
+      "\t@returns extension_playground.RunPlaygroundCodeResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "runs the code in the extension playground.",
+      "descriptions": [
+        "Returns the logs"
+      ],
+      "endpoint": "/api/v1/extensions/playground/run",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Params",
+          "jsonName": "params",
+          "goType": "extension_playground.RunPlaygroundCodeParams",
+          "usedStructType": "extension_playground.RunPlaygroundCodeParams",
+          "typescriptType": "RunPlaygroundCodeParams",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "extension_playground.RunPlaygroundCodeResponse",
+      "returnGoType": "extension_playground.RunPlaygroundCodeResponse",
+      "returnTypescriptType": "RunPlaygroundCodeResponse"
+    }
+  },
+  {
     "name": "HandleGetFileCacheTotalSize",
     "trimmedName": "GetFileCacheTotalSize",
     "comments": [

@@ -97,15 +97,15 @@ func (at *Provider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) ([]*
 func (at *Provider) smartSearchSingleEpisode(opts *hibiketorrent.AnimeSmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	ret = make([]*hibiketorrent.AnimeTorrent, 0)
 
-	at.logger.Debug().Int("aid", opts.AniDbAID).Msg("animetosho: Searching batches by Episode ID")
+	at.logger.Debug().Int("aid", opts.AnidbAID).Msg("animetosho: Searching batches by Episode ID")
 
 	foundByID := false
 
 	atTorrents := make([]*Torrent, 0)
 
-	if opts.AniDbEID > 0 {
+	if opts.AnidbEID > 0 {
 		// Get all torrents by Episode ID
-		atTorrents, err = at.searchByEID(opts.AniDbEID, opts.Resolution)
+		atTorrents, err = at.searchByEID(opts.AnidbEID, opts.Resolution)
 		if err != nil {
 			return nil, err
 		}
@@ -165,15 +165,15 @@ func (at *Provider) smartSearchSingleEpisode(opts *hibiketorrent.AnimeSmartSearc
 func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	ret = make([]*hibiketorrent.AnimeTorrent, 0)
 
-	at.logger.Debug().Int("aid", opts.AniDbAID).Msg("animetosho: Searching batches by Anime ID")
+	at.logger.Debug().Int("aid", opts.AnidbAID).Msg("animetosho: Searching batches by Anime ID")
 
 	foundByID := false
 
 	atTorrents := make([]*Torrent, 0)
 
-	if opts.AniDbAID > 0 {
+	if opts.AnidbAID > 0 {
 		// Get all torrents by Anime ID
-		atTorrents, err = at.searchByAID(opts.AniDbAID, opts.Resolution)
+		atTorrents, err = at.searchByAID(opts.AnidbAID, opts.Resolution)
 		if err != nil {
 			return nil, err
 		}
@@ -281,11 +281,11 @@ func (at *Provider) smartSearchBestReleases(opts *hibiketorrent.AnimeSmartSearch
 func (at *Provider) findSneedexBestReleases(opts *hibiketorrent.AnimeSmartSearchOptions) ([]*hibiketorrent.AnimeTorrent, error) {
 	ret := make([]*hibiketorrent.AnimeTorrent, 0)
 
-	at.logger.Debug().Int("aid", opts.AniDbAID).Msg("animetosho: Searching best releases by Anime ID")
+	at.logger.Debug().Int("aid", opts.AnidbAID).Msg("animetosho: Searching best releases by Anime ID")
 
-	if opts.AniDbAID > 0 {
+	if opts.AnidbAID > 0 {
 		// Get all torrents by Anime ID
-		atTorrents, err := at.searchByAID(opts.AniDbAID, opts.Resolution)
+		atTorrents, err := at.searchByAID(opts.AnidbAID, opts.Resolution)
 		if err != nil {
 			return nil, err
 		}

@@ -1804,6 +1804,33 @@ export type Extension_Language = "javascript" | "typescript" | "go"
 export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "mediaplayer"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ExtensionPlayground
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension_playground/playground.go
+ * - Filename: playground.go
+ * - Package: extension_playground
+ */
+export type RunPlaygroundCodeParams = {
+    type?: Extension_Type
+    language?: Extension_Language
+    code: string
+    inputs?: Record<string, any>
+    function: string
+}
+
+/**
+ * - Filepath: internal/extension_playground/playground.go
+ * - Filename: playground.go
+ * - Package: extension_playground
+ */
+export type RunPlaygroundCodeResponse = {
+    logs: string
+    value: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionRepo
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1996,8 +2023,8 @@ export type Manga_CollectionList = {
 }
 
 /**
- * - Filepath: internal/manga/manga_downloader.go
- * - Filename: manga_downloader.go
+ * - Filepath: internal/manga/download.go
+ * - Filename: download.go
  * - Package: manga
  */
 export type Manga_DownloadListItem = {
@@ -2031,8 +2058,8 @@ export type Manga_EntryListData = {
 }
 
 /**
- * - Filepath: internal/manga/chapter_container.go
- * - Filename: chapter_container.go
+ * - Filepath: internal/manga/chapter_container_mapping.go
+ * - Filename: chapter_container_mapping.go
  * - Package: manga
  */
 export type Manga_MappingResponse = {
@@ -2040,8 +2067,8 @@ export type Manga_MappingResponse = {
 }
 
 /**
- * - Filepath: internal/manga/manga_downloader.go
- * - Filename: manga_downloader.go
+ * - Filepath: internal/manga/download.go
+ * - Filename: download.go
  * - Package: manga
  */
 export type Manga_MediaDownloadData = {
@@ -2080,15 +2107,15 @@ export type Manga_PageDimension = {
 }
 
 /**
- * - Filepath: ..\internal\manga\manga_downloader.go
- * - Filename: manga_downloader.go
+ * - Filepath: ..\internal\manga\download.go
+ * - Filename: download.go
  * - Package: manga
  */
 export type Manga_ProviderDownloadMap = Record<string, Array<Manga_ProviderDownloadMapChapterInfo>>
 
 /**
- * - Filepath: internal/manga/manga_downloader.go
- * - Filename: manga_downloader.go
+ * - Filepath: internal/manga/download.go
+ * - Filename: download.go
  * - Package: manga
  */
 export type Manga_ProviderDownloadMapChapterInfo = {

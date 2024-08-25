@@ -104,9 +104,9 @@ type (
 		// e.g. "1080", "720"
 		Resolution string `json:"resolution"`
 		// AniDB Anime ID of the media.
-		AniDbAID int `json:"aniDbAID"`
+		AnidbAID int `json:"aniDbAID"`
 		// AniDB Episode ID of the media.
-		AniDbEID int `json:"aniDbEID"`
+		AnidbEID int `json:"aniDbEID"`
 		// Look for the best release.
 		BestReleases bool `json:"bestReleases"`
 	}

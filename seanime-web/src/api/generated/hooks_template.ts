@@ -558,6 +558,17 @@
 //     })
 // }
 
+// export function useRunExtensionPlaygroundCode() {
+//     return useServerMutation<RunPlaygroundCodeResponse, RunExtensionPlaygroundCode_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // filecache
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

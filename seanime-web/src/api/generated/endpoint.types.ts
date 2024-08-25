@@ -25,6 +25,7 @@ import type {
     Models_Theme,
     Models_TorrentSettings,
     Models_TorrentstreamSettings,
+    RunPlaygroundCodeParams,
     Torrentstream_PlaybackType,
 } from "@/api/generated/types.ts"
 
@@ -470,6 +471,17 @@ export type UpdateExtensionCode_Variables = {
  */
 export type GetAllExtensions_Variables = {
     withUpdates: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/playground/run
+ * @description
+ * Route runs the code in the extension playground.
+ */
+export type RunExtensionPlaygroundCode_Variables = {
+    params?: RunPlaygroundCodeParams
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
