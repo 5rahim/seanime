@@ -165,7 +165,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	// - mediaId int
 	// - options struct
 
-	r.logger.Debug().Msgf("playground: Inputs: %s", strings.ReplaceAll(spew.Sdump(params.Inputs), "\n", " "))
+	r.logger.Debug().Msgf("playground: Inputs: %s", strings.ReplaceAll(spew.Sprint(params.Inputs), "\n", ""))
 
 	mediaId, ok := params.Inputs["mediaId"].(float64)
 	if !ok || mediaId <= 0 {
@@ -229,6 +229,8 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 			var options p
 			_ = json.Unmarshal(m, &options)
 
+			spew.Dump(params.Inputs["options"])
+
 			anidbAID := 0
 			anidbEID := 0
 
@@ -267,6 +269,15 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 			_ = json.Unmarshal([]byte(params.Inputs["torrent"].(string)), &torrent)
 
 			res, err := provider.GetTorrentInfoHash(&torrent)
+			if err != nil {
+				return newPlaygroundResponse(logger, err), nil
+			}
+			return newPlaygroundResponse(logger, res), nil
+		case "getTorrentMagnetLink":
+			var torrent hibiketorrent.AnimeTorrent
+			_ = json.Unmarshal([]byte(params.Inputs["torrent"].(string)), &torrent)
+
+			res, err := provider.GetTorrentMagnetLink(&torrent)
 			if err != nil {
 				return newPlaygroundResponse(logger, err), nil
 			}
