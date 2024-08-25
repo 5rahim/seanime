@@ -118,16 +118,6 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                     Resolve hidden media ({unknownGroups.length})
                 </Button>}
                 <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
-                    {/*<DropdownMenuItem*/}
-                    {/*    disabled={!hasScanned}*/}
-                    {/*    className={cn("cursor-pointer", { "!text-[--muted]": !status?.settings?.library?.libraryPath })}*/}
-                    {/*    onClick={() => {*/}
-
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    <FaSearch />*/}
-                    {/*    <span>Find</span>*/}
-                    {/*</DropdownMenuItem>*/}
 
                     <DropdownMenuItem
                         disabled={!status?.settings?.library?.libraryPath}
@@ -139,16 +129,6 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         <BiFolder />
                         <span>Open folder</span>
                     </DropdownMenuItem>
-
-                    {/*<DropdownMenu.Item*/}
-                    {/*    onClick={() => {*/}
-                    {/*    }}*/}
-                    {/*    disabled={ignoredLocalFiles.length === 0}*/}
-                    {/*    className={cn({ "!text-[--muted]": ignoredLocalFiles.length === 0 })}*/}
-                    {/*>*/}
-                    {/*    <GoDiffIgnored/>*/}
-                    {/*    <span>Manage ignored files</span>*/}
-                    {/*</DropdownMenu.Item>*/}
 
                     <DropdownMenuItem
                         onClick={() => setBulkActionIsOpen(true)}

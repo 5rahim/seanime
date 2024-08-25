@@ -91,35 +91,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 			})
 			if err == nil {
 
-				// Rate the search results if all ratings are 0
-				if noRatings := lo.EveryBy(_searchRes, func(res *hibikemanga.SearchResult) bool {
-					return res.SearchRating == 0
-				}); noRatings {
-					wg := sync.WaitGroup{}
-					wg.Add(len(_searchRes))
-					for _, res := range _searchRes {
-						go func(res *hibikemanga.SearchResult) {
-							defer wg.Done()
-
-							compTitles := []*string{&res.Title}
-							if res.Synonyms == nil || len(res.Synonyms) == 0 {
-								return
-							}
-							for _, syn := range res.Synonyms {
-								compTitles = append(compTitles, &syn)
-							}
-
-							compRes, ok := comparison.FindBestMatchWithSorensenDice(title, compTitles)
-							if !ok {
-								return
-							}
-
-							res.SearchRating = compRes.Rating
-							return
-						}(res)
-					}
-					wg.Wait()
-				}
+				HydrateSearchResultSearchRating(_searchRes, title)
 
 				searchRes = append(searchRes, _searchRes...)
 			} else {
@@ -137,12 +109,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 			res.Provider = provider
 		}
 
-		bestRes := searchRes[0]
-		for _, res := range searchRes {
-			if res.SearchRating > bestRes.SearchRating {
-				bestRes = res
-			}
-		}
+		bestRes := GetBestSearchResult(searchRes)
 
 		mangaId = bestRes.ID
 	}
@@ -177,4 +144,46 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 	r.logger.Info().Str("bucket", containerBucket.Name()).Msg("manga: Retrieved chapters")
 
 	return container, nil
+}
+
+func GetBestSearchResult(searchRes []*hibikemanga.SearchResult) *hibikemanga.SearchResult {
+	bestRes := searchRes[0]
+	for _, res := range searchRes {
+		if res.SearchRating > bestRes.SearchRating {
+			bestRes = res
+		}
+	}
+	return bestRes
+}
+
+func HydrateSearchResultSearchRating(_searchRes []*hibikemanga.SearchResult, title *string) {
+	// Rate the search results if all ratings are 0
+	if noRatings := lo.EveryBy(_searchRes, func(res *hibikemanga.SearchResult) bool {
+		return res.SearchRating == 0
+	}); noRatings {
+		wg := sync.WaitGroup{}
+		wg.Add(len(_searchRes))
+		for _, res := range _searchRes {
+			go func(res *hibikemanga.SearchResult) {
+				defer wg.Done()
+
+				compTitles := []*string{&res.Title}
+				if res.Synonyms == nil || len(res.Synonyms) == 0 {
+					return
+				}
+				for _, syn := range res.Synonyms {
+					compTitles = append(compTitles, &syn)
+				}
+
+				compRes, ok := comparison.FindBestMatchWithSorensenDice(title, compTitles)
+				if !ok {
+					return
+				}
+
+				res.SearchRating = compRes.Rating
+				return
+			}(res)
+		}
+		wg.Wait()
+	}
 }

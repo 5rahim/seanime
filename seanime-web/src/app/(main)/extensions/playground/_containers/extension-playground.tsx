@@ -2,10 +2,12 @@ import { Extension_Language, Extension_Type } from "@/api/generated/types"
 import { useRunExtensionPlaygroundCode } from "@/api/hooks/extensions.hooks"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/shared/resizable"
+import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { Textarea } from "@/components/ui/textarea"
@@ -19,6 +21,7 @@ import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
+import { toast } from "sonner"
 
 type Params = {
     animeTorrentProvider: {
@@ -26,7 +29,7 @@ type Params = {
         search: {
             query: string
         },
-        smartsearch: {
+        smartSearch: {
             query: string
             batch: boolean
             episodeNumber: number
@@ -39,6 +42,28 @@ type Params = {
         getTorrentMagnetLink: {
             torrent: string
         },
+    },
+    mangaProvider: {
+        mediaId: number
+        findChapters: {
+            id: string
+        },
+        findChapterPages: {
+            id: string
+        },
+    },
+    onlineStreamingProvider: {
+        mediaId: number
+        search: {
+            dub: boolean
+        }
+        findEpisode: {
+            id: string
+        },
+        findEpisodeServers: {
+            episode: string
+            server: string
+        },
     }
 }
 
@@ -48,7 +73,7 @@ const DEFAULT_PARAMS: Params = {
         search: {
             query: "",
         },
-        smartsearch: {
+        smartSearch: {
             query: "",
             batch: false,
             episodeNumber: 0,
@@ -62,6 +87,28 @@ const DEFAULT_PARAMS: Params = {
             torrent: "",
         },
     },
+    mangaProvider: {
+        mediaId: 0,
+        findChapters: {
+            id: "",
+        },
+        findChapterPages: {
+            id: "",
+        },
+    },
+    onlineStreamingProvider: {
+        mediaId: 0,
+        search: {
+            dub: false,
+        },
+        findEpisode: {
+            id: "",
+        },
+        findEpisodeServers: {
+            episode: "",
+            server: "",
+        },
+    },
 }
 
 const enum Functions {
@@ -70,6 +117,12 @@ const enum Functions {
     AnimeTorrentProviderGetTorrentInfoHash = "AnimeTorrentProvider.getTorrentInfoHash",
     AnimeTorrentProviderGetTorrentMagnetLink = "AnimeTorrentProvider.getTorrentMagnetLink",
     AnimeTorrentProviderGetLatest = "AnimeTorrentProvider.getLatest",
+    MangaProviderSearch = "MangaProvider.search",
+    MangaProviderFindChapters = "MangaProvider.findChapters",
+    MangaProviderFindChapterPages = "MangaProvider.findChapterPages",
+    OnlinestreamSearch = "Onlinestream.search",
+    OnlinestreamFindEpisode = "Onlinestream.findEpisode",
+    OnlinestreamFindEpisodeServers = "Onlinestream.findEpisodeServers",
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -106,6 +159,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
     React.useLayoutEffect(() => {
         if (type === "anime-torrent-provider") {
             setSelectedFunction(Functions.AnimeTorrentProviderSearch)
+        } else if (type === "manga-provider") {
+            setSelectedFunction(Functions.MangaProviderSearch)
+        } else if (type === "onlinestream-provider") {
+            setSelectedFunction(Functions.OnlinestreamSearch)
         }
     }, [type])
 
@@ -146,11 +203,11 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
             ret = {
                 mediaId: inputs.animeTorrentProvider.mediaId,
                 options: {
-                    query: inputs.animeTorrentProvider.smartsearch.query,
-                    episodeNumber: inputs.animeTorrentProvider.smartsearch.episodeNumber,
-                    resolution: inputs.animeTorrentProvider.smartsearch.resolution,
-                    batch: inputs.animeTorrentProvider.smartsearch.batch,
-                    bestReleases: inputs.animeTorrentProvider.smartsearch.bestReleases,
+                    query: inputs.animeTorrentProvider.smartSearch.query,
+                    episodeNumber: inputs.animeTorrentProvider.smartSearch.episodeNumber,
+                    resolution: inputs.animeTorrentProvider.smartSearch.resolution,
+                    batch: inputs.animeTorrentProvider.smartSearch.batch,
+                    bestReleases: inputs.animeTorrentProvider.smartSearch.bestReleases,
                 },
             }
         } else if (selectedFunction === Functions.AnimeTorrentProviderGetTorrentInfoHash) {
@@ -170,6 +227,45 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
             ret = {
                 mediaId: inputs.animeTorrentProvider.mediaId,
             }
+        } else if (selectedFunction === Functions.MangaProviderSearch) {
+            func = "search"
+            ret = {
+                mediaId: inputs.mangaProvider.mediaId,
+            }
+        } else if (selectedFunction === Functions.MangaProviderFindChapters) {
+            func = "findChapters"
+            ret = {
+                mediaId: inputs.mangaProvider.mediaId,
+                id: inputs.mangaProvider.findChapters.id,
+            }
+        } else if (selectedFunction === Functions.MangaProviderFindChapterPages) {
+            func = "findChapterPages"
+            ret = {
+                mediaId: inputs.mangaProvider.mediaId,
+                id: inputs.mangaProvider.findChapterPages.id,
+            }
+        } else if (selectedFunction === Functions.OnlinestreamSearch) {
+            func = "search"
+            ret = {
+                mediaId: inputs.onlineStreamingProvider.mediaId,
+                dub: inputs.onlineStreamingProvider.search.dub,
+            }
+        } else if (selectedFunction === Functions.OnlinestreamFindEpisode) {
+            func = "findEpisode"
+            ret = {
+                mediaId: inputs.onlineStreamingProvider.mediaId,
+                id: inputs.onlineStreamingProvider.findEpisode.id,
+            }
+        } else if (selectedFunction === Functions.OnlinestreamFindEpisodeServers) {
+            func = "findEpisodeServers"
+            ret = {
+                mediaId: inputs.onlineStreamingProvider.mediaId,
+                episode: inputs.onlineStreamingProvider.findEpisodeServers.episode,
+                server: inputs.onlineStreamingProvider.findEpisodeServers.server,
+            }
+        } else {
+            toast.error("Invalid function selected.")
+            return
         }
 
         runCode({
@@ -192,12 +288,16 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                     <h2 className="w-fit">Playground</h2>
                     <div className="hidden lg:flex flex-wrap gap-2 lg:justify-end">
 
+                        <Button intent="white" loading={isRunning} onClick={() => handleRunCode()}>
+                            {isRunning ? "Running..." : "Run"}
+                        </Button>
+
                         <Select
                             value={type as string}
                             options={[
                                 { value: "anime-torrent-provider", label: "Anime Torrent Provider" },
                                 { value: "manga-provider", label: "Manga Provider" },
-                                { value: "online-streaming-provider", label: "Online Streaming Provider" },
+                                { value: "onlinestream-provider", label: "Online Streaming Provider" },
                             ]}
                             onValueChange={v => {
                                 onTypeChange?.(v as Extension_Type)
@@ -217,12 +317,8 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                 onLanguageChange?.(v as Extension_Language)
                             }}
                             disabled={!onLanguageChange}
-                            fieldClass="max-w-[250px]"
+                            fieldClass="max-w-[140px]"
                         />
-
-                        <Button intent="white" loading={isRunning} onClick={() => handleRunCode()}>
-                            {isRunning ? "Running..." : "Run"}
-                        </Button>
 
                     </div>
                 </div>
@@ -275,6 +371,8 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                 <div className="w-full">
                                     <div className="space-y-4">
 
+                                        {/*ANIME TORRENT PROVIDER*/}
+
                                         {type === "anime-torrent-provider" && (
                                             <>
                                                 <Select
@@ -294,6 +392,8 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
 
                                                 <NumberInput
                                                     label="Media ID"
+                                                    min={0}
+                                                    formatOptions={{ useGrouping: false }}
                                                     value={inputs.animeTorrentProvider.mediaId}
                                                     onValueChange={v => {
                                                         setInputs(d => {
@@ -308,10 +408,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                         <TextInput
                                                             label="Query"
                                                             type="text"
-                                                            value={inputs.animeTorrentProvider.smartsearch.query}
+                                                            value={inputs.animeTorrentProvider.smartSearch.query}
                                                             onChange={e => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartsearch.query = e.target.value
+                                                                    d.animeTorrentProvider.smartSearch.query = e.target.value
                                                                     return
                                                                 })
                                                             }}
@@ -319,11 +419,12 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
 
                                                         <NumberInput
                                                             label="Episode Number"
-                                                            value={inputs.animeTorrentProvider.smartsearch.episodeNumber || 0}
+                                                            value={inputs.animeTorrentProvider.smartSearch.episodeNumber || 0}
                                                             min={0}
+                                                            formatOptions={{ useGrouping: false }}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartsearch.episodeNumber = v
+                                                                    d.animeTorrentProvider.smartSearch.episodeNumber = v
                                                                     return
                                                                 })
                                                             }}
@@ -338,10 +439,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                                 { value: "540p", label: "540" },
                                                                 { value: "480p", label: "480" },
                                                             ]}
-                                                            value={inputs.animeTorrentProvider.smartsearch.resolution || "-"}
+                                                            value={inputs.animeTorrentProvider.smartSearch.resolution || "-"}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartsearch.resolution = v === "-" ? "" : v
+                                                                    d.animeTorrentProvider.smartSearch.resolution = v === "-" ? "" : v
                                                                     return
                                                                 })
                                                             }}
@@ -349,10 +450,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
 
                                                         <Switch
                                                             label="Batch"
-                                                            value={inputs.animeTorrentProvider.smartsearch.batch}
+                                                            value={inputs.animeTorrentProvider.smartSearch.batch}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartsearch.batch = v
+                                                                    d.animeTorrentProvider.smartSearch.batch = v
                                                                     return
                                                                 })
                                                             }}
@@ -360,10 +461,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
 
                                                         <Switch
                                                             label="Best Releases"
-                                                            value={inputs.animeTorrentProvider.smartsearch.bestReleases}
+                                                            value={inputs.animeTorrentProvider.smartSearch.bestReleases}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartsearch.bestReleases = v
+                                                                    d.animeTorrentProvider.smartSearch.bestReleases = v
                                                                     return
                                                                 })
                                                             }}
@@ -376,10 +477,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                         <TextInput
                                                             label="Query"
                                                             type="text"
-                                                            value={inputs.animeTorrentProvider.smartsearch.query}
+                                                            value={inputs.animeTorrentProvider.smartSearch.query}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartsearch.query = v
+                                                                    d.animeTorrentProvider.smartSearch.query = v
                                                                     return
                                                                 })
                                                             }}
@@ -418,6 +519,174 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                 )}
                                             </>
                                         )}
+
+                                        {/*MANGA PROVIDER*/}
+
+                                        {type === "manga-provider" && (
+                                            <>
+                                                <Select
+                                                    label="Method"
+                                                    value={selectedFunction}
+                                                    options={[
+                                                        { value: Functions.MangaProviderSearch, label: "search" },
+                                                        { value: Functions.MangaProviderFindChapters, label: "findChapters" },
+                                                        { value: Functions.MangaProviderFindChapterPages, label: "findChapterPages" },
+                                                    ]}
+                                                    onValueChange={v => {
+                                                        setSelectedFunction(v as Functions)
+                                                    }}
+                                                />
+
+                                                <NumberInput
+                                                    label="Media ID"
+                                                    min={0}
+                                                    formatOptions={{ useGrouping: false }}
+                                                    value={inputs.mangaProvider.mediaId}
+                                                    onValueChange={v => {
+                                                        setInputs(d => {
+                                                            d.mangaProvider.mediaId = v
+                                                            return
+                                                        })
+                                                    }}
+                                                />
+
+                                                {selectedFunction === Functions.MangaProviderSearch && (
+                                                    <>
+                                                        <Alert intent="info">
+                                                            Seanime will automatically select the best match based on the manga titles.
+                                                        </Alert>
+                                                    </>
+                                                )}
+
+                                                {selectedFunction === Functions.MangaProviderFindChapters && (
+                                                    <>
+                                                        <TextInput
+                                                            label="Manga ID"
+                                                            type="text"
+                                                            value={inputs.mangaProvider.findChapters.id}
+                                                            onValueChange={v => {
+                                                                setInputs(d => {
+                                                                    d.mangaProvider.findChapters.id = v
+                                                                    return
+                                                                })
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+
+                                                {selectedFunction === Functions.MangaProviderFindChapterPages && (
+                                                    <>
+                                                        <TextInput
+                                                            label="Chapter ID"
+                                                            type="text"
+                                                            value={inputs.mangaProvider.findChapterPages.id}
+                                                            onValueChange={v => {
+                                                                setInputs(d => {
+                                                                    d.mangaProvider.findChapterPages.id = v
+                                                                    return
+                                                                })
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {/*ONLINE STREAMING PROVIDER*/}
+
+                                        {type === "onlinestream-provider" && (
+                                            <>
+                                                <Select
+                                                    label="Method"
+                                                    value={selectedFunction}
+                                                    options={[
+                                                        { value: Functions.OnlinestreamSearch, label: "search" },
+                                                        { value: Functions.OnlinestreamFindEpisode, label: "findEpisode" },
+                                                        { value: Functions.OnlinestreamFindEpisodeServers, label: "findEpisodeServers" },
+                                                    ]}
+                                                    onValueChange={v => {
+                                                        setSelectedFunction(v as Functions)
+                                                    }}
+                                                />
+
+                                                <NumberInput
+                                                    label="Media ID"
+                                                    min={0}
+                                                    formatOptions={{ useGrouping: false }}
+                                                    value={inputs.onlineStreamingProvider.mediaId}
+                                                    onValueChange={v => {
+                                                        setInputs(d => {
+                                                            d.onlineStreamingProvider.mediaId = v
+                                                            return
+                                                        })
+                                                    }}
+                                                />
+
+                                                {selectedFunction === Functions.OnlinestreamSearch && (
+                                                    <>
+                                                        <Alert intent="info">
+                                                            Seanime will automatically select the best match based on the anime titles.
+                                                        </Alert>
+
+                                                        <Switch
+                                                            label="Dubbed"
+                                                            value={inputs.onlineStreamingProvider.search.dub}
+                                                            onValueChange={v => {
+                                                                setInputs(d => {
+                                                                    d.onlineStreamingProvider.search.dub = v
+                                                                    return
+                                                                })
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+
+                                                {selectedFunction === Functions.OnlinestreamFindEpisode && (
+                                                    <>
+                                                        <TextInput
+                                                            label="Episode ID"
+                                                            type="text"
+                                                            value={inputs.onlineStreamingProvider.findEpisode.id}
+                                                            onValueChange={v => {
+                                                                setInputs(d => {
+                                                                    d.onlineStreamingProvider.findEpisode.id = v
+                                                                    return
+                                                                })
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+
+                                                {selectedFunction === Functions.OnlinestreamFindEpisodeServers && (
+                                                    <>
+                                                        <Textarea
+                                                            label="Episode JSON"
+                                                            value={inputs.onlineStreamingProvider.findEpisodeServers.episode}
+                                                            onValueChange={v => {
+                                                                setInputs(d => {
+                                                                    d.onlineStreamingProvider.findEpisodeServers.episode = v
+                                                                    return
+                                                                })
+                                                            }}
+                                                        />
+
+                                                        <TextInput
+                                                            label="Server"
+                                                            type="text"
+                                                            value={inputs.onlineStreamingProvider.findEpisodeServers.server}
+                                                            onValueChange={v => {
+                                                                setInputs(d => {
+                                                                    d.onlineStreamingProvider.findEpisodeServers.server = v
+                                                                    return
+                                                                })
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+
+                                        <Separator />
 
                                         <AppLayoutStack>
                                             <p className="font-semibold">Output</p>

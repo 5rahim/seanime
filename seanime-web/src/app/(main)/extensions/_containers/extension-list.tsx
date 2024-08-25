@@ -5,11 +5,14 @@ import { ExtensionCard } from "@/app/(main)/extensions/_containers/extension-car
 import { InvalidExtensionCard } from "@/app/(main)/extensions/_containers/invalid-extension-card"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { AppLayoutStack } from "@/components/ui/app-layout"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import { orderBy } from "lodash"
+import { useRouter } from "next/navigation"
 import React from "react"
+import { BiDotsVerticalRounded } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
 import { PiBookFill } from "react-icons/pi"
@@ -27,6 +30,8 @@ export function ExtensionList(props: ExtensionListProps) {
         children,
         ...rest
     } = props
+
+    const router = useRouter()
 
     const [checkForUpdates, setCheckForUpdates] = React.useState(false)
 
@@ -83,6 +88,17 @@ export function ExtensionList(props: ExtensionListProps) {
                             Add an extension
                         </Button>
                     </AddExtensionModal>
+
+                    <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+
+                        <DropdownMenuItem
+                            onClick={() => {
+                                router.push("/extensions/playground")
+                            }}
+                        >
+                            <span>Playground</span>
+                        </DropdownMenuItem>
+                    </DropdownMenu>
                 </div>
             </div>
             <h3 className="flex gap-3 items-center"><RiFolderDownloadFill />Torrent providers</h3>

@@ -92,6 +92,17 @@ func (m *BaseManga) GetAllTitles() []*string {
 	return titles
 }
 
+func (m *BaseManga) GetMainTitlesDeref() []string {
+	titles := make([]string, 0)
+	if m.HasRomajiTitle() {
+		titles = append(titles, *m.Title.Romaji)
+	}
+	if m.HasEnglishTitle() {
+		titles = append(titles, *m.Title.English)
+	}
+	return titles
+}
+
 func (m *BaseManga) HasEnglishTitle() bool {
 	return m.Title.English != nil
 }

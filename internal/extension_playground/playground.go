@@ -3,6 +3,8 @@ package extension_playground
 import (
 	"bytes"
 	"fmt"
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/goccy/go-json"
@@ -12,6 +14,8 @@ import (
 	"seanime/internal/api/anizip"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
+	"seanime/internal/manga"
+	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
@@ -25,6 +29,7 @@ type (
 		logger           *zerolog.Logger
 		platform         platform.Platform
 		baseAnimeCache   *result.Cache[int, *anilist.BaseAnime]
+		baseMangaCache   *result.Cache[int, *anilist.BaseManga]
 		anizipMediaCache *result.Cache[int, *anizip.Media]
 	}
 
@@ -47,12 +52,17 @@ func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform)
 		logger:           logger,
 		platform:         platform,
 		baseAnimeCache:   result.NewCache[int, *anilist.BaseAnime](),
+		baseMangaCache:   result.NewCache[int, *anilist.BaseManga](),
 		anizipMediaCache: result.NewCache[int, *anizip.Media](),
 	}
 }
 
 func (r *PlaygroundRepository) RunPlaygroundCode(params *RunPlaygroundCodeParams) (resp *RunPlaygroundCodeResponse, err error) {
 	defer util.HandlePanicInModuleWithError("extension_playground/RunPlaygroundCode", &err)
+
+	if params == nil {
+		return nil, fmt.Errorf("no parameters provided")
+	}
 
 	ext := &extension.Extension{
 		ID:          "playground-extension",
@@ -68,11 +78,13 @@ func (r *PlaygroundRepository) RunPlaygroundCode(params *RunPlaygroundCodeParams
 		Payload:     params.Code,
 	}
 
+	r.logger.Debug().Msgf("playground: Inputs: %s", strings.ReplaceAll(spew.Sprint(params.Inputs), "\n", ""))
+
 	switch params.Type {
 	case extension.TypeMangaProvider:
-		//return r.runPlaygroundCodeMangaProvider(ext, params)
+		return r.runPlaygroundCodeMangaProvider(ext, params)
 	case extension.TypeOnlinestreamProvider:
-		//return r.runPlaygroundCodeOnlinestreamProvider(params)
+		return r.runPlaygroundCodeOnlinestreamProvider(ext, params)
 	case extension.TypeAnimeTorrentProvider:
 		return r.runPlaygroundCodeAnimeTorrentProvider(ext, params)
 	default:
@@ -155,6 +167,19 @@ func (r *PlaygroundRepository) getAnime(mediaId int) (anime *anilist.BaseAnime, 
 	return anime, am, nil
 }
 
+func (r *PlaygroundRepository) getManga(mediaId int) (manga *anilist.BaseManga, err error) {
+	var ok bool
+	manga, ok = r.baseMangaCache.Get(mediaId)
+	if !ok {
+		manga, err = r.platform.GetManga(mediaId)
+		if err != nil {
+			return nil, err
+		}
+		r.baseMangaCache.SetT(mediaId, manga, 24*time.Hour)
+	}
+	return
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extension.Extension, params *RunPlaygroundCodeParams) (resp *RunPlaygroundCodeResponse, err error) {
@@ -164,8 +189,6 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	// Inputs
 	// - mediaId int
 	// - options struct
-
-	r.logger.Debug().Msgf("playground: Inputs: %s", strings.ReplaceAll(spew.Sprint(params.Inputs), "\n", ""))
 
 	mediaId, ok := params.Inputs["mediaId"].(float64)
 	if !ok || mediaId <= 0 {
@@ -228,8 +251,6 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 			m, _ := json.Marshal(params.Inputs["options"])
 			var options p
 			_ = json.Unmarshal(m, &options)
-
-			spew.Dump(params.Inputs["options"])
 
 			anidbAID := 0
 			anidbEID := 0
@@ -301,17 +322,139 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 
 	logger := r.newPlaygroundDebugLogger()
 
+	mediaId, ok := params.Inputs["mediaId"].(float64)
+	if !ok || mediaId <= 0 {
+		return nil, fmt.Errorf("invalid mediaId")
+	}
+
+	media, err := r.getManga(int(mediaId))
+	if err != nil {
+		return nil, err
+	}
+
+	titles := media.GetAllTitles()
+
 	switch params.Language {
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, logger.logger)
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}
 		defer provider.GetVM().ClearInterrupt()
 
-		_ = provider
+		// Run the code
+		switch params.Function {
+		case "search":
+			// Search
+			y := 0
+			if media.GetStartDate().GetYear() != nil {
+				y = *media.GetStartDate().GetYear()
+			}
+
+			ret := make([]*hibikemanga.SearchResult, 0)
+			for _, title := range titles {
+				res, err := provider.Search(hibikemanga.SearchOptions{
+					Query: *title,
+					Year:  y,
+				})
+				if err != nil {
+					logger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
+				}
+				manga.HydrateSearchResultSearchRating(res, title)
+				ret = append(ret, res...)
+			}
+
+			var selected *hibikemanga.SearchResult
+			if len(ret) > 0 {
+				selected = manga.GetBestSearchResult(ret)
+			}
+
+			return newPlaygroundResponse(logger, selected), nil
+
+		case "findChapters":
+			res, err := provider.FindChapters(params.Inputs["id"].(string))
+			if err != nil {
+				return newPlaygroundResponse(logger, err), nil
+			}
+			return newPlaygroundResponse(logger, res), nil
+
+		case "findChapterPages":
+			res, err := provider.FindChapterPages(params.Inputs["id"].(string))
+			if err != nil {
+				return newPlaygroundResponse(logger, err), nil
+			}
+			return newPlaygroundResponse(logger, res), nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown call")
+}
+
+func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extension.Extension, params *RunPlaygroundCodeParams) (resp *RunPlaygroundCodeResponse, err error) {
+
+	logger := r.newPlaygroundDebugLogger()
+
+	mediaId, ok := params.Inputs["mediaId"].(float64)
+	if !ok || mediaId <= 0 {
+		return nil, fmt.Errorf("invalid mediaId")
+	}
+
+	// Fetch the anime
+	anime, _, err := r.getAnime(int(mediaId))
+	if err != nil {
+		return nil, err
+	}
+
+	titles := anime.GetAllTitles()
+
+	switch params.Language {
+	case extension.LanguageGo:
+	//...
+	case extension.LanguageJavascript, extension.LanguageTypescript:
+		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, logger.logger)
+		if err != nil {
+			return newPlaygroundResponse(logger, err), nil
+		}
+		defer provider.GetVM().ClearInterrupt()
+
+		// Run the code
+		switch params.Function {
+		case "search":
+			// Search - params: dub: boolean
+			ret := make([]*hibikeonlinestream.SearchResult, 0)
+			for _, title := range titles {
+				res, err := provider.Search(*title, params.Inputs["dub"].(bool))
+				if err != nil {
+					logger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
+				}
+				ret = append(ret, res...)
+			}
+
+			bestRes := onlinestream.GetBestSearchResult(ret, titles)
+
+			return newPlaygroundResponse(logger, bestRes), nil
+
+		case "findEpisode":
+			// FindEpisode - params: id: string
+			res, err := provider.FindEpisode(params.Inputs["id"].(string))
+			if err != nil {
+				return newPlaygroundResponse(logger, err), nil
+			}
+			return newPlaygroundResponse(logger, res), nil
+
+		case "findEpisodeServer":
+			// FindEpisodeServer - params: episode: EpisodeDetails, server: string
+			var episode hibikeonlinestream.EpisodeDetails
+			_ = json.Unmarshal([]byte(params.Inputs["episode"].(string)), &episode)
+
+			res, err := provider.FindEpisodeServer(&episode, params.Inputs["server"].(string))
+			if err != nil {
+				return newPlaygroundResponse(logger, err), nil
+			}
+			return newPlaygroundResponse(logger, res), nil
+		}
 	}
 
 	return nil, fmt.Errorf("unknown call")

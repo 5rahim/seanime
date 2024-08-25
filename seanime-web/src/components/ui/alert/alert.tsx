@@ -203,8 +203,8 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>((props, ref) =
                     <span className={cn(AlertAnatomy.title(), titleClass)}>
                         {title}
                     </span>
-                    {!!description && <div className={cn(AlertAnatomy.description(), descriptionClass)}>
-                        {description}
+                    {!!(description || children) && <div className={cn(AlertAnatomy.description(), descriptionClass)}>
+                        {description || children}
                     </div>}
                 </div>
             </div>

@@ -226,6 +226,22 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []
 		return nil, ErrNoAnimeFound
 	}
 
+	bestResult := GetBestSearchResult(searchResults, titles)
+
+	// Fetch episodes.
+	ret, err = providerExtension.GetProvider().FindEpisode(bestResult.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ret) == 0 {
+		return nil, ErrNoEpisodes
+	}
+
+	return ret, nil
+}
+
+func GetBestSearchResult(searchResults []*hibikeonlinestream.SearchResult, titles []*string) *hibikeonlinestream.SearchResult {
 	// Filter results to get the best match.
 	compBestResults := make([]*comparison.LevenshteinResult, 0, len(searchResults))
 	for _, r := range searchResults {
@@ -250,16 +266,5 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []
 			break
 		}
 	}
-
-	// Fetch episodes.
-	ret, err = providerExtension.GetProvider().FindEpisode(bestResult.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(ret) == 0 {
-		return nil, ErrNoEpisodes
-	}
-
-	return ret, nil
+	return bestResult
 }

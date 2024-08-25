@@ -128,6 +128,28 @@ func (m *BaseAnime) GetAllTitlesDeref() []string {
 	return titles
 }
 
+func (m *BaseAnime) GetMainTitles() []*string {
+	titles := make([]*string, 0)
+	if m.HasRomajiTitle() {
+		titles = append(titles, m.Title.Romaji)
+	}
+	if m.HasEnglishTitle() {
+		titles = append(titles, m.Title.English)
+	}
+	return titles
+}
+
+func (m *BaseAnime) GetMainTitlesDeref() []string {
+	titles := make([]string, 0)
+	if m.HasRomajiTitle() {
+		titles = append(titles, *m.Title.Romaji)
+	}
+	if m.HasEnglishTitle() {
+		titles = append(titles, *m.Title.English)
+	}
+	return titles
+}
+
 // GetCurrentEpisodeCount returns the current episode number for that media and -1 if it doesn't have one.
 // i.e. -1 is returned if the media has no episodes AND the next airing episode is not set.
 func (m *BaseAnime) GetCurrentEpisodeCount() int {
