@@ -5,16 +5,15 @@ import (
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	gojabuffer "github.com/dop251/goja_nodejs/buffer"
-	gojaconsole "github.com/dop251/goja_nodejs/console"
 	gojarequire "github.com/dop251/goja_nodejs/require"
 	gojaurl "github.com/dop251/goja_nodejs/url"
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/rs/zerolog"
 	"seanime/internal/extension"
+	"seanime/internal/extension_repo/goja_bindings"
 )
 
-// GojaExtension is an interface for Goja extensions.
-// It is stored into the repository map, giving access to the VM.
+// GojaExtension is stored in the repository extension map, giving access to the VMs.
 // Current use: Kill the VM when the extension is unloaded.
 type GojaExtension interface {
 	GetVM() *goja.Runtime
@@ -60,25 +59,24 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 	registry.Enable(vm)
 
 	gojaurl.Enable(vm)
-	gojaconsole.Enable(vm)
 	gojabuffer.Enable(vm)
-
-	err := gojaBindFetch(vm)
+	err := goja_bindings.GojaBindFetch(vm)
 	if err != nil {
 		return nil, err
 	}
-
-	err = gojaBindConsole(vm, logger)
+	err = goja_bindings.BindConsole(vm, logger)
 	if err != nil {
 		return nil, err
 	}
-
-	err = gojaBindFormData(vm)
+	err = goja_bindings.BindFormData(vm)
 	if err != nil {
 		return nil, err
 	}
-
-	err = gojaBindDocument(vm)
+	err = goja_bindings.BindDocument(vm)
+	if err != nil {
+		return nil, err
+	}
+	err = goja_bindings.BindCrypto(vm)
 	if err != nil {
 		return nil, err
 	}
