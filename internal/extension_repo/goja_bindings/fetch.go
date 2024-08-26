@@ -16,7 +16,7 @@ import (
 // Fetch
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func GojaBindFetch(vm *goja.Runtime) error {
+func BindFetch(vm *goja.Runtime) error {
 	err := vm.Set("fetch", func(call goja.FunctionCall) goja.Value {
 		return vm.ToValue(gojaFetch(vm, call))
 	})
@@ -110,9 +110,9 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 
 		// Unmarshal the response body to an interface
 		var jsonInterface interface{}
+		canUnmarshal := true
 		if err := json.Unmarshal(bodyBytes, &jsonInterface); err != nil {
-			reject(vm.ToValue(err.Error()))
-			return
+			canUnmarshal = false
 		}
 
 		responseObj := vm.NewObject()
@@ -134,6 +134,9 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 
 		// Set the response JSON
 		responseObj.Set("json", func(call goja.FunctionCall) goja.Value {
+			if !canUnmarshal {
+				return goja.Undefined()
+			}
 			return vm.ToValue(jsonInterface)
 		})
 

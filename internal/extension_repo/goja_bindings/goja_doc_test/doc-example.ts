@@ -3,7 +3,7 @@
 class Provider {
     async test() {
 
-        const document = new Doc(`
+        const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,20 +53,19 @@ class Provider {
         <p><a href="mailto:info@example.com">Contact Us</a></p>
     </footer>
 </body>
-</html>
-        `)
+</html>`
+
+        const $ = new Doc(html)
 
         console.log("Document created")
 
-
         console.log(">>> Last post by string selector")
-        const article = document.find("article:last-child")
+        const article = $.find("article:last-child")
         console.log(article.html())
 
         console.log(">>> Post titles (map to string)")
 
-        const titles = document
-            .find("section")
+        const titles = $.find("section")
             .children("article.post")
             .filter((i, e) => {
                 return e.attr("data-id") !== "1"

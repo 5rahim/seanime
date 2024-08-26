@@ -213,7 +213,6 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 				panic(vm.ToValue("TypeError: IV length must be equal to block size (16 bytes for AES)"))
 			}
 			var err error
-			// Decode the base64 encoded string, skipping the first 16 bytes (which would have been the IV)
 			decodedMessage, err := base64.StdEncoding.DecodeString(encryptedMessage)
 			if err != nil {
 				panic(vm.ToValue(fmt.Sprintf("Failed to decode ciphertext: %v", err)))

@@ -18,43 +18,69 @@ func TestGojaDocument(t *testing.T) {
 	vm, err := extension_repo.CreateJSVM(util.NewLogger())
 	require.NoError(t, err)
 
-	// Get the script
-	filepath := "./goja_bindings/goja_doc_test/doc-example.ts"
-	fileB, err := os.ReadFile(filepath)
-	if err != nil {
-		t.Fatal(err)
+	tests := []struct {
+		entry string
+	}{
+		{
+			entry: "./goja_bindings/goja_doc_test/doc-example.ts",
+		},
+		{
+			entry: "./goja_bindings/goja_doc_test/doc-example-2.ts",
+		},
 	}
 
-	now := time.Now()
+	for _, tt := range tests {
+		t.Run(tt.entry, func(t *testing.T) {
+			fileB, err := os.ReadFile(tt.entry)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	// Convert the typescript to javascript
-	source, err := extension_repo.JSVMTypescriptToJS(string(fileB))
-	require.NoError(t, err)
+			now := time.Now()
 
-	// Run the program on the VM
-	_, err = vm.RunString(source)
-	require.NoError(t, err)
+			// Convert the typescript to javascript
+			source, err := extension_repo.JSVMTypescriptToJS(string(fileB))
+			require.NoError(t, err)
 
-	_, err = vm.RunString(`function NewProvider() {
+			// Run the program on the VM
+			_, err = vm.RunString(source)
+			require.NoError(t, err)
+
+			_, err = vm.RunString(`function NewProvider() {
     return new Provider()
 }`)
-	require.NoError(t, err)
+			require.NoError(t, err)
 
-	newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
-	require.True(t, ok)
+			newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
+			require.True(t, ok)
 
-	// Create the provider
-	classObjVal, err := newProviderFunc(goja.Undefined())
-	require.NoError(t, err)
+			// Create the provider
+			classObjVal, err := newProviderFunc(goja.Undefined())
+			require.NoError(t, err)
 
-	classObj := classObjVal.ToObject(vm)
+			classObj := classObjVal.ToObject(vm)
 
-	testFunc, ok := goja.AssertFunction(classObj.Get("test"))
-	require.True(t, ok)
-	_, err = testFunc(classObj)
-	require.NoError(t, err)
+			testFunc, ok := goja.AssertFunction(classObj.Get("test"))
+			require.True(t, ok)
 
-	fmt.Println(time.Since(now).Seconds())
+			ret, err := testFunc(classObj)
+			require.NoError(t, err)
+
+			promise := ret.Export().(*goja.Promise)
+
+			for promise.State() == goja.PromiseStatePending {
+				time.Sleep(10 * time.Millisecond)
+			}
+
+			if promise.State() == goja.PromiseStateFulfilled {
+				t.Logf("Fulfilled: %v", promise.Result())
+			} else {
+				t.Fatalf("Rejected: %v", promise.Result())
+			}
+
+			fmt.Println(time.Since(now).Seconds())
+		})
+	}
 
 }
 

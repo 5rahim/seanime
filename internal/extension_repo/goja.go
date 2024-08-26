@@ -60,7 +60,7 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 
 	gojaurl.Enable(vm)
 	gojabuffer.Enable(vm)
-	err := goja_bindings.GojaBindFetch(vm)
+	err := goja_bindings.BindFetch(vm)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 
 func JSVMTypescriptToJS(ts string) (string, error) {
 	scriptJSTransform := api.Transform(ts, api.TransformOptions{
-		Target: api.ESNext,
+		Target: api.ES2018,
 		Loader: api.LoaderTS,
 		Format: api.FormatDefault,
 	})
