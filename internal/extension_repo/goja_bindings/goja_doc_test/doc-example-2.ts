@@ -5,9 +5,9 @@ class Provider {
         try {
             const data = await fetch("https://cryptojs.gitbook.io/docs")
 
-            const $ = new Doc(await data.text())
+            const $ = LoadDoc(await data.text())
 
-            console.log($.find("header h1").text())
+            console.log($("header h1").text())
         }
         catch (e) {
             console.error(e)

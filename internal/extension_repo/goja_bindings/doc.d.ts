@@ -93,3 +93,9 @@ declare class DocSelection {
 declare class Doc extends DocSelection {
     constructor(html: string);
 }
+
+declare function LoadDoc(html: string): DocSelectionFunction;
+
+declare interface DocSelectionFunction {
+    (selector: string): DocSelection;
+}

@@ -53,29 +53,25 @@ func setSelectionObjectProperties(obj *goja.Object, docS *docSelection) {
 func BindDocument(vm *goja.Runtime) error {
 	// Set Doc "class"
 	err := vm.Set("Doc", func(call goja.ConstructorCall) *goja.Object {
-		d := &doc{
-			vm:           vm,
-			doc:          nil,
-			docSelection: nil,
-		}
 		obj := call.This
-
 		if len(call.Arguments) != 1 {
 			return goja.Undefined().ToObject(vm)
 		}
-
 		html := call.Arguments[0].String()
 
 		goqueryDoc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
 		if err != nil {
 			return goja.Undefined().ToObject(vm)
 		}
-
-		d.doc = goqueryDoc
-		d.docSelection = &docSelection{
-			doc:       d,
-			selection: goqueryDoc.Selection,
+		d := &doc{
+			vm:  vm,
+			doc: goqueryDoc,
+			docSelection: &docSelection{
+				doc:       nil,
+				selection: goqueryDoc.Selection,
+			},
 		}
+		d.docSelection.doc = d
 
 		setSelectionObjectProperties(obj, d.docSelection)
 		return obj
@@ -83,6 +79,39 @@ func BindDocument(vm *goja.Runtime) error {
 	if err != nil {
 		return err
 	}
+
+	// Set "LoadDoc" function
+	err = vm.Set("LoadDoc", func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) != 1 {
+			panic(vm.ToValue("missing argument"))
+		}
+
+		html := call.Arguments[0].String()
+		goqueryDoc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
+		if err != nil {
+			return goja.Null()
+		}
+
+		d := &doc{
+			vm:  vm,
+			doc: goqueryDoc,
+			docSelection: &docSelection{
+				doc:       nil,
+				selection: goqueryDoc.Selection,
+			},
+		}
+		d.docSelection.doc = d
+
+		docSelectionFunction := func(call goja.FunctionCall) goja.Value {
+			selectorStr, ok := call.Argument(0).Export().(string)
+			if !ok {
+				panic(vm.NewTypeError("argument is not a string").ToString())
+			}
+			return newDocSelectionGojaValue(d, d.doc.Find(selectorStr))
+		}
+
+		return vm.ToValue(docSelectionFunction)
+	})
 
 	return nil
 }
