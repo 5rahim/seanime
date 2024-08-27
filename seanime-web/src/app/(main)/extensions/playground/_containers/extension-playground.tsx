@@ -362,10 +362,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                     <div className="flex w-full h-full p-6">
                                         <AppLayoutStack className="w-full">
                                             <p className="font-semibold">Console</p>
-                                            <div className="bg-gray-950 rounded-md border">
-                                    <pre className="text-sm max-h-[40rem] p-2">
-                                        {response?.logs}
-                                    </pre>
+                                            <div className="bg-gray-900 rounded-md border">
+                                                <pre className="text-sm max-h-[40rem] p-2 min-h-12 text-white">
+                                                    {response?.logs}
+                                                </pre>
                                             </div>
                                         </AppLayoutStack>
                                     </div>
@@ -699,9 +699,9 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                             <p className="font-semibold">Output</p>
 
                                             <div className="bg-gray-900 border rounded-md">
-                                        <pre className="text-sm text-white max-h-[40rem] p-2">
-                                            {response?.value}
-                                        </pre>
+                                                <pre className="text-sm text-white min-h-12 max-h-[40rem] p-2">
+                                                    {response?.value}
+                                                </pre>
                                             </div>
                                         </AppLayoutStack>
 

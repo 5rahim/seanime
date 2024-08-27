@@ -1,5 +1,6 @@
 import { useClearFileCacheMediastreamVideoFiles, useGetFileCacheTotalSize, useRemoveFileCacheBucket } from "@/api/hooks/filecache.hooks"
 import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import React from "react"
 
 type FilecacheSettingsProps = {
@@ -38,20 +39,27 @@ export function FilecacheSettings(props: FilecacheSettingsProps) {
                     </p>
                 )}
             </div>
+
+            <Separator />
+
             <div className="flex gap-2 flex-wrap items-center">
-                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
+                <Button intent="warning-subtle" onClick={() => clearBucket({ bucket: "manga" })} disabled={isClearing}>
                     Clear manga cache
                 </Button>
-                <Button intent="alert-subtle" onClick={() => clearMediastreamCache()} disabled={isClearing}>
+                <Button intent="warning-subtle" onClick={() => clearMediastreamCache()} disabled={isClearing}>
                     Clear media streaming cache
                 </Button>
-                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "onlinestream" })} disabled={isClearing}>
+                <Button intent="warning-subtle" onClick={() => clearBucket({ bucket: "onlinestream" })} disabled={isClearing}>
                     Clear online streaming cache
                 </Button>
-                <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>
-                    Clear TVDB metadata
-                </Button>
             </div>
+
+            <Separator />
+
+            <Button intent="alert-subtle" onClick={() => clearBucket({ bucket: "tvdb" })} disabled={isClearing}>
+                Clear TVDB metadata
+            </Button>
+
         </div>
     )
 }
