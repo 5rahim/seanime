@@ -1,4 +1,5 @@
 import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
+import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Modal } from "@/components/ui/modal"
@@ -61,25 +62,24 @@ export function ScannerModal() {
 
                 <div className="space-y-4 mt-6">
 
-                    <div>
+                    <AppLayoutStack className="space-y-2">
+                        <h5>Matching</h5>
                         <Checkbox
-                            label={<span className="flex items-center">Enable enhanced scanning
+                            label={<span className="flex items-center">Enhanced scanning
                                 <HiOutlineSparkles className="ml-2 text-amber-500" /></span>}
+                            // label="Enhanced scanning"
                             value={enhanced.active}
                             onValueChange={v => enhanced.set(v as boolean)}
                             className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
-                            size="lg"
+                            // size="lg"
+                            help={enhanced.active ? "On: Use API requests, accurate but slower" : "Off: Use AniList account data only, faster"}
                         />
-
-                        {enhanced.active && <ul className="list-disc pl-14">
-                            <li>Your Anilist anime list data is <strong>not needed</strong></li>
-                            <li>Scanning will slow down considerably due to rate limits</li>
-                        </ul>}
-                    </div>
+                    </AppLayoutStack>
 
                     <Separator />
 
-                    <div className="space-y-2">
+                    <AppLayoutStack className="space-y-2">
+                        <h5>Local files</h5>
                         <Checkbox
                             label="Skip locked files"
                             value={skipLockedFiles.active}
@@ -92,7 +92,7 @@ export function ScannerModal() {
                             onValueChange={v => skipIgnoredFiles.set(v as boolean)}
                             // size="lg"
                         />
-                    </div>
+                    </AppLayoutStack>
                 </div>
                 <Button
                     onClick={handleScan}
