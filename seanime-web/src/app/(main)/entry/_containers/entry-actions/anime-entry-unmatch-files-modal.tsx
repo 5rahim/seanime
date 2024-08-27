@@ -1,30 +1,30 @@
 import { Anime_AnimeEntry } from "@/api/generated/types"
-import { useDeleteLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { FilepathSelector } from "@/app/(main)/_features/media/_components/filepath-selector"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
-import { atom } from "jotai"
+import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
 
-export type AnimeEntryBulkDeleteFilesModalProps = {
+export type AnimeEntryUnmatchFilesModalProps = {
     entry: Anime_AnimeEntry
 }
 
-export const __bulkDeleteFilesModalIsOpenAtom = atom(false)
+export const __animeEntryUnmatchFilesModalIsOpenAtom = atom(false)
 
 
-export function AnimeEntryBulkDeleteFilesModal({ entry }: AnimeEntryBulkDeleteFilesModalProps) {
+export function AnimeEntryUnmatchFilesModal({ entry }: AnimeEntryUnmatchFilesModalProps) {
 
-    const [open, setOpen] = useAtom(__bulkDeleteFilesModalIsOpenAtom)
+    const [open, setOpen] = useAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
 
     return (
         <Modal
             open={open}
             onOpenChange={() => setOpen(false)}
             contentClass="max-w-2xl"
-            title={<span>Select files to delete</span>}
+            title={<span>Select files to unmatch</span>}
             titleClass="text-center"
 
         >
@@ -36,7 +36,7 @@ export function AnimeEntryBulkDeleteFilesModal({ entry }: AnimeEntryBulkDeleteFi
 
 function Content({ entry }: { entry: Anime_AnimeEntry }) {
 
-    const [open, setOpen] = useAtom(__bulkDeleteFilesModalIsOpenAtom)
+    const [open, setOpen] = useAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
 
     const [filepaths, setFilepaths] = React.useState<string[]>([])
 
@@ -49,15 +49,17 @@ function Content({ entry }: { entry: Anime_AnimeEntry }) {
     }, [entry.localFiles])
 
 
-    const { mutate: deleteFiles, isPending: isDeleting } = useDeleteLocalFiles(entry.mediaId)
+    const { mutate: updateFiles, isPending: isDeleting } = useUpdateLocalFiles()
 
     const confirmUnmatch = useConfirmationDialog({
-        title: "Delete files",
-        description: "This action cannot be undone.",
+        title: "Unmatch files",
         onConfirm: () => {
             if (filepaths.length === 0) return
 
-            deleteFiles({ paths: filepaths }, {
+            updateFiles({
+                paths: filepaths,
+                action: "unmatch",
+            }, {
                 onSuccess: () => {
                     setOpen(false)
                 },
@@ -77,14 +79,13 @@ function Content({ entry }: { entry: Anime_AnimeEntry }) {
                 onFilepathSelected={setFilepaths}
                 showFullPath
             />
-
             <div className="flex justify-end gap-2 mt-2">
                 <Button
-                    intent="alert"
+                    intent="warning-subtle"
                     onClick={() => confirmUnmatch.open()}
                     loading={isDeleting}
                 >
-                    Delete
+                    Unmatch
                 </Button>
                 <Button
                     intent="white"

@@ -1,6 +1,6 @@
 "use client"
 import { Anime_AnimeEntry } from "@/api/generated/types"
-import { useAnimeEntryBulkAction, useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
+import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
@@ -8,13 +8,15 @@ import {
     AnimeEntryBulkDeleteFilesModal,
 } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-bulk-delete-files-modal"
 import { __metadataManager_isOpenAtom, AnimeEntryMetadataManager } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-metadata-manager"
-import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
+import {
+    __animeEntryUnmatchFilesModalIsOpenAtom,
+    AnimeEntryUnmatchFilesModal,
+} from "@/app/(main)/entry/_containers/entry-actions/anime-entry-unmatch-files-modal"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
-import { toast } from "sonner"
 
 export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
 
@@ -27,26 +29,9 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
     const { mutate: startDefaultMediaPlayer } = useStartDefaultMediaPlayer()
     // Open entry in explorer
     const { mutate: openEntryInExplorer } = useOpenAnimeEntryInExplorer()
-    // File bulk actions
-    const { mutate: performBulkAction, isPending: isUpdating } = useAnimeEntryBulkAction(entry.mediaId)
-
-    const confirmUnmatchFiles = useConfirmationDialog({
-        title: "Unmatch all files",
-        description: "Are you sure you want to unmatch all files?",
-        onConfirm: () => {
-            performBulkAction({
-                mediaId: entry.mediaId,
-                action: "unmatch",
-            }, {
-                onSuccess: () => {
-                    setIsMetadataManagerOpen(false)
-                    toast.success("Files unmatched")
-                },
-            })
-        },
-    })
 
     const setBulkDeleteFilesModalOpen = useSetAtom(__bulkDeleteFilesModalIsOpenAtom)
+    const setAnimeEntryUnmatchFilesModalOpen = useSetAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
 
 
     return (
@@ -79,15 +64,13 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
                     <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
                     <DropdownMenuItem
                         className="text-red-500 dark:text-red-200 flex justify-between"
-                        onClick={confirmUnmatchFiles.open}
-                        disabled={isUpdating}
+                        onClick={() => setAnimeEntryUnmatchFilesModalOpen(true)}
                     >
-                        <span>Unmatch all files</span> <BiRightArrowAlt />
+                        <span>Unmatch some files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className="text-red-500 dark:text-red-200 flex justify-between"
                         onClick={() => setBulkDeleteFilesModalOpen(true)}
-                        disabled={isUpdating}
                     >
                         <span>Delete some files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
@@ -95,8 +78,8 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
             </DropdownMenu>
 
             <AnimeEntryMetadataManager entry={entry} />
-            <ConfirmationDialog {...confirmUnmatchFiles} />
             <AnimeEntryBulkDeleteFilesModal entry={entry} />
+            <AnimeEntryUnmatchFilesModal entry={entry} />
         </>
     )
 }
