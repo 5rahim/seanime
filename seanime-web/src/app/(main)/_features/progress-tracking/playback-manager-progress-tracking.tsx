@@ -20,6 +20,7 @@ import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import mousetrap from "mousetrap"
 import Image from "next/image"
 import React from "react"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
@@ -224,6 +225,32 @@ export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
             if (!submittedPlaylistNext) playlistNext()
         },
     })
+
+    // Progress update keyboard shortcuts
+    React.useEffect(() => {
+        mousetrap.bind("u", () => {
+            if (!isPending && state?.completionPercentage && state?.completionPercentage > 0.7) {
+                syncProgress()
+            }
+        })
+
+        mousetrap.bind("space", () => {
+            if (!isPending && state?.completionPercentage && state?.completionPercentage > 0.7) {
+                setWillAutoPlay(false)
+                if (state?.canPlayNext && !playlistState) {
+                    nextEpisode()
+                }
+                if (!!playlistState?.next) {
+                    playlistNext()
+                }
+            }
+        })
+
+        return () => {
+            mousetrap.unbind("u")
+            mousetrap.unbind("space")
+        }
+    }, [state?.completionPercentage && state?.completionPercentage > 0.7, state?.canPlayNext, !!playlistState?.next])
 
     const confirmNextEpisode = useConfirmationDialog({
         title: "Play next episode",
