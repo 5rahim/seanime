@@ -1058,6 +1058,26 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route gets the next episode of the currently playing media.
+         *  This is used by the client's autoplay feature
+         */
+        PlaybackGetNextEpisode: {
+            key: "PLAYBACK-MANAGER-playback-get-next-episode",
+            methods: ["GET"],
+            endpoint: "/api/v1/playback-manager/next-episode",
+        },
+        /**
+         *  @description
+         *  Route plays the next episode of the currently playing media.
+         *  This will play the next episode of the currently playing media.
+         */
+        PlaybackAutoPlayNextEpisode: {
+            key: "PLAYBACK-MANAGER-playback-auto-play-next-episode",
+            methods: ["POST"],
+            endpoint: "/api/v1/playback-manager/autoplay-next-episode",
+        },
+        /**
+         *  @description
          *  Route starts playing a playlist.
          *  The client should refetch playlists.
          */

@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/cli/browser"
+	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/models"
 	"seanime/internal/discordrpc/presence"
@@ -262,6 +263,9 @@ func (a *App) InitOrRefreshModules() {
 		})
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)
+		a.PlaybackManager.SetSettings(&playbackmanager.Settings{
+			AutoPlayNextEpisode: a.Settings.Library.AutoPlayNextEpisode,
+		})
 
 		a.TorrentstreamRepository.SetMediaPlayerRepository(a.MediaPlayerRepository)
 	} else {
@@ -337,6 +341,8 @@ func (a *App) InitOrRefreshModules() {
 	if settings.Discord != nil && a.DiscordPresence != nil {
 		a.DiscordPresence.SetSettings(settings.Discord, "")
 	}
+
+	runtime.GC()
 
 	a.Logger.Info().Msg("app: Refreshed modules")
 

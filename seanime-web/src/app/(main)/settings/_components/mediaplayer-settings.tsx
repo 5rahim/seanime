@@ -67,6 +67,14 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                 help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
             />
 
+            <h4>Playback</h4>
+
+            <Field.Switch
+                name="autoPlayNextEpisode"
+                label="Automatically play next episode"
+                help="If enabled, Seanime will play the next episode after a delay when the current episode is completed."
+            />
+
             <br />
 
             <h4>

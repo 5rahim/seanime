@@ -264,6 +264,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/playback-manager/playlist-next", makeHandler(app, HandlePlaybackPlaylistNext))
 	v1.Post("/playback-manager/cancel-playlist", makeHandler(app, HandlePlaybackCancelCurrentPlaylist))
 	v1.Post("/playback-manager/next-episode", makeHandler(app, HandlePlaybackPlayNextEpisode))
+	v1.Get("/playback-manager/next-episode", makeHandler(app, HandlePlaybackGetNextEpisode))
+	v1.Post("/playback-manager/autoplay-next-episode", makeHandler(app, HandlePlaybackAutoPlayNextEpisode))
 	v1.Post("/playback-manager/play", makeHandler(app, HandlePlaybackPlayVideo))
 	v1.Post("/playback-manager/play-random", makeHandler(app, HandlePlaybackPlayRandomVideo))
 	//------------

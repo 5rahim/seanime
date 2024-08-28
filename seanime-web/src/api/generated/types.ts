@@ -1854,6 +1854,10 @@ export type ExtensionRepo_AllExtensions = {
 export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
     id: string
     name: string
+    /**
+     * ISO 639-1 language code
+     */
+    lang: string
     settings?: HibikeTorrent_AnimeProviderSettings
 }
 
@@ -1874,6 +1878,10 @@ export type ExtensionRepo_ExtensionInstallResponse = {
 export type ExtensionRepo_MangaProviderExtensionItem = {
     id: string
     name: string
+    /**
+     * ISO 639-1 language code
+     */
+    lang: string
     settings?: HibikeManga_Settings
 }
 
@@ -1885,6 +1893,10 @@ export type ExtensionRepo_MangaProviderExtensionItem = {
 export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
     id: string
     name: string
+    /**
+     * ISO 639-1 language code
+     */
+    lang: string
     episodeServers?: Array<string>
     supportsDub: boolean
 }
@@ -2254,6 +2266,7 @@ export type Models_LibrarySettings = {
     openTorrentClientOnStart: boolean
     openWebURLOnStart: boolean
     refreshLibraryOnStart: boolean
+    autoPlayNextEpisode: boolean
 }
 
 /**
@@ -2428,6 +2441,7 @@ export type Models_TorrentSettings = {
     transmissionPort: number
     transmissionUsername: string
     transmissionPassword: string
+    showActiveTorrentCount: boolean
 }
 
 /**

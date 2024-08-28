@@ -24902,6 +24902,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AutoPlayNextEpisode",
+        "jsonName": "autoPlayNextEpisode",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -25129,6 +25138,15 @@
         "jsonName": "transmissionPassword",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowActiveTorrentCount",
+        "jsonName": "showActiveTorrentCount",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -29232,6 +29250,17 @@
         "comments": []
       },
       {
+        "name": "Lang",
+        "jsonName": "lang",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ISO 639-1 language code"
+        ]
+      },
+      {
         "name": "Settings",
         "jsonName": "settings",
         "goType": "vendor_hibike_manga.Settings",
@@ -29268,6 +29297,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Lang",
+        "jsonName": "lang",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ISO 639-1 language code"
+        ]
       },
       {
         "name": "EpisodeServers",
@@ -29314,6 +29354,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Lang",
+        "jsonName": "lang",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ISO 639-1 language code"
+        ]
       },
       {
         "name": "Settings",
@@ -32947,6 +32998,16 @@
         ]
       },
       {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "PlaybackManager_Settings",
+        "usedStructName": "playbackmanager.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "discordPresence",
         "jsonName": "discordPresence",
         "goType": "discordrpc_presence.Presence",
@@ -33061,6 +33122,27 @@
         "public": false,
         "comments": [
           " The current video playback status (can be nil)"
+        ]
+      },
+      {
+        "name": "autoPlayMu",
+        "jsonName": "autoPlayMu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "nextEpisodeLocalFile",
+        "jsonName": "nextEpisodeLocalFile",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " The next episode's local file (for local file playback)"
         ]
       },
       {
@@ -33407,6 +33489,25 @@
         "typescriptType": "Offline_HubInterface",
         "usedStructName": "offline.HubInterface",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/playback_manager.go",
+    "filename": "playback_manager.go",
+    "name": "Settings",
+    "formattedName": "PlaybackManager_Settings",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "AutoPlayNextEpisode",
+        "jsonName": "AutoPlayNextEpisode",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -36644,6 +36745,15 @@
         "comments": []
       },
       {
+        "name": "GroupName",
+        "jsonName": "group_name",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "HID",
         "jsonName": "hid",
         "goType": "string",
@@ -36659,6 +36769,54 @@
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/providers/comick_multi.go",
+    "filename": "comick_multi.go",
+    "name": "ComicKMulti",
+    "formattedName": "Manga_ComicKMulti",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "Url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Client",
+        "jsonName": "Client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -47345,6 +47503,43 @@
     "comments": []
   },
   {
+    "filepath": "../internal/torrent_clients/torrent_client/repository.go",
+    "filename": "repository.go",
+    "name": "ActiveCount",
+    "formattedName": "TorrentClient_ActiveCount",
+    "package": "torrent_client",
+    "fields": [
+      {
+        "name": "Downloading",
+        "jsonName": "Downloading",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeding",
+        "jsonName": "Seeding",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paused",
+        "jsonName": "Paused",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/torrent_clients/torrent_client/smart_select.go",
     "filename": "smart_select.go",
     "name": "SmartSelectParams",
@@ -51093,6 +51288,18 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/pool.go",
+    "filename": "pool.go",
+    "name": "Pool",
+    "formattedName": "Util_Pool",
+    "package": "util",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.Pool"
+    ]
   },
   {
     "filepath": "../internal/util/proxies/image_proxy.go",

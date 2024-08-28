@@ -31,6 +31,10 @@ type (
 	TorrentStatus string
 )
 
+//var torrentPool = util.NewPool[*Torrent](func() *Torrent {
+//	return &Torrent{}
+//})
+
 func (r *Repository) FromTransmissionTorrents(t []transmissionrpc.Torrent) []*Torrent {
 	ret := make([]*Torrent, 0, len(t))
 	for _, t := range t {
@@ -40,68 +44,59 @@ func (r *Repository) FromTransmissionTorrents(t []transmissionrpc.Torrent) []*To
 }
 
 func (r *Repository) FromTransmissionTorrent(t *transmissionrpc.Torrent) *Torrent {
-	name := "N/A"
+	torrent := &Torrent{}
+
+	torrent.Name = "N/A"
 	if t.Name != nil {
-		name = *t.Name
+		torrent.Name = *t.Name
 	}
 
-	hash := "N/A"
+	torrent.Hash = "N/A"
 	if t.HashString != nil {
-		hash = *t.HashString
+		torrent.Hash = *t.HashString
 	}
 
-	seeds := 0
+	torrent.Seeds = 0
 	if t.PeersSendingToUs != nil {
-		seeds = int(*t.PeersSendingToUs)
+		torrent.Seeds = int(*t.PeersSendingToUs)
 	}
 
-	upSpeed := "0 KB/s"
+	torrent.UpSpeed = "0 KB/s"
 	if t.RateUpload != nil {
-		upSpeed = util.ToHumanReadableSpeed(int(*t.RateUpload))
+		torrent.UpSpeed = util.ToHumanReadableSpeed(int(*t.RateUpload))
 	}
 
-	downSpeed := "0 KB/s"
+	torrent.DownSpeed = "0 KB/s"
 	if t.RateDownload != nil {
-		downSpeed = util.ToHumanReadableSpeed(int(*t.RateDownload))
+		torrent.DownSpeed = util.ToHumanReadableSpeed(int(*t.RateDownload))
 	}
 
-	progress := 0.0
+	torrent.Progress = 0.0
 	if t.PercentDone != nil {
-		progress = *t.PercentDone
+		torrent.Progress = *t.PercentDone
 	}
 
-	size := "N/A"
+	torrent.Size = "N/A"
 	if t.TotalSize != nil {
-		size = humanize.Bytes(uint64(*t.TotalSize))
+		torrent.Size = humanize.Bytes(uint64(*t.TotalSize))
 	}
 
-	eta := "???"
+	torrent.Eta = "???"
 	if t.ETA != nil {
-		eta = util.FormatETA(int(*t.ETA))
+		torrent.Eta = util.FormatETA(int(*t.ETA))
 	}
 
-	contentPath := ""
+	torrent.ContentPath = ""
 	if t.DownloadDir != nil {
-		contentPath = *t.DownloadDir
+		torrent.ContentPath = *t.DownloadDir
 	}
 
-	status := TorrentStatusOther
+	torrent.Status = TorrentStatusOther
 	if t.Status != nil && t.IsFinished != nil {
-		status = fromTransmissionTorrentStatus(*t.Status, *t.IsFinished)
+		torrent.Status = fromTransmissionTorrentStatus(*t.Status, *t.IsFinished)
 	}
 
-	return &Torrent{
-		Name:        name,
-		Hash:        hash,
-		Seeds:       seeds,
-		UpSpeed:     upSpeed,
-		DownSpeed:   downSpeed,
-		Progress:    progress,
-		Size:        size,
-		Eta:         eta,
-		ContentPath: contentPath,
-		Status:      status,
-	}
+	return torrent
 }
 
 // fromTransmissionTorrentStatus returns a normalized status for the torrent.
@@ -127,18 +122,20 @@ func (r *Repository) FromQbitTorrents(t []*qbittorrent_model.Torrent) []*Torrent
 	return ret
 }
 func (r *Repository) FromQbitTorrent(t *qbittorrent_model.Torrent) *Torrent {
-	return &Torrent{
-		Name:        t.Name,
-		Hash:        t.Hash,
-		Seeds:       t.NumSeeds,
-		UpSpeed:     util.ToHumanReadableSpeed(t.Upspeed),
-		DownSpeed:   util.ToHumanReadableSpeed(t.Dlspeed),
-		Progress:    t.Progress,
-		Size:        humanize.Bytes(uint64(t.Size)),
-		Eta:         util.FormatETA(t.Eta),
-		ContentPath: t.ContentPath,
-		Status:      fromQbitTorrentStatus(t.State),
-	}
+	torrent := &Torrent{}
+
+	torrent.Name = t.Name
+	torrent.Hash = t.Hash
+	torrent.Seeds = t.NumSeeds
+	torrent.UpSpeed = util.ToHumanReadableSpeed(t.Upspeed)
+	torrent.DownSpeed = util.ToHumanReadableSpeed(t.Dlspeed)
+	torrent.Progress = t.Progress
+	torrent.Size = humanize.Bytes(uint64(t.Size))
+	torrent.Eta = util.FormatETA(t.Eta)
+	torrent.ContentPath = t.ContentPath
+	torrent.Status = fromQbitTorrentStatus(t.State)
+
+	return torrent
 }
 
 // fromQbitTorrentStatus returns a normalized status for the torrent.

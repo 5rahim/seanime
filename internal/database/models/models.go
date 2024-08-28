@@ -68,6 +68,8 @@ type LibrarySettings struct {
 	OpenTorrentClientOnStart bool   `gorm:"column:open_torrent_client_on_start" json:"openTorrentClientOnStart"`
 	OpenWebURLOnStart        bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
 	RefreshLibraryOnStart    bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
+	// v2.1+
+	AutoPlayNextEpisode bool `gorm:"column:auto_play_next_episode" json:"autoPlayNextEpisode"`
 }
 
 type MangaSettings struct {
@@ -99,6 +101,8 @@ type TorrentSettings struct {
 	TransmissionPort     int    `gorm:"column:transmission_port" json:"transmissionPort"`
 	TransmissionUsername string `gorm:"column:transmission_username" json:"transmissionUsername"`
 	TransmissionPassword string `gorm:"column:transmission_password" json:"transmissionPassword"`
+	// v2.1+
+	ShowActiveTorrentCount bool `gorm:"column:show_active_torrent_count" json:"showActiveTorrentCount"`
 }
 
 type ListSyncSettings struct {

@@ -1,6 +1,8 @@
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
+    usePlaybackAutoPlayNextEpisode,
     usePlaybackCancelCurrentPlaylist,
+    usePlaybackGetNextEpisode,
     usePlaybackPlaylistNext,
     usePlaybackPlayNextEpisode,
     usePlaybackSyncCurrentProgress,
@@ -19,25 +21,30 @@ import { useQueryClient } from "@tanstack/react-query"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
-import React, { useState } from "react"
+import React from "react"
 import { BiSolidSkipNextCircle } from "react-icons/bi"
 import { MdCancel } from "react-icons/md"
 import { PiPopcornFill } from "react-icons/pi"
 import { toast } from "sonner"
 
 const __pt_showModalAtom = atom(false)
+const __pt_showAutoPlayCountdownModalAtom = atom(false)
 const __pt_isTrackingAtom = atom(false)
 const __pt_isCompletedAtom = atom(false)
+
+const AUTOPLAY_COUNTDOWN = 5
 
 type Props = {
     asSidebarButton?: boolean
 }
 
 export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
-
     const serverStatus = useServerStatus()
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
+    const [showAutoPlayCountdownModal, setShowAutoPlayCountdownModal] = useAtom(__pt_showAutoPlayCountdownModalAtom)
+
+
     /**
      * Progress tracking states
      * - 'True' when tracking has started
@@ -55,8 +62,28 @@ export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
     // Basically, keep the modal visible if there's no more tracking but the video is completed
     const shouldBeDisplayed = isTracking || isCompleted
 
-    const [state, setState] = useState<PlaybackManager_PlaybackState | null>(null)
-    const [playlistState, setPlaylistState] = useState<PlaybackManager_PlaylistState | null>(null)
+    const [state, setState] = React.useState<PlaybackManager_PlaybackState | null>(null)
+    const [playlistState, setPlaylistState] = React.useState<PlaybackManager_PlaylistState | null>(null)
+
+
+    const [willAutoPlay, setWillAutoPlay] = React.useState(false)
+    const [autoPlayInXSeconds, setAutoPlayInXSeconds] = React.useState(AUTOPLAY_COUNTDOWN)
+    const {
+        data: nextEpisodeForAutoplay,
+        mutate: getNextEpisode,
+        isPending: isFetchingNextEpisode,
+        reset: resetGetNextEp,
+    } = usePlaybackGetNextEpisode()
+
+    const { mutate: autoPlayNextEpisode, isPending: isAutoPlayingNextEpisode } = usePlaybackAutoPlayNextEpisode()
+
+    const { mutate: syncProgress, isPending } = usePlaybackSyncCurrentProgress()
+
+    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
+
+    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = usePlaybackCancelCurrentPlaylist([playlistState?.current?.name])
+
+    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = usePlaybackPlayNextEpisode([state?.filename])
 
     // Tracking started
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
@@ -93,8 +120,61 @@ export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
             } else {
                 toast.error(data)
             }
+
+            if (state?.completionPercentage && state?.completionPercentage > 0.7) {
+                if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlay) {
+                    if (!isFetchingNextEpisode) {
+                        resetGetNextEp()
+                        React.startTransition(() => {
+                            setWillAutoPlay(true)
+                            getNextEpisode()
+                            setAutoPlayInXSeconds(AUTOPLAY_COUNTDOWN)
+                        })
+                    }
+                }
+            }
         },
     })
+
+    const timerRef = React.useRef<NodeJS.Timeout | null>(null)
+    const countdownRef = React.useRef<NodeJS.Timeout | null>(null)
+
+    // Auto player
+    React.useEffect(() => {
+        if (willAutoPlay && !isFetchingNextEpisode && !!nextEpisodeForAutoplay) {
+            setShowAutoPlayCountdownModal(true)
+
+            countdownRef.current = setInterval(() => {
+                setAutoPlayInXSeconds(prev => prev - 1)
+            }, 1000)
+
+            timerRef.current = setTimeout(() => {
+                setShowAutoPlayCountdownModal(false)
+                autoPlayNextEpisode()
+                setWillAutoPlay(false)
+
+                try {
+                    if (countdownRef.current) {
+                        clearInterval(countdownRef.current)
+                    }
+                    if (timerRef.current) {
+                        clearTimeout(timerRef.current)
+                    }
+                }
+                catch (e) {
+                }
+            }, AUTOPLAY_COUNTDOWN * 1000)
+
+            return () => {
+                if (countdownRef.current) {
+                    clearInterval(countdownRef.current)
+                }
+                if (timerRef.current) {
+                    clearTimeout(timerRef.current)
+                }
+            }
+        }
+    }, [nextEpisodeForAutoplay, willAutoPlay, isFetchingNextEpisode])
 
     // Playback state
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
@@ -134,13 +214,6 @@ export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
         },
     })
 
-    const { mutate: syncProgress, isPending } = usePlaybackSyncCurrentProgress()
-
-    const { mutate: playlistNext, isSuccess: submittedPlaylistNext } = usePlaybackPlaylistNext([playlistState?.current?.name])
-
-    const { mutate: stopPlaylist, isSuccess: submittedStopPlaylist } = usePlaybackCancelCurrentPlaylist([playlistState?.current?.name])
-
-    const { mutate: nextEpisode, isSuccess: submittedNextEpisode, isPending: submittingNextEpisode } = usePlaybackPlayNextEpisode([state?.filename])
 
     const confirmPlayNext = useConfirmationDialog({
         title: "Play next episode",
@@ -308,6 +381,44 @@ export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            <Modal
+                open={showAutoPlayCountdownModal && willAutoPlay}
+                onOpenChange={v => {}}
+                title="Auto playing next episode"
+                titleClass="text-center"
+                contentClass="!space-y-2 relative max-w-xl"
+            >
+
+                <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
+                    <p className="text-[--muted]">Playing next episode in</p>
+                    <h3 className="text-2xl font-bold">{autoPlayInXSeconds}</h3>
+                </div>
+
+                <div className="flex gap-2 justify-center items-center">
+                    <Button
+                        intent="alert-subtle"
+                        onClick={() => {
+                            setShowAutoPlayCountdownModal(false)
+                            setWillAutoPlay(false)
+                            try {
+                                if (countdownRef.current) {
+                                    clearInterval(countdownRef.current)
+                                }
+                                if (timerRef.current) {
+                                    clearTimeout(timerRef.current)
+                                }
+                            }
+                            catch (e) {
+                            }
+                        }}
+                        className="w-full"
+                    >
+                        Cancel
+                    </Button>
+                </div>
+
             </Modal>
 
             <ConfirmationDialog {...confirmPlayNext} />

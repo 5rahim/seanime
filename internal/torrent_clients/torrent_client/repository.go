@@ -34,6 +34,12 @@ type (
 		TorrentRepository *torrent.Repository
 		Provider          string
 	}
+
+	ActiveCount struct {
+		Downloading int
+		Seeding     int
+		Paused      int
+	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -93,6 +99,50 @@ func (r *Repository) GetList() ([]*Torrent, error) {
 		return r.FromTransmissionTorrents(torrents), nil
 	default:
 		return nil, errors.New("torrent client: No torrent client provider found")
+	}
+}
+
+// GetActiveCount will return the count of active torrents (downloading, seeding, paused).
+func (r *Repository) GetActiveCount(ret *ActiveCount) {
+	switch r.provider {
+	case QbittorrentClient:
+		torrents, err := r.qBittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{Filter: "active"})
+		if err != nil {
+			return
+		}
+		ret = &ActiveCount{}
+		for _, t := range torrents {
+			switch fromQbitTorrentStatus(t.State) {
+			case TorrentStatusDownloading:
+				ret.Downloading++
+			case TorrentStatusSeeding:
+				ret.Seeding++
+			case TorrentStatusPaused:
+				ret.Paused++
+			}
+		}
+	case TransmissionClient:
+		torrents, err := r.transmission.Client.TorrentGet(context.Background(), []string{"id", "status", "isFinished"}, nil)
+		if err != nil {
+			return
+		}
+		ret = &ActiveCount{}
+		for _, t := range torrents {
+			if t.Status == nil || t.IsFinished == nil {
+				continue
+			}
+			switch fromTransmissionTorrentStatus(*t.Status, *t.IsFinished) {
+			case TorrentStatusDownloading:
+				ret.Downloading++
+			case TorrentStatusSeeding:
+				ret.Seeding++
+			case TorrentStatusPaused:
+				ret.Paused++
+			}
+		}
+		return
+	default:
+		return
 	}
 }
 

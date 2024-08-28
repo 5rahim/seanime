@@ -8,6 +8,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
+	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/util"
 )
@@ -111,6 +112,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				pm.Logger.Debug().Msg("playback manager: Received tracking stopped event")
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStopped, reason)
+
+				// Find the next episode and set it to [PlaybackManager.nextEpisodeLocalFile]
+				if pm.currentMediaListEntry.IsPresent() && pm.currentLocalFile.IsPresent() && pm.currentLocalFileWrapperEntry.IsPresent() {
+					lf, ok := pm.currentLocalFileWrapperEntry.MustGet().FindNextEpisode(pm.currentLocalFile.MustGet())
+					if ok {
+						pm.nextEpisodeLocalFile = mo.Some(lf)
+					} else {
+						pm.nextEpisodeLocalFile = mo.None[*anime.LocalFile]()
+					}
+				}
 
 				// ------- Playlist ------- //
 				go pm.playlistHub.onTrackingStopped()

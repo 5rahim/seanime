@@ -159,8 +159,8 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                         }}
                                     >
 
-                                        {!!item.image && <Image
-                                            src={item.image}
+                                        {<Image
+                                            src={item.image || "/no-cover.png"}
                                             placeholder={imageShimmer(700, 475)}
                                             sizes="10rem"
                                             fill

@@ -136,6 +136,7 @@ export default function Page() {
                                         openTorrentClientOnStart: data.openTorrentClientOnStart,
                                         openWebURLOnStart: data.openWebURLOnStart,
                                         refreshLibraryOnStart: data.refreshLibraryOnStart,
+                                        autoPlayNextEpisode: data.autoPlayNextEpisode ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -164,6 +165,7 @@ export default function Page() {
                                         transmissionPort: data.transmissionPort,
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
+                                        showActiveTorrentCount: data.showActiveTorrentCount ?? false,
                                     },
                                     discord: {
                                         enableRichPresence: data?.enableRichPresence ?? false,
@@ -233,6 +235,8 @@ export default function Page() {
                                 disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
                                 disableAutoScannerNotifications: status?.settings?.notifications?.disableAutoScannerNotifications ?? false,
                                 defaultMangaProvider: status?.settings?.manga?.defaultMangaProvider || "-",
+                                showActiveTorrentCount: status?.settings?.torrent?.showActiveTorrentCount ?? false,
+                                autoPlayNextEpisode: status?.settings?.library?.autoPlayNextEpisode ?? false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -438,6 +442,13 @@ export default function Page() {
                                         { label: "qBittorrent", value: "qbittorrent" },
                                         { label: "Transmission", value: "transmission" },
                                     ]}
+                                />
+
+                                <h4>Interface</h4>
+                                <Field.Switch
+                                    name="showActiveTorrentCount"
+                                    label="Show active torrent count"
+                                    help="Show the number of active torrents in the sidebar. (Memory intensive)"
                                 />
 
                                 <Accordion

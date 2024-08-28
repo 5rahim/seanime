@@ -90,6 +90,34 @@ func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 	return c.RespondWithData(true)
 }
 
+// HandlePlaybackGetNextEpisode
+//
+//	@summary gets the next episode of the currently playing media.
+//	@desc This is used by the client's autoplay feature
+//	@route /api/v1/playback-manager/next-episode [GET]
+//	@returns *anime.LocalFile
+func HandlePlaybackGetNextEpisode(c *RouteCtx) error {
+
+	lf := c.App.PlaybackManager.GetNextEpisode()
+	return c.RespondWithData(lf)
+}
+
+// HandlePlaybackAutoPlayNextEpisode
+//
+//	@summary plays the next episode of the currently playing media.
+//	@desc This will play the next episode of the currently playing media.
+//	@route /api/v1/playback-manager/autoplay-next-episode [POST]
+//	@returns bool
+func HandlePlaybackAutoPlayNextEpisode(c *RouteCtx) error {
+
+	err := c.App.PlaybackManager.AutoPlayNextEpisode()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // HandlePlaybackStartPlaylist

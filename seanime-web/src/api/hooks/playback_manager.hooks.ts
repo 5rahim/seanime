@@ -1,6 +1,7 @@
 import { useServerMutation } from "@/api/client/requests"
 import { PlaybackPlayVideo_Variables, PlaybackStartManualTracking_Variables, PlaybackStartPlaylist_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import { Anime_LocalFile } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -116,6 +117,25 @@ export function usePlaybackCancelManualTracking({ onSuccess }: { onSuccess?: () 
         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackCancelManualTracking.key],
         onSuccess: async () => {
             onSuccess?.()
+        },
+    })
+}
+
+export function usePlaybackGetNextEpisode() {
+    return useServerMutation<Anime_LocalFile>({
+        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackGetNextEpisode.endpoint,
+        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackGetNextEpisode.methods[0],
+        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackGetNextEpisode.key],
+    })
+}
+
+export function usePlaybackAutoPlayNextEpisode() {
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.endpoint,
+        method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.methods[0],
+        mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.key],
+        onSuccess: async () => {
+            toast.info("Loading next episode")
         },
     })
 }

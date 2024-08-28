@@ -66,6 +66,8 @@ export const settingsSchema = z.object({
     disableAutoDownloaderNotifications: z.boolean().optional().default(false),
     disableAutoScannerNotifications: z.boolean().optional().default(false),
     defaultMangaProvider: z.string().optional().default(""),
+    autoPlayNextEpisode: z.boolean().optional().default(false),
+    showActiveTorrentCount: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

@@ -1251,6 +1251,26 @@
 //     })
 // }
 
+// export function usePlaybackGetNextEpisode() {
+//     return useServerQuery<Anime_LocalFile>({
+//         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackGetNextEpisode.endpoint,
+//         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackGetNextEpisode.methods[0],
+//         queryKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackGetNextEpisode.key],
+//         enabled: true,
+//     })
+// }
+
+// export function usePlaybackAutoPlayNextEpisode() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.endpoint,
+//         method: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.methods[0],
+//         mutationKey: [API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackAutoPlayNextEpisode.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function usePlaybackStartPlaylist() {
 //     return useServerMutation<boolean, PlaybackStartPlaylist_Variables>({
 //         endpoint: API_ENDPOINTS.PLAYBACK_MANAGER.PlaybackStartPlaylist.endpoint,

@@ -78,6 +78,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         openTorrentClientOnStart: false,
                                         openWebURLOnStart: false,
                                         refreshLibraryOnStart: false,
+                                        autoPlayNextEpisode: false,
                                     },
                                     manga: {
                                         defaultMangaProvider: "",
@@ -114,6 +115,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         transmissionPort: data.transmissionPort,
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
+                                        showActiveTorrentCount: false,
                                     },
                                     anilist: {
                                         hideAudienceScore: false,

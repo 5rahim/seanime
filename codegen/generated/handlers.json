@@ -4796,6 +4796,66 @@
     }
   },
   {
+    "name": "HandlePlaybackGetNextEpisode",
+    "trimmedName": "PlaybackGetNextEpisode",
+    "comments": [
+      "HandlePlaybackGetNextEpisode",
+      "",
+      "\t@summary gets the next episode of the currently playing media.",
+      "\t@desc This is used by the client's autoplay feature",
+      "\t@route /api/v1/playback-manager/next-episode [GET]",
+      "\t@returns *anime.LocalFile",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "gets the next episode of the currently playing media.",
+      "descriptions": [
+        "This is used by the client's autoplay feature"
+      ],
+      "endpoint": "/api/v1/playback-manager/next-episode",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "*anime.LocalFile",
+      "returnGoType": "anime.LocalFile",
+      "returnTypescriptType": "Anime_LocalFile"
+    }
+  },
+  {
+    "name": "HandlePlaybackAutoPlayNextEpisode",
+    "trimmedName": "PlaybackAutoPlayNextEpisode",
+    "comments": [
+      "HandlePlaybackAutoPlayNextEpisode",
+      "",
+      "\t@summary plays the next episode of the currently playing media.",
+      "\t@desc This will play the next episode of the currently playing media.",
+      "\t@route /api/v1/playback-manager/autoplay-next-episode [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/playback_manager.go",
+    "filename": "playback_manager.go",
+    "api": {
+      "summary": "plays the next episode of the currently playing media.",
+      "descriptions": [
+        "This will play the next episode of the currently playing media."
+      ],
+      "endpoint": "/api/v1/playback-manager/autoplay-next-episode",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandlePlaybackStartPlaylist",
     "trimmedName": "PlaybackStartPlaylist",
     "comments": [
