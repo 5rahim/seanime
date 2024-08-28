@@ -8,6 +8,7 @@ import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chap
 import { useHandleMangaChapters } from "@/app/(main)/manga/_lib/handle-manga-chapters"
 import { useHandleDownloadMangaChapter } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { getChapterNumberFromChapter, useMangaChapterListRowSelection, useMangaDownloadDataUtils } from "@/app/(main)/manga/_lib/handle-manga-utils"
+import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
 import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -144,7 +145,7 @@ export function ChapterList(props: ChapterListProps) {
             id: "language",
             header: "Language",
             size: 20,
-            accessorFn: (row: any) => row.language,
+            accessorFn: (row: any) => LANGUAGES_LIST[row.language]?.nativeName || row.language,
             enableSorting: true,
         }] : []),
         {

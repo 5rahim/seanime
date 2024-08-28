@@ -1,4 +1,4 @@
-export const LANGUAGES_LIST = {
+export const LANGUAGES_LIST: Record<string, { name: string, nativeName: string }> = {
     aa: {
         name: "Afar",
         nativeName: "Afaraf",
