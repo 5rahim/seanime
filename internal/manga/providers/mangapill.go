@@ -41,6 +41,13 @@ func NewMangapill(logger *zerolog.Logger) *Mangapill {
 // Each chapter ID has this format: {number}${slug} -- e.g. 6502-10004000$gokurakugai-chapter-4
 // The chapter ID is split by the $ character to reconstruct the chapter URL for subsequent requests
 
+func (mp *Mangapill) GetSettings() hibikemanga.Settings {
+	return hibikemanga.Settings{
+		SupportsMultiScanlator: false,
+		SupportsMultiLanguage:  false,
+	}
+}
+
 func (mp *Mangapill) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
 	ret = make([]*hibikemanga.SearchResult, 0)
 

@@ -2,6 +2,7 @@ package manga
 
 import (
 	"errors"
+	"fmt"
 	"github.com/samber/lo"
 	"seanime/internal/extension"
 	"seanime/internal/util"
@@ -21,17 +22,34 @@ type (
 	}
 )
 
+func getMangaChapterContainerCacheKey(provider string, mediaId int) string {
+	return fmt.Sprintf("%s$%d", provider, mediaId)
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type GetMangaChapterContainerOptions struct {
+	Provider string
+	MediaId  int
+	Titles   []*string
+	Year     int
+}
 
 // GetMangaChapterContainer returns the ChapterContainer for a manga entry based on the provider.
 // If it isn't cached, it will search for the manga, create a ChapterContainer and cache it.
-func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titles []*string) (ret *ChapterContainer, err error) {
+func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOptions) (ret *ChapterContainer, err error) {
 	defer util.HandlePanicInModuleWithError("manga/GetMangaChapterContainer", &err)
+
+	provider := opts.Provider
+	mediaId := opts.MediaId
+	titles := opts.Titles
 
 	r.logger.Trace().
 		Str("provider", provider).
 		Int("mediaId", mediaId).
 		Msgf("manga: Getting chapters")
+
+	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
 
 	// +---------------------+
 	// |       Cache         |
@@ -41,7 +59,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 	containerBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
 
 	// Check if the container is in the cache
-	if found, _ := r.fileCacher.Get(containerBucket, bucketTypeChapterKey, &container); found {
+	if found, _ := r.fileCacher.Get(containerBucket, chapterContainerKey, &container); found {
 		r.logger.Info().Str("bucket", containerBucket.Name()).Msg("manga: Chapter Container Cache HIT")
 		return container, nil
 	}
@@ -88,6 +106,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 
 			_searchRes, err = providerExtension.GetProvider().Search(hibikemanga.SearchOptions{
 				Query: *title,
+				Year:  opts.Year,
 			})
 			if err == nil {
 
@@ -136,7 +155,7 @@ func (r *Repository) GetMangaChapterContainer(provider string, mediaId int, titl
 	}
 
 	// DEVNOTE: This might cache container with empty chapters, however the user can reload sources, so it's fine
-	err = r.fileCacher.Set(containerBucket, bucketTypeChapterKey, container)
+	err = r.fileCacher.Set(containerBucket, chapterContainerKey, container)
 	if err != nil {
 		r.logger.Warn().Err(err).Msg("manga: Failed to populate cache")
 	}

@@ -34,8 +34,22 @@ func (a *App) LoadBuiltInExtensions() {
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
 		Description: "",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
 	}, manga_providers.NewComicK(a.Logger))
+
+	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
+		ID:          "comick-multi",
+		Name:        "ComicK (Multi)",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageGo,
+		Type:        extension.TypeMangaProvider,
+		Author:      "Seanime",
+		Description: "",
+		Lang:        "multi",
+		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/comick.webp",
+	}, manga_providers.NewComicKMulti(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "mangapill",
@@ -45,6 +59,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangapill.png",
 	}, manga_providers.NewMangapill(a.Logger))
 
@@ -56,6 +71,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangasee.png",
 	}, manga_providers.NewMangasee(a.Logger))
 
@@ -67,6 +83,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangadex.png",
 	}, manga_providers.NewMangadex(a.Logger))
 
@@ -78,6 +95,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/manganato.png",
 	}, manga_providers.NewManganato(a.Logger))
 
@@ -93,6 +111,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeOnlinestreamProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
 	}, onlinestream_providers.NewGogoanime(a.Logger))
 
@@ -104,6 +123,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeOnlinestreamProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
 	}, onlinestream_providers.NewZoro(a.Logger))
 
@@ -119,6 +139,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeAnimeTorrentProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/nyaa.png",
 	}, nyaa.NewProvider(a.Logger))
 
@@ -130,6 +151,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeAnimeTorrentProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/nyaa.png",
 	}, nyaa.NewSukebeiProvider(a.Logger))
 
@@ -141,6 +163,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeAnimeTorrentProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animetosho.png",
 	}, animetosho.NewProvider(a.Logger))
 
@@ -152,6 +175,7 @@ func (a *App) LoadBuiltInExtensions() {
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeAnimeTorrentProvider,
 		Author:      "Seanime",
+		Lang:        "en",
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png",
 	}, seadex.NewProvider(a.Logger))
 

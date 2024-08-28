@@ -20,6 +20,7 @@ func init() {
 		"EpisodeDetails":  reflect.ValueOf((*onlinestream.EpisodeDetails)(nil)),
 		"EpisodeServer":   reflect.ValueOf((*onlinestream.EpisodeServer)(nil)),
 		"Provider":        reflect.ValueOf((*onlinestream.Provider)(nil)),
+		"SearchOptions":   reflect.ValueOf((*onlinestream.SearchOptions)(nil)),
 		"SearchResult":    reflect.ValueOf((*onlinestream.SearchResult)(nil)),
 		"Settings":        reflect.ValueOf((*onlinestream.Settings)(nil)),
 		"SubOrDub":        reflect.ValueOf((*onlinestream.SubOrDub)(nil)),
@@ -37,23 +38,23 @@ func init() {
 // _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider is an interface wrapper for Provider type
 type _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider struct {
 	IValue             interface{}
-	WFindEpisode       func(id string) ([]*onlinestream.EpisodeDetails, error)
 	WFindEpisodeServer func(episode *onlinestream.EpisodeDetails, server string) (*onlinestream.EpisodeServer, error)
+	WFindEpisodes      func(id string) ([]*onlinestream.EpisodeDetails, error)
 	WGetSettings       func() onlinestream.Settings
-	WSearch            func(query string, dub bool) ([]*onlinestream.SearchResult, error)
+	WSearch            func(opts onlinestream.SearchOptions) ([]*onlinestream.SearchResult, error)
 }
 
-func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpisode(id string) ([]*onlinestream.EpisodeDetails, error) {
-	return W.WFindEpisode(id)
-}
 func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpisodeServer(episode *onlinestream.EpisodeDetails, server string) (*onlinestream.EpisodeServer, error) {
 	return W.WFindEpisodeServer(episode, server)
+}
+func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) FindEpisodes(id string) ([]*onlinestream.EpisodeDetails, error) {
+	return W.WFindEpisodes(id)
 }
 func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) GetSettings() onlinestream.Settings {
 	return W.WGetSettings()
 }
-func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) Search(query string, dub bool) ([]*onlinestream.SearchResult, error) {
-	return W.WSearch(query, dub)
+func (W _github_com_5rahim_hibike_pkg_extension_onlinestream_Provider) Search(opts onlinestream.SearchOptions) ([]*onlinestream.SearchResult, error) {
+	return W.WSearch(opts)
 }
 
 // _github_com_5rahim_hibike_pkg_extension_onlinestream_VideoExtractor is an interface wrapper for VideoExtractor type

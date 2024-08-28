@@ -116,9 +116,12 @@ func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
 	// Find chapter container in the file cache
 	chapterBucket := d.repository.getFcProviderBucket(opts.Provider, opts.MediaId, bucketTypeChapter)
+
+	chapterContainerKey := getMangaChapterContainerCacheKey(opts.Provider, opts.MediaId)
+
 	var chapterContainer *ChapterContainer
 	// Get the only key-value pair in the bucket
-	if found, _ := d.repository.fileCacher.Get(chapterBucket, bucketTypeChapterKey, &chapterContainer); !found {
+	if found, _ := d.repository.fileCacher.Get(chapterBucket, chapterContainerKey, &chapterContainer); !found {
 		// If the chapter container is not found, return an error
 		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
 		return errors.New("chapters not found")

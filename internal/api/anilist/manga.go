@@ -112,3 +112,10 @@ func (m *BaseManga) HasRomajiTitle() bool {
 func (m *BaseManga) HasSynonyms() bool {
 	return m.Synonyms != nil
 }
+
+func (m *BaseManga) GetStartYearSafe() int {
+	if m.GetStartDate() != nil && m.GetStartDate().GetYear() != nil {
+		return *m.GetStartDate().GetYear()
+	}
+	return 0
+}

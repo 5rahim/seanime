@@ -84,10 +84,10 @@ func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {
 	return
 }
 
-func (g *GojaOnlinestreamProvider) Search(query string, dub bool) (ret []*hibikeonlinestream.SearchResult, err error) {
+func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions) (ret []*hibikeonlinestream.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	method, err := g.callClassMethod("search", g.vm.ToValue(query), g.vm.ToValue(dub))
+	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -102,10 +102,10 @@ func (g *GojaOnlinestreamProvider) Search(query string, dub bool) (ret []*hibike
 	return ret, nil
 }
 
-func (g *GojaOnlinestreamProvider) FindEpisode(id string) (ret []*hibikeonlinestream.EpisodeDetails, err error) {
+func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlinestream.EpisodeDetails, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 
-	method, err := g.callClassMethod("findEpisode", g.vm.ToValue(id))
+	method, err := g.callClassMethod("findEpisodes", g.vm.ToValue(id))
 
 	promiseRes, err := g.waitForPromise(method)
 	if err != nil {
@@ -144,6 +144,9 @@ func (g *GojaOnlinestreamProvider) GetSettings() (ret hibikeonlinestream.Setting
 	})
 
 	method, err := g.callClassMethod("getSettings")
+	if err != nil {
+		return
+	}
 
 	err = g.unmarshalValue(method, &ret)
 	if err != nil {

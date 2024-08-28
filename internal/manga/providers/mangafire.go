@@ -38,6 +38,13 @@ func NewMangafire(logger *zerolog.Logger) *Mangafire {
 	}
 }
 
+func (mf *Mangafire) GetSettings() hibikemanga.Settings {
+	return hibikemanga.Settings{
+		SupportsMultiScanlator: false,
+		SupportsMultiLanguage:  false,
+	}
+}
+
 func (mf *Mangafire) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
 	results := make([]*hibikemanga.SearchResult, 0)
 

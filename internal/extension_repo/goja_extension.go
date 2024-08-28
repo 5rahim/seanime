@@ -82,7 +82,13 @@ func (g *gojaExtensionImpl) waitForPromise(value goja.Value) (goja.Value, error)
 	return res, nil
 }
 
-func (g *gojaExtensionImpl) unmarshalValue(value goja.Value, ret interface{}) error {
+func (g *gojaExtensionImpl) unmarshalValue(value goja.Value, ret interface{}) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = g.error(fmt.Errorf("%v", r), "failed to unmarshal result")
+		}
+	}()
+
 	jsonData, err := json.Marshal(value.Export())
 	if err != nil {
 		return g.error(err, "failed to marshal result")
@@ -98,6 +104,7 @@ func (g *gojaExtensionImpl) unmarshalValue(value goja.Value, ret interface{}) er
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// structToMap converts a struct to "JSON-like" map for Goja extensions
 func structToMap(obj interface{}) map[string]interface{} {
 	// Convert the struct to a map
 	jsonData, err := json.Marshal(obj)

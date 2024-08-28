@@ -9,18 +9,13 @@ import (
 
 func init() {
 	Symbols["github.com/5rahim/hibike/pkg/extension/manga/manga"] = map[string]reflect.Value{
-		// function, constant and variable definitions
-		"ChapterFilterGroup":    reflect.ValueOf(manga.ChapterFilterGroup),
-		"ChapterFilterLanguage": reflect.ValueOf(manga.ChapterFilterLanguage),
-
 		// type definitions
 		"ChapterDetails": reflect.ValueOf((*manga.ChapterDetails)(nil)),
-		"ChapterFilter":  reflect.ValueOf((*manga.ChapterFilter)(nil)),
 		"ChapterPage":    reflect.ValueOf((*manga.ChapterPage)(nil)),
 		"Provider":       reflect.ValueOf((*manga.Provider)(nil)),
 		"SearchOptions":  reflect.ValueOf((*manga.SearchOptions)(nil)),
 		"SearchResult":   reflect.ValueOf((*manga.SearchResult)(nil)),
-		"SelectOption":   reflect.ValueOf((*manga.SelectOption)(nil)),
+		"Settings":       reflect.ValueOf((*manga.Settings)(nil)),
 
 		// interface wrapper definitions
 		"_Provider": reflect.ValueOf((*_github_com_5rahim_hibike_pkg_extension_manga_Provider)(nil)),
@@ -32,6 +27,7 @@ type _github_com_5rahim_hibike_pkg_extension_manga_Provider struct {
 	IValue            interface{}
 	WFindChapterPages func(id string) ([]*manga.ChapterPage, error)
 	WFindChapters     func(id string) ([]*manga.ChapterDetails, error)
+	WGetSettings      func() manga.Settings
 	WSearch           func(opts manga.SearchOptions) ([]*manga.SearchResult, error)
 }
 
@@ -40,6 +36,9 @@ func (W _github_com_5rahim_hibike_pkg_extension_manga_Provider) FindChapterPages
 }
 func (W _github_com_5rahim_hibike_pkg_extension_manga_Provider) FindChapters(id string) ([]*manga.ChapterDetails, error) {
 	return W.WFindChapters(id)
+}
+func (W _github_com_5rahim_hibike_pkg_extension_manga_Provider) GetSettings() manga.Settings {
+	return W.WGetSettings()
 }
 func (W _github_com_5rahim_hibike_pkg_extension_manga_Provider) Search(opts manga.SearchOptions) ([]*manga.SearchResult, error) {
 	return W.WSearch(opts)

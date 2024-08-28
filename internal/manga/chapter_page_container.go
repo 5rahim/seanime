@@ -101,8 +101,10 @@ func (r *Repository) GetMangaPageContainer(
 	// Search for the chapter in the cache
 	containerBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
 
+	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
+
 	var chapterContainer *ChapterContainer
-	if found, _ := r.fileCacher.Get(containerBucket, bucketTypeChapterKey, &chapterContainer); !found {
+	if found, _ := r.fileCacher.Get(containerBucket, chapterContainerKey, &chapterContainer); !found {
 		r.logger.Error().Msg("manga: Chapter Container not found")
 		return nil, ErrNoChapters
 	}

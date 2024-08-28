@@ -94,10 +94,12 @@ var typePrefixesByPackage = map[string]string{
 	"vendor_hibike_onlinestream": "HibikeOnlinestream_",
 	"vendor_hibike_torrent":      "HibikeTorrent_",
 	"vendor_hibike_mediaplayer":  "HibikeMediaPlayer_",
+	"vendor_hibike_extension":    "HibikeExtension_",
 	"hibikemanga":                "HibikeManga_",
 	"hibikeonlinestream":         "HibikeOnlinestream_",
 	"hibiketorrent":              "HibikeTorrent_",
 	"hibikemediaplayer":          "HibikeMediaPlayer_",
+	"hibikeextension":            "HibikeExtension_",
 }
 
 func getTypePrefix(packageName string) string {

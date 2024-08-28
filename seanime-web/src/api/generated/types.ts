@@ -1758,6 +1758,7 @@ export type Extension_Extension = {
     author: string
     icon: string
     website: string
+    lang: string
     /**
      * NOT IMPLEMENTED
      */
@@ -1873,6 +1874,7 @@ export type ExtensionRepo_ExtensionInstallResponse = {
 export type ExtensionRepo_MangaProviderExtensionItem = {
     id: string
     name: string
+    settings?: HibikeManga_Settings
 }
 
 /**
@@ -2896,6 +2898,8 @@ export type HibikeManga_ChapterDetails = {
     title: string
     chapter: string
     index: number
+    scanlator?: string
+    language?: string
     rating?: number
     updatedAt?: string
 }
@@ -2919,13 +2923,22 @@ export type HibikeManga_ChapterPage = {
  */
 export type HibikeManga_SearchResult = {
     provider: string
-    language?: string
     id: string
     title: string
     synonyms?: Array<string>
     year?: number
     image?: string
     searchRating?: number
+}
+
+/**
+ * - Filepath: internal/extension/vendoring/manga/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_manga
+ */
+export type HibikeManga_Settings = {
+    supportsMultiScanlator: boolean
+    supportsMultiLanguage: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2964,6 +2977,7 @@ export type HibikeTorrent_AnimeProviderType = "main" | "special"
  * - Package: vendor_hibike_torrent
  */
 export type HibikeTorrent_AnimeTorrent = {
+    provider?: string
     name: string
     date: string
     size: number
@@ -2979,7 +2993,6 @@ export type HibikeTorrent_AnimeTorrent = {
     isBatch?: boolean
     episodeNumber?: number
     releaseGroup?: string
-    provider?: string
     isBestRelease: boolean
     confirmed: boolean
 }

@@ -53,6 +53,10 @@ func (m *OnlinestreamProviderExtensionImpl) GetLanguage() Language {
 	return m.ext.Language
 }
 
+func (m *OnlinestreamProviderExtensionImpl) GetLang() string {
+	return GetExtensionLang(m.ext.Lang)
+}
+
 func (m *OnlinestreamProviderExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }

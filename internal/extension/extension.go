@@ -30,11 +30,10 @@ type Extension struct {
 	ID      string `json:"id"`      // e.g. "extension-example"
 	Name    string `json:"name"`    // e.g. "Extension"
 	Version string `json:"version"` // e.g. "1.0.0"
-	// ManifestURI is the URI to the extension
-	// It can be a URL or a local file path, depending on the extension origin
-	// This is "builtin" if the extension is built-in and "" if the extension is local
+	// The URI to the extension manifest file.
+	// This is "builtin" if the extension is built-in and "" if the extension is local.
 	ManifestURI string `json:"manifestURI"` // e.g. "http://cdn.something.app/extensions/extension-example/manifest.json"
-	// Language is the programming language of the extension
+	// The programming language of the extension
 	// It is used to determine how to interpret the extension
 	Language Language `json:"language"` // e.g. "go"
 	// Type is the area of the application the extension is targeting
@@ -45,6 +44,10 @@ type Extension struct {
 	Icon string `json:"icon"`
 	// Website is the URL to the extension website
 	Website string `json:"website"`
+	// ISO 639-1 language code.
+	// Set this to "multi" if the extension supports multiple languages.
+	// Defaults to "en".
+	Lang string `json:"lang"`
 	// List of authorization scopes required by the extension.
 	// The user must grant these permissions before the extension can be loaded.
 	Scopes []string `json:"scopes,omitempty"` // NOT IMPLEMENTED
@@ -67,6 +70,7 @@ type BaseExtension interface {
 	GetDescription() string
 	GetAuthor() string
 	GetPayload() string
+	GetLang() string
 	GetIcon() string
 	GetWebsite() string
 	GetScopes() []string
@@ -80,6 +84,7 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Version:     ext.GetVersion(),
 		ManifestURI: ext.GetManifestURI(),
 		Language:    ext.GetLanguage(),
+		Lang:        GetExtensionLang(ext.GetLang()),
 		Type:        ext.GetType(),
 		Description: ext.GetDescription(),
 		Author:      ext.GetAuthor(),
@@ -89,6 +94,16 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Website:     ext.GetWebsite(),
 		Payload:     ext.GetPayload(),
 	}
+}
+
+func GetExtensionLang(lang string) string {
+	if lang == "" {
+		return "en"
+	}
+	if lang == "all" {
+		return "multi"
+	}
+	return lang
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

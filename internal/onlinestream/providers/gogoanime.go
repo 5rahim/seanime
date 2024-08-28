@@ -39,8 +39,11 @@ func (g *Gogoanime) GetSettings() hibikeonlinestream.Settings {
 	}
 }
 
-func (g *Gogoanime) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {
+func (g *Gogoanime) Search(opts hibikeonlinestream.SearchOptions) ([]*hibikeonlinestream.SearchResult, error) {
 	var results []*hibikeonlinestream.SearchResult
+
+	query := opts.Query
+	dubbed := opts.Dub
 
 	g.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("gogoanime: Searching anime")
 
@@ -83,7 +86,7 @@ func (g *Gogoanime) Search(query string, dubbed bool) ([]*hibikeonlinestream.Sea
 	return results, nil
 }
 
-func (g *Gogoanime) FindEpisode(id string) ([]*hibikeonlinestream.EpisodeDetails, error) {
+func (g *Gogoanime) FindEpisodes(id string) ([]*hibikeonlinestream.EpisodeDetails, error) {
 	var episodes []*hibikeonlinestream.EpisodeDetails
 
 	g.logger.Debug().Str("id", id).Msg("gogoanime: Fetching episodes")

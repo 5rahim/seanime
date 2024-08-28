@@ -154,7 +154,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 
 	// Fetch the episode list from the provider
 	// "from" and "to" are set to 0 in order not to fetch episode servers
-	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), 0, 0, dubbed)
+	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), 0, 0, dubbed, media.GetStartYearSafe())
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	return episodes, nil
 }
 
-func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dubbed bool) (*EpisodeSource, error) {
+func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dubbed bool, year int) (*EpisodeSource, error) {
 
 	// +---------------------+
 	// |        Media        |
@@ -211,7 +211,7 @@ func (r *Repository) GetEpisodeSources(provider string, mId int, number int, dub
 	// |   Episode servers   |
 	// +---------------------+
 
-	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), number, number, dubbed)
+	ec, err := r.getEpisodeContainer(provider, mId, media.GetAllTitles(), number, number, dubbed, year)
 	if err != nil {
 		return nil, err
 	}

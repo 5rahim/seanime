@@ -70,18 +70,27 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		provider := pair.provider
 		mediaId := pair.mediaId
 
+		// Get the manga from the collection
+		mangaEntry, ok := mangaCollection.GetListEntryFromMediaId(mediaId)
+		if !ok {
+			r.logger.Warn().Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Manga not found in collection")
+			continue
+		}
+
+		opts := GetMangaChapterContainerOptions{
+			Provider: provider,
+			MediaId:  mediaId,
+			Titles:   nil,
+			Year:     mangaEntry.GetMedia().GetStartYearSafe(),
+		}
+
 		// Get the manga chapter container (downloaded and non-downloaded)
-		container, err := r.GetMangaChapterContainer(provider, mediaId, nil)
+		container, err := r.GetMangaChapterContainer(&opts)
 		if err != nil {
 			if errors.Is(err, ErrNoTitlesProvided) { // This means the cache has expired
-				// Get the manga from the collection
-				mangaEntry, ok := mangaCollection.GetListEntryFromMediaId(mediaId)
-				if !ok {
-					r.logger.Warn().Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Manga not found in collection")
-					continue
-				}
 
-				container, err = r.GetMangaChapterContainer(provider, mediaId, mangaEntry.GetMedia().GetAllTitles())
+				opts.Titles = mangaEntry.GetMedia().GetAllTitles()
+				container, err = r.GetMangaChapterContainer(&opts)
 				if err != nil {
 					r.logger.Error().Err(err).Msg("manga: [GetDownloadedChapterContainers] Failed to get chapter container")
 					continue

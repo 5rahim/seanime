@@ -114,6 +114,62 @@ func TestComicK_FindChapters(t *testing.T) {
 
 }
 
+func TestComicKMulti_FindChapters(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		id      string
+		atLeast int
+	}{
+		{
+			name:    "Jujutsu Kaisen",
+			id:      "TA22I5O7",
+			atLeast: 250,
+		},
+		{
+			name:    "Komi-san wa, Komyushou desu",
+			id:      "K_Dn8VW7",
+			atLeast: 250,
+		},
+		{
+			name:    "Boku no Kokoro no Yabai Yatsu",
+			id:      "pYN47sZm",
+			atLeast: 141,
+		},
+	}
+
+	comick := NewComicKMulti(util.NewLogger())
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			chapters, err := comick.FindChapters(tt.id)
+			if assert.NoError(t, err, "comick.FindChapters() error") {
+
+				assert.NotEmpty(t, chapters, "chapters is empty")
+
+				assert.GreaterOrEqual(t, len(chapters), tt.atLeast, "chapters length is less than expected")
+
+				for _, chapter := range chapters {
+					t.Logf("Title: %s", chapter.Title)
+					t.Logf("\tLanguage: %s", chapter.Language)
+					t.Logf("\tScanlator: %s", chapter.Scanlator)
+					t.Logf("\tSlug: %s", chapter.ID)
+					t.Logf("\tURL: %s", chapter.URL)
+					t.Logf("\tIndex: %d", chapter.Index)
+					t.Logf("\tChapter: %s", chapter.Chapter)
+					t.Logf("\tUpdatedAt: %s", chapter.UpdatedAt)
+					t.Log("--------------------------------------------------")
+				}
+			}
+
+		})
+
+	}
+
+}
+
 func TestComicK_FindChapterPages(t *testing.T) {
 
 	tests := []struct {

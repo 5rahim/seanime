@@ -2,15 +2,23 @@ package vender_hibike_onlinestream
 
 type (
 	Provider interface {
-		Search(query string, dub bool) ([]*SearchResult, error)
-		// FindEpisode returns the episode details for the given anime ID.
-		// The ID is the anime slug.
-		FindEpisode(id string) ([]*EpisodeDetails, error)
+		Search(opts SearchOptions) ([]*SearchResult, error)
+		// FindEpisodes returns the episodes for the given anime ID.
+		FindEpisodes(id string) ([]*EpisodeDetails, error)
 		// FindEpisodeServer returns the episode server for the given episode.
-		// "server" can be "default"
+		// The "server" argument can be "default"
 		FindEpisodeServer(episode *EpisodeDetails, server string) (*EpisodeServer, error)
 		// GetSettings returns the provider settings.
 		GetSettings() Settings
+	}
+
+	SearchOptions struct {
+		Query string `json:"query"`
+		// Whether to search for subbed or dubbed anime.
+		Dub bool `json:"dub"`
+		// The year the anime was released.
+		// Will be 0 if the year is not available.
+		Year int `json:"year"`
 	}
 
 	Settings struct {

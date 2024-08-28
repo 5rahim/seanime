@@ -53,6 +53,10 @@ func (m *MangaProviderExtensionImpl) GetLanguage() Language {
 	return m.ext.Language
 }
 
+func (m *MangaProviderExtensionImpl) GetLang() string {
+	return GetExtensionLang(m.ext.Lang)
+}
+
 func (m *MangaProviderExtensionImpl) GetDescription() string {
 	return m.ext.Description
 }

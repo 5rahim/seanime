@@ -76,6 +76,13 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 
 // DEVNOTE: Each chapter ID is a unique string provided by ComicK
 
+func (c *ComicK) GetSettings() hibikemanga.Settings {
+	return hibikemanga.Settings{
+		SupportsMultiScanlator: false,
+		SupportsMultiLanguage:  false,
+	}
+}
+
 func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
 
 	c.logger.Debug().Str("query", opts.Query).Msg("comick: Searching manga")
@@ -364,16 +371,17 @@ type Comic struct {
 }
 
 type ComicChapter struct {
-	ID        int    `json:"id"`
-	Chap      string `json:"chap"`
-	Title     string `json:"title"`
-	Vol       string `json:"vol,omitempty"`
-	Lang      string `json:"lang"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-	UpCount   int    `json:"up_count"`
-	DownCount int    `json:"down_count"`
-	HID       string `json:"hid"`
+	ID        int      `json:"id"`
+	Chap      string   `json:"chap"`
+	Title     string   `json:"title"`
+	Vol       string   `json:"vol,omitempty"`
+	Lang      string   `json:"lang"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
+	UpCount   int      `json:"up_count"`
+	DownCount int      `json:"down_count"`
+	GroupName []string `json:"group_name"`
+	HID       string   `json:"hid"`
 	MdImages  []struct {
 		Name  string `json:"name"`
 		W     int    `json:"w"`

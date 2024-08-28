@@ -59,7 +59,7 @@ type Params = {
         search: {
             dub: boolean
         }
-        findEpisode: {
+        findEpisodes: {
             id: string
         },
         findEpisodeServers: {
@@ -103,7 +103,7 @@ const DEFAULT_PARAMS: Params = {
         search: {
             dub: false,
         },
-        findEpisode: {
+        findEpisodes: {
             id: "",
         },
         findEpisodeServers: {
@@ -123,7 +123,7 @@ const enum Functions {
     MangaProviderFindChapters = "MangaProvider.findChapters",
     MangaProviderFindChapterPages = "MangaProvider.findChapterPages",
     OnlinestreamSearch = "Onlinestream.search",
-    OnlinestreamFindEpisode = "Onlinestream.findEpisode",
+    OnlinestreamFindEpisodes = "Onlinestream.findEpisodes",
     OnlinestreamFindEpisodeServers = "Onlinestream.findEpisodeServers",
 }
 
@@ -252,11 +252,11 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                 mediaId: inputs.onlineStreamingProvider.mediaId,
                 dub: inputs.onlineStreamingProvider.search.dub,
             }
-        } else if (selectedFunction === Functions.OnlinestreamFindEpisode) {
-            func = "findEpisode"
+        } else if (selectedFunction === Functions.OnlinestreamFindEpisodes) {
+            func = "findEpisodes"
             ret = {
                 mediaId: inputs.onlineStreamingProvider.mediaId,
-                id: inputs.onlineStreamingProvider.findEpisode.id,
+                id: inputs.onlineStreamingProvider.findEpisodes.id,
             }
         } else if (selectedFunction === Functions.OnlinestreamFindEpisodeServers) {
             func = "findEpisodeServers"
@@ -608,7 +608,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                     value={selectedFunction}
                                                     options={[
                                                         { value: Functions.OnlinestreamSearch, label: "search" },
-                                                        { value: Functions.OnlinestreamFindEpisode, label: "findEpisode" },
+                                                        { value: Functions.OnlinestreamFindEpisodes, label: "findEpisode" },
                                                         { value: Functions.OnlinestreamFindEpisodeServers, label: "findEpisodeServers" },
                                                     ]}
                                                     onValueChange={v => {
@@ -648,15 +648,15 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                     </>
                                                 )}
 
-                                                {selectedFunction === Functions.OnlinestreamFindEpisode && (
+                                                {selectedFunction === Functions.OnlinestreamFindEpisodes && (
                                                     <>
                                                         <TextInput
                                                             label="Episode ID"
                                                             type="text"
-                                                            value={inputs.onlineStreamingProvider.findEpisode.id}
+                                                            value={inputs.onlineStreamingProvider.findEpisodes.id}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.onlineStreamingProvider.findEpisode.id = v
+                                                                    d.onlineStreamingProvider.findEpisodes.id = v
                                                                     return
                                                                 })
                                                             }}

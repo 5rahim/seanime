@@ -10,6 +10,7 @@ import (
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	vendor_hibike_manga "seanime/internal/extension/vendoring/manga"
 	"seanime/internal/extension/vendoring/torrent"
 	"seanime/internal/util/result"
 )
@@ -48,13 +49,16 @@ type (
 	}
 
 	MangaProviderExtensionItem struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID       string                       `json:"id"`
+		Name     string                       `json:"name"`
+		Lang     string                       `json:"lang"` // ISO 639-1 language code
+		Settings vendor_hibike_manga.Settings `json:"settings"`
 	}
 
 	OnlinestreamProviderExtensionItem struct {
 		ID             string   `json:"id"`
 		Name           string   `json:"name"`
+		Lang           string   `json:"lang"` // ISO 639-1 language code
 		EpisodeServers []string `json:"episodeServers"`
 		SupportsDub    bool     `json:"supportsDub"`
 	}
@@ -62,6 +66,7 @@ type (
 	AnimeTorrentProviderExtensionItem struct {
 		ID       string                                      `json:"id"`
 		Name     string                                      `json:"name"`
+		Lang     string                                      `json:"lang"` // ISO 639-1 language code
 		Settings vendor_hibike_torrent.AnimeProviderSettings `json:"settings"`
 	}
 )
@@ -133,6 +138,11 @@ func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem
 		ret = append(ret, &MangaProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
+			Lang: extension.GetExtensionLang(ext.GetLang()),
+			Settings: vendor_hibike_manga.Settings{
+				SupportsMultiScanlator: ext.GetProvider().GetSettings().SupportsMultiScanlator,
+				SupportsMultiLanguage:  ext.GetProvider().GetSettings().SupportsMultiLanguage,
+			},
 		})
 		return true
 	})
@@ -147,6 +157,7 @@ func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProvide
 		ret = append(ret, &OnlinestreamProviderExtensionItem{
 			ID:             ext.GetID(),
 			Name:           ext.GetName(),
+			Lang:           extension.GetExtensionLang(ext.GetLang()),
 			EpisodeServers: ext.GetProvider().GetSettings().EpisodeServers,
 			SupportsDub:    ext.GetProvider().GetSettings().SupportsDub,
 		})
@@ -163,6 +174,7 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 		ret = append(ret, &AnimeTorrentProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
+			Lang: extension.GetExtensionLang(ext.GetLang()),
 			Settings: vendor_hibike_torrent.AnimeProviderSettings{
 				Type:           vendor_hibike_torrent.AnimeProviderType(ext.GetProvider().GetSettings().Type),
 				CanSmartSearch: ext.GetProvider().GetSettings().CanSmartSearch,

@@ -6,8 +6,10 @@ filippo.io/edwards25519 v1.0.0-rc.1 h1:m0VOOB23frXZvAOK44usCgLWvtsxIoMCTBGJZlpmG
 filippo.io/edwards25519 v1.0.0-rc.1/go.mod h1:N1IkdkCkiLB6tki+MYJoSx2JTY9NUlxZE7eHn5EwJns=
 fyne.io/systray v1.11.0 h1:D9HISlxSkx+jHSniMBR6fCFOUjk1x/OOOJLa9lJYAKg=
 fyne.io/systray v1.11.0/go.mod h1:RVwqP9nYMo7h5zViCBHri2FgjXF7H2cub7MAq4NSoLs=
-github.com/5rahim/hibike v0.4.6 h1:0FKlb2O6vK66Ck1iAySFQiJooLZ+Vb7AhK00ieIZWyQ=
-github.com/5rahim/hibike v0.4.6/go.mod h1:hIt0w9nXNDS6cS8m+kVLuZ0VrxruNmZV5g7BpiyJmNc=
+github.com/5rahim/hibike v0.5.0 h1:JdyLaI9qL5KTHPzr6rESYHzb6DzPGelP9KXUB96fr1w=
+github.com/5rahim/hibike v0.5.0/go.mod h1:vV8XatDJtO5bHi63psTj0pU27gWvQqnx/F3LtfYGpB0=
+github.com/5rahim/hibike v0.5.1-0.20240827194521-aeb36b72563f h1:qqdIV5SRwlaUteoea4/lGuzdBjfAGd+fb/VD7vyOfI8=
+github.com/5rahim/hibike v0.5.1-0.20240827194521-aeb36b72563f/go.mod h1:vV8XatDJtO5bHi63psTj0pU27gWvQqnx/F3LtfYGpB0=
 github.com/99designs/gqlgen v0.17.44 h1:OS2wLk/67Y+vXM75XHbwRnNYJcbuJd4OBL76RX3NQQA=
 github.com/99designs/gqlgen v0.17.44/go.mod h1:UTCu3xpK2mLI5qcMNw+HKDiEL77it/1XtAjisC4sLwM=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=

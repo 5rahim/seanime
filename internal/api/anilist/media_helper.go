@@ -14,6 +14,7 @@ func (m *BaseAnime) GetTitleSafe() string {
 	}
 	return "N/A"
 }
+
 func (m *BaseAnime) GetRomajiTitleSafe() string {
 	if m.GetTitle().GetRomaji() != nil {
 		return *m.GetTitle().GetRomaji()
@@ -73,6 +74,13 @@ func (m *BaseAnime) GetSynonymsContainingSeason() []string {
 		return nil
 	}
 	return lo.Filter(lo.Map(m.Synonyms, func(s *string, i int) string { return *s }), func(s string, i int) bool { return comparison.ValueContainsSeason(s) })
+}
+
+func (m *BaseAnime) GetStartYearSafe() int {
+	if m == nil || m.StartDate == nil || m.StartDate.Year == nil {
+		return 0
+	}
+	return *m.StartDate.Year
 }
 
 func (m *BaseAnime) IsMovie() bool {

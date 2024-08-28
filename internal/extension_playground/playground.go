@@ -425,7 +425,11 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 			// Search - params: dub: boolean
 			ret := make([]*hibikeonlinestream.SearchResult, 0)
 			for _, title := range titles {
-				res, err := provider.Search(*title, params.Inputs["dub"].(bool))
+				res, err := provider.Search(hibikeonlinestream.SearchOptions{
+					Query: *title,
+					Dub:   params.Inputs["dub"].(bool),
+					Year:  anime.GetStartYearSafe(),
+				})
 				if err != nil {
 					logger.logger.Error().Err(err).Msgf("playground: Search failed for title \"%s\"", *title)
 				}
@@ -436,9 +440,9 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 
 			return newPlaygroundResponse(logger, bestRes), nil
 
-		case "findEpisode":
-			// FindEpisode - params: id: string
-			res, err := provider.FindEpisode(params.Inputs["id"].(string))
+		case "findEpisodes":
+			// FindEpisodes - params: id: string
+			res, err := provider.FindEpisodes(params.Inputs["id"].(string))
 			if err != nil {
 				return newPlaygroundResponse(logger, err), nil
 			}

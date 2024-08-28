@@ -60,6 +60,13 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 // DEVNOTE: Each chapter has an ID in the format: {slug}${chapter_number} -- e.g. Jujutsu-Kaisen$0001
 // This ID is split by the $ character to reconstruct the chapter URL for subsequent requests
 
+func (m *Mangasee) GetSettings() hibikemanga.Settings {
+	return hibikemanga.Settings{
+		SupportsMultiScanlator: false,
+		SupportsMultiLanguage:  false,
+	}
+}
+
 func (m *Mangasee) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
 
 	m.logger.Debug().Str("query", opts.Query).Msg("mangasee: Searching manga")

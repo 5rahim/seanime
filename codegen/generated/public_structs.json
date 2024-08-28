@@ -27322,6 +27322,15 @@
         "comments": []
       },
       {
+        "name": "Lang",
+        "jsonName": "lang",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Scopes",
         "jsonName": "scopes",
         "goType": "[]string",
@@ -27657,41 +27666,24 @@
   {
     "filepath": "../internal/extension/vendoring/manga/types.go",
     "filename": "types.go",
-    "name": "ChapterFilter",
-    "formattedName": "HibikeManga_ChapterFilter",
-    "package": "vendor_hibike_manga",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"language\"",
-        "\"group\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/vendoring/manga/types.go",
-    "filename": "types.go",
-    "name": "SelectOption",
-    "formattedName": "HibikeManga_SelectOption",
+    "name": "Settings",
+    "formattedName": "HibikeManga_Settings",
     "package": "vendor_hibike_manga",
     "fields": [
       {
-        "name": "Value",
-        "jsonName": "value",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "SupportsMultiScanlator",
+        "jsonName": "supportsMultiScanlator",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "SupportsMultiLanguage",
+        "jsonName": "supportsMultiLanguage",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -27740,15 +27732,6 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Language",
-        "jsonName": "language",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
         "public": true,
         "comments": []
       },
@@ -27871,6 +27854,24 @@
         "comments": []
       },
       {
+        "name": "Scanlator",
+        "jsonName": "scanlator",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Rating",
         "jsonName": "rating",
         "goType": "int",
@@ -27938,15 +27939,15 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/mediaplayer/types.go",
+    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
-    "name": "ClientInfo",
-    "formattedName": "HibikeMediaPlayer_ClientInfo",
-    "package": "vendor_hibike_mediaplayer",
+    "name": "SearchOptions",
+    "formattedName": "SearchOptions",
+    "package": "vender_hibike_onlinestream",
     "fields": [
       {
-        "name": "UserAgent",
-        "jsonName": "userAgent",
+        "name": "Query",
+        "jsonName": "query",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27954,8 +27955,8 @@
         "comments": []
       },
       {
-        "name": "IsMobile",
-        "jsonName": "isMobile",
+        "name": "Dub",
+        "jsonName": "dub",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -27963,168 +27964,10 @@
         "comments": []
       },
       {
-        "name": "IsTablet",
-        "jsonName": "isTablet",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsDesktop",
-        "jsonName": "isDesktop",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsTV",
-        "jsonName": "isTV",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/vendoring/mediaplayer/types.go",
-    "filename": "types.go",
-    "name": "PlayRequest",
-    "formattedName": "HibikeMediaPlayer_PlayRequest",
-    "package": "vendor_hibike_mediaplayer",
-    "fields": [
-      {
-        "name": "Path",
-        "jsonName": "path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ClientInfo",
-        "jsonName": "clientInfo",
-        "goType": "ClientInfo",
-        "typescriptType": "HibikeMediaPlayer_ClientInfo",
-        "usedStructName": "vendor_hibike_mediaplayer.ClientInfo",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/vendoring/mediaplayer/types.go",
-    "filename": "types.go",
-    "name": "PlayResponse",
-    "formattedName": "HibikeMediaPlayer_PlayResponse",
-    "package": "vendor_hibike_mediaplayer",
-    "fields": [
-      {
-        "name": "Cmd",
-        "jsonName": "cmd",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OpenURL",
-        "jsonName": "openURL",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/vendoring/mediaplayer/types.go",
-    "filename": "types.go",
-    "name": "Settings",
-    "formattedName": "HibikeMediaPlayer_Settings",
-    "package": "vendor_hibike_mediaplayer",
-    "fields": [
-      {
-        "name": "CanTrackProgress",
-        "jsonName": "canTrackProgress",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/vendoring/mediaplayer/types.go",
-    "filename": "types.go",
-    "name": "PlaybackStatus",
-    "formattedName": "HibikeMediaPlayer_PlaybackStatus",
-    "package": "vendor_hibike_mediaplayer",
-    "fields": [
-      {
-        "name": "CompletionPercentage",
-        "jsonName": "completionPercentage",
-        "goType": "float64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Playing",
-        "jsonName": "playing",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Filename",
-        "jsonName": "filename",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Path",
-        "jsonName": "path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Duration",
-        "jsonName": "duration",
+        "name": "Year",
+        "jsonName": "year",
         "goType": "int",
         "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Filepath",
-        "jsonName": "filepath",
-        "goType": "string",
-        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -28679,7 +28522,7 @@
     "fields": [
       {
         "name": "Media",
-        "jsonName": "Media",
+        "jsonName": "media",
         "goType": "Media",
         "typescriptType": "HibikeTorrent_Media",
         "usedStructName": "vendor_hibike_torrent.Media",
@@ -28754,7 +28597,7 @@
       },
       {
         "name": "AnidbAID",
-        "jsonName": "aniDbAID",
+        "jsonName": "anidbAID",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -28763,7 +28606,7 @@
       },
       {
         "name": "AnidbEID",
-        "jsonName": "aniDbEID",
+        "jsonName": "anidbEID",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -28789,6 +28632,15 @@
     "formattedName": "HibikeTorrent_AnimeTorrent",
     "package": "vendor_hibike_torrent",
     "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "Name",
         "jsonName": "name",
@@ -28925,15 +28777,6 @@
         "comments": []
       },
       {
-        "name": "Provider",
-        "jsonName": "provider",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "IsBestRelease",
         "jsonName": "isBestRelease",
         "goType": "bool",
@@ -28947,6 +28790,34 @@
         "jsonName": "confirmed",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/vendoring/vendor_extension.go",
+    "filename": "vendor_extension.go",
+    "name": "SelectOption",
+    "formattedName": "HibikeExtension_SelectOption",
+    "package": "vendor_hibike_extension",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -28984,6 +28855,15 @@
       {
         "name": "baseAnimeCache",
         "jsonName": "baseAnimeCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "baseMangaCache",
+        "jsonName": "baseMangaCache",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -29147,143 +29027,6 @@
     "embeddedStructNames": [
       "extension_repo.gojaExtensionImpl"
     ]
-  },
-  {
-    "filepath": "../internal/extension_repo/goja_bindings.go",
-    "filename": "goja_bindings.go",
-    "name": "GojaFormData",
-    "formattedName": "ExtensionRepo_GojaFormData",
-    "package": "extension_repo",
-    "fields": [
-      {
-        "name": "runtime",
-        "jsonName": "runtime",
-        "goType": "goja.Runtime",
-        "typescriptType": "Runtime",
-        "usedStructName": "goja.Runtime",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "buf",
-        "jsonName": "buf",
-        "goType": "bytes.Buffer",
-        "typescriptType": "Buffer",
-        "usedStructName": "bytes.Buffer",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "writer",
-        "jsonName": "writer",
-        "goType": "multipart.Writer",
-        "typescriptType": "Writer",
-        "usedStructName": "multipart.Writer",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "fieldNames",
-        "jsonName": "fieldNames",
-        "goType": "map[string]",
-        "typescriptType": "Record\u003cstring, any\u003e",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "values",
-        "jsonName": "values",
-        "goType": "map[string][]string",
-        "typescriptType": "Record\u003cstring, Array\u003cstring\u003e\u003e",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "closed",
-        "jsonName": "closed",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/goja_document_bindings.go",
-    "filename": "goja_document_bindings.go",
-    "name": "GojaDoc",
-    "formattedName": "ExtensionRepo_GojaDoc",
-    "package": "extension_repo",
-    "fields": [
-      {
-        "name": "vm",
-        "jsonName": "vm",
-        "goType": "goja.Runtime",
-        "typescriptType": "Runtime",
-        "usedStructName": "goja.Runtime",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "doc",
-        "jsonName": "doc",
-        "goType": "goquery.Document",
-        "typescriptType": "Document",
-        "usedStructName": "goquery.Document",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "gojaSelection",
-        "jsonName": "gojaSelection",
-        "goType": "GojaDocSelection",
-        "typescriptType": "ExtensionRepo_GojaDocSelection",
-        "usedStructName": "extension_repo.GojaDocSelection",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/goja_document_bindings.go",
-    "filename": "goja_document_bindings.go",
-    "name": "GojaDocSelection",
-    "formattedName": "ExtensionRepo_GojaDocSelection",
-    "package": "extension_repo",
-    "fields": [
-      {
-        "name": "gojaDoc",
-        "jsonName": "gojaDoc",
-        "goType": "GojaDoc",
-        "typescriptType": "ExtensionRepo_GojaDoc",
-        "usedStructName": "extension_repo.GojaDoc",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "selection",
-        "jsonName": "selection",
-        "goType": "goquery.Selection",
-        "typescriptType": "Selection",
-        "usedStructName": "goquery.Selection",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
   },
   {
     "filepath": "../internal/extension_repo/goja_manga_provider.go",
@@ -29485,6 +29228,16 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "settings",
+        "goType": "vendor_hibike_manga.Settings",
+        "typescriptType": "HibikeManga_Settings",
+        "usedStructName": "vendor_hibike_manga.Settings",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -34877,6 +34630,52 @@
         "typescriptType": "Array\u003cHibikeManga_ChapterDetails\u003e",
         "usedStructName": "hibikemanga.ChapterDetails",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/chapter_container.go",
+    "filename": "chapter_container.go",
+    "name": "GetMangaChapterContainerOptions",
+    "formattedName": "Manga_GetMangaChapterContainerOptions",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Titles",
+        "jsonName": "Titles",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "Year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       }

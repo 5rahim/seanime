@@ -47,10 +47,19 @@ export function ChapterList(props: ChapterListProps) {
      * Find chapter container
      */
     const {
-        selectedProvider,
-        setSelectedProvider,
+        selectedExtension,
         providerExtensionsLoading,
-        providerOptions,
+        // Selected provider
+        providerOptions, // For dropdown
+        selectedProvider, // Current provider (id)
+        setSelectedProvider,
+        // Filters
+        selectedFilters,
+        setSelectedLanguage,
+        setSelectedScanlator,
+        languageOptions,
+        scanlatorOptions,
+        // Chapters
         chapterContainer,
         chapterContainerLoading,
         chapterContainerError,
@@ -124,6 +133,20 @@ export function ChapterList(props: ChapterListProps) {
             header: "Name",
             size: 90,
         },
+        ...(selectedExtension?.settings?.supportsMultiScanlator ? [{
+            id: "scanlator",
+            header: "Scanlator",
+            size: 40,
+            accessorFn: (row: any) => row.scanlator,
+            enableSorting: true,
+        }] : []),
+        ...(selectedExtension?.settings?.supportsMultiLanguage ? [{
+            id: "language",
+            header: "Language",
+            size: 20,
+            accessorFn: (row: any) => row.language,
+            enableSorting: true,
+        }] : []),
         {
             id: "number",
             header: "Number",
@@ -165,7 +188,7 @@ export function ChapterList(props: ChapterListProps) {
                 )
             },
         },
-    ]), [chapterIdToNumbersMap, isSendingDownloadRequest, isChapterDownloaded, downloadData, mediaId])
+    ]), [chapterIdToNumbersMap, selectedExtension, isSendingDownloadRequest, isChapterDownloaded, downloadData, mediaId])
 
     const unreadChapters = React.useMemo(() => chapterContainer?.chapters?.filter(ch => retainUnreadChapters(ch)) ?? [], [chapterContainer, entry])
     const allChapters = React.useMemo(() => chapterContainer?.chapters?.toReversed() ?? [], [chapterContainer])
@@ -185,8 +208,17 @@ export function ChapterList(props: ChapterListProps) {
         if (showDownloadedChapters) {
             d = d.filter(ch => isChapterDownloaded(ch) || isChapterQueued(ch))
         }
+        if (selectedExtension?.settings?.supportsMultiLanguage && selectedFilters.language) {
+            d = d.filter(ch => ch.language === selectedFilters.language)
+        }
+        if (selectedExtension?.settings?.supportsMultiScanlator && selectedFilters.scanlators[0]) {
+            d = d.filter(ch => ch.scanlator === selectedFilters.scanlators[0])
+        }
         return d
-    }, [showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData])
+    }, [
+        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData,
+        selectedFilters, selectedExtension,
+    ])
 
 
     const {
@@ -243,6 +275,45 @@ export function ChapterList(props: ChapterListProps) {
                     </Button>
                 </MangaManualMappingModal>
             </div>
+
+            {(selectedExtension?.settings?.supportsMultiLanguage || selectedExtension?.settings?.supportsMultiScanlator) && (
+                <div>
+                    <div className="flex gap-2 items-center">
+                        {selectedExtension?.settings?.supportsMultiLanguage && (
+                            <Select
+                                fieldClass="w-52"
+                                options={languageOptions}
+                                placeholder="All"
+                                value={selectedFilters.language}
+                                onValueChange={v => setSelectedLanguage({
+                                    mId: mediaId,
+                                    language: v,
+                                })}
+                                leftAddon="Language"
+                                intent="filled"
+                                size="sm"
+                            />
+                        )}
+                        {selectedExtension?.settings?.supportsMultiScanlator && (
+                            <>
+                                <Select
+                                    fieldClass="w-52"
+                                    options={scanlatorOptions}
+                                    placeholder="All"
+                                    value={selectedFilters.scanlators[0] || ""}
+                                    onValueChange={v => setSelectedScanlator({
+                                        mId: mediaId,
+                                        scanlators: [v],
+                                    })}
+                                    leftAddon="Scanlator"
+                                    intent="filled"
+                                    size="sm"
+                                />
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {(chapterContainerLoading || isClearingMangaCache) ? <LoadingSpinner /> : (
                 chapterContainerError ? <LuffyError title="Oops!"><p>No chapters found</p></LuffyError> : (
@@ -322,12 +393,13 @@ export function ChapterList(props: ChapterListProps) {
                                         hideColumns={[
                                             {
                                                 below: 1000,
-                                                hide: ["number"],
+                                                hide: ["number", "scanlator", "language"],
                                             },
                                         ]}
                                         onRowSelect={onRowSelectionChange}
                                         onRowSelectionChange={setRowSelection}
                                         className=""
+                                        tableClass="table-auto lg:table-fixed"
                                     />
                                 </div>
                             </>

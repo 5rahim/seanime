@@ -44,6 +44,13 @@ func NewManganato(logger *zerolog.Logger) *Manganato {
 	}
 }
 
+func (mp *Manganato) GetSettings() hibikemanga.Settings {
+	return hibikemanga.Settings{
+		SupportsMultiScanlator: false,
+		SupportsMultiLanguage:  false,
+	}
+}
+
 func (mp *Manganato) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
 	ret = make([]*hibikemanga.SearchResult, 0)
 

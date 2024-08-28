@@ -207,7 +207,12 @@ func HandleGetMangaEntryChapters(c *RouteCtx) error {
 		titles = baseManga.GetAllTitles()
 	}
 
-	container, err := c.App.MangaRepository.GetMangaChapterContainer(b.Provider, b.MediaId, titles)
+	container, err := c.App.MangaRepository.GetMangaChapterContainer(&manga.GetMangaChapterContainerOptions{
+		Provider: b.Provider,
+		MediaId:  b.MediaId,
+		Titles:   titles,
+		Year:     baseManga.GetStartYearSafe(),
+	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}

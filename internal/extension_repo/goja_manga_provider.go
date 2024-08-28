@@ -67,6 +67,24 @@ func (g *GojaMangaProvider) GetVM() *goja.Runtime {
 	return g.vm
 }
 
+func (g *GojaMangaProvider) GetSettings() (ret hibikemanga.Settings) {
+	defer util.HandlePanicInModuleThen(g.ext.ID, func() {
+		ret = hibikemanga.Settings{}
+	})
+
+	method, err := g.callClassMethod("getSettings")
+	if err != nil {
+		return
+	}
+
+	err = g.unmarshalValue(method, &ret)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (g *GojaMangaProvider) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
 	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
 

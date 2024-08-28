@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/hibike v0.4.6
+	github.com/5rahim/hibike v0.5.1-0.20240827194521-aeb36b72563f
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.9.2
@@ -44,6 +44,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/traefik/yaegi v0.16.1
 	github.com/xfrr/goffmpeg v1.0.0
+	golang.org/x/crypto v0.26.0
 	golang.org/x/image v0.18.0
 	golang.org/x/net v0.28.0
 	golang.org/x/term v0.23.0
@@ -175,7 +176,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect

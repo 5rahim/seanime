@@ -1,18 +1,6 @@
 package vendor_hibike_manga
 
-const (
-	ChapterFilterLanguage ChapterFilter = "language"
-	ChapterFilterGroup    ChapterFilter = "group"
-)
-
 type (
-	ChapterFilter string
-
-	SelectOption struct {
-		Value string `json:"value"`
-		Label string `json:"label"`
-	}
-
 	Provider interface {
 		// Search returns the search results for the given query.
 		Search(opts SearchOptions) ([]*SearchResult, error)
@@ -20,6 +8,13 @@ type (
 		FindChapters(id string) ([]*ChapterDetails, error)
 		// FindChapterPages returns the chapter pages for the given chapter ID.
 		FindChapterPages(id string) ([]*ChapterPage, error)
+		// GetSettings returns the provider settings.
+		GetSettings() Settings
+	}
+
+	Settings struct {
+		SupportsMultiScanlator bool `json:"supportsMultiScanlator"`
+		SupportsMultiLanguage  bool `json:"supportsMultiLanguage"`
 	}
 
 	SearchOptions struct {
@@ -32,11 +27,8 @@ type (
 	SearchResult struct {
 		// "ID" of the extension.
 		Provider string `json:"provider"`
-		// Language of the manga.
-		// Leave it empty if the language is not available.
-		Language string `json:"language,omitempty"`
-		// It is used to fetch the chapter details.
-		// It can be a combination of keys separated by the $ delimiter.
+		// ID of the manga, used to fetch the chapter details.
+		// It can be a combination of keys separated by a delimiter. (Delimiters should not be slashes).
 		ID string `json:"id"`
 		// The title of the manga.
 		Title string `json:"title"`
@@ -53,13 +45,13 @@ type (
 	}
 
 	ChapterDetails struct {
-		// "ID" of the provider.
+		// "ID" of the extension.
+		// This should be the same as the extension ID and follow the same format.
 		Provider string `json:"provider"`
-		// ID is the chapter slug.
-		// It is used to fetch the chapter pages.
-		// It can be a combination of keys separated by the $ delimiter.
-		// e.g., "10010$one-piece-1", where "10010" is the manga ID and "one-piece-1" is the chapter slug that is reconstructed to "%url/10010/one-piece-1".
-		// It can also include additional info like the language and group. e.g., "10010$one-piece-1$en$group1".
+		// ID of the chapter, used to fetch the chapter pages.
+		// It can be a combination of keys separated by a delimiter. (Delimiters should not be slashes).
+		//	If the same ID has multiple languages, the language key should be included. (e.g., "one-piece-001$chapter-1$en").
+		//	If the same ID has multiple scanlators, the group key should be included. (e.g., "one-piece-001$chapter-1$group-1").
 		ID string `json:"id"`
 		// The chapter page URL.
 		URL string `json:"url"`
@@ -70,6 +62,12 @@ type (
 		Chapter string `json:"chapter"`
 		// From 0 to n
 		Index uint `json:"index"`
+		// The scanlator that translated the chapter.
+		// Leave it empty if your extension does not support multiple scanlators.
+		Scanlator string `json:"scanlator,omitempty"`
+		// The language of the chapter.
+		// Leave it empty if your extension does not support multiple languages.
+		Language string `json:"language,omitempty"`
 		// The rating of the chapter. It is a number from 0 to 100.
 		// Leave it empty if the rating is not available.
 		Rating int `json:"rating,omitempty"`

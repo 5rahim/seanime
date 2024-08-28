@@ -1,6 +1,9 @@
 import { useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { useHandleMangaProviderExtensions } from "@/app/(main)/manga/_lib/handle-manga-providers"
-import { useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
+import { useSelectedMangaFilters, useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
+import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
+import { uniq } from "lodash"
+import React from "react"
 
 export function useHandleMangaChapters(
     mediaId: string | null,
@@ -14,7 +17,11 @@ export function useHandleMangaChapters(
     /**
      * 2. Get the selected provider for this entry
      */
-    const { selectedProvider, setSelectedProvider } = useSelectedMangaProvider(mediaId)
+    const {
+        selectedExtension,
+        selectedProvider,
+        setSelectedProvider,
+    } = useSelectedMangaProvider(mediaId)
 
 
     /**
@@ -29,15 +36,50 @@ export function useHandleMangaChapters(
         provider: selectedProvider || undefined,
     })
 
+    const languageOptions = React.useMemo(() => {
+        if (!selectedExtension) return []
+        if (!selectedExtension.settings?.supportsMultiLanguage) return []
+
+        const languages = uniq(chapterContainer?.chapters?.map(chapter => chapter.language)?.filter(Boolean) || [])
+        return languages.map(lang => ({ value: lang, label: ((LANGUAGES_LIST as any)[lang as any] as any)?.nativeName || lang }))
+    }, [selectedExtension, chapterContainer])
+
+    const scanlatorOptions = React.useMemo(() => {
+        if (!selectedExtension) return []
+        if (!selectedExtension.settings?.supportsMultiScanlator) return []
+
+        const scanlators = uniq(chapterContainer?.chapters?.map(chapter => chapter.scanlator)?.filter(Boolean) || [])
+        return scanlators.map(scanlator => ({ value: scanlator, label: scanlator }))
+    }, [selectedExtension, chapterContainer])
+
+
+    /**
+     * 4. Filters
+     */
+    const { setSelectedScanlator, setSelectedLanguage, selectedFilters } = useSelectedMangaFilters(
+        mediaId,
+        selectedExtension,
+        selectedProvider,
+        languageOptions.map(n => n.value),
+        scanlatorOptions.map(n => n.value),
+        !chapterContainerLoading,
+    )
 
     return {
+        selectedExtension,
         providerExtensions,
         providerExtensionsLoading,
-
+        // Selected provider
         providerOptions, // For dropdown
         selectedProvider, // Current provider
         setSelectedProvider,
-
+        // Filters
+        selectedFilters,
+        setSelectedLanguage,
+        setSelectedScanlator,
+        languageOptions,
+        scanlatorOptions,
+        // Chapters
         chapterContainer,
         chapterContainerLoading,
         chapterContainerError,

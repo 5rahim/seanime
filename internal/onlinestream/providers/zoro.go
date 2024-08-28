@@ -41,8 +41,11 @@ func (z *Zoro) GetSettings() hibikeonlinestream.Settings {
 	}
 }
 
-func (z *Zoro) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchResult, error) {
+func (z *Zoro) Search(opts hibikeonlinestream.SearchOptions) ([]*hibikeonlinestream.SearchResult, error) {
 	var results []*hibikeonlinestream.SearchResult
+
+	query := opts.Query
+	dubbed := opts.Dub
 
 	z.logger.Debug().Str("query", query).Bool("dubbed", dubbed).Msg("zoro: Searching anime")
 
@@ -92,7 +95,7 @@ func (z *Zoro) Search(query string, dubbed bool) ([]*hibikeonlinestream.SearchRe
 	return results, nil
 }
 
-func (z *Zoro) FindEpisode(id string) ([]*hibikeonlinestream.EpisodeDetails, error) {
+func (z *Zoro) FindEpisodes(id string) ([]*hibikeonlinestream.EpisodeDetails, error) {
 	var episodes []*hibikeonlinestream.EpisodeDetails
 
 	z.logger.Debug().Str("id", id).Msg("zoro: Fetching episodes")

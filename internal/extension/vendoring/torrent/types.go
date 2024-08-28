@@ -55,27 +55,28 @@ type (
 		// MyAnimeList ID of the media.
 		IDMal *int `json:"idMal,omitempty"`
 		// e.g. "FINISHED", "RELEASING", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"
-		// This should be set to "NOT_YET_RELEASED" if the status is unknown.
+		// This will be set to "NOT_YET_RELEASED" if the status is unknown.
 		Status string `json:"status,omitempty"`
 		// e.g. "TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA", "MUSIC"
-		// This should be set to "TV" if the format is unknown.
+		// This will be set to "TV" if the format is unknown.
 		Format string `json:"format,omitempty"`
 		// e.g. "Attack on Titan"
+		// This will be undefined if the english title is unknown.
 		EnglishTitle *string `json:"englishTitle,omitempty"`
 		// e.g. "Shingeki no Kyojin"
 		RomajiTitle string `json:"romajiTitle,omitempty"`
-		// TotalEpisodes returns the total number of episodes of the media.
-		// This should be set to -1 if the total number of episodes is unknown.
+		// TotalEpisodes is total number of episodes of the media.
+		// This will be -1 if the total number of episodes is unknown / not applicable.
 		EpisodeCount int `json:"episodeCount,omitempty"`
 		// Absolute offset of the media's season.
-		// This should be set to 0 if the media is not seasonal or the offset is unknown.
+		// This will be 0 if the media is not seasonal or the offset is unknown.
 		AbsoluteSeasonOffset int `json:"absoluteSeasonOffset,omitempty"`
 		// All alternative titles of the media.
 		Synonyms []string `json:"synonyms"`
 		// Whether the media is NSFW.
 		IsAdult bool `json:"isAdult"`
-		// StartDate of the media.
-		// This should be nil if it has no start data.
+		// Start date of the media.
+		// This will be undefined if it has no start date.
 		StartDate *FuzzyDate `json:"startDate,omitempty"`
 	}
 
@@ -87,38 +88,49 @@ type (
 
 	// AnimeSearchOptions represents the options to search for torrents without filters.
 	AnimeSearchOptions struct {
-		Media Media
-		// User query
+		// The media object provided by Seanime.
+		Media Media `json:"media"`
+		// The user search query.
 		Query string `json:"query"`
 	}
 
 	AnimeSmartSearchOptions struct {
+		// The media object provided by Seanime.
 		Media Media `json:"media"`
-		// Optional user query
+		// The user search query.
+		// This will be empty if your extension does not support custom queries.
 		Query string `json:"query"`
-		// Indicates if the search is for a batch torrent.
+		// Indicates whether the user wants to search for batch torrents.
+		// This will be false if your extension does not support batch torrents.
 		Batch bool `json:"batch"`
-		// Episode number of the torrent.
+		// The episode number the user wants to search for.
+		// This will be 0 if your extension does not support episode number filtering.
 		EpisodeNumber int `json:"episodeNumber"`
-		// Resolution of the torrent.
+		// The resolution the user wants to search for.
+		// This will be empty if your extension does not support resolution filtering.
 		// e.g. "1080", "720"
 		Resolution string `json:"resolution"`
 		// AniDB Anime ID of the media.
-		AnidbAID int `json:"aniDbAID"`
+		AnidbAID int `json:"anidbAID"`
 		// AniDB Episode ID of the media.
-		AnidbEID int `json:"aniDbEID"`
-		// Look for the best release.
+		AnidbEID int `json:"anidbEID"`
+		// Indicates whether the user wants to search for the best releases.
+		// This will be false if your extension does not support filtering by best releases.
 		BestReleases bool `json:"bestReleases"`
 	}
 
 	AnimeTorrent struct {
+		// "ID" of the extension.
+		Provider string `json:"provider,omitempty"`
+		// Title of the torrent.
 		Name string `json:"name"`
 		// Date of the torrent.
 		// The date should have RFC3339 format. e.g. "2006-01-02T15:04:05Z07:00"
 		Date string `json:"date"`
 		// Size of the torrent in bytes.
 		Size int64 `json:"size"`
-		// Human-readable size. e.g. "1.2 GB"
+		// Formatted size of the torrent. e.g. "1.2 GB"
+		// Leave this empty if you want Seanime to format the size.
 		FormattedSize string `json:"formattedSize"`
 		// Number of seeders.
 		Seeders int `json:"seeders"`
@@ -128,10 +140,11 @@ type (
 		DownloadCount int `json:"downloadCount"`
 		// Link to the torrent page.
 		Link string `json:"link"`
-		// Direct download link to the torrent.
+		// Download URL of the torrent.
+		// Leave this empty if you cannot provide a direct download URL.
 		DownloadUrl string `json:"downloadUrl"`
 		// Magnet link of the torrent.
-		// Leave empty if it should be scraped later.
+		// Leave this empty if you cannot provide a magnet link without scraping.
 		MagnetLink string `json:"magnetLink,omitempty"`
 		// InfoHash of the torrent.
 		// Leave empty if it should be scraped later.
@@ -139,24 +152,18 @@ type (
 		// Resolution of the video.
 		// e.g. "1080p", "720p"
 		Resolution string `json:"resolution,omitempty"`
-		// Indicates if the torrent is a batch.
-		// Leave it as false if not a batch or unknown.
+		// Set this to true if you can confirm that the torrent is a batch.
+		// Else, Seanime will parse the torrent name to determine if it's a batch.
 		IsBatch bool `json:"isBatch,omitempty"`
 		// Episode number of the torrent.
-		// This can be inferred from the query.
-		// Return -1 if unknown.
+		// Return -1 if unknown / unable to determine and Seanime will parse the torrent name.
 		EpisodeNumber int `json:"episodeNumber,omitempty"`
 		// Release group of the torrent.
-		// Leave empty if unknown.
+		// Leave this empty if you want Seanime to parse the release group from the name.
 		ReleaseGroup string `json:"releaseGroup,omitempty"`
-		// Provider of the torrent.
-		// e.g. "Nyaa", "AnimeTosho"
-		Provider string `json:"provider,omitempty"`
-		// Indicates if the torrent is the best release for the specific media.
-		// Should be a batch torrent unless the media is a movie.
+		// Set this to true if you can confirm that the torrent is the best release.
 		IsBestRelease bool `json:"isBestRelease"`
-		// Indicates if the torrent is certainly related to the media.
-		// i.e. the torrent is not a false positive.
+		// Set this to true if you can confirm that the torrent matches the anime the user is searching for.
 		// e.g. If the torrent was found using the AniDB anime or episode ID
 		Confirmed bool `json:"confirmed"`
 	}

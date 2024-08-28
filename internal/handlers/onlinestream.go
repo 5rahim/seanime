@@ -77,7 +77,14 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	sources, err := c.App.OnlinestreamRepository.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed)
+	// Get media
+	// This is cached
+	media, err := c.App.OnlinestreamRepository.GetMedia(b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	sources, err := c.App.OnlinestreamRepository.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe())
 	if err != nil {
 		return c.RespondWithError(err)
 	}

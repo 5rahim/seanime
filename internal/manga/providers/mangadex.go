@@ -82,6 +82,13 @@ func NewMangadex(logger *zerolog.Logger) *Mangadex {
 	}
 }
 
+func (md *Mangadex) GetSettings() hibikemanga.Settings {
+	return hibikemanga.Settings{
+		SupportsMultiScanlator: false,
+		SupportsMultiLanguage:  false,
+	}
+}
+
 func (md *Mangadex) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchResult, error) {
 	ret := make([]*hibikemanga.SearchResult, 0)
 
