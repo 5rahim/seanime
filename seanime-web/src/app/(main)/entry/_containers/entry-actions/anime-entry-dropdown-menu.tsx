@@ -7,6 +7,10 @@ import {
     __bulkDeleteFilesModalIsOpenAtom,
     AnimeEntryBulkDeleteFilesModal,
 } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-bulk-delete-files-modal"
+import {
+    __animeEntryDownloadFilesModalIsOpenAtom,
+    AnimeEntryDownloadFilesModal,
+} from "@/app/(main)/entry/_containers/entry-actions/anime-entry-download-files-modal"
 import { __metadataManager_isOpenAtom, AnimeEntryMetadataManager } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-metadata-manager"
 import {
     __animeEntryUnmatchFilesModalIsOpenAtom,
@@ -32,6 +36,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
 
     const setBulkDeleteFilesModalOpen = useSetAtom(__bulkDeleteFilesModalIsOpenAtom)
     const setAnimeEntryUnmatchFilesModalOpen = useSetAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
+    const setDownloadFilesModalOpen = useSetAtom(__animeEntryDownloadFilesModalIsOpenAtom)
 
 
     return (
@@ -59,9 +64,16 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
                     Metadata
                 </DropdownMenuItem>
 
+
                 {inLibrary && <>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Bulk actions</DropdownMenuLabel>
+                    <DropdownMenuItem
+                        className="flex justify-between"
+                        onClick={() => setDownloadFilesModalOpen(p => !p)}
+                    >
+                        <span>Download some files</span> <BiRightArrowAlt />
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         className="text-red-500 dark:text-red-200 flex justify-between"
                         onClick={() => setAnimeEntryUnmatchFilesModalOpen(true)}
@@ -77,6 +89,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
                 </>}
             </DropdownMenu>
 
+            <AnimeEntryDownloadFilesModal entry={entry} />
             <AnimeEntryMetadataManager entry={entry} />
             <AnimeEntryBulkDeleteFilesModal entry={entry} />
             <AnimeEntryUnmatchFilesModal entry={entry} />

@@ -69,6 +69,13 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                     >
                         <MetadataModalButton />
                         <DropdownMenuSeparator />
+                        {/*<DropdownMenuItem*/}
+                        {/*    onClick={() => {*/}
+                        {/*        if (episode.localFile) {*/}
+                        {/*            window.open(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile.path), "_blank")*/}
+                        {/*        }*/}
+                        {/*    }}*/}
+                        {/*>Download</DropdownMenuItem>*/}
                         <DropdownMenuItem
                             className="!text-red-300 !dark:text-red-200"
                             onClick={() => {

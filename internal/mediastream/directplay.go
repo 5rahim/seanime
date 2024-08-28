@@ -22,11 +22,6 @@ func (r *Repository) ServeFiberFile(ctx *fiber.Ctx, filePath string, clientId st
 
 	filePath, _ = url.QueryUnescape(filePath)
 
-	if !r.IsInitialized() {
-		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
-		return errors.New("module not initialized")
-	}
-
 	return ctx.SendFile(filePath)
 }
 
