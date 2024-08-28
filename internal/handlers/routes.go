@@ -115,6 +115,9 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// General
 	//
 	v1.Get("/status", makeHandler(app, HandleGetStatus))
+	v1.Get("/log/*", makeHandler(app, HandleGetLogContent))
+	v1.Get("/logs/filenames", makeHandler(app, HandleGetLogFilenames))
+	v1.Delete("/logs", makeHandler(app, HandleDeleteLogs))
 
 	// Auth
 	v1.Post("/auth/login", makeHandler(app, HandleLogin))

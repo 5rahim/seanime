@@ -5871,6 +5871,76 @@
     }
   },
   {
+    "name": "HandleGetLogFilenames",
+    "trimmedName": "GetLogFilenames",
+    "comments": [
+      "HandleGetLogFilenames",
+      "",
+      "\t@summary returns the log filenames.",
+      "\t@desc This returns the filenames of all log files in the logs directory.",
+      "\t@route /api/v1/logs/filenames [GET]",
+      "\t@returns []string",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "returns the log filenames.",
+      "descriptions": [
+        "This returns the filenames of all log files in the logs directory."
+      ],
+      "endpoint": "/api/v1/logs/filenames",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]string",
+      "returnGoType": "string",
+      "returnTypescriptType": "Array\u003cstring\u003e"
+    }
+  },
+  {
+    "name": "HandleDeleteLogs",
+    "trimmedName": "DeleteLogs",
+    "comments": [
+      "HandleDeleteLogs",
+      "",
+      "\t@summary deletes certain log files.",
+      "\t@desc This deletes the log files with the given filenames.",
+      "\t@route /api/v1/logs [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "deletes certain log files.",
+      "descriptions": [
+        "This deletes the log files with the given filenames."
+      ],
+      "endpoint": "/api/v1/logs",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Filenames",
+          "jsonName": "filenames",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetTheme",
     "trimmedName": "GetTheme",
     "comments": [

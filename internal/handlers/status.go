@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"io/fs"
+	"os"
+	"path/filepath"
 	"runtime"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
+	"slices"
+	"strings"
 )
 
 // Status is a struct containing the user data, settings, and OS.
@@ -94,4 +99,118 @@ func HandleGetStatus(c *RouteCtx) error {
 
 	return c.RespondWithData(status)
 
+}
+
+func HandleGetLogContent(c *RouteCtx) error {
+	if c.App.Config == nil || c.App.Config.Logs.Dir == "" {
+		return c.RespondWithData("")
+	}
+
+	filename := c.Fiber.AllParams()["*1"]
+	fp := strings.ToLower(filepath.ToSlash(filepath.Join(c.App.Config.Logs.Dir, filename)))
+
+	fileContent := ""
+	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		if filepath.Ext(path) != ".log" {
+			return nil
+		}
+
+		if strings.ToLower(filepath.ToSlash(path)) == fp {
+			contentB, err := os.ReadFile(fp)
+			if err != nil {
+				return err
+			}
+			fileContent = string(contentB)
+		}
+		return nil
+	})
+
+	return c.RespondWithData(fileContent)
+}
+
+// HandleGetLogFilenames
+//
+//	@summary returns the log filenames.
+//	@desc This returns the filenames of all log files in the logs directory.
+//	@route /api/v1/logs/filenames [GET]
+//	@returns []string
+func HandleGetLogFilenames(c *RouteCtx) error {
+	if c.App.Config == nil || c.App.Config.Logs.Dir == "" {
+		return c.RespondWithData([]string{})
+	}
+
+	var filenames []string
+	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		if filepath.Ext(path) != ".log" {
+			return nil
+		}
+
+		filenames = append(filenames, filepath.Base(path))
+		return nil
+	})
+
+	// Sort from newest to oldest & remove the newest `seanime-` log file
+	if len(filenames) > 0 {
+		slices.SortStableFunc(filenames, func(i, j string) int {
+			return strings.Compare(j, i)
+		})
+		for i, filename := range filenames {
+			if strings.HasPrefix(strings.ToLower(filename), "seanime-") {
+				filenames = append(filenames[:i], filenames[i+1:]...)
+				break
+			}
+		}
+	}
+
+	return c.RespondWithData(filenames)
+}
+
+// HandleDeleteLogs
+//
+//	@summary deletes certain log files.
+//	@desc This deletes the log files with the given filenames.
+//	@route /api/v1/logs [DELETE]
+//	@returns bool
+func HandleDeleteLogs(c *RouteCtx) error {
+	type body struct {
+		Filenames []string `json:"filenames"`
+	}
+
+	if c.App.Config == nil || c.App.Config.Logs.Dir == "" {
+		return c.RespondWithData(false)
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
+		if filepath.Ext(path) != ".log" {
+			return nil
+		}
+
+		for _, filename := range b.Filenames {
+			if strings.ToLower(filepath.Base(path)) == strings.ToLower(filename) {
+				if err := os.Remove(path); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	return c.RespondWithData(true)
 }

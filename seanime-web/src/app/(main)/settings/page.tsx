@@ -9,6 +9,7 @@ import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplay
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
+import { LogsSettings } from "@/app/(main)/settings/_containers/logs-settings"
 import { MangaSettings } from "@/app/(main)/settings/_containers/manga-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
@@ -29,6 +30,7 @@ import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
+import { LuBookKey } from "react-icons/lu"
 import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
@@ -114,6 +116,7 @@ export default function Page() {
                         <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
                         <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
                         <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
+                        <TabsTrigger value="logs"><LuBookKey className="text-lg mr-3" /> Logs</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                     </TabsList>
@@ -561,6 +564,14 @@ export default function Page() {
                             <h3>Torrent streaming</h3>
 
                             <TorrentstreamSettings settings={torrentstreamSettings} />
+
+                        </TabsContent>
+
+                        <TabsContent value="logs" className="space-y-6">
+
+                            <h3>Logs</h3>
+
+                            <LogsSettings />
 
                         </TabsContent>
 

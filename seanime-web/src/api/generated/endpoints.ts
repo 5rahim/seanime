@@ -1258,6 +1258,26 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/status",
         },
+        /**
+         *  @description
+         *  Route returns the log filenames.
+         *  This returns the filenames of all log files in the logs directory.
+         */
+        GetLogFilenames: {
+            key: "STATUS-get-log-filenames",
+            methods: ["GET"],
+            endpoint: "/api/v1/logs/filenames",
+        },
+        /**
+         *  @description
+         *  Route deletes certain log files.
+         *  This deletes the log files with the given filenames.
+         */
+        DeleteLogs: {
+            key: "STATUS-delete-logs",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/logs",
+        },
     },
     THEME: {
         GetTheme: {

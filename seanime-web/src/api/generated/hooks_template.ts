@@ -1492,6 +1492,26 @@
 //     })
 // }
 
+// export function useGetLogFilenames() {
+//     return useServerQuery<Array<string>>({
+//         endpoint: API_ENDPOINTS.STATUS.GetLogFilenames.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetLogFilenames.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetLogFilenames.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useDeleteLogs() {
+//     return useServerMutation<boolean, DeleteLogs_Variables>({
+//         endpoint: API_ENDPOINTS.STATUS.DeleteLogs.endpoint,
+//         method: API_ENDPOINTS.STATUS.DeleteLogs.methods[0],
+//         mutationKey: [API_ENDPOINTS.STATUS.DeleteLogs.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // theme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
