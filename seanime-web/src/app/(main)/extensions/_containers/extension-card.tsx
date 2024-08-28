@@ -112,6 +112,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     <Badge className="rounded-md" intent="unstyled">
                         {extension.author}
                     </Badge>
+                    <Badge className="rounded-md">
+                        {extension.lang.toUpperCase()}
+                    </Badge>
                     <Badge className="rounded-md" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>

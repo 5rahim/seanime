@@ -137,6 +137,9 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                     {!!extension.extension?.version && <Badge className="rounded-md">
                         {extension.extension?.version}
                     </Badge>}
+                    {extension.extension?.lang && <Badge className="rounded-md">
+                        {extension.extension?.lang?.toUpperCase?.()}
+                    </Badge>}
                     <Badge className="rounded-md" intent="unstyled">
                         {extension.extension?.author ?? "Unknown author"}
                     </Badge>

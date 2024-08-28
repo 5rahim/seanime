@@ -363,6 +363,8 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		return
 	}
 
+	ext.Lang = extension.GetExtensionLang(ext.Lang)
+
 	var manifestError error
 
 	// Sanity check
