@@ -36,12 +36,23 @@ declare type VideoSubtitle = {
     isDefault: boolean
 }
 
-declare abstract class AnimeProvider {
-    search(query: string, dub: boolean): Promise<SearchResult[]>
+declare type SearchOptions = {
+    query: string
+    dub: boolean
+    year?: number
+}
 
-    findEpisode(id: string): Promise<EpisodeDetails[]>
+declare type Settings = {
+    episodeServers: string[]
+    supportsDub: boolean
+}
+
+declare abstract class AnimeProvider {
+    search(opts: SearchOptions): Promise<SearchResult[]>
+
+    findEpisodes(id: string): Promise<EpisodeDetails[]>
 
     findEpisodeServer(episode: EpisodeDetails, server: string): Promise<EpisodeServer>
 
-    getEpisodeServers(): string[]
+    getSettings(): Settings
 }

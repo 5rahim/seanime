@@ -154,10 +154,7 @@ func cryptoAESEncryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 		// Encrypt the message
 		encryptedMessage := encryptAES(vm, message, keyBytes, ivBytes)
 
-		// Prepend the IV to the ciphertext and return
-		finalCipherText := append(ivBytes, encryptedMessage...)
-		//return vm.ToValue(base64.StdEncoding.EncodeToString(finalCipherText))
-		return newWordArrayGojaValue(vm, finalCipherText, ivBytes)
+		return newWordArrayGojaValue(vm, encryptedMessage, ivBytes)
 	}
 }
 
@@ -171,19 +168,6 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 		// Can be string or WordArray
 		// If WordArray, String() will call WordArray.toString() which will return the base64 encoded string
 		encryptedMessage := call.Argument(0).String()
-
-		//var wordArrIV []byte
-		//if wordArr, ok := call.Argument(0).Export().(map[string]interface{}); ok {
-		//	if wordArrI, ok := wordArr["iv"]; ok {
-		//		wordArrIV, ok = wordArrI.([]byte)
-		//		if !ok {
-		//			panic(vm.ToValue("TypeError: iv parameter must be an ArrayBuffer"))
-		//		}
-		//		if len(wordArrIV) != aes.BlockSize {
-		//			panic(vm.ToValue("TypeError: IV length must be equal to block size (16 bytes for AES)"))
-		//		}
-		//	}
-		//}
 
 		var keyBytes []byte
 		switch call.Argument(1).Export().(type) {
@@ -217,9 +201,7 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 			if err != nil {
 				panic(vm.ToValue(fmt.Sprintf("Failed to decode ciphertext: %v", err)))
 			}
-
-			ivBytes = decodedMessage[:aes.BlockSize]
-			cipherText = decodedMessage[aes.BlockSize:]
+			cipherText = decodedMessage
 		} else {
 			// Decode the base64 encoded string
 			decodedMessage, err := base64.StdEncoding.DecodeString(encryptedMessage)
@@ -227,13 +209,7 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 				panic(vm.ToValue(fmt.Sprintf("Failed to decode ciphertext: %v", err)))
 			}
 
-			//if len(wordArrIV) > 0 {
-			//	ivBytes = wordArrIV
-			//} else {
-			//	ivBytes = decodedMessage[:aes.BlockSize]
-			//}
-			ivBytes = decodedMessage[:aes.BlockSize]
-			cipherText = decodedMessage[aes.BlockSize:]
+			cipherText = decodedMessage
 		}
 
 		// Decrypt the message

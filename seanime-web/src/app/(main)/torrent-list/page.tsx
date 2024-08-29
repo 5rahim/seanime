@@ -89,8 +89,8 @@ function Content() {
 
             <div>
                 <ul className="text-[--muted] flex flex-wrap gap-4">
-                    <li>Downloading: {data?.filter(t => t.status === "downloading" || t.status === "paused").length}</li>
-                    <li>Seeding: {data?.filter(t => t.status === "seeding").length}</li>
+                    <li>Downloading: {data?.filter(t => t.status === "downloading" || t.status === "paused")?.length ?? 0}</li>
+                    <li>Seeding: {data?.filter(t => t.status === "seeding")?.length ?? 0}</li>
                 </ul>
             </div>
 

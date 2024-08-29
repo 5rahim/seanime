@@ -1,6 +1,7 @@
 package extension_repo_test
 
 import (
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -19,11 +20,14 @@ func TestExternalGoOnlinestreamProviderExtension(t *testing.T) {
 
 	t.Logf("\nExtension:\n\tID: %s \n\tName: %s", ext.GetID(), ext.GetName())
 
-	searchResults, err := ext.GetProvider().Search("Blue Lock", false)
+	searchResults, err := ext.GetProvider().Search(hibikeonlinestream.SearchOptions{
+		Query: "Blue Lock",
+		Dub:   false,
+	})
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(searchResults), 1)
 
-	episodes, err := ext.GetProvider().FindEpisode(searchResults[0].ID)
+	episodes, err := ext.GetProvider().FindEpisodes(searchResults[0].ID)
 	require.NoError(t, err)
 	require.GreaterOrEqual(t, len(episodes), 1)
 

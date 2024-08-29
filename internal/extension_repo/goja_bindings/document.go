@@ -1,6 +1,7 @@
 package goja_bindings
 
 import (
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dop251/goja"
 	"strings"
@@ -48,6 +49,8 @@ func setSelectionObjectProperties(obj *goja.Object, docS *docSelection) {
 	_ = obj.Set("prevAll", docS.PrevAll)
 	_ = obj.Set("prevUntil", docS.PrevUntil)
 	_ = obj.Set("siblings", docS.Siblings)
+	_ = obj.Set("data", docS.Data)
+	_ = obj.Set("attrs", docS.Attrs)
 }
 
 func BindDocument(vm *goja.Runtime) error {
@@ -195,6 +198,58 @@ func (s *docSelection) Attr(call goja.FunctionCall) goja.Value {
 	return s.doc.vm.ToValue(attr)
 }
 
+// Attrs gets all attributes for the first element in the Selection.
+//
+//	attrs(): { [key: string]: string };
+func (s *docSelection) Attrs(call goja.FunctionCall) goja.Value {
+	if s.selection == nil {
+		panic(s.doc.vm.ToValue("selection is nil"))
+	}
+	attrs := make(map[string]string)
+	for _, v := range s.selection.Get(0).Attr {
+		attrs[v.Key] = v.Val
+	}
+	return s.doc.vm.ToValue(attrs)
+}
+
+// Data gets data associated with the matched elements or return the value at the named data store for the first element in the set of matched elements.
+//
+//	data(name?: string): { [key: string]: string } | string | undefined;
+func (s *docSelection) Data(call goja.FunctionCall) goja.Value {
+	if s.selection == nil {
+		panic(s.doc.vm.ToValue("selection is nil"))
+	}
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
+		var data map[string]string
+		n := s.selection.Get(0)
+		if n == nil {
+			return goja.Undefined()
+		}
+		for _, v := range n.Attr {
+			if strings.HasPrefix(v.Key, "data-") {
+				if data == nil {
+					data = make(map[string]string)
+				}
+				data[v.Key] = v.Val
+			}
+		}
+		return s.doc.vm.ToValue(data)
+	}
+
+	name := call.Argument(0).String()
+	n := s.selection.Get(0)
+	if n == nil {
+		return goja.Undefined()
+	}
+
+	data, found := s.selection.Attr(fmt.Sprintf("data-%s", name))
+	if !found {
+		return goja.Undefined()
+	}
+
+	return s.doc.vm.ToValue(data)
+}
+
 // Parent gets the parent of each element in the Selection. It returns a new Selection object containing the matched elements.
 //
 //	parent(selector?: string): DocSelection;
@@ -203,7 +258,7 @@ func (s *docSelection) Parent(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Parent())
 	}
 
@@ -219,7 +274,7 @@ func (s *docSelection) Parents(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Parents())
 	}
 
@@ -260,7 +315,7 @@ func (s *docSelection) Closest(call goja.FunctionCall) goja.Value {
 	if s.selection == nil {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Closest(""))
 	}
 
@@ -276,7 +331,7 @@ func (s *docSelection) Next(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Next())
 	}
 
@@ -292,7 +347,7 @@ func (s *docSelection) NextAll(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.NextAll())
 	}
 
@@ -323,7 +378,7 @@ func (s *docSelection) Prev(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Prev())
 	}
 
@@ -339,7 +394,7 @@ func (s *docSelection) PrevAll(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.PrevAll())
 	}
 
@@ -370,7 +425,7 @@ func (s *docSelection) Siblings(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Siblings())
 	}
 
@@ -386,7 +441,7 @@ func (s *docSelection) Children(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		return newDocSelectionGojaValue(s.doc, s.selection.Children())
 	}
 
@@ -427,7 +482,7 @@ func (s *docSelection) Filter(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		panic(s.doc.vm.ToValue("missing argument"))
 	}
 
@@ -461,7 +516,7 @@ func (s *docSelection) Not(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		panic(s.doc.vm.ToValue("missing argument"))
 	}
 
@@ -494,7 +549,7 @@ func (s *docSelection) Is(call goja.FunctionCall) goja.Value {
 		panic(s.doc.vm.ToValue("selection is nil"))
 	}
 
-	if len(call.Arguments) == 0 {
+	if len(call.Arguments) == 0 || !gojaValueIsDefined(call.Argument(0)) {
 		panic(s.doc.vm.ToValue("missing argument"))
 	}
 

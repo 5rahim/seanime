@@ -4,10 +4,12 @@ package server
 
 import (
 	"embed"
+	"fmt"
 	"fyne.io/systray"
 	"github.com/cli/browser"
 	"github.com/gonutz/w32/v2"
 	"github.com/rs/zerolog/log"
+	"seanime/internal/constants"
 	"seanime/internal/core"
 	"seanime/internal/handlers"
 	"seanime/internal/icon"
@@ -39,15 +41,16 @@ func addQuitItem() {
 func onReady(webFS *embed.FS, app *core.App, flags core.SeanimeFlags, selfupdater *updater.SelfUpdater) func() {
 	return func() {
 		systray.SetTemplateIcon(icon.Data, icon.Data)
-		systray.SetTitle("Seanime")
-		systray.SetTooltip("Seanime")
+		systray.SetTitle(fmt.Sprintf("Seanime v%s", constants.Version))
+		systray.SetTooltip(fmt.Sprintf("Seanime v%s", constants.Version))
 		log.Trace().Msg("systray: App is ready")
 
 		// Menu items
+		systray.AddMenuItem("Seanime v"+constants.Version, "Seanime version")
 		mWeb := systray.AddMenuItem(app.Config.GetServerURI("127.0.0.1"), "Open web interface")
 		mOpenLibrary := systray.AddMenuItem("Open Anime Library", "Open anime library")
 		mOpenDataDir := systray.AddMenuItem("Open Data Directory", "Open data directory")
-		mOpenLogsDir := systray.AddMenuItem("Open Logs Directory", "Open logs directory")
+		mOpenLogsDir := systray.AddMenuItem("Open Log Directory", "Open log directory")
 
 		addQuitItem()
 

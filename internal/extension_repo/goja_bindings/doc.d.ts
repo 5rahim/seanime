@@ -3,6 +3,9 @@ declare class DocSelection {
     // To get the value for each element individually, use a looping construct such as each or map.
     attr(name: string): string | undefined;
 
+    // Returns an object containing the attributes of the first element in the DocSelection.
+    attrs(): { [key: string]: string };
+
     // Gets the child elements of each element in the DocSelection, optionally filtered by a selector.
     children(selector?: string): DocSelection;
 
@@ -15,6 +18,10 @@ declare class DocSelection {
 
     // Gets the children of each element in the DocSelection, filtered by the specified selector.
     contentsFiltered(selector: string): DocSelection;
+
+    // Gets the value of a data attribute for the first element in the DocSelection.
+    // If no name is provided, returns an object containing all data attributes.
+    data<T extends string | undefined>(name?: T): T extends string ? (string | undefined) : { [key: string]: string };
 
     // Iterates over each element in the DocSelection, executing a function for each matched element.
     each(callback: (index: number, element: DocSelection) => void): DocSelection;

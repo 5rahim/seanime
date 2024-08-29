@@ -63,7 +63,7 @@ type Params = {
         findEpisodes: {
             id: string
         },
-        findEpisodeServers: {
+        findEpisodeServer: {
             episode: string
             server: string
         },
@@ -107,7 +107,7 @@ const DEFAULT_PARAMS: Params = {
         findEpisodes: {
             id: "",
         },
-        findEpisodeServers: {
+        findEpisodeServer: {
             episode: "",
             server: "",
         },
@@ -125,7 +125,7 @@ const enum Functions {
     MangaProviderFindChapterPages = "MangaProvider.findChapterPages",
     OnlinestreamSearch = "Onlinestream.search",
     OnlinestreamFindEpisodes = "Onlinestream.findEpisodes",
-    OnlinestreamFindEpisodeServers = "Onlinestream.findEpisodeServers",
+    OnlinestreamFindEpisodeServer = "Onlinestream.findEpisodeServer",
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -259,12 +259,12 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                 mediaId: inputs.onlineStreamingProvider.mediaId,
                 id: inputs.onlineStreamingProvider.findEpisodes.id,
             }
-        } else if (selectedFunction === Functions.OnlinestreamFindEpisodeServers) {
-            func = "findEpisodeServers"
+        } else if (selectedFunction === Functions.OnlinestreamFindEpisodeServer) {
+            func = "findEpisodeServer"
             ret = {
                 mediaId: inputs.onlineStreamingProvider.mediaId,
-                episode: inputs.onlineStreamingProvider.findEpisodeServers.episode,
-                server: inputs.onlineStreamingProvider.findEpisodeServers.server,
+                episode: inputs.onlineStreamingProvider.findEpisodeServer.episode,
+                server: inputs.onlineStreamingProvider.findEpisodeServer.server,
             }
         } else {
             toast.error("Invalid function selected.")
@@ -364,13 +364,13 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                         <AppLayoutStack className="w-full">
                                             <p className="font-semibold">Console</p>
                                             <div className="bg-gray-900 rounded-md border max-w-full overflow-x-auto">
-                                                <pre className="max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap">
+                                                <pre className="max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap break-all">
                                                     {response?.logs?.split("\n").map((l, i) => (
                                                         <p
                                                             key={i}
                                                             className={cn(
-                                                                "w-full",
-                                                                i % 2 === 0 ? "bg-gray-950" : "bg-gray-900",
+                                                                "w-full hover:text-white",
+                                                                i % 2 === 0 ? "bg-gray-900" : "bg-gray-800",
                                                                 l.includes("|ERR|") && "text-white bg-red-800",
                                                                 l.includes("|WRN|") && "text-orange-500",
                                                                 l.includes("|INF|") && "text-blue-200",
@@ -622,7 +622,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                     options={[
                                                         { value: Functions.OnlinestreamSearch, label: "search" },
                                                         { value: Functions.OnlinestreamFindEpisodes, label: "findEpisode" },
-                                                        { value: Functions.OnlinestreamFindEpisodeServers, label: "findEpisodeServers" },
+                                                        { value: Functions.OnlinestreamFindEpisodeServer, label: "findEpisodeServer" },
                                                     ]}
                                                     onValueChange={v => {
                                                         setSelectedFunction(v as Functions)
@@ -677,14 +677,14 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                     </>
                                                 )}
 
-                                                {selectedFunction === Functions.OnlinestreamFindEpisodeServers && (
+                                                {selectedFunction === Functions.OnlinestreamFindEpisodeServer && (
                                                     <>
                                                         <Textarea
                                                             label="Episode JSON"
-                                                            value={inputs.onlineStreamingProvider.findEpisodeServers.episode}
+                                                            value={inputs.onlineStreamingProvider.findEpisodeServer.episode}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.onlineStreamingProvider.findEpisodeServers.episode = v
+                                                                    d.onlineStreamingProvider.findEpisodeServer.episode = v
                                                                     return
                                                                 })
                                                             }}
@@ -693,10 +693,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                         <TextInput
                                                             label="Server"
                                                             type="text"
-                                                            value={inputs.onlineStreamingProvider.findEpisodeServers.server}
+                                                            value={inputs.onlineStreamingProvider.findEpisodeServer.server}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.onlineStreamingProvider.findEpisodeServers.server = v
+                                                                    d.onlineStreamingProvider.findEpisodeServer.server = v
                                                                     return
                                                                 })
                                                             }}

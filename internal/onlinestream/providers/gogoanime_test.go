@@ -29,7 +29,10 @@ func TestGogoanime_Search(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			results, err := gogo.Search(tt.query, tt.dubbed)
+			results, err := gogo.Search(hibikeonlinestream.SearchOptions{
+				Query: tt.query,
+				Dub:   tt.dubbed,
+			})
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -72,7 +75,7 @@ func TestGogoanime_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := gogo.FindEpisode(tt.id)
+			episodes, err := gogo.FindEpisodes(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -124,6 +127,15 @@ func TestGogoanime_FetchSources(t *testing.T) {
 				ID:     "one-piece-episode-1075",
 				Number: 1075,
 				URL:    "https://anitaku.to/one-piece-episode-1075",
+			},
+			server: GogocdnServer,
+		},
+		{
+			name: "Bocchi the Rock!",
+			episode: &hibikeonlinestream.EpisodeDetails{
+				ID:     "bocchi-the-rock-episode-1",
+				Number: 1075,
+				URL:    "https://anitaku.to/bocchi-the-rock-episode-1",
 			},
 			server: GogocdnServer,
 		},

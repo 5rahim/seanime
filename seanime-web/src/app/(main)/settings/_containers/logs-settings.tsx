@@ -137,7 +137,7 @@ function LogModal(props: { filename: string }) {
 
                 {isPending ? <LoadingSpinner /> :
                     <div className="bg-gray-900 rounded-md border max-w-full overflow-x-auto">
-                    <pre className="text-md max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap">
+                    <pre className="text-md max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap break-all">
                         {data?.split("\n").map((line, i) => (
                             <p
                                 key={i}

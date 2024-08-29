@@ -40,7 +40,10 @@ func TestZoro_Search(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			results, err := zoro.Search(tt.query, tt.dubbed)
+			results, err := zoro.Search(hibikeonlinestream.SearchOptions{
+				Query: tt.query,
+				Dub:   tt.dubbed,
+			})
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
@@ -84,7 +87,7 @@ func TestZoro_FetchEpisodes(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			episodes, err := zoro.FindEpisode(tt.id)
+			episodes, err := zoro.FindEpisodes(tt.id)
 			if !assert.NoError(t, err) {
 				t.FailNow()
 			}
