@@ -4,6 +4,7 @@ import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { UpdateModal } from "@/app/(main)/_features/update/update-modal"
 import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-queue-count"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useCurrentUser, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -18,6 +19,7 @@ import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ANILIST_OAUTH_URL } from "@/lib/server/config"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
+import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
 import { usePathname } from "next/navigation"
@@ -87,6 +89,14 @@ export function MainSidebar() {
         },
     })
 
+    const [activeTorrentCount, setActiveTorrentCount] = React.useState({ downloading: 0, paused: 0, seeding: 0 })
+    useWebsocketMessageListener<{ downloading: number, paused: number, seeding: number }>({
+        type: WSEvents.ACTIVE_TORRENT_COUNT_UPDATED,
+        onMessage: data => {
+            setActiveTorrentCount(data)
+        },
+    })
+
     return (
         <>
             <AppSidebar
@@ -152,7 +162,7 @@ export function MainSidebar() {
                             },
                             ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
                                 iconType: TbWorldDownload,
-                                name: "Auto downloader",
+                                name: "Auto Downloader",
                                 href: "/auto-downloader",
                                 isCurrent: pathname === "/auto-downloader",
                                 addon: autoDownloaderQueueCount > 0 ? <Badge
@@ -162,9 +172,17 @@ export function MainSidebar() {
                             }],
                             ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
                                 iconType: BiDownload,
-                                name: "Torrent list",
+                                name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                                    ? "Torrent list"
+                                    : `Torrent list (${activeTorrentCount.seeding} seeding)`,
                                 href: "/torrent-list",
                                 isCurrent: pathname === "/torrent-list",
+                                addon: ((activeTorrentCount.downloading + activeTorrentCount.paused) > 0 && serverStatus?.settings?.torrent?.showActiveTorrentCount)
+                                    ? <Badge
+                                        className="absolute right-0 top-0 bg-green-500" size="sm"
+                                        intent="alert-solid"
+                                    >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
+                                    : undefined,
                             }],
                             {
                                 iconType: PiClockCounterClockwiseFill,

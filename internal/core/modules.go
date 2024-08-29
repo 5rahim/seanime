@@ -299,6 +299,10 @@ func (a *App) InitOrRefreshModules() {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize transmission client")
 		}
 
+		if a.TorrentClientRepository != nil {
+			a.TorrentClientRepository.Shutdown()
+		}
+
 		// Torrent Client Repository
 		a.TorrentClientRepository = torrent_client.NewRepository(&torrent_client.NewRepositoryOptions{
 			Logger:            a.Logger,
@@ -307,6 +311,8 @@ func (a *App) InitOrRefreshModules() {
 			TorrentRepository: a.TorrentRepository,
 			Provider:          settings.Torrent.Default,
 		})
+
+		a.TorrentClientRepository.InitActiveTorrentCount(settings.Torrent.ShowActiveTorrentCount, a.WSEventManager)
 
 		// Set AutoDownloader qBittorrent client
 		a.AutoDownloader.SetTorrentClientRepository(a.TorrentClientRepository)

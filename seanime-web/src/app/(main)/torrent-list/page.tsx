@@ -86,6 +86,14 @@ function Content() {
 
     return (
         <AppLayoutStack className={""}>
+
+            <div>
+                <ul className="text-[--muted] flex flex-wrap gap-4">
+                    <li>Downloading: {data?.filter(t => t.status === "downloading" || t.status === "paused").length}</li>
+                    <li>Seeding: {data?.filter(t => t.status === "seeding").length}</li>
+                </ul>
+            </div>
+
             {data?.filter(Boolean)?.map(torrent => {
                 return <TorrentItem
                     key={torrent.hash}

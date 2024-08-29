@@ -26,4 +26,5 @@ export const enum WSEvents {
     OFFLINE_SNAPSHOT_CREATED = "offline-snapshot-created",
     MEDIASTREAM_SHUTDOWN_STREAM = "mediastream-shutdown-stream",
     EXTENSIONS_RELOADED = "extensions-reloaded",
+    ACTIVE_TORRENT_COUNT_UPDATED = "active-torrent-count-updated",
 }

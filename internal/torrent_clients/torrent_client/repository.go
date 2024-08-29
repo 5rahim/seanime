@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/hekmon/transmissionrpc/v3"
 	"github.com/rs/zerolog"
+	"seanime/internal/events"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/qbittorrent/model"
 	"seanime/internal/torrent_clients/transmission"
@@ -25,6 +26,9 @@ type (
 		transmission      *transmission.Transmission
 		torrentRepository *torrent.Repository
 		provider          string
+
+		activeTorrentCountCtxCancel context.CancelFunc
+		activeTorrentCount          *ActiveCount
 	}
 
 	NewRepositoryOptions struct {
@@ -36,9 +40,9 @@ type (
 	}
 
 	ActiveCount struct {
-		Downloading int
-		Seeding     int
-		Paused      int
+		Downloading int `json:"downloading"`
+		Seeding     int `json:"seeding"`
+		Paused      int `json:"paused"`
 	}
 )
 
@@ -47,12 +51,46 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		opts.Provider = QbittorrentClient
 	}
 	return &Repository{
-		logger:            opts.Logger,
-		qBittorrentClient: opts.QbittorrentClient,
-		transmission:      opts.Transmission,
-		torrentRepository: opts.TorrentRepository,
-		provider:          opts.Provider,
+		logger:             opts.Logger,
+		qBittorrentClient:  opts.QbittorrentClient,
+		transmission:       opts.Transmission,
+		torrentRepository:  opts.TorrentRepository,
+		provider:           opts.Provider,
+		activeTorrentCount: &ActiveCount{},
 	}
+}
+
+func (r *Repository) Shutdown() {
+	if r.activeTorrentCountCtxCancel != nil {
+		r.activeTorrentCountCtxCancel()
+		r.activeTorrentCountCtxCancel = nil
+	}
+}
+
+func (r *Repository) InitActiveTorrentCount(enabled bool, wsEventManager events.WSEventManagerInterface) {
+	if r.activeTorrentCountCtxCancel != nil {
+		r.activeTorrentCountCtxCancel()
+	}
+
+	if !enabled {
+		return
+	}
+
+	var ctx context.Context
+	ctx, r.activeTorrentCountCtxCancel = context.WithCancel(context.Background())
+	go func(ctx context.Context) {
+		ticker := time.NewTicker(time.Second * 5)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				r.GetActiveCount(r.activeTorrentCount)
+				wsEventManager.SendEvent(events.ActiveTorrentCountUpdated, r.activeTorrentCount)
+			}
+		}
+	}(ctx)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,13 +142,20 @@ func (r *Repository) GetList() ([]*Torrent, error) {
 
 // GetActiveCount will return the count of active torrents (downloading, seeding, paused).
 func (r *Repository) GetActiveCount(ret *ActiveCount) {
+	ret.Seeding = 0
+	ret.Downloading = 0
+	ret.Paused = 0
 	switch r.provider {
 	case QbittorrentClient:
-		torrents, err := r.qBittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{Filter: "active"})
+		torrents, err := r.qBittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{Filter: "downloading"})
 		if err != nil {
 			return
 		}
-		ret = &ActiveCount{}
+		torrents2, err := r.qBittorrentClient.Torrent.GetList(&qbittorrent_model.GetTorrentListOptions{Filter: "seeding"})
+		if err != nil {
+			return
+		}
+		torrents = append(torrents, torrents2...)
 		for _, t := range torrents {
 			switch fromQbitTorrentStatus(t.State) {
 			case TorrentStatusDownloading:
@@ -126,7 +171,6 @@ func (r *Repository) GetActiveCount(ret *ActiveCount) {
 		if err != nil {
 			return
 		}
-		ret = &ActiveCount{}
 		for _, t := range torrents {
 			if t.Status == nil || t.IsFinished == nil {
 				continue
