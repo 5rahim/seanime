@@ -12,6 +12,8 @@ declare type ChapterDetails = {
     title: string
     chapter: string
     index: number
+    scanlator?: string
+    language?: string
     rating?: number
     updatedAt?: string
 }
@@ -27,9 +29,15 @@ declare type QueryOptions = {
     year?: number
 }
 
+declare type Settings = {
+    supportsMultiLanguage?: boolean
+    supportsMultiScanlator?: boolean
+}
 
 declare abstract class MangaProvider {
     search(opts: QueryOptions): Promise<SearchResult[]>
     findChapters(id: string): Promise<ChapterDetails[]>
     findChapterPages(id: string): Promise<ChapterPage[]>
+
+    getSettings(): Settings
 }

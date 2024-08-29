@@ -7,6 +7,13 @@ class Provider {
     api = "https://anitaku.to"
     ajaxURL = "https://ajax.gogocdn.net"
 
+    getSettings(): Settings {
+        return {
+            episodeServers: ["gogocdn", "vidstreaming", "streamsb"],
+            supportsDub: true,
+        }
+    }
+
     async search(opts: SearchOptions): Promise<SearchResult[]> {
         const request = await fetch(`${this.api}/search.html?keyword=${encodeURIComponent(opts.query)}`)
         if (!request.ok) {
@@ -113,13 +120,6 @@ class Provider {
 
         episode.id = serverURL
         return await this.findEpisodeServer(episode, server)
-    }
-
-    getSettings(): Settings {
-        return {
-            episodeServers: ["gogocdn", "vidstreaming", "streamsb"],
-            supportsDub: true,
-        }
     }
 
 }

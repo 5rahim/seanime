@@ -4,6 +4,15 @@ class Provider {
 
     api = "https://feed.animetosho.org/json"
 
+    getSettings(): AnimeProviderSettings {
+        return {
+            canSmartSearch: true,
+            smartSearchFilters: ["batch", "episodeNumber", "resolution"],
+            supportsAdult: false,
+            type: "main",
+        }
+    }
+
     async search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]> {
         const query = `?q=${encodeURIComponent(opts.query)}&only_tor=1`
         console.log(query)
@@ -15,9 +24,9 @@ class Provider {
         const ret: AnimeTorrent[] = []
 
         if (opts.batch) {
-            if (!opts.aniDbAID) return []
+            if (!opts.anidbAID) return []
 
-            let torrents = await this.searchByAID(opts.aniDbAID, opts.resolution)
+            let torrents = await this.searchByAID(opts.anidbAID, opts.resolution)
 
             if (!(opts.media.format == "MOVIE" || opts.media.episodeCount == 1)) {
                 torrents = torrents.filter(t => t.num_files > 1)
@@ -32,9 +41,9 @@ class Provider {
             return ret
         }
 
-        if (!opts.aniDbEID) return []
+        if (!opts.anidbEID) return []
 
-        const torrents = await this.searchByEID(opts.aniDbEID, opts.resolution)
+        const torrents = await this.searchByEID(opts.anidbEID, opts.resolution)
 
         for (const torrent of torrents) {
             ret.push(this.toAnimeTorrent(torrent))
@@ -55,15 +64,6 @@ class Provider {
         const query = `?q=&only_tor=1`
         const torrents = await this.fetchTorrents(query)
         return torrents.map(t => this.toAnimeTorrent(t))
-    }
-
-    getSettings(): AnimeProviderSettings {
-        return {
-            canSmartSearch: true,
-            smartSearchFilters: ["batch", "episodeNumber", "resolution"],
-            supportsAdult: false,
-            type: "main",
-        }
     }
 
     async searchByAID(aid: number, quality: string): Promise<ToshoTorrent[]> {

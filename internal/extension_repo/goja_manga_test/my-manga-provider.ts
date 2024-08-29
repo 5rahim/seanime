@@ -4,6 +4,13 @@ class Provider {
 
     private api = "https://api.comick.fun"
 
+    getSettings(): Settings {
+        return {
+            supportsMultiLanguage: true,
+            supportsMultiScanlator: false,
+        }
+    }
+
     async search(opts: QueryOptions): Promise<SearchResult[]> {
         console.log(this.api, opts.query)
 

@@ -30,7 +30,7 @@ declare interface FuzzyDate {
 }
 
 declare interface AnimeSearchOptions {
-    Media: Media
+    media: Media
     query: string
 }
 
@@ -40,8 +40,8 @@ declare interface AnimeSmartSearchOptions {
     batch: boolean
     episodeNumber: number
     resolution: string
-    aniDbAID: number
-    aniDbEID: number
+    anidbAID: number
+    anidbEID: number
     bestReleases: boolean
 }
 
