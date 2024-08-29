@@ -314,7 +314,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                             options={[
                                 { value: "typescript", label: "Typescript" },
                                 { value: "javascript", label: "Javascript" },
-                                { value: "go", label: "Go" },
+                                // { value: "go", label: "Go" },
                             ]}
                             onValueChange={v => {
                                 onLanguageChange?.(v as Extension_Language)

@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.1.0
+
+- ✨ Manage logs from the web interface
+- ✨ Extensions: Improved Javascript interpreter
+  - New Cheerio-like HTML parsing API
+  - New CryptoJS API bindings
+- ✨ Extensions: Typescript/Javascript Playground
+  - Test your extension code interactively from the web interface
+- ✨ AnimeTosho: 'Best release' filter
+- ✨ Manga: New built-in "ComicK (Multi)" extension
+  - Supports language & scanlator filters
+- ✨ Auto play next episode for Desktop media players
+  - Enable this in the media player settings
+- ✨ Manga extension API now support language & scanlator filters
+- ⚡️ Playlist creation filters
+- ⚡️ Unmatch selected files instead of all
+- ⚡️ New option to download files to device
+- ⚡️ Progress modal key bindings #111
+  - 'u' to update progress & 'space' to play next episode
+- 🦺 Extensions Fixed JS runtime 'fetch' not working with non-JSON responses
+- 🦺 qBittorrent login fix
+- 🏗️ Updated extension SDK
+  - Breaking changes for third-party extensions
+
 ## v2.0.3
 
 - ✨ Settings: Choose default manga source

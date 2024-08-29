@@ -19,6 +19,7 @@ export default function Page() {
                 <ExtensionPlayground
                     language={extensionLanguage}
                     type={extensionType}
+                    onLanguageChange={setExtensionLanguage}
                     onTypeChange={setExtensionType}
                     code={code}
                     onCodeChange={setCode}

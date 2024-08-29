@@ -286,7 +286,16 @@ func (a *App) InitOrRefreshModules() {
 			Host:     settings.Torrent.QBittorrentHost,
 			Path:     settings.Torrent.QBittorrentPath,
 		})
-		_ = qbit.Login()
+		go func() {
+			if settings.Torrent.Default == "qbittorrent" {
+				err = qbit.Login()
+				if err != nil {
+					a.Logger.Error().Err(err).Msg("app: Failed to login to qBittorrent")
+				} else {
+					a.Logger.Info().Msg("app: Logged in to qBittorrent")
+				}
+			}
+		}()
 		// Init Transmission
 		trans, err := transmission.New(&transmission.NewTransmissionOptions{
 			Logger:   a.Logger,
