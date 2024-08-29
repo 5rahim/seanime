@@ -33,7 +33,7 @@ async function run() {
         console.log("Message:", message)
 
         let encrypted = CryptoJS.AES.encrypt(message, key)
-        console.log("Encrypted:", encrypted) // map[iv toString]
+        console.log("Encrypted without IV:", encrypted) // map[iv toString]
         console.log("Encrypted.toString():", encrypted.toString()) // AoHrnhJfbRht2idLHM82WdkIEpRbXufnA6+ozty9fbk=
         console.log("Encrypted.toString(CryptoJS.enc.Base64):", encrypted.toString(CryptoJS.enc.Base64)) // AoHrnhJfbRht2idLHM82WdkIEpRbXufnA6+ozty9fbk=
 
@@ -42,13 +42,13 @@ async function run() {
 
         let iv = CryptoJS.enc.Utf8.parse("3134003223491201")
         encrypted = CryptoJS.AES.encrypt(message, key, { iv: iv })
-        console.log("Encrypted:", encrypted) // map[iv toString]
+        console.log("Encrypted with IV:", encrypted) // map[iv toString]
 
         decrypted = CryptoJS.AES.decrypt(encrypted, key)
-        console.log("Decrypted:", decrypted.toString(CryptoJS.enc.Utf8)) // seanime
+        console.log("Decrypted without IV:", decrypted.toString(CryptoJS.enc.Utf8))
 
         decrypted = CryptoJS.AES.decrypt(encrypted, key, { iv: iv })
-        console.log("Decrypted:", decrypted.toString(CryptoJS.enc.Utf8)) // seanime
+        console.log("Decrypted with IV:", decrypted.toString(CryptoJS.enc.Utf8)) // seanime
 
     }
     catch (e) {

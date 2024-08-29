@@ -124,6 +124,7 @@ func cryptoAESEncryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 			panic(vm.ToValue("TypeError: key parameter must be a string or an ArrayBuffer"))
 		}
 
+		usedRandomIV := false
 		// Check if IV is provided
 		var ivBytes []byte
 		if len(call.Arguments) > 2 {
@@ -143,6 +144,7 @@ func cryptoAESEncryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 			if _, err := io.ReadFull(rand.Reader, ivBytes); err != nil {
 				panic(vm.ToValue(fmt.Sprintf("Failed to generate IV: %v", err)))
 			}
+			usedRandomIV = true
 		}
 
 		defer func() {
@@ -153,6 +155,11 @@ func cryptoAESEncryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 
 		// Encrypt the message
 		encryptedMessage := encryptAES(vm, message, keyBytes, ivBytes)
+
+		if usedRandomIV {
+			// Prepend the IV to the encrypted message
+			encryptedMessage = append(ivBytes, encryptedMessage...)
+		}
 
 		return newWordArrayGojaValue(vm, encryptedMessage, ivBytes)
 	}
@@ -209,7 +216,9 @@ func cryptoAESDecryptFunc(vm *goja.Runtime) func(call goja.FunctionCall) goja.Va
 				panic(vm.ToValue(fmt.Sprintf("Failed to decode ciphertext: %v", err)))
 			}
 
-			cipherText = decodedMessage
+			// Extract the IV from the beginning of the message
+			ivBytes = decodedMessage[:aes.BlockSize]
+			cipherText = decodedMessage[aes.BlockSize:]
 		}
 
 		// Decrypt the message
