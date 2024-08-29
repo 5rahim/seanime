@@ -14,6 +14,8 @@ import (
 	"seanime/internal/util"
 	"strings"
 	"time"
+	"slices"
+	"syscall"
 )
 
 const (
@@ -275,22 +277,11 @@ func openMacOS(path string) error {
 }
 
 func openLinux(path string) error {
-	terminals := []string{
-		"gnome-terminal", "--", path,
-		"konsole", "-e", path,
-		"xfce4-terminal", "-e", path,
-		"xterm", "-hold", "-e", path,
-		"lxterminal", "-e", path,
-	}
+	// Filter out the -update flag or we end up in an infinite update loop
+	filteredArgs := slices.DeleteFunc(os.Args, func(s string) bool {return s == "-update"})
 
-	for i := 0; i < len(terminals); i += 2 {
-		if exec.Command("which", terminals[i]).Run() == nil {
-			cmd := exec.Command(terminals[i], terminals[i+1:]...)
-			return cmd.Start()
-		}
-	}
-
-	return fmt.Errorf("no supported terminal emulator found")
+	// Replace the current process with the updated executable
+	return syscall.Exec(path, filteredArgs, os.Environ())
 }
 
 // moveContents moves contents of newReleaseDir to exeDir without deleting existing files
