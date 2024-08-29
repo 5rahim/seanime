@@ -235,7 +235,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                 {!!coverImage && <div
                     className={cn(
-                        "flex-none aspect-[6/8] max-w-[150px] mx-auto h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
+                        "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
                     )}
                 >
                     <Image
@@ -304,7 +304,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     <ScrollArea
                         className={cn(
                             "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] hover:text-white transition-colors duration-500 text-sm pr-2",
-                            "bg-transparent hover:bg-zinc-950/30 rounded-md",
+                            "bg-transparent hover:bg-zinc-950/30 rounded-md text-center lg:text-left",
                         )}
                     >
                         {description?.replace(/(<([^>]+)>)/ig, "")}
