@@ -17,8 +17,8 @@ All notable changes to this project will be documented in this file.
   - Enable this in the media player settings
 - ✨ Manga extension API now support language & scanlator filters
 - ⚡️ Playlist creation filters
-- ⚡️ Unmatch selected files instead of all
-- ⚡️ New option to download files to device
+- ⚡️ Unmatch select files instead of all
+- ⚡️ New option to download files to device #110
 - ⚡️ Progress modal key bindings #111
   - 'u' to update progress & 'space' to play next episode
 - 🦺 Extensions Fixed JS runtime 'fetch' not working with non-JSON responses
