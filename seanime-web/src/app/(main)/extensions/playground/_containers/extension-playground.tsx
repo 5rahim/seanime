@@ -5,6 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
@@ -16,9 +17,9 @@ import { autocompletion } from "@codemirror/autocomplete"
 import { javascript } from "@codemirror/lang-javascript"
 import { StreamLanguage } from "@codemirror/language"
 import { go } from "@codemirror/legacy-modes/mode/go"
-import { vscodeKeymap } from "@replit/codemirror-vscode-keymap"
+// import { vscodeKeymap } from "@replit/codemirror-vscode-keymap"
 import { vscodeDark } from "@uiw/codemirror-theme-vscode"
-import CodeMirror, { keymap } from "@uiw/react-codemirror"
+import CodeMirror from "@uiw/react-codemirror"
 import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
@@ -348,7 +349,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                 theme={vscodeDark}
                                                 extensions={[
                                                     autocompletion({ defaultKeymap: false }),
-                                                    keymap.of(vscodeKeymap),
+                                                    // keymap.of(vscodeKeymap),
                                                     javascript({ typescript: language === "typescript" }),
                                                     StreamLanguage.define(go),
                                                 ]}
@@ -363,8 +364,20 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                         <AppLayoutStack className="w-full">
                                             <p className="font-semibold">Console</p>
                                             <div className="bg-gray-900 rounded-md border max-w-full overflow-x-auto">
-                                                <pre className="text-sm max-h-[40rem] p-2 min-h-12 text-white">
-                                                    {response?.logs}
+                                                <pre className="max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap">
+                                                    {response?.logs?.split("\n").map((l, i) => (
+                                                        <p
+                                                            key={i}
+                                                            className={cn(
+                                                                "w-full",
+                                                                i % 2 === 0 ? "bg-gray-950" : "bg-gray-900",
+                                                                l.includes("|ERR|") && "text-white bg-red-800",
+                                                                l.includes("|WRN|") && "text-orange-500",
+                                                                l.includes("|INF|") && "text-blue-200",
+                                                                l.includes("|TRC|") && "text-[--muted]",
+                                                            )}
+                                                        >{l}</p>
+                                                    ))}
                                                 </pre>
                                             </div>
                                         </AppLayoutStack>
@@ -700,7 +713,15 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
 
                                             <div className="bg-gray-900 border rounded-md max-w-full overflow-x-auto">
                                                 <pre className="text-sm text-white min-h-12 max-h-[40rem] p-2">
-                                                    {response?.value}
+                                                    {response?.value?.split("\n").map((l, i) => (
+                                                        <p
+                                                            key={i}
+                                                            className={cn(
+                                                                "w-full",
+                                                                i % 2 === 0 ? "bg-gray-950" : "bg-gray-900",
+                                                            )}
+                                                        >{l}</p>
+                                                    ))}
                                                 </pre>
                                             </div>
                                         </AppLayoutStack>

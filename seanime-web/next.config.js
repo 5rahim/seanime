@@ -5,7 +5,7 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    transpilePackages: ["@uiw/react-textarea-code-editor"],
+    transpilePackages: ["@uiw/react-textarea-code-editor", "@replit/codemirror-vscode-keymap"],
 }
 
 module.exports = nextConfig
