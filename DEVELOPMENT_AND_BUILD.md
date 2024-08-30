@@ -6,7 +6,7 @@ I recommend creating a dummy AniList account for testing purposes.
 
 ## Setup
 
-1. Install Go 1.22, Node.js 18+ and npm.
+1. Install Go 1.23, Node.js 18+ and npm.
 2. Use a modern IDE
 
 ## Server

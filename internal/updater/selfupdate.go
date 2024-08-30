@@ -12,10 +12,10 @@ import (
 	"runtime"
 	"seanime/internal/constants"
 	"seanime/internal/util"
-	"strings"
-	"time"
 	"slices"
+	"strings"
 	"syscall"
+	"time"
 )
 
 const (
@@ -278,7 +278,7 @@ func openMacOS(path string) error {
 
 func openLinux(path string) error {
 	// Filter out the -update flag or we end up in an infinite update loop
-	filteredArgs := slices.DeleteFunc(os.Args, func(s string) bool {return s == "-update"})
+	filteredArgs := slices.DeleteFunc(os.Args, func(s string) bool { return s == "-update" })
 
 	// Replace the current process with the updated executable
 	return syscall.Exec(path, filteredArgs, os.Environ())
