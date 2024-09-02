@@ -5,6 +5,8 @@ import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
+import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
+import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { useAnimeCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
@@ -49,6 +51,8 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
             <AnimePreviewModal />
+            <PlaybackManagerProgressTracking />
+            <ManualProgressTracking />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

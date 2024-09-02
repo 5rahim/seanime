@@ -18,7 +18,7 @@ import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import Image from "next/image"
@@ -39,7 +39,44 @@ type Props = {
     asSidebarButton?: boolean
 }
 
-export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
+export function PlaybackManagerProgressTrackingButton({ asSidebarButton }: Props) {
+    const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
+
+    const isTracking = useAtomValue(__pt_isTrackingAtom)
+
+    const isCompleted = useAtomValue(__pt_isCompletedAtom)
+
+    // \/ Modal can be displayed when progress tracking or video is completed
+    // Basically, keep the modal visible if there's no more tracking but the video is completed
+    const shouldBeDisplayed = isTracking || isCompleted
+
+    return (
+        <>
+            {shouldBeDisplayed && (
+                <>
+                    {asSidebarButton ? (
+                        <IconButton
+                            intent="primary-subtle"
+                            className={cn("animate-pulse")}
+                            icon={<PiPopcornFill />}
+                            onClick={() => setShowModal(true)}
+                        />
+                    ) : (
+                        <Button
+                            intent="primary"
+                            className={cn("animate-pulse")}
+                            leftIcon={<PiPopcornFill />}
+                            onClick={() => setShowModal(true)}
+                        >
+                            Currently watching
+                        </Button>)}
+                </>
+            )}
+        </>
+    )
+}
+
+export function PlaybackManagerProgressTracking() {
     const serverStatus = useServerStatus()
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
@@ -279,28 +316,6 @@ export function PlaybackManagerProgressTracking({ asSidebarButton }: Props) {
 
     return (
         <>
-            {shouldBeDisplayed && (
-                <>
-                    {asSidebarButton ? (
-                        <IconButton
-                            intent="primary-subtle"
-                            className={cn("animate-pulse")}
-                            icon={<PiPopcornFill />}
-                            onClick={() => setShowModal(true)}
-                        />
-                    ) : (
-                        <Button
-                            intent="primary"
-                            className={cn("animate-pulse")}
-                            leftIcon={<PiPopcornFill />}
-                            onClick={() => setShowModal(true)}
-                        >
-                            Currently watching
-                        </Button>)}
-                </>
-            )}
-
-
             <Modal
                 open={showModal && shouldBeDisplayed}
                 onOpenChange={v => setShowModal(v)}

@@ -4,6 +4,8 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { WSEvents } from "@/lib/server/ws-events"
+import { atom } from "jotai"
+import { useAtom } from "jotai/react"
 import React from "react"
 import { PiPopcornFill } from "react-icons/pi"
 import { PlaybackManager_PlaybackState } from "./_lib/playback-manager.types"
@@ -12,16 +14,50 @@ type ManualProgressTrackingProps = {
     asSidebarButton?: boolean
 }
 
-export function ManualProgressTracking(props: ManualProgressTrackingProps) {
+const __mpt_isWatchingAtom = atom<boolean>(false)
+const __mpt_showModalAtom = atom<boolean>(false)
+
+export function ManualProgressTrackingButton(props: ManualProgressTrackingProps) {
 
     const {
         asSidebarButton,
         ...rest
     } = props
 
-    const [isWatching, setIsWatching] = React.useState(false)
+    const [isWatching, setIsWatching] = useAtom(__mpt_isWatchingAtom)
+    const [showModal, setShowModal] = useAtom(__mpt_showModalAtom)
+
+    return (
+        <>
+            {isWatching && (
+                <>
+                    {asSidebarButton ? (
+                        <IconButton
+                            intent="primary-subtle"
+                            className={cn("animate-pulse")}
+                            icon={<PiPopcornFill />}
+                            onClick={() => setShowModal(true)}
+                        />
+                    ) : (
+                        <Button
+                            intent="primary"
+                            className={cn("animate-pulse")}
+                            leftIcon={<PiPopcornFill />}
+                            onClick={() => setShowModal(true)}
+                        >
+                            Currently watching
+                        </Button>)}
+                </>
+            )}
+        </>
+    )
+}
+
+export function ManualProgressTracking() {
+
+    const [isWatching, setIsWatching] = useAtom(__mpt_isWatchingAtom)
     const [state, setState] = React.useState<PlaybackManager_PlaybackState | null>(null)
-    const [showModal, setShowModal] = React.useState(false)
+    const [showModal, setShowModal] = useAtom(__mpt_showModalAtom)
 
     // Playback state
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
@@ -65,27 +101,6 @@ export function ManualProgressTracking(props: ManualProgressTrackingProps) {
 
     return (
         <>
-            {isWatching && (
-                <>
-                    {asSidebarButton ? (
-                        <IconButton
-                            intent="primary-subtle"
-                            className={cn("animate-pulse")}
-                            icon={<PiPopcornFill />}
-                            onClick={() => setShowModal(true)}
-                        />
-                    ) : (
-                        <Button
-                            intent="primary"
-                            className={cn("animate-pulse")}
-                            leftIcon={<PiPopcornFill />}
-                            onClick={() => setShowModal(true)}
-                        >
-                            Currently watching
-                        </Button>)}
-                </>
-            )}
-
             <Modal
                 open={showModal && isWatching}
                 onOpenChange={v => setShowModal(v)}

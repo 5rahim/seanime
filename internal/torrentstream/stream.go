@@ -154,12 +154,17 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 }
 
 func (r *Repository) StopStream() error {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
 	r.logger.Info().Msg("torrentstream: Stopping stream")
 
 	// Stop the client
 	// This will stop the stream and close the server
 	// This also sends the eventTorrentStopped event
 	close(r.client.stopCh)
+	r.client.stopCh = make(chan struct{})
 
 	r.logger.Info().Msg("torrentstream: Stream stopped")
 

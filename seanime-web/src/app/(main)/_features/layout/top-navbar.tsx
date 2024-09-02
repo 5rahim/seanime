@@ -2,8 +2,8 @@ import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { RefreshAnilistButton } from "@/app/(main)/_features/anilist/refresh-anilist-button"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
-import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
-import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
+import { ManualProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
+import { PlaybackManagerProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
 import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
@@ -42,8 +42,8 @@ export function TopNavbar(props: TopNavbarProps) {
                     <div className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
                         <TopMenu />
-                        <PlaybackManagerProgressTracking />
-                        <ManualProgressTracking />
+                        <PlaybackManagerProgressTrackingButton />
+                        <ManualProgressTrackingButton />
                         <div className="flex flex-1"></div>
                         <ChapterDownloadsButton />
                         <RefreshAnilistButton />
@@ -117,10 +117,10 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                 ]}
             />
             <div className="flex justify-center">
-                <PlaybackManagerProgressTracking asSidebarButton />
+                <PlaybackManagerProgressTrackingButton asSidebarButton />
             </div>
             <div className="flex justify-center">
-                <ManualProgressTracking asSidebarButton />
+                <ManualProgressTrackingButton asSidebarButton />
             </div>
         </div>
     )
