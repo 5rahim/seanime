@@ -1,0 +1,28 @@
+[package]
+name = "seanime-desktop"
+version = "0.1.0"
+description = "A desktop client for Seanime"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.71"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "lib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-rc.7", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "2.0.0-rc.8", features = ["tray-icon"] }
+tauri-plugin-shell = "2.0.0-rc"
+strip-ansi-escapes = "0.2.0"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2.0.0-rc"
