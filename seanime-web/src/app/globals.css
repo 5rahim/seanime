@@ -210,7 +210,7 @@ h6 {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-none
+    @apply bg-gray-700 rounded-full
 }
 
 /* Handle on hover */
@@ -231,9 +231,16 @@ h6 {
     display: none !important;
 }
 
+body[data-scroll-locked] {
+    --removed-body-scroll-bar-size: 0 !important;
+    margin-right: 0 !important;
+    overflow-y: auto !important;
+}
+
 
 /**/
 
 pre {
     overflow-x: auto;
 }
+

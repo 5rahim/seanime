@@ -7,6 +7,7 @@
     "devUrl": "http://127.0.0.1:43210"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "label": "main",
@@ -14,7 +15,19 @@
         "width": 800,
         "height": 600,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "visible": false,
+        "hiddenTitle": true
+      },
+      {
+        "label": "splashscreen",
+        "title": "Seanime",
+        "width": 800,
+        "height": 600,
+        "resizable": false,
+        "decorations": false,
+        "url": "/splashscreen",
+        "hiddenTitle": true
       }
     ],
     "security": {

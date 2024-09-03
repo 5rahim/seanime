@@ -1,4 +1,5 @@
 import { TauriManager } from "@/app/(main)/_tauri/tauri-manager"
+import { TauriWindowsTitleBar } from "@/app/(main)/_tauri/tauri-windows-title-bar"
 import { ClientProviders } from "@/app/client-providers"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: {
     return (
         <html lang="en" suppressHydrationWarning>
         <body className={inter.className} suppressHydrationWarning>
+        {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <TauriWindowsTitleBar />}
         {/*{process.env.NODE_ENV === "development" && <script src="http://localhost:8097"></script>}*/}
         <ClientProviders>
             {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <TauriManager />}

@@ -1,4 +1,5 @@
 "use client"
+import { TauriSidebarPaddingMacOS } from "@/app/(main)/_tauri/tauri-padding"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
 import { __AppSidebarContext } from "."
@@ -169,7 +170,11 @@ export const AppLayout = React.forwardRef<HTMLDivElement, AppLayoutProps>((props
     return (
         <div
             ref={ref}
-            className={cn(AppLayoutAnatomy.root({ withSidebar, sidebarSize: ctx.size || sidebarSize }), className)}
+            className={cn(
+                AppLayoutAnatomy.root({ withSidebar, sidebarSize: ctx.size || sidebarSize }),
+                process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-4 select-none",
+                className,
+            )}
             {...rest}
         >
             {children}
@@ -228,6 +233,7 @@ export const AppLayoutSidebar = React.forwardRef<HTMLElement, AppLayoutSidebarPr
             className={cn(AppLayoutSidebarAnatomy.root(), className)}
             {...rest}
         >
+            {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <TauriSidebarPaddingMacOS />}
             {children}
         </aside>
     )

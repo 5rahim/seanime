@@ -1,18 +1,26 @@
+mod server;
 #[cfg(desktop)]
 mod tray;
-mod server;
 
 use std::sync::{Arc, Mutex};
+#[cfg(target_os = "macos")]
+use tauri::utils::TitleBarStyle;
 use tauri::{Emitter, Manager};
+use tauri_plugin_decorum::WebviewWindowExt;
 use tauri_plugin_shell::ShellExt;
+// adds helper methods to WebviewWindow
+use tauri_plugin_os;
 
 pub fn run() {
-    let server_process = Arc::new(Mutex::new(None::<tauri_plugin_shell::process::CommandChild>));
+    let server_process = Arc::new(Mutex::new(
+        None::<tauri_plugin_shell::process::CommandChild>,
+    ));
     let server_process_for_setup = Arc::clone(&server_process);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_os::init())
         .setup(move |app| {
             #[cfg(all(desktop))]
             {
@@ -20,12 +28,21 @@ pub fn run() {
                 tray::create_tray(handle)?;
             }
 
-            let window = app.get_webview_window("main").unwrap();
+            let main_window = app.get_webview_window("main").unwrap();
+            main_window.hide().unwrap();
+
+            // Set overlay title bar only when building for macOS
+            #[cfg(target_os = "macos")]
+            main_window.set_title_bar_style(TitleBarStyle::Overlay).unwrap();
+
+            // Hide the title bar on Windows
+            #[cfg(any(target_os = "windows"))]
+            main_window.set_decorations(false).unwrap();
 
             // Open dev tools only when in dev mode
             #[cfg(debug_assertions)]
             {
-                window.open_devtools();
+                main_window.open_devtools();
             }
 
             server::launch_seanime_server(app.handle().clone(), server_process_for_setup);
@@ -65,4 +82,3 @@ pub fn run() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-

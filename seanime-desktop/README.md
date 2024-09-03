@@ -10,7 +10,7 @@ Desktop app for Seanime. Embeds server and web interface.
 
 ## Roadmap
 
-- [ ] Custom window
+- [ ] Custom title bar
 - [ ] Check Getting started
 - [ ] Dedicated log-in
 - [ ] Dedicated update process

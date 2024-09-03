@@ -47,7 +47,7 @@ jobs:
   #          path: seanime-web/out-desktop # output dir of build:desktop
 
   build-server:
-    #    needs: build-webapp FIXME Uncomment if building web
+    #    needs: build-webapp TODO Uncomment if building web
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -92,7 +92,7 @@ jobs:
           go-version: '1.23'
 
       # Download the web folders
-      # FIXME Uncomment if building web
+      # TODO Uncomment if building web
       #      - name: Download web folder artifact
       #        uses: actions/download-artifact@v4
       #        with:
@@ -267,7 +267,7 @@ jobs:
 
 
       # Download the web folder
-      # FIXME Uncomment if building web
+      # TODO Uncomment if building web
       #      - name: Download web folder artifact
       #        uses: actions/download-artifact@v4
       #        with:

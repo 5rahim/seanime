@@ -22,6 +22,7 @@ export function MediaEntryPageSmallBanner(props: MediaEntryPageSmallBannerProps)
             <div
                 className={cn(
                     "h-[30rem] w-full flex-none object-cover object-center absolute -top-[5rem] overflow-hidden bg-[--background]",
+                    (ts.hideTopNavbar || process.env.NEXT_PUBLIC_PLATFORM === "desktop") && "h-[27rem]",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                 )}
             >
