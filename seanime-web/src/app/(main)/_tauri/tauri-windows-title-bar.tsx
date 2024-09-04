@@ -54,7 +54,7 @@ export function TauriWindowsTitleBar(props: TauriWindowsTitleBarProps) {
 
     return (
         <>
-            <div className="bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex">
+            <div className="__tauri-windows-traffic-light scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex">
                 <div className="flex flex-1" data-tauri-drag-region></div>
                 <div className="flex">
                     <IconButton

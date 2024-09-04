@@ -77,7 +77,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
             <div
                 className={cn(
-                    "w-full flex-none object-cover object-center z-[3] bg-[--background] h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
+                    "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : "opacity-5"),
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
@@ -91,12 +91,12 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 {/*BOTTOM OVERFLOW FADE*/}
                 <div
                     className={cn(
-                        "w-full z-[2] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
+                        "w-full z-[2] absolute scroll-locked-offset bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
                         !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     )}
                 />
 
-                <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute top-0 left-0 scroll-locked-offset w-full h-full">
                     {(!!backgroundImage) && <Image
                         src={backgroundImage || ""}
                         alt="banner image"
@@ -104,7 +104,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         quality={100}
                         priority
                         sizes="100vw"
-                        className="object-cover object-center z-[1]"
+                        className="object-cover object-center scroll-locked-offset z-[1]"
                     />}
                     {/*LEFT MASK*/}
                     <div
