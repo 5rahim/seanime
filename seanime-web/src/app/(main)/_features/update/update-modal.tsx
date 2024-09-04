@@ -2,6 +2,7 @@
 import { Updater_Release } from "@/api/generated/types"
 import { useDownloadRelease } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate, useInstallLatestUpdate } from "@/api/hooks/releases.hooks"
+import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button } from "@/components/ui/button"
@@ -54,19 +55,7 @@ export function UpdateModal(props: UpdateModalProps) {
         }
     }
 
-    const body = React.useMemo(() => {
-        if (!updateData || !updateData.release) return []
-        let body = updateData.release.body
-        if (body.includes("---")) {
-            body = body.split("---")[0]
-        }
-        return body.split(/\n/).filter((line) => line.trim() !== "" && line.trim().startsWith("-"))
-    }, [updateData])
-
     function handleInstallUpdate() {
-        // if (serverStatus?.os === "windows" && !fallbackDestination) {
-        //     return toast.error("Select a fallback destination")
-        // }
         installUpdate({ fallback_destination: "" })
     }
 
@@ -103,33 +92,9 @@ export function UpdateModal(props: UpdateModalProps) {
                 <div className="space-y-2">
                     <h3>Seanime {updateData.release.version} is out!</h3>
                     <p className="text-[--muted]">A new version of Seanime has been released.</p>
-                    {body.some(n => n.includes("🚑️")) &&
-                        <p className="text-red-300 font-semibold flex gap-2 items-center">This update includes a critical patch</p>}
-                    <div className="rounded-[--radius] space-y-1.5">
-                        <h5>What's new?</h5>
-                        {body.map((line, index) => {
-                            if (line.includes("🚑️")) return <p key={index} className="text-red-300 font-semibold flex gap-2 items-center">{line}
-                                <AiFillExclamationCircle /></p>
-                            if (line.includes("🎉")) return <p key={index} className="text-white">{line}</p>
-                            if (line.includes("✨")) return <p key={index} className="text-white">{line}</p>
-                            if (line.includes("⚡️")) return <p key={index} className="">{line}</p>
-                            if (line.includes("💄")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🦺")) return <p key={index} className="">{line}</p>
-                            if (line.includes("⬆️")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🏗️")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🚀")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🔧")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🔍")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🔒")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🔑")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🔗")) return <p key={index} className="">{line}</p>
-                            if (line.includes("🔨")) return <p key={index} className="">{line}</p>
 
-                            return (
-                                <p key={index} className="text-[--muted] pl-4 text-sm">{line}<br /></p>
-                            )
-                        })}
-                    </div>
+                    <UpdateChangelogBody updateData={updateData} />
+
                     <div className="flex gap-2 w-full !mt-4">
                         <Modal
                             trigger={<Button leftIcon={<GrInstall className="text-2xl" />}>
@@ -143,22 +108,6 @@ export function UpdateModal(props: UpdateModalProps) {
                                     Seanime will perform an update by downloading and replacing existing files.
                                     Refer to the documentation for more information.
                                 </p>
-
-                                {/*{serverStatus?.os === "windows" && (*/}
-                                {/*    <div className="space-y-2 p-4 border rounded-md">*/}
-                                {/*        <p>*/}
-                                {/*            Select a fallback destination in case the update fails due to permission issues.*/}
-                                {/*            It should not be the same as the current installation directory.*/}
-                                {/*        </p>*/}
-                                {/*        <DirectorySelector*/}
-                                {/*            label="Select fallback destination"*/}
-                                {/*            onSelect={setFallbackDestination}*/}
-                                {/*            value={fallbackDestination}*/}
-                                {/*            rightAddon={`/seanime-${updateData?.release?.version}`}*/}
-                                {/*        />*/}
-                                {/*    </div>*/}
-                                {/*)}*/}
-
                                 <Button className="w-full" onClick={handleInstallUpdate} disabled={isPending}>
                                     Install
                                 </Button>

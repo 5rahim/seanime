@@ -49,6 +49,7 @@
     "@tanstack/react-table": "^8.17.3",
     "@tauri-apps/api": "v2.0.0-rc.4",
     "@tauri-apps/plugin-os": "^2.0.0-rc.1",
+    "@tauri-apps/plugin-updater": "^2.0.0-rc.1",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/node": "^22",
     "@types/react": "^18",

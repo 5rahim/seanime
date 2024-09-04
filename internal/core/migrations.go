@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/Masterminds/semver/v3"
 	"seanime/internal/constants"
 	"seanime/internal/util"
 	"strings"
@@ -18,12 +19,17 @@ func (a *App) runMigrations() {
 		defer util.HandlePanicThen(func() {
 			a.Logger.Error().Msg("app: runMigrations failed")
 		})
-		if a.previousVersion != a.Version {
-			versionComp, _ := util.CompareVersion(a.previousVersion, constants.Version)
 
+		previousVersion, _ := semver.NewVersion(a.previousVersion)
+
+		if a.previousVersion != constants.Version {
+
+			hasUpdated := util.VersionIsOlderThan(a.previousVersion, constants.Version)
+
+			//-----------------------------------------------------------------------------------------
 			// DEVNOTE: 1.2.0 uses an incorrect manga cache format for MangaSee pages
 			// This migration will remove all manga cache files that start with "manga_"
-			if a.previousVersion == "1.2.0" && versionComp > 0 {
+			if a.previousVersion == "1.2.0" && hasUpdated {
 				a.Logger.Debug().Msg("app: Executing version migration task")
 				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
 					return strings.HasPrefix(filename, "manga_")
@@ -34,7 +40,11 @@ func (a *App) runMigrations() {
 				}
 				done = true
 			}
-			if a.previousVersion == "1.3.0" && versionComp > 0 {
+
+			//-----------------------------------------------------------------------------------------
+
+			c1, _ := semver.NewConstraint("<= 1.3.0, >= 1.2.0")
+			if c1.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")
 				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
 					return strings.HasPrefix(filename, "manga_")
@@ -45,13 +55,13 @@ func (a *App) runMigrations() {
 				}
 				done = true
 			}
-			if (a.previousVersion == "1.5.0" ||
-				a.previousVersion == "1.5.1" ||
-				a.previousVersion == "1.5.2" ||
-				a.previousVersion == "1.5.3" ||
-				a.previousVersion == "1.5.4" ||
-				a.previousVersion == "1.5.5") &&
-				versionComp > 0 {
+
+			//-----------------------------------------------------------------------------------------
+
+			// DEVNOTE: 1.5.6 uses a different cache format for media streaming info
+			// -> Delete the cache files when migrating from any version between 1.5.0 and 1.5.5
+			c2, _ := semver.NewConstraint("<= 1.5.5, >= 1.5.0")
+			if c2.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")
 				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
 					return strings.HasPrefix(filename, "mediastream_mediainfo_")
@@ -62,7 +72,13 @@ func (a *App) runMigrations() {
 				}
 				done = true
 			}
-			if util.VersionIsOlderThan(a.previousVersion, "2.0.0") {
+
+			//-----------------------------------------------------------------------------------------
+
+			// DEVNOTE: 2.0.0 uses a different cache format for online streaming
+			// -> Delete the cache files when migrating from a version older than 2.0.0 and newer than 1.5.0
+			c3, _ := semver.NewConstraint("< 2.0.0, >= 1.5.0")
+			if c3.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")
 				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
 					return strings.HasPrefix(filename, "onlinestream_")
@@ -73,8 +89,13 @@ func (a *App) runMigrations() {
 				}
 				done = true
 			}
+
+			//-----------------------------------------------------------------------------------------
+
 			// DEVNOTE: 2.1.0 refactored the manga cache format
-			if util.VersionIsOlderThan(a.previousVersion, "2.1.0") {
+			// -> Delete the cache files when migrating from a version older than 2.1.0
+			c4, _ := semver.NewConstraint("< 2.1.0")
+			if c4.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")
 				err := a.FileCacher.RemoveAllBy(func(filename string) bool {
 					return strings.HasPrefix(filename, "manga_")
