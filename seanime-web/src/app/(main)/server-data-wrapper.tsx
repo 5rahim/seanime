@@ -13,12 +13,14 @@ import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 
 type ServerDataWrapperProps = {
+    host: string
     children?: React.ReactNode
 }
 
 export function ServerDataWrapper(props: ServerDataWrapperProps) {
 
     const {
+        host,
         children,
         ...rest
     } = props
@@ -76,7 +78,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         return <LuffyError title="Transcoding not enabled" />
     }
 
-    if (!serverStatus?.user && window?.location?.host === "127.0.0.1:43211") {
+    if (!serverStatus?.user && host === "127.0.0.1:43211") {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>
@@ -107,7 +109,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                 </AppLayoutStack>
             </Card>
         </div>
-    } else if (!serverStatus?.user && window?.location?.host !== "127.0.0.1:43211") {
+    } else if (!serverStatus?.user) {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>

@@ -14,9 +14,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     const serverStatus = useServerStatus()
 
+    const [host, setHost] = React.useState<string>("")
+
+    React.useEffect(() => {
+        setHost(window?.location?.host || "")
+    }, [])
+
     if (serverStatus?.isOffline) {
         return (
-            <ServerDataWrapper>
+            <ServerDataWrapper host={host}>
                 <OfflineLayout>
                     <div className="min-h-screen">
                         <div className="w-full h-[5rem] relative overflow-hidden flex items-center">
@@ -40,7 +46,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
 
     return (
-        <ServerDataWrapper>
+        <ServerDataWrapper host={host}>
             <MainLayout>
                 <div className="min-h-screen">
                     <TopNavbar />
