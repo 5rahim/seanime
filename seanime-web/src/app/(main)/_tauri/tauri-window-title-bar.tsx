@@ -17,6 +17,7 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
     } = props
 
     const [showTrafficLights, setShowTrafficLights] = React.useState(false)
+    const [displayDragRegion, setDisplayDragRegion] = React.useState(true)
 
 
     function handleMinimize() {
@@ -36,13 +37,28 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
     React.useEffect(() => {
 
         const listener = getCurrentWebviewWindow().onResized(() => {
+            onFullscreenChange()
+            // Get the current window maximized state
             getCurrentWebviewWindow().isMaximized().then((maximized) => {
                 setMaximized(maximized)
             })
         })
 
+        // Check if the window is in fullscreen mode, and hide the traffic lights & drag region if it is
+        function onFullscreenChange() {
+            if (getCurrentWebviewWindow().label !== "main") return
+
+            getCurrentWebviewWindow().isFullscreen().then((fullscreen) => {
+                setShowTrafficLights(!fullscreen)
+                setDisplayDragRegion(!fullscreen)
+            })
+        }
+
+        document.addEventListener("fullscreenchange", onFullscreenChange)
+
         return () => {
             listener.then((f) => f())
+            document.removeEventListener("fullscreenchange", onFullscreenChange)
         }
     }, [])
 
@@ -76,22 +92,25 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
     return (
         <>
             <div className="__tauri-window-traffic-light scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex">
-                <div className="flex flex-1" data-tauri-drag-region></div>
+                {displayDragRegion && <div className="flex flex-1" data-tauri-drag-region></div>}
                 {(currentPlatform === "windows" && showTrafficLights) && <div className="flex">
                     <IconButton
-                        className="w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
+                        className="outline-none w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
                         icon={<VscChromeMinimize className="text-[0.95rem]" />}
                         onClick={handleMinimize}
+                        tabIndex={-1}
                     />
                     <IconButton
-                        className="w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
+                        className="outline-none w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
                         icon={maximized ? <VscChromeRestore className="text-[0.95rem]" /> : <VscChromeMaximize className="text-[0.95rem]" />}
                         onClick={toggleMaximized}
+                        tabIndex={-1}
                     />
                     <IconButton
-                        className="w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-red-500 active:bg-red-600 active:text-white rounded-none"
+                        className="outline-none w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-red-500 active:bg-red-600 active:text-white rounded-none"
                         icon={<VscChromeClose className="text-[0.95rem]" />}
                         onClick={handleClose}
+                        tabIndex={-1}
                     />
                 </div>}
             </div>

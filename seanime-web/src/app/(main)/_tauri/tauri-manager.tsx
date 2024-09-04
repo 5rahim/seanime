@@ -1,6 +1,7 @@
 "use client"
 
 import { listen } from "@tauri-apps/api/event"
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { Window } from "@tauri-apps/api/window"
 import mousetrap from "mousetrap"
 import React from "react"
@@ -24,38 +25,40 @@ export function TauriManager(props: TauriManagerProps) {
         })
 
         mousetrap.bind("f11", () => {
-            onFullscreenChange()
+            toggleFullscreen()
         })
 
         mousetrap.bind("esc", () => {
             const appWindow = new Window("main")
             appWindow.isFullscreen().then((isFullscreen) => {
                 if (isFullscreen) {
-                    appWindow.setFullscreen(false)
-                    appWindow.setAlwaysOnTop(false)
+                    toggleFullscreen()
                 }
             })
         })
 
-        document.addEventListener("fullscreenchange", onFullscreenChange)
+        document.addEventListener("fullscreenchange", toggleFullscreen)
 
         return () => {
             u.then((f) => f())
             mousetrap.unbind("f11")
-            document.removeEventListener("fullscreenchange", onFullscreenChange)
+            document.removeEventListener("fullscreenchange", toggleFullscreen)
         }
     }, [])
 
-    function onFullscreenChange() {
+    function toggleFullscreen() {
         const appWindow = new Window("main")
 
-        appWindow.isFullscreen().then((isFullscreen) => {
-            if (isFullscreen) {
-                appWindow.setDecorations(false)
-            } else {
-                appWindow.setDecorations(true)
-            }
-            appWindow.setFullscreen(!isFullscreen)
+        // Only toggle fullscreen on the main window
+        if (getCurrentWebviewWindow().label !== "main") return
+
+        appWindow.isFullscreen().then((fullscreen) => {
+            // DEVNOTE: When decorations are not shown in fullscreen move there will be a gap at the bottom of the window (Windows)
+            // Hide the decorations when exiting fullscreen
+            // Show the decorations when entering fullscreen
+            appWindow.setDecorations(!fullscreen)
+
+            appWindow.setFullscreen(!fullscreen)
         })
     }
 
