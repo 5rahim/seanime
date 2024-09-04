@@ -1,6 +1,6 @@
 "use client"
 import { IconButton } from "@/components/ui/button"
-import { getCurrentWindow } from "@tauri-apps/api/window"
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow"
 import { platform } from "@tauri-apps/plugin-os"
 import React from "react"
 import { VscChromeClose, VscChromeMaximize, VscChromeMinimize, VscChromeRestore } from "react-icons/vsc"
@@ -16,25 +16,27 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
         ...rest
     } = props
 
+    const [showTrafficLights, setShowTrafficLights] = React.useState(false)
+
 
     function handleMinimize() {
-        getCurrentWindow().minimize()
+        getCurrentWebviewWindow().minimize().then()
     }
 
     const [maximized, setMaximized] = React.useState(true)
 
-    async function toggleMaximized() {
-        getCurrentWindow().toggleMaximize()
+    function toggleMaximized() {
+        getCurrentWebviewWindow().toggleMaximize().then()
     }
 
     function handleClose() {
-        getCurrentWindow().close()
+        getCurrentWebviewWindow().close().then()
     }
 
     React.useEffect(() => {
 
-        const listener = getCurrentWindow().onResized(() => {
-            getCurrentWindow().isMaximized().then((maximized) => {
+        const listener = getCurrentWebviewWindow().onResized(() => {
+            getCurrentWebviewWindow().isMaximized().then((maximized) => {
                 setMaximized(maximized)
             })
         })
@@ -47,7 +49,26 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
     const [currentPlatform, setCurrentPlatform] = React.useState("")
 
     React.useEffect(() => {
-        setCurrentPlatform(platform())
+        (async () => {
+            setCurrentPlatform(platform())
+            const win = getCurrentWebviewWindow()
+            const minimizable = await win.isMinimizable()
+            const maximizable = await win.isMaximizable()
+            const closable = await win.isClosable()
+            setShowTrafficLights(_ => {
+                let showTrafficLights = false
+
+                if (win.label === "splashscreen") {
+                    return false
+                }
+
+                if (minimizable || maximizable || closable) {
+                    showTrafficLights = true
+                }
+
+                return showTrafficLights
+            })
+        })()
     }, [])
 
     if (!(currentPlatform === "windows" || currentPlatform === "macos")) return null
@@ -56,7 +77,7 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
         <>
             <div className="__tauri-window-traffic-light scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex">
                 <div className="flex flex-1" data-tauri-drag-region></div>
-                {currentPlatform === "windows" && <div className="flex">
+                {(currentPlatform === "windows" && showTrafficLights) && <div className="flex">
                     <IconButton
                         className="w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
                         icon={<VscChromeMinimize className="text-[0.95rem]" />}

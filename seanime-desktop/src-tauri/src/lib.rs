@@ -1,15 +1,14 @@
 mod server;
 #[cfg(desktop)]
 mod tray;
+mod constants;
 
 use std::sync::{Arc, Mutex};
 #[cfg(target_os = "macos")]
 use tauri::utils::TitleBarStyle;
-use tauri::{Emitter, Manager};
-use tauri_plugin_decorum::WebviewWindowExt;
-use tauri_plugin_shell::ShellExt;
-// adds helper methods to WebviewWindow
+use tauri::{Manager};
 use tauri_plugin_os;
+use constants::{MAIN_WINDOW_LABEL};
 
 pub fn run() {
     let server_process = Arc::new(Mutex::new(
@@ -28,7 +27,7 @@ pub fn run() {
                 tray::create_tray(handle)?;
             }
 
-            let main_window = app.get_webview_window("main").unwrap();
+            let main_window = app.get_webview_window(MAIN_WINDOW_LABEL).unwrap();
             main_window.hide().unwrap();
 
             // Set overlay title bar only when building for macOS

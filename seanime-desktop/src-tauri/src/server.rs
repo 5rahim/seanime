@@ -1,17 +1,19 @@
 use std::sync::{Arc, Mutex};
 use strip_ansi_escapes;
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter, Listener, Manager};
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 use tokio::time::{sleep, Duration};
+use crate::constants::{CRASH_SCREEN_WINDOW_LABEL, MAIN_WINDOW_LABEL, SPLASHSCREEN_WINDOW_LABEL};
 
 pub fn launch_seanime_server(
     app: AppHandle,
     child_process: Arc<Mutex<Option<tauri_plugin_shell::process::CommandChild>>>,
 ) {
     tauri::async_runtime::spawn(async move {
-        let main_window = app.get_webview_window("main").unwrap();
-        let splashscreen = app.get_webview_window("splashscreen").unwrap();
+        let main_window = app.get_webview_window(MAIN_WINDOW_LABEL).unwrap();
+        let splashscreen = app.get_webview_window(SPLASHSCREEN_WINDOW_LABEL).unwrap();
+        let crash_screen = app.get_webview_window(CRASH_SCREEN_WINDOW_LABEL).unwrap();
 
         println!("Starting Seanime, {}", env!("TEST_DATADIR"));
 
@@ -25,8 +27,16 @@ pub fn launch_seanime_server(
 
         let (mut rx, child) = match sidecar_command.spawn() {
             Ok(result) => result,
-            Err(_) => {
-                // Close the app if server launch fails
+            Err(e) => {
+                // Seanime server failed to open -> close splashscreen and display crash screen
+                splashscreen.close().unwrap();
+                crash_screen.show().unwrap();
+                // Listen for the "crash-screen-loaded" event before emitting the crash message
+                let crash_screen_ = crash_screen.clone();
+                crash_screen.once("crash-screen-loaded", move |_| {
+                    crash_screen_.emit("crash", format!("The server failed to start: {}. Closing in 10 seconds.", e)).expect("failed to emit event");
+                });
+                sleep(Duration::from_secs(10)).await;
                 std::process::exit(1);
             }
         };
@@ -62,8 +72,26 @@ pub fn launch_seanime_server(
                         "Seanime server process terminated with status: {:?}",
                         status
                     );
+                    splashscreen.close().unwrap();
+                    #[cfg(debug_assertions)]
+                    {
+                        main_window.close_devtools();
+                    }
+                    main_window.close().unwrap();
+                    crash_screen.show().unwrap();
+
+                    #[cfg(debug_assertions)]
+                    {
+                        crash_screen.open_devtools();
+                    }
+
+
+                    app.emit("crash", format!("Seanime server process terminated with status: {}. Closing in 10 seconds.", status.code.unwrap_or(1))).expect("failed to emit event");
+
+                    sleep(Duration::from_secs(10)).await;
                     app.exit(1);
                     break;
+
                 }
                 _ => {}
             }

@@ -18,7 +18,7 @@ export function TauriManager(props: TauriManagerProps) {
     } = props
 
     React.useEffect(() => {
-        const unlisten = listen("message", (event) => {
+        const u = listen("message", (event) => {
             const message = event.payload
             console.log("Received message from Rust:", message)
         })
@@ -40,7 +40,7 @@ export function TauriManager(props: TauriManagerProps) {
         document.addEventListener("fullscreenchange", onFullscreenChange)
 
         return () => {
-            unlisten.then((f) => f())
+            u.then((f) => f())
             mousetrap.unbind("f11")
             document.removeEventListener("fullscreenchange", onFullscreenChange)
         }

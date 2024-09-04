@@ -3,7 +3,9 @@
   "identifier": "default",
   "description": "enables the default permissions",
   "windows": [
-    "main"
+    "main",
+    "splashscreen",
+    "crash_screen"
   ],
   "permissions": [
     "os:allow-arch",

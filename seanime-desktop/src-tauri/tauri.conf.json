@@ -28,6 +28,17 @@
         "decorations": false,
         "url": "/splashscreen",
         "hiddenTitle": true
+      },
+      {
+        "label": "crash_screen",
+        "title": "Seanime",
+        "width": 800,
+        "height": 600,
+        "resizable": false,
+        "decorations": false,
+        "url": "/splashscreen/crash",
+        "hiddenTitle": true,
+        "visible": false
       }
     ],
     "security": {
