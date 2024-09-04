@@ -50,15 +50,12 @@ export function TauriManager(props: TauriManagerProps) {
         const appWindow = new Window("main")
 
         appWindow.isFullscreen().then((isFullscreen) => {
-            // if (!isFullscreen) {
-            //     const body = document.body
-            //     body.classList.add("force-hidden")
-            //     setTimeout(() => {
-            //         body.classList.remove("force-hidden")
-            //     }, 100)
-            // }
+            if (isFullscreen) {
+                appWindow.setDecorations(false)
+            } else {
+                appWindow.setDecorations(true)
+            }
             appWindow.setFullscreen(!isFullscreen)
-            appWindow.setAlwaysOnTop(!isFullscreen)
         })
     }
 

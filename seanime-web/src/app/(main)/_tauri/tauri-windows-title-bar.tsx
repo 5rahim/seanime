@@ -24,11 +24,7 @@ export function TauriWindowsTitleBar(props: TauriWindowsTitleBarProps) {
     const [maximized, setMaximized] = React.useState(true)
 
     async function toggleMaximized() {
-        if (await getCurrentWindow().isMaximized()) {
-            await getCurrentWindow().unmaximize()
-        } else {
-            await getCurrentWindow().maximize()
-        }
+        getCurrentWindow().toggleMaximize()
     }
 
     function handleClose() {
@@ -48,7 +44,11 @@ export function TauriWindowsTitleBar(props: TauriWindowsTitleBarProps) {
         }
     }, [])
 
-    const currentPlatform = platform()
+    const [currentPlatform, setCurrentPlatform] = React.useState("")
+
+    React.useEffect(() => {
+        setCurrentPlatform(platform())
+    }, [])
 
     if (currentPlatform !== "windows") return null
 

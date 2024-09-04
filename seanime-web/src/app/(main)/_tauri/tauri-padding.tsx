@@ -4,7 +4,11 @@ import React from "react"
 
 export function TauriSidebarPaddingMacOS() {
 
-    const currentPlatform = platform()
+    const [currentPlatform, setCurrentPlatform] = React.useState("")
+
+    React.useEffect(() => {
+        setCurrentPlatform(platform())
+    }, [])
 
     if (currentPlatform !== "macos") return null
 
@@ -18,9 +22,13 @@ export function TauriSidebarPaddingMacOS() {
 
 export function TauriTopPadding() {
 
-    const currentPlatform = platform()
+    const [currentPlatform, setCurrentPlatform] = React.useState("")
 
-    if (currentPlatform !== "windows" && currentPlatform !== "macos") return null
+    React.useEffect(() => {
+        setCurrentPlatform(platform())
+    }, [])
+
+    if (!(currentPlatform === "windows" || currentPlatform !== "macos")) return null
 
     return (
         <div className="h-">
