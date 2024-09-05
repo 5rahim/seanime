@@ -2,9 +2,11 @@
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
+import { relaunch } from "@tauri-apps/plugin-process"
 import { check, Update } from "@tauri-apps/plugin-updater"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -13,6 +15,7 @@ import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiLinkExternal } from "react-icons/bi"
 import { GrInstall } from "react-icons/gr"
+
 
 type UpdateModalProps = {
     collapsed?: boolean
@@ -25,19 +28,60 @@ export function TauriUpdateModal(props: UpdateModalProps) {
     const serverStatus = useServerStatus()
     const [updateModalOpen, setUpdateModalOpen] = useAtom(updateModalOpenAtom)
 
+    const [isUpdating, setIsUpdating] = React.useState(false)
+
     const { data: updateData, isLoading } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
 
-    const { update: tauriUpdate } = useTauriUpdate()
+    const [updateLoading, setUpdateLoading] = React.useState(true)
+    const [tauriUpdate, setUpdate] = React.useState<Update | null>(null)
+    const [tauriError, setTauriError] = React.useState("")
+
+    React.useEffect(() => {
+        try {
+            (async () => {
+                try {
+                    const update = await check()
+                    setUpdate(update)
+                    setUpdateLoading(false)
+                }
+                catch (error) {
+                    console.error(error)
+                    setTauriError(JSON.stringify(error))
+                    setUpdateLoading(false)
+                }
+            })()
+        }
+        catch (e) {
+
+        }
+    }, [])
 
     const isPending = false
 
-    function handleInstallUpdate() {
+    async function handleInstallUpdate() {
+        if (!tauriUpdate?.available) return
 
+        try {
+            setIsUpdating(true)
+
+            await tauriUpdate.downloadAndInstall()
+
+            await relaunch()
+        }
+        catch (e) {
+            console.error(e)
+        }
     }
+
+    React.useEffect(() => {
+        if (updateData && updateData.release) {
+            setUpdateModalOpen(true)
+        }
+    }, [updateData])
 
     if (serverStatus?.settings?.library?.disableUpdateCheck) return null
 
-    if (isLoading || !updateData || !updateData.release || !tauriUpdate?.available) return null
+    if (isLoading || updateLoading || !updateData || !updateData.release) return null
 
     return (
         <>
@@ -54,7 +98,7 @@ export function TauriUpdateModal(props: UpdateModalProps) {
             />
             <Modal
                 open={updateModalOpen}
-                onOpenChange={v => setUpdateModalOpen(v)}
+                onOpenChange={v => !isUpdating && setUpdateModalOpen(v)}
                 contentClass="max-w-2xl"
             >
                 <div
@@ -68,31 +112,24 @@ export function TauriUpdateModal(props: UpdateModalProps) {
                     <h3>Seanime {updateData.release.version} is out!</h3>
                     <p className="text-[--muted]">A new version of Seanime has been released.</p>
 
+                    {!tauriUpdate?.available && (
+                        <Alert intent="alert">
+                            This update is not available for desktop clients.
+                            Check the GitHub page for more information.
+                        </Alert>
+                    )}
+
                     <UpdateChangelogBody updateData={updateData} />
 
                     <div className="flex gap-2 w-full !mt-4">
-                        <Modal
-                            trigger={<Button leftIcon={<GrInstall className="text-2xl" />}>
-                                Update now
-                            </Button>}
-                            contentClass="max-w-xl"
-                            title={<span>Update Seanime</span>}
+                        {tauriUpdate?.available && <Button
+                            leftIcon={<GrInstall className="text-2xl" />}
+                            onClick={handleInstallUpdate}
+                            disabled={isPending}
+                            loading={isUpdating}
                         >
-                            <div className="space-y-4">
-                                <p>
-                                    Seanime will perform an update by downloading and replacing existing files.
-                                    Refer to the documentation for more information.
-                                </p>
-
-                                <Button
-                                    className="w-full"
-                                    onClick={handleInstallUpdate}
-                                    disabled={isPending}
-                                >
-                                    Install
-                                </Button>
-                            </div>
-                        </Modal>
+                            Update now
+                        </Button>}
                         <div className="flex flex-1" />
                         <Link href={updateData?.release?.html_url || ""} target="_blank">
                             <Button intent="white-subtle" rightIcon={<BiLinkExternal />}>See on GitHub</Button>
@@ -102,25 +139,4 @@ export function TauriUpdateModal(props: UpdateModalProps) {
             </Modal>
         </>
     )
-}
-
-export const useTauriUpdate = () => {
-    const [update, setUpdate] = React.useState<Update | null>(null)
-    const [error, setError] = React.useState("")
-
-    React.useEffect(() => {
-        (async () => {
-            try {
-                const update = await check()
-
-                setUpdate(update)
-            }
-            catch (error) {
-                console.error(error)
-                setError(JSON.stringify(error))
-            }
-        })()
-    }, [])
-
-    return { update, error }
 }

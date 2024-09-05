@@ -13,9 +13,11 @@ Desktop app for Seanime. Embeds server and web interface.
 - [x] Custom title bar
 - [x] Fix Windows fullscreen
 - [x] Fix macOS overlay title bar drag
-- [ ] Check Getting started
-- [ ] Dedicated log-in
+- [x] Check Getting started
+- [x] Dedicated log-in
 - [ ] Dedicated update process
+  - [x] Dedicated update modal
+  - [ ] Test update locally (doesn't work with localhost in release build)
 
 ## Development
 
@@ -25,14 +27,43 @@ Desktop app for Seanime. Embeds server and web interface.
 	# /seanime-web
 	npm run dev:desktop
 	```
+ 
+2. Sidecar
 
-2. Run Tauri
+	- Build the server
+    - Place the binary in `./seanime-desktop/src-tauri/binaries`
+    - Platform-specific: Rename the binary to `seanime-{TARGET_TRIPLE}` [Ref](https://v2.tauri.app/develop/sidecar/)
+      - e.g. `seanime-x86_64-pc-windows-msvc.exe` for Windows
 
-	`TEST_DATADIR` is needed.
+3. Run Tauri
+
+    `TEST_DATADIR` is needed.
+
+    ```shell
+    # /seanime-desktop
+    TEST_DATADIR="/path/to/data/dir" npm run start
+	# or
+	TEST_DATADIR="/path/to/data/dir" tauri dev
+   ```
+
+## Build in Development
+
+1. Build the web interface
+
+	```shell
+	# /seanime-web
+	npm run build:developement:desktop
+	# outputs in ./web-desktop
+	```
+
+2. Build Tauri
+
+   - `TAURI_SIGNING_PRIVATE_KEY`
+   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
 
 	```shell
 	# /seanime-desktop
-	TEST_DATADIR="/path/to/data/dir" npm run dev
+	TAURI_SIGNING_PRIVATE_KEY="" TAURI_SIGNING_PRIVATE_KEY_PASSWORD="" npm run tauri build
 	```
 
 

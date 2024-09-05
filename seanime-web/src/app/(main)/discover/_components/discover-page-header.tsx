@@ -56,7 +56,7 @@ export function DiscoverPageHeader() {
             <div
 
                 className={cn(
-                    "lg:h-[35rem] w-full flex-none object-cover object-center absolute",
+                    "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[-2rem]",
                 )}

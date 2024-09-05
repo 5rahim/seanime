@@ -1,12 +1,14 @@
 const isProd = process.env.NODE_ENV === 'production';
 const isDesktop = process.env.NEXT_PUBLIC_PLATFORM === 'desktop';
+const isDevBuild = process.env.NEXT_PUBLIC_DEVBUILD === 'true';
 const internalHost = process.env.TAURI_DEV_HOST || '127.0.0.1';
 
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: "export",
-    distDir: isDesktop ? "out-desktop" : undefined,
+    distDir: isDesktop ? isDevBuild ? "../web-desktop" : "out-desktop" : undefined,
+    cleanDistDir: isDevBuild,
     reactStrictMode: false,
     images: {
         unoptimized: true,

@@ -59,6 +59,14 @@
     "core:window:allow-toggle-maximize",
     "core:webview:allow-create-webview-window",
     "core:webview:allow-print",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download",
+    "updater:deny-download",
+    "updater:allow-download-and-install",
+    "updater:deny-download-and-install",
+    "updater:allow-install",
+    "updater:deny-install",
     {
       "identifier": "shell:allow-execute",
       "allow": [

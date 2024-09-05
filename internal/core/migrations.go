@@ -20,7 +20,11 @@ func (a *App) runMigrations() {
 			a.Logger.Error().Msg("app: runMigrations failed")
 		})
 
-		previousVersion, _ := semver.NewVersion(a.previousVersion)
+		previousVersion, err := semver.NewVersion(a.previousVersion)
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to parse previous version")
+			return
+		}
 
 		if a.previousVersion != constants.Version {
 

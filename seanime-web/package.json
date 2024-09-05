@@ -8,6 +8,7 @@
     "dev:desktop": "env-cmd -f .env.desktop next dev --hostname=0.0.0.0 --port=43210 --turbo",
     "build": "next build",
     "build:desktop": "env-cmd -f .env.desktop next build",
+    "build:development:desktop": "env-cmd -f .env.development.desktop next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -49,6 +50,7 @@
     "@tanstack/react-table": "^8.17.3",
     "@tauri-apps/api": "v2.0.0-rc.4",
     "@tauri-apps/plugin-os": "^2.0.0-rc.1",
+    "@tauri-apps/plugin-process": "^2.0.0-rc.1",
     "@tauri-apps/plugin-updater": "^2.0.0-rc.1",
     "@total-typescript/ts-reset": "^0.5.1",
     "@types/node": "^22",
