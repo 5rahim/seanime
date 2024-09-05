@@ -23,7 +23,8 @@ export function LayoutHeaderBackground() {
                     )}
                 >
                 </div>
-                {pathname.startsWith("/anilist") && <div className="w-full flex items-center justify-center absolute bottom-0 h-[5rem]">
+                {pathname.startsWith("/anilist") &&
+                    <div className="w-full flex items-center justify-center absolute bottom-0 h-[5rem] lg:hidden 2xl:flex">
                     <SiAnilist className="text-5xl text-white relative z-[2] opacity-40" />
                 </div>}
                 <div

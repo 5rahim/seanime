@@ -251,7 +251,7 @@ export function SearchOptions({
             <div
                 className={cn(
                     "grid grid-cols-2 gap-5",
-                    pageType === "anime" ? "lg:grid-cols-6" : "lg:grid-cols-4",
+                    pageType === "anime" ? "xl:grid-cols-6" : "lg:grid-cols-4",
                 )}
             >
                 <Combobox
