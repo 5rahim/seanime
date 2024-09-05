@@ -72,7 +72,11 @@ export const AppSidebar = React.forwardRef<HTMLDivElement, AppSidebarProps>((pro
         <>
             <div
                 ref={ref}
-                className={cn(AppSidebarAnatomy.sidebar(), className)}
+                className={cn(
+                    AppSidebarAnatomy.sidebar(),
+                    // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-4",
+                    className,
+                )}
                 {...rest}
             >
                 {children}

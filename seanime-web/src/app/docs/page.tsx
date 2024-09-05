@@ -1,10 +1,10 @@
 "use client"
 
-import { useGetDocs } from "@/api/hooks/docs.hooks"
+
+import React from "react"
 
 export default function Page() {
 
-    const { data, isLoading } = useGetDocs()
 
     return (
         <div className="space-y-4 container py-10">

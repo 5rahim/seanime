@@ -210,7 +210,7 @@ h6 {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-none
+    @apply bg-gray-700 rounded-full
 }
 
 /* Handle on hover */
@@ -231,9 +231,25 @@ h6 {
     display: none !important;
 }
 
+/*body[data-scroll-locked] {*/
+/*    --removed-body-scroll-bar-size: 0 !important;*/
+/*    margin-right: 0 !important;*/
+/*    overflow-y: auto !important;*/
+/*}*/
+
+body[data-scroll-locked] .scroll-locked-offset {
+    padding-right: 10px;
+}
+
+
+body[data-scroll-locked] .media-page-header-scroll-locked {
+    /*right: 10px;*/
+}
+
 
 /**/
 
 pre {
     overflow-x: auto;
 }
+

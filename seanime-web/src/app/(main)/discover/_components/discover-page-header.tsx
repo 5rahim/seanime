@@ -58,6 +58,7 @@ export function DiscoverPageHeader() {
                 className={cn(
                     "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[-2rem]",
                 )}
             >
                 <div
@@ -199,31 +200,6 @@ export function DiscoverPageHeader() {
                 <div
                     className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                 />
-                {/*<motion.div*/}
-                {/*    {...{*/}
-                {/*        initial: { opacity: 0, x: -40 },*/}
-                {/*        animate: { opacity: 1, x: 0 },*/}
-                {/*        exit: { opacity: 0, x: -40 },*/}
-                {/*        transition: {*/}
-                {/*            delay: 1,*/}
-                {/*            type: "spring",*/}
-                {/*            damping: 20,*/}
-                {/*            stiffness: 100,*/}
-                {/*        },*/}
-                {/*    }}*/}
-                {/*    className="absolute bottom-16 left-8 z-[3] cursor-pointer opacity-80 transition-opacity hover:opacity-100 ring-brand hover:ring-2 rounded-md"*/}
-                {/*    onClick={() => router.push(`/search`)}*/}
-                {/*>*/}
-                {/*    <TextInput*/}
-                {/*        leftIcon={<FiSearch />}*/}
-                {/*        value={"Search by genres, seasons…"}*/}
-                {/*        readonly*/}
-                {/*        size="lg"*/}
-                {/*        className="pointer-events-none w-60 md:w-96"*/}
-                {/*        onChange={() => {*/}
-                {/*        }}*/}
-                {/*    />*/}
-                {/*</motion.div>*/}
             </div>
         </motion.div>
     )

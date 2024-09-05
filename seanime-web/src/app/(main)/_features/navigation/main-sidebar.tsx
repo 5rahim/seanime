@@ -7,6 +7,7 @@ import { useAutoDownloaderQueueCount } from "@/app/(main)/_hooks/autodownloader-
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useMissingEpisodeCount } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useCurrentUser, useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { TauriUpdateModal } from "@/app/(main)/_tauri/tauri-update-modal"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
@@ -210,7 +211,8 @@ export function MainSidebar() {
 
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
-                    <UpdateModal collapsed={isCollapsed} />
+                    {process.env.NEXT_PUBLIC_PLATFORM !== "desktop" ? <UpdateModal collapsed={isCollapsed} /> :
+                        <TauriUpdateModal collapsed={isCollapsed} />}
                     <div>
                         <VerticalMenu
                             collapsed={isCollapsed}

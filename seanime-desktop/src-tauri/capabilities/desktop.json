@@ -1,0 +1,18 @@
+{
+  "identifier": "desktop-capability",
+  "platforms": [
+    "macOS",
+    "windows",
+    "linux"
+  ],
+  "permissions": [
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download",
+    "updater:deny-download",
+    "updater:allow-download-and-install",
+    "updater:deny-download-and-install",
+    "updater:allow-install",
+    "updater:deny-install"
+  ]
+}

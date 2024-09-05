@@ -35,7 +35,7 @@ export function TopNavbar(props: TopNavbarProps) {
             <div
                 className={cn(
                     "w-full h-[5rem] relative overflow-hidden flex items-center",
-                    ts.hideTopNavbar && "lg:hidden",
+                    (ts.hideTopNavbar || process.env.NEXT_PUBLIC_PLATFORM === "desktop") && "lg:hidden",
                 )}
             >
                 <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
@@ -83,7 +83,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
      */
     const { mutate: refreshAC, isPending: isRefreshingAC } = useRefreshAnimeCollection()
 
-    if (!ts.hideTopNavbar) return null
+    if (!ts.hideTopNavbar && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") return null
 
     return (
         <div className="flex flex-col gap-1">

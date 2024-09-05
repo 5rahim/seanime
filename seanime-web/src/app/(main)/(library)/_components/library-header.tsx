@@ -122,7 +122,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                             priority
                             sizes="100vw"
                             className={cn(
-                                "object-cover object-center z-[1] opacity-100 transition-all duration-700",
+                                "object-cover object-center z-[1] opacity-100 transition-opacity duration-700 scroll-locked-offset",
                                 { "opacity-5": dimmed },
                             )}
                         />}
@@ -135,7 +135,7 @@ export function LibraryHeader({ list }: { list: Anime_AnimeEntryEpisode[] }) {
                         priority
                         sizes="100vw"
                         className={cn(
-                            "object-cover object-center z-[1] opacity-50 transition-all",
+                            "object-cover object-center z-[1] opacity-50 transition-opacity scroll-locked-offset",
                             { "opacity-5": dimmed },
                         )}
                     />}

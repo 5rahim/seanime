@@ -3,6 +3,8 @@ package util
 import (
 	"strconv"
 	"strings"
+
+	"github.com/Masterminds/semver/v3"
 )
 
 func IsValidVersion(version string) bool {
@@ -28,51 +30,48 @@ func IsValidVersion(version string) bool {
 //		-3: Current version is older by major version.
 //		-2: Current version is older by minor version.
 //		-1: Current version is older by patch version.
-func CompareVersion(prevVersion string, currVersion string) (int, bool) {
+func CompareVersion(current string, b string) (comp int, shouldUpdate bool) {
 
-	prevParts := strings.Split(prevVersion, ".")
-	currParts := strings.Split(currVersion, ".")
-
-	if len(prevParts) != 3 || len(currParts) != 3 {
+	currV, err := semver.NewVersion(current)
+	if err != nil {
+		return 0, false
+	}
+	otherV, err := semver.NewVersion(b)
+	if err != nil {
 		return 0, false
 	}
 
-	prevMajor, _ := strconv.Atoi(prevParts[0])
-	prevMinor, _ := strconv.Atoi(prevParts[1])
-	prevPatch, _ := strconv.Atoi(prevParts[2])
-
-	latestMajor, _ := strconv.Atoi(currParts[0])
-	latestMinor, _ := strconv.Atoi(currParts[1])
-	latestPatch, _ := strconv.Atoi(currParts[2])
-
-	if prevMajor > latestMajor {
-		return -3, false
+	comp = currV.Compare(otherV)
+	if comp == 0 {
+		return 0, false
 	}
 
-	if prevMajor < latestMajor {
-		return 3, true
+	if currV.Major() > otherV.Major() {
+		comp *= 3
+	} else if currV.Minor() > otherV.Minor() {
+		comp *= 2
+	} else if currV.Patch() > otherV.Patch() {
+		comp *= 1
+	} else if currV.GreaterThan(otherV) {
+
+	} else if currV.Major() < otherV.Major() {
+		comp *= 3
+		shouldUpdate = true
+	} else if currV.Minor() < otherV.Minor() {
+		comp *= 2
+		shouldUpdate = true
+	} else if currV.Patch() < otherV.Patch() {
+		comp *= 1
+		shouldUpdate = true
+	} else if currV.LessThan(otherV) {
+		shouldUpdate = true
 	}
 
-	if prevMinor > latestMinor {
-		return -2, false
-	}
-
-	if prevMinor < latestMinor {
-		return 2, true
-	}
-
-	if prevPatch > latestPatch {
-		return -1, false
-	}
-
-	if prevPatch < latestPatch {
-		return 1, true
-	}
-
-	return 0, false
+	return comp, shouldUpdate
 }
 
 func VersionIsOlderThan(version string, compare string) bool {
-	diff, _ := CompareVersion(version, compare)
-	return diff > 0
+	comp, shouldUpdate := CompareVersion(version, compare)
+	// shouldUpdate is false means the current version is newer
+	return comp < 0 && !shouldUpdate
 }

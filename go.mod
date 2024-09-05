@@ -6,6 +6,7 @@ require (
 	fyne.io/systray v1.11.0
 	github.com/5rahim/hibike v0.5.1
 	github.com/EDDYCJY/fake-useragent v0.2.0
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/Yamashou/gqlgenc v0.23.2
