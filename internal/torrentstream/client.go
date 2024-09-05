@@ -30,8 +30,8 @@ type (
 		currentTorrentStatus TorrentStatus
 		cancelFunc           context.CancelFunc
 
-		mu                          sync.Mutex
-		stopCh                      chan struct{}                    // Closed when the media player stops
+		mu sync.Mutex
+		//stopCh                      chan struct{}                    // Closed when the media player stops
 		mediaPlayerPlaybackStatusCh chan *mediaplayer.PlaybackStatus // Continuously receives playback status
 		timeSinceLoggedSeeding      time.Time
 	}
@@ -53,11 +53,11 @@ type (
 
 func NewClient(repository *Repository) *Client {
 	ret := &Client{
-		repository:                  repository,
-		torrentClient:               mo.None[*torrent.Client](),
-		currentFile:                 mo.None[*torrent.File](),
-		currentTorrent:              mo.None[*torrent.Torrent](),
-		stopCh:                      make(chan struct{}),
+		repository:     repository,
+		torrentClient:  mo.None[*torrent.Client](),
+		currentFile:    mo.None[*torrent.File](),
+		currentTorrent: mo.None[*torrent.Torrent](),
+		//stopCh:                      make(chan struct{}),
 		mediaPlayerPlaybackStatusCh: make(chan *mediaplayer.PlaybackStatus, 1),
 	}
 
@@ -119,26 +119,26 @@ func (c *Client) initializeClient() error {
 			case <-ctx.Done():
 				c.repository.logger.Debug().Msg("torrentstream: Context cancelled, stopping torrent client")
 				return
-			case <-c.stopCh:
-				c.mu.Lock()
-				c.stopCh = make(chan struct{})
-				c.repository.logger.Debug().Msg("torrentstream: Handling media player stopped event")
-				// This is to prevent the client from downloading the whole torrent when the user stops watching
-				// Also, the torrent might be a batch - so we don't want to download the whole thing
-				if c.currentTorrent.IsPresent() {
-					if c.currentTorrentStatus.ProgressPercentage < 70 {
-						c.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 70%")
-						c.dropTorrents()
-					}
-					c.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
-				}
-				c.currentTorrent = mo.None[*torrent.Torrent]()                  // Reset the current torrent
-				c.currentFile = mo.None[*torrent.File]()                        // Reset the current file
-				c.currentTorrentStatus = TorrentStatus{}                        // Reset the torrent status
-				c.repository.serverManager.stopServer()                         // Stop streaming server
-				c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
-				c.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
-				c.mu.Unlock()
+			//case <-c.stopCh:
+			//	c.mu.Lock()
+			//	c.stopCh = make(chan struct{})
+			//	c.repository.logger.Debug().Msg("torrentstream: Handling media player stopped event")
+			//	// This is to prevent the client from downloading the whole torrent when the user stops watching
+			//	// Also, the torrent might be a batch - so we don't want to download the whole thing
+			//	if c.currentTorrent.IsPresent() {
+			//		if c.currentTorrentStatus.ProgressPercentage < 70 {
+			//			c.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 70%")
+			//			c.dropTorrents()
+			//		}
+			//		c.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
+			//	}
+			//	c.currentTorrent = mo.None[*torrent.Torrent]()                  // Reset the current torrent
+			//	c.currentFile = mo.None[*torrent.File]()                        // Reset the current file
+			//	c.currentTorrentStatus = TorrentStatus{}                        // Reset the torrent status
+			//	c.repository.serverManager.stopServer()                         // Stop streaming server
+			//	c.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
+			//	c.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
+			//	c.mu.Unlock()
 
 			case status := <-c.mediaPlayerPlaybackStatusCh:
 				// DEVNOTE: When this is received, "default" case is executed right after
@@ -154,8 +154,8 @@ func (c *Client) initializeClient() error {
 					}
 				}
 			default:
+				c.mu.Lock()
 				if c.torrentClient.IsPresent() && c.currentTorrent.IsPresent() && c.currentFile.IsPresent() {
-					c.mu.Lock()
 					t := c.currentTorrent.MustGet()
 					f := c.currentFile.MustGet()
 
@@ -204,13 +204,15 @@ func (c *Client) initializeClient() error {
 						c.currentTorrentStatus.UploadSpeed,
 						c.currentTorrentStatus.Size)
 					c.timeSinceLoggedSeeding = time.Now()
-					c.mu.Unlock()
 				}
-				if time.Since(c.timeSinceLoggedSeeding) > 20*time.Second {
-					c.timeSinceLoggedSeeding = time.Now()
-					for _, t := range c.torrentClient.MustGet().Torrents() {
-						if t.Seeding() {
-							c.repository.logger.Trace().Msgf("torrentstream: Seeding last torrent, %d peers", t.Stats().ActivePeers)
+				c.mu.Unlock()
+				if c.torrentClient.IsPresent() {
+					if time.Since(c.timeSinceLoggedSeeding) > 20*time.Second {
+						c.timeSinceLoggedSeeding = time.Now()
+						for _, t := range c.torrentClient.MustGet().Torrents() {
+							if t.Seeding() {
+								c.repository.logger.Trace().Msgf("torrentstream: Seeding last torrent, %d peers", t.Stats().ActivePeers)
+							}
 						}
 					}
 				}

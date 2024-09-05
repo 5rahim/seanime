@@ -3,6 +3,7 @@ package torrentstream
 import (
 	"fmt"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/anacrolix/torrent"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
@@ -163,8 +164,25 @@ func (r *Repository) StopStream() error {
 	// Stop the client
 	// This will stop the stream and close the server
 	// This also sends the eventTorrentStopped event
-	close(r.client.stopCh)
-	r.client.stopCh = make(chan struct{})
+	r.client.mu.Lock()
+	//r.client.stopCh = make(chan struct{})
+	r.client.repository.logger.Debug().Msg("torrentstream: Handling media player stopped event")
+	// This is to prevent the client from downloading the whole torrent when the user stops watching
+	// Also, the torrent might be a batch - so we don't want to download the whole thing
+	if r.client.currentTorrent.IsPresent() {
+		if r.client.currentTorrentStatus.ProgressPercentage < 70 {
+			r.client.repository.logger.Debug().Msg("torrentstream: Dropping torrent, completion is less than 70%")
+			r.client.dropTorrents()
+		}
+		r.client.repository.logger.Debug().Msg("torrentstream: Resetting current torrent and status")
+	}
+	r.client.currentTorrent = mo.None[*torrent.Torrent]()                  // Reset the current torrent
+	r.client.currentFile = mo.None[*torrent.File]()                        // Reset the current file
+	r.client.currentTorrentStatus = TorrentStatus{}                        // Reset the torrent status
+	r.client.repository.serverManager.stopServer()                         // Stop streaming server
+	r.client.repository.wsEventManager.SendEvent(eventTorrentStopped, nil) // Send torrent stopped event
+	r.client.repository.mediaPlayerRepository.Stop()                       // Stop the media player gracefully if it's running
+	r.client.mu.Unlock()
 
 	r.logger.Info().Msg("torrentstream: Stream stopped")
 

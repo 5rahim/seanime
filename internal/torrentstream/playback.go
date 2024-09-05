@@ -41,11 +41,13 @@ func (r *Repository) listenToMediaPlayerEvents() {
 			case _ = <-r.mediaPlayerRepositorySubscriber.StreamingVideoCompletedCh:
 			case _ = <-r.mediaPlayerRepositorySubscriber.StreamingTrackingStoppedCh:
 				go func() {
+					defer func() {
+						if r := recover(); r != nil {
+						}
+					}()
 					r.logger.Debug().Msg("torrentstream: Media player stopped event received")
-					// Stop the server
-					r.serverManager.stopServer()
-					// Signal to client.go that the media player has stopped
-					close(r.client.stopCh)
+					// Stop the stream
+					r.StopStream()
 				}()
 			case status := <-r.mediaPlayerRepositorySubscriber.StreamingPlaybackStatusCh:
 				go func() {

@@ -95,7 +95,7 @@ func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
 
 	// Notify the playback manager
 	if r.playbackManager != nil {
-		r.playbackManager.SetStreamEpisodeCollection(ec.Episodes)
+		go r.playbackManager.SetStreamEpisodeCollection(ec.Episodes)
 	}
 }
 

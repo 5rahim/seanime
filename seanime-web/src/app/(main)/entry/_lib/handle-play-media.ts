@@ -1,6 +1,7 @@
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { PlaybackDownloadedMedia, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { useMediastreamActiveOnDevice, useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { logger } from "@/lib/helpers/debug"
 import { useRouter } from "next/navigation"
@@ -20,8 +21,11 @@ export function useHandlePlayMedia() {
     // Play using desktop external player
     const { mutate: playVideo } = usePlaybackPlayVideo()
 
+    const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
 
     function playMediaFile({ path, mediaId }: { path: string, mediaId: number }) {
+
+        setTorrentstreamAutoplayInfo(null)
 
         logger("PLAY_MEDIA").info("Playing media file", path)
 

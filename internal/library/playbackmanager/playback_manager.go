@@ -250,6 +250,8 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 		return errors.New("cannot start streaming, not enough data provided")
 	}
 
+	pm.Logger.Trace().Msg("playback manager: Starting the media player")
+
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
@@ -276,7 +278,11 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 		return err
 	}
 
+	pm.Logger.Trace().Msg("playback manager: Sent stream to media player")
+
 	pm.MediaPlayerRepository.StartTrackingTorrentStream()
+
+	pm.Logger.Trace().Msg("playback manager: Started tracking torrent stream")
 
 	return nil
 }

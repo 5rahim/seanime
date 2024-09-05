@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_AnimeEntryEpisode, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import { PlaybackTorrentStreaming, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import {
@@ -8,8 +8,10 @@ import {
 } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { useAtomValue } from "jotai"
-import { useSetAtom } from "jotai/react"
+import { atom } from "jotai/index"
+import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
+import { toast } from "sonner"
 
 type ManualTorrentStreamSelectionProps = {
     torrent: HibikeTorrent_AnimeTorrent
@@ -87,5 +89,48 @@ export function useHandleStartTorrentStream() {
         handleManualTorrentStreamSelection,
         handleAutoSelectTorrentStream,
         isPending,
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type TorrentStreamAutoplayInfo = {
+    allEpisodes: Anime_AnimeEntryEpisode[]
+    entry: Anime_AnimeEntry
+    episodeNumber: number
+    aniDBEpisode: string
+}
+const __torrentstream_autoplayAtom = atom<TorrentStreamAutoplayInfo | null>(null)
+
+export function useTorrentStreamAutoplay() {
+    const [info, setInfo] = useAtom(__torrentstream_autoplayAtom)
+
+    const { handleAutoSelectTorrentStream } = useHandleStartTorrentStream()
+
+    function handleAutoplayNextTorrentstreamEpisode() {
+        if (!info) return
+        const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
+        handleAutoSelectTorrentStream({ entry, episodeNumber: episodeNumber, aniDBEpisode })
+
+        const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
+        if (nextEpisode && !!nextEpisode.aniDBEpisode) {
+            setInfo({
+                allEpisodes,
+                entry,
+                episodeNumber: nextEpisode.episodeNumber,
+                aniDBEpisode: nextEpisode.aniDBEpisode,
+            })
+        } else {
+            setInfo(null)
+        }
+
+        toast.info("Requesting next torrent")
+    }
+
+    return {
+        hasNextTorrentstreamEpisode: !!info,
+        setTorrentstreamAutoplayInfo: setInfo,
+        autoplayNextTorrentstreamEpisode: handleAutoplayNextTorrentstreamEpisode,
+        resetTorrentstreamAutoplayInfo: () => setInfo(null),
     }
 }

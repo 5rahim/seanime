@@ -181,6 +181,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
         }
         if (destination) {
             form.setValue("destination", destination)
+        } else {
+            form.setValue("destination", "")
         }
     }, [form.watch("mediaId"), selectedMedia, libraryCollection])
 
@@ -218,7 +220,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     <Select
                         name="mediaId"
                         label="Library Entry"
-                        options={notFinishedMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))}
+                        options={notFinishedMedia.map(media => ({ label: media.title?.userPreferred || "N/A", value: String(media.id) }))
+                            .toSorted((a, b) => a.label.localeCompare(b.label))}
                         value={String(form.watch("mediaId"))}
                         onValueChange={(v) => form.setValue("mediaId", parseInt(v))}
                         help="The anime must be airing or upcoming"

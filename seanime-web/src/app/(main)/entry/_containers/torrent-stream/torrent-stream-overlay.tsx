@@ -134,7 +134,10 @@ export function TorrentStreamOverlay() {
                         <BiGroup className="inline-block text-2xl" />
                         <span>{status.seeders}</span>
                         {`  `}
-                        <span className={cn("text-orange-500", { "text-green-300": status.downloadProgress > 5 })}>{status.progressPercentage.toFixed(
+                        <span
+                            className={cn("text-green-300",
+                                { "text-orange-300 animate-pulse": status.progressPercentage < 5 })}
+                        >{status.progressPercentage.toFixed(
                             2)}%</span>
                         {` `}
                         <BiDownArrow className="inline-block ml-2" />
@@ -163,7 +166,7 @@ export function TorrentStreamOverlay() {
     if (loadingState) {
         return <>
             <div className="w-full bg-gray-900 fixed top-0 left-0 z-[100]">
-                <ProgressBar isIndeterminate />
+                <ProgressBar size="sm" isIndeterminate />
             </div>
             <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
                 <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center text-sm lg:text-base">

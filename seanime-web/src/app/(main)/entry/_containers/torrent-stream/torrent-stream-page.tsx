@@ -9,7 +9,7 @@ import {
     __torrentSearch_drawerEpisodeAtom,
     __torrentSearch_drawerIsOpenAtom,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { useHandleStartTorrentStream, useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
@@ -17,6 +17,7 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
+import { logger } from "@/lib/helpers/debug"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/react"
 import React, { useMemo } from "react"
@@ -67,7 +68,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
         ret = ((!!entry.listData?.progress && !!entry.media?.episodes && entry.listData?.progress === entry.media?.episodes)
                 ? ret?.reverse()
                 : ret?.slice(entry.listData?.progress || 0)
-        )?.slice(0, 30)
+        )?.slice(0, 30) || []
         return ret
     }, [episodeCollection?.episodes, entry.nextEpisode, entry.listData?.progress])
 
@@ -75,23 +76,44 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const setTorrentDrawerIsOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
     const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
 
-    /**
-     * Handle start torrent stream
-     */
-    const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
-
     // Stores the episode that was clicked
     const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
+
+
+    /**
+     * Handle auto-select
+     */
+    const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
+    const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
+
+    function handleAutoSelect(entry: Anime_AnimeEntry, episode: Anime_AnimeEntryEpisode | undefined) {
+        if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
+        // Start the torrent stream
+        handleAutoSelectTorrentStream({
+            entry: entry,
+            episodeNumber: episode.episodeNumber,
+            aniDBEpisode: episode.aniDBEpisode,
+        })
+        // Check if next episode exists for autoplay
+        const nextEpisode = episodeCollection?.episodes?.find(e => e.episodeNumber === episode.episodeNumber + 1)
+        logger("TORRENTSTREAM").info("Auto select, Next episode", nextEpisode)
+        if (nextEpisode && !!nextEpisode.aniDBEpisode) {
+            setTorrentstreamAutoplayInfo({
+                allEpisodes: episodeCollection?.episodes,
+                entry: entry,
+                episodeNumber: nextEpisode.episodeNumber,
+                aniDBEpisode: nextEpisode.aniDBEpisode,
+            })
+        } else {
+            setTorrentstreamAutoplayInfo(null)
+        }
+    }
 
     // Play next video on mount only if auto-select is enabled
     usePlayNextVideoOnMount({
         onPlay: () => {
-            if (autoSelect && episodesToWatch[0] && episodesToWatch[0].aniDBEpisode) {
-                handleAutoSelectTorrentStream({
-                    entry: entry,
-                    episodeNumber: episodesToWatch[0].episodeNumber,
-                    aniDBEpisode: episodesToWatch[0].aniDBEpisode,
-                })
+            if (autoSelect) {
+                handleAutoSelect(entry, episodesToWatch[0])
             }
         },
     }, !!episodesToWatch[0])
@@ -109,13 +131,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
             React.startTransition(() => {
                 if (autoSelect) {
-                    if (episode.aniDBEpisode) {
-                        handleAutoSelectTorrentStream({
-                            entry,
-                            episodeNumber: episode.episodeNumber,
-                            aniDBEpisode: episode.aniDBEpisode,
-                        })
-                    }
+                    handleAutoSelect(entry, episode)
                 } else if (!manuallySelectFile) {
                     setTorrentSearchEpisode(episode.episodeNumber)
                     React.startTransition(() => {

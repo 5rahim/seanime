@@ -10,12 +10,14 @@ import {
 import { PlaybackManager_PlaybackState, PlaybackManager_PlaylistState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { ProgressBar } from "@/components/ui/progress-bar"
+import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useQueryClient } from "@tanstack/react-query"
 import { atom, useAtomValue } from "jotai"
@@ -33,7 +35,7 @@ const __pt_showAutoPlayCountdownModalAtom = atom(false)
 const __pt_isTrackingAtom = atom(false)
 const __pt_isCompletedAtom = atom(false)
 
-const AUTOPLAY_COUNTDOWN = 5
+const AUTOPLAY_COUNTDOWN = 6
 
 type Props = {
     asSidebarButton?: boolean
@@ -127,6 +129,7 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED,
         onMessage: data => {
+            logger("PlaybackManagerProgressTracking").info("Tracking started", data)
             setIsTracking(true)
             setIsCompleted(false)
             setShowModal(true) // Show the modal when tracking starts
@@ -138,19 +141,29 @@ export function PlaybackManagerProgressTracking() {
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_VIDEO_COMPLETED,
         onMessage: data => {
+            logger("PlaybackManagerProgressTracking").info("Video completed", data)
             setIsCompleted(true)
             setState(data)
         },
     })
 
+    // TORRENT STREAMING Autoplay
+    const { hasNextTorrentstreamEpisode, autoplayNextTorrentstreamEpisode, resetTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
+
     // Tracking stopped completely
     useWebsocketMessageListener<string>({
         type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STOPPED,
         onMessage: data => {
+            logger("PlaybackManagerProgressTracking").info("Tracking stopped", data, "Completion percentage:", state?.completionPercentage)
             setIsTracking(false)
+            // Letting 'isCompleted' be true if the progress hasn't been updated
+            // so the modal is left available for the user to update the progress manually
             if (state?.progressUpdated) {
-                setIsCompleted(false) // If the progress has been updated, reset the completed state, so that the modal doesn't show up again
+                // Setting 'isCompleted' to 'false' to hide the modal
+                logger("PlaybackManagerProgressTracking").info("Progress updated, setting isCompleted to false")
+                setIsCompleted(false)
             }
+
             if (data === "Player closed") {
                 toast.info("Player closed")
             } else if (data === "Tracking stopped") {
@@ -177,42 +190,50 @@ export function PlaybackManagerProgressTracking() {
     const timerRef = React.useRef<NodeJS.Timeout | null>(null)
     const countdownRef = React.useRef<NodeJS.Timeout | null>(null)
 
-    // Auto player
-    React.useEffect(() => {
-        if (willAutoPlay && !isFetchingNextEpisode && !!nextEpisodeForAutoplay) {
-            setShowAutoPlayCountdownModal(true)
+    function clearTimers() {
+        try {
+            if (countdownRef.current) {
+                clearInterval(countdownRef.current)
+            }
+            if (timerRef.current) {
+                clearTimeout(timerRef.current)
+            }
+        }
+        catch (e) {
+        }
+    }
 
+    // LOCAL MEDIA Autoplay
+    React.useEffect(() => {
+        // If the next episode is available and autoplay is enabled
+        if (willAutoPlay && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode)) {
+
+            // Start the countdown
+            setShowAutoPlayCountdownModal(true)
             countdownRef.current = setInterval(() => {
                 setAutoPlayInXSeconds(prev => prev - 1)
             }, 1000)
 
             timerRef.current = setTimeout(() => {
                 setShowAutoPlayCountdownModal(false)
-                autoPlayNextEpisode()
+
+                if (!!nextEpisodeForAutoplay) {
+                    autoPlayNextEpisode()
+                } else if (hasNextTorrentstreamEpisode) {
+                    autoplayNextTorrentstreamEpisode()
+                }
+
                 setWillAutoPlay(false)
 
-                try {
-                    if (countdownRef.current) {
-                        clearInterval(countdownRef.current)
-                    }
-                    if (timerRef.current) {
-                        clearTimeout(timerRef.current)
-                    }
-                }
-                catch (e) {
-                }
+                clearTimers()
             }, AUTOPLAY_COUNTDOWN * 1000)
 
             return () => {
-                if (countdownRef.current) {
-                    clearInterval(countdownRef.current)
-                }
-                if (timerRef.current) {
-                    clearTimeout(timerRef.current)
-                }
+                clearTimers()
             }
         }
-    }, [nextEpisodeForAutoplay, willAutoPlay, isFetchingNextEpisode])
+    }, [nextEpisodeForAutoplay, hasNextTorrentstreamEpisode, willAutoPlay, isFetchingNextEpisode])
+
 
     // Playback state
     useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
@@ -280,6 +301,9 @@ export function PlaybackManagerProgressTracking() {
                 if (!!playlistState?.next) {
                     playlistNext()
                 }
+                // if (hasNextTorrentstreamEpisode) {
+                //     autoplayNextTorrentstreamEpisode()
+                // }
             }
         })
 
@@ -427,7 +451,15 @@ export function PlaybackManagerProgressTracking() {
 
             <Modal
                 open={showAutoPlayCountdownModal && willAutoPlay}
-                onOpenChange={v => {}}
+                onOpenChange={v => {
+                    if (!v) {
+                        logger("PlaybackManagerProgressTracking").info("Auto play cancelled")
+                        setShowAutoPlayCountdownModal(false)
+                        setWillAutoPlay(false)
+                        resetTorrentstreamAutoplayInfo()
+                        clearTimers()
+                    }
+                }}
                 title="Auto playing next episode"
                 titleClass="text-center"
                 contentClass="!space-y-2 relative max-w-xl"
@@ -442,18 +474,11 @@ export function PlaybackManagerProgressTracking() {
                     <Button
                         intent="alert-subtle"
                         onClick={() => {
+                            logger("PlaybackManagerProgressTracking").info("Auto play cancelled")
                             setShowAutoPlayCountdownModal(false)
                             setWillAutoPlay(false)
-                            try {
-                                if (countdownRef.current) {
-                                    clearInterval(countdownRef.current)
-                                }
-                                if (timerRef.current) {
-                                    clearTimeout(timerRef.current)
-                                }
-                            }
-                            catch (e) {
-                            }
+                            resetTorrentstreamAutoplayInfo()
+                            clearTimers()
                         }}
                         className="w-full"
                     >
