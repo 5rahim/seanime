@@ -1,10 +1,7 @@
 name: Release Draft
 
-#on:
-#  workflow_dispatch:
-#  push:
-#    tags:
-#      - 'v*'
+on:
+  workflow_dispatch:
 
 permissions:
   contents: write
