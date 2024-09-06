@@ -64,12 +64,7 @@ export function useDiscoverPastSeasonAnime(ref: any) {
 }
 
 export function useDiscoverUpcomingAnime(ref: any) {
-    const _isInView = useInView(ref)
-    const [isInView, setIsInView] = React.useState(false)
-    React.useEffect(() => {
-        if (isInView) return
-        setIsInView(_isInView)
-    }, [_isInView])
+    const isInView = useInView(ref, { once: true })
     return useAnilistListAnime({
         page: 1,
         perPage: 20,
@@ -79,12 +74,7 @@ export function useDiscoverUpcomingAnime(ref: any) {
 }
 
 export function useDiscoverPopularAnime(ref: any) {
-    const _isInView = useInView(ref)
-    const [isInView, setIsInView] = React.useState(false)
-    React.useEffect(() => {
-        if (isInView) return
-        setIsInView(_isInView)
-    }, [_isInView])
+    const isInView = useInView(ref, { once: true })
     return useAnilistListAnime({
         page: 1,
         perPage: 20,
@@ -93,12 +83,7 @@ export function useDiscoverPopularAnime(ref: any) {
 }
 
 export function useDiscoverTrendingMovies(ref: any) {
-    const _isInView = useInView(ref)
-    const [isInView, setIsInView] = React.useState(false)
-    React.useEffect(() => {
-        if (isInView) return
-        setIsInView(_isInView)
-    }, [_isInView])
+    const isInView = useInView(ref, { once: true })
     return useAnilistListAnime({
         page: 1,
         perPage: 20,

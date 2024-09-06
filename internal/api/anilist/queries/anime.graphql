@@ -74,6 +74,18 @@ query BaseAnimeById ($id: Int) {
   }
 }
 
+
+query SearchBaseAnimeByIds ($ids: [Int], $page: Int, $perPage: Int, $status: [MediaStatus], $inCollection: Boolean, $sort: [MediaSort], $season: MediaSeason, $year: Int, $genre: String, $format: MediaFormat) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      hasNextPage
+    },
+    media(id_in: $ids, type: ANIME, status_in: $status, onList: $inCollection, sort: $sort, season: $season, seasonYear: $year, genre: $genre, format: $format) {
+      ...baseAnime
+    }
+  }
+}
+
 query CompleteAnimeById ($id: Int) {
   Media(id: $id, type: ANIME) {
     ...completeAnime
@@ -234,7 +246,7 @@ query ListAnime(
   }
 }
 
-query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int) {
+query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int, $notYetAired: Boolean = false) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
       hasNextPage
@@ -243,7 +255,7 @@ query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airin
       currentPage
       lastPage
     }
-    airingSchedules(notYetAired: false, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
+    airingSchedules(notYetAired: $notYetAired, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
       id
       airingAt
       episode

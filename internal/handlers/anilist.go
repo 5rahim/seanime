@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/util/result"
@@ -343,11 +344,13 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	type body struct {
-		Page            *int    `json:"page,omitempty"`
-		Search          *string `json:"search,omitempty"`
-		PerPage         *int    `json:"perPage,omitempty"`
-		AiringAtGreater *int    `json:"airingAt_greater,omitempty"`
-		AiringAtLesser  *int    `json:"airingAt_lesser,omitempty"`
+		Page            *int                  `json:"page,omitempty"`
+		Search          *string               `json:"search,omitempty"`
+		PerPage         *int                  `json:"perPage,omitempty"`
+		AiringAtGreater *int                  `json:"airingAt_greater,omitempty"`
+		AiringAtLesser  *int                  `json:"airingAt_lesser,omitempty"`
+		NotYetAired     *bool                 `json:"notYetAired,omitempty"`
+		Sort            []*anilist.AiringSort `json:"sort,omitempty"`
 	}
 
 	p := new(body)
@@ -360,7 +363,7 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 		*p.PerPage = 50
 	}
 
-	cacheKey := "recent_airing_anime"
+	cacheKey := fmt.Sprintf("%v-%v-%v-%v-%v-%v", p.Page, p.Search, p.PerPage, p.AiringAtGreater, p.AiringAtLesser, p.NotYetAired)
 
 	cached, ok := anilistListRecentAnimeCache.Get(cacheKey)
 	if ok {
@@ -373,16 +376,58 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 		p.PerPage,
 		p.AiringAtGreater,
 		p.AiringAtLesser,
+		p.NotYetAired,
+		p.Sort,
 		c.App.Logger,
 	)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
 
-	anilistListRecentAnimeCache.SetT(cacheKey, ret, time.Minute*10)
+	anilistListRecentAnimeCache.SetT(cacheKey, ret, time.Hour*1)
 
 	return c.RespondWithData(ret)
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var anilistMissedSequelsCache = result.NewCache[string, []*anilist.BaseAnime]()
+
+// HandleAnilistListMissedSequels
+//
+//	@summary returns a list of sequels not in the user's list.
+//	@desc This is used by the "Discover" page to display sequels the user may have missed.
+//	@route /api/v1/anilist/list-missed-sequels [GET]
+//	@returns []anilist.BaseAnime
+func HandleAnilistListMissedSequels(c *RouteCtx) error {
+
+	cacheKey := "missed_sequels"
+
+	cached, ok := anilistMissedSequelsCache.Get(cacheKey)
+	if ok {
+		return c.RespondWithData(cached)
+	}
+
+	// Get complete anime collection
+	animeCollection, err := c.App.AnilistPlatform.GetAnimeCollectionWithRelations()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret, err := anilist.ListMissedSequels(
+		animeCollection,
+		c.App.Logger,
+	)
+	if err != nil {
+		return c.RespondWithData([]*anilist.BaseAnime{})
+	}
+
+	anilistMissedSequelsCache.SetT(cacheKey, ret, time.Hour*4)
+
+	return c.RespondWithData(ret)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var anilistStatsCache = result.NewCache[int, *anilist.Stats]()
 

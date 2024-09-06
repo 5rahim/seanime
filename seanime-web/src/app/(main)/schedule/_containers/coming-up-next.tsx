@@ -50,7 +50,10 @@ export function ComingUpNext() {
                 missingEpisodes={missingEpisodes}
             />
 
-            <h2>Coming up next</h2>
+            <div>
+                <h2>Coming up next</h2>
+                <p className="text-[--muted]">Based on your anime list</p>
+            </div>
 
             <Carousel
                 className="w-full max-w-full"

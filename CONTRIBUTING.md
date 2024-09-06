@@ -65,25 +65,4 @@ may be different when a new minor version is being developed.
 
 ## Areas
 
-Here are some areas where you can contribute:
-
-### Improve existing features
-
-You can help improve the existing features by fixing bugs, adding new options, or general code improvements.
-
-### Clients
-
-You can help broaden the support for different platforms by helping create new clients for them, be it a port of the existing web client or a new one built from scratch.
-
-### Code quality
-
-You can help improve the code quality by refactoring some parts of the codebase using better standards and submitting a pull request.
-
-### Documentation
-
-Although the documentation has many details about the specific features, it may lack some important information
-about specific use cases and platform-specific details. You can help by adding more details to the documentation.
-- Installation on different platforms.
-- Configuration options.
-- Remote access and security.
-
+[Issues](https://github.com/5rahim/seanime/issues?q=is%3Aissue+is%3Aopen+label%3A%22open+to+contribution%22)

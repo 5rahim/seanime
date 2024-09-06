@@ -400,9 +400,9 @@ func (ac *MockAnilistClientImpl) ListAnime(ctx context.Context, page *int, searc
 	return ac.realAnilistClient.ListAnime(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult, interceptors...)
 }
 
-func (ac *MockAnilistClientImpl) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
+func (ac *MockAnilistClientImpl) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
 	ac.logger.Debug().Msg("anilist: Fetching recent media list")
-	return ac.realAnilistClient.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, interceptors...)
+	return ac.realAnilistClient.ListRecentAnime(ctx, page, perPage, airingAtGreater, airingAtLesser, notYetAired, interceptors...)
 }
 
 func (ac *MockAnilistClientImpl) GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error) {
@@ -443,4 +443,9 @@ func (ac *MockAnilistClientImpl) StudioDetails(ctx context.Context, id *int, int
 func (ac *MockAnilistClientImpl) ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error) {
 	ac.logger.Debug().Msg("anilist: Fetching stats")
 	return ac.realAnilistClient.ViewerStats(ctx, interceptors...)
+}
+
+func (ac *MockAnilistClientImpl) SearchBaseAnimeByIds(ctx context.Context, ids []*int, page *int, perPage *int, status []*MediaStatus, inCollection *bool, sort []*MediaSort, season *MediaSeason, year *int, genre *string, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*SearchBaseAnimeByIds, error) {
+	ac.logger.Debug().Msg("anilist: Searching anime by ids")
+	return ac.realAnilistClient.SearchBaseAnimeByIds(ctx, ids, page, perPage, status, inCollection, sort, season, year, genre, format, interceptors...)
 }

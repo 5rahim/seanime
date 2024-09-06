@@ -104,6 +104,15 @@
 //     })
 // }
 
+// export function useAnilistListMissedSequels() {
+//     return useServerQuery<Array<AL_BaseAnime>>({
+//         endpoint: API_ENDPOINTS.ANILIST.AnilistListMissedSequels.endpoint,
+//         method: API_ENDPOINTS.ANILIST.AnilistListMissedSequels.methods[0],
+//         queryKey: [API_ENDPOINTS.ANILIST.AnilistListMissedSequels.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useGetAniListStats() {
 //     return useServerQuery<AL_Stats>({
 //         endpoint: API_ENDPOINTS.ANILIST.GetAniListStats.endpoint,

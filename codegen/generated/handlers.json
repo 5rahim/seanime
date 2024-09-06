@@ -501,11 +501,59 @@
           "typescriptType": "number",
           "required": false,
           "descriptions": []
+        },
+        {
+          "name": "NotYetAired",
+          "jsonName": "notYetAired",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Sort",
+          "jsonName": "sort",
+          "goType": "[]anilist.AiringSort",
+          "usedStructType": "anilist.AiringSort",
+          "typescriptType": "Array\u003cAL_AiringSort\u003e",
+          "required": false,
+          "descriptions": []
         }
       ],
       "returns": "anilist.ListRecentAnime",
       "returnGoType": "anilist.ListRecentAnime",
       "returnTypescriptType": "AL_ListRecentAnime"
+    }
+  },
+  {
+    "name": "HandleAnilistListMissedSequels",
+    "trimmedName": "AnilistListMissedSequels",
+    "comments": [
+      "HandleAnilistListMissedSequels",
+      "",
+      "\t@summary returns a list of sequels not in the user's list.",
+      "\t@desc This is used by the \"Discover\" page to display sequels the user may have missed.",
+      "\t@route /api/v1/anilist/list-missed-sequels [GET]",
+      "\t@returns []anilist.BaseAnime",
+      ""
+    ],
+    "filepath": "internal/handlers/anilist.go",
+    "filename": "anilist.go",
+    "api": {
+      "summary": "returns a list of sequels not in the user's list.",
+      "descriptions": [
+        "This is used by the \"Discover\" page to display sequels the user may have missed."
+      ],
+      "endpoint": "/api/v1/anilist/list-missed-sequels",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]anilist.BaseAnime",
+      "returnGoType": "anilist.BaseAnime",
+      "returnTypescriptType": "Array\u003cAL_BaseAnime\u003e"
     }
   },
   {

@@ -173,6 +173,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Anilist.Post("/list-recent-anime", makeHandler(app, HandleAnilistListRecentAiringAnime))
 
+	v1Anilist.Get("/list-missed-sequels", makeHandler(app, HandleAnilistListMissedSequels))
+
 	v1Anilist.Get("/stats", makeHandler(app, HandleGetAniListStats))
 
 	//

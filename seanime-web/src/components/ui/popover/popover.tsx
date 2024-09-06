@@ -46,7 +46,7 @@ export const Popover = React.forwardRef<HTMLDivElement, PopoverProps>((props, re
         defaultOpen,
         open,
         onOpenChange,
-        modal,
+        modal = true,
         // Content
         className,
         align = "center",
@@ -73,6 +73,7 @@ export const Popover = React.forwardRef<HTMLDivElement, PopoverProps>((props, re
                     align={align}
                     sideOffset={sideOffset}
                     className={cn(PopoverAnatomy.root(), className)}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
                     {...contentProps}
                 />
             </PopoverPrimitive.Portal>

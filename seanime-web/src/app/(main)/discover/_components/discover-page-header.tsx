@@ -117,7 +117,7 @@ export function DiscoverPageHeader() {
 
                 {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
                 <AnimatePresence>
-                    {(!!randomTrending && !isTransitioning) && (
+                    {(!!randomTrending && !isTransitioning && (pageType === "anime" || pageType === "manga")) && (
                         <motion.div
                             {...{
                                 initial: { opacity: 0, y: -40 },

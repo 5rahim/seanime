@@ -14,10 +14,11 @@ type GithubGraphQLClient interface {
 	AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error)
 	BaseAnimeByMalID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByMalID, error)
 	BaseAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseAnimeByID, error)
+	SearchBaseAnimeByIds(ctx context.Context, ids []*int, page *int, perPage *int, status []*MediaStatus, inCollection *bool, sort []*MediaSort, season *MediaSeason, year *int, genre *string, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*SearchBaseAnimeByIds, error)
 	CompleteAnimeByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*CompleteAnimeByID, error)
 	AnimeDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*AnimeDetailsByID, error)
 	ListAnime(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, season *MediaSeason, seasonYear *int, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListAnime, error)
-	ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error)
+	ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error)
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
@@ -2797,6 +2798,199 @@ func (t *BaseAnimeById_Media_BaseAnime_NextAiringEpisode) GetEpisode() int {
 		t = &BaseAnimeById_Media_BaseAnime_NextAiringEpisode{}
 	}
 	return t.Episode
+}
+
+type SearchBaseAnimeByIds_Page_PageInfo struct {
+	HasNextPage *bool "json:\"hasNextPage,omitempty\" graphql:\"hasNextPage\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_PageInfo) GetHasNextPage() *bool {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_PageInfo{}
+	}
+	return t.HasNextPage
+}
+
+type SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer struct {
+	ID        *string "json:\"id,omitempty\" graphql:\"id\""
+	Site      *string "json:\"site,omitempty\" graphql:\"site\""
+	Thumbnail *string "json:\"thumbnail,omitempty\" graphql:\"thumbnail\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer) GetID() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer{}
+	}
+	return t.ID
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer) GetSite() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer{}
+	}
+	return t.Site
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer) GetThumbnail() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Trailer{}
+	}
+	return t.Thumbnail
+}
+
+type SearchBaseAnimeByIds_Page_Media_BaseAnime_Title struct {
+	UserPreferred *string "json:\"userPreferred,omitempty\" graphql:\"userPreferred\""
+	Romaji        *string "json:\"romaji,omitempty\" graphql:\"romaji\""
+	English       *string "json:\"english,omitempty\" graphql:\"english\""
+	Native        *string "json:\"native,omitempty\" graphql:\"native\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Title) GetUserPreferred() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Title{}
+	}
+	return t.UserPreferred
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Title) GetRomaji() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Title{}
+	}
+	return t.Romaji
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Title) GetEnglish() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Title{}
+	}
+	return t.English
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_Title) GetNative() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_Title{}
+	}
+	return t.Native
+}
+
+type SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage struct {
+	ExtraLarge *string "json:\"extraLarge,omitempty\" graphql:\"extraLarge\""
+	Large      *string "json:\"large,omitempty\" graphql:\"large\""
+	Medium     *string "json:\"medium,omitempty\" graphql:\"medium\""
+	Color      *string "json:\"color,omitempty\" graphql:\"color\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage) GetExtraLarge() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage{}
+	}
+	return t.ExtraLarge
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage) GetLarge() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage{}
+	}
+	return t.Large
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage) GetMedium() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage{}
+	}
+	return t.Medium
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage) GetColor() *string {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_CoverImage{}
+	}
+	return t.Color
+}
+
+type SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate) GetYear() *int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate{}
+	}
+	return t.Year
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate) GetMonth() *int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate{}
+	}
+	return t.Month
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate) GetDay() *int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_StartDate{}
+	}
+	return t.Day
+}
+
+type SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate struct {
+	Year  *int "json:\"year,omitempty\" graphql:\"year\""
+	Month *int "json:\"month,omitempty\" graphql:\"month\""
+	Day   *int "json:\"day,omitempty\" graphql:\"day\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate) GetYear() *int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate{}
+	}
+	return t.Year
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate) GetMonth() *int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate{}
+	}
+	return t.Month
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate) GetDay() *int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_EndDate{}
+	}
+	return t.Day
+}
+
+type SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode struct {
+	AiringAt        int "json:\"airingAt\" graphql:\"airingAt\""
+	TimeUntilAiring int "json:\"timeUntilAiring\" graphql:\"timeUntilAiring\""
+	Episode         int "json:\"episode\" graphql:\"episode\""
+}
+
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode) GetAiringAt() int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode{}
+	}
+	return t.AiringAt
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode) GetTimeUntilAiring() int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode{}
+	}
+	return t.TimeUntilAiring
+}
+func (t *SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode) GetEpisode() int {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page_Media_BaseAnime_NextAiringEpisode{}
+	}
+	return t.Episode
+}
+
+type SearchBaseAnimeByIds_Page struct {
+	PageInfo *SearchBaseAnimeByIds_Page_PageInfo "json:\"pageInfo,omitempty\" graphql:\"pageInfo\""
+	Media    []*BaseAnime                        "json:\"media,omitempty\" graphql:\"media\""
+}
+
+func (t *SearchBaseAnimeByIds_Page) GetPageInfo() *SearchBaseAnimeByIds_Page_PageInfo {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page{}
+	}
+	return t.PageInfo
+}
+func (t *SearchBaseAnimeByIds_Page) GetMedia() []*BaseAnime {
+	if t == nil {
+		t = &SearchBaseAnimeByIds_Page{}
+	}
+	return t.Media
 }
 
 type CompleteAnimeById_Media_CompleteAnime_Trailer struct {
@@ -6488,6 +6682,17 @@ func (t *BaseAnimeByID) GetMedia() *BaseAnime {
 	return t.Media
 }
 
+type SearchBaseAnimeByIds struct {
+	Page *SearchBaseAnimeByIds_Page "json:\"Page,omitempty\" graphql:\"Page\""
+}
+
+func (t *SearchBaseAnimeByIds) GetPage() *SearchBaseAnimeByIds_Page {
+	if t == nil {
+		t = &SearchBaseAnimeByIds{}
+	}
+	return t.Page
+}
+
 type CompleteAnimeByID struct {
 	Media *CompleteAnime "json:\"Media,omitempty\" graphql:\"Media\""
 }
@@ -7059,6 +7264,94 @@ func (c *Client) BaseAnimeByID(ctx context.Context, id *int, interceptors ...cli
 	return &res, nil
 }
 
+const SearchBaseAnimeByIdsDocument = `query SearchBaseAnimeByIds ($ids: [Int], $page: Int, $perPage: Int, $status: [MediaStatus], $inCollection: Boolean, $sort: [MediaSort], $season: MediaSeason, $year: Int, $genre: String, $format: MediaFormat) {
+	Page(page: $page, perPage: $perPage) {
+		pageInfo {
+			hasNextPage
+		}
+		media(id_in: $ids, type: ANIME, status_in: $status, onList: $inCollection, sort: $sort, season: $season, seasonYear: $year, genre: $genre, format: $format) {
+			... baseAnime
+		}
+	}
+}
+fragment baseAnime on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	episodes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	genres
+	duration
+	trailer {
+		id
+		site
+		thumbnail
+	}
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
+	nextAiringEpisode {
+		airingAt
+		timeUntilAiring
+		episode
+	}
+}
+`
+
+func (c *Client) SearchBaseAnimeByIds(ctx context.Context, ids []*int, page *int, perPage *int, status []*MediaStatus, inCollection *bool, sort []*MediaSort, season *MediaSeason, year *int, genre *string, format *MediaFormat, interceptors ...clientv2.RequestInterceptor) (*SearchBaseAnimeByIds, error) {
+	vars := map[string]any{
+		"ids":          ids,
+		"page":         page,
+		"perPage":      perPage,
+		"status":       status,
+		"inCollection": inCollection,
+		"sort":         sort,
+		"season":       season,
+		"year":         year,
+		"genre":        genre,
+		"format":       format,
+	}
+
+	var res SearchBaseAnimeByIds
+	if err := c.Client.Post(ctx, "SearchBaseAnimeByIds", SearchBaseAnimeByIdsDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const CompleteAnimeByIDDocument = `query CompleteAnimeById ($id: Int) {
 	Media(id: $id, type: ANIME) {
 		... completeAnime
@@ -7487,7 +7780,7 @@ func (c *Client) ListAnime(ctx context.Context, page *int, search *string, perPa
 	return &res, nil
 }
 
-const ListRecentAnimeDocument = `query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int) {
+const ListRecentAnimeDocument = `query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int, $notYetAired: Boolean = false) {
 	Page(page: $page, perPage: $perPage) {
 		pageInfo {
 			hasNextPage
@@ -7496,7 +7789,7 @@ const ListRecentAnimeDocument = `query ListRecentAnime ($page: Int, $perPage: In
 			currentPage
 			lastPage
 		}
-		airingSchedules(notYetAired: false, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
+		airingSchedules(notYetAired: $notYetAired, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
 			id
 			airingAt
 			episode
@@ -7559,12 +7852,13 @@ fragment baseAnime on Media {
 }
 `
 
-func (c *Client) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
+func (c *Client) ListRecentAnime(ctx context.Context, page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool, interceptors ...clientv2.RequestInterceptor) (*ListRecentAnime, error) {
 	vars := map[string]any{
 		"page":             page,
 		"perPage":          perPage,
 		"airingAt_greater": airingAtGreater,
 		"airingAt_lesser":  airingAtLesser,
+		"notYetAired":      notYetAired,
 	}
 
 	var res ListRecentAnime
@@ -8383,6 +8677,7 @@ var DocumentOperationNames = map[string]string{
 	AnimeCollectionWithRelationsDocument: "AnimeCollectionWithRelations",
 	BaseAnimeByMalIDDocument:             "BaseAnimeByMalId",
 	BaseAnimeByIDDocument:                "BaseAnimeById",
+	SearchBaseAnimeByIdsDocument:         "SearchBaseAnimeByIds",
 	CompleteAnimeByIDDocument:            "CompleteAnimeById",
 	AnimeDetailsByIDDocument:             "AnimeDetailsById",
 	ListAnimeDocument:                    "ListAnime",

@@ -1,6 +1,8 @@
 "use client"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
+import { DiscoverAiringSchedule } from "@/app/(main)/discover/_containers/discover-airing-schedule"
+import { DiscoverMissedSequelsSection } from "@/app/(main)/discover/_containers/discover-missed-sequels"
 import { DiscoverPastSeason, DiscoverPopular } from "@/app/(main)/discover/_containers/discover-popular"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { DiscoverMangaSearchBar, DiscoverTrendingManga } from "@/app/(main)/discover/_containers/discover-trending-manga"
@@ -35,13 +37,14 @@ export default function Page() {
                 transition={{ duration: 0.5, delay: 0.6 }}
                 className="p-4 sm:p-8 space-y-10 pb-10 relative z-[4]"
             >
-                <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center">
+                <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap">
                     {serverStatus?.settings?.library?.enableManga && <div className="max-w-fit border rounded-full">
                         <StaticTabs
                             className="h-10"
                             triggerClass="px-4 py-1"
                             items={[
                                 { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
+                                { name: "Schedule", isCurrent: pageType === "schedule", onClick: () => setPageType("schedule") },
                                 { name: "Manga", isCurrent: pageType === "manga", onClick: () => setPageType("manga") },
                             ]}
                         />
@@ -80,6 +83,7 @@ export default function Page() {
                             <h2>Highest rated last season</h2>
                             <DiscoverPastSeason />
                         </div>
+                        <DiscoverMissedSequelsSection />
                         <div className="space-y-2 z-[5] relative">
                             <h2>Upcoming</h2>
                             <DiscoverUpcoming />
@@ -92,6 +96,20 @@ export default function Page() {
                             <h2>Popular shows</h2>
                             <DiscoverPopular />
                         </div>
+                    </PageWrapper>}
+                    {pageType === "schedule" && <PageWrapper
+                        key="schedule"
+                        className="relative 2xl:order-first pb-10 pt-4"
+                        {...{
+                            initial: { opacity: 0, y: 60 },
+                            animate: { opacity: 1, y: 0 },
+                            exit: { opacity: 0, scale: 0.99 },
+                            transition: {
+                                duration: 0.35,
+                            },
+                        }}
+                    >
+                        <DiscoverAiringSchedule />
                     </PageWrapper>}
                     {pageType === "manga" && <PageWrapper
                         key="manga"

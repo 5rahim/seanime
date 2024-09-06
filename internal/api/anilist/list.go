@@ -7,6 +7,95 @@ import (
 	"github.com/samber/lo"
 )
 
+func ListMissedSequels(
+	animeCollectionWithRelations *AnimeCollectionWithRelations,
+	logger *zerolog.Logger,
+) ([]*BaseAnime, error) {
+
+	variables := map[string]interface{}{}
+	variables["page"] = 1
+	variables["perPage"] = 50
+
+	ids := make(map[int]struct{})
+	for _, list := range animeCollectionWithRelations.GetMediaListCollection().GetLists() {
+		if list.Status == nil || !(*list.Status == MediaListStatusCompleted || *list.Status == MediaListStatusRepeating || *list.Status == MediaListStatusPaused) || list.Entries == nil {
+			continue
+		}
+		for _, entry := range list.Entries {
+			if _, ok := ids[entry.GetMedia().GetID()]; !ok {
+				edges := entry.GetMedia().GetRelations().GetEdges()
+				var sequel *BaseAnime
+				for _, edge := range edges {
+					if edge.GetRelationType() != nil && *edge.GetRelationType() == MediaRelationSequel {
+						sequel = edge.GetNode()
+						break
+					}
+				}
+
+				if sequel == nil {
+					continue
+				}
+
+				// Check if sequel is already in the list
+				_, found := animeCollectionWithRelations.FindAnime(sequel.GetID())
+				if found {
+					continue
+				}
+
+				if *sequel.GetStatus() == MediaStatusFinished || *sequel.GetStatus() == MediaStatusReleasing {
+					ids[sequel.GetID()] = struct{}{}
+				}
+			}
+
+		}
+	}
+
+	idsSlice := make([]int, 0, len(ids))
+	for id := range ids {
+		idsSlice = append(idsSlice, id)
+	}
+
+	if len(idsSlice) == 0 {
+		return []*BaseAnime{}, nil
+	}
+
+	if len(idsSlice) > 10 {
+		idsSlice = idsSlice[:10]
+	}
+
+	variables["ids"] = idsSlice
+	variables["inCollection"] = false
+	variables["sort"] = MediaSortStartDateDesc
+
+	requestBody, err := json.Marshal(map[string]interface{}{
+		"query":     SearchBaseAnimeByIdsDocument,
+		"variables": variables,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := customQuery(requestBody, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	var searchRes *SearchBaseAnimeByIds
+	if err := json.Unmarshal(m, &searchRes); err != nil {
+		return nil, err
+	}
+
+	if searchRes == nil || searchRes.Page == nil || searchRes.Page.Media == nil {
+		return nil, fmt.Errorf("no data found")
+	}
+
+	return searchRes.Page.Media, nil
+}
+
 func ListAnimeM(
 	Page *int,
 	Search *string,
@@ -160,6 +249,8 @@ func ListRecentAiringAnimeM(
 	PerPage *int,
 	AiringAtGreater *int,
 	AiringAtLesser *int,
+	NotYetAired *bool,
+	Sort []*AiringSort,
 	logger *zerolog.Logger,
 ) (*ListRecentAnime, error) {
 
@@ -178,6 +269,14 @@ func ListRecentAiringAnimeM(
 	}
 	if AiringAtLesser != nil {
 		variables["airingAt_lesser"] = *AiringAtLesser
+	}
+	if NotYetAired != nil {
+		variables["notYetAired"] = *NotYetAired
+	}
+	if Sort != nil {
+		variables["sort"] = Sort
+	} else {
+		variables["sort"] = []*AiringSort{lo.ToPtr(AiringSortTimeDesc)}
 	}
 
 	requestBody, err := json.Marshal(map[string]interface{}{
@@ -260,6 +359,78 @@ func ListAnimeCacheKey(
 
 }
 
+const ListRecentAiringAnimeQuery = `query ListRecentAnime ($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int, $sort: [AiringSort], $notYetAired: Boolean = false) {
+	Page(page: $page, perPage: $perPage) {
+		pageInfo {
+			hasNextPage
+			total
+			perPage
+			currentPage
+			lastPage
+		}
+		airingSchedules(notYetAired: $notYetAired, sort: $sort, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser) {
+			id
+			airingAt
+			episode
+			timeUntilAiring
+			media {
+				... baseAnime
+			}
+		}
+	}
+}
+fragment baseAnime on Media {
+	id
+	idMal
+	siteUrl
+	status(version: 2)
+	season
+	type
+	format
+	bannerImage
+	episodes
+	synonyms
+	isAdult
+	countryOfOrigin
+	meanScore
+	description
+	genres
+	duration
+	trailer {
+		id
+		site
+		thumbnail
+	}
+	title {
+		userPreferred
+		romaji
+		english
+		native
+	}
+	coverImage {
+		extraLarge
+		large
+		medium
+		color
+	}
+	startDate {
+		year
+		month
+		day
+	}
+	endDate {
+		year
+		month
+		day
+	}
+	nextAiringEpisode {
+		airingAt
+		timeUntilAiring
+		episode
+	}
+}
+  `
+
 func ListRecentAiringAnimeCacheKey(
 	Page *int,
 	Search *string,
@@ -288,77 +459,3 @@ func ListRecentAiringAnimeCacheKey(
 	return key
 
 }
-
-const ListRecentAiringAnimeQuery = `
-    query ListRecentAnime($page: Int, $perPage: Int, $airingAt_greater: Int, $airingAt_lesser: Int){
-        Page(page: $page, perPage: $perPage){
-            pageInfo{
-                hasNextPage
-                total
-                perPage
-                currentPage
-                lastPage
-            },
-            airingSchedules(notYetAired: false, sort: TIME_DESC, airingAt_greater: $airingAt_greater, airingAt_lesser: $airingAt_lesser){
-                id
-                airingAt
-                episode
-                timeUntilAiring
-                media {
-                    isAdult
-                    ...baseAnime
-                }
-            }
-        }
-    }
-    fragment baseAnime on Media {
-		id
-		idMal
-		siteUrl
-		status(version: 2)
-		season
-		type
-		format
-		bannerImage
-		episodes
-		synonyms
-		isAdult
-		countryOfOrigin
-		meanScore
-		description
-		genres
-		duration
-		trailer {
-			id
-			site
-			thumbnail
-		}
-		title {
-			userPreferred
-			romaji
-			english
-			native
-		}
-		coverImage {
-			extraLarge
-			large
-			medium
-			color
-		}
-		startDate {
-			year
-			month
-			day
-		}
-		endDate {
-			year
-			month
-			day
-		}
-		nextAiringEpisode {
-			airingAt
-			timeUntilAiring
-			episode
-		}
-    }
-  `

@@ -9,6 +9,7 @@ import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     AL_AnimeCollection,
     AL_AnimeDetailsById_Media,
+    AL_BaseAnime,
     AL_ListAnime,
     AL_ListRecentAnime,
     AL_Stats,
@@ -122,12 +123,13 @@ export function useAnilistListAnime(variables: AnilistListAnime_Variables, enabl
     })
 }
 
-export function useAnilistListRecentAiringAnime(variables: AnilistListRecentAiringAnime_Variables) {
+export function useAnilistListRecentAiringAnime(variables: AnilistListRecentAiringAnime_Variables, enabled: boolean = true) {
     return useServerQuery<AL_ListRecentAnime, AnilistListRecentAiringAnime_Variables>({
         endpoint: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.endpoint,
         method: API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.methods[0],
-        queryKey: [API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.key],
+        queryKey: [API_ENDPOINTS.ANILIST.AnilistListRecentAiringAnime.key, JSON.stringify(variables)],
         data: variables,
+        enabled: enabled,
     })
 }
 
@@ -146,5 +148,14 @@ export function useGetAniListStats() {
         method: API_ENDPOINTS.ANILIST.GetAniListStats.methods[0],
         queryKey: [API_ENDPOINTS.ANILIST.GetAniListStats.key],
         enabled: true,
+    })
+}
+
+export function useAnilistListMissedSequels(enabled: boolean) {
+    return useServerQuery<Array<AL_BaseAnime>>({
+        endpoint: API_ENDPOINTS.ANILIST.AnilistListMissedSequels.endpoint,
+        method: API_ENDPOINTS.ANILIST.AnilistListMissedSequels.methods[0],
+        queryKey: [API_ENDPOINTS.ANILIST.AnilistListMissedSequels.key],
+        enabled: enabled,
     })
 }

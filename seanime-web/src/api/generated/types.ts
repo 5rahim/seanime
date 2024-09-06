@@ -7,6 +7,22 @@ export type Nullish<T> = T | null | undefined
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/api/anilist/models_gen.go
+ * - Filename: models_gen.go
+ * - Package: anilist
+ * @description
+ *  Airing schedule sort enums
+ */
+export type AL_AiringSort = "ID" |
+    "ID_DESC" |
+    "MEDIA_ID" |
+    "MEDIA_ID_DESC" |
+    "TIME" |
+    "TIME_DESC" |
+    "EPISODE" |
+    "EPISODE_DESC"
+
+/**
  * - Filepath: internal/api/anilist/client_gen.go
  * - Filename: client_gen.go
  * - Package: anilist

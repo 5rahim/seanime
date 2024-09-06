@@ -64,6 +64,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
         while (day <= endOfCalendar) {
             const upcomingMedia = media.filter((item) => !!item.nextAiringEpisode?.airingAt && isSameDay(new Date(item.nextAiringEpisode?.airingAt * 1000),
                 day)).map((item) => {
+                if (item?.id === 162804) console.log(item.nextAiringEpisode?.airingAt)
                 return {
                     id: item.id + item.nextAiringEpisode?.episode!,
                     name: item.title?.userPreferred,

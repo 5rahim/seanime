@@ -96,6 +96,16 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route returns a list of sequels not in the user's list.
+         *  This is used by the "Discover" page to display sequels the user may have missed.
+         */
+        AnilistListMissedSequels: {
+            key: "ANILIST-anilist-list-missed-sequels",
+            methods: ["GET"],
+            endpoint: "/api/v1/anilist/list-missed-sequels",
+        },
+        /**
+         *  @description
          *  Route returns the anilist stats.
          *  This returns the AniList stats for the user.
          */

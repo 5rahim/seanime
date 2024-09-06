@@ -9,7 +9,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/Yamashou/gqlgenc v0.23.2
+	github.com/Yamashou/gqlgenc v0.24.0
 	github.com/adrg/strutil v0.3.1
 	github.com/anacrolix/log v0.15.2
 	github.com/anacrolix/sync v0.5.1
