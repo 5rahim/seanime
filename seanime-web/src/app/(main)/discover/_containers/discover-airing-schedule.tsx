@@ -1,8 +1,8 @@
 import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Separator } from "@/components/ui/separator"
 import { format, isSameMonth, isToday, subDays } from "date-fns"
 import { addDays } from "date-fns/addDays"
-import { formatDistanceToNow } from "date-fns/formatDistanceToNow"
 import { isSameDay } from "date-fns/isSameDay"
 import Image from "next/image"
 import Link from "next/link"
@@ -92,46 +92,49 @@ export function DiscoverAiringSchedule() {
                 {days.map((day, index) => {
                     if (day.events.length === 0) return null
                     return (
-                        <div key={index} className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2">
-                                <h3 className="font-semibold">{format(new Date(day.date), "EEEE, PP")}</h3>
-                                {day.isToday && <span className="text-[--muted]">Today</span>}
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                                {day.events?.toSorted((a, b) => a.datetime.localeCompare(b.datetime))?.map((event, index) => {
-                                    return (
-                                        <div key={event.id} className="flex gap-3 bg-[--background] rounded-md p-2">
-                                            <div
-                                                className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
-                                            >
-                                                <Image
-                                                    src={event.media?.coverImage?.large || event.media?.bannerImage || "/no-cover.png"}
-                                                    alt="banner"
-                                                    fill
-                                                    quality={80}
-                                                    priority
-                                                    sizes="20rem"
-                                                    className="object-cover object-center"
-                                                />
+                        <>
+                            <div key={index} className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2">
+                                    <h3 className="font-semibold">{format(new Date(day.date), "EEEE, PP")}</h3>
+                                    {day.isToday && <span className="text-[--muted]">Today</span>}
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                                    {day.events?.toSorted((a, b) => a.datetime.localeCompare(b.datetime))?.map((event, index) => {
+                                        return (
+                                            <div key={event.id} className="flex gap-3 bg-[--background] rounded-md p-2">
+                                                <div
+                                                    className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
+                                                >
+                                                    <Image
+                                                        src={event.media?.coverImage?.large || event.media?.bannerImage || "/no-cover.png"}
+                                                        alt="banner"
+                                                        fill
+                                                        quality={80}
+                                                        priority
+                                                        sizes="20rem"
+                                                        className="object-cover object-center"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <Link
+                                                        href={`/entry?id=${event.media?.id}`}
+                                                        className="font-medium tracking-wide line-clamp-1"
+                                                    >{event.media?.title?.userPreferred}</Link>
+
+                                                    <p className="text-[--muted]">
+                                                        Ep {event.episode} airing at {event.time}
+                                                    </p>
+                                                </div>
+
                                             </div>
-
-                                            <div className="space-y-1">
-                                                <Link
-                                                    href={`/entry?id=${event.media?.id}`}
-                                                    className="font-medium tracking-wide line-clamp-1"
-                                                >{event.media?.title?.userPreferred}</Link>
-
-                                                <p className="text-[--muted]">
-                                                    Episode {event.episode} {formatDistanceToNow(new Date(event.datetime), { addSuffix: true })}
-                                                </p>
-                                            </div>
-
-                                        </div>
-                                    )
-                                })}
+                                        )
+                                    })}
+                                </div>
                             </div>
 
-                        </div>
+                            <Separator />
+                        </>
                     )
                 })}
             </div>

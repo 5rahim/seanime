@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## v2.1.1
 
-- ✨ Discover: New 'Schedule' section
+- ✨ Discover: New 'Schedule' and 'Missed sequels' section
 - ⚡️ Self update: Replace current process on Linux #114
 - ⚡️ Auto play next episode now works for torrent streaming (with auto-select enabled)
 - ⚡️ Anime media cards persist list data across pages
@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Fixed anime media card trailers
 - 🦺 Fixed nested popovers not opening on Firefox
 - 🏗️ UI: Added desktop-specific components for future desktop app
-- 🏗️ Created separate build processes for frontend
+- 🏗️ Added separate build processes for frontend
 
 ## v2.1.0
 

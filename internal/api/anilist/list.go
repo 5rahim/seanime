@@ -10,7 +10,12 @@ import (
 func ListMissedSequels(
 	animeCollectionWithRelations *AnimeCollectionWithRelations,
 	logger *zerolog.Logger,
-) ([]*BaseAnime, error) {
+) (ret []*BaseAnime, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic: %v", r)
+		}
+	}()
 
 	variables := map[string]interface{}{}
 	variables["page"] = 1
