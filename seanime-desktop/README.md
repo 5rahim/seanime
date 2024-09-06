@@ -18,7 +18,11 @@ Desktop app for Seanime. Embeds server and web interface.
 - [x] Dedicated update process
   - [x] Dedicated update modal
   - [x] Test update locally
-- [ ] More tests
+- [ ] Fix macOS startup
+- [ ] Fix title bar z-index
+- [ ] Fix drawer close buttons overlapping with title bar
+- [ ] Reduce memory usage
+- [ ] Test on Linux?
 
 ## Development
 

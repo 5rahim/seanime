@@ -489,20 +489,26 @@ export const MediaEntryCardHoverPopupBanner = ({
                 />
             </div>
 
-            {(trailerEnabled && actionPopupHover) && <video
-                src={`https://yewtu.be/latest_version?id=${trailerId}&itag=18`}
+            {(trailerEnabled && actionPopupHover) && <div
                 className={cn(
-                    "aspect-video w-full absolute left-0",
+                    "absolute w-full h-full overflow-hidden rounded-md",
                     !trailerLoaded && "hidden",
                 )}
-                playsInline
-                preload="none"
-                loop
-                autoPlay
-                muted
-                onLoadedData={() => setTrailerLoaded(true)}
-                onError={() => setTrailerEnabled(false)}
-            />}
+            >
+                <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&controls=0&mute=1&disablekb=1&loop=1&vq=medium&playlist=${trailerId}&cc_lang_pref=ja`}
+                    className={cn(
+                        "aspect-video w-full absolute left-0",
+                    )}
+                    // playsInline
+                    // preload="none"
+                    // loop
+                    allow="autoplay"
+                    // muted
+                    onLoad={() => setTrailerLoaded(true)}
+                    onError={() => setTrailerEnabled(false)}
+                />
+            </div>}
 
             {<div
                 className={cn(

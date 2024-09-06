@@ -1,7 +1,7 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
-import { useEffect } from "react"
+import React from "react"
 
 /**
  * @description
@@ -13,7 +13,7 @@ export function useAnimeLibraryCollectionLoader() {
 
     const { data, status } = useGetLibraryCollection()
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (status === "success") {
             setter(data)
         }

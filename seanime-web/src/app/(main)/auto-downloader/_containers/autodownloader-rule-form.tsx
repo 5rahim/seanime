@@ -6,7 +6,7 @@ import {
     Anime_LibraryCollection,
 } from "@/api/generated/types"
 import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
-import { useAnilistUserMedia } from "@/app/(main)/_hooks/anilist-collection-loader"
+import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -52,7 +52,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
     } = props
 
     const qc = useQueryClient()
-    const userMedia = useAnilistUserMedia()
+    const userMedia = useAnilistUserAnime()
     const libraryCollection = useLibraryCollection()
 
     const allMedia = React.useMemo(() => {

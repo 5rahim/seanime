@@ -1,6 +1,6 @@
 import { useGetAutoDownloaderItems, useGetAutoDownloaderRules, useRunAutoDownloader } from "@/api/hooks/auto_downloader.hooks"
 import { useSaveAutoDownloaderSettings } from "@/api/hooks/settings.hooks"
-import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
@@ -29,7 +29,7 @@ const settingsSchema = defineSchema(({ z }) => z.object({
 
 export function AutoDownloaderPage() {
     const serverStatus = useServerStatus()
-    const userMedia = useAtomValue(anilistUserMediaAtom)
+    const userMedia = useAtomValue(__anilist_userMediaAtom)
 
     const createRuleModal = useBoolean(false)
 

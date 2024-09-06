@@ -1,28 +1,53 @@
+import { Anime_AnimeEntryListData, Nullish } from "@/api/generated/types"
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
-import { anilistUserMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __anilist_userAnimeListDataAtom, __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
-import { useEffect } from "react"
+import React from "react"
 
 /**
  * @description
  * - Fetches the Anilist collection
  */
 export function useAnimeCollectionLoader() {
-    const setter = useSetAtom(anilistUserMediaAtom)
+    const setAnilistUserMedia = useSetAtom(__anilist_userMediaAtom)
+
+    const setAnilistUserMediaListData = useSetAtom(__anilist_userAnimeListDataAtom)
 
     const { data } = useGetAnimeCollection()
 
     // Store the user's media in `userMediaAtom`
-    useEffect(() => {
+    React.useEffect(() => {
         if (!!data) {
             const allMedia = data.MediaListCollection?.lists?.flatMap(n => n?.entries)?.filter(Boolean)?.map(n => n.media)?.filter(Boolean) ?? []
-            setter(allMedia)
+            setAnilistUserMedia(allMedia)
+
+            const listData = data.MediaListCollection?.lists?.flatMap(n => n?.entries)?.filter(Boolean)?.reduce((acc, n) => {
+                acc[String(n.media?.id!)] = {
+                    status: n.status,
+                    progress: n.progress || 0,
+                    score: n.score || 0,
+                    startedAt: n.startedAt ? new Date(n.startedAt.year || 0,
+                        (n.startedAt.month || 1) - 1,
+                        n.startedAt.day || 1).toISOString() : undefined,
+                    completedAt: n.completedAt ? new Date(n.completedAt.year || 0,
+                        (n.completedAt.month || 1) - 1,
+                        n.completedAt.day || 1).toISOString() : undefined,
+                }
+                return acc
+            }, {} as Record<string, Anime_AnimeEntryListData>)
+            setAnilistUserMediaListData(listData || {})
         }
     }, [data])
 
     return null
 }
 
-export function useAnilistUserMedia() {
-    return useAtomValue(anilistUserMediaAtom)
+export function useAnilistUserAnime() {
+    return useAtomValue(__anilist_userMediaAtom)
+}
+
+export function useAnilistUserAnimeListData(mId: Nullish<number | string>): Anime_AnimeEntryListData | undefined {
+    const data = useAtomValue(__anilist_userAnimeListDataAtom)
+
+    return data[String(mId)]
 }

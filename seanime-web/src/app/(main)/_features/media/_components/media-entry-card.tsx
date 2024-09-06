@@ -18,6 +18,7 @@ import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_component
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
@@ -86,27 +87,9 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
 
-    // React.useEffect(() => {
-    //     console.log("rendered", media.title?.userPreferred)
-    // }, [])
-
-    // For pages where listData or libraryData is not accessible (where LibraryCollection is not fetched),
-    // use cached LibraryCollection
-    React.useEffect(() => {
-        if (type === "anime" && !_listData || !_libraryData) {
-            const entry = getAtomicLibraryEntry(media.id)
-            if (!_listData) {
-                setListData(entry?.listData)
-            }
-            if (!_libraryData) {
-                setLibraryData(entry?.libraryData)
-            }
-        }
-    }, [getAtomicLibraryEntry])
-
     const pathname = usePathname()
-
-    // Dynamically refresh data when LibraryCollection is updated
+    //
+    // // Dynamically refresh data when LibraryCollection is updated
     React.useEffect(() => {
         if (pathname !== "/") {
             const entry = getAtomicLibraryEntry(media.id)
@@ -126,6 +109,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     React.useLayoutEffect(() => {
         setLibraryData(_libraryData)
     }, [_libraryData])
+
+    const listDataFromCollection = useAnilistUserAnimeListData(media.id)
+
+    React.useEffect(() => {
+        if (listDataFromCollection && !_listData) {
+            setListData(listDataFromCollection)
+        }
+    }, [listDataFromCollection, _listData])
 
     if (!media) return null
 

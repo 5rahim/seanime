@@ -74,8 +74,8 @@ export function PlaylistManager(props: PlaylistManagerProps) {
         if (debouncedSearchInput.length !== 0) return (libraryCollection?.lists
             ?.filter(n => n.type === "PLANNING" || n.type === "PAUSED" || n.type === "CURRENT")
             ?.flatMap(n => n.entries)
-            ?.filter(Boolean) ?? []).filter(n => n?.media?.title?.english?.toLowerCase().includes(debouncedSearchInput.toLowerCase()) ||
-            n?.media?.title?.romaji?.toLowerCase().includes(debouncedSearchInput.toLowerCase()))
+            ?.filter(Boolean) ?? []).filter(n => n?.media?.title?.english?.toLowerCase()?.includes(debouncedSearchInput.toLowerCase()) ||
+            n?.media?.title?.romaji?.toLowerCase()?.includes(debouncedSearchInput.toLowerCase()))
 
         return libraryCollection?.lists?.filter(n => {
                 if (selectedCategory === "-") return n.type === "PLANNING" || n.type === "PAUSED" || n.type === "CURRENT"
