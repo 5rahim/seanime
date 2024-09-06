@@ -436,8 +436,10 @@ jobs:
             ./seanime-desktop-darwin-arm.app.tar.gz.sig
             ./seanime-desktop-darwin-intel.app.tar.gz
             ./seanime-desktop-darwin-intel.app.tar.gz.sig
+            ./seanime-desktop-linux.AppImage
             ./seanime-desktop-linux.AppImage.tar.gz
             ./seanime-desktop-linux.AppImage.sig
+            ./seanime-desktop-windows-setup.exe
             ./seanime-desktop-windows-setup.exe.zip
             ./seanime-desktop-windows-setup.exe.sig
 
@@ -553,9 +555,11 @@ jobs:
         # |- seanime-desktop-darwin-arm.app.tar.gz.sig -> ../seanime-desktop-${{ env.VERSION }}_MacOS_arm64.app.tar.gz.sig
         # |- seanime-desktop-darwin-intel.app.tar.gz -> ../seanime-desktop-${{ env.VERSION }}_MacOS_x86_64.app.tar.gz
         # |- seanime-desktop-darwin-intel.app.tar.gz.sig -> ../seanime-desktop-${{ env.VERSION }}_MacOS_x86_64.app.tar.gz.sig
+        # |- seanime-desktop-linux.AppImage -> ../seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage
         # |- seanime-desktop-linux.AppImage.tar.gz -> ../seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage.tar.gz
         # |- seanime-desktop-linux.AppImage.sig -> ../seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage.sig
-        # |- seanime-desktop-windows-setup.exe.zip -> ../seanime-desktop-${{ env.VERSION }}_Windows_x86_64.zip
+        # |- seanime-desktop-windows-setup.exe -> ../seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe
+        # |- seanime-desktop-windows-setup.exe.zip -> ../seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe.zip
         # |- seanime-desktop-windows-setup.exe.sig -> ../seanime-desktop-${{ env.VERSION }}_Windows_x86_64.sig
         run: |
           if [ -f ./artifacts/seanime-desktop-darwin-arm.app.tar.gz ]; then
@@ -567,10 +571,12 @@ jobs:
               mv ./artifacts/seanime-desktop-darwin-intel.app.tar.gz.sig ./seanime-desktop-${{ env.VERSION }}_MacOS_x86_64.app.tar.gz.sig
           fi
           if [ -f ./artifacts/seanime-desktop-linux.AppImage.tar.gz ]; then
+              mv ./artifacts/seanime-desktop-linux.AppImage ./seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage
               mv ./artifacts/seanime-desktop-linux.AppImage.tar.gz ./seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage.tar.gz
               mv ./artifacts/seanime-desktop-linux.AppImage.sig ./seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage.sig
           fi
           if [ -f ./artifacts/seanime-desktop-windows-setup.exe.zip ]; then
+              mv ./artifacts/seanime-desktop-windows-setup.exe ./seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe
               mv ./artifacts/seanime-desktop-windows-setup.exe.zip ./seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe.zip
               mv ./artifacts/seanime-desktop-windows-setup.exe.sig ./seanime-desktop-${{ env.VERSION }}_Windows_x86_64.sig
           fi
@@ -616,9 +622,15 @@ jobs:
           files: |
             latest.json
             seanime-desktop-${{ env.VERSION }}_MacOS_arm64.app.tar.gz
+            seanime-desktop-${{ env.VERSION }}_MacOS_arm64.app.tar.gz.sig
             seanime-desktop-${{ env.VERSION }}_MacOS_x86_64.app.tar.gz
+            seanime-desktop-${{ env.VERSION }}_MacOS_x86_64.app.tar.gz.sig
+            seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage
             seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage.tar.gz
+            seanime-desktop-${{ env.VERSION }}_Linux_x86_64.AppImage.sig
+            seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe
             seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe.zip
+            seanime-desktop-${{ env.VERSION }}_Windows_x86_64.exe.sig
             seanime-${{ env.VERSION }}_MacOS_x86_64.tar.gz
             seanime-${{ env.VERSION }}_MacOS_arm64.tar.gz
             seanime-${{ env.VERSION }}_Linux_x86_64.tar.gz

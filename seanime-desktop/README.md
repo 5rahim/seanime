@@ -15,9 +15,10 @@ Desktop app for Seanime. Embeds server and web interface.
 - [x] Fix macOS overlay title bar drag
 - [x] Check Getting started
 - [x] Dedicated log-in
-- [ ] Dedicated update process
+- [x] Dedicated update process
   - [x] Dedicated update modal
-  - [ ] Test update locally (doesn't work with localhost in release build)
+  - [x] Test update locally
+- [ ] More tests
 
 ## Development
 

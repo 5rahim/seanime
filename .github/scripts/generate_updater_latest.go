@@ -21,24 +21,24 @@ func main() {
 
 	// Define the asset filenames
 	assets := map[string]struct {
-		AppTar string
+		Asset  string
 		AppZip string
 		Sig    string
 	}{
 		"MacOS_arm64": {
-			AppTar: fmt.Sprintf("seanime-desktop-%s_MacOS_arm64.app.tar.gz", version),
-			Sig:    fmt.Sprintf("seanime-desktop-%s_MacOS_arm64.app.tar.gz.sig", version),
+			Asset: fmt.Sprintf("seanime-desktop-%s_MacOS_arm64.app.tar.gz", version),
+			Sig:   fmt.Sprintf("seanime-desktop-%s_MacOS_arm64.app.tar.gz.sig", version),
 		},
 		"MacOS_x86_64": {
-			AppTar: fmt.Sprintf("seanime-desktop-%s_MacOS_x86_64.app.tar.gz", version),
-			Sig:    fmt.Sprintf("seanime-desktop-%s_MacOS_x86_64.app.tar.gz.sig", version),
+			Asset: fmt.Sprintf("seanime-desktop-%s_MacOS_x86_64.app.tar.gz", version),
+			Sig:   fmt.Sprintf("seanime-desktop-%s_MacOS_x86_64.app.tar.gz.sig", version),
 		},
 		"Linux_x86_64": {
-			AppTar: fmt.Sprintf("seanime-desktop-%s_Linux_x86_64.AppImage.tar.gz", version),
-			Sig:    fmt.Sprintf("seanime-desktop-%s_Linux_x86_64.AppImage.sig", version),
+			Asset: fmt.Sprintf("seanime-desktop-%s_Linux_x86_64.AppImage", version),
+			Sig:   fmt.Sprintf("seanime-desktop-%s_Linux_x86_64.AppImage.sig", version),
 		},
 		"Windows_x86_64": {
-			AppZip: fmt.Sprintf("seanime-desktop-%s_Windows_x86_64.exe.zip", version),
+			AppZip: fmt.Sprintf("seanime-desktop-%s_Windows_x86_64.exe", version),
 			Sig:    fmt.Sprintf("seanime-desktop-%s_Windows_x86_64.sig", version),
 		},
 	}
@@ -54,7 +54,7 @@ func main() {
 		"pub_date": time.Now().Format(time.RFC3339), // Change to the actual publish date
 		"platforms": map[string]map[string]string{
 			"linux-x86_64": {
-				"url":       generateURL(assets["Linux_x86_64"].AppTar),
+				"url":       generateURL(assets["Linux_x86_64"].Asset),
 				"signature": getContent(assets["Linux_x86_64"].Sig),
 			},
 			"windows-x86_64": {
@@ -62,11 +62,11 @@ func main() {
 				"signature": getContent(assets["Windows_x86_64"].Sig),
 			},
 			"darwin-x86_64": {
-				"url":       generateURL(assets["MacOS_x86_64"].AppTar),
+				"url":       generateURL(assets["MacOS_x86_64"].Asset),
 				"signature": getContent(assets["MacOS_x86_64"].Sig),
 			},
 			"darwin-aarch64": {
-				"url":       generateURL(assets["MacOS_arm64"].AppTar),
+				"url":       generateURL(assets["MacOS_arm64"].Asset),
 				"signature": getContent(assets["MacOS_arm64"].Sig),
 			},
 		},

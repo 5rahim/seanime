@@ -6,6 +6,7 @@ import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
+import { emit } from "@tauri-apps/api/event"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { check, Update } from "@tauri-apps/plugin-updater"
 import { atom } from "jotai"
@@ -15,6 +16,7 @@ import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiLinkExternal } from "react-icons/bi"
 import { GrInstall } from "react-icons/gr"
+import { toast } from "sonner"
 
 
 type UpdateModalProps = {
@@ -52,24 +54,34 @@ export function TauriUpdateModal(props: UpdateModalProps) {
             })()
         }
         catch (e) {
-
+            console.error(e)
+            setIsUpdating(false)
+            toast.error(`Failed to check for updates: ${JSON.stringify(e)}`)
         }
     }, [])
 
     const isPending = false
 
     async function handleInstallUpdate() {
-        if (!tauriUpdate?.available) return
+        if (!tauriUpdate?.available || isUpdating) return
 
         try {
             setIsUpdating(true)
 
-            await tauriUpdate.downloadAndInstall()
+            await tauriUpdate.download()
 
-            await relaunch()
+            await emit("kill-server")
+
+            setTimeout(async () => {
+                await tauriUpdate.install()
+
+                await relaunch()
+            }, 1000)
         }
         catch (e) {
             console.error(e)
+            toast.error(`Failed to download update: ${JSON.stringify(e)}`)
+            setIsUpdating(false)
         }
     }
 

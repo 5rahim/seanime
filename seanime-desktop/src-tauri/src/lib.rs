@@ -1,12 +1,12 @@
-mod server;
 #[cfg(desktop)]
 mod tray;
 mod constants;
+mod server;
 
 use std::sync::{Arc, Mutex};
 #[cfg(target_os = "macos")]
 use tauri::utils::TitleBarStyle;
-use tauri::{Manager};
+use tauri::{Listener, Manager};
 use tauri_plugin_os;
 use constants::{MAIN_WINDOW_LABEL};
 
@@ -52,6 +52,17 @@ pub fn run() {
         .run({
             let server_process_for_exit = Arc::clone(&server_process);
             move |app, event| {
+                let server_process_for_exit_ = Arc::clone(&server_process);
+                app.listen("kill-server", move |e| {
+                    let mut child_guard = server_process_for_exit_.lock().unwrap();
+                    if let Some(child) = child_guard.take() {
+                        // Kill server process
+                        if let Err(e) = child.kill() {
+                            eprintln!("Failed to kill server process: {}", e);
+                        }
+                    }
+                });
+
                 match event {
                     tauri::RunEvent::WindowEvent {
                         label,
@@ -64,6 +75,17 @@ pub fn run() {
                         // Prevent the window from being closed
                         api.prevent_close();
                     }
+
+                    // tauri::RunEvent::Exit => {
+                    //     let mut child_guard = server_process_for_exit.lock().unwrap();
+                    //     if let Some(child) = child_guard.take() {
+                    //         // Kill server process
+                    //         if let Err(e) = child.kill() {
+                    //             eprintln!("Failed to kill server process: {}", e);
+                    //         }
+                    //     }
+                    // }
+
                     // The app is about to exit
                     tauri::RunEvent::ExitRequested { .. } => {
                         let mut child_guard = server_process_for_exit.lock().unwrap();

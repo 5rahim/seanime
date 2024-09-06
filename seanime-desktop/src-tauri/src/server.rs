@@ -31,11 +31,7 @@ pub fn launch_seanime_server(
                 // Seanime server failed to open -> close splashscreen and display crash screen
                 splashscreen.close().unwrap();
                 crash_screen.show().unwrap();
-                // Listen for the "crash-screen-loaded" event before emitting the crash message
-                let crash_screen_ = crash_screen.clone();
-                crash_screen.once("crash-screen-loaded", move |_| {
-                    crash_screen_.emit("crash", format!("The server failed to start: {}. Closing in 10 seconds.", e)).expect("failed to emit event");
-                });
+                app.emit("crash", format!("The server failed to start: {}. Closing in 10 seconds.", e)).expect("failed to emit event");
                 sleep(Duration::from_secs(10)).await;
                 std::process::exit(1);
             }
@@ -67,31 +63,30 @@ pub fn launch_seanime_server(
                     }
                 }
                 CommandEvent::Terminated(status) => {
-                    // If the server process terminates, exit the Tauri app
                     eprintln!(
                         "Seanime server process terminated with status: {:?}",
                         status
                     );
-                    splashscreen.close().unwrap();
-                    #[cfg(debug_assertions)]
-                    {
-                        main_window.close_devtools();
-                    }
-                    main_window.close().unwrap();
-                    crash_screen.show().unwrap();
-
-                    #[cfg(debug_assertions)]
-                    {
-                        crash_screen.open_devtools();
-                    }
-
-
-                    app.emit("crash", format!("Seanime server process terminated with status: {}. Closing in 10 seconds.", status.code.unwrap_or(1))).expect("failed to emit event");
-
-                    sleep(Duration::from_secs(10)).await;
-                    app.exit(1);
+                    // DEVNOTE: The update process will terminate the server, don't exit the app
+                    // splashscreen.close().unwrap();
+                    // #[cfg(debug_assertions)]
+                    // {
+                    //     main_window.close_devtools();
+                    // }
+                    // main_window.close().unwrap();
+                    // crash_screen.show().unwrap();
+                    //
+                    // #[cfg(debug_assertions)]
+                    // {
+                    //     crash_screen.open_devtools();
+                    // }
+                    //
+                    //
+                    // app.emit("crash", format!("Seanime server process terminated with status: {}. Closing in 10 seconds.", status.code.unwrap_or(1))).expect("failed to emit event");
+                    //
+                    // sleep(Duration::from_secs(10)).await;
+                    // app.exit(1);
                     break;
-
                 }
                 _ => {}
             }

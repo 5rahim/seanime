@@ -9,10 +9,7 @@
     "updater:default",
     "updater:allow-check",
     "updater:allow-download",
-    "updater:deny-download",
     "updater:allow-download-and-install",
-    "updater:deny-download-and-install",
-    "updater:allow-install",
-    "updater:deny-install"
+    "updater:allow-install"
   ]
 }
