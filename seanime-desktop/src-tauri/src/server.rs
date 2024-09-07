@@ -40,6 +40,8 @@ pub fn launch_seanime_server(
         // Store the child process
         *child_process.lock().unwrap() = Some(child);
 
+        let mut server_started = false;
+
         // Read server terminal output
         while let Some(event) = rx.recv().await {
             match event {
@@ -47,12 +49,15 @@ pub fn launch_seanime_server(
                     let line_without_colors = strip_ansi_escapes::strip(line);
                     match String::from_utf8(line_without_colors) {
                         Ok(line_str) => {
-                            if line_str.contains("Seanime started at") {
-                                sleep(Duration::from_secs(2)).await;
+                            if !server_started {
+                                if line_str.contains("Client connected") {
+                                    server_started = true;
+                                    sleep(Duration::from_secs(2)).await;
 
-                                splashscreen.close().unwrap();
-                                main_window.maximize().unwrap();
-                                main_window.show().unwrap();
+                                    splashscreen.close().unwrap();
+                                    main_window.maximize().unwrap();
+                                    main_window.show().unwrap();
+                                }
                             }
                             // Emit the line to the main window
                             main_window
@@ -64,28 +69,31 @@ pub fn launch_seanime_server(
                 }
                 CommandEvent::Terminated(status) => {
                     eprintln!(
-                        "Seanime server process terminated with status: {:?}",
-                        status
+                        "Seanime server process terminated with status: {:?} {:?}",
+                        status,
+                        server_started
                     );
-                    // DEVNOTE: The update process will terminate the server, don't exit the app
-                    // splashscreen.close().unwrap();
-                    // #[cfg(debug_assertions)]
-                    // {
-                    //     main_window.close_devtools();
-                    // }
-                    // main_window.close().unwrap();
-                    // crash_screen.show().unwrap();
-                    //
-                    // #[cfg(debug_assertions)]
-                    // {
-                    //     crash_screen.open_devtools();
-                    // }
-                    //
-                    //
-                    // app.emit("crash", format!("Seanime server process terminated with status: {}. Closing in 10 seconds.", status.code.unwrap_or(1))).expect("failed to emit event");
-                    //
-                    // sleep(Duration::from_secs(10)).await;
-                    // app.exit(1);
+                    // Only terminate the app if the desktop app hadn't launched
+                    if !server_started {
+                        splashscreen.close().unwrap();
+                        #[cfg(debug_assertions)]
+                        {
+                            main_window.close_devtools();
+                        }
+                        main_window.close().unwrap();
+                        crash_screen.show().unwrap();
+
+                        #[cfg(debug_assertions)]
+                        {
+                            crash_screen.open_devtools();
+                        }
+
+
+                        app.emit("crash", format!("Seanime server process terminated with status: {}. Closing in 10 seconds.", status.code.unwrap_or(1))).expect("failed to emit event");
+
+                        sleep(Duration::from_secs(10)).await;
+                        app.exit(1);
+                    }
                     break;
                 }
                 _ => {}

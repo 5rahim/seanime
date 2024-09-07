@@ -191,7 +191,11 @@ export function Drawer(props: DrawerProps) {
                 />}
 
                 <DialogPrimitive.Content
-                    className={cn(DrawerAnatomy.content({ size, side }), contentClass)}
+                    className={cn(
+                        DrawerAnatomy.content({ size, side }),
+                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "!pt-12",
+                        contentClass,
+                    )}
                     onOpenAutoFocus={onOpenAutoFocus}
                     onCloseAutoFocus={onCloseAutoFocus}
                     onEscapeKeyDown={onEscapeKeyDown}
@@ -215,7 +219,14 @@ export function Drawer(props: DrawerProps) {
                         {footer}
                     </div>}
 
-                    {!hideCloseButton && <DialogPrimitive.Close className={cn(DrawerAnatomy.close(), closeClass)} asChild>
+                    {!hideCloseButton && <DialogPrimitive.Close
+                        className={cn(
+                            DrawerAnatomy.close(),
+                            process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "!top-10 !right-4",
+                            closeClass,
+                        )}
+                        asChild
+                    >
                         {closeButton ? closeButton : <CloseButton />}
                     </DialogPrimitive.Close>}
 

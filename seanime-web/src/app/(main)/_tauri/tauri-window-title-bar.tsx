@@ -91,7 +91,12 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
 
     return (
         <>
-            <div className="__tauri-window-traffic-light scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex">
+            <div
+                className="__tauri-window-traffic-lights scroll-locked-offset bg-transparent fixed top-0 left-0 h-10 z-[999] w-full bg-opacity-90 flex pointer-events-[all]"
+                style={{
+                    pointerEvents: "all",
+                }}
+            >
                 {displayDragRegion && <div className="flex flex-1" data-tauri-drag-region></div>}
                 {(currentPlatform === "windows" && showTrafficLights) && <div className="flex">
                     <IconButton
