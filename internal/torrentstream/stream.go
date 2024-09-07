@@ -189,6 +189,23 @@ func (r *Repository) StopStream() error {
 	return nil
 }
 
+//func (r *Repository) StopStream() error {
+//	defer func() {
+//		if r := recover(); r != nil {
+//		}
+//	}()
+//	r.logger.Info().Msg("torrentstream: Stopping stream")
+//
+//	// Stop the client
+//	// This will stop the stream and close the server
+//	// This also sends the eventTorrentStopped event
+//	close(r.client.stopCh)
+//
+//	r.logger.Info().Msg("torrentstream: Stream stopped")
+//
+//	return nil
+//}
+
 func (r *Repository) DropTorrent() error {
 	r.logger.Info().Msg("torrentstream: Dropping last torrent")
 

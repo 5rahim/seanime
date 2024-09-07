@@ -30,8 +30,8 @@ type (
 		currentTorrentStatus TorrentStatus
 		cancelFunc           context.CancelFunc
 
-		mu sync.Mutex
-		//stopCh                      chan struct{}                    // Closed when the media player stops
+		mu                          sync.Mutex
+		stopCh                      chan struct{}                    // Closed when the media player stops
 		mediaPlayerPlaybackStatusCh chan *mediaplayer.PlaybackStatus // Continuously receives playback status
 		timeSinceLoggedSeeding      time.Time
 	}
@@ -53,11 +53,11 @@ type (
 
 func NewClient(repository *Repository) *Client {
 	ret := &Client{
-		repository:     repository,
-		torrentClient:  mo.None[*torrent.Client](),
-		currentFile:    mo.None[*torrent.File](),
-		currentTorrent: mo.None[*torrent.Torrent](),
-		//stopCh:                      make(chan struct{}),
+		repository:                  repository,
+		torrentClient:               mo.None[*torrent.Client](),
+		currentFile:                 mo.None[*torrent.File](),
+		currentTorrent:              mo.None[*torrent.Torrent](),
+		stopCh:                      make(chan struct{}),
 		mediaPlayerPlaybackStatusCh: make(chan *mediaplayer.PlaybackStatus, 1),
 	}
 

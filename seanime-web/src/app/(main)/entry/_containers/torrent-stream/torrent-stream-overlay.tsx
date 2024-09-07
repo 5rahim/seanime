@@ -127,7 +127,7 @@ export function TorrentStreamOverlay() {
         return (
             <>
                 {!mediaPlayerStartedPlaying && <div className="w-full bg-gray-900 fixed top-0 left-0 z-[100]">
-                    <ProgressBar isIndeterminate />
+                    <ProgressBar size="sm" isIndeterminate />
                 </div>}
                 <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
                     <div className="bg-gray-900 rounded-full border lg:max-w-[50%] w-fit py-3 px-6 flex gap-2 items-center text-sm lg:text-base">

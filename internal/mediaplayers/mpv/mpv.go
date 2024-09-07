@@ -73,6 +73,8 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 	var err error
 
+	m.Logger.Trace().Msg("mpv: Launching player")
+
 	// Cancel previous goroutine context
 	if m.cancel != nil {
 		m.Logger.Trace().Msg("mpv: Cancelling previous context")
@@ -80,6 +82,7 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 	}
 	// Cancel previous command context
 	if cmdCancel != nil {
+		m.Logger.Trace().Msg("mpv: Cancelling previous command context")
 		cmdCancel()
 	}
 	cmdCtx, cmdCancel = context.WithCancel(context.Background())
@@ -146,6 +149,8 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 
 	wg.Wait()
 	time.Sleep(1 * time.Second)
+
+	m.Logger.Debug().Msg("mpv: Player started")
 
 	return nil
 }
