@@ -15,6 +15,9 @@ pub fn run() {
         None::<tauri_plugin_shell::process::CommandChild>,
     ));
     let server_process_for_setup = Arc::clone(&server_process);
+    //
+    let is_shutdown = Arc::new(Mutex::new(false));
+    let is_shutdown_for_setup = Arc::clone(&is_shutdown);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -44,16 +47,21 @@ pub fn run() {
                 main_window.open_devtools();
             }
 
-            server::launch_seanime_server(app.handle().clone(), server_process_for_setup);
+            server::launch_seanime_server(
+                app.handle().clone(),
+                server_process_for_setup,
+                is_shutdown_for_setup,
+            );
             Ok(())
         })
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
         .run({
             let server_process_for_exit = Arc::clone(&server_process);
+            let is_shutdown_for_exit = Arc::clone(&is_shutdown);
             move |app, event| {
                 let server_process_for_exit_ = Arc::clone(&server_process);
-                app.listen("kill-server", move |e| {
+                app.listen("kill-server", move |_| {
                     let mut child_guard = server_process_for_exit_.lock().unwrap();
                     if let Some(child) = child_guard.take() {
                         // Kill server process
@@ -69,11 +77,14 @@ pub fn run() {
                         event: tauri::WindowEvent::CloseRequested { api, .. },
                         ..
                     } => {
-                        // Hide the window when user clicks 'X'
-                        let win = app.get_webview_window(label.as_str()).unwrap();
-                        win.hide().unwrap();
-                        // Prevent the window from being closed
-                        api.prevent_close();
+                        let is_shutdown_guard = is_shutdown_for_exit.lock().unwrap();
+                        if label.as_str() == MAIN_WINDOW_LABEL && !*is_shutdown_guard {
+                            // Hide the window when user clicks 'X'
+                            let win = app.get_webview_window(label.as_str()).unwrap();
+                            win.hide().unwrap();
+                            // Prevent the window from being closed
+                            api.prevent_close();
+                        }
                     }
 
                     // tauri::RunEvent::Exit => {

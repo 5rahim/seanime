@@ -6,7 +6,6 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { addMonths, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
-import { enUS } from "date-fns/locale"
 import Image from "next/image"
 import Link from "next/link"
 import React, { Fragment } from "react"
@@ -44,9 +43,9 @@ export function MonthCalendar(props: WeekCalendarProps) {
 
     const isSameDayUtc = (dateLeft: Date, dateRight: Date) => {
         return (
-            dateLeft.getUTCFullYear() === dateRight.getUTCFullYear() &&
-            dateLeft.getUTCMonth() === dateRight.getUTCMonth() &&
-            dateLeft.getUTCDate() === dateRight.getUTCDate()
+            dateLeft.getFullYear() === dateRight.getFullYear() &&
+            dateLeft.getMonth() === dateRight.getMonth() &&
+            dateLeft.getDate() === dateRight.getDate()
         )
     }
 
@@ -55,8 +54,8 @@ export function MonthCalendar(props: WeekCalendarProps) {
         const startOfCurrentMonth = startOfMonth(currentDate)
         const endOfCurrentMonth = endOfMonth(currentDate)
 
-        const startOfCalendar = startOfWeek(startOfCurrentMonth, { weekStartsOn: 1, locale: enUS })
-        const endOfCalendar = endOfWeek(endOfCurrentMonth, { weekStartsOn: 1, locale: enUS })
+        const startOfCalendar = startOfWeek(startOfCurrentMonth, { weekStartsOn: 1 })
+        const endOfCalendar = endOfWeek(endOfCurrentMonth, { weekStartsOn: 1 })
 
         const daysArray = []
         let day = startOfCalendar
@@ -65,7 +64,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
             const upcomingMedia = media.filter((item) => !!item.nextAiringEpisode?.airingAt && isSameDay(new Date(item.nextAiringEpisode?.airingAt * 1000),
                 day)).map((item) => {
                 return {
-                    id: item.id + item.nextAiringEpisode?.episode!,
+                    id: String(item.id) + String(item.nextAiringEpisode?.episode!),
                     name: item.title?.userPreferred,
                     time: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "h:mm a"),
                     datetime: format(new Date(item.nextAiringEpisode?.airingAt! * 1000), "yyyy-MM-dd'T'HH:mm"),
@@ -75,10 +74,10 @@ export function MonthCalendar(props: WeekCalendarProps) {
                 }
             })
 
-            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDay(new Date(item.episodeMetadata?.airDate),
+            const pastMedia = missingEpisodes.filter((item) => !!item.episodeMetadata?.airDate && isSameDayUtc(new Date(item.episodeMetadata?.airDate),
                 day)).map((item) => {
                 return {
-                    id: item.baseAnime?.id! + item.fileMetadata?.episode!,
+                    id: String(item.baseAnime?.id!) + String(item.fileMetadata?.episode!),
                     name: item.baseAnime?.title?.userPreferred,
                     time: "",
                     datetime: item.episodeMetadata?.airDate,
@@ -149,7 +148,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                         <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
                             {days.map((day, index) => (
                                 <div
-                                    key={day.date + index}
+                                    key={index}
                                     className={cn(
                                         day.isCurrentMonth ? "bg-[--background]" : "opacity-30",
                                         "relative py-2 px-3 lg:min-h-24 overflow-hidden",
@@ -231,9 +230,9 @@ export function MonthCalendar(props: WeekCalendarProps) {
                             ))}
                         </div>
                         <div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
-                            {days.map((day) => (
+                            {days.map((day, index) => (
                                 <button
-                                    key={day.date}
+                                    key={index}
                                     type="button"
                                     className={cn(
                                         day.isCurrentMonth ? "bg-gray-950" : "bg-gray-900",

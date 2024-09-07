@@ -53,10 +53,6 @@ export function DiscoverAiringSchedule() {
 
         while (day <= endDate) {
             const upcomingMedia = media.filter((item) => !!item?.airingAt && isSameDay(new Date(item.airingAt * 1000), day)).map((item) => {
-                console.log(
-                    "a", format(new Date(item.airingAt * 1000), "yyyy-MM-dd'T'HH:mm"),
-                    "b", format(day, "yyyy-MM-dd'T'HH:mm"),
-                )
                 if (item.media?.id === 162804) console.log(item.airingAt)
                 return {
                     id: item.id + item?.episode!,

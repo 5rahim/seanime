@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 use strip_ansi_escapes;
-use tauri::{AppHandle, Emitter, Listener, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 use tokio::time::{sleep, Duration};
@@ -9,6 +9,7 @@ use crate::constants::{CRASH_SCREEN_WINDOW_LABEL, MAIN_WINDOW_LABEL, SPLASHSCREE
 pub fn launch_seanime_server(
     app: AppHandle,
     child_process: Arc<Mutex<Option<tauri_plugin_shell::process::CommandChild>>>,
+    mut is_shutdown: Arc<Mutex<bool>>,
 ) {
     tauri::async_runtime::spawn(async move {
         let main_window = app.get_webview_window(MAIN_WINDOW_LABEL).unwrap();
@@ -51,9 +52,9 @@ pub fn launch_seanime_server(
                         Ok(line_str) => {
                             if !server_started {
                                 if line_str.contains("Client connected") {
-                                    server_started = true;
                                     sleep(Duration::from_secs(2)).await;
 
+                                    server_started = true;
                                     splashscreen.close().unwrap();
                                     main_window.maximize().unwrap();
                                     main_window.show().unwrap();
@@ -73,6 +74,7 @@ pub fn launch_seanime_server(
                         status,
                         server_started
                     );
+                    *is_shutdown.lock().unwrap() = true;
                     // Only terminate the app if the desktop app hadn't launched
                     if !server_started {
                         splashscreen.close().unwrap();
@@ -82,12 +84,6 @@ pub fn launch_seanime_server(
                         }
                         main_window.close().unwrap();
                         crash_screen.show().unwrap();
-
-                        #[cfg(debug_assertions)]
-                        {
-                            crash_screen.open_devtools();
-                        }
-
 
                         app.emit("crash", format!("Seanime server process terminated with status: {}. Closing in 10 seconds.", status.code.unwrap_or(1))).expect("failed to emit event");
 
