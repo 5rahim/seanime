@@ -11,6 +11,11 @@ export function useGetStatus() {
         method: API_ENDPOINTS.STATUS.GetStatus.methods[0],
         queryKey: [API_ENDPOINTS.STATUS.GetStatus.key],
         enabled: true,
+        retryDelay: 1000,
+        // Fixes macOS desktop app startup issue
+        retry: 3,
+        // Mute error if the platform is desktop
+        muteError: process.env.NEXT_PUBLIC_PLATFORM === "desktop",
     })
 }
 

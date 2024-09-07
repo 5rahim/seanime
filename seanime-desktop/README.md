@@ -8,6 +8,8 @@
 Desktop app for Seanime. Embeds server and web interface.
 </p>
 
+<img src="../docs/images/v2/desktop_01.png" alt="preview" width="100%"/>
+
 ## Roadmap
 
 - [x] Custom title bar
@@ -18,7 +20,7 @@ Desktop app for Seanime. Embeds server and web interface.
 - [x] Dedicated update process
   - [x] Dedicated update modal
   - [x] Test update locally
-- [ ] Fix macOS startup
+- [x] Fix macOS startup
 - [ ] Fix title bar z-index
 - [ ] Fix drawer close buttons overlapping with title bar
 - [ ] Reduce memory usage
