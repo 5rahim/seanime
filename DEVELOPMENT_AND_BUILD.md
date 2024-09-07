@@ -1,6 +1,7 @@
-## Setup
+# Prerequisites
 
-Install Go 1.23, Node.js 18+ and npm.
+- Go 1.23
+- Node.js 18+ and npm
 
 # Build
 
@@ -24,9 +25,11 @@ Build the server using the following command:
 
 	Set the environment variable `CGO_ENABLED=1`
 	```bash
-	go build -o seanime.exe -trimpath -ldflags='-s -w -H=windowsgui -extldflags "-static"'
+	go build -o seanime.exe -trimpath -ldflags="-s -w -H=windowsgui -extldflags '-static'"
 	```
 2. Windows (No System Tray):
+
+	This version is used by the desktop app for Windows.
 
 	```bash
 	go build -o seanime.exe -trimpath -ldflags="-s -w" -tags=nosystray
@@ -39,6 +42,8 @@ Build the server using the following command:
 	```
  
 Note that the web interface should be built first before building the server.
+
+---
 
 # Development
 
@@ -91,9 +96,6 @@ leading to different ports.
 Run the `go generate` command at the top of `codegen/main.go` to generate the necessary types for the frontend.
 This should be done after making changes to the route handlers or structs returned by the route handlers.
 
-
-
-# Overview
 
 ## AniList GraphQL API
 
