@@ -2,13 +2,13 @@
 <img src="../seanime-web/public/logo_2.png" alt="preview" width="150px"/>
 </p>
 
-<h2 align="center"><b>Seanime Desktop (WIP)</b></h2>
+<h2 align="center"><b>Seanime Desktop (Work in Progress)</b></h2>
 
 <p align="center">
 Desktop app for Seanime. Embeds server and web interface.
 </p>
 
-<img src="../docs/images/v2/desktop_01.png" alt="preview" width="100%"/>
+<img src="../docs/images/v2/desktop_02.png" alt="preview" width="100%"/>
 
 ## Roadmap
 
@@ -21,9 +21,9 @@ Desktop app for Seanime. Embeds server and web interface.
   - [x] Dedicated update modal
   - [x] Test update locally
 - [x] Fix macOS startup
-- [ ] Fix title bar z-index
-- [ ] Fix drawer close buttons overlapping with title bar
-- [ ] Reduce memory usage
+- [x] Fix title bar z-index
+- [x] Fix drawer close buttons overlapping with title bar
+- [ ] Test all features
 - [ ] Test on Linux?
 
 ---
