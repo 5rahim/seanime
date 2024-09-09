@@ -1,6 +1,7 @@
 "use client"
 
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
+import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
@@ -88,6 +89,7 @@ export default function Page() {
     } = useHandleMediastream({ playerRef, episodes })
 
     const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
+    const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
     const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
 
     /**
@@ -312,6 +314,8 @@ export default function Page() {
                                             mediaContainer?.mediaInfo?.extension === "avi" ? "video/x-msvideo" : "video/webm",
                                     } : url}
                                     aspectRatio="16/9"
+                                    controlsDelay={discreteControls ? 500 : undefined}
+                                    className={cn(discreteControls && "discrete-controls")}
                                     // poster={episodes?.find(n => n.localFile?.path === mediaContainer?.filePath)?.episodeMetadata?.image ||
                                     // animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge || ""}
                                     onProviderChange={onProviderChange}

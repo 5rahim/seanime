@@ -36,7 +36,7 @@ Seanime is a free and open-source media server built around APIs to provide a se
 It combines a lightweight server and a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
 
 
-Feel free to open issues if you notice any bugs, open discussions if you have questions, or contribute to the project if you want to help make it better. **Leave a star** if you like this project!
+Feel free to open issues if you notice any bugs, open discussions if you have questions, or contribute to the project if you want to help make it better.
 
 # Get started
 
@@ -47,6 +47,10 @@ Read the installation guide to set up Seanime on your device.
 How to install Seanime
 </a>
 </p>
+
+<h5 align="center">
+Leave a star if you like the project! ⭐️
+</h5>
 
 # Features
 

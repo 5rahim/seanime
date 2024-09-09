@@ -2,6 +2,7 @@
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 import { useGetAnimeEntry, useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
+import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
@@ -61,6 +62,7 @@ export default function Page() {
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
+    const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
     const [progressItem, setProgressItem] = useAtom(progressItemAtom)
 
     const [currentProgress, setCurrentProgress] = React.useState(animeEntry?.listData?.progress ?? 0)
@@ -303,6 +305,7 @@ export default function Page() {
                                 ref={ref}
                                 autoPlay={autoPlay}
                                 crossOrigin="anonymous"
+                                controlsDelay={discreteControls ? 500 : undefined}
                                 src={{
                                     src: url || "",
                                     type: "application/x-mpegurl",
@@ -311,7 +314,7 @@ export default function Page() {
                                 aspectRatio="16/9"
                                 onProviderChange={onProviderChange}
                                 onProviderSetup={onProviderSetup}
-                                // className="max-h-[75dvh] aspect-video"
+                                className={cn(discreteControls && "discrete-controls")}
                                 onTimeUpdate={(e) => {
                                     if (checkTimeRef.current < 200) {
                                         checkTimeRef.current++

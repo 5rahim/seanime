@@ -253,3 +253,20 @@ pre {
     overflow-x: auto;
 }
 
+/*div[data-media-player][data-controls]:not([data-hocus]) .vds-controls {*/
+/*    @apply lg:opacity-0*/
+/*}*/
+
+.discrete-controls[data-media-player][data-playing][data-controls]:not(:has(.vds-controls-group:hover)) .vds-controls {
+    @apply lg:opacity-0
+}
+
+.discrete-controls[data-media-player][data-buffering][data-controls]:not(:has(.vds-controls-group:hover)) .vds-controls {
+    @apply lg:opacity-0
+}
+
+
+.discrete-controls[data-media-player][data-playing][data-seeking][data-controls]:not(:has(.vds-controls-group:hover)) {
+    @apply cursor-none
+}
+
