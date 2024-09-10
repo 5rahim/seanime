@@ -172,7 +172,7 @@ export function PlaybackManagerProgressTracking() {
                 toast.error(data)
             }
 
-            if (state?.completionPercentage && state?.completionPercentage > 0.7) {
+            if (!playlistState && state?.completionPercentage && state?.completionPercentage > 0.7) {
                 if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlay) {
                     if (!isFetchingNextEpisode) {
                         resetGetNextEp()
@@ -333,6 +333,13 @@ export function PlaybackManagerProgressTracking() {
         },
     })
 
+    function cancelAutoPlay() {
+        setShowAutoPlayCountdownModal(false)
+        setWillAutoPlay(false)
+        resetTorrentstreamAutoplayInfo()
+        clearTimers()
+    }
+
 
     function handleUpdateProgress() {
         syncProgress()
@@ -391,7 +398,10 @@ export function PlaybackManagerProgressTracking() {
                 ) && <div className="flex gap-2 justify-center items-center">
                     <Button
                         intent="white"
-                        onClick={() => confirmNextEpisode.open()}
+                        onClick={() => {
+                            cancelAutoPlay()
+                            confirmNextEpisode.open()
+                        }}
                         className="w-full"
                         disabled={submittedNextEpisode}
                         loading={submittingNextEpisode}
@@ -416,7 +426,10 @@ export function PlaybackManagerProgressTracking() {
                                     submittedPlaylistNext ? "opacity-50 pointer-events-none" : "cursor-pointer",
                                 )}
                                 onClick={() => {
-                                    if (!submittedPlaylistNext) confirmPlayNext.open()
+                                    if (!submittedPlaylistNext) {
+                                        cancelAutoPlay()
+                                        confirmPlayNext.open()
+                                    }
                                 }}
                             >
                                 {(playlistState.next?.mediaImage) && <Image
@@ -435,7 +448,10 @@ export function PlaybackManagerProgressTracking() {
                                 <IconButton
                                     intent="alert-subtle"
                                     onClick={() => {
-                                        if (!submittedStopPlaylist) confirmStopPlaylist.open()
+                                        if (!submittedStopPlaylist) {
+                                            cancelAutoPlay()
+                                            confirmStopPlaylist.open()
+                                        }
                                     }}
                                     size="sm"
                                     // className="w-full"
@@ -454,10 +470,7 @@ export function PlaybackManagerProgressTracking() {
                 onOpenChange={v => {
                     if (!v) {
                         logger("PlaybackManagerProgressTracking").info("Auto play cancelled")
-                        setShowAutoPlayCountdownModal(false)
-                        setWillAutoPlay(false)
-                        resetTorrentstreamAutoplayInfo()
-                        clearTimers()
+                        cancelAutoPlay()
                     }
                 }}
                 title="Auto playing next episode"
@@ -475,10 +488,7 @@ export function PlaybackManagerProgressTracking() {
                         intent="alert-subtle"
                         onClick={() => {
                             logger("PlaybackManagerProgressTracking").info("Auto play cancelled")
-                            setShowAutoPlayCountdownModal(false)
-                            setWillAutoPlay(false)
-                            resetTorrentstreamAutoplayInfo()
-                            clearTimers()
+                            cancelAutoPlay()
                         }}
                         className="w-full"
                     >

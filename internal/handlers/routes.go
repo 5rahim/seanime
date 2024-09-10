@@ -111,6 +111,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	imageProxy := &util2.ImageProxy{}
 	v1.Get("/image-proxy", imageProxy.ProxyImage)
 
+	v1.Get("/proxy", util2.Proxy)
+
 	//
 	// General
 	//
@@ -320,8 +322,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Delete("/entry/cache", makeHandler(app, HandleEmptyMangaEntryCache))
 	v1Manga.Post("/chapters", makeHandler(app, HandleGetMangaEntryChapters))
 	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
-	//v1Manga.Post("/entry/backups", makeHandler(app, HandleGetMangaEntryBackups))
-	//v1Manga.Post("/download-chapter", makeHandler(app, HandleDownloadMangaChapter))
 	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
 	v1Manga.Get("/downloads", makeHandler(app, HandleGetMangaDownloadsList))
