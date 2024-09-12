@@ -324,7 +324,7 @@ export default function Page() {
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
                                     onTimeUpdate={e => {
-                                        if (watchHistoryRef.current > 1000) {
+                                        if (watchHistoryRef.current > 2000) {
                                             watchHistoryRef.current = 0
 
                                             handleUpdateWatchHistory()

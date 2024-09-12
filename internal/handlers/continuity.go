@@ -41,6 +41,13 @@ func HandleGetContinuityWatchHistoryItem(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	if !c.App.ContinuityManager.GetSettings().WatchContinuityEnabled {
+		return c.RespondWithData(&continuity.WatchHistoryItemResponse{
+			Item:  nil,
+			Found: false,
+		})
+	}
+
 	resp := c.App.ContinuityManager.GetWatchHistoryItem(id)
 	return c.RespondWithData(resp)
 }
@@ -52,6 +59,11 @@ func HandleGetContinuityWatchHistoryItem(c *RouteCtx) error {
 //	@route /api/v1/continuity/history [GET]
 //	@returns continuity.WatchHistory
 func HandleGetContinuityWatchHistory(c *RouteCtx) error {
+	if !c.App.ContinuityManager.GetSettings().WatchContinuityEnabled {
+		ret := make(map[int]*continuity.WatchHistoryItem)
+		return c.RespondWithData(ret)
+	}
+
 	resp := c.App.ContinuityManager.GetWatchHistory()
 	return c.RespondWithData(resp)
 }

@@ -318,7 +318,7 @@ export default function Page() {
                                 onProviderSetup={onProviderSetup}
                                 className={cn(discreteControls && "discrete-controls")}
                                 onTimeUpdate={(e) => {
-                                    if (watchHistoryRef.current > 1000) {
+                                    if (watchHistoryRef.current > 2000) {
                                         watchHistoryRef.current = 0
 
                                         handleUpdateWatchHistory()

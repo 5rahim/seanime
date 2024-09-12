@@ -1,4 +1,5 @@
 import { Anime_AnimeEntry, Anime_AnimeEntryEpisode } from "@/api/generated/types"
+import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
@@ -39,6 +40,8 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
+
+    const { data: watchHistory } = useGetContinuityWatchHistory()
 
     const [autoSelect, setAutoSelect] = React.useState(serverStatus?.torrentstreamSettings?.autoSelect)
 
@@ -215,6 +218,8 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                                     progressNumber={episode.progressNumber}
                                     episodeNumber={episode.episodeNumber}
                                     length={episode.episodeMetadata?.length}
+                                    percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                    minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
                                     hasDiscrepancy={episodeCollection?.episodes?.findIndex(e => e.type === "special") !== -1}
                                     onClick={() => {
                                         handleEpisodeClick(episode)

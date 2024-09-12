@@ -3,12 +3,14 @@ package playbackmanager_test
 import (
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
+	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 )
 
@@ -24,19 +26,29 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 		t.Fatalf("error while creating database, %v", err)
 	}
 
+	filecacher, err := filecache.NewCacher(t.TempDir())
+	require.NoError(t, err)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
 	require.NoError(t, err)
+	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
+		FileCacher: filecacher,
+		Logger:     logger,
+		Database:   database,
+	})
 
 	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		Logger:         logger,
 		WSEventManager: wsEventManager,
+		Logger:         logger,
 		Platform:       anilistPlatform,
 		Database:       database,
 		RefreshAnimeCollectionFunc: func() {
 			// Do nothing
 		},
-		IsOffline: false,
+		DiscordPresence:   nil,
+		IsOffline:         false,
+		OfflineHub:        nil,
+		ContinuityManager: continuityManager,
 	}), animeCollection, nil
 }

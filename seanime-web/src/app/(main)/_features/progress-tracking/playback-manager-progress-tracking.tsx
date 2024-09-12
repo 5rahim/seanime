@@ -80,6 +80,7 @@ export function PlaybackManagerProgressTrackingButton({ asSidebarButton }: Props
 
 export function PlaybackManagerProgressTracking() {
     const serverStatus = useServerStatus()
+    const qc = useQueryClient()
 
     const [showModal, setShowModal] = useAtom(__pt_showModalAtom)
     const [showAutoPlayCountdownModal, setShowAutoPlayCountdownModal] = useAtom(__pt_showAutoPlayCountdownModalAtom)
@@ -166,11 +167,17 @@ export function PlaybackManagerProgressTracking() {
 
             if (data === "Player closed") {
                 toast.info("Player closed")
+
+                if ((state?.completionPercentage || 0) <= 0.8) {
+                    setIsCompleted(false)
+                }
             } else if (data === "Tracking stopped") {
                 toast.info("Tracking stopped")
             } else {
                 toast.error(data)
             }
+
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] }).then()
 
             if (!playlistState && state?.completionPercentage && state?.completionPercentage > 0.7) {
                 if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlay) {

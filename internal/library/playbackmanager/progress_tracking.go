@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
+	"seanime/internal/continuity"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
@@ -66,6 +67,12 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 					Int("episode", pm.currentLocalFile.MustGet().GetEpisodeNumber()).
 					Msg("playback manager: Playback started")
 
+				pm.continuityManager.SetExternalPlayerEpisodeDetails(&continuity.ExternalPlayerEpisodeDetails{
+					EpisodeNumber: pm.currentLocalFile.MustGet().GetEpisodeNumber(),
+					MediaId:       pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
+					Filepath:      pm.currentLocalFile.MustGet().GetPath(),
+				})
+
 				// ------- Playlist ------- //
 				go pm.playlistHub.onVideoStart(pm.currentMediaListEntry.MustGet(), pm.currentLocalFile.MustGet(), _ps)
 
@@ -121,6 +128,10 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 					} else {
 						pm.nextEpisodeLocalFile = mo.None[*anime.LocalFile]()
 					}
+				}
+
+				if pm.currentMediaPlaybackStatus != nil {
+					pm.continuityManager.UpdateExternalPlayerEpisodeWatchHistoryItem(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds, pm.currentMediaPlaybackStatus.DurationInSeconds)
 				}
 
 				// ------- Playlist ------- //
@@ -190,6 +201,12 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				// Send event to the client
 				pm.wsEventManager.SendEvent(events.PlaybackManagerProgressTrackingStarted, _ps)
 
+				pm.continuityManager.SetExternalPlayerEpisodeDetails(&continuity.ExternalPlayerEpisodeDetails{
+					EpisodeNumber: pm.currentStreamEpisode.MustGet().GetProgressNumber(),
+					MediaId:       pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
+					Filepath:      "",
+				})
+
 				// ------- Discord ------- //
 				if pm.discordPresence != nil && !pm.isOffline {
 					go pm.discordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
@@ -253,6 +270,10 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				if pm.currentStreamEpisode.IsAbsent() {
 					pm.eventMu.Unlock()
 					continue
+				}
+
+				if pm.currentMediaPlaybackStatus != nil {
+					pm.continuityManager.UpdateExternalPlayerEpisodeWatchHistoryItem(pm.currentMediaPlaybackStatus.CurrentTimeInSeconds, pm.currentMediaPlaybackStatus.DurationInSeconds)
 				}
 
 				pm.Logger.Debug().Msg("playback manager: Received tracking stopped event")

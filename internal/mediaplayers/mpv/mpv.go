@@ -73,7 +73,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 	var err error
 
-	m.Logger.Trace().Msg("mpv: Launching player")
+	m.Logger.Trace().Msgf("mpv: Launching player with args: %+v", args)
 
 	// Cancel previous goroutine context
 	if m.cancel != nil {

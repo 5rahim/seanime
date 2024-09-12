@@ -19,7 +19,7 @@ func (pm *PlaybackManager) GetCurrentMediaID() (int, error) {
 	return pm.currentLocalFile.MustGet().MediaId, nil
 }
 
-// getLocalFilePlaybackDetails is called once everytime a new video is played. It returns the anilist entry, local file and local file wrapper entry.
+// GetLocalFilePlaybackDetails is called once everytime a new video is played. It returns the anilist entry, local file and local file wrapper entry.
 func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.MediaListEntry, *anime.LocalFile, *anime.LocalFileWrapperEntry, error) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
@@ -76,7 +76,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.Me
 	return ret, lf, lfe, nil
 }
 
-// getStreamPlaybackDetails is called once everytime a new video is played.
+// GetStreamPlaybackDetails is called once everytime a new video is played.
 func (pm *PlaybackManager) getStreamPlaybackDetails(mId int) mo.Option[*anilist.MediaListEntry] {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()

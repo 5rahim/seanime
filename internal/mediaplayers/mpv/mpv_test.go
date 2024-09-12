@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var testFilePath = "E:\\ANIME\\Sousou no Frieren\\[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv"
+var testFilePath = "E:\\ANIME\\[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]\\[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv"
 
 func TestMpv_OpenAndPlay(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())

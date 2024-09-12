@@ -3,6 +3,7 @@ package continuity
 import (
 	"github.com/stretchr/testify/require"
 	"path/filepath"
+	"seanime/internal/database/db"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -18,12 +19,16 @@ func TestHistoryItems(t *testing.T) {
 	tempDir := t.TempDir()
 	t.Log(tempDir)
 
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+	require.NoError(t, err)
+
 	cacher, err := filecache.NewCacher(filepath.Join(tempDir, "cache"))
 	require.NoError(t, err)
 
 	manager := NewManager(&NewManagerOptions{
 		FileCacher: cacher,
 		Logger:     logger,
+		Database:   database,
 	})
 	require.NotNil(t, manager)
 
@@ -35,10 +40,10 @@ func TestHistoryItems(t *testing.T) {
 	// Add items to the history
 	for _, mediaId := range mediaIds {
 		err = manager.UpdateWatchHistoryItem(&UpdateWatchHistoryItemOptions{
-			MediaId:        mediaId,
-			ProgressNumber: 1,
-			CurrentTime:    10,
-			Duration:       100,
+			MediaId:       mediaId,
+			EpisodeNumber: 1,
+			CurrentTime:   10,
+			Duration:      100,
 		})
 		require.NoError(t, err)
 	}
@@ -51,10 +56,10 @@ func TestHistoryItems(t *testing.T) {
 
 	// Update an item
 	err = manager.UpdateWatchHistoryItem(&UpdateWatchHistoryItemOptions{
-		MediaId:        mediaIds[0], // 1
-		ProgressNumber: 2,
-		CurrentTime:    30,
-		Duration:       100,
+		MediaId:       mediaIds[0], // 1
+		EpisodeNumber: 2,
+		CurrentTime:   30,
+		Duration:      100,
 	})
 	require.NoError(t, err)
 
@@ -67,7 +72,7 @@ func TestHistoryItems(t *testing.T) {
 	item, found := items["1"]
 	require.True(t, found)
 
-	require.Equal(t, 2, item.ProgressNumber)
+	require.Equal(t, 2, item.EpisodeNumber)
 	require.Equal(t, 30., item.CurrentTime)
 	require.Equal(t, 100., item.Duration)
 

@@ -1,6 +1,7 @@
 package mpchc
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -61,7 +62,7 @@ func TestMpcHc_GetVariables(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	t.Logf("%+v", res)
+	spew.Dump(res)
 
 }
 
@@ -78,7 +79,7 @@ func TestMpcHc_Seek(t *testing.T) {
 	err := mpc.Start()
 	assert.Nil(t, err)
 
-	_, err = mpc.OpenAndPlay("E:\\ANIME\\Violet.Evergarden.The.Movie.1080p.Dual.Audio.BDRip.10.bits.DD.x265-EMBER.mkv")
+	_, err = mpc.OpenAndPlay("E:\\ANIME\\[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]\\[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv")
 	assert.Nil(t, err)
 
 	err = mpc.Pause()
@@ -95,6 +96,6 @@ func TestMpcHc_Seek(t *testing.T) {
 	vars, err := mpc.GetVariables()
 	assert.Nil(t, err)
 
-	t.Logf("%+v", vars)
+	spew.Dump(vars)
 
 }

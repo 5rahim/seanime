@@ -60,6 +60,9 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to AutoDownloader
 	a.AutoDownloader.SetAnimeCollection(ret)
 
+	// Save the collection to ContinuityManager
+	a.ContinuityManager.SetAnimeCollection(ret)
+
 	return ret, nil
 }
 

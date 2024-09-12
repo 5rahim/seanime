@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
+	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
@@ -20,7 +21,7 @@ import (
 )
 
 func TestTorrentstream(t *testing.T) {
-	//t.Skip()
+	t.Skip()
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer(), test_utils.Torrentstream())
 
@@ -40,6 +41,11 @@ func TestTorrentstream(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
+		FileCacher: filecacher,
+		Logger:     logger,
+		Database:   database,
+	})
 
 	mediaId := 163132 // Horimiya: piece
 
@@ -58,9 +64,10 @@ func TestTorrentstream(t *testing.T) {
 		RefreshAnimeCollectionFunc: func() {
 
 		},
-		DiscordPresence: nil,
-		IsOffline:       false,
-		OfflineHub:      offline.NewMockHub(),
+		DiscordPresence:   nil,
+		IsOffline:         false,
+		OfflineHub:        offline.NewMockHub(),
+		ContinuityManager: continuityManager,
 	})
 
 	playbackManager.SetMediaPlayerRepository(mediaPlayerRepo)

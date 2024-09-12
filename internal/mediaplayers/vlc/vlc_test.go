@@ -1,7 +1,9 @@
 package vlc
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -12,14 +14,15 @@ func TestVLC_Play(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	vlc := &VLC{
-		Host:     test_utils.ConfigData.Provider.VlcPath,
+		Host:     test_utils.ConfigData.Provider.VlcHost,
 		Port:     test_utils.ConfigData.Provider.VlcPort,
 		Password: test_utils.ConfigData.Provider.VlcPassword,
+		Path:     test_utils.ConfigData.Provider.VlcPath,
 		Logger:   util.NewLogger(),
 	}
 
 	err := vlc.Start()
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	err = vlc.AddAndPlay("E:\\Anime\\[Judas] Golden Kamuy (Seasons 1-2) [BD 1080p][HEVC x265 10bit][Eng-Subs]\\[Judas] Golden Kamuy - S2\\[Judas] Golden Kamuy S2 - 16.mkv")
 
@@ -34,7 +37,7 @@ func TestVLC_Play(t *testing.T) {
 	time.Sleep(400 * time.Millisecond)
 
 	status, err := vlc.GetStatus()
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "paused", status.State)
 
@@ -45,18 +48,20 @@ func TestVLC_Play(t *testing.T) {
 }
 
 func TestVLC_Seek(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.MediaPlayer())
 
 	vlc := &VLC{
-		Host:     test_utils.ConfigData.Provider.VlcPath,
+		Host:     test_utils.ConfigData.Provider.VlcHost,
 		Port:     test_utils.ConfigData.Provider.VlcPort,
 		Password: test_utils.ConfigData.Provider.VlcPassword,
+		Path:     test_utils.ConfigData.Provider.VlcPath,
 		Logger:   util.NewLogger(),
 	}
 
 	err := vlc.Start()
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
-	err = vlc.AddAndPlay("E:\\ANIME\\Violet.Evergarden.The.Movie.1080p.Dual.Audio.BDRip.10.bits.DD.x265-EMBER.mkv")
+	err = vlc.AddAndPlay("E:\\ANIME\\[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]\\[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv")
 
 	time.Sleep(400 * time.Millisecond)
 
@@ -69,9 +74,11 @@ func TestVLC_Seek(t *testing.T) {
 	time.Sleep(400 * time.Millisecond)
 
 	status, err := vlc.GetStatus()
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.Equal(t, "paused", status.State)
+
+	spew.Dump(status)
 
 	if err != nil {
 		t.Fatal(err)

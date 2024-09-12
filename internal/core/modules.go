@@ -72,18 +72,29 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
+	// |     Continuity      |
+	// +---------------------+
+
+	a.ContinuityManager = continuity.NewManager(&continuity.NewManagerOptions{
+		FileCacher: a.FileCacher,
+		Logger:     a.Logger,
+		Database:   a.Database,
+	})
+
+	// +---------------------+
 	// |   Playback Manager  |
 	// +---------------------+
 
 	// Playback Manager
 	a.PlaybackManager = playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
-		Logger:          a.Logger,
-		WSEventManager:  a.WSEventManager,
-		Platform:        a.AnilistPlatform,
-		Database:        a.Database,
-		DiscordPresence: a.DiscordPresence,
-		IsOffline:       a.IsOffline(),
-		OfflineHub:      a.OfflineHub,
+		Logger:            a.Logger,
+		WSEventManager:    a.WSEventManager,
+		Platform:          a.AnilistPlatform,
+		Database:          a.Database,
+		DiscordPresence:   a.DiscordPresence,
+		IsOffline:         a.IsOffline(),
+		OfflineHub:        a.OfflineHub,
+		ContinuityManager: a.ContinuityManager,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
 		},
@@ -180,15 +191,6 @@ func (a *App) initModulesOnce() {
 		Database:           a.Database,
 	})
 
-	// +---------------------+
-	// |     Continuity      |
-	// +---------------------+
-
-	a.ContinuityManager = continuity.NewManager(&continuity.NewManagerOptions{
-		FileCacher: a.FileCacher,
-		Logger:     a.Logger,
-	})
-
 }
 
 // InitOrRefreshModules will initialize or refresh modules that depend on settings.
@@ -264,12 +266,13 @@ func (a *App) InitOrRefreshModules() {
 
 		// Set media player repository
 		a.MediaPlayerRepository = mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
-			Logger:         a.Logger,
-			Default:        settings.MediaPlayer.Default,
-			VLC:            a.MediaPlayer.VLC,
-			MpcHc:          a.MediaPlayer.MpcHc,
-			Mpv:            a.MediaPlayer.Mpv, // Socket
-			WSEventManager: a.WSEventManager,
+			Logger:            a.Logger,
+			Default:           settings.MediaPlayer.Default,
+			VLC:               a.MediaPlayer.VLC,
+			MpcHc:             a.MediaPlayer.MpcHc,
+			Mpv:               a.MediaPlayer.Mpv, // Socket
+			WSEventManager:    a.WSEventManager,
+			ContinuityManager: a.ContinuityManager,
 		})
 
 		a.PlaybackManager.SetMediaPlayerRepository(a.MediaPlayerRepository)

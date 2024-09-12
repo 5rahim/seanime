@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
+	"seanime/internal/continuity"
 	"seanime/internal/events"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
 	"seanime/internal/mediaplayers/mpv"
@@ -12,6 +13,10 @@ import (
 	"seanime/internal/util/result"
 	"sync"
 	"time"
+)
+
+const (
+	PlayerClosedEvent = "Player closed"
 )
 
 type (
@@ -23,6 +28,7 @@ type (
 		MpcHc                 *mpchc2.MpcHc
 		Mpv                   *mpv.Mpv
 		wsEventManager        events.WSEventManagerInterface
+		continuityManager     *continuity.Manager
 		playerInUse           string
 		completionThreshold   float64
 		mu                    sync.Mutex
@@ -34,13 +40,14 @@ type (
 	}
 
 	NewRepositoryOptions struct {
-		Logger         *zerolog.Logger
-		Default        string
-		VLC            *vlc2.VLC
-		MpcHc          *mpchc2.MpcHc
-		Mpv            *mpv.Mpv
-		MpvType        string
-		WSEventManager events.WSEventManagerInterface
+		Logger            *zerolog.Logger
+		Default           string
+		VLC               *vlc2.VLC
+		MpcHc             *mpchc2.MpcHc
+		Mpv               *mpv.Mpv
+		MpvType           string
+		WSEventManager    events.WSEventManagerInterface
+		ContinuityManager *continuity.Manager
 	}
 
 	RepositorySubscriber struct {
@@ -64,6 +71,9 @@ type (
 		Path                 string  `json:"path"`
 		Duration             int     `json:"duration"` // in ms
 		Filepath             string  `json:"filepath"`
+
+		CurrentTimeInSeconds float64 `json:"currentTimeInSeconds"` // in seconds
+		DurationInSeconds    float64 `json:"durationInSeconds"`    // in seconds
 	}
 )
 
@@ -76,6 +86,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		MpcHc:                 opts.MpcHc,
 		Mpv:                   opts.Mpv,
 		wsEventManager:        opts.WSEventManager,
+		continuityManager:     opts.ContinuityManager,
 		completionThreshold:   0.8,
 		subscribers:           result.NewResultMap[string, *RepositorySubscriber](),
 		currentPlaybackStatus: &PlaybackStatus{},
@@ -131,6 +142,18 @@ func (m *Repository) Play(path string) error {
 				return errors.New("could not open and play video, make sure VLC is running or specify the application path in your settings")
 			}
 		}
+
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
+				time.Sleep(400 * time.Millisecond)
+				m.VLC.ForcePause()
+				time.Sleep(400 * time.Millisecond)
+				m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				time.Sleep(400 * time.Millisecond)
+				m.VLC.Resume()
+			}
+		}
+
 		//m.exitedCh = make(chan struct{})
 		return nil
 	case "mpc-hc":
@@ -142,12 +165,40 @@ func (m *Repository) Play(path string) error {
 		if err != nil {
 			return errors.New("could not open and play video, verify your settings")
 		}
+
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
+				time.Sleep(400 * time.Millisecond)
+				m.MpcHc.Pause()
+				time.Sleep(400 * time.Millisecond)
+				m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				time.Sleep(400 * time.Millisecond)
+				m.MpcHc.Play()
+			}
+		}
+
 		//m.exitedCh = make(chan struct{})
 		return nil
 	case "mpv":
-		err := m.Mpv.OpenAndPlay(path)
-		if err != nil {
-			return fmt.Errorf("could not open and play video, %s", err.Error())
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+
+			var args []string
+			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
+				args = append(args, "--save-position-on-quit", fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
+			} else {
+				args = append(args, "--save-position-on-quit")
+			}
+
+			err := m.Mpv.OpenAndPlay(path, args...)
+			if err != nil {
+				return fmt.Errorf("could not open and play video, %s", err.Error())
+			}
+		} else {
+
+			err := m.Mpv.OpenAndPlay(path)
+			if err != nil {
+				return fmt.Errorf("could not open and play video, %s", err.Error())
+			}
 		}
 		//m.exitedCh = m.Mpv.Exited()
 		return nil
@@ -157,7 +208,7 @@ func (m *Repository) Play(path string) error {
 
 }
 
-func (m *Repository) Stream(streamUrl string) error {
+func (m *Repository) Stream(streamUrl string, episode int, mediaId int) error {
 
 	m.Logger.Debug().Str("streamUrl", streamUrl).Msg("media player: Stream requested")
 	var err error
@@ -181,12 +232,47 @@ func (m *Repository) Stream(streamUrl string) error {
 	switch m.Default {
 	case "vlc":
 		err = m.VLC.AddAndPlay(streamUrl)
+
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
+				time.Sleep(400 * time.Millisecond)
+				m.VLC.ForcePause()
+				time.Sleep(400 * time.Millisecond)
+				m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				time.Sleep(400 * time.Millisecond)
+				m.VLC.Resume()
+			}
+		}
+
 		//m.exitedCh = make(chan struct{})
 	case "mpc-hc":
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
+
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
+				time.Sleep(400 * time.Millisecond)
+				m.MpcHc.Pause()
+				time.Sleep(400 * time.Millisecond)
+				m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				time.Sleep(400 * time.Millisecond)
+				m.MpcHc.Play()
+			}
+		}
+
 		//m.exitedCh = make(chan struct{})
 	case "mpv":
-		err = m.Mpv.OpenAndPlay(streamUrl, "--force-window")
+		if m.continuityManager.GetSettings().WatchContinuityEnabled {
+			args := []string{"--force-window"}
+			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
+				args = append(args, fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
+			} else {
+
+			}
+
+			err = m.Mpv.OpenAndPlay(streamUrl, args...)
+		} else {
+			err = m.Mpv.OpenAndPlay(streamUrl, "--force-window")
+		}
 		//m.exitedCh = m.Mpv.Exited()
 	}
 
@@ -284,7 +370,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 			//	m.mu.Lock()
 			//	m.Logger.Debug().Msg("media player: Player exited")
 			//	m.isRunning = false
-			//	m.streamingTrackingStopped("Player closed")
+			//	m.streamingTrackingStopped(PlayerClosedEvent)
 			//	m.mu.Unlock()
 			//	return
 			default:
@@ -305,9 +391,9 @@ func (m *Repository) StartTrackingTorrentStream() {
 						m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, 3)
 						// Video is completed, and we are unable to get the status
 						// We can safely assume that the player has been closed
-						if retries == 1 && completed {
+						if retries == 1 && (completed || m.continuityManager.GetSettings().WatchContinuityEnabled) {
 							m.Logger.Debug().Msg("media player: Sending player closed event")
-							m.streamingTrackingStopped("Player closed")
+							m.streamingTrackingStopped(PlayerClosedEvent)
 							close(done)
 							break
 						}
@@ -402,7 +488,7 @@ func (m *Repository) StartTracking() {
 			//	m.mu.Lock()
 			//	m.Logger.Debug().Msg("media player: Player exited")
 			//	m.isRunning = false
-			//	m.trackingStopped("Player closed")
+			//	m.trackingStopped(PlayerClosedEvent)
 			//	m.mu.Unlock()
 			//	return
 			default:
@@ -415,8 +501,8 @@ func (m *Repository) StartTracking() {
 
 					// Video is completed, and we are unable to get the status
 					// We can safely assume that the player has been closed
-					if retries == 1 && completed {
-						m.trackingStopped("Player closed")
+					if retries == 1 && (completed || m.continuityManager.GetSettings().WatchContinuityEnabled) {
+						m.trackingStopped(PlayerClosedEvent)
 						close(done)
 						break
 					}
@@ -564,6 +650,8 @@ func (m *Repository) processStatus(player string, status interface{}) bool {
 		m.currentPlaybackStatus.Duration = int(st.Length * 1000)
 		m.currentPlaybackStatus.Filepath = "" // VLC does not provide the filepath
 
+		m.currentPlaybackStatus.CurrentTimeInSeconds = float64(st.Time)
+		m.currentPlaybackStatus.DurationInSeconds = float64(st.Length)
 		return true
 	case "mpc-hc":
 		// Process MPC-HC status
@@ -578,6 +666,9 @@ func (m *Repository) processStatus(player string, status interface{}) bool {
 		m.currentPlaybackStatus.Duration = int(st.Duration)
 		m.currentPlaybackStatus.Filepath = st.FilePath
 
+		m.currentPlaybackStatus.CurrentTimeInSeconds = st.Position / 1000
+		m.currentPlaybackStatus.DurationInSeconds = st.Duration / 1000
+
 		return true
 	case "mpv":
 		// Process MPV status
@@ -591,6 +682,9 @@ func (m *Repository) processStatus(player string, status interface{}) bool {
 		m.currentPlaybackStatus.Filename = st.Filename
 		m.currentPlaybackStatus.Duration = int(st.Duration)
 		m.currentPlaybackStatus.Filepath = st.Filepath
+
+		m.currentPlaybackStatus.CurrentTimeInSeconds = st.Position
+		m.currentPlaybackStatus.DurationInSeconds = st.Duration
 
 		return true
 	default:
@@ -613,6 +707,9 @@ func (m *Repository) processStreamStatus(player string, status interface{}) bool
 		m.currentPlaybackStatus.Duration = int(st.Length * 1000)
 		m.currentPlaybackStatus.Filepath = "" // VLC does not provide the filepath
 
+		m.currentPlaybackStatus.CurrentTimeInSeconds = float64(st.Time)
+		m.currentPlaybackStatus.DurationInSeconds = float64(st.Length)
+
 		return true
 	case "mpc-hc":
 		// Process MPC-HC status
@@ -627,6 +724,9 @@ func (m *Repository) processStreamStatus(player string, status interface{}) bool
 		m.currentPlaybackStatus.Duration = int(st.Duration)
 		m.currentPlaybackStatus.Filepath = st.FilePath
 
+		m.currentPlaybackStatus.CurrentTimeInSeconds = st.Position / 1000
+		m.currentPlaybackStatus.DurationInSeconds = st.Duration / 1000
+
 		return true
 	case "mpv":
 		// Process MPV status
@@ -640,6 +740,9 @@ func (m *Repository) processStreamStatus(player string, status interface{}) bool
 		m.currentPlaybackStatus.Filename = st.Filename
 		m.currentPlaybackStatus.Duration = int(st.Duration)
 		m.currentPlaybackStatus.Filepath = st.Filepath
+
+		m.currentPlaybackStatus.CurrentTimeInSeconds = st.Position
+		m.currentPlaybackStatus.DurationInSeconds = st.Duration
 
 		return true
 	default:

@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
+	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/discordrpc/presence"
@@ -43,6 +44,7 @@ type (
 		Logger                *zerolog.Logger
 		Database              *db.Database
 		MediaPlayerRepository *mediaplayer.Repository // MediaPlayerRepository is used to control the media player
+		continuityManager     *continuity.Manager
 
 		settings *Settings
 
@@ -120,6 +122,7 @@ type (
 		DiscordPresence            *discordrpc_presence.Presence
 		IsOffline                  bool
 		OfflineHub                 offline.HubInterface
+		ContinuityManager          *continuity.Manager
 	}
 
 	Settings struct {
@@ -151,6 +154,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		currentLocalFile:               mo.None[*anime.LocalFile](),
 		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
 		currentMediaListEntry:          mo.None[*anilist.MediaListEntry](),
+		continuityManager:              opts.ContinuityManager,
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)
@@ -262,18 +266,21 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(opts *StartPlayingOpti
 
 	pm.currentStreamMedia = mo.Some(media)
 
+	episodeNumber := 0
+
 	// Set the current episode being streamed
 	// If the episode collection is not set, we'll still let the stream start. The progress will just not be tracked
 	if pm.currentStreamEpisodeCollection.IsPresent() {
 		for _, episode := range pm.currentStreamEpisodeCollection.MustGet().Episodes {
 			if episode.AniDBEpisode == aniDbEpisode {
+				episodeNumber = episode.EpisodeNumber
 				pm.currentStreamEpisode = mo.Some(episode)
 				break
 			}
 		}
 	}
 
-	err = pm.MediaPlayerRepository.Stream(opts.Payload)
+	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, media.ID)
 	if err != nil {
 		return err
 	}
