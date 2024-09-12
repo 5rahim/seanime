@@ -86,7 +86,8 @@ export default function Page() {
         isCodecSupported,
         setStreamType,
         disabledAutoSwitchToDirectPlay,
-    } = useHandleMediastream({ playerRef, episodes })
+        handleUpdateWatchHistory,
+    } = useHandleMediastream({ playerRef, episodes, mediaId })
 
     const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
@@ -152,6 +153,8 @@ export default function Page() {
     }, [episodeListContainerRef.current, episodes, episodeNumber])
 
     const checkTimeRef = React.useRef<number>(0)
+
+    const watchHistoryRef = React.useRef<number>(0)
 
     if (animeEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -321,6 +324,13 @@ export default function Page() {
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
                                     onTimeUpdate={e => {
+                                        if (watchHistoryRef.current > 1000) {
+                                            watchHistoryRef.current = 0
+
+                                            handleUpdateWatchHistory()
+                                        }
+                                        watchHistoryRef.current++
+
                                         if (checkTimeRef.current < 200) {
                                             checkTimeRef.current++
                                             return

@@ -1549,6 +1549,121 @@
     }
   },
   {
+    "name": "HandleUpdateContinuityWatchHistoryItem",
+    "trimmedName": "UpdateContinuityWatchHistoryItem",
+    "comments": [
+      "HandleUpdateContinuityWatchHistoryItem",
+      "",
+      "\t@summary Updates watch history item.",
+      "\t@desc This endpoint is used to update a watch history item.",
+      "\t@desc Since this is low priority, we ignore any errors.",
+      "\t@route /api/v1/continuity/item [PATCH]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/continuity.go",
+    "filename": "continuity.go",
+    "api": {
+      "summary": "Updates watch history item.",
+      "descriptions": [
+        "This endpoint is used to update a watch history item.",
+        "Since this is low priority, we ignore any errors."
+      ],
+      "endpoint": "/api/v1/continuity/item",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Options",
+          "jsonName": "options",
+          "goType": "continuity.UpdateWatchHistoryItemOptions",
+          "usedStructType": "continuity.UpdateWatchHistoryItemOptions",
+          "typescriptType": "Continuity_UpdateWatchHistoryItemOptions",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetContinuityWatchHistoryItem",
+    "trimmedName": "GetContinuityWatchHistoryItem",
+    "comments": [
+      "HandleGetContinuityWatchHistoryItem",
+      "",
+      "\t@summary Returns a watch history item.",
+      "\t@desc This endpoint is used to retrieve a watch history item.",
+      "\t@route /api/v1/continuity/item/{id} [GET]",
+      "\t@param id - int - true - \"AniList anime media ID\"",
+      "\t@returns continuity.WatchHistoryItemResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/continuity.go",
+    "filename": "continuity.go",
+    "api": {
+      "summary": "Returns a watch history item.",
+      "descriptions": [
+        "This endpoint is used to retrieve a watch history item."
+      ],
+      "endpoint": "/api/v1/continuity/item/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "AniList anime media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "continuity.WatchHistoryItemResponse",
+      "returnGoType": "continuity.WatchHistoryItemResponse",
+      "returnTypescriptType": "Continuity_WatchHistoryItemResponse"
+    }
+  },
+  {
+    "name": "HandleGetContinuityWatchHistory",
+    "trimmedName": "GetContinuityWatchHistory",
+    "comments": [
+      "HandleGetContinuityWatchHistory",
+      "",
+      "\t@summary Returns the continuity watch history",
+      "\t@desc This endpoint is used to retrieve all watch history items.",
+      "\t@route /api/v1/continuity/history [GET]",
+      "\t@returns continuity.WatchHistory",
+      ""
+    ],
+    "filepath": "internal/handlers/continuity.go",
+    "filename": "continuity.go",
+    "api": {
+      "summary": "Returns the continuity watch history",
+      "descriptions": [
+        "This endpoint is used to retrieve all watch history items."
+      ],
+      "endpoint": "/api/v1/continuity/history",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "continuity.WatchHistory",
+      "returnGoType": "continuity.WatchHistory",
+      "returnTypescriptType": "Continuity_WatchHistory"
+    }
+  },
+  {
     "name": "HandleDirectorySelector",
     "trimmedName": "DirectorySelector",
     "comments": [

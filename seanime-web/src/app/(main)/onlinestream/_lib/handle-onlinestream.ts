@@ -1,5 +1,7 @@
 import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
+import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_autoPlayAtom,
@@ -119,6 +121,8 @@ type HandleOnlinestreamProps = {
 
 export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
 
+    const serverStatus = useServerStatus()
+
     const { mediaId, ref: playerRef } = props
 
     const { providerExtensions, providerExtensionOptions } = useHandleOnlinestreamProviderExtensions()
@@ -129,14 +133,19 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     const { episodes, media, isFetching, isLoading, isSuccess, isError } = useOnlinestreamEpisodeList(mediaId)
 
     /**
-     * 1. Get the current episode source
+     * 2. Watch history
+     */
+    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(mediaId)
+
+    /**
+     * 3. Get the current episode source
      */
     const {
         episodeSource,
         isLoading: isLoadingEpisodeSource,
         isFetching: isFetchingEpisodeSource,
         isError: isErrorEpisodeSource,
-    } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, isSuccess)
+    } = useOnlinestreamEpisodeSource(providerExtensions, mediaId, (isSuccess && !waitForWatchHistory))
 
     /**
      * Variables used for episode source query
@@ -257,24 +266,44 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
 
     }, [provider, videoSource, autoPlay])
 
+    /**
+     * Continuity
+     */
+    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(playerRef, episodeSource?.number, mediaId)
+
+    /**
+     * Handle the onCanPlay event
+     */
     const onCanPlay = React.useCallback(() => {
         logger("ONLINESTREAM").info("Can play event", {
             previousCurrentTime: previousCurrentTimeRef.current,
             previousIsPlayingRef: previousIsPlayingRef.current,
         })
         // When the onCanPlay event is received
-        // Restore the time if set
+        // Restore the previous time if set
         if (previousCurrentTimeRef.current > 0) {
+            // Seek to the previous time
             Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
-            // Resume playing if it was playing
+            // Reset the previous time ref
             previousCurrentTimeRef.current = 0
         }
+
+
+        if (watchHistory?.found) {
+            const lastWatchedTime = getEpisodeContinuitySeekTo(episodeSource?.number, playerRef.current?.currentTime, playerRef.current?.duration)
+            logger("CONTINUITY").info("Seeking to last watched time", { lastWatchedTime })
+            if (lastWatchedTime > 0) {
+                Object.assign(playerRef.current ?? {}, { currentTime: lastWatchedTime })
+            }
+        }
+
+        // If the player was playing before the onCanPlay event, resume playing
         setTimeout(() => {
             if (previousIsPlayingRef.current) {
                 playerRef.current?.play()
             }
         }, 500)
-    }, [])
+    }, [watchHistory, episodeSource?.number, serverStatus?.settings?.library?.enableWatchContinuity])
 
 
     // Quality
@@ -356,6 +385,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
         isErrorEpisodeSource,
         isErrorProvider: isError,
+        handleUpdateWatchHistory,
         opts: {
             selectedExtension,
             currentEpisodeDetails: episodeDetails,

@@ -1,6 +1,7 @@
 package filecache
 
 import (
+	"fmt"
 	"github.com/goccy/go-json"
 	"os"
 	"path/filepath"
@@ -104,6 +105,36 @@ func (c *Cacher) Set(bucket Bucket, key string, value interface{}) error {
 	return store.saveToFile()
 }
 
+func Range[T any](c *Cacher, bucket Bucket, f func(key string, value T) bool) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+
+	for key, item := range store.data {
+		if time.Now().After(item.Expiration) {
+			delete(store.data, key)
+		} else {
+			itemVal, err := json.Marshal(item.Value)
+			if err != nil {
+				return err
+			}
+			var out T
+			err = json.Unmarshal(itemVal, &out)
+			if err != nil {
+				return err
+			}
+			if !f(key, out) {
+				break
+			}
+		}
+	}
+
+	return store.saveToFile()
+}
+
 // Get retrieves the value for the given key from the given bucket.
 func (c *Cacher) Get(bucket Bucket, key string, out interface{}) (bool, error) {
 	store, err := c.getStore(bucket.name)
@@ -128,6 +159,27 @@ func (c *Cacher) Get(bucket Bucket, key string, out interface{}) (bool, error) {
 	return true, json.Unmarshal(data, out)
 }
 
+func GetAll[T any](c *Cacher, bucket Bucket) (map[string]T, error) {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make(map[string]T)
+	err = Range(c, bucket, func(key string, value T) bool {
+		data[key] = value
+		return true
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	store.mu.Lock()
+	defer store.mu.Unlock()
+
+	return data, store.saveToFile()
+}
+
 // Delete deletes the value for the given key from the given bucket.
 func (c *Cacher) Delete(bucket Bucket, key string) error {
 	store, err := c.getStore(bucket.name)
@@ -137,6 +189,32 @@ func (c *Cacher) Delete(bucket Bucket, key string) error {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	delete(store.data, key)
+	return store.saveToFile()
+}
+
+func DeleteIf[T any](c *Cacher, bucket Bucket, cond func(key string, value T) bool) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+
+	for key, item := range store.data {
+		itemVal, err := json.Marshal(item.Value)
+		if err != nil {
+			return err
+		}
+		var out T
+		err = json.Unmarshal(itemVal, &out)
+		if err != nil {
+			return err
+		}
+		if cond(key, out) {
+			delete(store.data, key)
+		}
+	}
+
 	return store.saveToFile()
 }
 
@@ -172,12 +250,12 @@ func (cs *CacheStore) loadFromFile() error {
 		if os.IsNotExist(err) {
 			return nil // File does not exist, so nothing to load
 		}
-		return err
+		return fmt.Errorf("filecache: failed to open cache file: %w", err)
 	}
 	defer file.Close()
 
 	if err := json.NewDecoder(file).Decode(&cs.data); err != nil {
-		return err
+		return fmt.Errorf("filecache: failed to decode cache data: %w", err)
 	}
 	return nil
 }
@@ -185,12 +263,12 @@ func (cs *CacheStore) loadFromFile() error {
 func (cs *CacheStore) saveToFile() error {
 	file, err := os.Create(cs.filePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("filecache: failed to create cache file: %w", err)
 	}
 	defer file.Close()
 
 	if err := json.NewEncoder(file).Encode(cs.data); err != nil {
-		return err
+		return fmt.Errorf("filecache: failed to encode cache data: %w", err)
 	}
 	return nil
 }
@@ -212,7 +290,7 @@ func (c *Cacher) RemoveAllBy(filter func(filename string) bool) error {
 			}
 			if filter(info.Name()) {
 				if err := os.Remove(filepath.Join(c.dir, info.Name())); err != nil {
-					return err
+					return fmt.Errorf("filecache: failed to remove file: %w", err)
 				}
 			}
 		}
@@ -292,9 +370,8 @@ func (c *Cacher) GetMediastreamVideoFilesTotalSize() (int64, error) {
 		}
 		return nil
 	})
-
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("filecache: failed to walk the cache directory: %w", err)
 	}
 
 	return totalSize, nil
@@ -318,7 +395,7 @@ func (c *Cacher) GetTotalSize() (int64, error) {
 	})
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("filecache: failed to walk the cache directory: %w", err)
 	}
 
 	return totalSize, nil

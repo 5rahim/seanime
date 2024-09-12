@@ -1677,6 +1677,64 @@ export type ChapterDownloader_DownloadID = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Continuity
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/continuity/manager.go
+ * - Filename: manager.go
+ * - Package: continuity
+ */
+export type Continuity_Kind = "onlinestream" | "mediastream" | "external_player"
+
+/**
+ * - Filepath: internal/continuity/history.go
+ * - Filename: history.go
+ * - Package: continuity
+ */
+export type Continuity_UpdateWatchHistoryItemOptions = {
+    currentTime: number
+    duration: number
+    mediaId: number
+    episodeNumber: number
+    filepath?: string
+    kind: Continuity_Kind
+}
+
+/**
+ * - Filepath: ..\internal\continuity\history.go
+ * - Filename: history.go
+ * - Package: continuity
+ */
+export type Continuity_WatchHistory = Record<number, Continuity_WatchHistoryItem>
+
+/**
+ * - Filepath: internal/continuity/history.go
+ * - Filename: history.go
+ * - Package: continuity
+ */
+export type Continuity_WatchHistoryItem = {
+    kind: Continuity_Kind
+    filepath: string
+    mediaId: number
+    episodeNumber: number
+    currentTime: number
+    duration: number
+    timeAdded?: string
+    timeUpdated?: string
+}
+
+/**
+ * - Filepath: internal/continuity/history.go
+ * - Filename: history.go
+ * - Package: continuity
+ */
+export type Continuity_WatchHistoryItemResponse = {
+    item?: Continuity_WatchHistoryItem
+    found: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Db
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2283,6 +2341,7 @@ export type Models_LibrarySettings = {
     openWebURLOnStart: boolean
     refreshLibraryOnStart: boolean
     autoPlayNextEpisode: boolean
+    enableWatchContinuity: boolean
 }
 
 /**

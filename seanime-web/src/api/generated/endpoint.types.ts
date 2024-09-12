@@ -14,6 +14,7 @@ import type {
     Anime_AutoDownloaderRuleTitleComparisonType,
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
+    Continuity_UpdateWatchHistoryItemOptions,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
@@ -332,6 +333,35 @@ export type DeleteAutoDownloaderRule_Variables = {
  * Route delete a queued item.
  */
 export type DeleteAutoDownloaderItem_Variables = {
+    id: number
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// continuity
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/continuity.go
+ * - Filename: continuity.go
+ * - Endpoint: /api/v1/continuity/item
+ * @description
+ * Route Updates watch history item.
+ */
+export type UpdateContinuityWatchHistoryItem_Variables = {
+    options: Continuity_UpdateWatchHistoryItemOptions
+}
+
+/**
+ * - Filepath: internal/handlers/continuity.go
+ * - Filename: continuity.go
+ * - Endpoint: /api/v1/continuity/item/{id}
+ * @description
+ * Route Returns a watch history item.
+ */
+export type GetContinuityWatchHistoryItem_Variables = {
+    /**
+     *  AniList anime media ID
+     */
     id: number
 }
 

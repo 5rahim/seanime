@@ -1,6 +1,8 @@
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
+import { ProgressBar } from "@/components/ui/progress-bar"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import React from "react"
@@ -24,6 +26,8 @@ type EpisodeCardProps = {
     length?: string | number | null
     imageClass?: string
     badge?: React.ReactNode
+    percentageComplete?: number
+    minutesRemaining?: number
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -48,9 +52,12 @@ export function EpisodeCard(props: EpisodeCardProps) {
         length,
         imageClass,
         badge,
+        percentageComplete,
+        minutesRemaining,
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
     const ts = useThemeSettings()
 
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
@@ -88,6 +95,11 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     ></div>}
                     {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                     <EpisodeItemBottomGradient />
+
+                    {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
+                        <div className="absolute bottom-0 left-0 w-full z-[3]">
+                            <ProgressBar value={percentageComplete} size="sm" />
+                        </div>}
                 </div>
                 <div
                     className={cn(
@@ -145,6 +157,15 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 ></div>}
                 {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                 <EpisodeItemBottomGradient />
+
+                {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
+                    <div className="absolute bottom-0 left-0 w-full z-[3]">
+                        <ProgressBar value={percentageComplete} size="xs" />
+                        {minutesRemaining && <div className="absolute bottom-2 right-2">
+                            <p className="text-[--muted] text-sm">{minutesRemaining}m left</p>
+                        </div>}
+                    </div>}
+
                 <div
                     className={cn(
                         "group-hover/episode-card:opacity-100 text-6xl text-gray-200",

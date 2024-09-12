@@ -140,6 +140,7 @@ export default function Page() {
                                         openWebURLOnStart: data.openWebURLOnStart,
                                         refreshLibraryOnStart: data.refreshLibraryOnStart,
                                         autoPlayNextEpisode: data.autoPlayNextEpisode ?? false,
+                                        enableWatchContinuity: data.enableWatchContinuity ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -240,6 +241,7 @@ export default function Page() {
                                 defaultMangaProvider: status?.settings?.manga?.defaultMangaProvider || "-",
                                 showActiveTorrentCount: status?.settings?.torrent?.showActiveTorrentCount ?? false,
                                 autoPlayNextEpisode: status?.settings?.library?.autoPlayNextEpisode ?? false,
+                                enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -254,6 +256,7 @@ export default function Page() {
                                     help="Directory where your anime library is located. (Keep the casing consistent)"
                                     shouldExist
                                 />
+
                                 <Field.Switch
                                     name="autoScan"
                                     label="Automatically refresh library"
@@ -267,6 +270,7 @@ export default function Page() {
                                         </p>
                                     </div>}
                                 />
+
                                 <Field.Switch
                                     name="refreshLibraryOnStart"
                                     label="Refresh library on startup"
@@ -278,6 +282,13 @@ export default function Page() {
                                         </p>
                                     </div>}
                                 />
+
+                                <Field.Switch
+                                    name="enableWatchContinuity"
+                                    label="Enable watch continuity"
+                                    help="If enabled, Seanime will remember your watch progress and resume from where you left off."
+                                />
+
                                 <Separator />
 
                                 <h3>Server</h3>

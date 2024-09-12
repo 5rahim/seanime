@@ -24040,6 +24040,327 @@
     "comments": []
   },
   {
+    "filepath": "..\\internal\\continuity\\history.go",
+    "filename": "history.go",
+    "name": "WatchHistory",
+    "formattedName": "Continuity_WatchHistory",
+    "package": "continuity",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[int]WatchHistoryItem",
+      "typescriptType": "Record\u003cnumber, Continuity_WatchHistoryItem\u003e",
+      "declaredValues": null,
+      "usedStructName": "continuity.WatchHistoryItem"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/continuity/history.go",
+    "filename": "history.go",
+    "name": "WatchHistoryItem",
+    "formattedName": "Continuity_WatchHistoryItem",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "Kind",
+        "jsonName": "kind",
+        "goType": "Kind",
+        "typescriptType": "Continuity_Kind",
+        "usedStructName": "continuity.Kind",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProgressNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeAdded",
+        "jsonName": "timeAdded",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeUpdated",
+        "jsonName": "timeUpdated",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/history.go",
+    "filename": "history.go",
+    "name": "WatchHistoryItemResponse",
+    "formattedName": "Continuity_WatchHistoryItemResponse",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "Item",
+        "jsonName": "item",
+        "goType": "WatchHistoryItem",
+        "typescriptType": "Continuity_WatchHistoryItem",
+        "usedStructName": "continuity.WatchHistoryItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Found",
+        "jsonName": "found",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/history.go",
+    "filename": "history.go",
+    "name": "UpdateWatchHistoryItemOptions",
+    "formattedName": "Continuity_UpdateWatchHistoryItemOptions",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "CurrentTime",
+        "jsonName": "currentTime",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ProgressNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Kind",
+        "jsonName": "kind",
+        "goType": "Kind",
+        "typescriptType": "Continuity_Kind",
+        "usedStructName": "continuity.Kind",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/manager.go",
+    "filename": "manager.go",
+    "name": "Manager",
+    "formattedName": "Continuity_Manager",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "watchHistoryFileCacheBucket",
+        "jsonName": "watchHistoryFileCacheBucket",
+        "goType": "filecache.Bucket",
+        "typescriptType": "Filecache_Bucket",
+        "usedStructName": "filecache.Bucket",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "Settings",
+        "typescriptType": "Continuity_Settings",
+        "usedStructName": "continuity.Settings",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/manager.go",
+    "filename": "manager.go",
+    "name": "Settings",
+    "formattedName": "Continuity_Settings",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "WatchContinuityEnabled",
+        "jsonName": "WatchContinuityEnabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/manager.go",
+    "filename": "manager.go",
+    "name": "Kind",
+    "formattedName": "Continuity_Kind",
+    "package": "continuity",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"onlinestream\"",
+        "\"mediastream\"",
+        "\"external_player\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/manager.go",
+    "filename": "manager.go",
+    "name": "NewManagerOptions",
+    "formattedName": "Continuity_NewManagerOptions",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/core/app.go",
     "filename": "app.go",
     "name": "App",
@@ -24312,6 +24633,16 @@
         "goType": "manga.Downloader",
         "typescriptType": "Manga_Downloader",
         "usedStructName": "manga.Downloader",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContinuityManager",
+        "jsonName": "ContinuityManager",
+        "goType": "continuity.Manager",
+        "typescriptType": "Continuity_Manager",
+        "usedStructName": "continuity.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -25215,6 +25546,15 @@
       {
         "name": "AutoPlayNextEpisode",
         "jsonName": "autoPlayNextEpisode",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnableWatchContinuity",
+        "jsonName": "enableWatchContinuity",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -49675,6 +50015,17 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "stopCh",
+        "jsonName": "stopCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Closed when the media player stops"
+        ]
       },
       {
         "name": "mediaPlayerPlaybackStatusCh",

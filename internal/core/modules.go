@@ -4,6 +4,7 @@ import (
 	"github.com/cli/browser"
 	"runtime"
 	"seanime/internal/api/anilist"
+	"seanime/internal/continuity"
 	"seanime/internal/database/models"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/library/autodownloader"
@@ -177,6 +178,15 @@ func (a *App) initModulesOnce() {
 		PlaybackManager:    a.PlaybackManager,
 		WSEventManager:     a.WSEventManager,
 		Database:           a.Database,
+	})
+
+	// +---------------------+
+	// |     Continuity      |
+	// +---------------------+
+
+	a.ContinuityManager = continuity.NewManager(&continuity.NewManagerOptions{
+		FileCacher: a.FileCacher,
+		Logger:     a.Logger,
 	})
 
 }
@@ -355,6 +365,16 @@ func (a *App) InitOrRefreshModules() {
 
 	if settings.Discord != nil && a.DiscordPresence != nil {
 		a.DiscordPresence.SetSettings(settings.Discord, "")
+	}
+
+	// +---------------------+
+	// |     Continuity      |
+	// +---------------------+
+
+	if settings.Library != nil {
+		a.ContinuityManager.SetSettings(&continuity.Settings{
+			WatchContinuityEnabled: settings.Library.EnableWatchContinuity,
+		})
 	}
 
 	runtime.GC()

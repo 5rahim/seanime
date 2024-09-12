@@ -7,6 +7,7 @@ import (
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/constants"
+	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
@@ -72,6 +73,7 @@ type (
 		MetadataProvider        *metadata.Provider
 		DiscordPresence         *discordrpc_presence.Presence
 		MangaDownloader         *manga.Downloader
+		ContinuityManager       *continuity.Manager
 		Cleanups                []func()
 		OfflineHub              *offline.Hub
 		MediastreamRepository   *mediastream.Repository
@@ -220,6 +222,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MediastreamRepository:         nil, // Initialized in App.initModulesOnce
 		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
 		OfflineHub:                    nil, // Initialized in App.initModulesOnce
+		ContinuityManager:             nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules

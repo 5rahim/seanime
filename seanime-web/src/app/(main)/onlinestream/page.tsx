@@ -90,6 +90,7 @@ export default function Page() {
         isErrorEpisodeSource,
         isErrorProvider,
         provider,
+        handleUpdateWatchHistory,
     } = useHandleOnlinestream({
         mediaId,
         ref,
@@ -209,7 +210,6 @@ export default function Page() {
     React.useEffect(() => {
         const t = setTimeout(() => {
             const element = document.querySelector(".vds-quality-menu")
-            console.log(element)
             if (opts.hasCustomQualities) {
                 // Toggle the class
                 element?.classList?.add("force-hidden")
@@ -227,6 +227,8 @@ export default function Page() {
     )
 
     const checkTimeRef = React.useRef<number>(0)
+
+    const watchHistoryRef = React.useRef<number>(0)
 
     if (!loadPage || !media || animeEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
@@ -316,6 +318,13 @@ export default function Page() {
                                 onProviderSetup={onProviderSetup}
                                 className={cn(discreteControls && "discrete-controls")}
                                 onTimeUpdate={(e) => {
+                                    if (watchHistoryRef.current > 1000) {
+                                        watchHistoryRef.current = 0
+
+                                        handleUpdateWatchHistory()
+                                    }
+                                    watchHistoryRef.current++
+
                                     if (checkTimeRef.current < 200) {
                                         checkTimeRef.current++
                                         return

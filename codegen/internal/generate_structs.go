@@ -100,6 +100,7 @@ var typePrefixesByPackage = map[string]string{
 	"hibiketorrent":              "HibikeTorrent_",
 	"hibikemediaplayer":          "HibikeMediaPlayer_",
 	"hibikeextension":            "HibikeExtension_",
+	"continuity":                 "Continuity_",
 }
 
 func getTypePrefix(packageName string) string {

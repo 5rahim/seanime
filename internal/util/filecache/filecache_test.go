@@ -3,12 +3,64 @@ package filecache
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"path/filepath"
 	"seanime/internal/test_utils"
 	"sync"
 	"testing"
 	"time"
 )
+
+func TestCacherFunctions(t *testing.T) {
+	test_utils.InitTestProvider(t)
+
+	tempDir := t.TempDir()
+	t.Log(tempDir)
+
+	cacher, err := NewCacher(filepath.Join(tempDir, "cache"))
+	require.NoError(t, err)
+
+	bucket := Bucket{
+		name: "test",
+		ttl:  10 * time.Second,
+	}
+
+	keys := []string{"key1", "key2", "key3"}
+
+	type valStruct = struct {
+		Name string
+	}
+
+	values := []*valStruct{
+		{
+			Name: "value1",
+		},
+		{
+			Name: "value2",
+		},
+		{
+			Name: "value3",
+		},
+	}
+
+	for i, key := range keys {
+		err = cacher.Set(bucket, key, values[i])
+		if err != nil {
+			t.Fatalf("Failed to set the value: %v", err)
+		}
+	}
+
+	allVals, err := GetAll[*valStruct](cacher, bucket)
+	if err != nil {
+		t.Fatalf("Failed to get all values: %v", err)
+	}
+
+	if len(allVals) != len(keys) {
+		t.Fatalf("Failed to get all values: expected %d, got %d", len(keys), len(allVals))
+	}
+
+	spew.Dump(allVals)
+}
 
 func TestCacherSetAndGet(t *testing.T) {
 	test_utils.InitTestProvider(t)

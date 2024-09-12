@@ -70,6 +70,8 @@ type LibrarySettings struct {
 	RefreshLibraryOnStart    bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
 	// v2.1+
 	AutoPlayNextEpisode bool `gorm:"column:auto_play_next_episode" json:"autoPlayNextEpisode"`
+	// v2.2+
+	EnableWatchContinuity bool `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
 }
 
 type MangaSettings struct {

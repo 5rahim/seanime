@@ -346,7 +346,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1FileCache := v1.Group("/filecache")
 	v1FileCache.Get("/total-size", makeHandler(app, HandleGetFileCacheTotalSize))
 	v1FileCache.Delete("/bucket", makeHandler(app, HandleRemoveFileCacheBucket))
-
 	v1FileCache.Get("/mediastream/videofiles/total-size", makeHandler(app, HandleGetFileCacheMediastreamVideoFilesTotalSize))
 	v1FileCache.Delete("/mediastream/videofiles", makeHandler(app, HandleClearFileCacheMediastreamVideoFiles))
 
@@ -380,9 +379,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
 	v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
 	v1.Get("/mediastream/att/*", makeHandler(app, HandleMediastreamGetAttachments))
-
 	v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirectPlay))
-
 	v1.Get("/mediastream/file/*", makeHandler(app, HandleMediastreamFile))
 
 	//
@@ -402,20 +399,25 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	//
 
 	v1Extensions := v1.Group("/extensions")
-
 	v1Extensions.Post("/playground/run", makeHandler(app, HandleRunExtensionPlaygroundCode))
-
 	v1Extensions.Post("/external/fetch", makeHandler(app, HandleFetchExternalExtensionData))
 	v1Extensions.Post("/external/install", makeHandler(app, HandleInstallExternalExtension))
 	v1Extensions.Post("/external/uninstall", makeHandler(app, HandleUninstallExternalExtension))
 	v1Extensions.Post("/external/edit-payload", makeHandler(app, HandleUpdateExtensionCode))
 	v1Extensions.Post("/external/reload", makeHandler(app, HandleReloadExternalExtensions))
-
 	v1Extensions.Post("/all", makeHandler(app, HandleGetAllExtensions))
 	v1Extensions.Get("/list", makeHandler(app, HandleListExtensionData))
 	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
 	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
 	v1Extensions.Get("/list/anime-torrent-provider", makeHandler(app, HandleListAnimeTorrentProviderExtensions))
+
+	//
+	// Continuity
+	//
+	v1Continuity := v1.Group("/continuity")
+	v1Continuity.Patch("/item", makeHandler(app, HandleUpdateContinuityWatchHistoryItem))
+	v1Continuity.Get("/item/:id", makeHandler(app, HandleGetContinuityWatchHistoryItem))
+	v1Continuity.Get("/history", makeHandler(app, HandleGetContinuityWatchHistory))
 
 	//
 	// Websocket

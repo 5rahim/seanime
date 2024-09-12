@@ -34,7 +34,6 @@ export function useHandleEpisodeSection(props: { entry: Anime_AnimeEntry, detail
     }, [entry.episodes])
 
     const episodesToWatch = React.useMemo(() => {
-        console.log(mainEpisodes, (entry.listData?.progress ?? 0))
 
         const ret = mainEpisodes.filter(ep => {
             if (!entry.nextEpisode) {

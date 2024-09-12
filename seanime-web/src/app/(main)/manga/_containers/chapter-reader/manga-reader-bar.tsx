@@ -163,7 +163,6 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                 // Find the new map index based on the page index
                 // e.g., { 0: [0, 1], 1: [2, 3], 2: [4, 5] }
                 //   if pageIdx is 3, then the new map index is 1
-                console.log(paginationMap, pageIdx)
                 const newMapIdx = Object.keys(paginationMap).find(key => paginationMap[Number(key)].includes(pageIdx))
                 if (newMapIdx === undefined) return prevMapIdx
                 return Number(newMapIdx)

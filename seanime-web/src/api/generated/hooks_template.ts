@@ -367,6 +367,39 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// continuity
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useUpdateContinuityWatchHistoryItem() {
+//     return useServerMutation<boolean, UpdateContinuityWatchHistoryItem_Variables>({
+//         endpoint: API_ENDPOINTS.CONTINUITY.UpdateContinuityWatchHistoryItem.endpoint,
+//         method: API_ENDPOINTS.CONTINUITY.UpdateContinuityWatchHistoryItem.methods[0],
+//         mutationKey: [API_ENDPOINTS.CONTINUITY.UpdateContinuityWatchHistoryItem.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetContinuityWatchHistoryItem(id: number) {
+//     return useServerQuery<Continuity_WatchHistoryItemResponse>({
+//         endpoint: API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.methods[0],
+//         queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistoryItem.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetContinuityWatchHistory() {
+//     return useServerQuery<Continuity_WatchHistory>({
+//         endpoint: API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.endpoint,
+//         method: API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.methods[0],
+//         queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key],
+//         enabled: true,
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // directory_selector
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

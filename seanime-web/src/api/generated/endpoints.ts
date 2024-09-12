@@ -349,6 +349,39 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/auto-downloader/item",
         },
     },
+    CONTINUITY: {
+        /**
+         *  @description
+         *  Route Updates watch history item.
+         *  This endpoint is used to update a watch history item.
+         *  Since this is low priority, we ignore any errors.
+         */
+        UpdateContinuityWatchHistoryItem: {
+            key: "CONTINUITY-update-continuity-watch-history-item",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/continuity/item",
+        },
+        /**
+         *  @description
+         *  Route Returns a watch history item.
+         *  This endpoint is used to retrieve a watch history item.
+         */
+        GetContinuityWatchHistoryItem: {
+            key: "CONTINUITY-get-continuity-watch-history-item",
+            methods: ["GET"],
+            endpoint: "/api/v1/continuity/item/{id}",
+        },
+        /**
+         *  @description
+         *  Route Returns the continuity watch history
+         *  This endpoint is used to retrieve all watch history items.
+         */
+        GetContinuityWatchHistory: {
+            key: "CONTINUITY-get-continuity-watch-history",
+            methods: ["GET"],
+            endpoint: "/api/v1/continuity/history",
+        },
+    },
     DIRECTORY_SELECTOR: {
         /**
          *  @description

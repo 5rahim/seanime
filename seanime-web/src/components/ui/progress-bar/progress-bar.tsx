@@ -16,6 +16,7 @@ export const ProgressBarAnatomy = defineStyleAnatomy({
     ], {
         variants: {
             size: {
+                xs: "h-1",
                 sm: "h-2",
                 md: "h-3",
                 lg: "h-4",

@@ -1,5 +1,6 @@
 "use client"
 import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
+import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
@@ -31,6 +32,8 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
         ncEpisodes,
         playMediaFile,
     } = useHandleEpisodeSection({ entry, details })
+
+    const { data: watchHistory } = useGetContinuityWatchHistory()
 
     if (!media) return null
 
@@ -85,6 +88,8 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                             progressNumber={episode.progressNumber}
                                             episodeNumber={episode.episodeNumber}
                                             length={episode.episodeMetadata?.length}
+                                            percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                            minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
                                             onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
                                         />
                                     </CarouselItem>

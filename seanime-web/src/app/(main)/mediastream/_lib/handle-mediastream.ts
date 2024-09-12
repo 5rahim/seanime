@@ -1,5 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { Anime_AnimeEntryEpisode, Mediastream_StreamType } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode, Mediastream_StreamType, Nullish } from "@/api/generated/types"
+import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import {
@@ -104,6 +105,7 @@ export const __mediastream_currentProgressAtom = atom(0)
 type HandleMediastreamProps = {
     playerRef: React.RefObject<MediaPlayerInstance>
     episodes: Anime_AnimeEntryEpisode[]
+    mediaId: Nullish<string | number>
 }
 
 export function useHandleMediastream(props: HandleMediastreamProps) {
@@ -111,6 +113,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const {
         playerRef,
         episodes,
+        mediaId,
     } = props
     const router = useRouter()
     const { filePath, setFilePath } = useMediastreamCurrentFile()
@@ -134,24 +137,26 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const sessionId = useAtomValue(clientIdAtom)
 
     /**
+     * Watch history
+     */
+    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(mediaId)
+
+    /**
      * Fetch media container containing stream URL
      */
     const { data: _mediaContainer, isError: isMediaContainerError, isPending, isFetching, refetch } = useRequestMediastreamMediaContainer({
         path: filePath,
         streamType: streamType,
         clientId: sessionId ?? uuidv4(),
-    }, !!mediastreamSettings && !mediastreamSettingsLoading)
+    }, !!mediastreamSettings && !mediastreamSettingsLoading && !waitForWatchHistory)
 
     const mediaContainer = React.useMemo(() => (!isPending && !isFetching) ? _mediaContainer : undefined, [_mediaContainer, isPending, isFetching])
 
-    /**
-     * Preload next file
-     */
-        // const { mutate: preloadMediaContainer } = usePreloadMediastreamMediaContainer()
-        // const [preloadedFilePath, setPreloadedFilePath] = React.useState<string | undefined>(undefined)
+    // const { mutate: preloadMediaContainer } = usePreloadMediastreamMediaContainer()
+    // const [preloadedFilePath, setPreloadedFilePath] = React.useState<string | undefined>(undefined)
 
 
-        // Whether the playback has errored
+    // Whether the playback has errored
     const [playbackErrored, setPlaybackErrored] = React.useState<boolean>(false)
 
     // Duration
@@ -419,12 +424,35 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         }
     }
 
+
+    /**
+     * Current episode
+     */
+    const episode = React.useMemo(() => {
+        return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+    }, [episodes, filePath])
+
+    /**
+     * Continuity
+     */
+    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(playerRef, episode?.episodeNumber, mediaId)
+
+
     const preloadedNextFileForRef = React.useRef<string | undefined>(undefined) // unused
 
     const onCanPlay = (e: MediaCanPlayDetail) => {
         logger("MEDIASTREAM").info("[onCanPlay] called", e)
         preloadedNextFileForRef.current = undefined
         setDuration(e.duration)
+
+        if (episode && watchHistory && watchHistory.item?.episodeNumber === episode.episodeNumber) {
+            const lastWatchedTime = getEpisodeContinuitySeekTo(episode.episodeNumber, playerRef.current?.currentTime, playerRef.current?.duration)
+            logger("CONTINUITY").info("Seeking to last watched time", { lastWatchedTime })
+            if (lastWatchedTime > 0) {
+                logger("MEDIASTREAM").info("Seeking to", lastWatchedTime)
+                Object.assign(playerRef.current || {}, { currentTime: lastWatchedTime })
+            }
+        }
 
         if (autoPlay) {
             playerRef.current?.play()
@@ -457,9 +485,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
 
     const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
 
-    const episode = React.useMemo(() => {
-        return episodes.find(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
-    }, [episodes, filePath])
 
     const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
         // DEVNOTE: Disable preloading next file, it causes issues
@@ -537,6 +562,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         onProviderChange,
         onProviderSetup,
         isCodecSupported,
+        handleUpdateWatchHistory,
     }
 
 }

@@ -1,5 +1,6 @@
 "use client"
-import { Anime_AnimeEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntryEpisode, Continuity_WatchHistory } from "@/api/generated/types"
+import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
@@ -21,6 +22,8 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
 }) {
 
     const ts = useThemeSettings()
+
+    const { data: watchHistory } = useGetContinuityWatchHistory()
 
     const setHeaderImage = useSetAtom(__libraryHeaderImageAtom)
     const [headerEpisode, setHeaderEpisode] = useAtom(__libraryHeaderEpisodeAtom)
@@ -117,6 +120,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                                 episode={episode}
                                 mRef={episodeRefs[idx]}
                                 overrideLink={linkTemplate}
+                                watchHistory={watchHistory}
                             />
                         </CarouselItem>
                     ))}
@@ -126,10 +130,11 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     )
 }
 
-const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
+const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: {
     episode: Anime_AnimeEntryEpisode,
     mRef: React.RefObject<any>,
     overrideLink?: string
+    watchHistory: Continuity_WatchHistory | undefined
 }) => {
     const router = useRouter()
     const setHeaderImage = useSetAtom(__libraryHeaderImageAtom)
@@ -163,6 +168,8 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink }: {
             episodeNumber={episode.episodeNumber}
             length={episode.episodeMetadata?.length}
             hasDiscrepancy={episode.episodeNumber !== episode.progressNumber}
+            percentageComplete={getEpisodePercentageComplete(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
+            minutesRemaining={getEpisodeMinutesRemaining(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
             onMouseEnter={() => {
                 React.startTransition(() => {
                     setHeaderImage(episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null)
