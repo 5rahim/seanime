@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
+	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc/pool"
 	"os"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/filesystem"
+	"time"
 )
 
 // HandleGetLocalFiles
@@ -24,7 +27,66 @@ func HandleGetLocalFiles(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(lfs)
+}
 
+func HandleDumpLocalFilesToFile(c *RouteCtx) error {
+
+	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	filename := fmt.Sprintf("seanime-localfiles-%s.json", time.Now().Format("2006-01-02_15-04-05"))
+
+	c.Fiber.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Fiber.Set("Content-Type", "application/json")
+
+	jsonData, err := json.MarshalIndent(lfs, "", "  ")
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.Fiber.Send(jsonData)
+}
+
+// HandleImportLocalFiles
+//
+//	@summary imports local files from the given path.
+//	@desc This will import local files from the given path.
+//	@desc The response is ignored, the client should refetch the entire library collection and media entry.
+//	@route /api/v1/library/local-files/import [POST]
+func HandleImportLocalFiles(c *RouteCtx) error {
+	type body struct {
+		DataFilePath string `json:"dataFilePath"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	contentB, err := os.ReadFile(b.DataFilePath)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	var lfs []*anime.LocalFile
+	if err := json.Unmarshal(contentB, &lfs); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	if len(lfs) == 0 {
+		return c.RespondWithError(errors.New("no local files found"))
+	}
+
+	_, err = db_bridge.InsertLocalFiles(c.App.Database, lfs)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.Database.TrimLocalFileEntries()
+
+	return c.RespondWithData(true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -668,6 +668,17 @@
 //     })
 // }
 
+// export function useImportLocalFiles() {
+//     return useServerMutation<boolean, ImportLocalFiles_Variables>({
+//         endpoint: API_ENDPOINTS.LOCALFILES.ImportLocalFiles.endpoint,
+//         method: API_ENDPOINTS.LOCALFILES.ImportLocalFiles.methods[0],
+//         mutationKey: [API_ENDPOINTS.LOCALFILES.ImportLocalFiles.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useLocalFileBulkAction() {
 //     return useServerMutation<Array<Anime_LocalFile>, LocalFileBulkAction_Variables>({
 //         endpoint: API_ENDPOINTS.LOCALFILES.LocalFileBulkAction.endpoint,

@@ -539,6 +539,17 @@ export type RemoveFileCacheBucket_Variables = {
 /**
  * - Filepath: internal/handlers/localfiles.go
  * - Filename: localfiles.go
+ * - Endpoint: /api/v1/library/local-files/import
+ * @description
+ * Route imports local files from the given path.
+ */
+export type ImportLocalFiles_Variables = {
+    dataFilePath: string
+}
+
+/**
+ * - Filepath: internal/handlers/localfiles.go
+ * - Filename: localfiles.go
  * - Endpoint: /api/v1/library/local-files
  * @description
  * Route performs an action on all local files.

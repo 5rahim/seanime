@@ -24090,7 +24090,7 @@
         "comments": []
       },
       {
-        "name": "ProgressNumber",
+        "name": "EpisodeNumber",
         "jsonName": "episodeNumber",
         "goType": "int",
         "typescriptType": "number",
@@ -24203,7 +24203,7 @@
         "comments": []
       },
       {
-        "name": "ProgressNumber",
+        "name": "EpisodeNumber",
         "jsonName": "episodeNumber",
         "goType": "int",
         "typescriptType": "number",
@@ -24251,12 +24251,31 @@
         "comments": []
       },
       {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "watchHistoryFileCacheBucket",
         "jsonName": "watchHistoryFileCacheBucket",
         "goType": "filecache.Bucket",
         "typescriptType": "Filecache_Bucket",
         "usedStructName": "filecache.Bucket",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "externalPlayerEpisodeDetails",
+        "jsonName": "externalPlayerEpisodeDetails",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": []
       },
@@ -24288,6 +24307,43 @@
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/manager.go",
+    "filename": "manager.go",
+    "name": "ExternalPlayerEpisodeDetails",
+    "formattedName": "Continuity_ExternalPlayerEpisodeDetails",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],
@@ -24353,6 +24409,16 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": true,
         "comments": []
@@ -33647,6 +33713,16 @@
         ]
       },
       {
+        "name": "continuityManager",
+        "jsonName": "continuityManager",
+        "goType": "continuity.Manager",
+        "typescriptType": "Continuity_Manager",
+        "usedStructName": "continuity.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "settings",
         "jsonName": "settings",
         "goType": "Settings",
@@ -34137,6 +34213,16 @@
         "goType": "offline.HubInterface",
         "typescriptType": "Offline_HubInterface",
         "usedStructName": "offline.HubInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContinuityManager",
+        "jsonName": "ContinuityManager",
+        "goType": "continuity.Manager",
+        "typescriptType": "Continuity_Manager",
+        "usedStructName": "continuity.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -38435,6 +38521,16 @@
         "comments": []
       },
       {
+        "name": "continuityManager",
+        "jsonName": "continuityManager",
+        "goType": "continuity.Manager",
+        "typescriptType": "Continuity_Manager",
+        "usedStructName": "continuity.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playerInUse",
         "jsonName": "playerInUse",
         "goType": "string",
@@ -38585,6 +38681,16 @@
         "goType": "events.WSEventManagerInterface",
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContinuityManager",
+        "jsonName": "ContinuityManager",
+        "goType": "continuity.Manager",
+        "typescriptType": "Continuity_Manager",
+        "usedStructName": "continuity.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -38754,6 +38860,28 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "CurrentTimeInSeconds",
+        "jsonName": "currentTimeInSeconds",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " in seconds"
+        ]
+      },
+      {
+        "name": "DurationInSeconds",
+        "jsonName": "durationInSeconds",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " in seconds"
+        ]
       }
     ],
     "comments": []

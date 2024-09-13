@@ -2507,6 +2507,47 @@
     }
   },
   {
+    "name": "HandleImportLocalFiles",
+    "trimmedName": "ImportLocalFiles",
+    "comments": [
+      "HandleImportLocalFiles",
+      "",
+      "\t@summary imports local files from the given path.",
+      "\t@desc This will import local files from the given path.",
+      "\t@desc The response is ignored, the client should refetch the entire library collection and media entry.",
+      "\t@route /api/v1/library/local-files/import [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/localfiles.go",
+    "filename": "localfiles.go",
+    "api": {
+      "summary": "imports local files from the given path.",
+      "descriptions": [
+        "This will import local files from the given path.",
+        "The response is ignored, the client should refetch the entire library collection and media entry."
+      ],
+      "endpoint": "/api/v1/library/local-files/import",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "DataFilePath",
+          "jsonName": "dataFilePath",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleLocalFileBulkAction",
     "trimmedName": "LocalFileBulkAction",
     "comments": [

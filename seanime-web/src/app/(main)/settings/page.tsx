@@ -8,6 +8,7 @@ import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-ser
 import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { DataSettings } from "@/app/(main)/settings/_containers/data-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { LogsSettings } from "@/app/(main)/settings/_containers/logs-settings"
 import { MangaSettings } from "@/app/(main)/settings/_containers/manga-settings"
@@ -28,6 +29,7 @@ import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
+import { FiDatabase } from "react-icons/fi"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
 import { LuBookKey } from "react-icons/lu"
@@ -99,24 +101,28 @@ export default function Page() {
                     listClass={tabsListClass}
                 >
                     <TabsList className="flex-wrap max-w-full">
-                        <TabsTrigger value="seanime"><IoLibrary className="text-lg mr-3" /> Seanime</TabsTrigger>
+                        <TabsTrigger value="seanime">Seanime</TabsTrigger>
                         <Separator className="hidden lg:block" />
+                        <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime library</TabsTrigger>
                         <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
                         <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> External Media Player</TabsTrigger>
                         <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
                                                                                                                                     streaming</TabsTrigger>
-                        <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
-                                                                                                                          streaming</TabsTrigger>
                         <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                         <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
+                        <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
+                                                                                                                          streaming</TabsTrigger>
                         <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
+                        <Separator className="hidden lg:block" />
                         <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                         <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
                         <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
+                        <Separator className="hidden lg:block" />
                         <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
                         <TabsTrigger value="logs"><LuBookKey className="text-lg mr-3" /> Logs</TabsTrigger>
+                        <TabsTrigger value="data"><FiDatabase className="text-lg mr-3" /> Data</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                     </TabsList>
@@ -245,7 +251,7 @@ export default function Page() {
                             }}
                             stackClass="space-y-4"
                         >
-                            <TabsContent value="seanime" className="space-y-6">
+                            <TabsContent value="library" className="space-y-6">
 
                                 <h3>Library</h3>
 
@@ -289,7 +295,10 @@ export default function Page() {
                                     help="If enabled, Seanime will remember your watch progress and resume from where you left off."
                                 />
 
-                                <Separator />
+
+                            </TabsContent>
+
+                            <TabsContent value="seanime" className="space-y-6">
 
                                 <h3>Server</h3>
 
@@ -583,6 +592,12 @@ export default function Page() {
                             <h3>Logs</h3>
 
                             <LogsSettings />
+
+                        </TabsContent>
+
+                        <TabsContent value="data" className="space-y-6">
+
+                            <DataSettings />
 
                         </TabsContent>
 

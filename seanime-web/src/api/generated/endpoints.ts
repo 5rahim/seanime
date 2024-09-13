@@ -565,6 +565,17 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
+         *  Route imports local files from the given path.
+         *  This will import local files from the given path.
+         *  The response is ignored, the client should refetch the entire library collection and media entry.
+         */
+        ImportLocalFiles: {
+            key: "LOCALFILES-import-local-files",
+            methods: ["POST"],
+            endpoint: "/api/v1/library/local-files/import",
+        },
+        /**
+         *  @description
          *  Route performs an action on all local files.
          *  This will perform the given action on all local files.
          *  The response is ignored, the client should refetch the entire library collection and media entry.

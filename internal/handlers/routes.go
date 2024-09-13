@@ -198,12 +198,12 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Delete("/empty-directories", makeHandler(app, HandleRemoveEmptyDirectories))
 
 	v1Library.Get("/local-files", makeHandler(app, HandleGetLocalFiles))
-
 	v1Library.Post("/local-files", makeHandler(app, HandleLocalFileBulkAction))
-
 	v1Library.Patch("/local-files", makeHandler(app, HandleUpdateLocalFiles))
-
 	v1Library.Delete("/local-files", makeHandler(app, HandleDeleteLocalFiles))
+	v1Library.Get("/local-files/dump", makeHandler(app, HandleDumpLocalFilesToFile))
+	v1Library.Post("/local-files/import", makeHandler(app, HandleImportLocalFiles))
+	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
 
 	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
 
@@ -211,25 +211,16 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Library.Get("/missing-episodes", makeHandler(app, HandleGetMissingEpisodes))
 
-	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
-
 	v1Library.Get("/anime-entry/:id", makeHandler(app, HandleGetAnimeEntry))
-
 	v1Library.Post("/anime-entry/suggestions", makeHandler(app, HandleFetchAnimeEntrySuggestions))
-
 	v1Library.Post("/anime-entry/manual-match", makeHandler(app, HandleAnimeEntryManualMatch))
-
 	v1Library.Patch("/anime-entry/bulk-action", makeHandler(app, HandleAnimeEntryBulkAction))
-
 	v1Library.Post("/anime-entry/open-in-explorer", makeHandler(app, HandleOpenAnimeEntryInExplorer))
+	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
+	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
+	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
 
 	v1Library.Post("/unknown-media", makeHandler(app, HandleAddUnknownMedia))
-
-	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
-
-	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
-
-	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
 
 	//
 	// Torrent / Torrent Client

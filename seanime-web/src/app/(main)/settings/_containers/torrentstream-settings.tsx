@@ -84,8 +84,8 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
                 <Field.Switch
                     name="fallbackToTorrentStreamingView"
-                    label="Fall back to torrent streaming view"
-                    help="If the anime is not in your library, default to the torrent streaming view."
+                    label="Default to torrent streaming view"
+                    help="If the anime is not downloaded, the torrent streaming view will be shown by default."
                 />
 
                 <Field.Switch
@@ -97,12 +97,12 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 <Separator />
 
                 <h3>
-                    Torrent selection
+                    Auto-select
                 </h3>
 
                 <Field.Switch
                     name="autoSelect"
-                    label="Auto-select torrent"
+                    label="Enable"
                     help="Let Seanime find the best torrent automatically."
                 />
 
@@ -111,7 +111,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     label="Preferred resolution"
                     help="If auto-select is enabled, Seanime will try to find torrents with this resolution. 'Any' will prefer the highest resolution available."
                     options={[
-                        { label: "Any", value: "-" },
+                        { label: "Highest", value: "-" },
                         { label: "480p", value: "480" },
                         { label: "720p", value: "720" },
                         { label: "1080p", value: "1080" },
