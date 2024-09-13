@@ -98,21 +98,21 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
                 }}
             >
                 {displayDragRegion && <div className="flex flex-1" data-tauri-drag-region></div>}
-                {(currentPlatform === "windows" && showTrafficLights) && <div className="flex">
+                {(currentPlatform === "windows" && showTrafficLights) && <div className="flex h-10 items-center justify-center gap-1 mr-2">
                     <IconButton
-                        className="outline-none w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
+                        className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"
                         icon={<VscChromeMinimize className="text-[0.95rem]" />}
                         onClick={handleMinimize}
                         tabIndex={-1}
                     />
                     <IconButton
-                        className="outline-none w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)] rounded-none"
+                        className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"
                         icon={maximized ? <VscChromeRestore className="text-[0.95rem]" /> : <VscChromeMaximize className="text-[0.95rem]" />}
                         onClick={toggleMaximized}
                         tabIndex={-1}
                     />
                     <IconButton
-                        className="outline-none w-11 h-10 duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-red-500 active:bg-red-600 active:text-white rounded-none"
+                        className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-red-500 active:bg-red-600 active:text-white"
                         icon={<VscChromeClose className="text-[0.95rem]" />}
                         onClick={handleClose}
                         tabIndex={-1}
