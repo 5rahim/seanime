@@ -240,21 +240,29 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             side="bottom"
             headerClass="absolute h-0"
             contentClass={cn(
-                "p-0",
+                "p-0 pt-0",
             )}
             closeButton={<></>}
         >
 
             <div
                 className={cn(
-                    "fixed top-0 left-0 justify-center w-full z-[6] opacity-0 transition-opacity hidden duration-500",
+                    "fixed left-0 w-full z-[6] opacity-0 transition-opacity hidden duration-500",
+                    process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-0 justify-center",
+                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && cn(
+                        "bottom-12",
+                        hiddenBar && "bottom-0 justify-left",
+                    ),
                     (shouldUpdateProgress && isLastPage && !pageContainerLoading && !pageContainerError) && "flex opacity-100",
                 )}
                 tabIndex={-1}
             >
                 <Button
                     onClick={handleUpdateProgress}
-                    className="rounded-tl-none rounded-tr-none"
+                    className={cn(
+                        process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "rounded-tl-none rounded-tr-none",
+                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "rounded-bl-none rounded-br-none rounded-tl-none",
+                    )}
                     size="md"
                     intent="success"
                     loading={isUpdatingProgress}

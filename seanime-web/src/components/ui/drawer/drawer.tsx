@@ -193,7 +193,7 @@ export function Drawer(props: DrawerProps) {
                 <DialogPrimitive.Content
                     className={cn(
                         DrawerAnatomy.content({ size, side }),
-                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "!pt-12",
+                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-12",
                         contentClass,
                     )}
                     onOpenAutoFocus={onOpenAutoFocus}

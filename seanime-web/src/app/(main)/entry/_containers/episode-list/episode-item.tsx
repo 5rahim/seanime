@@ -20,11 +20,13 @@ export const EpisodeItemIsolation = createIsolation()
 
 const __metadataModalIsOpenAtom = atom(false)
 
-export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
+export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentageComplete, minutesRemaining }: {
     episode: Anime_AnimeEntryEpisode,
     media: AL_BaseAnime,
     onPlay?: ({ path, mediaId }: { path: string, mediaId: number }) => void,
     isWatched?: boolean
+    percentageComplete?: number
+    minutesRemaining?: number
 }) => {
 
     const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
@@ -42,6 +44,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
                 isWatched={episode.progressNumber > 0 && isWatched}
                 isFiller={episode.episodeMetadata?.isFiller}
                 length={episode.episodeMetadata?.length}
+                percentageComplete={percentageComplete}
+                minutesRemaining={minutesRemaining}
                 action={<>
                     <IconButton
                         icon={episode.localFile?.locked ? <VscVerified /> : <BiLockOpenAlt />}

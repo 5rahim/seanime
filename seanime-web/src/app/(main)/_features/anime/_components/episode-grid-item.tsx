@@ -1,7 +1,9 @@
 import { AL_BaseAnime } from "@/api/generated/types"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
+import { ProgressBar } from "@/components/ui/progress-bar"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import React from "react"
@@ -29,6 +31,8 @@ type EpisodeGridItemProps = {
     imageClassName?: string
     imageContainerClassName?: string
     episodeTitleClassName?: string
+    percentageComplete?: number
+    minutesRemaining?: number
 }
 
 export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
@@ -55,9 +59,12 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         length,
         actionIcon = props.actionIcon !== null ? <AiFillPlayCircle className="opacity-70 text-4xl" /> : undefined,
         episodeTitleClassName,
+        percentageComplete,
+        minutesRemaining,
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
     const ts = useThemeSettings()
 
     return <>
@@ -125,6 +132,11 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         }, imageClassName)}
                         data-src={image}
                     />}
+
+                    {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete && !isWatched) &&
+                        <div className="absolute bottom-0 left-0 w-full z-[3]">
+                            <ProgressBar value={percentageComplete} size="xs" />
+                        </div>}
                 </div>
 
                 <div className="relative overflow-hidden">

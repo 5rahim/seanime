@@ -199,7 +199,7 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 			}
 		}
 
-		if lf == nil || lf.MediaId == 0 {
+		if lf == nil || lf.MediaId == 0 || !lf.IsMain() {
 			return
 		}
 

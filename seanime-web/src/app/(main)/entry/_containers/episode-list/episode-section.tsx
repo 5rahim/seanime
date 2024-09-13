@@ -109,6 +109,8 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                 media={media}
                                 isWatched={!!entry.listData?.progress && entry.listData.progress >= episode.progressNumber}
                                 onPlay={playMediaFile}
+                                percentageComplete={getEpisodePercentageComplete(watchHistory, entry.mediaId, episode.episodeNumber)}
+                                minutesRemaining={getEpisodeMinutesRemaining(watchHistory, entry.mediaId, episode.episodeNumber)}
                             />
                         ))}
                     </EpisodeListGrid>

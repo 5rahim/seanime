@@ -3,7 +3,6 @@ package continuity
 import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
-	"seanime/internal/api/anilist"
 	"seanime/internal/database/db"
 	"seanime/internal/util/filecache"
 	"sync"
@@ -21,7 +20,6 @@ type (
 	Manager struct {
 		fileCacher                  *filecache.Cacher
 		db                          *db.Database
-		animeCollection             mo.Option[*anilist.AnimeCollection]
 		watchHistoryFileCacheBucket *filecache.Bucket
 
 		externalPlayerEpisodeDetails mo.Option[*ExternalPlayerEpisodeDetails]
@@ -62,7 +60,6 @@ func NewManager(opts *NewManagerOptions) *Manager {
 		fileCacher:                  opts.FileCacher,
 		logger:                      opts.Logger,
 		db:                          opts.Database,
-		animeCollection:             mo.None[*anilist.AnimeCollection](),
 		watchHistoryFileCacheBucket: &watchHistoryFileCacheBucket,
 		settings: &Settings{
 			WatchContinuityEnabled: false,
@@ -84,16 +81,6 @@ func (m *Manager) SetSettings(settings *Settings) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.settings = settings
-}
-
-func (m *Manager) SetAnimeCollection(collection *anilist.AnimeCollection) {
-	if m == nil || collection == nil {
-		return
-	}
-
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.animeCollection = mo.Some(collection)
 }
 
 // GetSettings returns the current settings.
