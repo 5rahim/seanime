@@ -1,6 +1,9 @@
 package models
 
 import (
+	"database/sql/driver"
+	"errors"
+	"strings"
 	"time"
 )
 
@@ -71,7 +74,34 @@ type LibrarySettings struct {
 	// v2.1+
 	AutoPlayNextEpisode bool `gorm:"column:auto_play_next_episode" json:"autoPlayNextEpisode"`
 	// v2.2+
-	EnableWatchContinuity bool `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
+	EnableWatchContinuity bool         `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
+	LibraryPaths          LibraryPaths `gorm:"column:library_paths;type:text" json:"libraryPaths"`
+}
+
+func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
+	ret = make([]string, len(o.LibraryPaths)+1)
+	ret[0] = o.LibraryPath
+	if len(o.LibraryPaths) > 0 {
+		copy(ret[1:], o.LibraryPaths)
+	}
+	return
+}
+
+type LibraryPaths []string
+
+func (o *LibraryPaths) Scan(src interface{}) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("src value cannot cast to string")
+	}
+	*o = strings.Split(str, ",")
+	return nil
+}
+func (o LibraryPaths) Value() (driver.Value, error) {
+	if len(o) == 0 {
+		return nil, nil
+	}
+	return strings.Join(o, ","), nil
 }
 
 type MangaSettings struct {

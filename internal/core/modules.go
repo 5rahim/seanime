@@ -358,7 +358,7 @@ func (a *App) InitOrRefreshModules() {
 	// Initialize library watcher
 	if settings.Library != nil && len(settings.Library.LibraryPath) > 0 {
 		go func() {
-			a.initLibraryWatcher(settings.Library.LibraryPath)
+			a.initLibraryWatcher(settings.Library.GetLibraryPaths())
 		}()
 	}
 

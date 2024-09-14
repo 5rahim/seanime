@@ -6,13 +6,17 @@ import (
 	"strings"
 )
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type DirectoryInfo struct {
 	FullPath   string `json:"fullPath"`
 	FolderName string `json:"folderName"`
 }
 
 type DirectorySelectorResponse struct {
+	FullPath    string          `json:"fullPath"`
 	Exists      bool            `json:"exists"`
+	BasePath    string          `json:"basePath"`
 	Suggestions []DirectoryInfo `json:"suggestions"`
 	Content     []DirectoryInfo `json:"content"`
 }
@@ -36,7 +40,7 @@ func HandleDirectorySelector(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	input := request.Input
+	input := filepath.ToSlash(filepath.Clean(request.Input))
 	directoryExists, err := checkDirectoryExists(input)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -54,6 +58,8 @@ func HandleDirectorySelector(c *RouteCtx) error {
 		}
 
 		return c.RespondWithData(DirectorySelectorResponse{
+			FullPath:    input,
+			BasePath:    filepath.ToSlash(filepath.Dir(input)),
 			Exists:      true,
 			Suggestions: suggestions,
 			Content:     content,
@@ -66,6 +72,8 @@ func HandleDirectorySelector(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(DirectorySelectorResponse{
+		FullPath:    input,
+		BasePath:    filepath.ToSlash(filepath.Dir(input)),
 		Exists:      false,
 		Suggestions: suggestions,
 	})

@@ -69,6 +69,7 @@ export const settingsSchema = z.object({
     autoPlayNextEpisode: z.boolean().optional().default(false),
     showActiveTorrentCount: z.boolean().optional().default(false),
     enableWatchContinuity: z.boolean().optional().default(false),
+    libraryPaths: z.array(z.string()).optional().default([]),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

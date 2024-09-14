@@ -2,6 +2,9 @@ package handlers
 
 import (
 	"errors"
+	"github.com/samber/lo"
+	"os"
+	"path/filepath"
 	"runtime"
 	"seanime/internal/database/models"
 	"seanime/internal/torrents/torrent"
@@ -52,6 +55,12 @@ func HandleGettingStarted(c *RouteCtx) error {
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
 	}
+
+	// Check settings
+	if b.Library.LibraryPaths == nil {
+		b.Library.LibraryPaths = []string{}
+	}
+	b.Library.LibraryPath = filepath.ToSlash(b.Library.LibraryPath)
 
 	settings, err := c.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
@@ -132,6 +141,42 @@ func HandleSaveSettings(c *RouteCtx) error {
 
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if b.Library.LibraryPath != "" {
+		b.Library.LibraryPath = filepath.ToSlash(filepath.Clean(b.Library.LibraryPath))
+	}
+
+	// Check settings
+	if b.Library.LibraryPaths == nil {
+		b.Library.LibraryPaths = []string{}
+	}
+
+	for i, path := range b.Library.LibraryPaths {
+		b.Library.LibraryPaths[i] = filepath.ToSlash(filepath.Clean(path))
+	}
+
+	b.Library.LibraryPaths = lo.Filter(b.Library.LibraryPaths, func(s string, _ int) bool {
+		if s == "" || util.IsSameDir(s, b.Library.LibraryPath) {
+			return false
+		}
+		info, err := os.Stat(s)
+		if err != nil {
+			return false
+		}
+		return info.IsDir()
+	})
+
+	// Check that any library paths are not subdirectories of each other
+	for i, path1 := range b.Library.LibraryPaths {
+		if util.IsSubdirectory(b.Library.LibraryPath, path1) || util.IsSubdirectory(path1, b.Library.LibraryPath) {
+			return c.RespondWithError(errors.New("library paths cannot be subdirectories of each other"))
+		}
+		for j, path2 := range b.Library.LibraryPaths {
+			if i != j && util.IsSubdirectory(path1, path2) {
+				return c.RespondWithError(errors.New("library paths cannot be subdirectories of each other"))
+			}
+		}
 	}
 
 	autoDownloaderSettings := models.AutoDownloaderSettings{}

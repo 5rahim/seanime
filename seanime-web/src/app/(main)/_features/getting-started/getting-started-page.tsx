@@ -80,6 +80,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         refreshLibraryOnStart: false,
                                         autoPlayNextEpisode: false,
                                         enableWatchContinuity: false,
+                                        libraryPaths: [],
                                     },
                                     manga: {
                                         defaultMangaProvider: "",

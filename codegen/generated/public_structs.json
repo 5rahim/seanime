@@ -22389,7 +22389,7 @@
       {
         "name": "MainPicture",
         "jsonName": "main_picture",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22398,7 +22398,7 @@
       {
         "name": "AlternativeTitles",
         "jsonName": "alternative_titles",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22425,7 +22425,7 @@
       {
         "name": "StartSeason",
         "jsonName": "start_season",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22518,7 +22518,7 @@
       {
         "name": "Node",
         "jsonName": "node",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22527,7 +22527,7 @@
       {
         "name": "ListStatus",
         "jsonName": "list_status",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22630,7 +22630,7 @@
       {
         "name": "MainPicture",
         "jsonName": "main_picture",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22639,7 +22639,7 @@
       {
         "name": "AlternativeTitles",
         "jsonName": "alternative_titles",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22759,7 +22759,7 @@
       {
         "name": "Node",
         "jsonName": "node",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22768,7 +22768,7 @@
       {
         "name": "ListStatus",
         "jsonName": "list_status",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -22991,7 +22991,7 @@
       {
         "name": "Categories",
         "jsonName": "categories",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -23551,7 +23551,7 @@
       {
         "name": "Companies",
         "jsonName": "companies",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": false,
         "public": true,
@@ -23569,7 +23569,7 @@
       {
         "name": "Type",
         "jsonName": "type",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": false,
         "public": true,
@@ -23599,7 +23599,7 @@
       {
         "name": "Data",
         "jsonName": "data",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": false,
         "public": true,
@@ -23789,7 +23789,7 @@
       {
         "name": "Seasons",
         "jsonName": "seasons",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -23837,7 +23837,7 @@
       {
         "name": "Data",
         "jsonName": "data",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": false,
         "public": true,
@@ -24578,7 +24578,7 @@
       {
         "name": "MediaPlayer",
         "jsonName": "MediaPlayer",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24765,7 +24765,7 @@
       {
         "name": "SecondarySettings",
         "jsonName": "SecondarySettings",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24900,7 +24900,7 @@
       {
         "name": "Server",
         "jsonName": "Server",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24909,7 +24909,7 @@
       {
         "name": "Database",
         "jsonName": "Database",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24918,7 +24918,7 @@
       {
         "name": "Web",
         "jsonName": "Web",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24927,7 +24927,7 @@
       {
         "name": "Logs",
         "jsonName": "Logs",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24936,7 +24936,7 @@
       {
         "name": "Cache",
         "jsonName": "Cache",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24945,7 +24945,7 @@
       {
         "name": "Offline",
         "jsonName": "Offline",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24954,7 +24954,7 @@
       {
         "name": "Manga",
         "jsonName": "Manga",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24963,7 +24963,7 @@
       {
         "name": "Data",
         "jsonName": "Data",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24972,7 +24972,7 @@
       {
         "name": "Extensions",
         "jsonName": "Extensions",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -24981,7 +24981,7 @@
       {
         "name": "Anilist",
         "jsonName": "Anilist",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -25623,6 +25623,16 @@
         "jsonName": "enableWatchContinuity",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibraryPaths",
+        "jsonName": "libraryPaths",
+        "goType": "LibraryPaths",
+        "typescriptType": "Models_LibraryPaths",
+        "usedStructName": "models.LibraryPaths",
         "required": true,
         "public": true,
         "comments": []
@@ -30437,10 +30447,28 @@
     "package": "handlers",
     "fields": [
       {
+        "name": "FullPath",
+        "jsonName": "fullPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Exists",
         "jsonName": "exists",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BasePath",
+        "jsonName": "basePath",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -30633,6 +30661,28 @@
     "comments": [
       " RouteCtx is a context object that is passed to route handlers.",
       " It contains the App instance and the Fiber context."
+    ]
+  },
+  {
+    "filepath": "../internal/handlers/status.go",
+    "filename": "status.go",
+    "name": "Settings",
+    "formattedName": "Settings",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "LibraryPaths",
+        "jsonName": "libraryPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.Settings"
     ]
   },
   {
@@ -34958,6 +35008,15 @@
         "comments": []
       },
       {
+        "name": "OtherDirPaths",
+        "jsonName": "OtherDirPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Enhanced",
         "jsonName": "Enhanced",
         "goType": "bool",
@@ -35168,11 +35227,11 @@
     "package": "scanner",
     "fields": [
       {
-        "name": "LibraryPath",
-        "jsonName": "LibraryPath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
+        "name": "LibraryPaths",
+        "jsonName": "LibraryPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -37057,7 +37116,7 @@
       {
         "name": "MuComics",
         "jsonName": "mu_comics",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -37066,7 +37125,7 @@
       {
         "name": "MdTitles",
         "jsonName": "md_titles",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -37075,7 +37134,7 @@
       {
         "name": "MdCovers",
         "jsonName": "md_covers",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -37148,7 +37207,7 @@
       {
         "name": "Links",
         "jsonName": "links",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -37328,7 +37387,7 @@
       {
         "name": "MdTitles",
         "jsonName": "md_titles",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -37337,7 +37396,7 @@
       {
         "name": "MdComicMdGenres",
         "jsonName": "md_comic_md_genres",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -37346,7 +37405,7 @@
       {
         "name": "MuComics",
         "jsonName": "mu_comics",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,
@@ -37355,7 +37414,7 @@
       {
         "name": "MdCovers",
         "jsonName": "md_covers",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -37500,7 +37559,7 @@
       {
         "name": "MdImages",
         "jsonName": "md_images",
-        "goType": "[]",
+        "goType": "[]__STRUCT__",
         "typescriptType": "Array\u003cany\u003e",
         "required": false,
         "public": true,
@@ -40130,7 +40189,7 @@
       {
         "name": "Category",
         "jsonName": "category",
-        "goType": "map[string]",
+        "goType": "map[string]__STRUCT__",
         "typescriptType": "Record\u003cstring, any\u003e",
         "required": false,
         "public": true,
@@ -49079,7 +49138,7 @@
       {
         "name": "sneedexNyaaIDs",
         "jsonName": "sneedexNyaaIDs",
-        "goType": "map[int]",
+        "goType": "map[int]__STRUCT__",
         "typescriptType": "Record\u003cnumber, any\u003e",
         "required": false,
         "public": false,
@@ -49563,7 +49622,7 @@
       {
         "name": "Expand",
         "jsonName": "expand",
-        "goType": "",
+        "goType": "__STRUCT__",
         "typescriptType": "any",
         "required": true,
         "public": true,

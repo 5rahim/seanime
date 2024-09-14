@@ -6348,7 +6348,7 @@
         {
           "name": "SmartSelect",
           "jsonName": "smartSelect",
-          "goType": "",
+          "goType": "__STRUCT__",
           "usedStructType": "",
           "typescriptType": "any",
           "required": true,

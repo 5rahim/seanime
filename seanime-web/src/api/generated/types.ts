@@ -2006,7 +2006,9 @@ export type DirectoryInfo = {
  * - Package: handlers
  */
 export type DirectorySelectorResponse = {
+    fullPath: string
     exists: boolean
+    basePath: string
     suggestions?: Array<DirectoryInfo>
     content?: Array<DirectoryInfo>
 }
@@ -2342,6 +2344,7 @@ export type Models_LibrarySettings = {
     refreshLibraryOnStart: boolean
     autoPlayNextEpisode: boolean
     enableWatchContinuity: boolean
+    libraryPaths: Models_LibraryPaths
 }
 
 /**

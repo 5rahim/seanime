@@ -1,84 +1,76 @@
-import { getServerBaseUrl } from "@/api/client/server-url"
-import { useImportLocalFiles } from "@/api/hooks/localfiles.hooks"
-import { Button } from "@/components/ui/button"
-import { Modal } from "@/components/ui/modal"
-import { TextInput } from "@/components/ui/text-input"
-import Link from "next/link"
+import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { Field } from "@/components/ui/form"
+import { Separator } from "@/components/ui/separator"
 import React from "react"
-import { CgImport } from "react-icons/cg"
-import { TbDatabaseExport } from "react-icons/tb"
+import { FcFolder } from "react-icons/fc"
 
-type DataSettingsProps = {
-    children?: React.ReactNode
+type LibrarySettingsProps = {
+    isPending: boolean
 }
 
-export function DataSettings(props: DataSettingsProps) {
+export function LibrarySettings(props: LibrarySettingsProps) {
 
     const {
-        children,
+        isPending,
         ...rest
     } = props
 
-    const { mutate: importLocalFiles, isPending: isImportingLocalFiles } = useImportLocalFiles()
-    const [localFileDataPath, setLocalFileDataPath] = React.useState("")
 
     return (
         <div className="space-y-4">
 
-            <div>
-                <h3>Local files</h3>
+            <Field.DirectorySelector
+                name="libraryPath"
+                label="Library directory"
+                leftIcon={<FcFolder />}
+                help="Directory where your media is located. (Keep the casing consistent)"
+                shouldExist
+            />
 
-                <p className="text-[--muted]">
-                    Scanned local file data.
-                </p>
-            </div>
+            <Field.MultiDirectorySelector
+                name="libraryPaths"
+                label="Additional library directories"
+                leftIcon={<FcFolder />}
+                help="Include additional directories if your library is spread across multiple locations."
+                shouldExist
+            />
 
-            <div className="flex flex-wrap gap-2">
-                <Link href={`${getServerBaseUrl()}/api/v1/library/local-files/dump`} target="_blank" className="block">
-                    <Button
-                        intent="primary-subtle"
-                        leftIcon={<TbDatabaseExport className="text-xl" />}
-                        size="md"
-                        disabled={isImportingLocalFiles}
-                    >
-                        Export local file data
-                    </Button>
-                </Link>
+            <Separator />
 
-                <Modal
-                    title="Import local files"
-                    trigger={
-                        <Button
-                            intent="white-subtle"
-                            leftIcon={<CgImport className="text-xl" />}
-                            size="md"
-                            disabled={isImportingLocalFiles}
-                        >
-                            Import local files
-                        </Button>
-                    }
-                >
-
+            <Field.Switch
+                name="autoScan"
+                label="Automatically refresh library"
+                help={<div>
+                    <p>If enabled, your library will be refreshed in the background when new files are added/deleted. Make sure to
+                       lock your files regularly.</p>
                     <p>
-                        This will overwrite your existing library data, make sure you have a backup.
+                        <em>Note:</em> This works best when single files are added/deleted. If you are adding a batch, not all
+                                       files
+                                       are guaranteed to be picked up.
                     </p>
+                </div>}
+            />
 
-                    <TextInput
-                        label="Data file path"
-                        help="The path to the JSON file containing the local file data."
-                        value={localFileDataPath}
-                        onValueChange={setLocalFileDataPath}
-                    />
+            <Field.Switch
+                name="refreshLibraryOnStart"
+                label="Refresh library on startup"
+                help={<div>
+                    <p>If enabled, your library will be refreshed in the background when the server starts. Make sure to
+                       lock your files regularly.</p>
+                    <p>
+                        <em>Note:</em> Visit the scan summary page to see the results.
+                    </p>
+                </div>}
+            />
 
-                    <Button
-                        intent="white"
-                        rounded
-                        onClick={() => importLocalFiles({ dataFilePath: localFileDataPath })}
-                        disabled={isImportingLocalFiles}
-                    >Import</Button>
+            <Field.Switch
+                name="enableWatchContinuity"
+                label="Enable watch continuity"
+                help="If enabled, Seanime will remember your watch progress and resume from where you left off."
+            />
 
-                </Modal>
-            </div>
+            <SettingsSubmitButton isPending={isPending} />
+
         </div>
     )
 }

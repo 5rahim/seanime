@@ -1,12 +1,14 @@
 "use client"
 
 import { DirectorySelector, DirectorySelectorProps } from "@/components/shared/directory-selector"
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { useDebounce } from "@/hooks/use-debounce"
 import { colord } from "colord"
 import React, { forwardRef, useMemo } from "react"
 import { HexColorPicker } from "react-colorful"
 import { Controller, FormState, get, useController, useFormContext } from "react-hook-form"
+import { BiPlus, BiTrash } from "react-icons/bi"
 import { useUpdateEffect } from "react-use"
 import { AddressInput, AddressInputProps } from "../address-input"
 import { Autocomplete, AutocompleteProps } from "../autocomplete"
@@ -409,6 +411,70 @@ const DirectorySelectorField = React.memo(withControlledInput(forwardRef<HTMLInp
     },
 )))
 
+type MultiDirectorySelectorFieldProps = Omit<DirectorySelectorProps, "onSelect" | "value"> & { value?: string[] }
+
+const MultiDirectorySelectorField = React.memo(withControlledInput(forwardRef<HTMLInputElement, FieldComponent<MultiDirectorySelectorFieldProps>>(
+    ({ value, onChange, shouldExist, label, help, ...props }, ref) => {
+        const context = useFormContext()
+        const controller = useController({ name: props.name })
+
+        const [paths, setPaths] = React.useState<string[]>([])
+
+        const defaultValue = useMemo(() => get(context.formState.defaultValues, props.name) ?? [], [])
+        React.useEffect(() => {
+            setPaths(defaultValue)
+        }, [])
+
+
+        React.useEffect(() => {
+            controller.field.onChange(paths.filter(p => p))
+        }, [paths])
+
+        return <div className="space-y-2">
+            <div>
+                {label && <label className="block text-md font-medium">{label}</label>}
+                {help && <p className="text-sm text-[--muted]">{help}</p>}
+            </div>
+            {paths?.map((v, i) => (
+                <div className="flex items-center gap-2">
+                    <div className="w-full">
+                        <DirectorySelector
+                            shouldExist={shouldExist}
+                            {...props}
+                            label="Directory"
+                            value={v ?? ""}
+                            defaultValue={v ?? ""}
+                            onSelect={value => {
+                                setPaths(prev => {
+                                    const newPaths = [...prev]
+                                    newPaths[i] = value
+                                    return newPaths
+                                })
+                            }}
+                            ref={ref}
+                            fieldClass="w-full"
+                        />
+                    </div>
+                    <IconButton
+                        rounded
+                        size="sm"
+                        intent="alert-subtle"
+                        icon={<BiTrash />}
+                        onClick={() => setPaths(prev => prev.filter((_, index) => index !== i))}
+                    />
+                </div>
+            ))}
+            <IconButton
+                rounded
+                size="sm"
+                intent="gray-subtle"
+                icon={<BiPlus />}
+                onClick={() => setPaths(prev => [...prev, ""])}
+            />
+        </div>
+    },
+)))
+
 export const Field = createPolymorphicComponent<"div", FieldProps, {
     Text: typeof TextInputField,
     Textarea: typeof TextareaField,
@@ -427,6 +493,7 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     Address: typeof AddressInputField
     SimpleDropzone: typeof SimpleDropzoneField
     DirectorySelector: typeof DirectorySelectorField
+    MultiDirectorySelector: typeof MultiDirectorySelectorField
     RadioCards: typeof RadioCardsField
     ColorPicker: typeof ColorPickerField
     Submit: typeof SubmitField
@@ -448,6 +515,7 @@ export const Field = createPolymorphicComponent<"div", FieldProps, {
     Address: AddressInputField,
     SimpleDropzone: SimpleDropzoneField,
     DirectorySelector: DirectorySelectorField,
+    MultiDirectorySelector: MultiDirectorySelectorField,
     ColorPicker: ColorPickerField,
     RadioCards: RadioCardsField,
     Submit: SubmitField,

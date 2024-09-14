@@ -38,7 +38,7 @@ func NewWatcher(opts *NewWatcherOptions) (*Watcher, error) {
 //----------------------------------------------------------------------------------------------------------------------
 
 type WatchLibraryFilesOptions struct {
-	LibraryPath string
+	LibraryPaths []string
 }
 
 // InitLibraryFileWatcher starts watching the specified directory and its subdirectories for file system events
@@ -47,7 +47,7 @@ func (w *Watcher) InitLibraryFileWatcher(opts *WatchLibraryFilesOptions) error {
 	watchDir := func(dir string) error {
 		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
-				return err
+				return nil
 			}
 			if info.IsDir() {
 				return w.Watcher.Add(path)
@@ -58,11 +58,13 @@ func (w *Watcher) InitLibraryFileWatcher(opts *WatchLibraryFilesOptions) error {
 	}
 
 	// Add the initial directory and its subdirectories to the watcher
-	if err := watchDir(opts.LibraryPath); err != nil {
-		return err
+	for _, path := range opts.LibraryPaths {
+		if err := watchDir(path); err != nil {
+			return err
+		}
 	}
 
-	w.Logger.Info().Msgf("watcher: Watching directory: \"%s\"", opts.LibraryPath)
+	w.Logger.Info().Msgf("watcher: Watching directories: %+v", opts.LibraryPaths)
 
 	return nil
 }

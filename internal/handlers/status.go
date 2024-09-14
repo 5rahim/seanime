@@ -13,6 +13,11 @@ import (
 	"strings"
 )
 
+type Settings struct {
+	*models.Settings
+	LibraryPaths []string `json:"libraryPaths"`
+}
+
 // Status is a struct containing the user data, settings, and OS.
 // It is used by the client in various places to access necessary information.
 type Status struct {

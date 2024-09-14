@@ -14,10 +14,13 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
+	"strings"
+	"sync"
 )
 
 type Scanner struct {
 	DirPath            string
+	OtherDirPaths      []string
 	Enhanced           bool
 	Platform           platform.Platform
 	Logger             *zerolog.Logger
@@ -56,6 +59,24 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
 	if err != nil {
 		return nil, err
+	}
+
+	localFilePathsMap := make(map[string]struct{})
+	for _, lf := range localFiles {
+		localFilePathsMap[strings.ToLower(lf.Path)] = struct{}{}
+	}
+
+	// Get local files from other directories
+	for _, dirPath := range scn.OtherDirPaths {
+		otherLocalFiles, err := GetLocalFilesFromDir(dirPath, scn.Logger)
+		if err != nil {
+			return nil, err
+		}
+		for _, lf := range otherLocalFiles {
+			if _, ok := localFilePathsMap[strings.ToLower(lf.Path)]; !ok {
+				localFiles = append(localFiles, lf)
+			}
+		}
 	}
 
 	if scn.ScanLogger != nil {
@@ -103,6 +124,22 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			return true
 		})
 	}
+
+	// Remove local files from both skipped and un-skipped files if they are not under any of the directories
+	allLibraries := []string{scn.DirPath}
+	allLibraries = append(allLibraries, scn.OtherDirPaths...)
+	localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
+		if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
+			return false
+		}
+		return true
+	})
+	skippedLfs = lo.Filter(skippedLfs, func(lf *anime.LocalFile, _ int) bool {
+		if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
+			return false
+		}
+		return true
+	})
 
 	// +---------------------+
 	// |  No files to scan   |
@@ -247,11 +284,20 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	// Merge skipped files with scanned files
 	// Only files that exist (this removes deleted/moved files)
 	if len(skippedLfs) > 0 {
-		for _, sf := range skippedLfs {
-			if filesystem.FileExists(sf.Path) {
-				localFiles = append(localFiles, sf)
-			}
+		wg := sync.WaitGroup{}
+		mu := sync.Mutex{}
+		wg.Add(len(skippedLfs))
+		for _, skippedLf := range skippedLfs {
+			go func(skippedLf *anime.LocalFile) {
+				defer wg.Done()
+				if filesystem.FileExists(skippedLf.Path) {
+					mu.Lock()
+					localFiles = append(localFiles, skippedLf)
+					mu.Unlock()
+				}
+			}(skippedLf)
 		}
+		wg.Wait()
 	}
 
 	scn.Logger.Info().Msg("scanner: Scan completed")

@@ -50,11 +50,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <MainLayout>
                 <div className="h-auto">
                     <TopNavbar />
-
                     <div>
                         {children}
                     </div>
-
                 </div>
             </MainLayout>
         </ServerDataWrapper>

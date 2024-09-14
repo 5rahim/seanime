@@ -31,6 +31,10 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+	additionalLibraryPaths, err := c.App.Database.GetAdditionalLibraryPathsFromSettings()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
 
 	if err = c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
@@ -58,6 +62,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	// Create a new scanner
 	sc := scanner.Scanner{
 		DirPath:            libraryPath,
+		OtherDirPaths:      additionalLibraryPaths,
 		Enhanced:           b.Enhanced,
 		Platform:           c.App.AnilistPlatform,
 		Logger:             c.App.Logger,
