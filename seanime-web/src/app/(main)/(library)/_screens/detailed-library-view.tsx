@@ -1,4 +1,4 @@
-import { Anime_AnimeEntryEpisode, Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
+import { Anime_Episode, Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
 import {
     __library_debouncedSearchInputAtom,
     __library_paramsAtom,
@@ -44,7 +44,7 @@ import { RiSignalTowerLine } from "react-icons/ri"
 
 type LibraryViewProps = {
     collectionList: Anime_LibraryCollectionList[]
-    continueWatchingList: Anime_AnimeEntryEpisode[]
+    continueWatchingList: Anime_Episode[]
     isLoading: boolean
     hasScanned: boolean
 }

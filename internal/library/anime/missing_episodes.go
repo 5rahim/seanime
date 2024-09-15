@@ -15,8 +15,8 @@ import (
 
 type (
 	MissingEpisodes struct {
-		Episodes         []*AnimeEntryEpisode `json:"episodes"`
-		SilencedEpisodes []*AnimeEntryEpisode `json:"silencedEpisodes"`
+		Episodes         []*Episode `json:"episodes"`
+		SilencedEpisodes []*Episode `json:"silencedEpisodes"`
 	}
 
 	NewMissingEpisodesOptions struct {
@@ -89,7 +89,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 	// Flatten
 	flattenedEpsToDownload := lo.Flatten(epsToDownload)
-	eps := lop.Map(flattenedEpsToDownload, func(item *AnimeEntryDownloadEpisode, _ int) *AnimeEntryEpisode {
+	eps := lop.Map(flattenedEpsToDownload, func(item *AnimeEntryDownloadEpisode, _ int) *Episode {
 		return item.Episode
 	})
 	// Sort
@@ -100,11 +100,11 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		return eps[i].BaseAnime.ID < eps[j].BaseAnime.ID
 	})
 
-	missing.Episodes = lo.Filter(eps, func(item *AnimeEntryEpisode, _ int) bool {
+	missing.Episodes = lo.Filter(eps, func(item *Episode, _ int) bool {
 		return !lo.Contains(opts.SilencedMediaIds, item.BaseAnime.ID)
 	})
 
-	missing.SilencedEpisodes = lo.Filter(eps, func(item *AnimeEntryEpisode, _ int) bool {
+	missing.SilencedEpisodes = lo.Filter(eps, func(item *Episode, _ int) bool {
 		return lo.Contains(opts.SilencedMediaIds, item.BaseAnime.ID)
 	})
 

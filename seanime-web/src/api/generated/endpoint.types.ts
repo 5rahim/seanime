@@ -1250,7 +1250,7 @@ export type TorrentClientAction_Variables = {
 export type TorrentClientDownload_Variables = {
     torrents: Array<HibikeTorrent_AnimeTorrent>
     destination: string
-    smartSelect: any
+    smartSelect: { enabled: boolean; missingEpisodeNumbers: Array<number>; }
     media?: AL_BaseAnime
 }
 

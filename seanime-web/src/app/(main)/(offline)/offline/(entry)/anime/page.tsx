@@ -1,6 +1,6 @@
 "use client"
 
-import { AL_BaseAnime, Anime_AnimeEntryEpisode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_Episode, Offline_AnimeEntry, Offline_AssetMapImageMap } from "@/api/generated/types"
 
 import { usePlaybackPlayVideo } from "@/api/hooks/playback_manager.hooks"
 import { OfflineMetaSection } from "@/app/(main)/(offline)/offline/(entry)/_components/offline-meta-section"
@@ -197,7 +197,7 @@ function EpisodeLists(props: EpisodeListsProps) {
 }
 
 const EpisodeItem = memo(({ episode, media, isWatched, onPlay }: {
-    episode: Anime_AnimeEntryEpisode,
+    episode: Anime_Episode,
     media: AL_BaseAnime,
     onPlay: ({ path }: { path: string }) => void,
     isWatched?: boolean

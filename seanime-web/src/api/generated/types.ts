@@ -1316,8 +1316,8 @@ export type Anime_AnimeEntry = {
     listData?: Anime_AnimeEntryListData
     libraryData?: Anime_AnimeEntryLibraryData
     downloadInfo?: Anime_AnimeEntryDownloadInfo
-    episodes?: Array<Anime_AnimeEntryEpisode>
-    nextEpisode?: Anime_AnimeEntryEpisode
+    episodes?: Array<Anime_Episode>
+    nextEpisode?: Anime_Episode
     localFiles?: Array<Anime_LocalFile>
     aniDBId: number
     currentEpisodeCount: number
@@ -1331,7 +1331,7 @@ export type Anime_AnimeEntry = {
 export type Anime_AnimeEntryDownloadEpisode = {
     episodeNumber: number
     aniDBEpisode: string
-    episode?: Anime_AnimeEntryEpisode
+    episode?: Anime_Episode
 }
 
 /**
@@ -1346,70 +1346,6 @@ export type Anime_AnimeEntryDownloadInfo = {
     hasInaccurateSchedule: boolean
     rewatch: boolean
     absoluteOffset: number
-}
-
-/**
- * - Filepath: internal/library/anime/episode.go
- * - Filename: episode.go
- * - Package: anime
- */
-export type Anime_AnimeEntryEpisode = {
-    type: Anime_LocalFileType
-    /**
-     * e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
-     */
-    displayTitle: string
-    /**
-     * e.g, "Shibuya Incident - Gate, Open"
-     */
-    episodeTitle: string
-    episodeNumber: number
-    /**
-     * AniDB episode number
-     */
-    aniDBEpisode?: string
-    absoluteEpisodeNumber: number
-    /**
-     * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
-     */
-    progressNumber: number
-    localFile?: Anime_LocalFile
-    /**
-     * Is in the local files
-     */
-    isDownloaded: boolean
-    /**
-     * (image, airDate, length, summary, overview)
-     */
-    episodeMetadata?: Anime_AnimeEntryEpisodeMetadata
-    /**
-     * (episode, aniDBEpisode, type...)
-     */
-    fileMetadata?: Anime_LocalFileMetadata
-    /**
-     * No AniDB data
-     */
-    isInvalid: boolean
-    /**
-     * Alerts the user that there is a discrepancy between AniList and AniDB
-     */
-    metadataIssue?: string
-    baseAnime?: AL_BaseAnime
-}
-
-/**
- * - Filepath: internal/library/anime/episode.go
- * - Filename: episode.go
- * - Package: anime
- */
-export type Anime_AnimeEntryEpisodeMetadata = {
-    aniDBId?: number
-    image?: string
-    airDate?: string
-    length?: number
-    summary?: string
-    overview?: string
-    isFiller?: boolean
 }
 
 /**
@@ -1471,12 +1407,76 @@ export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
 export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
 
 /**
+ * - Filepath: internal/library/anime/episode.go
+ * - Filename: episode.go
+ * - Package: anime
+ */
+export type Anime_Episode = {
+    type: Anime_LocalFileType
+    /**
+     * e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
+     */
+    displayTitle: string
+    /**
+     * e.g, "Shibuya Incident - Gate, Open"
+     */
+    episodeTitle: string
+    episodeNumber: number
+    /**
+     * AniDB episode number
+     */
+    aniDBEpisode?: string
+    absoluteEpisodeNumber: number
+    /**
+     * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
+     */
+    progressNumber: number
+    localFile?: Anime_LocalFile
+    /**
+     * Is in the local files
+     */
+    isDownloaded: boolean
+    /**
+     * (image, airDate, length, summary, overview)
+     */
+    episodeMetadata?: Anime_EpisodeMetadata
+    /**
+     * (episode, aniDBEpisode, type...)
+     */
+    fileMetadata?: Anime_LocalFileMetadata
+    /**
+     * No AniDB data
+     */
+    isInvalid: boolean
+    /**
+     * Alerts the user that there is a discrepancy between AniList and AniDB
+     */
+    metadataIssue?: string
+    baseAnime?: AL_BaseAnime
+}
+
+/**
+ * - Filepath: internal/library/anime/episode.go
+ * - Filename: episode.go
+ * - Package: anime
+ */
+export type Anime_EpisodeMetadata = {
+    aniDBId?: number
+    image?: string
+    airDate?: string
+    length?: number
+    summary?: string
+    overview?: string
+    isFiller?: boolean
+}
+
+/**
  * - Filepath: internal/library/anime/collection.go
  * - Filename: collection.go
  * - Package: anime
  */
 export type Anime_LibraryCollection = {
-    continueWatchingList?: Array<Anime_AnimeEntryEpisode>
+    continueWatchingList?: Array<Anime_Episode>
     lists?: Array<Anime_LibraryCollectionList>
     unmatchedLocalFiles?: Array<Anime_LocalFile>
     unmatchedGroups?: Array<Anime_UnmatchedGroup>
@@ -1594,8 +1594,8 @@ export type Anime_LocalFileType = "main" | "special" | "nc"
  * - Package: anime
  */
 export type Anime_MissingEpisodes = {
-    episodes?: Array<Anime_AnimeEntryEpisode>
-    silencedEpisodes?: Array<Anime_AnimeEntryEpisode>
+    episodes?: Array<Anime_Episode>
+    silencedEpisodes?: Array<Anime_Episode>
 }
 
 /**
@@ -1624,7 +1624,7 @@ export type Anime_Playlist = {
  * - Package: anime
  */
 export type Anime_StreamCollection = {
-    continueWatchingList?: Array<Anime_AnimeEntryEpisode>
+    continueWatchingList?: Array<Anime_Episode>
     anime?: Array<AL_BaseAnime>
     listData?: Record<number, Anime_AnimeEntryListData>
 }
@@ -2325,6 +2325,13 @@ export type Models_DiscordSettings = {
 }
 
 /**
+ * - Filepath: ..\internal\database\models\models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_LibraryPaths = Array<string>
+
+/**
  * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
@@ -2557,7 +2564,7 @@ export type Offline_AnimeEntry = {
     mediaId: number
     listData?: Offline_ListData
     media?: AL_BaseAnime
-    episodes?: Array<Anime_AnimeEntryEpisode>
+    episodes?: Array<Anime_Episode>
     downloadedAssets: boolean
 }
 
@@ -2779,7 +2786,7 @@ export type Torrent_Preview = {
     /**
      * nil if batch
      */
-    episode?: Anime_AnimeEntryEpisode
+    episode?: Anime_Episode
     torrent?: HibikeTorrent_AnimeTorrent
 }
 
@@ -2847,7 +2854,7 @@ export type Torrentstream_BatchHistoryResponse = {
  * - Package: torrentstream
  */
 export type Torrentstream_EpisodeCollection = {
-    episodes?: Array<Anime_AnimeEntryEpisode>
+    episodes?: Array<Anime_Episode>
     hasMappingError: boolean
 }
 

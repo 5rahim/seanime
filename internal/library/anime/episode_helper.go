@@ -1,26 +1,26 @@
 package anime
 
-func (e *AnimeEntryEpisode) GetEpisodeNumber() int {
+func (e *Episode) GetEpisodeNumber() int {
 	if e == nil {
 		return -1
 	}
 	return e.EpisodeNumber
 }
-func (e *AnimeEntryEpisode) GetProgressNumber() int {
+func (e *Episode) GetProgressNumber() int {
 	if e == nil {
 		return -1
 	}
 	return e.ProgressNumber
 }
 
-func (e *AnimeEntryEpisode) IsMain() bool {
+func (e *Episode) IsMain() bool {
 	if e == nil || e.LocalFile == nil {
 		return false
 	}
 	return e.LocalFile.IsMain()
 }
 
-func (e *AnimeEntryEpisode) GetLocalFile() *LocalFile {
+func (e *Episode) GetLocalFile() *LocalFile {
 	if e == nil {
 		return nil
 	}

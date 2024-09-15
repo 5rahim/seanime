@@ -1,4 +1,4 @@
-import { Anime_AnimeEntryEpisode, Anime_LibraryCollectionList } from "@/api/generated/types"
+import { Anime_Episode, Anime_LibraryCollectionList } from "@/api/generated/types"
 import { ContinueWatching } from "@/app/(main)/(library)/_containers/continue-watching"
 import { LibraryCollectionFilteredLists, LibraryCollectionLists } from "@/app/(main)/(library)/_containers/library-collection"
 import { __mainLibrary_paramsAtom, __mainLibrary_paramsInputAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
@@ -17,7 +17,7 @@ type LibraryViewProps = {
     genres: string[]
     collectionList: Anime_LibraryCollectionList[]
     filteredCollectionList: Anime_LibraryCollectionList[]
-    continueWatchingList: Anime_AnimeEntryEpisode[]
+    continueWatchingList: Anime_Episode[]
     isLoading: boolean
     hasScanned: boolean
 }

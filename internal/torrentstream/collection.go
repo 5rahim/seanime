@@ -13,7 +13,7 @@ type (
 	// StreamCollection is used to "complete" the anime.LibraryCollection if the user chooses
 	// to include torrent streams in the library view.
 	StreamCollection struct {
-		ContinueWatchingList []*anime.AnimeEntryEpisode        `json:"continueWatchingList"`
+		ContinueWatchingList []*anime.Episode                  `json:"continueWatchingList"`
 		Anime                []*anilist.BaseAnime              `json:"anime"`
 		ListData             map[int]*anime.AnimeEntryListData `json:"listData"`
 	}
@@ -48,7 +48,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 	}
 
 	ret := &StreamCollection{
-		ContinueWatchingList: make([]*anime.AnimeEntryEpisode, 0),
+		ContinueWatchingList: make([]*anime.Episode, 0),
 		Anime:                make([]*anilist.BaseAnime, 0),
 		ListData:             make(map[int]*anime.AnimeEntryListData),
 	}
@@ -115,7 +115,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			}
 
 			// Add the anime & episode
-			episode := anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
+			episode := anime.NewEpisode(&anime.NewEpisodeOptions{
 				LocalFile:            nil,
 				OptionalAniDBEpisode: anidbEpisode,
 				AnizipMedia:          anizipMedia,
@@ -129,7 +129,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 				episode.DisplayTitle = fmt.Sprintf("Episode %d", nextEpisodeToWatch)
 				episode.ProgressNumber = nextEpisodeToWatch
 				episode.EpisodeNumber = nextEpisodeToWatch
-				episode.EpisodeMetadata = &anime.AnimeEntryEpisodeMetadata{
+				episode.EpisodeMetadata = &anime.EpisodeMetadata{
 					Image: entry.GetMedia().GetBannerImageSafe(),
 				}
 			}

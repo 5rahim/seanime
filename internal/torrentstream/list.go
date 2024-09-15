@@ -11,8 +11,8 @@ import (
 
 type (
 	EpisodeCollection struct {
-		Episodes        []*anime.AnimeEntryEpisode `json:"episodes"`
-		HasMappingError bool                       `json:"hasMappingError"`
+		Episodes        []*anime.Episode `json:"episodes"`
+		HasMappingError bool             `json:"hasMappingError"`
 	}
 )
 
@@ -31,7 +31,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 
 	ec = &EpisodeCollection{
 		HasMappingError: false,
-		Episodes:        make([]*anime.AnimeEntryEpisode, 0),
+		Episodes:        make([]*anime.Episode, 0),
 	}
 
 	// +---------------------+
@@ -60,7 +60,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 			mediaWrapper := r.metadataProvider.NewMediaWrapper(baseAnime, nil)
 			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
 
-			episode := &anime.AnimeEntryEpisode{
+			episode := &anime.Episode{
 				Type:                  anime.LocalFileTypeMain,
 				DisplayTitle:          fmt.Sprintf("Episode %d", episodeNumber),
 				EpisodeTitle:          baseAnime.GetPreferredTitle(),
@@ -70,7 +70,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 				ProgressNumber:        episodeNumber,
 				LocalFile:             nil,
 				IsDownloaded:          false,
-				EpisodeMetadata: &anime.AnimeEntryEpisodeMetadata{
+				EpisodeMetadata: &anime.EpisodeMetadata{
 					AniDBId:  0,
 					Image:    episodeMetadata.Image,
 					AirDate:  "",
@@ -96,11 +96,11 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		return nil, fmt.Errorf("no episodes found")
 	}
 
-	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.AnimeEntryDownloadEpisode, i int) *anime.AnimeEntryEpisode {
+	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.AnimeEntryDownloadEpisode, i int) *anime.Episode {
 		return episode.Episode
 	})
 
-	slices.SortStableFunc(ec.Episodes, func(i, j *anime.AnimeEntryEpisode) int {
+	slices.SortStableFunc(ec.Episodes, func(i, j *anime.Episode) int {
 		return cmp.Compare(i.EpisodeNumber, j.EpisodeNumber)
 	})
 

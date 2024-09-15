@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Anime_AnimeEntryEpisode, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_Episode, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import { PlaybackTorrentStreaming, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import {
@@ -95,7 +95,7 @@ export function useHandleStartTorrentStream() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type TorrentStreamAutoplayInfo = {
-    allEpisodes: Anime_AnimeEntryEpisode[]
+    allEpisodes: Anime_Episode[]
     entry: Anime_AnimeEntry
     episodeNumber: number
     aniDBEpisode: string

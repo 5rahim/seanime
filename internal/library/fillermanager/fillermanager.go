@@ -190,7 +190,7 @@ func (fm *FillerManager) HydrateFillerData(e *anime.AnimeEntry) {
 		return
 	}
 
-	lop.ForEach(e.Episodes, func(ep *anime.AnimeEntryEpisode, _ int) {
+	lop.ForEach(e.Episodes, func(ep *anime.Episode, _ int) {
 		if ep == nil || ep.EpisodeMetadata == nil {
 			return
 		}
@@ -198,7 +198,7 @@ func (fm *FillerManager) HydrateFillerData(e *anime.AnimeEntry) {
 	})
 }
 
-func (fm *FillerManager) HydrateEpisodeFillerData(mId int, e *anime.AnimeEntryEpisode) {
+func (fm *FillerManager) HydrateEpisodeFillerData(mId int, e *anime.Episode) {
 	if fm == nil || e == nil {
 		return
 	}

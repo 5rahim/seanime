@@ -39,11 +39,11 @@ type (
 	// AnimeEntry is a snapshot of an anime list entry.
 	//  - Updates are made to this struct, then saved to the database.
 	AnimeEntry struct {
-		MediaId          int                        `json:"mediaId"`
-		ListData         *ListData                  `json:"listData"`
-		Media            *anilist.BaseAnime         `json:"media"`
-		Episodes         []*anime.AnimeEntryEpisode `json:"episodes"`
-		DownloadedAssets bool                       `json:"downloadedAssets"`
+		MediaId          int                `json:"mediaId"`
+		ListData         *ListData          `json:"listData"`
+		Media            *anilist.BaseAnime `json:"media"`
+		Episodes         []*anime.Episode   `json:"episodes"`
+		DownloadedAssets bool               `json:"downloadedAssets"`
 	}
 
 	// MangaEntry is a snapshot of a manga list entry.

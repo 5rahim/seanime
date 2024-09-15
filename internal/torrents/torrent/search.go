@@ -44,7 +44,7 @@ type (
 
 	// Preview contains the torrent and episode information
 	Preview struct {
-		Episode *anime.AnimeEntryEpisode    `json:"episode"` // nil if batch
+		Episode *anime.Episode              `json:"episode"` // nil if batch
 		Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
 	}
 	// SearchData is the struct returned by NewSmartSearch
@@ -291,12 +291,12 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		_, foundEp := anizipMedia.FindEpisode(strconv.Itoa(opts.searchOpts.EpisodeNumber))
 
 		if foundEp {
-			var episode *anime.AnimeEntryEpisode
+			var episode *anime.Episode
 
 			// Remove the episode if the parsed episode number is not the same as the search option
 			if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.anizipMedia.MustGet().GetOffset()) {
 				ep := opts.searchOpts.EpisodeNumber
-				episode = anime.NewAnimeEntryEpisode(&anime.NewAnimeEntryEpisodeOptions{
+				episode = anime.NewEpisode(&anime.NewEpisodeOptions{
 					LocalFile:            nil,
 					OptionalAniDBEpisode: strconv.Itoa(ep),
 					AnizipMedia:          anizipMedia,
@@ -318,7 +318,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 			}
 		}
 
-		var episode *anime.AnimeEntryEpisode
+		var episode *anime.Episode
 
 		// Remove the episode if the parsed episode number is not the same as the search option
 		if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.anizipMedia.MustGet().GetOffset()) {
@@ -327,7 +327,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 				displayTitle = fmt.Sprintf("Episode %s", parsedData.EpisodeNumber[0])
 			}
 			// If the episode number could not be found in the AniZip media, create a new episode
-			episode = &anime.AnimeEntryEpisode{
+			episode = &anime.Episode{
 				Type:                  anime.LocalFileTypeMain,
 				DisplayTitle:          displayTitle,
 				EpisodeTitle:          "",

@@ -9,27 +9,27 @@ import (
 )
 
 type (
-	// AnimeEntryEpisode represents a single episode of a media entry.
-	AnimeEntryEpisode struct {
-		Type                  LocalFileType              `json:"type"`
-		DisplayTitle          string                     `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
-		EpisodeTitle          string                     `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
-		EpisodeNumber         int                        `json:"episodeNumber"`
-		AniDBEpisode          string                     `json:"aniDBEpisode,omitempty"` // AniDB episode number
-		AbsoluteEpisodeNumber int                        `json:"absoluteEpisodeNumber"`
-		ProgressNumber        int                        `json:"progressNumber"` // Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
-		LocalFile             *LocalFile                 `json:"localFile"`
-		IsDownloaded          bool                       `json:"isDownloaded"`            // Is in the local files
-		EpisodeMetadata       *AnimeEntryEpisodeMetadata `json:"episodeMetadata"`         // (image, airDate, length, summary, overview)
-		FileMetadata          *LocalFileMetadata         `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
-		IsInvalid             bool                       `json:"isInvalid"`               // No AniDB data
-		MetadataIssue         string                     `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
-		BaseAnime             *anilist.BaseAnime         `json:"baseAnime,omitempty"`
+	// Episode represents a single episode of a media entry.
+	Episode struct {
+		Type                  LocalFileType      `json:"type"`
+		DisplayTitle          string             `json:"displayTitle"` // e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
+		EpisodeTitle          string             `json:"episodeTitle"` // e.g, "Shibuya Incident - Gate, Open"
+		EpisodeNumber         int                `json:"episodeNumber"`
+		AniDBEpisode          string             `json:"aniDBEpisode,omitempty"` // AniDB episode number
+		AbsoluteEpisodeNumber int                `json:"absoluteEpisodeNumber"`
+		ProgressNumber        int                `json:"progressNumber"` // Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
+		LocalFile             *LocalFile         `json:"localFile"`
+		IsDownloaded          bool               `json:"isDownloaded"`            // Is in the local files
+		EpisodeMetadata       *EpisodeMetadata   `json:"episodeMetadata"`         // (image, airDate, length, summary, overview)
+		FileMetadata          *LocalFileMetadata `json:"fileMetadata"`            // (episode, aniDBEpisode, type...)
+		IsInvalid             bool               `json:"isInvalid"`               // No AniDB data
+		MetadataIssue         string             `json:"metadataIssue,omitempty"` // Alerts the user that there is a discrepancy between AniList and AniDB
+		BaseAnime             *anilist.BaseAnime `json:"baseAnime,omitempty"`
 	}
 
-	// AnimeEntryEpisodeMetadata represents the metadata of a AnimeEntryEpisode.
+	// EpisodeMetadata represents the metadata of a Episode.
 	// Metadata is fetched from AniZip (AniDB) and, optionally, AniList (if AniZip is not available).
-	AnimeEntryEpisodeMetadata struct {
+	EpisodeMetadata struct {
 		AniDBId  int    `json:"aniDBId,omitempty"`
 		Image    string `json:"image,omitempty"`
 		AirDate  string `json:"airDate,omitempty"`
@@ -41,8 +41,8 @@ type (
 )
 
 type (
-	// NewAnimeEntryEpisodeOptions hold data used to create a new AnimeEntryEpisode.
-	NewAnimeEntryEpisodeOptions struct {
+	// NewEpisodeOptions hold data used to create a new Episode.
+	NewEpisodeOptions struct {
 		LocalFile            *LocalFile
 		AnizipMedia          *anizip.Media // optional
 		Media                *anilist.BaseAnime
@@ -55,24 +55,24 @@ type (
 		MetadataProvider *metadata.Provider // optional
 	}
 
-	// NewSimpleAnimeEntryEpisodeOptions hold data used to create a new AnimeEntryEpisode.
-	// Unlike NewAnimeEntryEpisodeOptions, this struct does not require AniZip data. It is used to list episodes without AniDB metadata.
-	NewSimpleAnimeEntryEpisodeOptions struct {
+	// NewSimpleEpisodeOptions hold data used to create a new Episode.
+	// Unlike NewEpisodeOptions, this struct does not require AniZip data. It is used to list episodes without AniDB metadata.
+	NewSimpleEpisodeOptions struct {
 		LocalFile    *LocalFile
 		Media        *anilist.BaseAnime
 		IsDownloaded bool
 	}
 )
 
-// NewAnimeEntryEpisode creates a new episode entity.
+// NewEpisode creates a new episode entity.
 //
 // It is used to list existing local files as episodes
 // OR list non-downloaded episodes by passing the `OptionalAniDBEpisode` parameter.
 //
 // `AnizipMedia` should be defined, but this is not always the case.
 // `LocalFile` is optional.
-func NewAnimeEntryEpisode(opts *NewAnimeEntryEpisodeOptions) *AnimeEntryEpisode {
-	entryEp := new(AnimeEntryEpisode)
+func NewEpisode(opts *NewEpisodeOptions) *Episode {
+	entryEp := new(Episode)
 	entryEp.BaseAnime = opts.Media
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
@@ -248,15 +248,15 @@ func NewAnimeEntryEpisode(opts *NewAnimeEntryEpisodeOptions) *AnimeEntryEpisode 
 	return entryEp
 }
 
-// NewEpisodeMetadata creates a new AnimeEntryEpisodeMetadata from an AniZip episode and AniList media.
+// NewEpisodeMetadata creates a new EpisodeMetadata from an AniZip episode and AniList media.
 // If the AniZip episode is nil, it will just set the image from the media.
 func NewEpisodeMetadata(
 	anizipMedia *anizip.Media,
 	episode *anizip.Episode,
 	media *anilist.BaseAnime,
 	metadataProvider *metadata.Provider,
-) *AnimeEntryEpisodeMetadata {
-	md := new(AnimeEntryEpisodeMetadata)
+) *EpisodeMetadata {
+	md := new(EpisodeMetadata)
 
 	// No AniZip data
 	if episode == nil {
@@ -284,13 +284,13 @@ func NewEpisodeMetadata(
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// NewSimpleAnimeEntryEpisode creates a AnimeEntryEpisode without AniDB metadata.
-func NewSimpleAnimeEntryEpisode(opts *NewSimpleAnimeEntryEpisodeOptions) *AnimeEntryEpisode {
-	entryEp := new(AnimeEntryEpisode)
+// NewSimpleEpisode creates a Episode without AniDB metadata.
+func NewSimpleEpisode(opts *NewSimpleEpisodeOptions) *Episode {
+	entryEp := new(Episode)
 	entryEp.BaseAnime = opts.Media
 	entryEp.DisplayTitle = ""
 	entryEp.EpisodeTitle = ""
-	entryEp.EpisodeMetadata = new(AnimeEntryEpisodeMetadata)
+	entryEp.EpisodeMetadata = new(EpisodeMetadata)
 
 	hydrated := false
 

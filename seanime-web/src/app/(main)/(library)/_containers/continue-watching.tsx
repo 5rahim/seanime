@@ -1,5 +1,5 @@
 "use client"
-import { Anime_AnimeEntryEpisode, Continuity_WatchHistory } from "@/api/generated/types"
+import { Anime_Episode, Continuity_WatchHistory } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
@@ -13,10 +13,10 @@ import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useDeferredValue, useEffect } from "react"
 
-export const __libraryHeaderEpisodeAtom = atom<Anime_AnimeEntryEpisode | null>(null)
+export const __libraryHeaderEpisodeAtom = atom<Anime_Episode | null>(null)
 
 export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
-    episodes: Anime_AnimeEntryEpisode[],
+    episodes: Anime_Episode[],
     isLoading: boolean
     linkTemplate?: string
 }) {
@@ -131,7 +131,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
 }
 
 const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: {
-    episode: Anime_AnimeEntryEpisode,
+    episode: Anime_Episode,
     mRef: React.RefObject<any>,
     overrideLink?: string
     watchHistory: Continuity_WatchHistory | undefined

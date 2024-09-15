@@ -29,7 +29,7 @@ func HandleGetTorrentstreamEpisodeCollection(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	lop.ForEach(ec.Episodes, func(e *anime.AnimeEntryEpisode, _ int) {
+	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
 		c.App.FillerManager.HydrateEpisodeFillerData(mId, e)
 	})
 

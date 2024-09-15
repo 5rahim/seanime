@@ -23,9 +23,9 @@ type (
 	}
 
 	AnimeEntryDownloadEpisode struct {
-		EpisodeNumber int                `json:"episodeNumber"`
-		AniDBEpisode  string             `json:"aniDBEpisode"`
-		Episode       *AnimeEntryEpisode `json:"episode"`
+		EpisodeNumber int      `json:"episodeNumber"`
+		AniDBEpisode  string   `json:"aniDBEpisode"`
+		Episode       *Episode `json:"episode"`
 	}
 )
 
@@ -193,7 +193,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 				str.EpisodeNumber = 0
 				str.AniDBEpisode = "S1"
 			}
-			str.Episode = NewAnimeEntryEpisode(&NewAnimeEntryEpisodeOptions{
+			str.Episode = NewEpisode(&NewEpisodeOptions{
 				LocalFile:            nil,
 				OptionalAniDBEpisode: str.AniDBEpisode,
 				AnizipMedia:          opts.AnizipMedia,

@@ -14,8 +14,8 @@ type (
 		Media                 *anilist.BaseAnime     `json:"media"`
 		AnimeEntryListData    *AnimeEntryListData    `json:"listData"`
 		AnimeEntryLibraryData *AnimeEntryLibraryData `json:"libraryData"`
-		Episodes              []*AnimeEntryEpisode   `json:"episodes"`
-		NextEpisode           *AnimeEntryEpisode     `json:"nextEpisode"`
+		Episodes              []*Episode             `json:"episodes"`
+		NextEpisode           *Episode               `json:"nextEpisode"`
 		LocalFiles            []*LocalFile           `json:"localFiles"`
 		CurrentEpisodeCount   int                    `json:"currentEpisodeCount"`
 	}
@@ -118,11 +118,11 @@ func (e *SimpleAnimeEntry) hydrateEntryEpisodeData() {
 	// |       Episodes      |
 	// +---------------------+
 
-	p := pool.NewWithResults[*AnimeEntryEpisode]()
+	p := pool.NewWithResults[*Episode]()
 	for _, lf := range e.LocalFiles {
 		lf := lf
-		p.Go(func() *AnimeEntryEpisode {
-			return NewSimpleAnimeEntryEpisode(&NewSimpleAnimeEntryEpisodeOptions{
+		p.Go(func() *Episode {
+			return NewSimpleEpisode(&NewSimpleEpisodeOptions{
 				LocalFile:    lf,
 				Media:        e.Media,
 				IsDownloaded: true,

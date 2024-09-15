@@ -6350,7 +6350,7 @@
           "jsonName": "smartSelect",
           "goType": "__STRUCT__",
           "usedStructType": "",
-          "typescriptType": "any",
+          "typescriptType": "{ enabled: boolean; missingEpisodeNumbers: Array\u003cnumber\u003e; }",
           "required": true,
           "descriptions": []
         },

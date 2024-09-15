@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { Anime_AnimeEntryEpisode, Mediastream_StreamType, Nullish } from "@/api/generated/types"
+import { Anime_Episode, Mediastream_StreamType, Nullish } from "@/api/generated/types"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -104,7 +104,7 @@ export const __mediastream_currentProgressAtom = atom(0)
 
 type HandleMediastreamProps = {
     playerRef: React.RefObject<MediaPlayerInstance>
-    episodes: Anime_AnimeEntryEpisode[]
+    episodes: Anime_Episode[]
     mediaId: Nullish<string | number>
 }
 

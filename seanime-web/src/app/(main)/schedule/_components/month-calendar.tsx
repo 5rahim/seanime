@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_AnimeEntryEpisode } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_Episode } from "@/api/generated/types"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
@@ -14,7 +14,7 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 type WeekCalendarProps = {
     children?: React.ReactNode
     media: AL_BaseAnime[]
-    missingEpisodes: Anime_AnimeEntryEpisode[]
+    missingEpisodes: Anime_Episode[]
 }
 
 const MAX_EVENT_COUNT = 5

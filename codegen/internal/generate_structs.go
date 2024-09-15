@@ -200,8 +200,39 @@ func getGoStructsFromFile(path string, info os.FileInfo) (structs []*GoStruct, e
 			structType, ok := typeSpec.Type.(*ast.StructType)
 			if ok {
 
-				goStruct := goStructFromStruct(path, info, genDecl, typeSpec, packageName, structType)
+				subStructs := make([]*GoStruct, 0)
+				for _, field := range structType.Fields.List {
+					if field.Names != nil && len(field.Names) > 0 {
+
+						subStructType, ok := field.Type.(*ast.StructType)
+						if ok {
+							name := fmt.Sprintf("%s_%s", typeSpec.Name.Name, field.Names[0].Name)
+							subStruct := goStructFromStruct(path, info, genDecl, name, packageName, subStructType)
+							subStructs = append(subStructs, subStruct)
+							continue
+						}
+
+					}
+				}
+
+				goStruct := goStructFromStruct(path, info, genDecl, typeSpec.Name.Name, packageName, structType)
+
+				// Replace struct fields with sub structs
+				for _, field := range goStruct.Fields {
+					if field.GoType == "__STRUCT__" {
+						for _, subStruct := range subStructs {
+							if subStruct.Name == fmt.Sprintf("%s_%s", typeSpec.Name.Name, field.Name) {
+								field.GoType = subStruct.FormattedName
+								field.TypescriptType = subStruct.FormattedName
+								field.UsedStructType = fmt.Sprintf("%s.%s", subStruct.Package, subStruct.Name)
+								break
+							}
+						}
+					}
+				}
+
 				structs = append(structs, goStruct)
+				structs = append(structs, subStructs...)
 				continue
 			}
 
@@ -258,7 +289,13 @@ func getGoStructsFromFile(path string, info os.FileInfo) (structs []*GoStruct, e
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func goStructFromStruct(path string, info os.FileInfo, genDecl *ast.GenDecl, typeSpec *ast.TypeSpec, packageName string, structType *ast.StructType) *GoStruct {
+// Example:
+//
+//	type User struct {
+//		ID   int    `json:"id"`
+//		Name string `json:"name"`
+//	}
+func goStructFromStruct(path string, info os.FileInfo, genDecl *ast.GenDecl, name string, packageName string, structType *ast.StructType) *GoStruct {
 	// Get comments
 	comments := make([]string, 0)
 	if genDecl.Doc != nil && genDecl.Doc.List != nil && len(genDecl.Doc.List) > 0 {
@@ -270,8 +307,8 @@ func goStructFromStruct(path string, info os.FileInfo, genDecl *ast.GenDecl, typ
 	goStruct := &GoStruct{
 		Filepath:            filepath.ToSlash(path),
 		Filename:            info.Name(),
-		Name:                typeSpec.Name.Name,
-		FormattedName:       getTypePrefix(packageName) + typeSpec.Name.Name,
+		Name:                name,
+		FormattedName:       getTypePrefix(packageName) + name,
 		Package:             packageName,
 		Fields:              make([]*GoStructField, 0),
 		EmbeddedStructTypes: make([]string, 0),
@@ -469,6 +506,13 @@ func fieldTypeToTypescriptType(fieldType ast.Expr, usedStructPkgName string) str
 			return "string"
 		}
 		return getTypePrefix(usedStructPkgName) + t.Sel.Name
+	case *ast.StructType:
+		s := "{ "
+		for _, field := range t.Fields.List {
+			s += jsonFieldName(field) + ": " + fieldTypeToTypescriptType(field.Type, usedStructPkgName) + "; "
+		}
+		s += "}"
+		return s
 	default:
 		return "any"
 	}

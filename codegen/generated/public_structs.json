@@ -22389,8 +22389,9 @@
       {
         "name": "MainPicture",
         "jsonName": "main_picture",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_BasicAnime_MainPicture",
+        "typescriptType": "MAL_BasicAnime_MainPicture",
+        "usedStructName": "mal.BasicAnime_MainPicture",
         "required": true,
         "public": true,
         "comments": []
@@ -22398,8 +22399,9 @@
       {
         "name": "AlternativeTitles",
         "jsonName": "alternative_titles",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_BasicAnime_AlternativeTitles",
+        "typescriptType": "MAL_BasicAnime_AlternativeTitles",
+        "usedStructName": "mal.BasicAnime_AlternativeTitles",
         "required": true,
         "public": true,
         "comments": []
@@ -22425,8 +22427,9 @@
       {
         "name": "StartSeason",
         "jsonName": "start_season",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_BasicAnime_StartSeason",
+        "typescriptType": "MAL_BasicAnime_StartSeason",
+        "usedStructName": "mal.BasicAnime_StartSeason",
         "required": true,
         "public": true,
         "comments": []
@@ -22511,6 +22514,99 @@
   {
     "filepath": "../internal/api/mal/anime.go",
     "filename": "anime.go",
+    "name": "BasicAnime_MainPicture",
+    "formattedName": "MAL_BasicAnime_MainPicture",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/anime.go",
+    "filename": "anime.go",
+    "name": "BasicAnime_AlternativeTitles",
+    "formattedName": "MAL_BasicAnime_AlternativeTitles",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "En",
+        "jsonName": "en",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ja",
+        "jsonName": "ja",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/anime.go",
+    "filename": "anime.go",
+    "name": "BasicAnime_StartSeason",
+    "formattedName": "MAL_BasicAnime_StartSeason",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Season",
+        "jsonName": "season",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/anime.go",
+    "filename": "anime.go",
     "name": "AnimeListEntry",
     "formattedName": "MAL_AnimeListEntry",
     "package": "mal",
@@ -22518,8 +22614,9 @@
       {
         "name": "Node",
         "jsonName": "node",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_AnimeListEntry_Node",
+        "typescriptType": "MAL_AnimeListEntry_Node",
+        "usedStructName": "mal.AnimeListEntry_Node",
         "required": true,
         "public": true,
         "comments": []
@@ -22527,8 +22624,102 @@
       {
         "name": "ListStatus",
         "jsonName": "list_status",
+        "goType": "MAL_AnimeListEntry_ListStatus",
+        "typescriptType": "MAL_AnimeListEntry_ListStatus",
+        "usedStructName": "mal.AnimeListEntry_ListStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/anime.go",
+    "filename": "anime.go",
+    "name": "AnimeListEntry_Node",
+    "formattedName": "MAL_AnimeListEntry_Node",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MainPicture",
+        "jsonName": "main_picture",
         "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "typescriptType": "{ medium: string; large: string; }",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/anime.go",
+    "filename": "anime.go",
+    "name": "AnimeListEntry_ListStatus",
+    "formattedName": "MAL_AnimeListEntry_ListStatus",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "MAL_MediaListStatus",
+        "usedStructName": "mal.MediaListStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRewatching",
+        "jsonName": "is_rewatching",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NumEpisodesWatched",
+        "jsonName": "num_episodes_watched",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updated_at",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -22630,8 +22821,9 @@
       {
         "name": "MainPicture",
         "jsonName": "main_picture",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_BasicManga_MainPicture",
+        "typescriptType": "MAL_BasicManga_MainPicture",
+        "usedStructName": "mal.BasicManga_MainPicture",
         "required": true,
         "public": true,
         "comments": []
@@ -22639,8 +22831,9 @@
       {
         "name": "AlternativeTitles",
         "jsonName": "alternative_titles",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_BasicManga_AlternativeTitles",
+        "typescriptType": "MAL_BasicManga_AlternativeTitles",
+        "usedStructName": "mal.BasicManga_AlternativeTitles",
         "required": true,
         "public": true,
         "comments": []
@@ -22752,6 +22945,71 @@
   {
     "filepath": "../internal/api/mal/manga.go",
     "filename": "manga.go",
+    "name": "BasicManga_MainPicture",
+    "formattedName": "MAL_BasicManga_MainPicture",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Medium",
+        "jsonName": "medium",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Large",
+        "jsonName": "large",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/manga.go",
+    "filename": "manga.go",
+    "name": "BasicManga_AlternativeTitles",
+    "formattedName": "MAL_BasicManga_AlternativeTitles",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Synonyms",
+        "jsonName": "synonyms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "En",
+        "jsonName": "en",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ja",
+        "jsonName": "ja",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/manga.go",
+    "filename": "manga.go",
     "name": "MangaListEntry",
     "formattedName": "MAL_MangaListEntry",
     "package": "mal",
@@ -22759,8 +23017,9 @@
       {
         "name": "Node",
         "jsonName": "node",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "MAL_MangaListEntry_Node",
+        "typescriptType": "MAL_MangaListEntry_Node",
+        "usedStructName": "mal.MangaListEntry_Node",
         "required": true,
         "public": true,
         "comments": []
@@ -22768,8 +23027,111 @@
       {
         "name": "ListStatus",
         "jsonName": "list_status",
+        "goType": "MAL_MangaListEntry_ListStatus",
+        "typescriptType": "MAL_MangaListEntry_ListStatus",
+        "usedStructName": "mal.MangaListEntry_ListStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/manga.go",
+    "filename": "manga.go",
+    "name": "MangaListEntry_Node",
+    "formattedName": "MAL_MangaListEntry_Node",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MainPicture",
+        "jsonName": "main_picture",
         "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "typescriptType": "{ medium: string; large: string; }",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/mal/manga.go",
+    "filename": "manga.go",
+    "name": "MangaListEntry_ListStatus",
+    "formattedName": "MAL_MangaListEntry_ListStatus",
+    "package": "mal",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "MediaListStatus",
+        "typescriptType": "MAL_MediaListStatus",
+        "usedStructName": "mal.MediaListStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsRereading",
+        "jsonName": "is_rereading",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NumVolumesRead",
+        "jsonName": "num_volumes_read",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NumChaptersRead",
+        "jsonName": "num_chapters_read",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Score",
+        "jsonName": "score",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updated_at",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -22992,7 +23354,7 @@
         "name": "Categories",
         "jsonName": "categories",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ type: string; items: Array\u003cSearchResultAnime\u003e; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -23551,8 +23913,9 @@
       {
         "name": "Companies",
         "jsonName": "companies",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "TVDB_ExtendedSeriesResponse_Season_Companies",
+        "typescriptType": "TVDB_ExtendedSeriesResponse_Season_Companies",
+        "usedStructName": "tvdb.ExtendedSeriesResponse_Season_Companies",
         "required": false,
         "public": true,
         "comments": []
@@ -23569,8 +23932,9 @@
       {
         "name": "Type",
         "jsonName": "type",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "TVDB_ExtendedSeriesResponse_Season_Type",
+        "typescriptType": "TVDB_ExtendedSeriesResponse_Season_Type",
+        "usedStructName": "tvdb.ExtendedSeriesResponse_Season_Type",
         "required": false,
         "public": true,
         "comments": []
@@ -23578,6 +23942,111 @@
       {
         "name": "Year",
         "jsonName": "year",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      "goland:noinspection GoSnakeCaseUsage"
+    ]
+  },
+  {
+    "filepath": "../internal/api/tvdb/responses.go",
+    "filename": "responses.go",
+    "name": "ExtendedSeriesResponse_Season_Companies",
+    "formattedName": "TVDB_ExtendedSeriesResponse_Season_Companies",
+    "package": "tvdb",
+    "fields": [
+      {
+        "name": "Studio",
+        "jsonName": "studio",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Network",
+        "jsonName": "network",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Production",
+        "jsonName": "production",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Distributor",
+        "jsonName": "distributor",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SpecialEffects",
+        "jsonName": "special_effects",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      "goland:noinspection GoSnakeCaseUsage"
+    ]
+  },
+  {
+    "filepath": "../internal/api/tvdb/responses.go",
+    "filename": "responses.go",
+    "name": "ExtendedSeriesResponse_Season_Type",
+    "formattedName": "TVDB_ExtendedSeriesResponse_Season_Type",
+    "package": "tvdb",
+    "fields": [
+      {
+        "name": "AlternateName",
+        "jsonName": "alternateName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
@@ -23600,7 +24069,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "typescriptType": "{ seasons: Array\u003cExtendedSeriesResponse_Season\u003e; }",
         "required": false,
         "public": true,
         "comments": []
@@ -23790,7 +24259,7 @@
         "name": "Seasons",
         "jsonName": "seasons",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ id: number; image: string; imageType: number; lastUpdated: string; name: string; nameTranslations: Array\u003cstring\u003e; number: number; overviewTranslations: Array\u003cstring\u003e; companies: { studio: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; network: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; production: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; distributor: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; special_effects: Array\u003c{ activeDate: string; aliases: Array\u003c{ language: string; name: string; }\u003e; country: string; id: number; inactiveDate: string; name: string; nameTranslations: Array\u003cstring\u003e; overviewTranslations: Array\u003cstring\u003e; primaryCompanyType: number; slug: string; parentCompany: { id: number; name: string; relation: { id: number; typeName: string; }; }; tagOptions: Array\u003c{ helpText: string; id: number; name: string; tag: number; tagName: string; }\u003e; }\u003e; }; seriesId: number; type: { alternateName: string; id: number; name: string; type: string; }; year: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -23838,7 +24307,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "typescriptType": "{ episodes: Array\u003cExtendedSeasonsResponse_Episode\u003e; }",
         "required": false,
         "public": true,
         "comments": []
@@ -24578,8 +25047,9 @@
       {
         "name": "MediaPlayer",
         "jsonName": "MediaPlayer",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_App_MediaPlayer",
+        "typescriptType": "INTERNAL_App_MediaPlayer",
+        "usedStructName": "core.App_MediaPlayer",
         "required": true,
         "public": true,
         "comments": []
@@ -24765,8 +25235,9 @@
       {
         "name": "SecondarySettings",
         "jsonName": "SecondarySettings",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_App_SecondarySettings",
+        "typescriptType": "INTERNAL_App_SecondarySettings",
+        "usedStructName": "core.App_SecondarySettings",
         "required": true,
         "public": true,
         "comments": [
@@ -24882,6 +25353,76 @@
     "comments": []
   },
   {
+    "filepath": "../internal/core/app.go",
+    "filename": "app.go",
+    "name": "App_MediaPlayer",
+    "formattedName": "INTERNAL_App_MediaPlayer",
+    "package": "core",
+    "fields": [
+      {
+        "name": "VLC",
+        "jsonName": "VLC",
+        "goType": "vlc.VLC",
+        "typescriptType": "VLC",
+        "usedStructName": "vlc.VLC",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MpcHc",
+        "jsonName": "MpcHc",
+        "goType": "mpchc.MpcHc",
+        "typescriptType": "MpcHc",
+        "usedStructName": "mpchc.MpcHc",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Mpv",
+        "jsonName": "Mpv",
+        "goType": "mpv.Mpv",
+        "typescriptType": "Mpv",
+        "usedStructName": "mpv.Mpv",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/app.go",
+    "filename": "app.go",
+    "name": "App_SecondarySettings",
+    "formattedName": "INTERNAL_App_SecondarySettings",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Mediastream",
+        "jsonName": "Mediastream",
+        "goType": "models.MediastreamSettings",
+        "typescriptType": "Models_MediastreamSettings",
+        "usedStructName": "models.MediastreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Torrentstream",
+        "jsonName": "Torrentstream",
+        "goType": "models.TorrentstreamSettings",
+        "typescriptType": "Models_TorrentstreamSettings",
+        "usedStructName": "models.TorrentstreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/core/config.go",
     "filename": "config.go",
     "name": "Config",
@@ -24900,8 +25441,9 @@
       {
         "name": "Server",
         "jsonName": "Server",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Server",
+        "typescriptType": "INTERNAL_Config_Server",
+        "usedStructName": "core.Config_Server",
         "required": true,
         "public": true,
         "comments": []
@@ -24909,8 +25451,9 @@
       {
         "name": "Database",
         "jsonName": "Database",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Database",
+        "typescriptType": "INTERNAL_Config_Database",
+        "usedStructName": "core.Config_Database",
         "required": true,
         "public": true,
         "comments": []
@@ -24918,8 +25461,9 @@
       {
         "name": "Web",
         "jsonName": "Web",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Web",
+        "typescriptType": "INTERNAL_Config_Web",
+        "usedStructName": "core.Config_Web",
         "required": true,
         "public": true,
         "comments": []
@@ -24927,8 +25471,9 @@
       {
         "name": "Logs",
         "jsonName": "Logs",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Logs",
+        "typescriptType": "INTERNAL_Config_Logs",
+        "usedStructName": "core.Config_Logs",
         "required": true,
         "public": true,
         "comments": []
@@ -24936,8 +25481,9 @@
       {
         "name": "Cache",
         "jsonName": "Cache",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Cache",
+        "typescriptType": "INTERNAL_Config_Cache",
+        "usedStructName": "core.Config_Cache",
         "required": true,
         "public": true,
         "comments": []
@@ -24945,8 +25491,9 @@
       {
         "name": "Offline",
         "jsonName": "Offline",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Offline",
+        "typescriptType": "INTERNAL_Config_Offline",
+        "usedStructName": "core.Config_Offline",
         "required": true,
         "public": true,
         "comments": []
@@ -24954,8 +25501,9 @@
       {
         "name": "Manga",
         "jsonName": "Manga",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Manga",
+        "typescriptType": "INTERNAL_Config_Manga",
+        "usedStructName": "core.Config_Manga",
         "required": true,
         "public": true,
         "comments": []
@@ -24963,8 +25511,9 @@
       {
         "name": "Data",
         "jsonName": "Data",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Data",
+        "typescriptType": "INTERNAL_Config_Data",
+        "usedStructName": "core.Config_Data",
         "required": true,
         "public": true,
         "comments": []
@@ -24972,8 +25521,9 @@
       {
         "name": "Extensions",
         "jsonName": "Extensions",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Extensions",
+        "typescriptType": "INTERNAL_Config_Extensions",
+        "usedStructName": "core.Config_Extensions",
         "required": true,
         "public": true,
         "comments": []
@@ -24981,8 +25531,264 @@
       {
         "name": "Anilist",
         "jsonName": "Anilist",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "INTERNAL_Config_Anilist",
+        "typescriptType": "INTERNAL_Config_Anilist",
+        "usedStructName": "core.Config_Anilist",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Server",
+    "formattedName": "INTERNAL_Config_Server",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Port",
+        "jsonName": "Port",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Offline",
+        "jsonName": "Offline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseBinaryPath",
+        "jsonName": "UseBinaryPath",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Makes $SEANIME_WORKING_DIR point to the binary's directory"
+        ]
+      },
+      {
+        "name": "Systray",
+        "jsonName": "Systray",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Database",
+    "formattedName": "INTERNAL_Config_Database",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Web",
+    "formattedName": "INTERNAL_Config_Web",
+    "package": "core",
+    "fields": [
+      {
+        "name": "AssetDir",
+        "jsonName": "AssetDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Logs",
+    "formattedName": "INTERNAL_Config_Logs",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Dir",
+        "jsonName": "Dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Cache",
+    "formattedName": "INTERNAL_Config_Cache",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Dir",
+        "jsonName": "Dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TranscodeDir",
+        "jsonName": "TranscodeDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Offline",
+    "formattedName": "INTERNAL_Config_Offline",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Dir",
+        "jsonName": "Dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AssetDir",
+        "jsonName": "AssetDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Manga",
+    "formattedName": "INTERNAL_Config_Manga",
+    "package": "core",
+    "fields": [
+      {
+        "name": "DownloadDir",
+        "jsonName": "DownloadDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Data",
+    "formattedName": "INTERNAL_Config_Data",
+    "package": "core",
+    "fields": [
+      {
+        "name": "AppDataDir",
+        "jsonName": "AppDataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WorkingDir",
+        "jsonName": "WorkingDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Extensions",
+    "formattedName": "INTERNAL_Config_Extensions",
+    "package": "core",
+    "fields": [
+      {
+        "name": "Dir",
+        "jsonName": "Dir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
+    "name": "Config_Anilist",
+    "formattedName": "INTERNAL_Config_Anilist",
+    "package": "core",
+    "fields": [
+      {
+        "name": "ClientID",
+        "jsonName": "ClientID",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -25639,6 +26445,20 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "..\\internal\\database\\models\\models.go",
+    "filename": "models.go",
+    "name": "LibraryPaths",
+    "formattedName": "Models_LibraryPaths",
+    "package": "models",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]string",
+      "typescriptType": "Array\u003cstring\u003e",
+      "declaredValues": null
+    },
+    "comments": null
   },
   {
     "filepath": "../internal/database/models/models.go",
@@ -30666,28 +31486,6 @@
   {
     "filepath": "../internal/handlers/status.go",
     "filename": "status.go",
-    "name": "Settings",
-    "formattedName": "Settings",
-    "package": "handlers",
-    "fields": [
-      {
-        "name": "LibraryPaths",
-        "jsonName": "libraryPaths",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "models.Settings"
-    ]
-  },
-  {
-    "filepath": "../internal/handlers/status.go",
-    "filename": "status.go",
     "name": "Status",
     "formattedName": "Status",
     "package": "handlers",
@@ -30891,9 +31689,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -30901,9 +31699,9 @@
       {
         "name": "NextEpisode",
         "jsonName": "nextEpisode",
-        "goType": "AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "Episode",
+        "typescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -31159,9 +31957,9 @@
       {
         "name": "Episode",
         "jsonName": "episode",
-        "goType": "AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "Episode",
+        "typescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -31344,9 +32142,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -31354,9 +32152,9 @@
       {
         "name": "NextEpisode",
         "jsonName": "nextEpisode",
-        "goType": "AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "Episode",
+        "typescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -31638,9 +32436,9 @@
       {
         "name": "ContinueWatchingList",
         "jsonName": "continueWatchingList",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -31730,9 +32528,9 @@
       {
         "name": "ContinueWatchingList",
         "jsonName": "continueWatchingList",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -32062,8 +32860,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "AnimeEntryEpisode",
-    "formattedName": "Anime_AnimeEntryEpisode",
+    "name": "Episode",
+    "formattedName": "Anime_Episode",
     "package": "anime",
     "fields": [
       {
@@ -32162,9 +32960,9 @@
       {
         "name": "EpisodeMetadata",
         "jsonName": "episodeMetadata",
-        "goType": "AnimeEntryEpisodeMetadata",
-        "typescriptType": "Anime_AnimeEntryEpisodeMetadata",
-        "usedStructName": "anime.AnimeEntryEpisodeMetadata",
+        "goType": "EpisodeMetadata",
+        "typescriptType": "Anime_EpisodeMetadata",
+        "usedStructName": "anime.EpisodeMetadata",
         "required": false,
         "public": true,
         "comments": [
@@ -32221,8 +33019,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "AnimeEntryEpisodeMetadata",
-    "formattedName": "Anime_AnimeEntryEpisodeMetadata",
+    "name": "EpisodeMetadata",
+    "formattedName": "Anime_EpisodeMetadata",
     "package": "anime",
     "fields": [
       {
@@ -32294,8 +33092,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "NewAnimeEntryEpisodeOptions",
-    "formattedName": "Anime_NewAnimeEntryEpisodeOptions",
+    "name": "NewEpisodeOptions",
+    "formattedName": "Anime_NewEpisodeOptions",
     "package": "anime",
     "fields": [
       {
@@ -32375,8 +33173,8 @@
   {
     "filepath": "../internal/library/anime/episode.go",
     "filename": "episode.go",
-    "name": "NewSimpleAnimeEntryEpisodeOptions",
-    "formattedName": "Anime_NewSimpleAnimeEntryEpisodeOptions",
+    "name": "NewSimpleEpisodeOptions",
+    "formattedName": "Anime_NewSimpleEpisodeOptions",
     "package": "anime",
     "fields": [
       {
@@ -32414,16 +33212,16 @@
   {
     "filepath": "../internal/library/anime/episode_collection.go",
     "filename": "episode_collection.go",
-    "name": "AnimeEntryEpisodeCollection",
-    "formattedName": "Anime_AnimeEntryEpisodeCollection",
+    "name": "EpisodeCollection",
+    "formattedName": "Anime_EpisodeCollection",
     "package": "anime",
     "fields": [
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -32762,9 +33560,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -32772,9 +33570,9 @@
       {
         "name": "SilencedEpisodes",
         "jsonName": "silencedEpisodes",
-        "goType": "[]AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -37116,8 +37914,9 @@
       {
         "name": "MuComics",
         "jsonName": "mu_comics",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "Manga_ComicKResultItem_MuComics",
+        "typescriptType": "Manga_ComicKResultItem_MuComics",
+        "usedStructName": "manga_providers.ComicKResultItem_MuComics",
         "required": true,
         "public": true,
         "comments": []
@@ -37126,7 +37925,7 @@
         "name": "MdTitles",
         "jsonName": "md_titles",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ title: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -37135,7 +37934,7 @@
         "name": "MdCovers",
         "jsonName": "md_covers",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ w: number; h: number; b2key: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -37145,6 +37944,25 @@
         "jsonName": "highlight",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/providers/comick.go",
+    "filename": "comick.go",
+    "name": "ComicKResultItem_MuComics",
+    "formattedName": "Manga_ComicKResultItem_MuComics",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
         "required": true,
         "public": true,
         "comments": []
@@ -37207,8 +38025,9 @@
       {
         "name": "Links",
         "jsonName": "links",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "Manga_Comic_Links",
+        "typescriptType": "Manga_Comic_Links",
+        "usedStructName": "manga_providers.Comic_Links",
         "required": true,
         "public": true,
         "comments": []
@@ -37388,7 +38207,7 @@
         "name": "MdTitles",
         "jsonName": "md_titles",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ title: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -37397,7 +38216,7 @@
         "name": "MdComicMdGenres",
         "jsonName": "md_comic_md_genres",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ md_genres: { name: string; type: any; slug: string; group: string; }; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -37405,8 +38224,9 @@
       {
         "name": "MuComics",
         "jsonName": "mu_comics",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "Manga_Comic_MuComics",
+        "typescriptType": "Manga_Comic_MuComics",
+        "usedStructName": "manga_providers.Comic_MuComics",
         "required": true,
         "public": true,
         "comments": []
@@ -37415,7 +38235,7 @@
         "name": "MdCovers",
         "jsonName": "md_covers",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ vol: any; w: number; h: number; b2key: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -37444,6 +38264,134 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/providers/comick.go",
+    "filename": "comick.go",
+    "name": "Comic_Links",
+    "formattedName": "Manga_Comic_Links",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "AL",
+        "jsonName": "al",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AP",
+        "jsonName": "ap",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BW",
+        "jsonName": "bw",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "KT",
+        "jsonName": "kt",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MU",
+        "jsonName": "mu",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AMZ",
+        "jsonName": "amz",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CDJ",
+        "jsonName": "cdj",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EBJ",
+        "jsonName": "ebj",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MAL",
+        "jsonName": "mal",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RAW",
+        "jsonName": "raw",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/manga/providers/comick.go",
+    "filename": "comick.go",
+    "name": "Comic_MuComics",
+    "formattedName": "Manga_Comic_MuComics",
+    "package": "manga_providers",
+    "fields": [
+      {
+        "name": "LicensedInEnglish",
+        "jsonName": "licensed_in_english",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MuComicCategories",
+        "jsonName": "mu_comic_categories",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ mu_categories: { title: string; slug: string; }; positive_vote: number; negative_vote: number; }\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -37560,7 +38508,7 @@
         "name": "MdImages",
         "jsonName": "md_images",
         "goType": "[]__STRUCT__",
-        "typescriptType": "Array\u003cany\u003e",
+        "typescriptType": "Array\u003c{ name: string; w: number; h: number; s: number; b2key: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -40190,7 +41138,7 @@
         "name": "Category",
         "jsonName": "category",
         "goType": "map[string]__STRUCT__",
-        "typescriptType": "Record\u003cstring, any\u003e",
+        "typescriptType": "Record\u003cstring, { filename: string; Codec: string; Channels: string; Bits_per_sample: string; Type: string; Sample_rate: string; }\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -42938,9 +43886,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]anime.AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -49139,7 +50087,7 @@
         "name": "sneedexNyaaIDs",
         "jsonName": "sneedexNyaaIDs",
         "goType": "map[int]__STRUCT__",
-        "typescriptType": "Record\u003cnumber, any\u003e",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
         "required": false,
         "public": false,
         "comments": []
@@ -49622,8 +50570,9 @@
       {
         "name": "Expand",
         "jsonName": "expand",
-        "goType": "__STRUCT__",
-        "typescriptType": "any",
+        "goType": "RecordItem_Expand",
+        "typescriptType": "RecordItem_Expand",
+        "usedStructName": "seadex.RecordItem_Expand",
         "required": true,
         "public": true,
         "comments": []
@@ -49679,6 +50628,26 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/torrents/seadex/types.go",
+    "filename": "types.go",
+    "name": "RecordItem_Expand",
+    "formattedName": "RecordItem_Expand",
+    "package": "seadex",
+    "fields": [
+      {
+        "name": "Trs",
+        "jsonName": "trs",
+        "goType": "[]Tr",
+        "typescriptType": "Array\u003cTr\u003e",
+        "usedStructName": "seadex.Tr",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -50073,9 +51042,9 @@
       {
         "name": "Episode",
         "jsonName": "episode",
-        "goType": "anime.AnimeEntryEpisode",
-        "typescriptType": "Anime_AnimeEntryEpisode",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "anime.Episode",
+        "typescriptType": "Anime_Episode",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": [
@@ -50341,9 +51310,9 @@
       {
         "name": "ContinueWatchingList",
         "jsonName": "continueWatchingList",
-        "goType": "[]anime.AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []
@@ -50491,9 +51460,9 @@
       {
         "name": "Episodes",
         "jsonName": "episodes",
-        "goType": "[]anime.AnimeEntryEpisode",
-        "typescriptType": "Array\u003cAnime_AnimeEntryEpisode\u003e",
-        "usedStructName": "anime.AnimeEntryEpisode",
+        "goType": "[]anime.Episode",
+        "typescriptType": "Array\u003cAnime_Episode\u003e",
+        "usedStructName": "anime.Episode",
         "required": false,
         "public": true,
         "comments": []

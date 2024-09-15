@@ -20,8 +20,8 @@ type (
 		AnimeEntryListData     *AnimeEntryListData     `json:"listData"`
 		AnimeEntryLibraryData  *AnimeEntryLibraryData  `json:"libraryData"`
 		AnimeEntryDownloadInfo *AnimeEntryDownloadInfo `json:"downloadInfo,omitempty"`
-		Episodes               []*AnimeEntryEpisode    `json:"episodes"`
-		NextEpisode            *AnimeEntryEpisode      `json:"nextEpisode"`
+		Episodes               []*Episode              `json:"episodes"`
+		NextEpisode            *Episode                `json:"nextEpisode"`
 		LocalFiles             []*LocalFile            `json:"localFiles"`
 		AniDBId                int                     `json:"aniDBId"`
 		CurrentEpisodeCount    int                     `json:"currentEpisodeCount"`
@@ -218,10 +218,10 @@ func (e *AnimeEntry) hydrateEntryEpisodeData(
 	// |       Episodes      |
 	// +---------------------+
 
-	p := pool.NewWithResults[*AnimeEntryEpisode]()
+	p := pool.NewWithResults[*Episode]()
 	for _, lf := range e.LocalFiles {
-		p.Go(func() *AnimeEntryEpisode {
-			return NewAnimeEntryEpisode(&NewAnimeEntryEpisodeOptions{
+		p.Go(func() *Episode {
+			return NewEpisode(&NewEpisodeOptions{
 				LocalFile:            lf,
 				OptionalAniDBEpisode: "",
 				AnizipMedia:          anizipData,

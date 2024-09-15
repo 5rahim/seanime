@@ -80,9 +80,9 @@ type (
 		// \/ Stream playback
 		// DEVOTE: currentStreamEpisodeCollection and currentStreamEpisode can be absent when the user is streaming a video,
 		// we will just not track the progress in that case
-		currentStreamEpisodeCollection mo.Option[*anime.AnimeEntryEpisodeCollection] // This is set by [SetStreamEpisodeCollection]
-		currentStreamEpisode           mo.Option[*anime.AnimeEntryEpisode]           // The current episode being streamed
-		currentStreamMedia             mo.Option[*anilist.BaseAnime]                 // The current media being streamed
+		currentStreamEpisodeCollection mo.Option[*anime.EpisodeCollection] // This is set by [SetStreamEpisodeCollection]
+		currentStreamEpisode           mo.Option[*anime.Episode]           // The current episode being streamed
+		currentStreamMedia             mo.Option[*anilist.BaseAnime]       // The current media being streamed
 
 		// \/ Manual progress tracking (non-integrated external player)
 		manualTrackingCtx           context.Context
@@ -146,8 +146,8 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		isOffline:                      opts.IsOffline,
 		offlineHub:                     opts.OfflineHub,
 		nextEpisodeLocalFile:           mo.None[*anime.LocalFile](),
-		currentStreamEpisodeCollection: mo.None[*anime.AnimeEntryEpisodeCollection](),
-		currentStreamEpisode:           mo.None[*anime.AnimeEntryEpisode](),
+		currentStreamEpisodeCollection: mo.None[*anime.EpisodeCollection](),
+		currentStreamEpisode:           mo.None[*anime.Episode](),
 		currentStreamMedia:             mo.None[*anilist.BaseAnime](),
 		animeCollection:                mo.None[*anilist.AnimeCollection](),
 		currentManualTrackingState:     mo.None[*ManualTrackingState](),
@@ -162,12 +162,12 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 	return pm
 }
 
-func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.AnimeEntryEpisode) {
+func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.Episode) {
 	// DEVNOTE: This is called from the torrentstream repository instance
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
-	pm.currentStreamEpisodeCollection = mo.Some(&anime.AnimeEntryEpisodeCollection{
+	pm.currentStreamEpisodeCollection = mo.Some(&anime.EpisodeCollection{
 		Episodes: ec,
 	})
 }

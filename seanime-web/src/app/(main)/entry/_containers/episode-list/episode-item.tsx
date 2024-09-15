@@ -1,4 +1,4 @@
-import { AL_BaseAnime, Anime_AnimeEntryEpisode, Anime_LocalFileType } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_Episode, Anime_LocalFileType } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { IconButton } from "@/components/ui/button"
@@ -21,7 +21,7 @@ export const EpisodeItemIsolation = createIsolation()
 const __metadataModalIsOpenAtom = atom(false)
 
 export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentageComplete, minutesRemaining }: {
-    episode: Anime_AnimeEntryEpisode,
+    episode: Anime_Episode,
     media: AL_BaseAnime,
     onPlay?: ({ path, mediaId }: { path: string, mediaId: number }) => void,
     isWatched?: boolean
@@ -111,7 +111,7 @@ const metadataSchema = defineSchema(({ z }) => z.object({
     type: z.string().min(0),
 }))
 
-function MetadataModal({ episode }: { episode: Anime_AnimeEntryEpisode }) {
+function MetadataModal({ episode }: { episode: Anime_Episode }) {
 
     const [isOpen, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
 
@@ -180,7 +180,7 @@ function MetadataModalButton() {
     return <DropdownMenuItem onClick={() => setIsOpen(true)}>Update metadata</DropdownMenuItem>
 }
 
-function EpisodeItemInfoModalButton({ episode }: { episode: Anime_AnimeEntryEpisode }) {
+function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
     return <Modal
         title={episode.displayTitle}
         contentClass="max-w-2xl overflow-hidden"

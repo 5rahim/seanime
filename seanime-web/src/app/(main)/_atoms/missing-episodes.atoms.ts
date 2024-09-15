@@ -1,9 +1,9 @@
-import { Anime_AnimeEntryEpisode } from "@/api/generated/types"
+import { Anime_Episode } from "@/api/generated/types"
 import { atom } from "jotai"
 
-export const missingEpisodesAtom = atom<Anime_AnimeEntryEpisode[]>([])
+export const missingEpisodesAtom = atom<Anime_Episode[]>([])
 
-export const missingSilencedEpisodesAtom = atom<Anime_AnimeEntryEpisode[]>([])
+export const missingSilencedEpisodesAtom = atom<Anime_Episode[]>([])
 
 export const missingEpisodeCountAtom = atom(get => get(missingEpisodesAtom).length)
 

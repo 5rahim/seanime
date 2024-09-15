@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Anime_AnimeEntryEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_Episode } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
@@ -89,7 +89,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
     const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
 
-    function handleAutoSelect(entry: Anime_AnimeEntry, episode: Anime_AnimeEntryEpisode | undefined) {
+    function handleAutoSelect(entry: Anime_AnimeEntry, episode: Anime_Episode | undefined) {
         if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
         // Start the torrent stream
         handleAutoSelectTorrentStream({
@@ -127,7 +127,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
      * - If auto-select is disabled, open the torrent drawer
      */
         // const setTorrentStreamLoader = useSetTorrentStreamLoader()
-    const handleEpisodeClick = (episode: Anime_AnimeEntryEpisode) => {
+    const handleEpisodeClick = (episode: Anime_Episode) => {
             if (isPending) return
 
             setTorrentStreamingSelectedEpisode(episode)

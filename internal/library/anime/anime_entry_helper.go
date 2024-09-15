@@ -17,12 +17,12 @@ func (e *AnimeEntry) HasWatchedAll() bool {
 
 // FindNextEpisode returns the episode whose episode number is the same as the progress number + 1.
 // Returns false if there are no episodes or if there is no next episode.
-func (e *AnimeEntry) FindNextEpisode() (*AnimeEntryEpisode, bool) {
+func (e *AnimeEntry) FindNextEpisode() (*Episode, bool) {
 	eps, ok := e.FindMainEpisodes()
 	if !ok {
 		return nil, false
 	}
-	ep, ok := lo.Find(eps, func(ep *AnimeEntryEpisode) bool {
+	ep, ok := lo.Find(eps, func(ep *Episode) bool {
 		return ep.GetProgressNumber() == e.GetCurrentProgress()+1
 	})
 	if !ok {
@@ -33,7 +33,7 @@ func (e *AnimeEntry) FindNextEpisode() (*AnimeEntryEpisode, bool) {
 
 // FindLatestEpisode returns the *main* episode with the highest episode number.
 // Returns false if there are no episodes.
-func (e *AnimeEntry) FindLatestEpisode() (*AnimeEntryEpisode, bool) {
+func (e *AnimeEntry) FindLatestEpisode() (*Episode, bool) {
 	// If there are no episodes, return nil
 	eps, ok := e.FindMainEpisodes()
 	if !ok {
@@ -81,7 +81,7 @@ func (e *AnimeEntry) GetCurrentProgress() int {
 
 // FindEpisodes returns the episodes.
 // Returns false if there are no episodes.
-func (e *AnimeEntry) FindEpisodes() ([]*AnimeEntryEpisode, bool) {
+func (e *AnimeEntry) FindEpisodes() ([]*Episode, bool) {
 	if e.Episodes == nil {
 		return nil, false
 	}
@@ -90,11 +90,11 @@ func (e *AnimeEntry) FindEpisodes() ([]*AnimeEntryEpisode, bool) {
 
 // FindMainEpisodes returns the main episodes.
 // Returns false if there are no main episodes.
-func (e *AnimeEntry) FindMainEpisodes() ([]*AnimeEntryEpisode, bool) {
+func (e *AnimeEntry) FindMainEpisodes() ([]*Episode, bool) {
 	if e.Episodes == nil {
 		return nil, false
 	}
-	eps := make([]*AnimeEntryEpisode, 0)
+	eps := make([]*Episode, 0)
 	for _, ep := range e.Episodes {
 		if ep.IsMain() {
 			eps = append(eps, ep)
@@ -160,11 +160,11 @@ func (e *SimpleAnimeEntry) GetCurrentProgress() int {
 	return listData.Progress
 }
 
-func (e *SimpleAnimeEntry) FindMainEpisodes() ([]*AnimeEntryEpisode, bool) {
+func (e *SimpleAnimeEntry) FindMainEpisodes() ([]*Episode, bool) {
 	if e.Episodes == nil {
 		return nil, false
 	}
-	eps := make([]*AnimeEntryEpisode, 0)
+	eps := make([]*Episode, 0)
 	for _, ep := range e.Episodes {
 		if ep.IsMain() {
 			eps = append(eps, ep)
@@ -173,12 +173,12 @@ func (e *SimpleAnimeEntry) FindMainEpisodes() ([]*AnimeEntryEpisode, bool) {
 	return e.Episodes, true
 }
 
-func (e *SimpleAnimeEntry) FindNextEpisode() (*AnimeEntryEpisode, bool) {
+func (e *SimpleAnimeEntry) FindNextEpisode() (*Episode, bool) {
 	eps, ok := e.FindMainEpisodes()
 	if !ok {
 		return nil, false
 	}
-	ep, ok := lo.Find(eps, func(ep *AnimeEntryEpisode) bool {
+	ep, ok := lo.Find(eps, func(ep *Episode) bool {
 		return ep.GetProgressNumber() == e.GetCurrentProgress()+1
 	})
 	if !ok {
@@ -187,7 +187,7 @@ func (e *SimpleAnimeEntry) FindNextEpisode() (*AnimeEntryEpisode, bool) {
 	return ep, true
 }
 
-func (e *SimpleAnimeEntry) FindLatestEpisode() (*AnimeEntryEpisode, bool) {
+func (e *SimpleAnimeEntry) FindLatestEpisode() (*Episode, bool) {
 	// If there are no episodes, return nil
 	eps, ok := e.FindMainEpisodes()
 	if !ok {

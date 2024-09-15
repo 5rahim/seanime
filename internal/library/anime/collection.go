@@ -18,14 +18,14 @@ import (
 type (
 	// LibraryCollection holds the main data for the library collection.
 	// It consists of:
-	//  - ContinueWatchingList: a list of AnimeEntryEpisode for the "continue watching" feature.
+	//  - ContinueWatchingList: a list of Episode for the "continue watching" feature.
 	//  - Lists: a list of LibraryCollectionList (one for each status).
 	//  - UnmatchedLocalFiles: a list of unmatched local files (Media id == 0). "Resolve unmatched" feature.
 	//  - UnmatchedGroups: a list of UnmatchedGroup instances. Like UnmatchedLocalFiles, but grouped by directory. "Resolve unmatched" feature.
 	//  - IgnoredLocalFiles: a list of ignored local files. (DEVNOTE: Unused for now)
 	//  - UnknownGroups: a list of UnknownGroup instances. Group of files whose media is not in the user's AniList "Resolve unknown media" feature.
 	LibraryCollection struct {
-		ContinueWatchingList []*AnimeEntryEpisode     `json:"continueWatchingList"`
+		ContinueWatchingList []*Episode               `json:"continueWatchingList"`
 		Lists                []*LibraryCollectionList `json:"lists"`
 		UnmatchedLocalFiles  []*LocalFile             `json:"unmatchedLocalFiles"`
 		UnmatchedGroups      []*UnmatchedGroup        `json:"unmatchedGroups"`
@@ -36,7 +36,7 @@ type (
 	}
 
 	StreamCollection struct {
-		ContinueWatchingList []*AnimeEntryEpisode        `json:"continueWatchingList"`
+		ContinueWatchingList []*Episode                  `json:"continueWatchingList"`
 		Anime                []*anilist.BaseAnime        `json:"anime"`
 		ListData             map[int]*AnimeEntryListData `json:"listData"`
 	}
@@ -310,7 +310,7 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// hydrateContinueWatchingList creates a list of AnimeEntryEpisode for the "continue watching" feature.
+// hydrateContinueWatchingList creates a list of Episode for the "continue watching" feature.
 // This should be called after the LibraryCollectionList's have been created.
 func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
@@ -327,7 +327,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 
 	// If no currently watching list is found, return an empty slice
 	if !found {
-		lc.ContinueWatchingList = make([]*AnimeEntryEpisode, 0) // Set empty slice
+		lc.ContinueWatchingList = make([]*Episode, 0) // Set empty slice
 		return
 	}
 	// Get media ids from current list
@@ -358,7 +358,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 
 	// If there are no entries, return an empty slice
 	if len(mEntries) == 0 {
-		lc.ContinueWatchingList = make([]*AnimeEntryEpisode, 0) // Return empty slice
+		lc.ContinueWatchingList = make([]*Episode, 0) // Return empty slice
 		return
 	}
 
@@ -379,14 +379,14 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	})
 
 	// Get the next episode for each media entry
-	mEpisodes := lop.Map(mEntries, func(mEntry *AnimeEntry, index int) *AnimeEntryEpisode {
+	mEpisodes := lop.Map(mEntries, func(mEntry *AnimeEntry, index int) *Episode {
 		ep, ok := mEntry.FindNextEpisode()
 		if ok {
 			return ep
 		}
 		return nil
 	})
-	mEpisodes = lo.Filter(mEpisodes, func(item *AnimeEntryEpisode, index int) bool {
+	mEpisodes = lo.Filter(mEpisodes, func(item *Episode, index int) bool {
 		return item != nil
 	})
 
