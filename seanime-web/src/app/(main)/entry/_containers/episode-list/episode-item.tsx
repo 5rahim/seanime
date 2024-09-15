@@ -92,7 +92,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                         >Unmatch</DropdownMenuItem>
                     </DropdownMenu>
 
-                    {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.aniDBId &&
+                    {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.anidbId &&
                         <EpisodeItemInfoModalButton episode={episode} />}
                 </>}
             />
@@ -222,12 +222,12 @@ function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
                 {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'") || "No summary"}
             </p>
             {
-                (!!episode.episodeMetadata?.aniDBId) && <>
+                (!!episode.episodeMetadata?.anidbId) && <>
                     <Separator />
                     <div className="w-full flex justify-between">
                         <p>AniDB Episode: {episode.fileMetadata?.aniDBEpisode}</p>
                         <a
-                            href={"https://anidb.net/episode/" + episode.episodeMetadata?.aniDBId + "#layout-footer"}
+                            href={"https://anidb.net/episode/" + episode.episodeMetadata?.anidbId + "#layout-footer"}
                             target="_blank"
                             className="text-brand-200"
                         >Open on AniDB

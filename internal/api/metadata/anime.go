@@ -24,50 +24,7 @@ type (
 		// TVDB
 		tvdbEpisodes []*tvdb.Episode
 	}
-
-	NewMediaWrapperOptions struct {
-		AnizipMedia *anizip.Media
-		Logger      *zerolog.Logger
-	}
-
-	EpisodeMetadata struct {
-		AniDBId       int    `json:"aniDBId,omitempty"` // Episode AniDB ID
-		TVDBId        int64  `json:"tvdbId,omitempty"`  // Episode TVDB ID
-		Title         string `json:"title,omitempty"`   // Episode title
-		Image         string `json:"image,omitempty"`
-		AirDate       string `json:"airDate,omitempty"`
-		Length        int    `json:"length,omitempty"`
-		Summary       string `json:"summary,omitempty"`
-		Overview      string `json:"overview,omitempty"`
-		EpisodeNumber int    `json:"episodeNumber,omitempty"`
-	}
 )
-
-// GetAnimeMetadata creates a new anime wrapper.
-// Example:
-//
-//	metadataProvider.GetAnimeMetadata(media, anizipMedia)
-//	metadataProvider.GetAnimeMetadata(media, nil)
-func (p *ProviderImpl) GetAnimeMetadata(media *anilist.BaseAnime, anizipMedia *anizip.Media) AnimeMetadata {
-	aw := &AnimeWrapperImpl{
-		anizipMedia:  mo.None[*anizip.Media](),
-		baseAnime:    media,
-		fileCacher:   p.fileCacher,
-		logger:       p.logger,
-		tvdbEpisodes: make([]*tvdb.Episode, 0),
-	}
-
-	if anizipMedia != nil {
-		aw.anizipMedia = mo.Some(anizipMedia)
-	}
-
-	episodes, err := aw.GetTVDBEpisodes(false)
-	if err == nil {
-		aw.tvdbEpisodes = episodes
-	}
-
-	return aw
-}
 
 func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) EpisodeMetadata {
 	meta := EpisodeMetadata{
@@ -82,7 +39,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) EpisodeMetadata {
 	} else {
 		anizipEpisodeF, found := aw.anizipMedia.MustGet().FindEpisode(strconv.Itoa(epNum))
 		if found {
-			meta.AniDBId = anizipEpisodeF.AnidbEid
+			meta.AnidbId = anizipEpisodeF.AnidbEid
 			anizipEpisode = mo.Some(anizipEpisodeF)
 		}
 	}
@@ -97,7 +54,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) EpisodeMetadata {
 		tvdbEpisode, found := aw.GetTVDBEpisodeByNumber(epNum)
 		if found {
 			meta.Image = tvdbEpisode.Image
-			meta.TVDBId = tvdbEpisode.ID
+			meta.TvdbId = tvdbEpisode.ID
 		}
 	}
 
@@ -111,7 +68,7 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) EpisodeMetadata {
 		}
 	}
 
-	meta.AirDate = anizipEpisode.MustGet().Airdate
+	meta.AirDate = anizipEpisode.MustGet().AirDate
 	meta.Length = anizipEpisode.MustGet().Length
 	if anizipEpisode.MustGet().Runtime > 0 {
 		meta.Length = anizipEpisode.MustGet().Runtime

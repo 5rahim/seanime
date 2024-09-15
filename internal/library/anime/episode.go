@@ -30,7 +30,7 @@ type (
 	// EpisodeMetadata represents the metadata of a Episode.
 	// Metadata is fetched from AniZip (AniDB) and, optionally, AniList (if AniZip is not available).
 	EpisodeMetadata struct {
-		AniDBId  int    `json:"aniDBId,omitempty"`
+		AnidbId  int    `json:"anidbId,omitempty"`
 		Image    string `json:"image,omitempty"`
 		AirDate  string `json:"airDate,omitempty"`
 		Length   int    `json:"length,omitempty"`
@@ -266,9 +266,9 @@ func NewEpisodeMetadata(
 	epInt, err := strconv.Atoi(episode.Episode)
 
 	if err == nil {
-		aw := metadataProvider.GetAnimeMetadata(media, anizipMedia)
+		aw := metadataProvider.GetAnimeMetadataWrapper(media, anizipMedia)
 		epMetadata := aw.GetEpisodeMetadata(epInt)
-		md.AniDBId = epMetadata.AniDBId
+		md.AnidbId = epMetadata.AnidbId
 		md.Image = epMetadata.Image
 		md.AirDate = epMetadata.AirDate
 		md.Length = epMetadata.Length

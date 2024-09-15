@@ -122,7 +122,7 @@ export function MetaSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeD
                     <AnimeEntryDropdownMenu entry={entry} />
                 </div>
 
-                {(!entry.aniDBId || entry.aniDBId === 0) && (
+                {(!entry.anidbId || entry.anidbId === 0) && (
                     <p className="text-center text-red-300 opacity-50">
                         No metadata found on AniDB
                     </p>

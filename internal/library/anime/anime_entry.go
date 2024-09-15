@@ -23,7 +23,7 @@ type (
 		Episodes               []*Episode              `json:"episodes"`
 		NextEpisode            *Episode                `json:"nextEpisode"`
 		LocalFiles             []*LocalFile            `json:"localFiles"`
-		AniDBId                int                     `json:"aniDBId"`
+		AnidbId                int                     `json:"anidbId"`
 		CurrentEpisodeCount    int                     `json:"currentEpisodeCount"`
 	}
 
@@ -60,7 +60,7 @@ type (
 //   - Episodes: List of episodes (if any)
 //   - NextEpisode: Next episode to watch (if any)
 //   - LocalFiles: List of local files (if any)
-//   - AniDBId: AniDB id
+//   - AnidbId: AniDB id
 //   - CurrentEpisodeCount: Current episode count
 func NewAnimeEntry(opts *NewAnimeEntryOptions) (*AnimeEntry, error) {
 
@@ -145,13 +145,13 @@ func NewAnimeEntry(opts *NewAnimeEntryOptions) (*AnimeEntry, error) {
 			Episodes:               simpleAnimeEntry.Episodes,
 			NextEpisode:            simpleAnimeEntry.NextEpisode,
 			LocalFiles:             simpleAnimeEntry.LocalFiles,
-			AniDBId:                0,
+			AnidbId:                0,
 			CurrentEpisodeCount:    simpleAnimeEntry.CurrentEpisodeCount,
 		}, nil
 		// +--------------- End
 
 	}
-	entry.AniDBId = anizipData.GetMappings().AnidbID
+	entry.AnidbId = anizipData.GetMappings().AnidbID
 
 	// Instantiate AnimeEntryListData
 	// If the media exist in the user's anime list, add the details

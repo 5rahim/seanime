@@ -2,24 +2,12 @@ package metadata
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/tvdb"
 	"seanime/internal/util/filecache"
 )
-
-type Provider interface {
-	GetAnimeMetadata(anime *anilist.BaseAnime, anizipMedia *anizip.Media) AnimeMetadata
-}
-
-// AnimeMetadata is a wrapper for anime metadata.
-// The user can request metadata to be fetched from TVDB as well, which will be stored in the cache.
-type AnimeMetadata interface {
-	GetEpisodeMetadata(episodeNumber int) EpisodeMetadata
-	EmptyTVDBEpisodesBucket(mediaId int) error
-	GetTVDBEpisodes(populate bool) ([]*tvdb.Episode, error)
-	GetTVDBEpisodeByNumber(episodeNumber int) (*tvdb.Episode, bool)
-}
 
 type (
 	ProviderImpl struct {
@@ -39,4 +27,31 @@ func NewProvider(options *NewProviderImplOptions) Provider {
 		logger:     options.Logger,
 		fileCacher: options.FileCacher,
 	}
+}
+
+// GetAnimeMetadataWrapper creates a new anime wrapper.
+//
+//	Example:
+//
+//	metadataProvider.GetAnimeMetadataWrapper(media, anizipMedia)
+//	metadataProvider.GetAnimeMetadataWrapper(media, nil)
+func (p *ProviderImpl) GetAnimeMetadataWrapper(media *anilist.BaseAnime, anizipMedia *anizip.Media) AnimeMetadataWrapper {
+	aw := &AnimeWrapperImpl{
+		anizipMedia:  mo.None[*anizip.Media](),
+		baseAnime:    media,
+		fileCacher:   p.fileCacher,
+		logger:       p.logger,
+		tvdbEpisodes: make([]*tvdb.Episode, 0),
+	}
+
+	if anizipMedia != nil {
+		aw.anizipMedia = mo.Some(anizipMedia)
+	}
+
+	episodes, err := aw.GetTVDBEpisodes(false)
+	if err == nil {
+		aw.tvdbEpisodes = episodes
+	}
+
+	return aw
 }

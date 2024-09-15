@@ -2,7 +2,6 @@ package anizip
 
 import (
 	"errors"
-	"fmt"
 	"github.com/goccy/go-json"
 	"io"
 	"net/http"
@@ -15,7 +14,7 @@ import (
 type (
 	Episode struct {
 		TvdbEid               int               `json:"tvdbEid,omitempty"`
-		Airdate               string            `json:"airdate,omitempty"`
+		AirDate               string            `json:"airdate,omitempty"`
 		SeasonNumber          int               `json:"seasonNumber,omitempty"`
 		EpisodeNumber         int               `json:"episodeNumber,omitempty"`
 		AbsoluteEpisodeNumber int               `json:"absoluteEpisodeNumber,omitempty"`
@@ -119,33 +118,4 @@ func FetchAniZipMediaC(from string, id int, cache *Cache) (*Media, error) {
 	cache.Set(GetCacheKey(from, id), media)
 
 	return media, nil
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func NewDummyMedia(mediaId int, episodeCount int) *Media {
-	media := &Media{
-		Titles:       map[string]string{"en": fmt.Sprintf("Media %d", mediaId)},
-		Episodes:     make(map[string]Episode),
-		EpisodeCount: episodeCount,
-		SpecialCount: 0,
-		Mappings: &Mappings{
-			AnilistID: mediaId,
-		},
-	}
-
-	for i := 1; i <= episodeCount; i++ {
-		media.Episodes[strconv.Itoa(i)] = *NewDummyEpisode(i)
-	}
-
-	return media
-}
-
-func NewDummyEpisode(episodeNumber int) *Episode {
-	return &Episode{
-		EpisodeNumber:         episodeNumber,
-		AbsoluteEpisodeNumber: episodeNumber,
-		Episode:               strconv.Itoa(episodeNumber),
-		Title:                 map[string]string{"en": fmt.Sprintf("Episode %d", episodeNumber)},
-	}
 }

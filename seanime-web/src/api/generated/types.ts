@@ -1319,7 +1319,7 @@ export type Anime_AnimeEntry = {
     episodes?: Array<Anime_Episode>
     nextEpisode?: Anime_Episode
     localFiles?: Array<Anime_LocalFile>
-    aniDBId: number
+    anidbId: number
     currentEpisodeCount: number
 }
 
@@ -1461,7 +1461,7 @@ export type Anime_Episode = {
  * - Package: anime
  */
 export type Anime_EpisodeMetadata = {
-    aniDBId?: number
+    anidbId?: number
     image?: string
     airDate?: string
     length?: number

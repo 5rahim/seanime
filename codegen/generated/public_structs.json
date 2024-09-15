@@ -21951,7 +21951,7 @@
         "comments": []
       },
       {
-        "name": "Airdate",
+        "name": "AirDate",
         "jsonName": "airdate",
         "goType": "string",
         "typescriptType": "string",
@@ -23742,8 +23742,8 @@
     "package": "metadata",
     "fields": [
       {
-        "name": "AniDBId",
-        "jsonName": "aniDBId",
+        "name": "AnidbId",
+        "jsonName": "anidbId",
         "goType": "int",
         "typescriptType": "number",
         "required": false,
@@ -23753,7 +23753,7 @@
         ]
       },
       {
-        "name": "TVDBId",
+        "name": "TvdbId",
         "jsonName": "tvdbId",
         "goType": "int64",
         "typescriptType": "number",
@@ -31717,8 +31717,8 @@
         "comments": []
       },
       {
-        "name": "AniDBId",
-        "jsonName": "aniDBId",
+        "name": "AnidbId",
+        "jsonName": "anidbId",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -33024,8 +33024,8 @@
     "package": "anime",
     "fields": [
       {
-        "name": "AniDBId",
-        "jsonName": "aniDBId",
+        "name": "AnidbId",
+        "jsonName": "anidbId",
         "goType": "int",
         "typescriptType": "number",
         "required": false,

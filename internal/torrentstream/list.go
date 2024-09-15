@@ -57,7 +57,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		for epIdx := range baseAnime.GetCurrentEpisodeCount() {
 			episodeNumber := epIdx + 1
 
-			mediaWrapper := r.metadataProvider.GetAnimeMetadata(baseAnime, nil)
+			mediaWrapper := r.metadataProvider.GetAnimeMetadataWrapper(baseAnime, nil)
 			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
 
 			episode := &anime.Episode{
@@ -71,7 +71,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 				LocalFile:             nil,
 				IsDownloaded:          false,
 				EpisodeMetadata: &anime.EpisodeMetadata{
-					AniDBId:  0,
+					AnidbId:  0,
 					Image:    episodeMetadata.Image,
 					AirDate:  "",
 					Length:   0,
