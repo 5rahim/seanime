@@ -146,15 +146,14 @@ func (m *Repository) Play(path string) error {
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
-				m.VLC.ForcePause()
+				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
-				m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				_ = m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
 				time.Sleep(400 * time.Millisecond)
-				m.VLC.Resume()
+				_ = m.VLC.Resume()
 			}
 		}
 
-		//m.exitedCh = make(chan struct{})
 		return nil
 	case "mpc-hc":
 		err := m.MpcHc.Start()
@@ -169,38 +168,32 @@ func (m *Repository) Play(path string) error {
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
-				m.MpcHc.Pause()
+				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
-				m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				_ = m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
 				time.Sleep(400 * time.Millisecond)
-				m.MpcHc.Play()
+				_ = m.MpcHc.Play()
 			}
 		}
 
-		//m.exitedCh = make(chan struct{})
 		return nil
 	case "mpv":
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-
 			var args []string
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
-				args = append(args, "--save-position-on-quit", fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
-			} else {
-				args = append(args, "--save-position-on-quit")
+				args = append(args, "--no-resume-playback", fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
 			}
-
 			err := m.Mpv.OpenAndPlay(path, args...)
 			if err != nil {
 				return fmt.Errorf("could not open and play video, %s", err.Error())
 			}
 		} else {
-
 			err := m.Mpv.OpenAndPlay(path)
 			if err != nil {
 				return fmt.Errorf("could not open and play video, %s", err.Error())
 			}
 		}
-		//m.exitedCh = m.Mpv.Exited()
+
 		return nil
 	default:
 		return errors.New("no default media player set")
@@ -236,44 +229,39 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int) error {
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
-				m.VLC.ForcePause()
+				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
-				m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
+				_ = m.VLC.Seek(fmt.Sprintf("%d", int(lastWatched.Item.CurrentTime)))
 				time.Sleep(400 * time.Millisecond)
-				m.VLC.Resume()
+				_ = m.VLC.Resume()
 			}
 		}
 
-		//m.exitedCh = make(chan struct{})
 	case "mpc-hc":
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
-				m.MpcHc.Pause()
+				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
-				m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
+				_ = m.MpcHc.Seek(int(lastWatched.Item.CurrentTime))
 				time.Sleep(400 * time.Millisecond)
-				m.MpcHc.Play()
+				_ = m.MpcHc.Play()
 			}
 		}
 
-		//m.exitedCh = make(chan struct{})
 	case "mpv":
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			args := []string{"--force-window"}
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
 				args = append(args, fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
-			} else {
-
 			}
-
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 		} else {
 			err = m.Mpv.OpenAndPlay(streamUrl, "--force-window")
 		}
-		//m.exitedCh = m.Mpv.Exited()
+
 	}
 
 	if err != nil {

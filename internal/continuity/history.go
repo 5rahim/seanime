@@ -150,6 +150,13 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
+	if !m.settings.WatchContinuityEnabled {
+		return &WatchHistoryItemResponse{
+			Item:  nil,
+			Found: false,
+		}
+	}
+
 	ret = &WatchHistoryItemResponse{
 		Item:  nil,
 		Found: false,
@@ -222,6 +229,10 @@ func (m *Manager) UpdateExternalPlayerEpisodeWatchHistoryItem(currentTime, durat
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
+	if !m.settings.WatchContinuityEnabled {
+		return
+	}
 
 	if m.externalPlayerEpisodeDetails.IsAbsent() {
 		return
