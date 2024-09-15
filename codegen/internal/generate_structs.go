@@ -228,6 +228,29 @@ func getGoStructsFromFile(path string, info os.FileInfo) (structs []*GoStruct, e
 				continue
 			}
 
+			sliceType, ok := typeSpec.Type.(*ast.ArrayType)
+			if ok {
+				goStruct := &GoStruct{
+					Filepath:      path,
+					Filename:      info.Name(),
+					Name:          typeSpec.Name.Name,
+					FormattedName: getTypePrefix(packageName) + typeSpec.Name.Name,
+					Package:       packageName,
+					Fields:        make([]*GoStructField, 0),
+				}
+
+				usedStructType, usedStructPkgName := getUsedStructType(sliceType, packageName)
+
+				goStruct.AliasOf = &GoAlias{
+					GoType:         fieldTypeString(sliceType),
+					TypescriptType: fieldTypeToTypescriptType(sliceType, usedStructPkgName),
+					UsedStructType: usedStructType,
+				}
+
+				structs = append(structs, goStruct)
+				continue
+			}
+
 		}
 	}
 	return structs, nil
