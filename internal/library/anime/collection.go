@@ -88,7 +88,7 @@ type (
 		LocalFiles       []*LocalFile
 		AnizipCache      *anizip.Cache
 		Platform         platform.Platform
-		MetadataProvider *metadata.Provider
+		MetadataProvider metadata.Provider
 	}
 )
 
@@ -317,7 +317,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 	animeCollection *anilist.AnimeCollection,
 	anizipCache *anizip.Cache,
 	platform platform.Platform,
-	metadataProvider *metadata.Provider,
+	metadataProvider metadata.Provider,
 ) {
 
 	// Get currently watching list

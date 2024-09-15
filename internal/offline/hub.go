@@ -32,8 +32,8 @@ type HubInterface interface {
 type (
 	// Hub is a struct that holds all the offline modules.
 	Hub struct {
-		platform         platform.Platform  // Used to fetch anime and manga data from AniList
-		metadataProvider *metadata.Provider // Provides metadata for anime and manga entries
+		platform         platform.Platform // Used to fetch anime and manga data from AniList
+		metadataProvider metadata.Provider // Provides metadata for anime and manga entries
 		wsEventManager   events.WSEventManagerInterface
 		mangaRepository  *manga.Repository
 		db               *db.Database
@@ -56,7 +56,7 @@ type (
 	NewHubOptions struct {
 		Platform                    platform.Platform
 		WSEventManager              events.WSEventManagerInterface
-		MetadataProvider            *metadata.Provider
+		MetadataProvider            metadata.Provider
 		MangaRepository             *manga.Repository
 		Database                    *db.Database
 		FileCacher                  *filecache.Cacher

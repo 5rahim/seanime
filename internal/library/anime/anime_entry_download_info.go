@@ -37,7 +37,7 @@ type (
 		Media            *anilist.BaseAnime
 		Progress         *int
 		Status           *anilist.MediaListStatus
-		MetadataProvider *metadata.Provider
+		MetadataProvider metadata.Provider
 	}
 )
 

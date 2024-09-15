@@ -6,14 +6,14 @@ import (
 	"testing"
 )
 
-func TestGetMockProvider(t *testing.T) *Provider {
+func TestGetMockProvider(t *testing.T) Provider {
 	tempDir := t.TempDir()
 	fileCacher, err := filecache.NewCacher(tempDir)
 	if err != nil {
 		t.Fatalf("could not create filecacher: %v", err)
 	}
 
-	metadataProvider := NewProvider(&NewProviderOptions{
+	metadataProvider := NewProvider(&NewProviderImplOptions{
 		Logger:     util.NewLogger(),
 		FileCacher: fileCacher,
 	})

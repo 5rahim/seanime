@@ -57,7 +57,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		for epIdx := range baseAnime.GetCurrentEpisodeCount() {
 			episodeNumber := epIdx + 1
 
-			mediaWrapper := r.metadataProvider.NewMediaWrapper(baseAnime, nil)
+			mediaWrapper := r.metadataProvider.GetAnimeMetadata(baseAnime, nil)
 			episodeMetadata := mediaWrapper.GetEpisodeMetadata(episodeNumber)
 
 			episode := &anime.Episode{

@@ -29,7 +29,7 @@ func getHub(t *testing.T) *Hub {
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
-	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
+	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
 		Logger:     logger,
 		FileCacher: fileCacher,
 	})

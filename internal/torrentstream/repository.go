@@ -38,7 +38,7 @@ type (
 		completeAnimeCache              *anilist.CompleteAnimeCache
 		platform                        platform.Platform
 		wsEventManager                  events.WSEventManagerInterface
-		metadataProvider                *metadata.Provider
+		metadataProvider                metadata.Provider
 		playbackManager                 *playbackmanager.PlaybackManager
 		mediaPlayerRepository           *mediaplayer.Repository
 		mediaPlayerRepositorySubscriber *mediaplayer.RepositorySubscriber
@@ -57,7 +57,7 @@ type (
 		BaseAnimeCache     *anilist.BaseAnimeCache
 		CompleteAnimeCache *anilist.CompleteAnimeCache
 		Platform           platform.Platform
-		MetadataProvider   *metadata.Provider
+		MetadataProvider   metadata.Provider
 		PlaybackManager    *playbackmanager.PlaybackManager
 		WSEventManager     events.WSEventManagerInterface
 		Database           *db.Database

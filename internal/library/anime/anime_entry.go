@@ -45,7 +45,7 @@ type (
 		AnizipCache      *anizip.Cache
 		AnimeCollection  *anilist.AnimeCollection
 		Platform         platform.Platform
-		MetadataProvider *metadata.Provider
+		MetadataProvider metadata.Provider
 	}
 )
 
@@ -183,7 +183,7 @@ func NewAnimeEntry(opts *NewAnimeEntryOptions) (*AnimeEntry, error) {
 func (e *AnimeEntry) hydrateEntryEpisodeData(
 	anilistEntry *anilist.MediaListEntry,
 	anizipData *anizip.Media,
-	metadataProvider *metadata.Provider,
+	metadataProvider metadata.Provider,
 ) {
 
 	if anizipData.Episodes == nil && len(anizipData.Episodes) == 0 {

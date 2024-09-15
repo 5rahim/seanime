@@ -24,7 +24,7 @@ type (
 		LocalFiles       []*LocalFile
 		AnizipCache      *anizip.Cache
 		SilencedMediaIds []int
-		MetadataProvider *metadata.Provider
+		MetadataProvider metadata.Provider
 	}
 )
 

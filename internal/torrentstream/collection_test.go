@@ -38,7 +38,7 @@ func TestStreamCollection(t *testing.T) {
 		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
 		Platform:           anilistPlatform,
-		MetadataProvider: metadata.NewProvider(&metadata.NewProviderOptions{
+		MetadataProvider: metadata.NewProvider(&metadata.NewProviderImplOptions{
 			Logger:     logger,
 			FileCacher: filecacher,
 		}),

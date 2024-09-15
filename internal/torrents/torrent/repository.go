@@ -17,7 +17,7 @@ type (
 		animeProviderSmartSearchCaches *result.Map[string, *result.Cache[string, *SearchData]]
 		anizipCache                    *anizip.Cache
 		settings                       RepositorySettings
-		metadataProvider               *metadata.Provider
+		metadataProvider               metadata.Provider
 		mu                             sync.Mutex
 	}
 
@@ -28,7 +28,7 @@ type (
 
 type NewRepositoryOptions struct {
 	Logger           *zerolog.Logger
-	MetadataProvider *metadata.Provider
+	MetadataProvider metadata.Provider
 }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {

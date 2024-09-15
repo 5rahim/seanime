@@ -70,7 +70,7 @@ type (
 		FileCacher              *filecache.Cacher
 		OnlinestreamRepository  *onlinestream.Repository
 		MangaRepository         *manga.Repository
-		MetadataProvider        *metadata.Provider
+		MetadataProvider        metadata.Provider
 		DiscordPresence         *discordrpc_presence.Presence
 		MangaDownloader         *manga.Downloader
 		ContinuityManager       *continuity.Manager
@@ -173,7 +173,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	// Metadata Provider
-	metadataProvider := metadata.NewProvider(&metadata.NewProviderOptions{
+	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
 		Logger:     logger,
 		FileCacher: fileCacher,
 	})

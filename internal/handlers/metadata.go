@@ -31,10 +31,10 @@ func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
 	}
 
 	// Create media wrapper
-	mw := c.App.MetadataProvider.NewMediaWrapper(media, anizipMedia)
+	aw := c.App.MetadataProvider.GetAnimeMetadata(media, anizipMedia)
 
 	// Fetch episodes
-	episodes, err := mw.GetTVDBEpisodes(true)
+	episodes, err := aw.GetTVDBEpisodes(true)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -70,10 +70,10 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 	}
 
 	// Create media wrapper
-	mw := c.App.MetadataProvider.NewMediaWrapper(media, anizipMedia)
+	aw := c.App.MetadataProvider.GetAnimeMetadata(media, anizipMedia)
 
 	// Empty TVDB episodes bucket
-	err = mw.EmptyTVDBEpisodesBucket(b.MediaId)
+	err = aw.EmptyTVDBEpisodesBucket(b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}

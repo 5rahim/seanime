@@ -52,7 +52,7 @@ type (
 		// When this is -1, it means that a re-mapping of AniDB Episode is needed
 		ProgressOffset   int
 		IsDownloaded     bool
-		MetadataProvider *metadata.Provider // optional
+		MetadataProvider metadata.Provider // optional
 	}
 
 	// NewSimpleEpisodeOptions hold data used to create a new Episode.
@@ -254,7 +254,7 @@ func NewEpisodeMetadata(
 	anizipMedia *anizip.Media,
 	episode *anizip.Episode,
 	media *anilist.BaseAnime,
-	metadataProvider *metadata.Provider,
+	metadataProvider metadata.Provider,
 ) *EpisodeMetadata {
 	md := new(EpisodeMetadata)
 
@@ -266,8 +266,8 @@ func NewEpisodeMetadata(
 	epInt, err := strconv.Atoi(episode.Episode)
 
 	if err == nil {
-		mw := metadataProvider.NewMediaWrapper(media, anizipMedia)
-		epMetadata := mw.GetEpisodeMetadata(epInt)
+		aw := metadataProvider.GetAnimeMetadata(media, anizipMedia)
+		epMetadata := aw.GetEpisodeMetadata(epInt)
 		md.AniDBId = epMetadata.AniDBId
 		md.Image = epMetadata.Image
 		md.AirDate = epMetadata.AirDate
