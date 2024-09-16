@@ -6,15 +6,15 @@ import (
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/util/limiter"
 )
 
 type (
 	MediaTreeAnalysisOptions struct {
-		tree        *anilist.CompleteAnimeRelationTree
-		anizipCache *anizip.Cache
-		rateLimiter *limiter.Limiter
+		tree             *anilist.CompleteAnimeRelationTree
+		metadataProvider metadata.Provider
+		rateLimiter      *limiter.Limiter
 	}
 
 	MediaTreeAnalysis struct {
@@ -22,8 +22,8 @@ type (
 	}
 
 	MediaTreeAnalysisBranch struct {
-		media       *anilist.CompleteAnime
-		anizipMedia *anizip.Media
+		media         *anilist.CompleteAnime
+		animeMetadata *metadata.AnimeMetadata
 		// The second absolute episode number of the first episode
 		// Sometimes, the metadata provider may have a 'true' absolute episode number and a 'part' absolute episode number
 		// 'part' absolute episode numbers might be used for "Part 2s" of a season
@@ -53,12 +53,14 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 	for _, rel := range relations {
 		p.Go(func() (*MediaTreeAnalysisBranch, error) {
 			opts.rateLimiter.Wait()
-			azm, err := anizip.FetchAniZipMediaC("anilist", rel.ID, opts.anizipCache)
+
+			animeMetadata, err := opts.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, rel.ID)
 			if err != nil {
 				return nil, err
 			}
+
 			// Get the first episode
-			firstEp, ok := azm.Episodes["1"]
+			firstEp, ok := animeMetadata.Episodes["1"]
 			if !ok {
 				return nil, errors.New("no first episode")
 			}
@@ -72,22 +74,22 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 			maxPartAbsoluteEpisodeNumber := 0
 			if usePartEpisodeNumber {
 				partAbsoluteEpisodeNumber = firstEp.EpisodeNumber
-				maxPartAbsoluteEpisodeNumber = partAbsoluteEpisodeNumber + azm.GetMainEpisodeCount() - 1
+				maxPartAbsoluteEpisodeNumber = partAbsoluteEpisodeNumber + animeMetadata.GetMainEpisodeCount() - 1
 			}
 
 			// If the first episode exists and has a valid absolute episode number, create a new MediaTreeAnalysisBranch
-			if azm.Episodes != nil && firstEp.AbsoluteEpisodeNumber > 0 {
+			if animeMetadata.Episodes != nil && firstEp.AbsoluteEpisodeNumber > 0 {
 				return &MediaTreeAnalysisBranch{
 					media:                        rel,
-					anizipMedia:                  azm,
+					animeMetadata:                animeMetadata,
 					minPartAbsoluteEpisodeNumber: partAbsoluteEpisodeNumber,
 					maxPartAbsoluteEpisodeNumber: maxPartAbsoluteEpisodeNumber,
 					minAbsoluteEpisode:           firstEp.AbsoluteEpisodeNumber,
 					// The max absolute episode number is the first episode's absolute episode number plus the total episode count minus 1
 					// We subtract 1 because the first episode's absolute episode number is already included in the total episode count
 					// e.g, if the first episode's absolute episode number is 13 and the total episode count is 12, the max absolute episode number is 24
-					maxAbsoluteEpisode: firstEp.AbsoluteEpisodeNumber + (azm.GetMainEpisodeCount() - 1),
-					totalEpisodeCount:  azm.GetMainEpisodeCount(),
+					maxAbsoluteEpisode: firstEp.AbsoluteEpisodeNumber + (animeMetadata.GetMainEpisodeCount() - 1),
+					totalEpisodeCount:  animeMetadata.GetMainEpisodeCount(),
 				}, nil
 			}
 

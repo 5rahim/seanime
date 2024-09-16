@@ -3,6 +3,7 @@ package autoscanner
 import (
 	"errors"
 	"github.com/rs/zerolog"
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/events"
@@ -18,27 +19,29 @@ import (
 
 type (
 	AutoScanner struct {
-		fileActionCh   chan struct{} // Used to notify the scanner that a file action has occurred.
-		waiting        bool          // Used to prevent multiple scans from occurring at the same time.
-		missedAction   bool          // Used to indicate that a file action was missed while scanning.
-		mu             sync.Mutex
-		scannedCh      chan struct{}
-		waitTime       time.Duration // Wait time to listen to additional changes before triggering a scan.
-		enabled        bool
-		platform       platform.Platform
-		logger         *zerolog.Logger
-		wsEventManager events.WSEventManagerInterface
-		db             *db.Database                   // Database instance is required to update the local files.
-		autoDownloader *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
+		fileActionCh     chan struct{} // Used to notify the scanner that a file action has occurred.
+		waiting          bool          // Used to prevent multiple scans from occurring at the same time.
+		missedAction     bool          // Used to indicate that a file action was missed while scanning.
+		mu               sync.Mutex
+		scannedCh        chan struct{}
+		waitTime         time.Duration // Wait time to listen to additional changes before triggering a scan.
+		enabled          bool
+		platform         platform.Platform
+		logger           *zerolog.Logger
+		wsEventManager   events.WSEventManagerInterface
+		db               *db.Database                   // Database instance is required to update the local files.
+		autoDownloader   *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
+		metadataProvider metadata.Provider
 	}
 	NewAutoScannerOptions struct {
-		Database       *db.Database
-		Platform       platform.Platform
-		Logger         *zerolog.Logger
-		WSEventManager events.WSEventManagerInterface
-		Enabled        bool
-		AutoDownloader *autodownloader.AutoDownloader
-		WaitTime       time.Duration
+		Database         *db.Database
+		Platform         platform.Platform
+		Logger           *zerolog.Logger
+		WSEventManager   events.WSEventManagerInterface
+		Enabled          bool
+		AutoDownloader   *autodownloader.AutoDownloader
+		WaitTime         time.Duration
+		MetadataProvider metadata.Provider
 	}
 )
 
@@ -49,17 +52,19 @@ func New(opts *NewAutoScannerOptions) *AutoScanner {
 	}
 
 	return &AutoScanner{
-		fileActionCh:   make(chan struct{}, 1),
-		scannedCh:      make(chan struct{}, 1),
-		waiting:        false,
-		missedAction:   false,
-		waitTime:       wt,
-		enabled:        opts.Enabled,
-		autoDownloader: opts.AutoDownloader,
-		platform:       opts.Platform,
-		logger:         opts.Logger,
-		wsEventManager: opts.WSEventManager,
-		db:             opts.Database,
+		fileActionCh:     make(chan struct{}, 1),
+		waiting:          false,
+		missedAction:     false,
+		mu:               sync.Mutex{},
+		scannedCh:        make(chan struct{}, 1),
+		waitTime:         wt,
+		enabled:          opts.Enabled,
+		platform:         opts.Platform,
+		logger:           opts.Logger,
+		wsEventManager:   opts.WSEventManager,
+		db:               opts.Database,
+		autoDownloader:   opts.AutoDownloader,
+		metadataProvider: opts.MetadataProvider,
 	}
 }
 
@@ -203,6 +208,7 @@ func (as *AutoScanner) scan() {
 		SkipLockedFiles:    true, // Skip locked files by default.
 		SkipIgnoredFiles:   true,
 		ScanSummaryLogger:  scanSummaryLogger,
+		MetadataProvider:   as.metadataProvider,
 	}
 
 	allLfs, err := sc.Scan()

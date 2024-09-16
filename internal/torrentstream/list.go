@@ -24,7 +24,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	}
 
 	// Get the media info, this is cached
-	completeAnime, anizipMedia, err := r.getMediaInfo(mId)
+	completeAnime, animeMetadata, err := r.getMediaInfo(mId)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 
 	info, err := anime.NewAnimeEntryDownloadInfo(&anime.NewAnimeEntryDownloadInfoOptions{
 		LocalFiles:       nil,
-		AnizipMedia:      anizipMedia,
+		AnimeMetadata:    animeMetadata,
 		Progress:         lo.ToPtr(0), // Progress is 0 because we want the entire list
 		Status:           lo.ToPtr(anilist.MediaListStatusCurrent),
 		Media:            completeAnime.ToBaseAnime(),

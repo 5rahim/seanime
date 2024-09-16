@@ -77,10 +77,11 @@ func (r *Repository) SmartSelect(p *SmartSelectParams) error {
 
 	// AnalyzeTorrentFiles the torrent files
 	analyzer := torrent_analyzer.NewAnalyzer(&torrent_analyzer.NewAnalyzerOptions{
-		Logger:    r.logger,
-		Filepaths: filepaths,
-		Media:     p.Media,
-		Platform:  p.Platform,
+		Logger:           r.logger,
+		Filepaths:        filepaths,
+		Media:            p.Media,
+		Platform:         p.Platform,
+		MetadataProvider: r.metadataProvider,
 	})
 
 	r.logger.Debug().Msg("torrent client: analyzing torrent files (smart select)")

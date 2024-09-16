@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
@@ -76,10 +76,10 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 	var torrents []*hibiketorrent.AnimeTorrent
 
 	// Fetch Anizip media
-	anizipMedia := mo.None[*anizip.Media]()
-	anizipMediaF, err := anizip.FetchAniZipMediaC("anilist", opts.Media.ID, r.anizipCache)
+	animeMetadata := mo.None[*metadata.AnimeMetadata]()
+	animeMetadataF, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, opts.Media.GetID())
 	if err == nil {
-		anizipMedia = mo.Some(anizipMediaF)
+		animeMetadata = mo.Some(animeMetadataF)
 	}
 
 	queryMedia := hibiketorrent.Media{
@@ -101,7 +101,7 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 	}
 
 	//// Force simple search if AniZip media is absent
-	//if opts.Type == AnimeSearchTypeSmart && anizipMedia.IsAbsent() {
+	//if opts.Type == AnimeSearchTypeSmart && animeMetadata.IsAbsent() {
 	//	opts.Type = AnimeSearchTypeSimple
 	//}
 
@@ -113,17 +113,17 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 		anidbEID := 0
 
 		// Get the AniDB Anime ID and Episode ID
-		if anizipMedia.IsPresent() {
+		if animeMetadata.IsPresent() {
 			// Override absolute offset value of queryMedia
-			queryMedia.AbsoluteSeasonOffset = anizipMedia.MustGet().GetOffset()
+			queryMedia.AbsoluteSeasonOffset = animeMetadata.MustGet().GetOffset()
 
-			if anizipMedia.MustGet().GetMappings() != nil {
+			if animeMetadata.MustGet().GetMappings() != nil {
 
-				anidbAID = anizipMedia.MustGet().GetMappings().AnidbID
+				anidbAID = animeMetadata.MustGet().GetMappings().AnidbId
 				// Find Anizip Episode based on inputted episode number
-				anizipEpisode, found := anizipMedia.MustGet().FindEpisode(strconv.Itoa(opts.EpisodeNumber))
+				episodeMetadata, found := animeMetadata.MustGet().FindEpisode(strconv.Itoa(opts.EpisodeNumber))
 				if found {
-					anidbEID = anizipEpisode.AnidbEid
+					anidbEID = episodeMetadata.AnidbEid
 				}
 			}
 		}
@@ -182,10 +182,10 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 				defer wg.Done()
 
 				preview := r.createAnimeTorrentPreview(createAnimeTorrentPreviewOptions{
-					torrent:     t,
-					media:       opts.Media,
-					anizipMedia: anizipMedia,
-					searchOpts:  &opts,
+					torrent:       t,
+					media:         opts.Media,
+					animeMetadata: animeMetadata,
+					searchOpts:    &opts,
 				})
 				if preview != nil {
 					previews = append(previews, preview)
@@ -228,10 +228,10 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 }
 
 type createAnimeTorrentPreviewOptions struct {
-	torrent     *hibiketorrent.AnimeTorrent
-	media       *anilist.BaseAnime
-	anizipMedia mo.Option[*anizip.Media]
-	searchOpts  *AnimeSearchOptions
+	torrent       *hibiketorrent.AnimeTorrent
+	media         *anilist.BaseAnime
+	animeMetadata mo.Option[*metadata.AnimeMetadata]
+	searchOpts    *AnimeSearchOptions
 }
 
 func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOptions) *Preview {
@@ -280,26 +280,26 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		opts.torrent.EpisodeNumber = 1
 	}
 
-	if opts.anizipMedia.IsPresent() {
+	if opts.animeMetadata.IsPresent() {
 
 		// normalize episode number
 		if opts.torrent.EpisodeNumber >= 0 && opts.torrent.EpisodeNumber > opts.media.GetCurrentEpisodeCount() {
-			opts.torrent.EpisodeNumber = opts.torrent.EpisodeNumber - opts.anizipMedia.MustGet().GetOffset()
+			opts.torrent.EpisodeNumber = opts.torrent.EpisodeNumber - opts.animeMetadata.MustGet().GetOffset()
 		}
 
-		anizipMedia := opts.anizipMedia.MustGet()
-		_, foundEp := anizipMedia.FindEpisode(strconv.Itoa(opts.searchOpts.EpisodeNumber))
+		animeMetadata := opts.animeMetadata.MustGet()
+		_, foundEp := animeMetadata.FindEpisode(strconv.Itoa(opts.searchOpts.EpisodeNumber))
 
 		if foundEp {
 			var episode *anime.Episode
 
 			// Remove the episode if the parsed episode number is not the same as the search option
-			if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.anizipMedia.MustGet().GetOffset()) {
+			if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.animeMetadata.MustGet().GetOffset()) {
 				ep := opts.searchOpts.EpisodeNumber
 				episode = anime.NewEpisode(&anime.NewEpisodeOptions{
 					LocalFile:            nil,
 					OptionalAniDBEpisode: strconv.Itoa(ep),
-					AnizipMedia:          anizipMedia,
+					AnimeMetadata:        animeMetadata,
 					Media:                opts.media,
 					ProgressOffset:       0,
 					IsDownloaded:         false,
@@ -321,7 +321,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 		var episode *anime.Episode
 
 		// Remove the episode if the parsed episode number is not the same as the search option
-		if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.anizipMedia.MustGet().GetOffset()) {
+		if isProbablySameEpisode(parsedData.EpisodeNumber, opts.searchOpts.EpisodeNumber, opts.animeMetadata.MustGet().GetOffset()) {
 			displayTitle := ""
 			if len(parsedData.EpisodeNumber) == 1 && parsedData.EpisodeNumber[0] != strconv.Itoa(opts.searchOpts.EpisodeNumber) {
 				displayTitle = fmt.Sprintf("Episode %s", parsedData.EpisodeNumber[0])
@@ -337,7 +337,7 @@ func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOpt
 				AbsoluteEpisodeNumber: 0,
 				LocalFile:             nil,
 				IsDownloaded:          false,
-				EpisodeMetadata:       anime.NewEpisodeMetadata(opts.anizipMedia.MustGet(), nil, opts.media, r.metadataProvider),
+				EpisodeMetadata:       anime.NewEpisodeMetadata(opts.animeMetadata.MustGet(), nil, opts.media, r.metadataProvider),
 				FileMetadata:          nil,
 				IsInvalid:             false,
 				MetadataIssue:         "",

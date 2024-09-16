@@ -119,7 +119,7 @@ func (a *App) initModulesOnce() {
 		TorrentRepository:       a.TorrentRepository,
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
-		AnizipCache:             a.AnizipCache,
+		MetadataProvider:        a.MetadataProvider,
 	})
 
 	if !a.IsOffline() {
@@ -132,12 +132,13 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.AutoScanner = autoscanner.New(&autoscanner.NewAutoScannerOptions{
-		Database:       a.Database,
-		Enabled:        false, // Will be set in InitOrRefreshModules
-		AutoDownloader: a.AutoDownloader,
-		Platform:       a.AnilistPlatform,
-		Logger:         a.Logger,
-		WSEventManager: a.WSEventManager,
+		Database:         a.Database,
+		Platform:         a.AnilistPlatform,
+		Logger:           a.Logger,
+		WSEventManager:   a.WSEventManager,
+		Enabled:          false, // Will be set in InitOrRefreshModules
+		AutoDownloader:   a.AutoDownloader,
+		MetadataProvider: a.MetadataProvider,
 	})
 
 	// This is run in a goroutine
@@ -180,7 +181,6 @@ func (a *App) initModulesOnce() {
 
 	a.TorrentstreamRepository = torrentstream.NewRepository(&torrentstream.NewRepositoryOptions{
 		Logger:             a.Logger,
-		AnizipCache:        a.AnizipCache,
 		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
 		MetadataProvider:   a.MetadataProvider,
@@ -332,6 +332,7 @@ func (a *App) InitOrRefreshModules() {
 			Transmission:      trans,
 			TorrentRepository: a.TorrentRepository,
 			Provider:          settings.Torrent.Default,
+			MetadataProvider:  a.MetadataProvider,
 		})
 
 		a.TorrentClientRepository.InitActiveTorrentCount(settings.Torrent.ShowActiveTorrentCount, a.WSEventManager)

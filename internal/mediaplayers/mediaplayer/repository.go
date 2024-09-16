@@ -45,7 +45,6 @@ type (
 		VLC               *vlc2.VLC
 		MpcHc             *mpchc2.MpcHc
 		Mpv               *mpv.Mpv
-		MpvType           string
 		WSEventManager    events.WSEventManagerInterface
 		ContinuityManager *continuity.Manager
 	}

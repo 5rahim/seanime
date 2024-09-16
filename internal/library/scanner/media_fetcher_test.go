@@ -4,7 +4,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -18,7 +18,7 @@ func TestNewMediaFetcher(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
-	anizipCache := anizip.NewCache()
+	metadataProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -82,7 +82,7 @@ func TestNewMediaFetcher(t *testing.T) {
 				Platform:               anilistPlatform,
 				LocalFiles:             lfs,
 				CompleteAnimeCache:     completeAnimeCache,
-				AnizipCache:            anizipCache,
+				MetadataProvider:       metadataProvider,
 				Logger:                 util.NewLogger(),
 				AnilistRateLimiter:     anilistRateLimiter,
 				ScanLogger:             scanLogger,
@@ -111,7 +111,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
-	anizipCache := anizip.NewCache()
+	metaProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -162,7 +162,7 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 				Platform:           anilistPlatform,
 				LocalFiles:         lfs,
 				CompleteAnimeCache: completeAnimeCache,
-				AnizipCache:        anizipCache,
+				MetadataProvider:   metaProvider,
 				Logger:             util.NewLogger(),
 				AnilistRateLimiter: anilistRateLimiter,
 				ScanLogger:         scanLogger,
@@ -190,7 +190,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
-	anizipCache := anizip.NewCache()
+	metaProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
@@ -240,7 +240,7 @@ func TestFetchMediaFromLocalFiles(t *testing.T) {
 				anilistPlatform,
 				lfs,
 				completeAnimeCache,
-				anizipCache,
+				metaProvider,
 				anilistRateLimiter,
 				scanLogger,
 			)

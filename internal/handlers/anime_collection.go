@@ -6,10 +6,7 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
-	"seanime/internal/util/result"
 )
-
-var libraryCollectionCache = result.NewResultMap[int, *anime.LibraryCollection]()
 
 // HandleGetLibraryCollection
 //
@@ -39,7 +36,6 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
 		Platform:         c.App.AnilistPlatform,
-		AnizipCache:      c.App.AnizipCache,
 		LocalFiles:       lfs,
 		MetadataProvider: c.App.MetadataProvider,
 	})
@@ -51,7 +47,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 		c.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
 			AnimeCollection:   animeCollection,
 			LibraryCollection: libraryCollection,
-			AnizipCache:       c.App.AnizipCache,
+			MetadataProvider:  c.App.MetadataProvider,
 		})
 	}
 

@@ -8,7 +8,7 @@ import (
 	"github.com/samber/mo"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
@@ -38,7 +38,7 @@ type (
 		animeCollection         mo.Option[*anilist.AnimeCollection]
 		wsEventManager          events.WSEventManagerInterface
 		settings                *models.AutoDownloaderSettings
-		anizipCache             *anizip.Cache
+		metadataProvider        metadata.Provider
 		settingsUpdatedCh       chan struct{}
 		stopCh                  chan struct{}
 		startCh                 chan struct{}
@@ -52,7 +52,7 @@ type (
 		TorrentRepository       *torrent.Repository
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
-		AnizipCache             *anizip.Cache
+		MetadataProvider        metadata.Provider
 	}
 
 	tmpTorrentToDownload struct {
@@ -69,7 +69,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		database:                opts.Database,
 		wsEventManager:          opts.WSEventManager,
 		animeCollection:         mo.None[*anilist.AnimeCollection](),
-		anizipCache:             opts.AnizipCache,
+		metadataProvider:        opts.MetadataProvider,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              torrent.ProviderAnimeTosho, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
@@ -480,8 +480,8 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		Episode:     episode,
 		Link:        t.Link,
 		Hash:        t.InfoHash,
-		TorrentName: t.Name,
 		Magnet:      magnet,
+		TorrentName: t.Name,
 		Downloaded:  downloaded,
 	}
 	_ = ad.database.InsertAutoDownloaderItem(item)
@@ -668,10 +668,10 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
 		// Fetch the AniZip media in order to normalize the episode number
 		ad.mu.Lock()
-		anizipMedia, err := anizip.FetchAniZipMediaC("anilist", listEntry.GetMedia().GetID(), ad.anizipCache)
+		animeMetadata, err := ad.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
 		// If the media is found and the offset is greater than 0
-		if err == nil && anizipMedia.GetOffset() > 0 {
-			episode = episode - anizipMedia.GetOffset()
+		if err == nil && animeMetadata.GetOffset() > 0 {
+			episode = episode - animeMetadata.GetOffset()
 		}
 		ad.mu.Unlock()
 	}

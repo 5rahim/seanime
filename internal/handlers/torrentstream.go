@@ -5,7 +5,7 @@ import (
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	lop "github.com/samber/lo/parallel"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
@@ -107,10 +107,10 @@ func HandleGetTorrentstreamTorrentFilePreviews(c *RouteCtx) error {
 	}
 
 	// Get the media
-	anizipMedia, _ := anizip.FetchAniZipMediaC("anilist", b.Media.GetID(), c.App.AnizipCache)
+	animeMetadata, _ := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
 	absoluteOffset := 0
-	if anizipMedia != nil {
-		absoluteOffset = anizipMedia.GetOffset()
+	if animeMetadata != nil {
+		absoluteOffset = animeMetadata.GetOffset()
 	}
 
 	files, err := c.App.TorrentstreamRepository.GetTorrentFilePreviewsFromManualSelection(&torrentstream.GetTorrentFilePreviewsOptions{

@@ -3,7 +3,7 @@ package torrentstream
 import (
 	"fmt"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"strconv"
 	"sync"
@@ -21,7 +21,7 @@ type (
 	HydrateStreamCollectionOptions struct {
 		AnimeCollection   *anilist.AnimeCollection
 		LibraryCollection *anime.LibraryCollection
-		AnizipCache       *anizip.Cache
+		MetadataProvider  metadata.Provider
 	}
 )
 
@@ -93,13 +93,13 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			}
 
 			// Get the media info
-			anizipMedia, err := anizip.FetchAniZipMediaC("anilist", mediaId, r.anizipCache)
+			animeMetadata, err := opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 			if err != nil {
 				r.logger.Error().Err(err).Msg("torrentstream: could not fetch AniDB media")
 				return
 			}
 
-			_, found := anizipMedia.FindEpisode(strconv.Itoa(nextEpisodeToWatch))
+			_, found := animeMetadata.FindEpisode(strconv.Itoa(nextEpisodeToWatch))
 			//if !found {
 			//	r.logger.Error().Msg("torrentstream: could not find episode in AniDB")
 			//	return
@@ -107,7 +107,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 
 			progressOffset := 0
 			anidbEpisode := strconv.Itoa(nextEpisodeToWatch)
-			if anime.HasDiscrepancy(entry.GetMedia(), anizipMedia) {
+			if anime.HasDiscrepancy(entry.GetMedia(), animeMetadata) {
 				progressOffset = 1
 				if nextEpisodeToWatch == 1 {
 					anidbEpisode = "S1"
@@ -118,7 +118,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			episode := anime.NewEpisode(&anime.NewEpisodeOptions{
 				LocalFile:            nil,
 				OptionalAniDBEpisode: anidbEpisode,
-				AnizipMedia:          anizipMedia,
+				AnimeMetadata:        animeMetadata,
 				Media:                entry.GetMedia(),
 				ProgressOffset:       progressOffset,
 				IsDownloaded:         false,

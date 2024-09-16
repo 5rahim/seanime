@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/hekmon/transmissionrpc/v3"
 	"github.com/rs/zerolog"
+	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/qbittorrent/model"
@@ -21,12 +22,12 @@ const (
 
 type (
 	Repository struct {
-		logger            *zerolog.Logger
-		qBittorrentClient *qbittorrent.Client
-		transmission      *transmission.Transmission
-		torrentRepository *torrent.Repository
-		provider          string
-
+		logger                      *zerolog.Logger
+		qBittorrentClient           *qbittorrent.Client
+		transmission                *transmission.Transmission
+		torrentRepository           *torrent.Repository
+		provider                    string
+		metadataProvider            metadata.Provider
 		activeTorrentCountCtxCancel context.CancelFunc
 		activeTorrentCount          *ActiveCount
 	}
@@ -37,6 +38,7 @@ type (
 		Transmission      *transmission.Transmission
 		TorrentRepository *torrent.Repository
 		Provider          string
+		MetadataProvider  metadata.Provider
 	}
 
 	ActiveCount struct {
@@ -56,6 +58,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		transmission:       opts.Transmission,
 		torrentRepository:  opts.TorrentRepository,
 		provider:           opts.Provider,
+		metadataProvider:   opts.MetadataProvider,
 		activeTorrentCount: &ActiveCount{},
 	}
 }

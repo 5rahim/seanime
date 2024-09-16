@@ -4,7 +4,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -15,7 +14,7 @@ import (
 func TestNewLibraryCollection(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	metadataProvider := metadata.TestGetMockProvider(t)
+	metadataProvider := metadata.GetMockProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
@@ -79,7 +78,6 @@ func TestNewLibraryCollection(t *testing.T) {
 		libraryCollection, err := NewLibraryCollection(&NewLibraryCollectionOptions{
 			AnimeCollection:  animeCollection,
 			LocalFiles:       lfs,
-			AnizipCache:      anizip.NewCache(),
 			Platform:         anilistPlatform,
 			MetadataProvider: metadataProvider,
 		})

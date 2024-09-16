@@ -2,7 +2,7 @@ package scanner
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
@@ -19,9 +19,8 @@ func TestScanLogger(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	allMedia := animeCollection.GetAllAnime()
-
+	metadataProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
-	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	logger := util.NewLogger()
 
@@ -81,9 +80,10 @@ func TestScanLogger(t *testing.T) {
 			matcher := &Matcher{
 				LocalFiles:         lfs,
 				MediaContainer:     mc,
-				CompleteAnimeCache: nil,
+				CompleteAnimeCache: completeAnimeCache,
 				Logger:             util.NewLogger(),
 				ScanLogger:         scanLogger,
+				ScanSummaryLogger:  nil,
 			}
 
 			err = matcher.MatchLocalFilesWithMedia()
@@ -99,11 +99,13 @@ func TestScanLogger(t *testing.T) {
 				LocalFiles:         lfs,
 				AllMedia:           mc.NormalizedMedia,
 				CompleteAnimeCache: completeAnimeCache,
-				AnizipCache:        anizipCache,
 				Platform:           anilistPlatform,
+				MetadataProvider:   metadataProvider,
 				AnilistRateLimiter: anilistRateLimiter,
 				Logger:             logger,
 				ScanLogger:         scanLogger,
+				ScanSummaryLogger:  nil,
+				ForceMediaId:       0,
 			}
 
 			fh.HydrateMetadata()

@@ -23586,75 +23586,15 @@
     "comments": []
   },
   {
-    "filepath": "../internal/api/metadata/provider.go",
-    "filename": "provider.go",
-    "name": "Provider",
-    "formattedName": "Metadata_Provider",
+    "filepath": "../internal/api/metadata/anime.go",
+    "filename": "anime.go",
+    "name": "AnimeWrapperImpl",
+    "formattedName": "Metadata_AnimeWrapperImpl",
     "package": "metadata",
     "fields": [
       {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "fileCacher",
-        "jsonName": "fileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/metadata/provider.go",
-    "filename": "provider.go",
-    "name": "NewProviderOptions",
-    "formattedName": "Metadata_NewProviderOptions",
-    "package": "metadata",
-    "fields": [
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FileCacher",
-        "jsonName": "FileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/api/metadata/wrapper.go",
-    "filename": "wrapper.go",
-    "name": "MediaWrapper",
-    "formattedName": "Metadata_MediaWrapper",
-    "package": "metadata",
-    "fields": [
-      {
-        "name": "anizipMedia",
-        "jsonName": "anizipMedia",
+        "name": "metadata",
+        "jsonName": "metadata",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -23705,22 +23645,61 @@
     "comments": []
   },
   {
-    "filepath": "../internal/api/metadata/wrapper.go",
-    "filename": "wrapper.go",
-    "name": "NewMediaWrapperOptions",
-    "formattedName": "Metadata_NewMediaWrapperOptions",
+    "filepath": "../internal/api/metadata/provider.go",
+    "filename": "provider.go",
+    "name": "ProviderImpl",
+    "formattedName": "Metadata_ProviderImpl",
     "package": "metadata",
     "fields": [
       {
-        "name": "AnizipMedia",
-        "jsonName": "AnizipMedia",
-        "goType": "anizip.Media",
-        "typescriptType": "Anizip_Media",
-        "usedStructName": "anizip.Media",
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
-        "public": true,
+        "public": false,
         "comments": []
       },
+      {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeMetadataCache",
+        "jsonName": "animeMetadataCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anizipCache",
+        "jsonName": "anizipCache",
+        "goType": "anizip.Cache",
+        "typescriptType": "Anizip_Cache",
+        "usedStructName": "anizip.Cache",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata/provider.go",
+    "filename": "provider.go",
+    "name": "NewProviderImplOptions",
+    "formattedName": "Metadata_NewProviderImplOptions",
+    "package": "metadata",
+    "fields": [
       {
         "name": "Logger",
         "jsonName": "Logger",
@@ -23730,15 +23709,217 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
   },
   {
-    "filepath": "../internal/api/metadata/wrapper.go",
-    "filename": "wrapper.go",
-    "name": "MediaWrapperEpisodeMetadata",
-    "formattedName": "Metadata_MediaWrapperEpisodeMetadata",
+    "filepath": "../internal/api/metadata/types.go",
+    "filename": "types.go",
+    "name": "Platform",
+    "formattedName": "Metadata_Platform",
+    "package": "metadata",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"anilist\"",
+        "\"mal\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata/types.go",
+    "filename": "types.go",
+    "name": "AnimeMetadata",
+    "formattedName": "Metadata_AnimeMetadata",
+    "package": "metadata",
+    "fields": [
+      {
+        "name": "Titles",
+        "jsonName": "titles",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episodes",
+        "jsonName": "episodes",
+        "goType": "map[string]EpisodeMetadata",
+        "typescriptType": "Record\u003cstring, Metadata_EpisodeMetadata\u003e",
+        "usedStructName": "metadata.EpisodeMetadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeCount",
+        "jsonName": "episodeCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SpecialCount",
+        "jsonName": "specialCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Mappings",
+        "jsonName": "mappings",
+        "goType": "AnimeMappings",
+        "typescriptType": "Metadata_AnimeMappings",
+        "usedStructName": "metadata.AnimeMappings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata/types.go",
+    "filename": "types.go",
+    "name": "AnimeMappings",
+    "formattedName": "Metadata_AnimeMappings",
+    "package": "metadata",
+    "fields": [
+      {
+        "name": "AnimeplanetId",
+        "jsonName": "animeplanetId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "KitsuId",
+        "jsonName": "kitsuId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MalId",
+        "jsonName": "malId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistId",
+        "jsonName": "anilistId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnisearchId",
+        "jsonName": "anisearchId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnidbId",
+        "jsonName": "anidbId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NotifymoeId",
+        "jsonName": "notifymoeId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LivechartId",
+        "jsonName": "livechartId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ThetvdbId",
+        "jsonName": "thetvdbId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ImdbId",
+        "jsonName": "imdbId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ThemoviedbId",
+        "jsonName": "themoviedbId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/metadata/types.go",
+    "filename": "types.go",
+    "name": "EpisodeMetadata",
+    "formattedName": "Metadata_EpisodeMetadata",
     "package": "metadata",
     "fields": [
       {
@@ -23746,40 +23927,34 @@
         "jsonName": "anidbId",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
+        "required": true,
         "public": true,
-        "comments": [
-          " Episode AniDB ID"
-        ]
+        "comments": []
       },
       {
         "name": "TvdbId",
         "jsonName": "tvdbId",
-        "goType": "int64",
+        "goType": "int",
         "typescriptType": "number",
-        "required": false,
+        "required": true,
         "public": true,
-        "comments": [
-          " Episode TVDB ID"
-        ]
+        "comments": []
       },
       {
         "name": "Title",
         "jsonName": "title",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
+        "required": true,
         "public": true,
-        "comments": [
-          " Episode title"
-        ]
+        "comments": []
       },
       {
         "name": "Image",
         "jsonName": "image",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -23788,7 +23963,7 @@
         "jsonName": "airDate",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -23797,7 +23972,7 @@
         "jsonName": "length",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -23806,7 +23981,7 @@
         "jsonName": "summary",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -23815,7 +23990,7 @@
         "jsonName": "overview",
         "goType": "string",
         "typescriptType": "string",
-        "required": false,
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -23824,7 +23999,43 @@
         "jsonName": "episodeNumber",
         "goType": "int",
         "typescriptType": "number",
-        "required": false,
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeasonNumber",
+        "jsonName": "seasonNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AbsoluteEpisodeNumber",
+        "jsonName": "absoluteEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnidbEid",
+        "jsonName": "anidbEid",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -24961,18 +25172,6 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": [
-          " AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)"
-        ]
       },
       {
         "name": "AnilistClient",
@@ -30434,10 +30633,11 @@
         "comments": []
       },
       {
-        "name": "anizipMediaCache",
-        "jsonName": "anizipMediaCache",
-        "goType": "",
-        "typescriptType": "any",
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -31822,16 +32022,6 @@
         ]
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "AnimeCollection",
         "jsonName": "AnimeCollection",
         "goType": "anilist.AnimeCollection",
@@ -31985,11 +32175,11 @@
         "comments": []
       },
       {
-        "name": "AnizipMedia",
-        "jsonName": "AnizipMedia",
-        "goType": "anizip.Media",
-        "typescriptType": "Anizip_Media",
-        "usedStructName": "anizip.Media",
+        "name": "AnimeMetadata",
+        "jsonName": "AnimeMetadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
         "required": false,
         "public": true,
         "comments": []
@@ -32825,16 +33015,6 @@
         "comments": []
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Platform",
         "jsonName": "Platform",
         "goType": "platform.Platform",
@@ -33107,11 +33287,11 @@
         "comments": []
       },
       {
-        "name": "AnizipMedia",
-        "jsonName": "AnizipMedia",
-        "goType": "anizip.Media",
-        "typescriptType": "Anizip_Media",
-        "usedStructName": "anizip.Media",
+        "name": "AnimeMetadata",
+        "jsonName": "AnimeMetadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
         "required": false,
         "public": true,
         "comments": [
@@ -33608,16 +33788,6 @@
         "comments": []
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "SilencedMediaIds",
         "jsonName": "SilencedMediaIds",
         "goType": "[]int",
@@ -33916,11 +34086,11 @@
         "comments": []
       },
       {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -34032,11 +34202,11 @@
         "comments": []
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -34211,6 +34381,16 @@
         "comments": [
           " AutoDownloader instance is required to refresh queue."
         ]
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -34287,6 +34467,16 @@
         "goType": "time.Duration",
         "typescriptType": "Duration",
         "usedStructName": "time.Duration",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -35245,21 +35435,21 @@
         "comments": []
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Platform",
         "jsonName": "Platform",
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -35583,6 +35773,16 @@
         "comments": []
       },
       {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "LocalFiles",
         "jsonName": "LocalFiles",
         "goType": "[]anime.LocalFile",
@@ -35598,16 +35798,6 @@
         "goType": "anilist.CompleteAnimeCache",
         "typescriptType": "AL_CompleteAnimeCache",
         "usedStructName": "anilist.CompleteAnimeCache",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
         "required": false,
         "public": true,
         "comments": []
@@ -35672,11 +35862,11 @@
         "comments": []
       },
       {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -35732,11 +35922,11 @@
         "comments": []
       },
       {
-        "name": "anizipMedia",
-        "jsonName": "anizipMedia",
-        "goType": "anizip.Media",
-        "typescriptType": "Anizip_Media",
-        "usedStructName": "anizip.Media",
+        "name": "animeMetadata",
+        "jsonName": "animeMetadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
         "required": false,
         "public": false,
         "comments": []
@@ -35897,6 +36087,16 @@
         "goType": "ScanLogger",
         "typescriptType": "Scanner_ScanLogger",
         "usedStructName": "scanner.ScanLogger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -39670,15 +39870,6 @@
         "typescriptType": "Mpv",
         "usedStructName": "mpv.Mpv",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MpvType",
-        "jsonName": "MpvType",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -43553,6 +43744,15 @@
     "comments": []
   },
   {
+    "filepath": "../internal/offline/mock.go",
+    "filename": "mock.go",
+    "name": "MockHub",
+    "formattedName": "Offline_MockHub",
+    "package": "offline",
+    "fields": [],
+    "comments": []
+  },
+  {
     "filepath": "../internal/offline/models.go",
     "filename": "models.go",
     "name": "SnapshotEntry",
@@ -44020,15 +44220,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/offline/test_helper.go",
-    "filename": "test_helper.go",
-    "name": "MockHub",
-    "formattedName": "Offline_MockHub",
-    "package": "offline",
-    "fields": [],
-    "comments": []
-  },
-  {
     "filepath": "../internal/onlinestream/providers/gogoanime.go",
     "filename": "gogoanime.go",
     "name": "Gogoanime",
@@ -44171,11 +44362,11 @@
         "comments": []
       },
       {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": false,
         "comments": []
@@ -44420,11 +44611,11 @@
         "comments": []
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -49225,6 +49416,16 @@
         "comments": []
       },
       {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "activeTorrentCountCtxCancel",
         "jsonName": "activeTorrentCountCtxCancel",
         "goType": "context.CancelFunc",
@@ -49300,6 +49501,16 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -49683,6 +49894,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -49815,6 +50036,16 @@
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -50838,16 +51069,6 @@
         "comments": []
       },
       {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "settings",
         "jsonName": "settings",
         "goType": "RepositorySettings",
@@ -51368,11 +51589,11 @@
         "comments": []
       },
       {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
         "required": false,
         "public": true,
         "comments": []
@@ -51690,16 +51911,6 @@
         "comments": []
       },
       {
-        "name": "anizipCache",
-        "jsonName": "anizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "baseAnimeCache",
         "jsonName": "baseAnimeCache",
         "goType": "anilist.BaseAnimeCache",
@@ -51827,16 +52038,6 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnizipCache",
-        "jsonName": "AnizipCache",
-        "goType": "anizip.Cache",
-        "typescriptType": "Anizip_Cache",
-        "usedStructName": "anizip.Cache",
         "required": false,
         "public": true,
         "comments": []

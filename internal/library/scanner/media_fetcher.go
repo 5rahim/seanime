@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/mal"
+	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
@@ -29,9 +29,9 @@ type MediaFetcher struct {
 type MediaFetcherOptions struct {
 	Enhanced               bool
 	Platform               platform.Platform
+	MetadataProvider       metadata.Provider
 	LocalFiles             []*anime.LocalFile
 	CompleteAnimeCache     *anilist.CompleteAnimeCache
-	AnizipCache            *anizip.Cache
 	Logger                 *zerolog.Logger
 	AnilistRateLimiter     *limiter.Limiter
 	DisableAnimeCollection bool
@@ -49,7 +49,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 	if opts.Platform == nil ||
 		opts.LocalFiles == nil ||
 		opts.CompleteAnimeCache == nil ||
-		opts.AnizipCache == nil ||
+		opts.MetadataProvider == nil ||
 		opts.Logger == nil ||
 		opts.AnilistRateLimiter == nil {
 		return nil, errors.New("missing options")
@@ -122,7 +122,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 			opts.Platform,
 			opts.LocalFiles,
 			opts.CompleteAnimeCache, // CompleteAnimeCache will be populated on success
-			opts.AnizipCache,
+			opts.MetadataProvider,
 			opts.AnilistRateLimiter,
 			mf.ScanLogger,
 		)
@@ -166,7 +166,7 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 // FetchMediaFromLocalFiles gets media and their relations from local file titles.
 // It retrieves unique titles from local files,
 // fetches mal.SearchResultAnime from MAL,
-// uses these search results to get AniList IDs using anizip.Media mappings,
+// uses these search results to get AniList IDs using metadata.AnimeMetadata mappings,
 // queries AniList to retrieve all anilist.BaseAnime using anilist.GetBaseAnimeById and their relations using anilist.FetchMediaTree.
 // It does not return an error if one of the steps fails.
 // It returns the scanned media and a boolean indicating whether the process was successful.
@@ -174,7 +174,7 @@ func FetchMediaFromLocalFiles(
 	platform platform.Platform,
 	localFiles []*anime.LocalFile,
 	completeAnime *anilist.CompleteAnimeCache,
-	anizipCache *anizip.Cache,
+	metadataProvider metadata.Provider,
 	anilistRateLimiter *limiter.Limiter,
 	scanLogger *ScanLogger,
 ) ([]*anilist.CompleteAnime, bool) {
@@ -231,12 +231,13 @@ func FetchMediaFromLocalFiles(
 	// |       AniZip        |
 	// +---------------------+
 
-	// Get AniZip mappings for each MAL ID and store them in `anizipCache`
+	// Get AniZip mappings for each MAL ID and store them in `metadataProvider`
 	// This step is necessary because MAL doesn't provide AniList IDs and some MAL media don't exist on AniList
 	lop.ForEach(malIds, func(id int, index int) {
 		rateLimiter2.Wait()
-		_, _ = anizipCache.GetOrSet(anizip.GetCacheKey("mal", id), func() (*anizip.Media, error) {
-			res, err := anizip.FetchAniZipMedia("mal", id)
+		//_, _ = metadataProvider.GetAnimeMetadata(metadata.MalPlatform, id)
+		_, _ = metadataProvider.GetCache().GetOrSet(metadata.GetAnimeMetadataCacheKey(metadata.MalPlatform, id), func() (*metadata.AnimeMetadata, error) {
+			res, err := metadataProvider.GetAnimeMetadata(metadata.MalPlatform, id)
 			return res, err
 		})
 	})
@@ -247,9 +248,9 @@ func FetchMediaFromLocalFiles(
 
 	// Retrieve the AniList IDs from the AniZip mappings stored in the cache
 	anilistIds := make([]int, 0)
-	anizipCache.Range(func(key string, value *anizip.Media) bool {
+	metadataProvider.GetCache().Range(func(key string, value *metadata.AnimeMetadata) bool {
 		if value != nil {
-			anilistIds = append(anilistIds, value.GetMappings().AnilistID)
+			anilistIds = append(anilistIds, value.GetMappings().AnilistId)
 		}
 		return true
 	})

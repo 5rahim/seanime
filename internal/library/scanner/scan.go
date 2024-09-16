@@ -6,7 +6,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/filesystem"
@@ -30,6 +30,7 @@ type Scanner struct {
 	SkipIgnoredFiles   bool
 	ScanSummaryLogger  *summary.ScanSummaryLogger
 	ScanLogger         *ScanLogger
+	MetadataProvider   metadata.Provider
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -38,7 +39,6 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	defer util.HandlePanicWithError(&err)
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
-	anizipCache := anizip.NewCache()
 
 	// Create a new Anilist rate limiter
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -177,14 +177,15 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	// Fetch media needed for matching
 	mf, err := NewMediaFetcher(&MediaFetcherOptions{
-		Enhanced:           scn.Enhanced,
-		Platform:           scn.Platform,
-		LocalFiles:         localFiles,
-		CompleteAnimeCache: completeAnimeCache,
-		AnizipCache:        anizipCache,
-		Logger:             scn.Logger,
-		AnilistRateLimiter: anilistRateLimiter,
-		ScanLogger:         scn.ScanLogger,
+		Enhanced:               scn.Enhanced,
+		Platform:               scn.Platform,
+		MetadataProvider:       scn.MetadataProvider,
+		LocalFiles:             localFiles,
+		CompleteAnimeCache:     completeAnimeCache,
+		Logger:                 scn.Logger,
+		AnilistRateLimiter:     anilistRateLimiter,
+		DisableAnimeCollection: false,
+		ScanLogger:             scn.ScanLogger,
 	})
 	if err != nil {
 		return nil, err
@@ -245,7 +246,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	hydrator := &FileHydrator{
 		AllMedia:           mc.NormalizedMedia,
 		LocalFiles:         localFiles,
-		AnizipCache:        anizipCache,
+		MetadataProvider:   scn.MetadataProvider,
 		Platform:           scn.Platform,
 		CompleteAnimeCache: completeAnimeCache,
 		AnilistRateLimiter: anilistRateLimiter,

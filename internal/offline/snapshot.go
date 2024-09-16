@@ -4,7 +4,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
@@ -75,8 +74,6 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 	lfWrapper := anime.NewLocalFileWrapper(lfs)
 	lfEntries := lfWrapper.GetLocalEntries()
 
-	anizipCache := anizip.NewCache()
-
 	rateLimiter := limiter.NewLimiter(1*time.Second, 5)
 	for _, lfEntry := range lfEntries {
 		if !slices.Contains(opts.AnimeToDownload, lfEntry.GetMediaId()) {
@@ -100,7 +97,6 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 		_mediaEntry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
 			MediaId:          lfEntry.GetMediaId(),
 			LocalFiles:       lfs,
-			AnizipCache:      anizipCache,
 			AnimeCollection:  animeCollection,
 			Platform:         h.platform,
 			MetadataProvider: h.metadataProvider,

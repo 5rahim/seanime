@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
@@ -19,7 +19,7 @@ type (
 		logger                *zerolog.Logger
 		providerExtensionBank *extension.UnifiedBank
 		fileCacher            *filecache.Cacher
-		anizipCache           *anizip.Cache
+		metadataProvider      metadata.Provider
 		platform              platform.Platform
 		anilistBaseAnimeCache *anilist.BaseAnimeCache
 	}
@@ -63,17 +63,17 @@ type (
 
 type (
 	NewRepositoryOptions struct {
-		Logger      *zerolog.Logger
-		FileCacher  *filecache.Cacher
-		AnizipCache *anizip.Cache
-		Platform    platform.Platform
+		Logger           *zerolog.Logger
+		FileCacher       *filecache.Cacher
+		MetadataProvider metadata.Provider
+		Platform         platform.Platform
 	}
 )
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	return &Repository{
 		logger:                opts.Logger,
-		anizipCache:           opts.AnizipCache,
+		metadataProvider:      opts.MetadataProvider,
 		fileCacher:            opts.FileCacher,
 		providerExtensionBank: extension.NewUnifiedBank(),
 		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
@@ -145,8 +145,8 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	// |       Anizip        |
 	// +---------------------+
 
-	anizipMedia, err := anizip.FetchAniZipMediaC("anilist", mId, r.anizipCache)
-	foundAnizipMedia := err == nil && anizipMedia != nil
+	animeMetadata, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mId)
+	foundAnimeMetadata := err == nil && animeMetadata != nil
 
 	// +---------------------+
 	// |    Episode list     |
@@ -160,18 +160,18 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	}
 
 	for _, episodeDetails := range ec.ProviderEpisodeList {
-		if foundAnizipMedia {
-			anizipEpisode, found := anizipMedia.Episodes[strconv.Itoa(episodeDetails.Number)]
+		if foundAnimeMetadata {
+			episodeMetadata, found := animeMetadata.Episodes[strconv.Itoa(episodeDetails.Number)]
 			if found {
-				img := anizipEpisode.Image
+				img := episodeMetadata.Image
 				if img == "" {
 					img = media.GetCoverImageSafe()
 				}
 				episodes = append(episodes, &Episode{
 					Number:      episodeDetails.Number,
-					Title:       anizipEpisode.GetTitle(),
+					Title:       episodeMetadata.GetTitle(),
 					Image:       img,
-					Description: anizipEpisode.Summary,
+					Description: episodeMetadata.Summary,
 				})
 			} else {
 				episodes = append(episodes, &Episode{

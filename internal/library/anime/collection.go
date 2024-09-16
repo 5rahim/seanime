@@ -7,7 +7,6 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
@@ -86,7 +85,6 @@ type (
 	NewLibraryCollectionOptions struct {
 		AnimeCollection  *anilist.AnimeCollection
 		LocalFiles       []*LocalFile
-		AnizipCache      *anizip.Cache
 		Platform         platform.Platform
 		MetadataProvider metadata.Provider
 	}
@@ -114,7 +112,6 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	lc.hydrateContinueWatchingList(
 		opts.LocalFiles,
 		opts.AnimeCollection,
-		opts.AnizipCache,
 		opts.Platform,
 		opts.MetadataProvider,
 	)
@@ -315,7 +312,6 @@ func (lc *LibraryCollection) hydrateStats(lfs []*LocalFile) {
 func (lc *LibraryCollection) hydrateContinueWatchingList(
 	localFiles []*LocalFile,
 	animeCollection *anilist.AnimeCollection,
-	anizipCache *anizip.Cache,
 	platform platform.Platform,
 	metadataProvider metadata.Provider,
 ) {
@@ -344,7 +340,6 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 				MediaId:          mId,
 				LocalFiles:       localFiles,
 				AnimeCollection:  animeCollection,
-				AnizipCache:      anizipCache,
 				Platform:         platform,
 				MetadataProvider: metadataProvider,
 			})

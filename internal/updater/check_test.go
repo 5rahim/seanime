@@ -4,6 +4,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/constants"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -29,8 +30,6 @@ func TestUpdater_FetchLatestRelease(t *testing.T) {
 }
 
 func TestUpdater_CompareVersion(t *testing.T) {
-
-	updater := Updater{}
 
 	tests := []struct {
 		currVersion   string
@@ -62,11 +61,16 @@ func TestUpdater_CompareVersion(t *testing.T) {
 			latestVersion: "0.2.1",
 			shouldUpdate:  false,
 		},
+		{
+			currVersion:   "1.0.0",
+			latestVersion: "0.2.1",
+			shouldUpdate:  false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.latestVersion, func(t *testing.T) {
-			updateType, shouldUpdate := updater.compareVersion(tt.currVersion, tt.latestVersion)
+			updateType, shouldUpdate := util.CompareVersion(tt.currVersion, tt.latestVersion)
 			assert.Equal(t, tt.shouldUpdate, shouldUpdate)
 			t.Log(tt.latestVersion, updateType)
 		})

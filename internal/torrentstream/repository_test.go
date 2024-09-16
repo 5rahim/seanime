@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -21,7 +20,7 @@ import (
 )
 
 func TestTorrentstream(t *testing.T) {
-	t.Skip()
+	t.Skip("Incomplete")
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist(), test_utils.MediaPlayer(), test_utils.Torrentstream())
 
@@ -74,7 +73,6 @@ func TestTorrentstream(t *testing.T) {
 
 	repo := NewRepository(&NewRepositoryOptions{
 		Logger:             logger,
-		AnizipCache:        anizip.NewCache(),
 		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
 		Platform:           anilistPlatform,
@@ -82,9 +80,10 @@ func TestTorrentstream(t *testing.T) {
 			Logger:     logger,
 			FileCacher: filecacher,
 		}),
-		PlaybackManager: playbackManager,
-		WSEventManager:  wsEventManager,
-		Database:        database,
+		PlaybackManager:   playbackManager,
+		WSEventManager:    wsEventManager,
+		Database:          database,
+		TorrentRepository: nil,
 	})
 	repo.SetMediaPlayerRepository(mediaPlayerRepo)
 	defer repo.Shutdown()

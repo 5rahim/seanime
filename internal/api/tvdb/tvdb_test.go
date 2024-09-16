@@ -40,7 +40,7 @@ func TestTVDB_FetchSeriesEpisodes(t *testing.T) {
 
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", tt.anilistId)
 			if err != nil {
-				t.Fatalf("could not fetch anizip media for %s", tt.name)
+				t.Fatalf("could not fetch anime metadata for %s", tt.name)
 			}
 
 			tvdbId := anizipMedia.Mappings.ThetvdbID
@@ -124,7 +124,7 @@ func TestTVDB_FetchSeasons(t *testing.T) {
 
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", tt.anilistId)
 			if err != nil {
-				t.Fatalf("could not fetch anizip media for %s", tt.name)
+				t.Fatalf("could not fetch anime metadata for %s", tt.name)
 			}
 
 			tvdbId := anizipMedia.Mappings.ThetvdbID
@@ -174,14 +174,12 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 	anilistClient := anilist.TestGetMockAnilistClient()
 
 	tests := []struct {
-		name          string
-		anilistId     int
-		episodeNumber int
+		name      string
+		anilistId int
 	}{
 		{
-			name:          "Dungeon Meshi",
-			anilistId:     153518,
-			episodeNumber: 1,
+			name:      "Dungeon Meshi",
+			anilistId: 153518,
 		},
 		{
 			name:      "Boku no Kokoro no Yabai Yatsu 2nd Season",
@@ -226,7 +224,7 @@ func TestTVDB_fetchEpisodes(t *testing.T) {
 
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", tt.anilistId)
 			if err != nil {
-				t.Fatalf("could not fetch anizip media for %s", tt.name)
+				t.Fatalf("could not fetch anime metadata for %s", tt.name)
 			}
 
 			tvdbId := anizipMedia.Mappings.ThetvdbID
@@ -351,7 +349,7 @@ func TestTVDB_fetchEpisodesAbsolute(t *testing.T) {
 
 			anizipMedia, err := anizip.FetchAniZipMedia("anilist", tt.anilistId)
 			if err != nil {
-				t.Fatalf("could not fetch anizip media for %s", tt.name)
+				t.Fatalf("could not fetch anime metadata for %s", tt.name)
 			}
 
 			tvdbId := anizipMedia.Mappings.ThetvdbID

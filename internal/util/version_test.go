@@ -29,6 +29,27 @@ func TestCompareVersion(t *testing.T) {
 			shouldUpdate:   true,
 		},
 		{
+			name:           "Current version is older by minor version",
+			currVersion:    "0.2.2",
+			otherVersion:   "0.3.0",
+			expectedOutput: -2,
+			shouldUpdate:   true,
+		},
+		{
+			name:           "Current version is older by major version",
+			currVersion:    "0.2.2",
+			otherVersion:   "3.0.0",
+			expectedOutput: -3,
+			shouldUpdate:   true,
+		},
+		{
+			name:           "Current version is older by minor version",
+			currVersion:    "0.2.2",
+			otherVersion:   "0.2.3",
+			expectedOutput: -1,
+			shouldUpdate:   true,
+		},
+		{
 			name:           "Current version is newer by minor version",
 			currVersion:    "1.2.0",
 			otherVersion:   "1.1.0",

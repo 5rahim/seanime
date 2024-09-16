@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -20,6 +20,8 @@ func TestSmartSearch(t *testing.T) {
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
 
 	toshoPlatform := NewProvider(util.NewLogger())
+
+	metadataProvider := metadata.GetMockProvider(t)
 
 	tests := []struct {
 		name           string
@@ -84,7 +86,7 @@ func TestSmartSearch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			media, err := anilistPlatform.GetAnime(tt.mId)
-			anizipMedia, err := anizip.FetchAniZipMedia("anilist", media.GetID())
+			animeMetadata, err := metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, tt.mId)
 			require.NoError(t, err)
 
 			queryMedia := hibiketorrent.Media{
@@ -107,7 +109,7 @@ func TestSmartSearch(t *testing.T) {
 
 			if assert.NoError(t, err) {
 
-				anizipEpisode, ok := anizipMedia.FindEpisode(strconv.Itoa(tt.episodeNumber))
+				episodeMetadata, ok := animeMetadata.FindEpisode(strconv.Itoa(tt.episodeNumber))
 				require.True(t, ok)
 
 				torrents, err := toshoPlatform.SmartSearch(hibiketorrent.AnimeSmartSearchOptions{
@@ -116,8 +118,8 @@ func TestSmartSearch(t *testing.T) {
 					Batch:         tt.batch,
 					EpisodeNumber: tt.episodeNumber,
 					Resolution:    tt.resolution,
-					AnidbAID:      anizipMedia.Mappings.AnidbID,
-					AnidbEID:      anizipEpisode.AnidbEid,
+					AnidbAID:      animeMetadata.Mappings.AnidbId,
+					AnidbEID:      episodeMetadata.AnidbEid,
 					BestReleases:  false,
 				})
 

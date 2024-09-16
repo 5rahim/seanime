@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
@@ -33,7 +32,6 @@ type (
 
 		// Injected dependencies
 		torrentRepository               *torrent.Repository
-		anizipCache                     *anizip.Cache
 		baseAnimeCache                  *anilist.BaseAnimeCache
 		completeAnimeCache              *anilist.CompleteAnimeCache
 		platform                        platform.Platform
@@ -52,7 +50,6 @@ type (
 
 	NewRepositoryOptions struct {
 		Logger             *zerolog.Logger
-		AnizipCache        *anizip.Cache
 		TorrentRepository  *torrent.Repository
 		BaseAnimeCache     *anilist.BaseAnimeCache
 		CompleteAnimeCache *anilist.CompleteAnimeCache
@@ -67,17 +64,22 @@ type (
 // NewRepository creates a new injectable Repository instance
 func NewRepository(opts *NewRepositoryOptions) *Repository {
 	ret := &Repository{
-		logger:              opts.Logger,
-		anizipCache:         opts.AnizipCache,
-		baseAnimeCache:      opts.BaseAnimeCache,
-		completeAnimeCache:  opts.CompleteAnimeCache,
-		platform:            opts.Platform,
-		metadataProvider:    opts.MetadataProvider,
-		playbackManager:     opts.PlaybackManager,
-		wsEventManager:      opts.WSEventManager,
-		torrentRepository:   opts.TorrentRepository,
-		selectionHistoryMap: result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
-		db:                  opts.Database,
+		client:                          nil,
+		serverManager:                   nil,
+		settings:                        mo.Option[Settings]{},
+		currentEpisodeCollection:        mo.Option[*EpisodeCollection]{},
+		selectionHistoryMap:             result.NewResultMap[int, *hibiketorrent.AnimeTorrent](),
+		torrentRepository:               opts.TorrentRepository,
+		baseAnimeCache:                  opts.BaseAnimeCache,
+		completeAnimeCache:              opts.CompleteAnimeCache,
+		platform:                        opts.Platform,
+		wsEventManager:                  opts.WSEventManager,
+		metadataProvider:                opts.MetadataProvider,
+		playbackManager:                 opts.PlaybackManager,
+		mediaPlayerRepository:           nil,
+		mediaPlayerRepositorySubscriber: nil,
+		logger:                          opts.Logger,
+		db:                              opts.Database,
 	}
 	ret.client = NewClient(ret)
 	ret.serverManager = newServerManager(ret)

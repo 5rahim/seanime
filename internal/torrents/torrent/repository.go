@@ -2,7 +2,6 @@ package torrent
 
 import (
 	"github.com/rs/zerolog"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
@@ -15,7 +14,6 @@ type (
 		extensionBank                  *extension.UnifiedBank
 		animeProviderSearchCaches      *result.Map[string, *result.Cache[string, *SearchData]]
 		animeProviderSmartSearchCaches *result.Map[string, *result.Cache[string, *SearchData]]
-		anizipCache                    *anizip.Cache
 		settings                       RepositorySettings
 		metadataProvider               metadata.Provider
 		mu                             sync.Mutex
@@ -38,7 +36,6 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		extensionBank:                  extension.NewUnifiedBank(),
 		animeProviderSearchCaches:      result.NewResultMap[string, *result.Cache[string, *SearchData]](),
 		animeProviderSmartSearchCaches: result.NewResultMap[string, *result.Cache[string, *SearchData]](),
-		anizipCache:                    anizip.NewCache(),
 		settings:                       RepositorySettings{},
 		mu:                             sync.Mutex{},
 	}

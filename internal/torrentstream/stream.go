@@ -6,7 +6,7 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"strconv"
@@ -213,8 +213,8 @@ func (r *Repository) DropTorrent() error {
 		return nil
 	}
 
-	for _, torrent := range r.client.torrentClient.MustGet().Torrents() {
-		torrent.Drop()
+	for _, t := range r.client.torrentClient.MustGet().Torrents() {
+		t.Drop()
 	}
 
 	// Also stop the server, since it's dropped
@@ -228,7 +228,7 @@ func (r *Repository) DropTorrent() error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, anizipMedia *anizip.Media, err error) {
+func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, animeMetadata *metadata.AnimeMetadata, err error) {
 	// Get the media
 	var found bool
 	media, found = r.completeAnimeCache.Get(mediaId)
@@ -241,7 +241,7 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 	}
 
 	// Get the media
-	anizipMedia, err = anizip.FetchAniZipMediaC("anilist", mediaId, r.anizipCache)
+	animeMetadata, err = r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
 	}
@@ -249,14 +249,14 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 	return
 }
 
-func (r *Repository) getEpisodeInfo(anizipMedia *anizip.Media, aniDBEpisode string) (episode *anizip.Episode, err error) {
-	if anizipMedia == nil {
+func (r *Repository) getEpisodeInfo(animeMetadata *metadata.AnimeMetadata, aniDBEpisode string) (episode *metadata.EpisodeMetadata, err error) {
+	if animeMetadata == nil {
 		return nil, fmt.Errorf("torrentstream: Anizip media is nil")
 	}
 
 	// Get the episode
 	var found bool
-	episode, found = anizipMedia.FindEpisode(aniDBEpisode)
+	episode, found = animeMetadata.FindEpisode(aniDBEpisode)
 	if !found {
 		return nil, fmt.Errorf("torrentstream: Episode not found in the Anizip media")
 	}

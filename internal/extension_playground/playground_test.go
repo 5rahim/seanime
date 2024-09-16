@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -19,8 +20,9 @@ func TestGojaAnimeTorrentProvider(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	metadataProvider := metadata.GetMockProvider(t)
 
-	repo := NewPlaygroundRepository(logger, platform)
+	repo := NewPlaygroundRepository(logger, platform, metadataProvider)
 
 	// Get the script
 	filepath := "../extension_repo/goja_torrent_test/my-torrent-provider.ts"

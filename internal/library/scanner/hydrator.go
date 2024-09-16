@@ -7,7 +7,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
 	"seanime/internal/platforms/platform"
@@ -24,8 +24,8 @@ type FileHydrator struct {
 	LocalFiles         []*anime.LocalFile       // Local files to hydrate
 	AllMedia           []*anime.NormalizedMedia // All media used to hydrate local files
 	CompleteAnimeCache *anilist.CompleteAnimeCache
-	AnizipCache        *anizip.Cache
 	Platform           platform.Platform
+	MetadataProvider   metadata.Provider
 	AnilistRateLimiter *limiter.Limiter
 	Logger             *zerolog.Logger
 	ScanLogger         *ScanLogger                // optional
@@ -267,9 +267,9 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				if err := media.FetchMediaTree(anilist.FetchMediaTreeAll, fh.Platform.GetAnilistClient(), fh.AnilistRateLimiter, tree, fh.CompleteAnimeCache); err == nil {
 					// Create a new media tree analysis that will be used for episode normalization
 					mta, _ := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
-						tree:        tree,
-						anizipCache: fh.AnizipCache,
-						rateLimiter: rateLimiter,
+						tree:             tree,
+						metadataProvider: fh.MetadataProvider,
+						rateLimiter:      rateLimiter,
 					})
 					// Hoist the media tree analysis, so it will be used by other files
 					// We don't care if it's nil because [normalizeEpisodeNumberAndHydrate] will handle it
@@ -335,7 +335,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 
 			// When we encounter a file with an episode number higher than the media's episode count
 			// we have a forced media ID, we will fetch the media from AniList and get the offset
-			azm, err := anizip.FetchAniZipMediaC("anilist", fh.ForceMediaId, fh.AnizipCache)
+			animeMetadata, err := fh.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, fh.ForceMediaId)
 			if err != nil {
 				/*Log */
 				if fh.ScanLogger != nil {
@@ -351,7 +351,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			}
 
 			// Get the first episode to calculate the offset
-			firstEp, ok := azm.Episodes["1"]
+			firstEp, ok := animeMetadata.Episodes["1"]
 			if !ok {
 				/*Log */
 				if fh.ScanLogger != nil {
@@ -371,7 +371,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			maxPartAbsoluteEpisodeNumber := 0
 			if usePartEpisodeNumber {
 				minPartAbsoluteEpisodeNumber = firstEp.EpisodeNumber
-				maxPartAbsoluteEpisodeNumber = minPartAbsoluteEpisodeNumber + azm.GetMainEpisodeCount() - 1
+				maxPartAbsoluteEpisodeNumber = minPartAbsoluteEpisodeNumber + animeMetadata.GetMainEpisodeCount() - 1
 			}
 
 			absoluteEpisodeNumber := firstEp.AbsoluteEpisodeNumber

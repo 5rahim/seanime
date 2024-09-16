@@ -1,4 +1,4 @@
-package anizip
+package metadata
 
 import (
 	"testing"
@@ -17,9 +17,9 @@ func TestOffsetEpisode(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := OffsetEpisode(c.input, 1)
+		actual := OffsetAnidbEpisode(c.input, 1)
 		if actual != c.expected {
-			t.Errorf("OffsetEpisode(%s, 1) == %s, expected %s", c.input, actual, c.expected)
+			t.Errorf("OffsetAnidbEpisode(%s, 1) == %s, expected %s", c.input, actual, c.expected)
 		}
 	}
 

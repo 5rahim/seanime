@@ -12,7 +12,7 @@ import (
 
 func getTestRepo(t *testing.T) *Repository {
 	logger := util.NewLogger()
-	metadataProvider := metadata.TestGetMockProvider(t)
+	metadataProvider := metadata.GetMockProvider(t)
 
 	extensionBank := extension.NewUnifiedBank()
 

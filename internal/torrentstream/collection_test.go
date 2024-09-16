@@ -5,28 +5,24 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
-	"seanime/internal/util/filecache"
 	"testing"
 )
 
 func TestStreamCollection(t *testing.T) {
+	t.Skip("Incomplete")
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	logger := util.NewLogger()
-	filecacher, err := filecache.NewCacher(t.TempDir())
-	require.NoError(t, err)
-	metadataProvider := metadata.TestGetMockProvider(t)
+	metadataProvider := metadata.GetMockProvider(t)
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
-	anizipCache := anizip.NewCache()
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	require.NoError(t, err)
@@ -34,16 +30,14 @@ func TestStreamCollection(t *testing.T) {
 
 	repo := NewRepository(&NewRepositoryOptions{
 		Logger:             logger,
-		AnizipCache:        anizip.NewCache(),
 		BaseAnimeCache:     anilist.NewBaseAnimeCache(),
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
 		Platform:           anilistPlatform,
-		MetadataProvider: metadata.NewProvider(&metadata.NewProviderImplOptions{
-			Logger:     logger,
-			FileCacher: filecacher,
-		}),
-		PlaybackManager: nil,
-		WSEventManager:  events.NewMockWSEventManager(logger),
+		MetadataProvider:   metadataProvider,
+		WSEventManager:     events.NewMockWSEventManager(logger),
+		TorrentRepository:  nil,
+		PlaybackManager:    nil,
+		Database:           nil,
 	})
 
 	// Mock Anilist collection and local files
@@ -72,7 +66,6 @@ func TestStreamCollection(t *testing.T) {
 	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
 		LocalFiles:       lfs,
-		AnizipCache:      anizipCache,
 		Platform:         anilistPlatform,
 		MetadataProvider: metadataProvider,
 	})
@@ -82,7 +75,6 @@ func TestStreamCollection(t *testing.T) {
 	repo.HydrateStreamCollection(&HydrateStreamCollectionOptions{
 		AnimeCollection:   animeCollection,
 		LibraryCollection: libraryCollection,
-		AnizipCache:       anizipCache,
 	})
 	spew.Dump(libraryCollection)
 

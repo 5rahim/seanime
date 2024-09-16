@@ -46,25 +46,26 @@ func CompareVersion(current string, b string) (comp int, shouldUpdate bool) {
 		return 0, false
 	}
 
-	if currV.Major() > otherV.Major() {
-		comp *= 3
-	} else if currV.Minor() > otherV.Minor() {
-		comp *= 2
-	} else if currV.Patch() > otherV.Patch() {
-		comp *= 1
-	} else if currV.GreaterThan(otherV) {
+	if currV.GreaterThan(otherV) {
+		shouldUpdate = false
 
-	} else if currV.Major() < otherV.Major() {
-		comp *= 3
-		shouldUpdate = true
-	} else if currV.Minor() < otherV.Minor() {
-		comp *= 2
-		shouldUpdate = true
-	} else if currV.Patch() < otherV.Patch() {
-		comp *= 1
-		shouldUpdate = true
+		if currV.Major() > otherV.Major() {
+			comp *= 3
+		} else if currV.Minor() > otherV.Minor() {
+			comp *= 2
+		} else if currV.Patch() > otherV.Patch() {
+			comp *= 1
+		}
 	} else if currV.LessThan(otherV) {
 		shouldUpdate = true
+
+		if currV.Major() < otherV.Major() {
+			comp *= 3
+		} else if currV.Minor() < otherV.Minor() {
+			comp *= 2
+		} else if currV.Patch() < otherV.Patch() {
+			comp *= 1
+		}
 	}
 
 	return comp, shouldUpdate
@@ -73,5 +74,5 @@ func CompareVersion(current string, b string) (comp int, shouldUpdate bool) {
 func VersionIsOlderThan(version string, compare string) bool {
 	comp, shouldUpdate := CompareVersion(version, compare)
 	// shouldUpdate is false means the current version is newer
-	return comp < 0 && !shouldUpdate
+	return comp < 0 && shouldUpdate
 }

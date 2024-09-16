@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/library/scanner"
+	"seanime/internal/util/limiter"
 )
 
 // DUMMY HANDLER
@@ -32,15 +32,17 @@ func HandleTestDump(c *RouteCtx) error {
 	}
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
-	anizipCache := anizip.NewCache()
 
 	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
-		Enhanced:           false,
-		Platform:           c.App.AnilistPlatform,
-		LocalFiles:         localFiles,
-		CompleteAnimeCache: completeAnimeCache,
-		AnizipCache:        anizipCache,
-		Logger:             c.App.Logger,
+		Enhanced:               false,
+		Platform:               c.App.AnilistPlatform,
+		MetadataProvider:       c.App.MetadataProvider,
+		LocalFiles:             localFiles,
+		CompleteAnimeCache:     completeAnimeCache,
+		Logger:                 c.App.Logger,
+		AnilistRateLimiter:     limiter.NewAnilistLimiter(),
+		DisableAnimeCollection: false,
+		ScanLogger:             nil,
 	})
 
 	if err != nil {

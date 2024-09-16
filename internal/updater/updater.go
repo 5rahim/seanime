@@ -1,6 +1,10 @@
 package updater
 
-import "github.com/rs/zerolog"
+import (
+	"github.com/rs/zerolog"
+	"seanime/internal/util"
+	"strings"
+)
 
 const (
 	PatchRelease = "patch"
@@ -68,9 +72,19 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 		return nil, err
 	}
 
-	updateType, shouldUpdate := u.compareVersion(u.CurrentVersion, rl.TagName)
+	newV := strings.TrimPrefix(rl.TagName, "v")
+	updateTypeI, shouldUpdate := util.CompareVersion(u.CurrentVersion, newV)
 	if !shouldUpdate {
 		return nil, nil
+	}
+
+	updateType := ""
+	if updateTypeI == -1 {
+		updateType = MinorRelease
+	} else if updateTypeI == -2 {
+		updateType = PatchRelease
+	} else if updateTypeI == -3 {
+		updateType = MajorRelease
 	}
 
 	return &Update{

@@ -4,7 +4,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -17,7 +16,7 @@ import (
 func TestNewAnimeEntry(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	metadataProvider := metadata.TestGetMockProvider(t)
+	metadataProvider := metadata.GetMockProvider(t)
 
 	tests := []struct {
 		name                              string
@@ -76,8 +75,6 @@ func TestNewAnimeEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	aniZipCache := anizip.NewCache()
-
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -89,7 +86,6 @@ func TestNewAnimeEntry(t *testing.T) {
 			entry, err := NewAnimeEntry(&NewAnimeEntryOptions{
 				MediaId:          tt.mediaId,
 				LocalFiles:       tt.localFiles,
-				AnizipCache:      aniZipCache,
 				AnimeCollection:  animeCollection,
 				Platform:         anilistPlatform,
 				MetadataProvider: metadataProvider,

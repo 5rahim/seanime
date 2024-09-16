@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog"
 	"runtime"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	"seanime/internal/manga"
@@ -30,7 +30,7 @@ type (
 		platform         platform.Platform
 		baseAnimeCache   *result.Cache[int, *anilist.BaseAnime]
 		baseMangaCache   *result.Cache[int, *anilist.BaseManga]
-		anizipMediaCache *result.Cache[int, *anizip.Media]
+		metadataProvider metadata.Provider
 	}
 
 	RunPlaygroundCodeResponse struct {
@@ -47,13 +47,13 @@ type (
 	}
 )
 
-func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform) *PlaygroundRepository {
+func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform, metadataProvider metadata.Provider) *PlaygroundRepository {
 	return &PlaygroundRepository{
 		logger:           logger,
 		platform:         platform,
+		metadataProvider: metadataProvider,
 		baseAnimeCache:   result.NewCache[int, *anilist.BaseAnime](),
 		baseMangaCache:   result.NewCache[int, *anilist.BaseManga](),
-		anizipMediaCache: result.NewCache[int, *anizip.Media](),
 	}
 }
 
@@ -148,7 +148,7 @@ func newPlaygroundResponse(logger *PlaygroundDebugLogger, value interface{}) *Ru
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *PlaygroundRepository) getAnime(mediaId int) (anime *anilist.BaseAnime, am *anizip.Media, err error) {
+func (r *PlaygroundRepository) getAnime(mediaId int) (anime *anilist.BaseAnime, am *metadata.AnimeMetadata, err error) {
 	var ok bool
 	anime, ok = r.baseAnimeCache.Get(mediaId)
 	if !ok {
@@ -159,11 +159,7 @@ func (r *PlaygroundRepository) getAnime(mediaId int) (anime *anilist.BaseAnime, 
 		r.baseAnimeCache.SetT(mediaId, anime, 24*time.Hour)
 	}
 
-	am, ok = r.anizipMediaCache.Get(mediaId)
-	if !ok {
-		am, _ = anizip.FetchAniZipMedia("anilist", mediaId)
-		r.anizipMediaCache.SetT(mediaId, am, 24*time.Hour)
-	}
+	am, _ = r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 	return anime, am, nil
 }
 
@@ -196,7 +192,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	}
 
 	// Fetch the anime
-	anime, anizipMedia, err := r.getAnime(int(mediaId))
+	anime, animeMetadata, err := r.getAnime(int(mediaId))
 	if err != nil {
 		return nil, err
 	}
@@ -256,15 +252,15 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 			anidbEID := 0
 
 			// Get the AniDB Anime ID and Episode ID
-			if anizipMedia != nil {
+			if animeMetadata != nil {
 				// Override absolute offset value of queryMedia
-				queryMedia.AbsoluteSeasonOffset = anizipMedia.GetOffset()
+				queryMedia.AbsoluteSeasonOffset = animeMetadata.GetOffset()
 
-				if anizipMedia.GetMappings() != nil {
+				if animeMetadata.GetMappings() != nil {
 
-					anidbAID = anizipMedia.GetMappings().AnidbID
+					anidbAID = animeMetadata.GetMappings().AnidbId
 					// Find Anizip Episode based on inputted episode number
-					anizipEpisode, found := anizipMedia.FindEpisode(strconv.Itoa(options.EpisodeNumber))
+					anizipEpisode, found := animeMetadata.FindEpisode(strconv.Itoa(options.EpisodeNumber))
 					if found {
 						anidbEID = anizipEpisode.AnidbEid
 					}

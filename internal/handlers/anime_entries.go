@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
-	"seanime/internal/api/mal"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
@@ -59,7 +57,6 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 	entry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
 		MediaId:          mId,
 		LocalFiles:       lfs,
-		AnizipCache:      c.App.AnizipCache,
 		AnimeCollection:  animeCollection,
 		Platform:         c.App.AnilistPlatform,
 		MetadataProvider: c.App.MetadataProvider,
@@ -202,7 +199,6 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 //----------------------------------------------------------------------------------------------------------------------
 
 var (
-	entriesMalCache         = result.NewCache[string, []*mal.SearchResultAnime]()
 	entriesSuggestionsCache = result.NewCache[string, []*anilist.BaseAnime]()
 )
 
@@ -353,8 +349,8 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	fh := scanner.FileHydrator{
 		LocalFiles:         selectedLfs,
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
-		AnizipCache:        anizip.NewCache(),
 		Platform:           c.App.AnilistPlatform,
+		MetadataProvider:   c.App.MetadataProvider,
 		AnilistRateLimiter: limiter.NewAnilistLimiter(),
 		Logger:             c.App.Logger,
 		ScanLogger:         scanLogger,
@@ -427,7 +423,6 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 	missingEps := anime.NewMissingEpisodes(&anime.NewMissingEpisodesOptions{
 		AnimeCollection:  animeCollection,
 		LocalFiles:       lfs,
-		AnizipCache:      c.App.AnizipCache,
 		SilencedMediaIds: silencedMediaIds,
 		MetadataProvider: c.App.MetadataProvider,
 	})

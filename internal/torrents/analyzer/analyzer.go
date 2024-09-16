@@ -6,7 +6,7 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/platforms/platform"
@@ -18,10 +18,11 @@ type (
 	// Analyzer is a service similar to the scanner, but it is used to analyze torrent files.
 	// i.e. torrent files instead of local files.
 	Analyzer struct {
-		files    []*File
-		media    *anilist.CompleteAnime
-		platform platform.Platform
-		logger   *zerolog.Logger
+		files            []*File
+		media            *anilist.CompleteAnime
+		platform         platform.Platform
+		logger           *zerolog.Logger
+		metadataProvider metadata.Provider
 	}
 
 	// Analysis contains the results of the analysis.
@@ -41,10 +42,11 @@ type (
 
 type (
 	NewAnalyzerOptions struct {
-		Logger    *zerolog.Logger
-		Filepaths []string               // Filepath of the torrent files
-		Media     *anilist.CompleteAnime // The media to compare the files with
-		Platform  platform.Platform
+		Logger           *zerolog.Logger
+		Filepaths        []string               // Filepath of the torrent files
+		Media            *anilist.CompleteAnime // The media to compare the files with
+		Platform         platform.Platform
+		MetadataProvider metadata.Provider
 	}
 )
 
@@ -53,10 +55,11 @@ func NewAnalyzer(opts *NewAnalyzerOptions) *Analyzer {
 		return newFile(idx, filepath)
 	})
 	return &Analyzer{
-		files:    files,
-		media:    opts.Media,
-		platform: opts.Platform,
-		logger:   opts.Logger,
+		files:            files,
+		media:            opts.Media,
+		platform:         opts.Platform,
+		logger:           opts.Logger,
+		metadataProvider: opts.MetadataProvider,
 	}
 }
 
@@ -188,7 +191,6 @@ func (f *File) GetIndex() int {
 func (a *Analyzer) scanFiles() error {
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
-	anizipCache := anizip.NewCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 
 	lfs := a.getLocalFiles() // Extract local files from the Files
@@ -232,10 +234,13 @@ func (a *Analyzer) scanFiles() error {
 		LocalFiles:         lfs,
 		AllMedia:           mc.NormalizedMedia,
 		CompleteAnimeCache: completeAnimeCache,
-		AnizipCache:        anizipCache,
 		Platform:           a.platform,
+		MetadataProvider:   a.metadataProvider,
 		AnilistRateLimiter: anilistRateLimiter,
 		Logger:             a.logger,
+		ScanLogger:         nil,
+		ScanSummaryLogger:  nil,
+		ForceMediaId:       0,
 	}
 
 	fh.HydrateMetadata()

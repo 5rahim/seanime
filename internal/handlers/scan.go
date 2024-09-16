@@ -72,6 +72,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		SkipIgnoredFiles:   b.SkipIgnoredFiles,
 		ScanSummaryLogger:  scanSummaryLogger,
 		ScanLogger:         scanLogger,
+		MetadataProvider:   c.App.MetadataProvider,
 	}
 
 	// Scan the library

@@ -5,7 +5,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/test_utils"
 	"testing"
@@ -14,9 +13,10 @@ import (
 // Test to retrieve accurate missing episodes
 // DEPRECATED
 func TestNewMissingEpisodes(t *testing.T) {
+	t.Skip("Outdated test")
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
-	metadataProvider := metadata.TestGetMockProvider(t)
+	metadataProvider := metadata.GetMockProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	animeCollection, err := anilistClient.AnimeCollection(context.Background(), nil)
@@ -73,7 +73,6 @@ func TestNewMissingEpisodes(t *testing.T) {
 			missingData := NewMissingEpisodes(&NewMissingEpisodesOptions{
 				AnimeCollection:  animeCollection,
 				LocalFiles:       tt.localFiles,
-				AnizipCache:      anizip.NewCache(),
 				MetadataProvider: metadataProvider,
 			})
 

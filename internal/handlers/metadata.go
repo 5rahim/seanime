@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 )
 
 // HandlePopulateTVDBEpisodes
@@ -20,7 +20,7 @@ func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anizipMedia, err := anizip.FetchAniZipMedia("anilist", b.MediaId)
+	animeMetadata, err := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -31,7 +31,7 @@ func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
 	}
 
 	// Create media wrapper
-	aw := c.App.MetadataProvider.GetAnimeMetadataWrapper(media, anizipMedia)
+	aw := c.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
 
 	// Fetch episodes
 	episodes, err := aw.GetTVDBEpisodes(true)
@@ -59,7 +59,7 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	anizipMedia, err := anizip.FetchAniZipMedia("anilist", b.MediaId)
+	animeMetadata, err := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
 	if err != nil {
 		return c.RespondWithError(err)
 	}
@@ -70,7 +70,7 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 	}
 
 	// Create media wrapper
-	aw := c.App.MetadataProvider.GetAnimeMetadataWrapper(media, anizipMedia)
+	aw := c.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
 
 	// Empty TVDB episodes bucket
 	err = aw.EmptyTVDBEpisodesBucket(b.MediaId)

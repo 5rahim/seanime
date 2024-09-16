@@ -5,7 +5,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"slices"
 	"strconv"
@@ -33,7 +32,7 @@ type (
 	NewAnimeEntryDownloadInfoOptions struct {
 		// Media's local files
 		LocalFiles       []*LocalFile
-		AnizipMedia      *anizip.Media
+		AnimeMetadata    *metadata.AnimeMetadata
 		Media            *anilist.BaseAnime
 		Progress         *int
 		Status           *anilist.MediaListStatus
@@ -47,8 +46,8 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
 		return &AnimeEntryDownloadInfo{}, nil
 	}
-	if opts.AnizipMedia == nil {
-		return nil, errors.New("could not get anizip media")
+	if opts.AnimeMetadata == nil {
+		return nil, errors.New("could not get anime metadata")
 	}
 	if opts.Media.GetCurrentEpisodeCount() == -1 {
 		return nil, errors.New("could not get current media episode count")
@@ -59,7 +58,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 	// +---------------------+
 
 	// Whether AniList includes episode 0 as part of main episodes, but Anizip does not, however Anizip has "S1"
-	_, hasDiscrepancy := detectDiscrepancy(opts.LocalFiles, opts.Media, opts.AnizipMedia)
+	_, hasDiscrepancy := detectDiscrepancy(opts.LocalFiles, opts.Media, opts.AnimeMetadata)
 
 	// I - Progress
 	// Get progress, if the media isn't in the user's list, progress is 0
@@ -79,8 +78,8 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 	mediaEpSlice := generateEpSlice(opts.Media.GetCurrentEpisodeCount())                         // e.g, [1,2,3,4]
 	unwatchedEpSlice := lo.Filter(mediaEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
-	anizipEpSlice := generateEpSlice(opts.AnizipMedia.GetMainEpisodeCount())                            // e.g, [1,2,3,4]
-	unwatchedAnizipEpSlice := lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
+	metadataEpSlice := generateEpSlice(opts.AnimeMetadata.GetMainEpisodeCount())                          // e.g, [1,2,3,4]
+	unwatchedAnizipEpSlice := lo.Filter(metadataEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, progress = 1: [1,2,3,4] -> [2,3,4]
 
 	// +---------------------+
 	// |   Anizip has more   |
@@ -88,11 +87,11 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 
 	// If Anizip has more episodes
 	// e.g, Anizip: 2, Anilist: 1
-	if opts.AnizipMedia.GetMainEpisodeCount() > opts.Media.GetCurrentEpisodeCount() {
-		diff := opts.AnizipMedia.GetMainEpisodeCount() - opts.Media.GetCurrentEpisodeCount()
+	if opts.AnimeMetadata.GetMainEpisodeCount() > opts.Media.GetCurrentEpisodeCount() {
+		diff := opts.AnimeMetadata.GetMainEpisodeCount() - opts.Media.GetCurrentEpisodeCount()
 		// Remove the extra episode number from the Anizip slice
-		anizipEpSlice = anizipEpSlice[:len(anizipEpSlice)-diff]                                            // e.g, [1,2] -> [1]
-		unwatchedAnizipEpSlice = lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, [1,2] -> [1]
+		metadataEpSlice = metadataEpSlice[:len(metadataEpSlice)-diff]                                        // e.g, [1,2] -> [1]
+		unwatchedAnizipEpSlice = lo.Filter(metadataEpSlice, func(i int, _ int) bool { return i > progress }) // e.g, [1,2] -> [1]
 	}
 
 	// +---------------------+
@@ -100,14 +99,14 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 	// +---------------------+
 
 	// III - Handle discrepancy (inclusion of episode 0 by AniList)
-	// If there Anilist has more episodes than Anizip
+	// If Anilist has more episodes than Anizip
 	// e.g, Anilist: 13, Anizip: 12
 	if hasDiscrepancy {
 		// Add -1 to Anizip slice, -1 is "S1"
-		anizipEpSlice = append([]int{-1}, anizipEpSlice...) // e.g, [-1,1,2,...,12]
-		unwatchedAnizipEpSlice = anizipEpSlice              // e.g, [-1,1,2,...,12]
+		metadataEpSlice = append([]int{-1}, metadataEpSlice...) // e.g, [-1,1,2,...,12]
+		unwatchedAnizipEpSlice = metadataEpSlice                // e.g, [-1,1,2,...,12]
 		if progress > 0 {
-			unwatchedAnizipEpSlice = lo.Filter(anizipEpSlice, func(i int, _ int) bool { return i > progress-1 })
+			unwatchedAnizipEpSlice = lo.Filter(metadataEpSlice, func(i int, _ int) bool { return i > progress-1 })
 		}
 	}
 
@@ -125,7 +124,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 	hasInaccurateSchedule := false
 	if opts.Media.NextAiringEpisode == nil && *opts.Media.Status == anilist.MediaStatusReleasing {
 		if !hasDiscrepancy {
-			if progress+1 < opts.AnizipMedia.GetMainEpisodeCount() {
+			if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
 				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
 				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
 			} else {
@@ -133,7 +132,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
 			}
 		} else {
-			if progress+1 < opts.AnizipMedia.GetMainEpisodeCount() {
+			if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
 				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
 				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
 			} else {
@@ -196,7 +195,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 			str.Episode = NewEpisode(&NewEpisodeOptions{
 				LocalFile:            nil,
 				OptionalAniDBEpisode: str.AniDBEpisode,
-				AnizipMedia:          opts.AnizipMedia,
+				AnimeMetadata:        opts.AnimeMetadata,
 				Media:                opts.Media,
 				ProgressOffset:       0,
 				IsDownloaded:         false,
@@ -228,7 +227,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 		BatchAll:              batchAll,
 		Rewatch:               rewatch,
 		HasInaccurateSchedule: hasInaccurateSchedule,
-		AbsoluteOffset:        opts.AnizipMedia.GetOffset(),
+		AbsoluteOffset:        opts.AnimeMetadata.GetOffset(),
 	}, nil
 }
 

@@ -5,7 +5,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
+	"seanime/internal/api/metadata"
 	"seanime/internal/test_utils"
 	"seanime/internal/util/limiter"
 	"testing"
@@ -19,6 +19,8 @@ func TestMediaTreeAnalysis(t *testing.T) {
 
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewCompleteAnimeRelationTree()
+
+	metadataProvider := metadata.GetMockProvider(t)
 
 	tests := []struct {
 		name                          string
@@ -71,9 +73,9 @@ func TestMediaTreeAnalysis(t *testing.T) {
 			// +---------------------+
 
 			mta, err := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
-				tree:        tree,
-				anizipCache: anizip.NewCache(),
-				rateLimiter: limiter.NewLimiter(time.Minute, 25),
+				tree:             tree,
+				metadataProvider: metadataProvider,
+				rateLimiter:      limiter.NewLimiter(time.Minute, 25),
 			})
 			if err != nil {
 				t.Fatal("expected media tree analysis, got error:", err.Error())
@@ -102,6 +104,8 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 	anilistClient := anilist.TestGetMockAnilistClient()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
 	tree := anilist.NewCompleteAnimeRelationTree()
+
+	metadataProvider := metadata.GetMockProvider(t)
 
 	tests := []struct {
 		name    string
@@ -143,9 +147,9 @@ func TestMediaTreeAnalysis2(t *testing.T) {
 			// +---------------------+
 
 			mta, err := NewMediaTreeAnalysis(&MediaTreeAnalysisOptions{
-				tree:        tree,
-				anizipCache: anizip.NewCache(),
-				rateLimiter: limiter.NewLimiter(time.Minute, 25),
+				tree:             tree,
+				metadataProvider: metadataProvider,
+				rateLimiter:      limiter.NewLimiter(time.Minute, 25),
 			})
 			if err != nil {
 				t.Fatal("expected media tree analysis, got error:", err.Error())

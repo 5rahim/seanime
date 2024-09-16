@@ -4,7 +4,6 @@ import (
 	"github.com/rs/zerolog"
 	"runtime"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/constants"
 	"seanime/internal/continuity"
@@ -48,7 +47,6 @@ type (
 		TorrentClientRepository       *torrent_client.Repository
 		TorrentRepository             *torrent.Repository
 		Watcher                       *scanner.Watcher
-		AnizipCache                   *anizip.Cache // AnizipCache holds fetched AniZip media for 30 minutes. (used by route handlers)
 		AnilistClient                 anilist.AnilistClient
 		AnilistPlatform               platform.Platform
 		FillerManager                 *fillermanager.FillerManager
@@ -155,27 +153,24 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Anilist Platform
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 
-	// AniZip Cache
-	anizipCache := anizip.NewCache()
-
 	// File Cacher
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize file cacher")
 	}
 
-	// Online Stream
-	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
-		Logger:      logger,
-		FileCacher:  fileCacher,
-		AnizipCache: anizipCache,
-		Platform:    anilistPlatform,
-	})
-
 	// Metadata Provider
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
 		Logger:     logger,
 		FileCacher: fileCacher,
+	})
+
+	// Online Stream
+	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
+		Logger:           logger,
+		FileCacher:       fileCacher,
+		MetadataProvider: metadataProvider,
+		Platform:         anilistPlatform,
 	})
 
 	// Manga Repository
@@ -195,14 +190,13 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		WSEventManager: wsEventManager,
 	})
 
-	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, anilistPlatform)
+	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, anilistPlatform, metadataProvider)
 
 	app := &App{
 		Config:                        cfg,
 		Database:                      database,
 		AnilistClient:                 anilistCW,
 		AnilistPlatform:               anilistPlatform,
-		AnizipCache:                   anizipCache,
 		WSEventManager:                wsEventManager,
 		Logger:                        logger,
 		Version:                       constants.Version,

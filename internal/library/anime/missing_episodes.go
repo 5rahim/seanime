@@ -6,7 +6,6 @@ import (
 	lop "github.com/samber/lo/parallel"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
-	"seanime/internal/api/anizip"
 	"seanime/internal/api/metadata"
 	"seanime/internal/util/limiter"
 	"sort"
@@ -22,7 +21,6 @@ type (
 	NewMissingEpisodesOptions struct {
 		AnimeCollection  *anilist.AnimeCollection
 		LocalFiles       []*LocalFile
-		AnizipCache      *anizip.Cache
 		SilencedMediaIds []int
 		MetadataProvider metadata.Provider
 	}
@@ -52,8 +50,8 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 				return nil
 			}
 			rateLimiter.Wait()
-			// Fetch anizip media
-			anizipMedia, err := anizip.FetchAniZipMediaC("anilist", entry.Media.ID, opts.AnizipCache)
+			// Fetch anime metadata
+			animeMetadata, err := opts.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, entry.Media.ID)
 			if err != nil {
 				return nil
 			}
@@ -61,10 +59,10 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			// Get download info
 			downloadInfo, err := NewAnimeEntryDownloadInfo(&NewAnimeEntryDownloadInfoOptions{
 				LocalFiles:       lfs,
-				AnizipMedia:      anizipMedia,
+				AnimeMetadata:    animeMetadata,
+				Media:            entry.Media,
 				Progress:         entry.Progress,
 				Status:           entry.Status,
-				Media:            entry.Media,
 				MetadataProvider: opts.MetadataProvider,
 			})
 			if err != nil {

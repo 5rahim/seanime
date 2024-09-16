@@ -1,10 +1,5 @@
 package anizip
 
-import (
-	"regexp"
-	"strconv"
-)
-
 func (m *Media) GetTitle() string {
 	if m == nil {
 		return ""
@@ -67,41 +62,4 @@ func (e *Episode) GetTitle() string {
 		return rom
 	}
 	return ""
-}
-
-func ExtractEpisodeInteger(s string) (int, bool) {
-	pattern := "[0-9]+"
-	regex := regexp.MustCompile(pattern)
-
-	// Find the first match in the input string.
-	match := regex.FindString(s)
-
-	if match != "" {
-		// Convert the matched string to an integer.
-		num, err := strconv.Atoi(match)
-		if err != nil {
-			return 0, false
-		}
-		return num, true
-	}
-
-	return 0, false
-}
-
-func OffsetEpisode(s string, offset int) string {
-	pattern := "([0-9]+)"
-	regex := regexp.MustCompile(pattern)
-
-	// Replace the first matched integer with the incremented value.
-	result := regex.ReplaceAllStringFunc(s, func(matched string) string {
-		num, err := strconv.Atoi(matched)
-		if err == nil {
-			num = num + offset
-			return strconv.Itoa(num)
-		} else {
-			return matched
-		}
-	})
-
-	return result
 }
