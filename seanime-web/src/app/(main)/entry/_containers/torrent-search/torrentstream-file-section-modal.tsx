@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamTorrentFilePreviews } from "@/api/hooks/torrentstream.hooks"
 import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
@@ -19,7 +19,7 @@ import { MdVerified } from "react-icons/md"
 
 export const __torrentSearch_torrentstreamSelectedTorrentAtom = atom<HibikeTorrent_AnimeTorrent | undefined>(undefined)
 
-export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_AnimeEntry }) {
+export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry }) {
     const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
 
     const [selectedTorrent, setSelectedTorrent] = useAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)

@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
@@ -38,7 +38,7 @@ import { RiFolderDownloadFill } from "react-icons/ri"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
-export function TorrentSearchContainer({ type, entry }: { type: TorrentSelectionType, entry: Anime_AnimeEntry }) {
+export function TorrentSearchContainer({ type, entry }: { type: TorrentSelectionType, entry: Anime_Entry }) {
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
 
     const shouldLookForBatches = React.useMemo(() => {
@@ -366,7 +366,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 }
 
 function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
-    entry: Anime_AnimeEntry | undefined,
+    entry: Anime_Entry | undefined,
     type: TorrentSelectionType,
 }) {
 

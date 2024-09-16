@@ -1,5 +1,5 @@
 "use client"
-import { Anime_AnimeEntry } from "@/api/generated/types"
+import { Anime_Entry } from "@/api/generated/types"
 import { useOpenAnimeEntryInExplorer } from "@/api/hooks/anime_entries.hooks"
 import { useStartDefaultMediaPlayer } from "@/api/hooks/mediaplayer.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -22,7 +22,7 @@ import { useSetAtom } from "jotai"
 import React from "react"
 import { BiDotsVerticalRounded, BiRightArrowAlt } from "react-icons/bi"
 
-export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_AnimeEntry }) {
+export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
     const serverStatus = useServerStatus()
     const setIsMetadataManagerOpen = useSetAtom(__metadataManager_isOpenAtom)

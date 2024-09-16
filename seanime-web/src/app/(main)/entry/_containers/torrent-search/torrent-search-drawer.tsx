@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
+import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { Modal } from "@/components/ui/modal"
 import { atom } from "jotai"
@@ -11,7 +11,7 @@ export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefi
 
 export type TorrentSelectionType = "select" | "select-file" | "download"
 
-export function TorrentSearchDrawer(props: { entry: Anime_AnimeEntry }) {
+export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
 
     const { entry } = props
 

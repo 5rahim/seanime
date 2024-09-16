@@ -1,5 +1,5 @@
 "use client"
-import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
@@ -15,7 +15,7 @@ import React from "react"
 import { IoLibrarySharp } from "react-icons/io5"
 
 type EpisodeSectionProps = {
-    entry: Anime_AnimeEntry
+    entry: Anime_Entry
     details: AL_AnimeDetailsById_Media | undefined
     bottomSection: React.ReactNode
 }

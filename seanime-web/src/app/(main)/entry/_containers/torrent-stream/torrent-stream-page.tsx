@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Anime_Episode } from "@/api/generated/types"
+import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
@@ -25,7 +25,7 @@ import React, { useMemo } from "react"
 
 type TorrentStreamPageProps = {
     children?: React.ReactNode
-    entry: Anime_AnimeEntry
+    entry: Anime_Entry
     bottomSection?: React.ReactNode
 }
 
@@ -89,7 +89,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
     const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
 
-    function handleAutoSelect(entry: Anime_AnimeEntry, episode: Anime_Episode | undefined) {
+    function handleAutoSelect(entry: Anime_Entry, episode: Anime_Episode | undefined) {
         if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
         // Start the torrent stream
         handleAutoSelectTorrentStream({

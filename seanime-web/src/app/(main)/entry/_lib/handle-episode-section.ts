@@ -1,9 +1,9 @@
-import { AL_AnimeDetailsById_Media, Anime_AnimeEntry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
 import { useHandlePlayMedia } from "@/app/(main)/entry/_lib/handle-play-media"
 import { usePlayNextVideoOnMount } from "@/app/(main)/entry/_lib/handle-play-on-mount"
 import React from "react"
 
-export function useHandleEpisodeSection(props: { entry: Anime_AnimeEntry, details: AL_AnimeDetailsById_Media | undefined }) {
+export function useHandleEpisodeSection(props: { entry: Anime_Entry, details: AL_AnimeDetailsById_Media | undefined }) {
     const { entry, details } = props
     const media = entry.media
 

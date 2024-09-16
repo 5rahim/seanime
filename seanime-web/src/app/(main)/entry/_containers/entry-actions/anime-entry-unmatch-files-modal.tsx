@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry } from "@/api/generated/types"
+import { Anime_Entry } from "@/api/generated/types"
 import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { FilepathSelector } from "@/app/(main)/_features/media/_components/filepath-selector"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
@@ -9,7 +9,7 @@ import { useAtom } from "jotai/react"
 import React from "react"
 
 export type AnimeEntryUnmatchFilesModalProps = {
-    entry: Anime_AnimeEntry
+    entry: Anime_Entry
 }
 
 export const __animeEntryUnmatchFilesModalIsOpenAtom = atom(false)
@@ -34,7 +34,7 @@ export function AnimeEntryUnmatchFilesModal({ entry }: AnimeEntryUnmatchFilesMod
 
 }
 
-function Content({ entry }: { entry: Anime_AnimeEntry }) {
+function Content({ entry }: { entry: Anime_Entry }) {
 
     const [open, setOpen] = useAtom(__animeEntryUnmatchFilesModalIsOpenAtom)
 

@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
+import { Anime_Entry, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +10,7 @@ import React from "react"
 import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
 type TorrentPreviewList = {
-    entry: Anime_AnimeEntry
+    entry: Anime_Entry
     previews: Torrent_Preview[],
     isLoading: boolean
     selectedTorrents: HibikeTorrent_AnimeTorrent[]

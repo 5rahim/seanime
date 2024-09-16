@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
-import { Anime_AnimeEntry } from "@/api/generated/types"
+import { Anime_Entry } from "@/api/generated/types"
 import { FilepathSelector } from "@/app/(main)/_features/media/_components/filepath-selector"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -9,7 +9,7 @@ import { useAtom } from "jotai/react"
 import React from "react"
 
 export type AnimeEntryDownloadFilesModalProps = {
-    entry: Anime_AnimeEntry
+    entry: Anime_Entry
 }
 
 export const __animeEntryDownloadFilesModalIsOpenAtom = atom(false)
@@ -35,7 +35,7 @@ export function AnimeEntryDownloadFilesModal({ entry }: AnimeEntryDownloadFilesM
 
 }
 
-function Content({ entry }: { entry: Anime_AnimeEntry }) {
+function Content({ entry }: { entry: Anime_Entry }) {
 
     const [open, setOpen] = useAtom(__animeEntryDownloadFilesModalIsOpenAtom)
     const [filepaths, setFilepaths] = React.useState<string[]>([])

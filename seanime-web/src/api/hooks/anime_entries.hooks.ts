@@ -8,12 +8,12 @@ import {
     UpdateAnimeEntryProgress_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { AL_BaseAnime, Anime_AnimeEntry, Anime_LocalFile, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
+import { AL_BaseAnime, Anime_Entry, Anime_LocalFile, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 export function useGetAnimeEntry(id: Nullish<string | number>) {
-    return useServerQuery<Anime_AnimeEntry>({
+    return useServerQuery<Anime_Entry>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.endpoint.replace("{id}", String(id)),
         method: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.methods[0],
         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)],
