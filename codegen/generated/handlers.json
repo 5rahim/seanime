@@ -676,7 +676,7 @@
       "\t@desc This includes episodes and metadata (if any), AniList list data, download info...",
       "\t@route /api/v1/library/anime-entry/{id} [GET]",
       "\t@param id - int - true - \"AniList anime media ID\"",
-      "\t@returns anime.AnimeEntry",
+      "\t@returns anime.Entry",
       ""
     ],
     "filepath": "internal/handlers/anime_entries.go",
@@ -705,9 +705,9 @@
         }
       ],
       "bodyFields": [],
-      "returns": "anime.AnimeEntry",
-      "returnGoType": "anime.AnimeEntry",
-      "returnTypescriptType": "Anime_AnimeEntry"
+      "returns": "anime.Entry",
+      "returnGoType": "anime.Entry",
+      "returnTypescriptType": "Anime_Entry"
     }
   },
   {

@@ -35,9 +35,9 @@ type (
 	}
 
 	StreamCollection struct {
-		ContinueWatchingList []*Episode                  `json:"continueWatchingList"`
-		Anime                []*anilist.BaseAnime        `json:"anime"`
-		ListData             map[int]*AnimeEntryListData `json:"listData"`
+		ContinueWatchingList []*Episode             `json:"continueWatchingList"`
+		Anime                []*anilist.BaseAnime   `json:"anime"`
+		ListData             map[int]*EntryListData `json:"listData"`
 	}
 
 	LibraryCollectionListType string
@@ -58,12 +58,12 @@ type (
 	}
 
 	// LibraryCollectionEntry holds the data for a single entry in a LibraryCollectionList.
-	// It is a slimmed down version of AnimeEntry. It holds the media, media id, library data, and list data.
+	// It is a slimmed down version of Entry. It holds the media, media id, library data, and list data.
 	LibraryCollectionEntry struct {
-		Media                 *anilist.BaseAnime     `json:"media"`
-		MediaId               int                    `json:"mediaId"`
-		AnimeEntryLibraryData *AnimeEntryLibraryData `json:"libraryData"` // Library data
-		AnimeEntryListData    *AnimeEntryListData    `json:"listData"`    // AniList list data
+		Media            *anilist.BaseAnime `json:"media"`
+		MediaId          int                `json:"mediaId"`
+		EntryLibraryData *EntryLibraryData  `json:"libraryData"` // Library data
+		EntryListData    *EntryListData     `json:"listData"`    // AniList list data
 	}
 
 	// UnmatchedGroup holds the data for a group of unmatched local files.
@@ -175,16 +175,16 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 					if slices.Contains(mIds, entry.Media.ID) {
 
 						entryLfs, _ := groupedLfs[entry.Media.ID]
-						libraryData, _ := NewAnimeEntryLibraryData(&NewAnimeEntryLibraryDataOptions{
+						libraryData, _ := NewEntryLibraryData(&NewEntryLibraryDataOptions{
 							EntryLocalFiles: entryLfs,
 							MediaId:         entry.Media.ID,
 						})
 
 						return &LibraryCollectionEntry{
-							MediaId:               entry.Media.ID,
-							Media:                 entry.Media,
-							AnimeEntryLibraryData: libraryData,
-							AnimeEntryListData: &AnimeEntryListData{
+							MediaId:          entry.Media.ID,
+							Media:            entry.Media,
+							EntryLibraryData: libraryData,
+							EntryListData: &EntryListData{
 								Progress:    *entry.Progress,
 								Score:       *entry.Score,
 								Status:      entry.Status,
@@ -332,11 +332,11 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 		mIds[i] = entry.MediaId
 	}
 
-	// Create a new AnimeEntry for each media id
-	mEntryPool := pool.NewWithResults[*AnimeEntry]()
+	// Create a new Entry for each media id
+	mEntryPool := pool.NewWithResults[*Entry]()
 	for _, mId := range mIds {
-		mEntryPool.Go(func() *AnimeEntry {
-			me, _ := NewAnimeEntry(&NewAnimeEntryOptions{
+		mEntryPool.Go(func() *Entry {
+			me, _ := NewEntry(&NewEntryOptions{
 				MediaId:          mId,
 				LocalFiles:       localFiles,
 				AnimeCollection:  animeCollection,
@@ -347,7 +347,7 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 		})
 	}
 	mEntries := mEntryPool.Wait()
-	mEntries = lo.Filter(mEntries, func(item *AnimeEntry, index int) bool {
+	mEntries = lo.Filter(mEntries, func(item *Entry, index int) bool {
 		return item != nil
 	}) // Filter out nil entries
 
@@ -359,22 +359,22 @@ func (lc *LibraryCollection) hydrateContinueWatchingList(
 
 	// Sort by progress
 	sort.Slice(mEntries, func(i, j int) bool {
-		return mEntries[i].AnimeEntryListData.Progress > mEntries[j].AnimeEntryListData.Progress
+		return mEntries[i].EntryListData.Progress > mEntries[j].EntryListData.Progress
 	})
 
 	// Remove entries the user has watched all episodes of
-	mEntries = lop.Map(mEntries, func(mEntry *AnimeEntry, index int) *AnimeEntry {
+	mEntries = lop.Map(mEntries, func(mEntry *Entry, index int) *Entry {
 		if !mEntry.HasWatchedAll() {
 			return mEntry
 		}
 		return nil
 	})
-	mEntries = lo.Filter(mEntries, func(item *AnimeEntry, index int) bool {
+	mEntries = lo.Filter(mEntries, func(item *Entry, index int) bool {
 		return item != nil
 	})
 
 	// Get the next episode for each media entry
-	mEpisodes := lop.Map(mEntries, func(mEntry *AnimeEntry, index int) *Episode {
+	mEpisodes := lop.Map(mEntries, func(mEntry *Entry, index int) *Episode {
 		ep, ok := mEntry.FindNextEpisode()
 		if ok {
 			return ep

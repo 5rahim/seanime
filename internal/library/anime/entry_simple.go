@@ -9,18 +9,18 @@ import (
 )
 
 type (
-	SimpleAnimeEntry struct {
-		MediaId               int                    `json:"mediaId"`
-		Media                 *anilist.BaseAnime     `json:"media"`
-		AnimeEntryListData    *AnimeEntryListData    `json:"listData"`
-		AnimeEntryLibraryData *AnimeEntryLibraryData `json:"libraryData"`
-		Episodes              []*Episode             `json:"episodes"`
-		NextEpisode           *Episode               `json:"nextEpisode"`
-		LocalFiles            []*LocalFile           `json:"localFiles"`
-		CurrentEpisodeCount   int                    `json:"currentEpisodeCount"`
+	SimpleEntry struct {
+		MediaId             int                `json:"mediaId"`
+		Media               *anilist.BaseAnime `json:"media"`
+		EntryListData       *EntryListData     `json:"listData"`
+		EntryLibraryData    *EntryLibraryData  `json:"libraryData"`
+		Episodes            []*Episode         `json:"episodes"`
+		NextEpisode         *Episode           `json:"nextEpisode"`
+		LocalFiles          []*LocalFile       `json:"localFiles"`
+		CurrentEpisodeCount int                `json:"currentEpisodeCount"`
 	}
 
-	SimpleAnimeEntryListData struct {
+	SimpleEntryListData struct {
 		Progress    int                      `json:"progress,omitempty"`
 		Score       float64                  `json:"score,omitempty"`
 		Status      *anilist.MediaListStatus `json:"status,omitempty"`
@@ -36,14 +36,14 @@ type (
 	}
 )
 
-func NewSimpleAnimeEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleAnimeEntry, error) {
+func NewSimpleEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
 
 	if opts.AnimeCollection == nil ||
 		opts.Platform == nil {
 		return nil, errors.New("missing arguments when creating simple media entry")
 	}
-	// Create new AnimeEntry
-	entry := new(SimpleAnimeEntry)
+	// Create new Entry
+	entry := new(SimpleEntry)
 	entry.MediaId = opts.MediaId
 
 	// +---------------------+
@@ -79,16 +79,16 @@ func NewSimpleAnimeEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleAnimeEntry, e
 	lfs := GetLocalFilesFromMediaId(opts.LocalFiles, opts.MediaId)
 	entry.LocalFiles = lfs // Returns empty slice if no local files are found
 
-	libraryData, _ := NewAnimeEntryLibraryData(&NewAnimeEntryLibraryDataOptions{
+	libraryData, _ := NewEntryLibraryData(&NewEntryLibraryDataOptions{
 		EntryLocalFiles: lfs,
 		MediaId:         entry.Media.ID,
 	})
-	entry.AnimeEntryLibraryData = libraryData
+	entry.EntryLibraryData = libraryData
 
-	// Instantiate AnimeEntryListData
+	// Instantiate EntryListData
 	// If the media exist in the user's anime list, add the details
 	if found {
-		entry.AnimeEntryListData = &AnimeEntryListData{
+		entry.EntryListData = &EntryListData{
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
 			Status:      anilistEntry.Status,
@@ -112,7 +112,7 @@ func NewSimpleAnimeEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleAnimeEntry, e
 
 // hydrateEntryEpisodeData
 // AniZipData, Media and LocalFiles should be defined
-func (e *SimpleAnimeEntry) hydrateEntryEpisodeData() {
+func (e *SimpleEntry) hydrateEntryEpisodeData() {
 
 	// +---------------------+
 	// |       Episodes      |

@@ -1,5 +1,5 @@
 "use client"
-import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_AnimeEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { Button, IconButton } from "@/components/ui/button"
@@ -16,7 +16,7 @@ import { useToggle } from "react-use"
 
 type AnilistMediaEntryModalProps = {
     children?: React.ReactNode
-    listData?: Anime_AnimeEntryListData | Manga_EntryListData
+    listData?: Anime_EntryListData | Manga_EntryListData
     media?: AL_BaseAnime | AL_BaseManga
     hideButton?: boolean
     type?: "anime" | "manga"

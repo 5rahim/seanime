@@ -1,4 +1,4 @@
-import { AL_BaseAnime, AL_BaseManga, Anime_AnimeEntryLibraryData, Anime_AnimeEntryListData, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, Anime_EntryLibraryData, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import {
@@ -44,10 +44,10 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     type: T
     media: T extends "anime" ? AL_BaseAnime : T extends "manga" ? AL_BaseManga : never
     // Anime-only
-    listData?: T extends "anime" ? Anime_AnimeEntryListData : T extends "manga" ? Manga_EntryListData : never
+    listData?: T extends "anime" ? Anime_EntryListData : T extends "manga" ? Manga_EntryListData : never
     showLibraryBadge?: T extends "anime" ? boolean : never
     showTrailer?: T extends "anime" ? boolean : never
-    libraryData?: T extends "anime" ? Anime_AnimeEntryLibraryData : never
+    libraryData?: T extends "anime" ? Anime_EntryLibraryData : never
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -65,8 +65,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     } = props
 
     const missingEpisodes = useMissingEpisodes()
-    const [listData, setListData] = useState<Anime_AnimeEntryListData | undefined>(_listData)
-    const [libraryData, setLibraryData] = useState<Anime_AnimeEntryLibraryData | undefined>(_libraryData)
+    const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
+    const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
     const setActionPopupHover = useSetAtom(__mediaEntryCard_hoveredPopupId)
 
     const ref = React.useRef<HTMLDivElement>(null)

@@ -162,7 +162,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useGetAnimeEntry(id: number) {
-//     return useServerQuery<Anime_AnimeEntry>({
+//     return useServerQuery<Anime_Entry>({
 //         endpoint: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.endpoint.replace("{id}", String(id)),
 //         method: API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.methods[0],
 //         queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key],

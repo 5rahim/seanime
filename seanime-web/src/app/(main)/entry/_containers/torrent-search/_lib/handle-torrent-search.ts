@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Anime_AnimeEntryDownloadInfo } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_EntryDownloadInfo } from "@/api/generated/types"
 import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useSearchTorrent } from "@/api/hooks/torrent_search.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -12,7 +12,7 @@ import React, { startTransition } from "react"
 type TorrentSearchHookProps = {
     hasEpisodesToDownload: boolean
     shouldLookForBatches: boolean
-    downloadInfo: Anime_AnimeEntryDownloadInfo | undefined
+    downloadInfo: Anime_EntryDownloadInfo | undefined
     entry: Anime_AnimeEntry | undefined
     isAdult: boolean
     type: TorrentSelectionType

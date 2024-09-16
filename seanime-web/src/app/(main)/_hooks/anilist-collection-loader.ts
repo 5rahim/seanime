@@ -1,4 +1,4 @@
-import { Anime_AnimeEntryListData, Nullish } from "@/api/generated/types"
+import { Anime_EntryListData, Nullish } from "@/api/generated/types"
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
 import { __anilist_userAnimeListDataAtom, __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
@@ -34,7 +34,7 @@ export function useAnimeCollectionLoader() {
                         n.completedAt.day || 1).toISOString() : undefined,
                 }
                 return acc
-            }, {} as Record<string, Anime_AnimeEntryListData>)
+            }, {} as Record<string, Anime_EntryListData>)
             setAnilistUserMediaListData(listData || {})
         }
     }, [data])
@@ -46,7 +46,7 @@ export function useAnilistUserAnime() {
     return useAtomValue(__anilist_userMediaAtom)
 }
 
-export function useAnilistUserAnimeListData(mId: Nullish<number | string>): Anime_AnimeEntryListData | undefined {
+export function useAnilistUserAnimeListData(mId: Nullish<number | string>): Anime_EntryListData | undefined {
     const data = useAtomValue(__anilist_userAnimeListDataAtom)
 
     return data[String(mId)]

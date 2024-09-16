@@ -11,17 +11,17 @@ import (
 )
 
 type (
-	// AnimeEntryDownloadInfo is instantiated by the AnimeEntry
-	AnimeEntryDownloadInfo struct {
-		EpisodesToDownload    []*AnimeEntryDownloadEpisode `json:"episodesToDownload"`
-		CanBatch              bool                         `json:"canBatch"`
-		BatchAll              bool                         `json:"batchAll"`
-		HasInaccurateSchedule bool                         `json:"hasInaccurateSchedule"`
-		Rewatch               bool                         `json:"rewatch"`
-		AbsoluteOffset        int                          `json:"absoluteOffset"`
+	// EntryDownloadInfo is instantiated by the Entry
+	EntryDownloadInfo struct {
+		EpisodesToDownload    []*EntryDownloadEpisode `json:"episodesToDownload"`
+		CanBatch              bool                    `json:"canBatch"`
+		BatchAll              bool                    `json:"batchAll"`
+		HasInaccurateSchedule bool                    `json:"hasInaccurateSchedule"`
+		Rewatch               bool                    `json:"rewatch"`
+		AbsoluteOffset        int                     `json:"absoluteOffset"`
 	}
 
-	AnimeEntryDownloadEpisode struct {
+	EntryDownloadEpisode struct {
 		EpisodeNumber int      `json:"episodeNumber"`
 		AniDBEpisode  string   `json:"aniDBEpisode"`
 		Episode       *Episode `json:"episode"`
@@ -29,7 +29,7 @@ type (
 )
 
 type (
-	NewAnimeEntryDownloadInfoOptions struct {
+	NewEntryDownloadInfoOptions struct {
 		// Media's local files
 		LocalFiles       []*LocalFile
 		AnimeMetadata    *metadata.AnimeMetadata
@@ -40,11 +40,11 @@ type (
 	}
 )
 
-// NewAnimeEntryDownloadInfo creates a new AnimeEntryDownloadInfo
-func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEntryDownloadInfo, error) {
+// NewEntryDownloadInfo creates a new EntryDownloadInfo
+func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo, error) {
 
 	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
-		return &AnimeEntryDownloadInfo{}, nil
+		return &EntryDownloadInfo{}, nil
 	}
 	if opts.AnimeMetadata == nil {
 		return nil, errors.New("could not get anime metadata")
@@ -182,10 +182,10 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 
 	// DEVNOTE: The EntryEpisode generated has inaccurate progress numbers since not local files are passed in
 
-	p := pool.NewWithResults[*AnimeEntryDownloadEpisode]()
+	p := pool.NewWithResults[*EntryDownloadEpisode]()
 	for _, ep := range toDownloadSlice {
-		p.Go(func() *AnimeEntryDownloadEpisode {
-			str := new(AnimeEntryDownloadEpisode)
+		p.Go(func() *EntryDownloadEpisode {
+			str := new(EntryDownloadEpisode)
 			str.EpisodeNumber = ep
 			str.AniDBEpisode = strconv.Itoa(ep)
 			if ep == -1 {
@@ -221,7 +221,7 @@ func NewAnimeEntryDownloadInfo(opts *NewAnimeEntryDownloadInfoOptions) (*AnimeEn
 		rewatch = true
 	}
 
-	return &AnimeEntryDownloadInfo{
+	return &EntryDownloadInfo{
 		EpisodesToDownload:    episodesToDownload,
 		CanBatch:              canBatch,
 		BatchAll:              batchAll,

@@ -1306,72 +1306,6 @@ export type AL_UserStudioStats_Studio = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/library/anime/anime_entry.go
- * - Filename: anime_entry.go
- * - Package: anime
- */
-export type Anime_AnimeEntry = {
-    mediaId: number
-    media?: AL_BaseAnime
-    listData?: Anime_AnimeEntryListData
-    libraryData?: Anime_AnimeEntryLibraryData
-    downloadInfo?: Anime_AnimeEntryDownloadInfo
-    episodes?: Array<Anime_Episode>
-    nextEpisode?: Anime_Episode
-    localFiles?: Array<Anime_LocalFile>
-    anidbId: number
-    currentEpisodeCount: number
-}
-
-/**
- * - Filepath: internal/library/anime/anime_entry_download_info.go
- * - Filename: anime_entry_download_info.go
- * - Package: anime
- */
-export type Anime_AnimeEntryDownloadEpisode = {
-    episodeNumber: number
-    aniDBEpisode: string
-    episode?: Anime_Episode
-}
-
-/**
- * - Filepath: internal/library/anime/anime_entry_download_info.go
- * - Filename: anime_entry_download_info.go
- * - Package: anime
- */
-export type Anime_AnimeEntryDownloadInfo = {
-    episodesToDownload?: Array<Anime_AnimeEntryDownloadEpisode>
-    canBatch: boolean
-    batchAll: boolean
-    hasInaccurateSchedule: boolean
-    rewatch: boolean
-    absoluteOffset: number
-}
-
-/**
- * - Filepath: internal/library/anime/anime_entry_library_data.go
- * - Filename: anime_entry_library_data.go
- * - Package: anime
- */
-export type Anime_AnimeEntryLibraryData = {
-    allFilesLocked: boolean
-    sharedPath: string
-}
-
-/**
- * - Filepath: internal/library/anime/anime_entry.go
- * - Filename: anime_entry.go
- * - Package: anime
- */
-export type Anime_AnimeEntryListData = {
-    progress?: number
-    score?: number
-    status?: AL_MediaListStatus
-    startedAt?: string
-    completedAt?: string
-}
-
-/**
  * - Filepath: internal/library/anime/autodownloader_rule.go
  * - Filename: autodownloader_rule.go
  * - Package: anime
@@ -1405,6 +1339,72 @@ export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
  * - Package: anime
  */
 export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
+
+/**
+ * - Filepath: internal/library/anime/entry.go
+ * - Filename: entry.go
+ * - Package: anime
+ */
+export type Anime_Entry = {
+    mediaId: number
+    media?: AL_BaseAnime
+    listData?: Anime_EntryListData
+    libraryData?: Anime_EntryLibraryData
+    downloadInfo?: Anime_EntryDownloadInfo
+    episodes?: Array<Anime_Episode>
+    nextEpisode?: Anime_Episode
+    localFiles?: Array<Anime_LocalFile>
+    anidbId: number
+    currentEpisodeCount: number
+}
+
+/**
+ * - Filepath: internal/library/anime/entry_download_info.go
+ * - Filename: entry_download_info.go
+ * - Package: anime
+ */
+export type Anime_EntryDownloadEpisode = {
+    episodeNumber: number
+    aniDBEpisode: string
+    episode?: Anime_Episode
+}
+
+/**
+ * - Filepath: internal/library/anime/entry_download_info.go
+ * - Filename: entry_download_info.go
+ * - Package: anime
+ */
+export type Anime_EntryDownloadInfo = {
+    episodesToDownload?: Array<Anime_EntryDownloadEpisode>
+    canBatch: boolean
+    batchAll: boolean
+    hasInaccurateSchedule: boolean
+    rewatch: boolean
+    absoluteOffset: number
+}
+
+/**
+ * - Filepath: internal/library/anime/entry_library_data.go
+ * - Filename: entry_library_data.go
+ * - Package: anime
+ */
+export type Anime_EntryLibraryData = {
+    allFilesLocked: boolean
+    sharedPath: string
+}
+
+/**
+ * - Filepath: internal/library/anime/entry.go
+ * - Filename: entry.go
+ * - Package: anime
+ */
+export type Anime_EntryListData = {
+    progress?: number
+    score?: number
+    status?: AL_MediaListStatus
+    startedAt?: string
+    completedAt?: string
+}
 
 /**
  * - Filepath: internal/library/anime/episode.go
@@ -1500,11 +1500,11 @@ export type Anime_LibraryCollectionEntry = {
     /**
      * Library data
      */
-    libraryData?: Anime_AnimeEntryLibraryData
+    libraryData?: Anime_EntryLibraryData
     /**
      * AniList list data
      */
-    listData?: Anime_AnimeEntryListData
+    listData?: Anime_EntryListData
 }
 
 /**
@@ -1626,7 +1626,7 @@ export type Anime_Playlist = {
 export type Anime_StreamCollection = {
     continueWatchingList?: Array<Anime_Episode>
     anime?: Array<AL_BaseAnime>
-    listData?: Record<number, Anime_AnimeEntryListData>
+    listData?: Record<number, Anime_EntryListData>
 }
 
 /**

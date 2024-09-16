@@ -83,7 +83,7 @@ func TestNewAnimeEntry(t *testing.T) {
 				Progress: lo.ToPtr(tt.currentProgress), // Mock progress
 			})
 
-			entry, err := NewAnimeEntry(&NewAnimeEntryOptions{
+			entry, err := NewEntry(&NewEntryOptions{
 				MediaId:          tt.mediaId,
 				LocalFiles:       tt.localFiles,
 				AnimeCollection:  animeCollection,

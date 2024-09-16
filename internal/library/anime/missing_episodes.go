@@ -33,9 +33,9 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 
 	groupedLfs := GroupLocalFilesByMediaID(opts.LocalFiles)
 
-	p := pool.NewWithResults[[]*AnimeEntryDownloadEpisode]()
+	p := pool.NewWithResults[[]*EntryDownloadEpisode]()
 	for mId, lfs := range groupedLfs {
-		p.Go(func() []*AnimeEntryDownloadEpisode {
+		p.Go(func() []*EntryDownloadEpisode {
 			entry, found := opts.AnimeCollection.GetListEntryFromAnimeId(mId)
 			if !found {
 				return nil
@@ -57,7 +57,7 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 			}
 
 			// Get download info
-			downloadInfo, err := NewAnimeEntryDownloadInfo(&NewAnimeEntryDownloadInfoOptions{
+			downloadInfo, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
 				LocalFiles:       lfs,
 				AnimeMetadata:    animeMetadata,
 				Media:            entry.Media,
@@ -81,13 +81,13 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		})
 	}
 	epsToDownload := p.Wait()
-	epsToDownload = lo.Filter(epsToDownload, func(item []*AnimeEntryDownloadEpisode, _ int) bool {
+	epsToDownload = lo.Filter(epsToDownload, func(item []*EntryDownloadEpisode, _ int) bool {
 		return item != nil
 	})
 
 	// Flatten
 	flattenedEpsToDownload := lo.Flatten(epsToDownload)
-	eps := lop.Map(flattenedEpsToDownload, func(item *AnimeEntryDownloadEpisode, _ int) *Episode {
+	eps := lop.Map(flattenedEpsToDownload, func(item *EntryDownloadEpisode, _ int) *Episode {
 		return item.Episode
 	})
 	// Sort

@@ -16,7 +16,7 @@ type (
 	}
 )
 
-// NewEpisodeCollection creates a new episode collection by leveraging anime.AnimeEntryDownloadInfo.
+// NewEpisodeCollection creates a new episode collection by leveraging anime.EntryDownloadInfo.
 // It stores the EpisodeCollection in the repository instance for the lifetime of the repository.
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
 	if err = r.FailIfNoSettings(); err != nil {
@@ -38,7 +38,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 	// |    Download Info    |
 	// +---------------------+
 
-	info, err := anime.NewAnimeEntryDownloadInfo(&anime.NewAnimeEntryDownloadInfoOptions{
+	info, err := anime.NewEntryDownloadInfo(&anime.NewEntryDownloadInfoOptions{
 		LocalFiles:       nil,
 		AnimeMetadata:    animeMetadata,
 		Progress:         lo.ToPtr(0), // Progress is 0 because we want the entire list
@@ -96,7 +96,7 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		return nil, fmt.Errorf("no episodes found")
 	}
 
-	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.AnimeEntryDownloadEpisode, i int) *anime.Episode {
+	ec.Episodes = lo.Map(info.EpisodesToDownload, func(episode *anime.EntryDownloadEpisode, i int) *anime.Episode {
 		return episode.Episode
 	})
 

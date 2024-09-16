@@ -1,4 +1,4 @@
-import { Anime_AnimeEntry, Anime_AnimeEntryDownloadEpisode } from "@/api/generated/types"
+import { Anime_AnimeEntry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
 import { Modal } from "@/components/ui/modal"
 import { atom } from "jotai"
@@ -49,7 +49,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_AnimeEntry }) {
 }
 
 
-function EpisodeList({ episodes }: { episodes: Anime_AnimeEntryDownloadEpisode[] | undefined }) {
+function EpisodeList({ episodes }: { episodes: Anime_EntryDownloadEpisode[] | undefined }) {
 
     if (!episodes || !episodes.length) return null
 

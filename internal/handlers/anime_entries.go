@@ -29,7 +29,7 @@ import (
 //	@desc This includes episodes and metadata (if any), AniList list data, download info...
 //	@route /api/v1/library/anime-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
-//	@returns anime.AnimeEntry
+//	@returns anime.Entry
 func HandleGetAnimeEntry(c *RouteCtx) error {
 
 	mId, err := c.Fiber.ParamsInt("id")
@@ -54,7 +54,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 	}
 
 	// Create a new media entry
-	entry, err := anime.NewAnimeEntry(&anime.NewAnimeEntryOptions{
+	entry, err := anime.NewEntry(&anime.NewEntryOptions{
 		MediaId:          mId,
 		LocalFiles:       lfs,
 		AnimeCollection:  animeCollection,

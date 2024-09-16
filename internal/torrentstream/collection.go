@@ -13,9 +13,9 @@ type (
 	// StreamCollection is used to "complete" the anime.LibraryCollection if the user chooses
 	// to include torrent streams in the library view.
 	StreamCollection struct {
-		ContinueWatchingList []*anime.Episode                  `json:"continueWatchingList"`
-		Anime                []*anilist.BaseAnime              `json:"anime"`
-		ListData             map[int]*anime.AnimeEntryListData `json:"listData"`
+		ContinueWatchingList []*anime.Episode             `json:"continueWatchingList"`
+		Anime                []*anilist.BaseAnime         `json:"anime"`
+		ListData             map[int]*anime.EntryListData `json:"listData"`
 	}
 
 	HydrateStreamCollectionOptions struct {
@@ -50,7 +50,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 	ret := &StreamCollection{
 		ContinueWatchingList: make([]*anime.Episode, 0),
 		Anime:                make([]*anilist.BaseAnime, 0),
-		ListData:             make(map[int]*anime.AnimeEntryListData),
+		ListData:             make(map[int]*anime.EntryListData),
 	}
 
 	visitedMediaIds := make(map[int]struct{})
@@ -160,7 +160,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 
 	for _, a := range animeAdded {
 		ret.Anime = append(ret.Anime, a.GetMedia())
-		ret.ListData[a.GetMedia().GetID()] = &anime.AnimeEntryListData{
+		ret.ListData[a.GetMedia().GetID()] = &anime.EntryListData{
 			Progress:    a.GetProgressSafe(),
 			Score:       a.GetScoreSafe(),
 			Status:      a.GetStatus(),

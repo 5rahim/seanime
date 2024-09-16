@@ -177,7 +177,7 @@ func (fm *FillerManager) IsEpisodeFiller(mediaId int, episodeNumber int) bool {
 	return false
 }
 
-func (fm *FillerManager) HydrateFillerData(e *anime.AnimeEntry) {
+func (fm *FillerManager) HydrateFillerData(e *anime.Entry) {
 	if fm == nil {
 		return
 	}

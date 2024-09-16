@@ -19,8 +19,8 @@ type (
 	}
 
 	AnimeSnapshot struct {
-		Entry  *anime.AnimeEntry `json:"entry"`
-		Images *ImageSnapshot    `json:"images"`
+		Entry  *anime.Entry   `json:"entry"`
+		Images *ImageSnapshot `json:"images"`
 	}
 
 	MangaSnapshot struct {
