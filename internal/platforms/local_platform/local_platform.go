@@ -17,18 +17,11 @@ type LocalPlatform struct {
 	rawMangaCollection mo.Option[*anilist.MangaCollection]
 	mangaMu            sync.RWMutex
 	animeMu            sync.RWMutex
-	localDb            *LocalPlatformDatabase
 }
 
-func NewLocalPlatform(dataDir string, anilistClient anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
-
-	localDb, err := newLocalPlatformDatabase(dataDir, "local", logger)
-	if err != nil {
-		return nil, err
-	}
+func NewLocalPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) (platform.Platform, error) {
 
 	ap := &LocalPlatform{
-		localDb:            localDb,
 		anilistClient:      anilistClient,
 		logger:             logger,
 		animeCollection:    mo.None[*anilist.AnimeCollection](),

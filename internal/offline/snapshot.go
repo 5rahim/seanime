@@ -155,7 +155,7 @@ func (h *Hub) CreateSnapshot(opts *NewSnapshotOptions) error {
 
 	for _, container := range uniqContainers {
 		// Get the media
-		listEntry, ok := mangaCollection.GetListEntryFromMediaId(container.MediaId)
+		listEntry, ok := mangaCollection.GetListEntryFromMangaId(container.MediaId)
 		if !ok {
 			h.logger.Error().Err(err).Msgf("offline hub: [Snapshot] Failed to get Anilist media %d", container.MediaId)
 			return err

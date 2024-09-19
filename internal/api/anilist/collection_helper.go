@@ -3,7 +3,7 @@ package anilist
 import "time"
 
 type (
-	MediaListEntry = AnimeCollection_MediaListCollection_Lists_Entries
+	AnimeListEntry = AnimeCollection_MediaListCollection_Lists_Entries
 
 	EntryDate struct {
 		Year  *int `json:"year,omitempty"`
@@ -12,7 +12,7 @@ type (
 	}
 )
 
-func (ac *AnimeCollection) GetListEntryFromAnimeId(id int) (*MediaListEntry, bool) {
+func (ac *AnimeCollection) GetListEntryFromAnimeId(id int) (*AnimeListEntry, bool) {
 	if ac == nil || ac.MediaListCollection == nil {
 		return nil, false
 	}

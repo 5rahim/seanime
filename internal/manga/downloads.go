@@ -71,7 +71,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		mediaId := pair.mediaId
 
 		// Get the manga from the collection
-		mangaEntry, ok := mangaCollection.GetListEntryFromMediaId(mediaId)
+		mangaEntry, ok := mangaCollection.GetListEntryFromMangaId(mediaId)
 		if !ok {
 			r.logger.Warn().Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Manga not found in collection")
 			continue
@@ -85,6 +85,7 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		}
 
 		// Get the manga chapter container (downloaded and non-downloaded)
+		// FIXME v2.2.0 This is a bit non-intuitive, we should store the downloaded chapter containers in a permanent cache
 		container, err := r.GetMangaChapterContainer(&opts)
 		if err != nil {
 			if errors.Is(err, ErrNoTitlesProvided) { // This means the cache has expired

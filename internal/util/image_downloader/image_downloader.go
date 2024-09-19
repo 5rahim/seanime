@@ -53,6 +53,8 @@ type (
 )
 
 func NewImageDownloader(downloadDir string, logger *zerolog.Logger) *ImageDownloader {
+	_ = os.MkdirAll(downloadDir, os.ModePerm)
+
 	return &ImageDownloader{
 		downloadDir: downloadDir,
 		logger:      logger,
@@ -74,7 +76,7 @@ func (id *ImageDownloader) DownloadImages(urls []string) (err error) {
 		return
 	}
 
-	rateLimiter := limiter.NewLimiter(1*time.Second, 5)
+	rateLimiter := limiter.NewLimiter(1*time.Second, 10)
 	var wg sync.WaitGroup
 	for _, url := range urls {
 		wg.Add(1)
@@ -276,11 +278,11 @@ func (r *Registry) setup() (err error) {
 	r.content.IdToExt = make(map[string]string)
 
 	// Check if the registry exists
-	_ = os.MkdirAll(filepath.Dir(r.registryPath), 0700)
+	_ = os.MkdirAll(filepath.Dir(r.registryPath), os.ModePerm)
 	_, err = os.Stat(r.registryPath)
 	if os.IsNotExist(err) {
 		// Create the registry file
-		err = os.WriteFile(r.registryPath, []byte("{}"), 0644)
+		err = os.WriteFile(r.registryPath, []byte("{}"), os.ModePerm)
 		if err != nil {
 			return err
 		}

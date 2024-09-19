@@ -1,4 +1,4 @@
-package local_platform
+package sync
 
 import (
 	"fmt"
@@ -12,12 +12,12 @@ import (
 	"time"
 )
 
-type LocalPlatformDatabase struct {
+type Database struct {
 	gormdb *gorm.DB
 	logger *zerolog.Logger
 }
 
-func newLocalPlatformDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*LocalPlatformDatabase, error) {
+func newLocalSyncDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*Database, error) {
 
 	// Set the SQLite database path
 	var sqlitePath string
@@ -53,7 +53,7 @@ func newLocalPlatformDatabase(appDataDir, dbName string, logger *zerolog.Logger)
 
 	logger.Info().Str("name", fmt.Sprintf("%s.db", dbName)).Msg("local platform: Database instantiated")
 
-	return &LocalPlatformDatabase{
+	return &Database{
 		gormdb: db,
 		logger: logger,
 	}, nil
@@ -61,9 +61,13 @@ func newLocalPlatformDatabase(appDataDir, dbName string, logger *zerolog.Logger)
 
 // MigrateTables performs auto migration on the database
 func migrateTables(db *gorm.DB) error {
-	err := db.AutoMigrate()
+	err := db.AutoMigrate(
+		&LocalCollection{},
+		&AnimeSnapshot{},
+		&MangaSnapshot{},
+		&TrackedMedia{},
+	)
 	if err != nil {
-
 		return err
 	}
 

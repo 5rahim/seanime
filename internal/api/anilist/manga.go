@@ -8,7 +8,7 @@ import (
 type MangaList = MangaCollection_MediaListCollection_Lists
 type MangaListEntry = MangaCollection_MediaListCollection_Lists_Entries
 
-func (ac *MangaCollection) GetListEntryFromMediaId(id int) (*MangaListEntry, bool) {
+func (ac *MangaCollection) GetListEntryFromMangaId(id int) (*MangaListEntry, bool) {
 
 	if ac == nil || ac.MediaListCollection == nil {
 		return nil, false

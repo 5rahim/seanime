@@ -232,7 +232,7 @@ func (d *Downloader) NewDownloadList(opts *NewDownloadListOptions) (ret []*Downl
 	ret = make([]*DownloadListItem, 0)
 
 	for mId, data := range *mm {
-		listEntry, ok := opts.MangaCollection.GetListEntryFromMediaId(mId)
+		listEntry, ok := opts.MangaCollection.GetListEntryFromMangaId(mId)
 		if !ok {
 			ret = append(ret, &DownloadListItem{
 				MediaId:      mId,

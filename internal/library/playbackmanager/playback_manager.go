@@ -71,7 +71,7 @@ type (
 		// For Local file playback, it MUST be set
 		// For Stream playback, it is optional
 		// See [progress_tracking.go] for how it is handled
-		currentMediaListEntry mo.Option[*anilist.MediaListEntry] // List Entry for the current video playback
+		currentMediaListEntry mo.Option[*anilist.AnimeListEntry] // List Entry for the current video playback
 
 		// \/ Local file playback
 		currentLocalFile             mo.Option[*anime.LocalFile]             // Local file for the current video playback
@@ -153,7 +153,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		currentManualTrackingState:     mo.None[*ManualTrackingState](),
 		currentLocalFile:               mo.None[*anime.LocalFile](),
 		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
-		currentMediaListEntry:          mo.None[*anilist.MediaListEntry](),
+		currentMediaListEntry:          mo.None[*anilist.AnimeListEntry](),
 		continuityManager:              opts.ContinuityManager,
 	}
 

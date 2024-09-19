@@ -392,7 +392,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 func (ad *AutoDownloader) torrentFollowsRule(
 	t *NormalizedTorrent,
 	rule *anime.AutoDownloaderRule,
-	listEntry *anilist.MediaListEntry,
+	listEntry *anilist.AnimeListEntry,
 	localEntry *anime.LocalFileWrapperEntry,
 ) (int, bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/torrentFollowsRule", func() {})
@@ -533,7 +533,7 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *anime.AutoDown
 	return false
 }
 
-func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDownloaderRule, listEntry *anilist.MediaListEntry) (ok bool) {
+func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDownloaderRule, listEntry *anilist.AnimeListEntry) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isTitleMatch", func() {
 		ok = false
 	})
@@ -600,7 +600,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDown
 func (ad *AutoDownloader) isEpisodeMatch(
 	episodes []string,
 	rule *anime.AutoDownloaderRule,
-	listEntry *anilist.MediaListEntry,
+	listEntry *anilist.AnimeListEntry,
 	localEntry *anime.LocalFileWrapperEntry,
 ) (a int, b bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isEpisodeMatch", func() {
@@ -716,7 +716,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	return -1, false
 }
 
-func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*anilist.MediaListEntry, bool) {
+func (ad *AutoDownloader) getRuleListEntry(rule *anime.AutoDownloaderRule) (*anilist.AnimeListEntry, bool) {
 	if rule == nil || rule.MediaId == 0 || ad.animeCollection.IsAbsent() {
 		return nil, false
 	}
