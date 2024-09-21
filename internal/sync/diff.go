@@ -207,12 +207,8 @@ func (d *Diff) GetMangaDiffs(opts GetMangaDiffOptions) map[int]*MangaDiffResult 
 				continue // Go to the next manga
 			}
 
-			_downloadedChapterContainers := lo.Filter(opts.DownloadedChapterContainers, func(cc *manga.ChapterContainer, _ int) bool {
-				return cc.MediaId == _entry.Media.ID
-			})
-
 			// Check if the manga has changed
-			_referenceKey := GetMangaReferenceKey(_entry.Media, _downloadedChapterContainers)
+			_referenceKey := GetMangaReferenceKey(_entry.Media, opts.DownloadedChapterContainers)
 
 			// Check if the reference key is different
 			if snapshotMap[_entry.Media.ID].ReferenceKey != _referenceKey {
