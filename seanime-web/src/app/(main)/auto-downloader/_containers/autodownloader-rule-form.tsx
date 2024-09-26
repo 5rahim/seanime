@@ -8,13 +8,13 @@ import {
 import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { useQueryClient } from "@tanstack/react-query"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
@@ -24,6 +24,7 @@ import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
 import { MdVerified } from "react-icons/md"
 import { toast } from "sonner"
+import upath from "upath"
 
 type AutoDownloaderRuleFormProps = {
     type: "create" | "edit"
@@ -51,7 +52,6 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         onRuleCreatedOrDeleted,
     } = props
 
-    const qc = useQueryClient()
     const userMedia = useAnilistUserAnime()
     const libraryCollection = useLibraryCollection()
 
@@ -123,7 +123,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                     toast.error("An error occurred, verify the fields.")
                 }}
             >
-                {(f) => <RuleFormForm
+                {(f) => <RuleFormFields
                     form={f}
                     allMedia={allMedia}
                     type={type}
@@ -145,7 +145,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
     )
 }
 
-type RuleFormFormProps = {
+type RuleFormFieldsProps = {
     form: UseFormReturn<InferType<typeof schema>>
     allMedia: AL_BaseAnime[]
     type: "create" | "edit"
@@ -155,7 +155,7 @@ type RuleFormFormProps = {
     rule?: Anime_AutoDownloaderRule
 }
 
-export function RuleFormForm(props: RuleFormFormProps) {
+export function RuleFormFields(props: RuleFormFieldsProps) {
 
     const {
         form,
@@ -167,6 +167,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
         rule,
         ...rest
     } = props
+
+    const serverStatus = useServerStatus()
 
     const selectedMedia = allMedia.find(media => media.id === Number(form.watch("mediaId")))
 
@@ -181,8 +183,11 @@ export function RuleFormForm(props: RuleFormFormProps) {
         }
         if (destination) {
             form.setValue("destination", destination)
-        } else {
-            form.setValue("destination", "")
+        } else if (type === "create") {
+            // form.setValue("destination", "")
+            const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""),
+                sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || ""))
+            form.setValue("destination", newDestination)
         }
     }, [form.watch("mediaId"), selectedMedia, libraryCollection])
 
@@ -398,4 +403,14 @@ export function TextArrayField<T extends string | number>(props: TextArrayFieldP
             />
         </div>
     )
+}
+
+function sanitizeDirectoryName(input: string): string {
+    const disallowedChars = /[<>:"/\\|?*\x00-\x1F.!`]/g // Pattern for disallowed characters
+    // Replace disallowed characters with an underscore
+    const sanitized = input.replace(disallowedChars, " ")
+    // Remove leading/trailing spaces and dots (periods) which are not allowed
+    const trimmed = sanitized.trim().replace(/^\.+|\.+$/g, "").replace(/\s+/g, " ")
+    // Ensure the directory name is not empty after sanitization
+    return trimmed || "Untitled"
 }
