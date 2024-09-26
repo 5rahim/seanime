@@ -11,12 +11,12 @@ import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -104,9 +104,9 @@ export default function Page() {
 
                 <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
-                        <Link href={`/entry?id=${animeEntry?.mediaId}`}>
+                        <SeaLink href={`/entry?id=${animeEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
-                        </Link>
+                        </SeaLink>
                         <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{animeEntry?.media?.title?.userPreferred}</h3>
                     </div>
                 </div>

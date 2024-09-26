@@ -1,9 +1,9 @@
 import { Extension_Extension } from "@/api/generated/types"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 import { FaLink } from "react-icons/fa"
 
@@ -47,7 +47,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
 
                     <div className="flex flex-1"></div>
 
-                    {!!extension.website && <Link
+                    {!!extension.website && <SeaLink
                         href={extension.website}
                         target="_blank"
                         className="inline-block"
@@ -59,7 +59,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                         >
                             Website
                         </Button>
-                    </Link>}
+                    </SeaLink>}
                 </div>
 
                 <p className="text-[--muted] text-sm text-pretty">

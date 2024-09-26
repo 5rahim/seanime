@@ -1,4 +1,5 @@
 import { AL_BaseAnime, Anime_Episode } from "@/api/generated/types"
+import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
@@ -7,7 +8,6 @@ import { addMonths, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOf
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
 import Image from "next/image"
-import Link from "next/link"
 import React, { Fragment } from "react"
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 
@@ -181,7 +181,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                     key={event.id}
                                                     trigger={
                                                         <li key={event.id}>
-                                                            <Link className="group flex" href={event.href}>
+                                                            <SeaLink className="group flex" href={event.href}>
                                                                 <p className="flex-auto truncate font-medium text-gray-100 group-hover:text-gray-200">
                                                                     {event.name}
                                                                 </p>
@@ -191,7 +191,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                                 >
                                                                     {event.time}
                                                                 </time>
-                                                            </Link>
+                                                            </SeaLink>
                                                         </li>
                                                     }
                                                 >
@@ -206,7 +206,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                 <ol className="text-sm max-w-full block">
                                                     {day.events.map((event) => (
                                                         <li key={event.id}>
-                                                            <Link className="group flex gap-2" href={event.href}>
+                                                            <SeaLink className="group flex gap-2" href={event.href}>
                                                                 <p className="flex-1 truncate font-medium">
                                                                     {event.name}
                                                                 </p>
@@ -219,7 +219,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                                                                 >
                                                                     {event.time}
                                                                 </time>
-                                                            </Link>
+                                                            </SeaLink>
                                                         </li>
                                                     ))}
                                                 </ol>

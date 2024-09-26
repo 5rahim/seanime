@@ -1,7 +1,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import React from "react"
 import { FiPlayCircle } from "react-icons/fi"
 
@@ -29,14 +29,14 @@ export function EntryOnlinestreamButton(props: EntryOnlinestreamButtonProps) {
 
     return (
         <>
-            <Link href={`/onlinestream?id=${entry?.mediaId}`}>
+            <SeaLink href={`/onlinestream?id=${entry?.mediaId}`}>
                 <Button
                     intent="primary-subtle"
                     leftIcon={<FiPlayCircle className="text-xl" />}
                 >
                     Stream online
                 </Button>
-            </Link>
+            </SeaLink>
         </>
     )
 }

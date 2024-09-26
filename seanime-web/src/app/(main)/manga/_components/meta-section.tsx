@@ -10,8 +10,8 @@ import {
     MediaPageHeaderDetailsContainer,
     MediaPageHeaderEntryDetails,
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import React from "react"
 
 
@@ -56,11 +56,11 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
 
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">
 
-                    <Link href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
+                    <SeaLink href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
                         <Button intent="gray-link" className="px-0">
                             AniList
                         </Button>
-                    </Link>
+                    </SeaLink>
 
                     <div className="flex flex-1"></div>
                 </div>

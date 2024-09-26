@@ -3,13 +3,13 @@ import { Anime_LocalFile, Summary_ScanSummaryFile, Summary_ScanSummaryLog } from
 import { useGetScanSummaries } from "@/api/hooks/scan_summary.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Select } from "@/components/ui/select"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiCheckCircle, BiInfoCircle, BiXCircle } from "react-icons/bi"
@@ -112,10 +112,10 @@ export default function Page() {
                                                         </div>
 
                                                         <div className="space-y-1">
-                                                            <Link
+                                                            <SeaLink
                                                                 href={`/entry?id=${group.mediaId}`}
                                                                 className="font-medium tracking-wide"
-                                                            >{group.mediaTitle}</Link>
+                                                            >{group.mediaTitle}</SeaLink>
                                                             <p className="flex gap-1 items-center text-sm text-[--muted]">
                                                                 <span className="text-lg">{group.mediaIsInCollection ?
                                                                     <BiCheckCircle className="text-green-200" /> :

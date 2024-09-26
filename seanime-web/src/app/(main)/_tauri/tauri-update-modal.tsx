@@ -2,6 +2,7 @@
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
@@ -11,7 +12,6 @@ import { relaunch } from "@tauri-apps/plugin-process"
 import { check, Update } from "@tauri-apps/plugin-updater"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Link from "next/link"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiLinkExternal } from "react-icons/bi"
@@ -143,9 +143,9 @@ export function TauriUpdateModal(props: UpdateModalProps) {
                             Update now
                         </Button>}
                         <div className="flex flex-1" />
-                        <Link href={updateData?.release?.html_url || ""} target="_blank">
+                        <SeaLink href={updateData?.release?.html_url || ""} target="_blank">
                             <Button intent="white-subtle" rightIcon={<BiLinkExternal />}>See on GitHub</Button>
-                        </Link>
+                        </SeaLink>
                     </div>
                 </div>
             </Modal>

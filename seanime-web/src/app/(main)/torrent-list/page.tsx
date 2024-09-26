@@ -7,13 +7,13 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Tooltip } from "@/components/ui/tooltip"
 import capitalize from "lodash/capitalize"
-import Link from "next/link"
 import React from "react"
 import { BiDownArrow, BiFolder, BiLinkExternal, BiPause, BiPlay, BiStop, BiTime, BiTrash, BiUpArrow } from "react-icons/bi"
 import * as upath from "upath"
@@ -38,9 +38,9 @@ export default function Page() {
                     </div>
                     <div>
                         {/*Show embedded client button only for qBittorrent*/}
-                        {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <Link href={`/qbittorrent`}>
+                        {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <SeaLink href={`/qbittorrent`}>
                             <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
-                        </Link>}
+                        </SeaLink>}
                     </div>
                 </div>
 

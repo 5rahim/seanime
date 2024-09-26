@@ -1,6 +1,7 @@
 import { AL_BaseAnime, AL_BaseManga, Offline_AssetMapImageMap, Offline_ListData } from "@/api/generated/types"
 import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
 import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
+import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import {
     AnimeEntryCardNextAiring,
     MediaEntryCardBody,
@@ -20,6 +21,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Button } from "@/components/ui/button"
 import capitalize from "lodash/capitalize"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -38,7 +40,7 @@ type OfflineMediaEntryCardProps<T extends "anime" | "manga"> = {
 } & OfflineMediaEntryCardBasedProps
 
 export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: OfflineMediaEntryCardProps<T>) {
-
+    const router = useRouter()
     const serverStatus = useServerStatus()
     const {
         media,
@@ -58,6 +60,17 @@ export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: Offlin
     const link = type === "anime" ? `/offline/anime?id=${media.id}` : `/offline/manga?id=${media.id}`
 
     const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
+
+    const { setPlayNext } = usePlayNext()
+    const handleWatchButtonClicked = React.useCallback(() => {
+        if ((!!listData?.progress && (listData?.status !== "COMPLETED"))) {
+            setPlayNext(media.id, () => {
+                router.push(`/offline/anime?id=${media.id}`)
+            })
+        } else {
+            router.push(`/offline/anime?id=${media.id}`)
+        }
+    }, [])
 
     if (!media) return null
 
@@ -100,22 +113,23 @@ export function OfflineMediaEntryCard<T extends "anime" | "manga">(props: Offlin
                     )}
 
                     {type === "anime" && <div className="py-1">
-                        <Link
-                            href={`/offline/anime?id=${media.id}${(!!listData?.progress && (listData?.status !== "COMPLETED"))
-                                ? "&playNext=true"
-                                : ""}`}
+                        {/*<Link*/}
+                        {/*    href={`/offline/anime?id=${media.id}${(!!listData?.progress && (listData?.status !== "COMPLETED"))*/}
+                        {/*        ? "&playNext=true"*/}
+                        {/*        : ""}`}*/}
+                        {/*>*/}
+                        <Button
+                            leftIcon={<BiPlay className="text-2xl" />}
+                            intent="white"
+                            size="md"
+                            className="w-full text-md"
+                            onClick={handleWatchButtonClicked}
                         >
-                            <Button
-                                leftIcon={<BiPlay className="text-2xl" />}
-                                intent="white"
-                                size="md"
-                                className="w-full text-md"
-                            >
-                                {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
-                                    ? "Continue watching"
-                                    : "Watch"}
-                            </Button>
-                        </Link>
+                            {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
+                                ? "Continue watching"
+                                : "Watch"}
+                        </Button>
+                        {/*</Link>*/}
                     </div>}
 
                     {type === "manga" && <Link

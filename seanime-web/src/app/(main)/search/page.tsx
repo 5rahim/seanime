@@ -6,10 +6,10 @@ import { AdvancedSearchOptions } from "@/app/(main)/search/_components/advanced-
 import { AdvancedSearchPageTitle } from "@/app/(main)/search/_components/advanced-search-page-title"
 import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-search.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutGrid } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { useSetAtom } from "jotai/react"
-import Link from "next/link"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { useMount } from "react-use"
@@ -50,9 +50,9 @@ export default function Page({ params: urlParams }: {
             <CustomLibraryBanner discrete />
             <PageWrapper className="space-y-6 px-4 md:p-8 pt-0 pb-10">
                 <div className="flex items-center gap-4">
-                    <Link href={`/discover`}>
+                    <SeaLink href={`/discover`}>
                         <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />
-                    </Link>
+                    </SeaLink>
                     <h3>Discover</h3>
                 </div>
                 <div className="text-center xl:text-left">

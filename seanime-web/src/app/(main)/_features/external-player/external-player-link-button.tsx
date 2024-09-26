@@ -1,7 +1,7 @@
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React from "react"
 
@@ -22,7 +22,7 @@ export function ExternalPlayerLinkButton(props: ExternalPlayerLinkButtonProps) {
     return (
         <>
             <div className="fixed bottom-2 right-2 z-50">
-                <Link href={link} target="_blank" prefetch={false}>
+                <SeaLink href={link} target="_blank" prefetch={false}>
                     <Button
                         rounded
                         size="lg"
@@ -35,7 +35,7 @@ export function ExternalPlayerLinkButton(props: ExternalPlayerLinkButtonProps) {
                     >
                         Open media in external player
                     </Button>
-                </Link>
+                </SeaLink>
             </div>
         </>
     )

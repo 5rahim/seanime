@@ -6,6 +6,7 @@ import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-e
 
 import { useHandleMangaChapterDownloadQueue } from "@/app/(main)/manga/_lib/handle-manga-downloads"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -16,7 +17,6 @@ import { ProgressBar } from "@/components/ui/progress-bar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Link from "next/link"
 import React from "react"
 import { MdClear } from "react-icons/md"
 import { PiWarningOctagonDuotone } from "react-icons/pi"
@@ -164,10 +164,10 @@ export function ChapterDownloadQueue(props: ChapterDownloadQueueProps) {
                                         )}
                                         >
                                             <div className="flex items-center gap-2">
-                                                {!!media && <Link
+                                                {!!media && <SeaLink
                                                     className="font-semibold max-w-[180px] text-ellipsis truncate underline"
                                                     href={`/manga/entry?id=${media.id}`}
-                                                >{media.title?.userPreferred}</Link>}
+                                                >{media.title?.userPreferred}</SeaLink>}
                                                 <p>Chapter {item.chapterNumber} <span className="text-[--muted] italic">(id: {item.chapterId})</span>
                                                 </p>
                                                 {item.status === "errored" && (
@@ -240,10 +240,10 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                             "px-3 py-2 bg-gray-900 space-y-1",
                                         )}
                                         >
-                                            <Link
+                                            <SeaLink
                                                 className="font-semibold underline"
                                                 href={`/manga/entry?id=${item.mediaId}`}
-                                            >Media {item.mediaId}</Link>
+                                            >Media {item.mediaId}</SeaLink>
 
                                             <div className="flex items-center gap-2">
                                                 <p>{Object.values(item.downloadData)

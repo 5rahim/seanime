@@ -1,11 +1,11 @@
 import { useAnilistListRecentAiringAnime } from "@/api/hooks/anilist.hooks"
+import { SeaLink } from "@/components/shared/sea-link"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import { format, isSameMonth, isToday, subDays } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 
 
@@ -113,10 +113,10 @@ export function DiscoverAiringSchedule() {
                                                 </div>
 
                                                 <div className="space-y-1">
-                                                    <Link
+                                                    <SeaLink
                                                         href={`/entry?id=${event.media?.id}`}
                                                         className="font-medium tracking-wide line-clamp-1"
-                                                    >{event.media?.title?.userPreferred}</Link>
+                                                    >{event.media?.title?.userPreferred}</SeaLink>
 
                                                     <p className="text-[--muted]">
                                                         Ep {event.episode} airing at {event.time}

@@ -2,6 +2,7 @@ import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } fr
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -11,7 +12,6 @@ import { atom, useAtom } from "jotai/index"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -204,12 +204,12 @@ export function MediaEntryCardHoverPopupTitleSection(props: MediaEntryCardHoverP
     return (
         <>
             <div className="select-none">
-                <Link
+                <SeaLink
                     href={link}
                     className="text-center text-pretty font-medium text-sm lg:text-base px-4 leading-0 line-clamp-2 hover:text-brand-100"
                 >
                     {title}
-                </Link>
+                </SeaLink>
             </div>
             {!!year && <div>
                 <p className="justify-center text-sm text-[--muted] flex w-full gap-1 items-center">
@@ -300,7 +300,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
 
     return (
         <>
-            <Link
+            <SeaLink
                 href={link}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
             >
@@ -358,7 +358,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-md"
                     ></div>}
                 </div>
-            </Link>
+            </SeaLink>
         </>
     )
 }
@@ -519,5 +519,5 @@ export const MediaEntryCardHoverPopupBanner = ({
         </div>
     )
 
-    return <Link tabIndex={-1} href={link}>{Content}</Link>
+    return <SeaLink tabIndex={-1} href={link}>{Content}</SeaLink>
 }

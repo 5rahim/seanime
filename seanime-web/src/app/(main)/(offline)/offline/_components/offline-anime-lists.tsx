@@ -51,7 +51,7 @@ export function OfflineAnimeLists() {
                     <ContinueWatching
                         episodes={continueWatchingEpisodeList}
                         isLoading={false}
-                        linkTemplate={"/offline/anime?id={id}&playNext=true"}
+                        linkTemplate={"/offline/anime?id={id}"}
                     />
                     <div className="p-4 space-y-6">
                         {!!lists.current?.length && (

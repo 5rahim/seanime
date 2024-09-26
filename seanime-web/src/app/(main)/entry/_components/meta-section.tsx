@@ -21,9 +21,9 @@ import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-act
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { TorrentStreamButton } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-button"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
-import Link from "next/link"
 import React from "react"
 
 
@@ -95,11 +95,11 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                     <EntryOnlinestreamButton entry={entry} />
 
-                    <Link href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
+                    <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                         <Button intent="gray-link" className="px-0">
                             AniList
                         </Button>
-                    </Link>
+                    </SeaLink>
 
                     {!!entry?.media?.trailer?.id && <TrailerModal
                         trailerId={entry?.media?.trailer?.id} trigger={

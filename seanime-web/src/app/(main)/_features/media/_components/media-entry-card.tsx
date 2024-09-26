@@ -1,5 +1,6 @@
 import { AL_BaseAnime, AL_BaseManga, Anime_EntryLibraryData, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
 import {
     __mediaEntryCard_hoveredPopupId,
@@ -21,13 +22,13 @@ import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
@@ -64,6 +65,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         withAudienceScore = true,
     } = props
 
+    const router = useRouter()
     const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
@@ -118,6 +120,17 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         }
     }, [listDataFromCollection, _listData])
 
+    const { setPlayNext } = usePlayNext()
+    const handleWatchButtonClicked = React.useCallback(() => {
+        if ((!!listData?.progress && (listData?.status !== "COMPLETED"))) {
+            setPlayNext(media.id, () => {
+                router.push(`/entry?id=${media.id}`)
+            })
+        } else {
+            router.push(`/entry?id=${media.id}`)
+        }
+    }, [])
+
     if (!media) return null
 
     return (
@@ -164,25 +177,26 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     )}
 
                     {type === "anime" && <div className="py-1">
-                        <Link
-                            href={`/entry?id=${media.id}${(!!listData?.progress && (listData?.status !== "COMPLETED")) ? "&playNext=true" : ""}`}
+                        {/*<Link*/}
+                        {/*    href={`/entry?id=${media.id}${(!!listData?.progress && (listData?.status !== "COMPLETED")) ? "&playNext=true" : ""}`}*/}
+                        {/*    tabIndex={-1}*/}
+                        {/*>*/}
+                        <Button
+                            leftIcon={<BiPlay className="text-2xl" />}
+                            intent="white"
+                            size="md"
+                            className="w-full text-md"
                             tabIndex={-1}
+                            onClick={handleWatchButtonClicked}
                         >
-                            <Button
-                                leftIcon={<BiPlay className="text-2xl" />}
-                                intent="white"
-                                size="md"
-                                className="w-full text-md"
-                                tabIndex={-1}
-                            >
-                                {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
-                                    ? "Continue watching"
-                                    : "Watch"}
-                            </Button>
-                        </Link>
+                            {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
+                                ? "Continue watching"
+                                : "Watch"}
+                        </Button>
+                        {/*</Link>*/}
                     </div>}
 
-                    {type === "manga" && <Link
+                    {type === "manga" && <SeaLink
                         href={`/manga/entry?id=${props.media.id}`}
                     >
                         <Button
@@ -194,7 +208,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         >
                             Read
                         </Button>
-                    </Link>}
+                    </SeaLink>}
 
                     {(listData?.status) &&
                         <p className="text-center text-sm text-[--muted]">

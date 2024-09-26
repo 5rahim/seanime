@@ -18,6 +18,7 @@ import { OnlinestreamManagerProvider } from "@/app/(main)/onlinestream/_lib/onli
 import { __onlinestream_autoNextAtom, __onlinestream_autoPlayAtom } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -37,7 +38,6 @@ import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/l
 import HLS from "hls.js"
 import { atom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
-import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -254,9 +254,9 @@ export default function Page() {
                 >
                     <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                         <div className="flex w-full gap-4 items-center relative">
-                            <Link href={`/entry?id=${media?.id}`}>
+                            <SeaLink href={`/entry?id=${media?.id}`}>
                                 <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
-                            </Link>
+                            </SeaLink>
                             <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{media.title?.userPreferred}</h3>
                         </div>
 
