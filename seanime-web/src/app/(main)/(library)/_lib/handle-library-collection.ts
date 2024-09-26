@@ -1,10 +1,8 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
-import { __library_paramsAtom } from "@/app/(main)/(library)/_lib/handle-detailed-library-collection"
 import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries } from "@/lib/helpers/filtering"
 import { atomWithImmer } from "jotai-immer"
-import { useAtomValue } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 
@@ -45,8 +43,6 @@ export function useHandleLibraryCollection() {
 
     const [params, setParams] = useAtom(__mainLibrary_paramsAtom)
     // const debouncedParams = useDebounce(params, 500)
-
-    const libraryParams = useAtomValue(__library_paramsAtom)
 
     // Reset params when data changes
     React.useEffect(() => {

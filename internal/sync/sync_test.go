@@ -14,9 +14,8 @@ import (
 	"time"
 )
 
-func TestSync(t *testing.T) {
-	test_utils.SetTwoLevelDeep()
-	test_utils.InitTestProvider(t, test_utils.Anilist())
+func testSetupManager(t *testing.T) (Manager, *anilist.AnimeCollection, *anilist.MangaCollection) {
+
 	logger := util.NewLogger()
 
 	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
@@ -35,7 +34,16 @@ func TestSync(t *testing.T) {
 	manager.SetAnimeCollection(animeCollection)
 	manager.SetMangaCollection(mangaCollection)
 
-	err = manager.AddAnime(130003) // Bocchi the rock
+	return manager, animeCollection, mangaCollection
+}
+
+func TestSync2(t *testing.T) {
+	test_utils.SetTwoLevelDeep()
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	manager, animeCollection, _ := testSetupManager(t)
+
+	err := manager.AddAnime(130003) // Bocchi the rock
 	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
 		require.NoError(t, err)
 	}
@@ -72,6 +80,44 @@ func TestSync(t *testing.T) {
 
 	fmt.Println("================================================================================================")
 	fmt.Println("================================================================================================")
+
+	err = manager.Synchronize()
+	require.NoError(t, err)
+
+	select {
+	case <-manager.GetQueue().doneUpdatingLocalCollections:
+		util.Spew(manager.GetLocalAnimeCollection().MustGet())
+		util.Spew(manager.GetLocalMangaCollection().MustGet())
+		break
+	case <-time.After(10 * time.Second):
+		t.Log("Timeout")
+		break
+	}
+
+}
+
+func TestSync(t *testing.T) {
+	test_utils.SetTwoLevelDeep()
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	manager, _, _ := testSetupManager(t)
+
+	err := manager.AddAnime(130003) // Bocchi the rock
+	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
+		require.NoError(t, err)
+	}
+	err = manager.AddAnime(10800) // Chihayafuru
+	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
+		require.NoError(t, err)
+	}
+	err = manager.AddAnime(171457) // Make Heroine ga Oosugiru!
+	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
+		require.NoError(t, err)
+	}
+	err = manager.AddManga(101517) // JJK
+	if err != nil && !errors.Is(err, ErrAlreadyTracked) {
+		require.NoError(t, err)
+	}
 
 	err = manager.Synchronize()
 	require.NoError(t, err)
