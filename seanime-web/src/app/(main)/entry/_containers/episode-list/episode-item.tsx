@@ -1,3 +1,4 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { AL_BaseAnime, Anime_Episode, Anime_LocalFileType } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
@@ -14,6 +15,7 @@ import { AiFillWarning } from "react-icons/ai"
 import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
 import { MdInfo } from "react-icons/md"
 import { VscVerified } from "react-icons/vsc"
+import { useCopyToClipboard } from "react-use"
 import { toast } from "sonner"
 
 export const EpisodeItemIsolation = createIsolation()
@@ -30,6 +32,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
 }) => {
 
     const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
+
+    const [_, copyToClipboard] = useCopyToClipboard()
 
     return (
         <EpisodeItemIsolation.Provider>
@@ -73,13 +77,11 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                     >
                         <MetadataModalButton />
                         <DropdownMenuSeparator />
-                        {/*<DropdownMenuItem*/}
-                        {/*    onClick={() => {*/}
-                        {/*        if (episode.localFile) {*/}
-                        {/*            window.open(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile.path), "_blank")*/}
-                        {/*        }*/}
-                        {/*    }}*/}
-                        {/*>Download</DropdownMenuItem>*/}
+                        {episode.localFile && <DropdownMenuItem
+                            onClick={() => {
+                                copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile!.path))
+                            }}
+                        >Copy stream URL</DropdownMenuItem>}
                         <DropdownMenuItem
                             className="!text-red-300 !dark:text-red-200"
                             onClick={() => {

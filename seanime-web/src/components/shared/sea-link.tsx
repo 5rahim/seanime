@@ -20,7 +20,7 @@ export function SeaLink(props: SeaLinkProps) {
         return (
             <div
                 className={cn(
-                    "cursor-pointer",
+                    "inline-block cursor-pointer",
                     className,
                 )}
                 onClick={() => {
