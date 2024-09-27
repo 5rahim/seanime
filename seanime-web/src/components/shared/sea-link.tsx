@@ -3,9 +3,9 @@ import Link, { LinkProps } from "next/link"
 import { useRouter } from "next/navigation"
 import React from "react"
 
-type SeaLinkProps = {} & LinkProps & React.ComponentPropsWithoutRef<"a">
+type SeaLinkProps = {} & LinkProps & React.ComponentPropsWithRef<"a">
 
-export function SeaLink(props: SeaLinkProps) {
+export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
 
     const {
         href,
@@ -37,4 +37,4 @@ export function SeaLink(props: SeaLinkProps) {
             {children}
         </Link>
     )
-}
+})

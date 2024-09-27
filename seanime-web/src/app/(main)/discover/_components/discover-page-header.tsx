@@ -19,7 +19,7 @@ import { RiSignalTowerLine } from "react-icons/ri"
 
 export const __discover_hoveringHeaderAtom = atom(false)
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 export function DiscoverPageHeader() {
     const ts = useThemeSettings()
