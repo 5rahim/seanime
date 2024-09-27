@@ -231,6 +231,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Enabled               bool `json:"enabled"`
 		DownloadAutomatically bool `json:"downloadAutomatically"`
 		EnableEnhancedQueries bool `json:"enableEnhancedQueries"`
+		EnableSeasonCheck     bool `json:"enableSeasonCheck"`
 	}
 
 	var b body
@@ -255,6 +256,7 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		Enabled:               b.Enabled,
 		DownloadAutomatically: b.DownloadAutomatically,
 		EnableEnhancedQueries: b.EnableEnhancedQueries,
+		EnableSeasonCheck:     b.EnableSeasonCheck,
 	}
 
 	currSettings.AutoDownloader = autoDownloaderSettings

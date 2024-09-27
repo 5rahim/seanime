@@ -23,6 +23,13 @@ func TestSeasonAndEpisode(t *testing.T) {
 		{"[Seanime] Jujutsu Kaisen First Season.mkv", &[]string{"1"}, nil, false},
 		{"[Seanime] Jujutsu Kaisen S01v2.mkv", &[]string{"01v2"}, nil, false},
 
+		{"Jujutsu Kaisen 2nd Season", &[]string{"2"}, nil, false},
+		{"Jujutsu Kaisen Season 01", &[]string{"01"}, nil, false},
+		{"Jujutsu Kaisen S1", &[]string{"1"}, nil, false},
+		{"Jujutsu Kaisen 1st Season", &[]string{"1"}, nil, false},
+		{"Jujutsu Kaisen First Season", &[]string{"1"}, nil, false},
+		{"Jujutsu Kaisen S01v2", &[]string{"01v2"}, nil, false},
+
 		// Season 1 Episode 2
 		{"[Seanime] S01E02 - An episode.mkv", &[]string{"01"}, &[]string{"02"}, false},
 		{"[Seanime] S01EP02 - An episode.mkv", &[]string{"01"}, &[]string{"02"}, false},

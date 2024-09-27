@@ -1702,7 +1702,7 @@ export type Continuity_UpdateWatchHistoryItemOptions = {
 }
 
 /**
- * - Filepath: ..\internal\continuity\history.go
+ * - Filepath: internal/continuity/history.go
  * - Filename: history.go
  * - Package: continuity
  */
@@ -2197,7 +2197,7 @@ export type Manga_PageDimension = {
 }
 
 /**
- * - Filepath: ..\internal\manga\download.go
+ * - Filepath: internal/manga/download.go
  * - Filename: download.go
  * - Package: manga
  */
@@ -2288,6 +2288,7 @@ export type Models_AutoDownloaderSettings = {
     enabled: boolean
     downloadAutomatically: boolean
     enableEnhancedQueries: boolean
+    enableSeasonCheck: boolean
 }
 
 /**
@@ -2325,7 +2326,7 @@ export type Models_DiscordSettings = {
 }
 
 /**
- * - Filepath: ..\internal\database\models\models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -2569,7 +2570,7 @@ export type Offline_AnimeEntry = {
 }
 
 /**
- * - Filepath: ..\internal\offline\snapshot_entities.go
+ * - Filepath: internal/offline/snapshot_entities.go
  * - Filename: snapshot_entities.go
  * - Package: offline
  */

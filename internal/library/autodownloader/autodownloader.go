@@ -5,6 +5,7 @@ import (
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
@@ -19,6 +20,7 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
+	"seanime/seanime-parser"
 	"sort"
 	"strings"
 	"sync"
@@ -294,6 +296,14 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 
 			localEntry, _ := lfWrapper.GetLocalEntryById(listEntry.GetMedia().GetID())
 
+			// +---------------------+
+			// |    Existing Item    |
+			// +---------------------+
+			items, err := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
+			if err != nil {
+				items = make([]*models.AutoDownloaderItem, 0)
+			}
+
 			// Get all torrents that follow the rule
 			torrentsToDownload := make([]*tmpTorrentToDownload, 0)
 		outer:
@@ -305,7 +315,7 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 					}
 				}
 
-				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry)
+				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry, items)
 				if ok {
 					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
 						torrent: t,
@@ -394,6 +404,7 @@ func (ad *AutoDownloader) torrentFollowsRule(
 	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.AnimeListEntry,
 	localEntry *anime.LocalFileWrapperEntry,
+	items []*models.AutoDownloaderItem,
 ) (int, bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/torrentFollowsRule", func() {})
 
@@ -405,11 +416,11 @@ func (ad *AutoDownloader) torrentFollowsRule(
 		return -1, false
 	}
 
-	if ok := ad.isTitleMatch(t.ParsedData.Title, rule, listEntry); !ok {
+	if ok := ad.isTitleMatch(t.ParsedData, t.Name, rule, listEntry); !ok {
 		return -1, false
 	}
 
-	episode, ok := ad.isEpisodeMatch(t.ParsedData.EpisodeNumber, rule, listEntry, localEntry)
+	episode, ok := ad.isSeasonAndEpisodeMatch(t.ParsedData, rule, listEntry, localEntry, items)
 	if !ok {
 		return -1, false
 	}
@@ -533,7 +544,7 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *anime.AutoDown
 	return false
 }
 
-func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDownloaderRule, listEntry *anilist.AnimeListEntry) (ok bool) {
+func (ad *AutoDownloader) isTitleMatch(torrentParsedData *seanime_parser.Metadata, torrentName string, rule *anime.AutoDownloaderRule, listEntry *anilist.AnimeListEntry) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isTitleMatch", func() {
 		ok = false
 	})
@@ -544,42 +555,109 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDown
 		// |   Title "Contains"  |
 		// +---------------------+
 
-		if strings.Contains(strings.ToLower(torrentTitle), strings.ToLower(rule.ComparisonTitle)) {
+		// Check if the torrent name contains the comparison title exactly
+		// This will fail for torrent titles that don't contain a season number
+		if strings.Contains(strings.ToLower(torrentName), strings.ToLower(rule.ComparisonTitle)) {
+			return true
+		}
+
+		parsedComparisonTitle := seanime_parser.Parse(rule.ComparisonTitle)
+
+		// Compare the parsed torrent title with the parsed comparison title (without season number)
+		// If the torrent title contains the parsed comparison title, check that the season numbers match
+		if strings.Contains(strings.ToLower(torrentParsedData.Title), strings.ToLower(parsedComparisonTitle.Title)) {
 			// Make sure the distance is not too great
 			lev := metrics.NewLevenshtein()
 			lev.CaseSensitive = false
-			res := lev.Distance(torrentTitle, rule.ComparisonTitle)
-			if res < 30 {
-				return true
+			res := lev.Distance(strings.ToLower(torrentParsedData.Title), strings.ToLower(parsedComparisonTitle.Title))
+			if res > 20 {
+				return false
 			}
-			return false
+			if ad.settings.EnableSeasonCheck {
+				// Check if the season numbers match
+				if len(parsedComparisonTitle.SeasonNumber) > 0 {
+					if len(torrentParsedData.SeasonNumber) == 0 {
+						return false
+					}
+					comparisonSeason, ok := util.StringToInt(parsedComparisonTitle.SeasonNumber[0])
+					if !ok {
+						return false
+					}
+					if comparisonSeason > 1 {
+						torrentSeason, ok := util.StringToInt(torrentParsedData.SeasonNumber[0])
+						if !ok {
+							return false
+						}
+						if comparisonSeason != torrentSeason {
+							return false
+						}
+					}
+				}
+			}
+			return true
 		}
 	case anime.AutoDownloaderRuleTitleComparisonLikely:
 		// +---------------------+
 		// |   Title "Likely"    |
 		// +---------------------+
 
-		// First, use comparison title
-		ok := strings.Contains(strings.ToLower(torrentTitle), strings.ToLower(rule.ComparisonTitle))
-		if ok {
-			// Make sure the distance is not too great
-			lev := metrics.NewLevenshtein()
-			lev.CaseSensitive = false
-			res := lev.Distance(torrentTitle, rule.ComparisonTitle)
-			if res < 4 {
-				return true
+		// 1. Use comparison title
+
+		torrentTitle := torrentParsedData.Title
+
+		parsedComparisonTitle := seanime_parser.Parse(rule.ComparisonTitle)
+		_comparisonTitle := parsedComparisonTitle.Title
+		if len(parsedComparisonTitle.ReleaseGroup) > 0 {
+			_comparisonTitle = fmt.Sprintf("%s %s", parsedComparisonTitle.ReleaseGroup, _comparisonTitle)
+			_comparisonTitle = strings.TrimSpace(_comparisonTitle)
+		}
+
+		// First, use comparison title, compare without season number
+		// e.g. Torrent: "[Seanime] Jujutsu Kaisen 2nd Season - 20 [...].mkv" -> "Jujutsu Kaisen"
+		// e.g. Comparison Title: "Jujutsu Kaisen 2nd Season" -> "Jujutsu Kaisen"
+
+		// DEVNOTE: isSeasonAndEpisodeMatch will handle the case where the torrent has a season number
+
+		// Make sure the distance is not too great
+		lev := metrics.NewLevenshtein()
+		lev.CaseSensitive = false
+		res := lev.Distance(torrentTitle, _comparisonTitle)
+		if res < 4 {
+			return true
+		}
+
+		// 2. Use media titles
+		// If we failed to match the torrent against the comparison title, try to match the torrent title with the media titles
+
+		torrentTitleVariations := []*string{&torrentTitle}
+
+		if len(torrentParsedData.SeasonNumber) > 0 {
+			// If the torrent has a season number, add it to the variations
+			torrentTitleVariations = []*string{
+				lo.ToPtr(fmt.Sprintf("%s Season %s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
+				lo.ToPtr(fmt.Sprintf("%s S%s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
+				lo.ToPtr(fmt.Sprintf("%s %s Season", torrentParsedData.Title, util.IntegerToOrdinal(util.StringToIntMust(torrentParsedData.SeasonNumber[0])))),
 			}
 		}
 
-		titles := listEntry.GetMedia().GetAllTitles()
-		res, found := comparison.FindBestMatchWithSorensenDice(&torrentTitle, titles)
+		// If the parsed comparison title doesn't match, compare the torrent title with media titles
+		mediaTitles := listEntry.GetMedia().GetAllTitles()
+		var compRes *comparison.SorensenDiceResult
+		for _, title := range torrentTitleVariations {
+			res, found := comparison.FindBestMatchWithSorensenDice(title, mediaTitles)
+			if found {
+				if compRes == nil || res.Rating > compRes.Rating {
+					compRes = res
+				}
+			}
+		}
 
 		// If the best match is not found
-		if !found {
+		if compRes == nil {
 			// Compare using rule comparison title
-			lev := metrics.NewSorensenDice()
-			lev.CaseSensitive = false
-			res := lev.Compare(torrentTitle, rule.ComparisonTitle)
+			sd := metrics.NewSorensenDice()
+			sd.CaseSensitive = false
+			res := sd.Compare(torrentTitle, rule.ComparisonTitle)
 
 			if res > ComparisonThreshold {
 				return true
@@ -588,7 +666,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDown
 		}
 
 		// If the best match is found
-		if res.Rating > ComparisonThreshold {
+		if compRes.Rating > ComparisonThreshold {
 			return true
 		}
 
@@ -597,13 +675,14 @@ func (ad *AutoDownloader) isTitleMatch(torrentTitle string, rule *anime.AutoDown
 	return false
 }
 
-func (ad *AutoDownloader) isEpisodeMatch(
-	episodes []string,
+func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
+	parsedData *seanime_parser.Metadata,
 	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.AnimeListEntry,
 	localEntry *anime.LocalFileWrapperEntry,
+	items []*models.AutoDownloaderItem,
 ) (a int, b bool) {
-	defer util.HandlePanicInModuleThen("autodownloader/isEpisodeMatch", func() {
+	defer util.HandlePanicInModuleThen("autodownloader/isSeasonAndEpisodeMatch", func() {
 		b = false
 	})
 
@@ -611,13 +690,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 		return -1, false
 	}
 
-	// +---------------------+
-	// |    Existing Item    |
-	// +---------------------+
-	items, err := ad.database.GetAutoDownloaderItemByMediaId(listEntry.GetMedia().GetID())
-	if err != nil {
-		items = make([]*models.AutoDownloaderItem, 0)
-	}
+	episodes := parsedData.EpisodeNumber
 
 	// Skip if we parsed more than one episode number (e.g. "01-02")
 	// We can't handle this case since it might be a batch release
@@ -664,6 +737,8 @@ func (ad *AutoDownloader) isEpisodeMatch(
 	// |   Episode number    |
 	// +---------------------+
 
+	hasAbsoluteEpisode := false
+
 	// Handle ABSOLUTE episode numbers
 	if listEntry.GetMedia().GetCurrentEpisodeCount() != -1 && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
 		// Fetch the AniZip media in order to normalize the episode number
@@ -671,6 +746,7 @@ func (ad *AutoDownloader) isEpisodeMatch(
 		animeMetadata, err := ad.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, listEntry.GetMedia().GetID())
 		// If the media is found and the offset is greater than 0
 		if err == nil && animeMetadata.GetOffset() > 0 {
+			hasAbsoluteEpisode = true
 			episode = episode - animeMetadata.GetOffset()
 		}
 		ad.mu.Unlock()
@@ -690,8 +766,30 @@ func (ad *AutoDownloader) isEpisodeMatch(
 		}
 	}
 
-	switch rule.EpisodeType {
+	// As a last check, make sure the seasons match ONLY if the episode number is not absolute
+	// We do this check only for "likely" title comparison type since the season numbers are not compared
+	if ad.settings.EnableSeasonCheck {
+		if !hasAbsoluteEpisode {
+			switch rule.TitleComparisonType {
+			case anime.AutoDownloaderRuleTitleComparisonLikely:
+				// If the title comparison type is "Likely", we will compare the season numbers
+				if len(parsedData.SeasonNumber) > 0 {
+					season, ok := util.StringToInt(parsedData.SeasonNumber[0])
+					if ok && season > 1 {
+						parsedComparisonTitle := seanime_parser.Parse(rule.ComparisonTitle)
+						if len(parsedComparisonTitle.SeasonNumber) == 0 {
+							return -1, false
+						}
+						if season != util.StringToIntMust(parsedComparisonTitle.SeasonNumber[0]) {
+							return -1, false
+						}
+					}
+				}
+			}
+		}
+	}
 
+	switch rule.EpisodeType {
 	case anime.AutoDownloaderRuleEpisodeRecent:
 		// +---------------------+
 		// |  Episode "Recent"   |

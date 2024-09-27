@@ -24720,7 +24720,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\continuity\\history.go",
+    "filepath": "../internal/continuity/history.go",
     "filename": "history.go",
     "name": "WatchHistory",
     "formattedName": "Continuity_WatchHistory",
@@ -26646,7 +26646,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\database\\models\\models.go",
+    "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
     "name": "LibraryPaths",
     "formattedName": "Models_LibraryPaths",
@@ -27252,6 +27252,15 @@
       {
         "name": "EnableEnhancedQueries",
         "jsonName": "enableEnhancedQueries",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnableSeasonCheck",
+        "jsonName": "enableSeasonCheck",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -36947,7 +36956,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\manga\\download.go",
+    "filepath": "../internal/manga/download.go",
     "filename": "download.go",
     "name": "MediaMap",
     "formattedName": "Manga_MediaMap",
@@ -36962,7 +36971,7 @@
     "comments": null
   },
   {
-    "filepath": "..\\internal\\manga\\download.go",
+    "filepath": "../internal/manga/download.go",
     "filename": "download.go",
     "name": "ProviderDownloadMap",
     "formattedName": "Manga_ProviderDownloadMap",
@@ -37366,7 +37375,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\manga\\downloader\\chapter_downloader.go",
+    "filepath": "../internal/manga/downloader/chapter_downloader.go",
     "filename": "chapter_downloader.go",
     "name": "Registry",
     "formattedName": "ChapterDownloader_Registry",
@@ -43970,7 +43979,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\offline\\snapshot_entities.go",
+    "filepath": "../internal/offline/snapshot_entities.go",
     "filename": "snapshot_entities.go",
     "name": "AssetMapImageMap",
     "formattedName": "Offline_AssetMapImageMap",
@@ -44950,26 +44959,16 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "localDb",
-        "jsonName": "localDb",
-        "goType": "LocalPlatformDatabase",
-        "typescriptType": "LocalPlatformDatabase",
-        "usedStructName": "local_platform.LocalPlatformDatabase",
-        "required": false,
-        "public": false,
-        "comments": []
       }
     ],
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_database.go",
-    "filename": "local_platform_database.go",
-    "name": "LocalPlatformDatabase",
-    "formattedName": "LocalPlatformDatabase",
-    "package": "local_platform",
+    "filepath": "../internal/sync/database.go",
+    "filename": "database.go",
+    "name": "Database",
+    "formattedName": "Database",
+    "package": "sync",
     "fields": [
       {
         "name": "gormdb",
@@ -44995,116 +44994,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_items.go",
-    "filename": "local_platform_items.go",
-    "name": "AnimeSnapshot",
-    "formattedName": "AnimeSnapshot",
-    "package": "local_platform",
-    "fields": [
-      {
-        "name": "ListEntry",
-        "jsonName": "listEntry",
-        "goType": "anilist.AnimeListEntry",
-        "typescriptType": "AL_AnimeListEntry",
-        "usedStructName": "anilist.AnimeListEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AnimeMetadata",
-        "jsonName": "animeMetadata",
-        "goType": "metadata.AnimeMetadata",
-        "typescriptType": "Metadata_AnimeMetadata",
-        "usedStructName": "metadata.AnimeMetadata",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImagePath",
-        "jsonName": "bannerImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CoverImagePath",
-        "jsonName": "coverImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "EpisodeImagePaths",
-        "jsonName": "episodeImagePaths",
-        "goType": "map[string]string",
-        "typescriptType": "Record\u003cstring, string\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/platforms/local_platform/local_platform_items.go",
-    "filename": "local_platform_items.go",
-    "name": "MangaSnapshot",
-    "formattedName": "MangaSnapshot",
-    "package": "local_platform",
-    "fields": [
-      {
-        "name": "ListEntry",
-        "jsonName": "listEntry",
-        "goType": "anilist.MangaListEntry",
-        "typescriptType": "AL_MangaListEntry",
-        "usedStructName": "anilist.MangaListEntry",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterContainers",
-        "jsonName": "chapterContainers",
-        "goType": "[]manga.ChapterContainer",
-        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
-        "usedStructName": "manga.ChapterContainer",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BannerImagePath",
-        "jsonName": "bannerImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CoverImagePath",
-        "jsonName": "coverImagePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/platforms/local_platform/local_platform_models.go",
-    "filename": "local_platform_models.go",
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
     "name": "BaseModel",
     "formattedName": "BaseModel",
-    "package": "local_platform",
+    "package": "sync",
     "fields": [
       {
         "name": "ID",
@@ -45139,11 +45033,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_models.go",
-    "filename": "local_platform_models.go",
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
     "name": "LocalCollection",
     "formattedName": "LocalCollection",
-    "package": "local_platform",
+    "package": "sync",
     "fields": [
       {
         "name": "Type",
@@ -45170,8 +45064,804 @@
     ],
     "comments": [],
     "embeddedStructNames": [
-      "local_platform.BaseModel"
+      "sync.BaseModel"
     ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "TrackedMedia",
+    "formattedName": "TrackedMedia",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "AnimeSnapshot",
+    "formattedName": "AnimeSnapshot",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeMetadata",
+        "jsonName": "animeMetadata",
+        "goType": "LocalAnimeMetadata",
+        "typescriptType": "LocalAnimeMetadata",
+        "usedStructName": "sync.LocalAnimeMetadata",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImagePath",
+        "jsonName": "bannerImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CoverImagePath",
+        "jsonName": "coverImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeImagePaths",
+        "jsonName": "episodeImagePaths",
+        "goType": "StringMap",
+        "typescriptType": "StringMap",
+        "usedStructName": "sync.StringMap",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReferenceKey",
+        "jsonName": "referenceKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "MangaSnapshot",
+    "formattedName": "MangaSnapshot",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterContainers",
+        "jsonName": "chapterContainers",
+        "goType": "LocalMangaChapterContainers",
+        "typescriptType": "LocalMangaChapterContainers",
+        "usedStructName": "sync.LocalMangaChapterContainers",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImagePath",
+        "jsonName": "bannerImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CoverImagePath",
+        "jsonName": "coverImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReferenceKey",
+        "jsonName": "referenceKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "StringMap",
+    "formattedName": "StringMap",
+    "package": "sync",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[string]string",
+      "typescriptType": "Record\u003cstring, string\u003e",
+      "declaredValues": null
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "LocalMangaChapterContainers",
+    "formattedName": "LocalMangaChapterContainers",
+    "package": "sync",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]manga.ChapterContainer",
+      "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+      "declaredValues": null,
+      "usedStructName": "manga.ChapterContainer"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "Diff",
+    "formattedName": "Diff",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "DiffType",
+    "formattedName": "DiffType",
+    "package": "sync",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "GetAnimeDiffOptions",
+    "formattedName": "GetAnimeDiffOptions",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Collection",
+        "jsonName": "Collection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalCollection",
+        "jsonName": "LocalCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackedAnime",
+        "jsonName": "TrackedAnime",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Snapshots",
+        "jsonName": "Snapshots",
+        "goType": "map[int]AnimeSnapshot",
+        "typescriptType": "Record\u003cnumber, AnimeSnapshot\u003e",
+        "usedStructName": "sync.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "AnimeDiffResult",
+    "formattedName": "AnimeDiffResult",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "AnimeEntry",
+        "jsonName": "AnimeEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeSnapshot",
+        "jsonName": "AnimeSnapshot",
+        "goType": "AnimeSnapshot",
+        "typescriptType": "AnimeSnapshot",
+        "usedStructName": "sync.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DiffType",
+        "jsonName": "DiffType",
+        "goType": "DiffType",
+        "typescriptType": "DiffType",
+        "usedStructName": "sync.DiffType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "GetMangaDiffOptions",
+    "formattedName": "GetMangaDiffOptions",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Collection",
+        "jsonName": "Collection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalCollection",
+        "jsonName": "LocalCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadedChapterContainers",
+        "jsonName": "DownloadedChapterContainers",
+        "goType": "[]manga.ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackedManga",
+        "jsonName": "TrackedManga",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Snapshots",
+        "jsonName": "Snapshots",
+        "goType": "map[int]MangaSnapshot",
+        "typescriptType": "Record\u003cnumber, MangaSnapshot\u003e",
+        "usedStructName": "sync.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "MangaDiffResult",
+    "formattedName": "MangaDiffResult",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MangaEntry",
+        "jsonName": "MangaEntry",
+        "goType": "anilist.MangaListEntry",
+        "typescriptType": "AL_MangaListEntry",
+        "usedStructName": "anilist.MangaListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaSnapshot",
+        "jsonName": "MangaSnapshot",
+        "goType": "MangaSnapshot",
+        "typescriptType": "MangaSnapshot",
+        "usedStructName": "sync.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DiffType",
+        "jsonName": "DiffType",
+        "goType": "DiffType",
+        "typescriptType": "DiffType",
+        "usedStructName": "sync.DiffType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/manager.go",
+    "filename": "manager.go",
+    "name": "ManagerImpl",
+    "formattedName": "ManagerImpl",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDb",
+        "jsonName": "localDb",
+        "goType": "Database",
+        "typescriptType": "Database",
+        "usedStructName": "sync.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDir",
+        "jsonName": "localDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localAssetsDir",
+        "jsonName": "localAssetsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaRepository",
+        "jsonName": "mangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "syncer",
+        "jsonName": "syncer",
+        "goType": "Syncer",
+        "typescriptType": "Syncer",
+        "usedStructName": "sync.Syncer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localAnimeCollection",
+        "jsonName": "localAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localMangaCollection",
+        "jsonName": "localMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadedChapterContainers",
+        "jsonName": "downloadedChapterContainers",
+        "goType": "[]manga.ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/manager.go",
+    "filename": "manager.go",
+    "name": "NewManagerOptions",
+    "formattedName": "NewManagerOptions",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "DataDir",
+        "jsonName": "DataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaRepository",
+        "jsonName": "MangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "Syncer",
+    "formattedName": "Syncer",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "animeJobQueue",
+        "jsonName": "animeJobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaJobQueue",
+        "jsonName": "mangaJobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "changedAnimeQueue",
+        "jsonName": "changedAnimeQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "changedMangaQueue",
+        "jsonName": "changedMangaQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "failedAnimeQueue",
+        "jsonName": "failedAnimeQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "failedMangaQueue",
+        "jsonName": "failedMangaQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trackedAnimeMap",
+        "jsonName": "trackedAnimeMap",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trackedMangaMap",
+        "jsonName": "trackedMangaMap",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "ManagerImpl",
+        "typescriptType": "ManagerImpl",
+        "usedStructName": "sync.ManagerImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "shouldUpdateLocalCollections",
+        "jsonName": "shouldUpdateLocalCollections",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "doneUpdatingLocalCollections",
+        "jsonName": "doneUpdatingLocalCollections",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "QueueProgress",
+    "formattedName": "QueueProgress",
+    "package": "sync",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "AnimeJob",
+    "formattedName": "AnimeJob",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Diff",
+        "jsonName": "Diff",
+        "goType": "AnimeDiffResult",
+        "typescriptType": "AnimeDiffResult",
+        "usedStructName": "sync.AnimeDiffResult",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "MangaJob",
+    "formattedName": "MangaJob",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Diff",
+        "jsonName": "Diff",
+        "goType": "MangaDiffResult",
+        "typescriptType": "MangaDiffResult",
+        "usedStructName": "sync.MangaDiffResult",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/test_utils/data.go",

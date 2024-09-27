@@ -25,6 +25,7 @@ const settingsSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean(),
     downloadAutomatically: z.boolean(),
     enableEnhancedQueries: z.boolean(),
+    enableSeasonCheck: z.boolean(),
 }))
 
 export function AutoDownloaderPage() {
@@ -133,6 +134,7 @@ export function AutoDownloaderPage() {
                                 interval: serverStatus?.settings?.autoDownloader?.interval || 10,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
                                 enableEnhancedQueries: serverStatus?.settings?.autoDownloader?.enableEnhancedQueries ?? false,
+                                enableSeasonCheck: serverStatus?.settings?.autoDownloader?.enableSeasonCheck ?? false,
                             }}
                             stackClass="space-y-6"
                         >
@@ -154,7 +156,12 @@ export function AutoDownloaderPage() {
                                         <Field.Switch
                                             label="Use enhanced queries"
                                             name="enableEnhancedQueries"
-                                            help="Seanime will use multiple custom queries instead of a single one."
+                                            help="Seanime will use multiple custom queries instead of a single one. Enable this if you notice some missing downloads."
+                                        />
+                                        <Field.Switch
+                                            label="Verify season"
+                                            name="enableSeasonCheck"
+                                            help="Seanime will perform an additional check to ensure the season number is correct."
                                         />
                                         <Field.Checkbox
                                             label="Download episodes immediately"
