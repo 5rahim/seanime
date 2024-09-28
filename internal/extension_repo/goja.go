@@ -80,6 +80,10 @@ func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = goja_bindings.BindTorrentUtils(vm)
+	if err != nil {
+		return nil, err
+	}
 
 	return vm, nil
 }
