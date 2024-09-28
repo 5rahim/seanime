@@ -305,6 +305,7 @@ type TorrentstreamSettings struct {
 	DisableIPV6                    bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
 	DownloadDir                    string `gorm:"column:download_dir" json:"downloadDir"`
 	AddToLibrary                   bool   `gorm:"column:add_to_library" json:"addToLibrary"`
+	TorrentClientHost              string `gorm:"column:torrent_client_host" json:"torrentClientHost"`
 	TorrentClientPort              int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
 	StreamingServerHost            string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
 	StreamingServerPort            int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`

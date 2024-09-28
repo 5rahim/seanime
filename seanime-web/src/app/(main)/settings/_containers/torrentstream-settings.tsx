@@ -15,6 +15,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     addToLibrary: z.boolean(),
     streamingServerPort: z.number(),
     streamingServerHost: z.string(),
+    torrentClientHost: z.string().optional().default(""),
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
     fallbackToTorrentStreamingView: z.boolean(),
@@ -64,6 +65,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     addToLibrary: settings.addToLibrary,
                     streamingServerPort: settings.streamingServerPort,
                     streamingServerHost: settings.streamingServerHost,
+                    torrentClientHost: settings.torrentClientHost || "",
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
                     fallbackToTorrentStreamingView: settings.fallbackToTorrentStreamingView,
@@ -109,7 +111,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 <Field.Select
                     name="preferredResolution"
                     label="Preferred resolution"
-                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution. 'Any' will prefer the highest resolution available."
+                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
                     options={[
                         { label: "Highest", value: "-" },
                         { label: "480p", value: "480" },
@@ -140,14 +142,25 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     Seanime uses a built-in torrent client to download torrents.
                 </p>
 
+                <div className="flex items-center gap-3">
 
-                <Field.Number
-                    name="torrentClientPort"
-                    label="Port"
-                    formatOptions={{
-                        useGrouping: false,
-                    }}
-                />
+                    <Field.Text
+                        name="torrentClientHost"
+                        label="Host"
+                        help="Leave empty for default. The host to listen for new uTP and TCP BitTorrent connections."
+                    />
+
+                    <Field.Number
+                        name="torrentClientPort"
+                        label="Port"
+                        formatOptions={{
+                            useGrouping: false,
+                        }}
+                        help="Default is 43213"
+                    />
+
+                </div>
+
                 <Field.Switch
                     name="disableIPv6"
                     label="Disable IPv6"
@@ -164,18 +177,21 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 </p>
 
                 <div className="flex items-center gap-3">
+
+                    <Field.Text
+                        name="streamingServerHost"
+                        label="Host"
+                        help="Default is 0.0.0.0"
+                    />
                     <Field.Number
                         name="streamingServerPort"
                         label="Port"
                         formatOptions={{
                             useGrouping: false,
                         }}
+                        help="Default is 43214"
                     />
 
-                    <Field.Text
-                        name="streamingServerHost"
-                        label="Host"
-                    />
                 </div>
 
 

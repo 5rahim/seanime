@@ -2542,6 +2542,7 @@ export type Models_TorrentstreamSettings = {
     disableIPV6: boolean
     downloadDir: string
     addToLibrary: boolean
+    torrentClientHost: string
     torrentClientPort: number
     streamingServerHost: string
     streamingServerPort: number

@@ -27744,6 +27744,15 @@
         "comments": []
       },
       {
+        "name": "TorrentClientHost",
+        "jsonName": "torrentClientHost",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "TorrentClientPort",
         "jsonName": "torrentClientPort",
         "goType": "int",

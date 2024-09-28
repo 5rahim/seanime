@@ -6009,6 +6009,15 @@
           "typescriptType": "boolean",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "EnableSeasonCheck",
+          "jsonName": "enableSeasonCheck",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "bool",
