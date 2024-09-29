@@ -1002,6 +1002,56 @@ export type OnlineStreamEmptyCache_Variables = {
     mediaId: number
 }
 
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/search
+ * @description
+ * Route returns search results for a manual search.
+ */
+export type OnlinestreamManualSearch_Variables = {
+    provider: string
+    query: string
+    dubbed: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/manual-mapping
+ * @description
+ * Route manually maps an anime entry to an anime ID from the provider.
+ */
+export type OnlinestreamManualMapping_Variables = {
+    provider: string
+    mediaId: number
+    animeId: string
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/get-mapping
+ * @description
+ * Route returns the mapping for an anime entry.
+ */
+export type GetOnlinestreamMapping_Variables = {
+    provider: string
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/remove-mapping
+ * @description
+ * Route removes the mapping for an anime entry.
+ */
+export type RemoveOnlinestreamMapping_Variables = {
+    provider: string
+    mediaId: number
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // playback_manager
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

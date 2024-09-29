@@ -115,3 +115,110 @@ func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
 
 	return c.RespondWithData(true)
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleOnlinestreamManualSearch
+//
+//	@summary returns search results for a manual search.
+//	@desc Returns search results for a manual search.
+//	@route /api/v1/onlinestream/search [POST]
+//	@returns []vendor_hibike_onlinestream.SearchResult
+func HandleOnlinestreamManualSearch(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		Query    string `json:"query"`
+		Dubbed   bool   `json:"dubbed"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	ret, err := c.App.OnlinestreamRepository.ManualSearch(b.Provider, b.Query, b.Dubbed)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(ret)
+}
+
+// HandleOnlinestreamManualMapping
+//
+//	@summary manually maps an anime entry to an anime ID from the provider.
+//	@desc This is used to manually map an anime entry to an anime ID from the provider.
+//	@desc The client should re-fetch the chapter container after this.
+//	@route /api/v1/onlinestream/manual-mapping [POST]
+//	@returns bool
+func HandleOnlinestreamManualMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+		AnimeId  string `json:"animeId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.OnlinestreamRepository.ManualMapping(b.Provider, b.MediaId, b.AnimeId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandleGetOnlinestreamMapping
+//
+//	@summary returns the mapping for an anime entry.
+//	@desc This is used to get the mapping for an anime entry.
+//	@desc An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned.
+//	@route /api/v1/onlinestream/get-mapping [POST]
+//	@returns onlinestream.MappingResponse
+func HandleGetOnlinestreamMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	mapping := c.App.OnlinestreamRepository.GetMapping(b.Provider, b.MediaId)
+	return c.RespondWithData(mapping)
+}
+
+// HandleRemoveOnlinestreamMapping
+//
+//	@summary removes the mapping for an anime entry.
+//	@desc This is used to remove the mapping for an anime entry.
+//	@desc The client should re-fetch the chapter container after this.
+//	@route /api/v1/onlinestream/remove-mapping [POST]
+//	@returns bool
+func HandleRemoveOnlinestreamMapping(c *RouteCtx) error {
+
+	type body struct {
+		Provider string `json:"provider"`
+		MediaId  int    `json:"mediaId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.OnlinestreamRepository.RemoveMapping(b.Provider, b.MediaId)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}

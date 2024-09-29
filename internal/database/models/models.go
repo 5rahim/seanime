@@ -353,3 +353,14 @@ type MangaChapterContainer struct {
 	ChapterID string `gorm:"column:chapter_id" json:"chapterId"`
 	Data      []byte `gorm:"column:data" json:"data"`
 }
+
+// +---------------------+
+// |  Online streaming   |
+// +---------------------+
+
+type OnlinestreamMapping struct {
+	BaseModel
+	Provider string `gorm:"column:provider" json:"provider"`
+	MediaID  int    `gorm:"column:media_id" json:"mediaId"`
+	AnimeID  string `gorm:"column:anime_id" json:"anime_id"` // ID from search result, used to fetch episodes
+}

@@ -1063,6 +1063,49 @@ export const API_ENDPOINTS = {
             methods: ["DELETE"],
             endpoint: "/api/v1/onlinestream/cache",
         },
+        /**
+         *  @description
+         *  Route returns search results for a manual search.
+         *  Returns search results for a manual search.
+         */
+        OnlinestreamManualSearch: {
+            key: "ONLINESTREAM-onlinestream-manual-search",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/search",
+        },
+        /**
+         *  @description
+         *  Route manually maps an anime entry to an anime ID from the provider.
+         *  This is used to manually map an anime entry to an anime ID from the provider.
+         *  The client should re-fetch the chapter container after this.
+         */
+        OnlinestreamManualMapping: {
+            key: "ONLINESTREAM-onlinestream-manual-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/manual-mapping",
+        },
+        /**
+         *  @description
+         *  Route returns the mapping for an anime entry.
+         *  This is used to get the mapping for an anime entry.
+         *  An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned.
+         */
+        GetOnlinestreamMapping: {
+            key: "ONLINESTREAM-get-onlinestream-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/get-mapping",
+        },
+        /**
+         *  @description
+         *  Route removes the mapping for an anime entry.
+         *  This is used to remove the mapping for an anime entry.
+         *  The client should re-fetch the chapter container after this.
+         */
+        RemoveOnlinestreamMapping: {
+            key: "ONLINESTREAM-remove-onlinestream-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/remove-mapping",
+        },
     },
     PLAYBACK_MANAGER: {
         /**

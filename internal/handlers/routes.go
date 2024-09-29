@@ -289,6 +289,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/onlinestream/episode-list", makeHandler(app, HandleGetOnlineStreamEpisodeList))
 	v1.Delete("/onlinestream/cache", makeHandler(app, HandleOnlineStreamEmptyCache))
 
+	v1.Post("/onlinestream/search", makeHandler(app, HandleOnlinestreamManualSearch))
+	v1.Post("/onlinestream/manual-mapping", makeHandler(app, HandleOnlinestreamManualMapping))
+	v1.Post("/onlinestream/get-mapping", makeHandler(app, HandleGetOnlinestreamMapping))
+	v1.Post("/onlinestream/remove-mapping", makeHandler(app, HandleRemoveOnlinestreamMapping))
+
 	//
 	// Metadata Provider
 	//

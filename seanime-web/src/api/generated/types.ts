@@ -2700,6 +2700,15 @@ export type Onlinestream_EpisodeSource = {
 }
 
 /**
+ * - Filepath: internal/onlinestream/manual_mapping.go
+ * - Filename: manual_mapping.go
+ * - Package: onlinestream
+ */
+export type Onlinestream_MappingResponse = {
+    animeId?: string
+}
+
+/**
  * - Filepath: internal/onlinestream/repository.go
  * - Filename: repository.go
  * - Package: onlinestream
@@ -3042,6 +3051,29 @@ export type HibikeManga_Settings = {
     supportsMultiScanlator: boolean
     supportsMultiLanguage: boolean
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VendorHibikeOnlinestream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/vendoring/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_onlinestream
+ */
+export type HibikeOnlinestream_SearchResult = {
+    id: string
+    title: string
+    url: string
+    subOrDub: HibikeOnlinestream_SubOrDub
+}
+
+/**
+ * - Filepath: internal/extension/vendoring/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_onlinestream
+ */
+export type HibikeOnlinestream_SubOrDub = "sub" | "dub" | "both"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // VendorHibikeTorrent

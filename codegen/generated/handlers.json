@@ -4860,6 +4860,226 @@
     }
   },
   {
+    "name": "HandleOnlinestreamManualSearch",
+    "trimmedName": "OnlinestreamManualSearch",
+    "comments": [
+      "HandleOnlinestreamManualSearch",
+      "",
+      "\t@summary returns search results for a manual search.",
+      "\t@desc Returns search results for a manual search.",
+      "\t@route /api/v1/onlinestream/search [POST]",
+      "\t@returns []vendor_hibike_onlinestream.SearchResult",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "returns search results for a manual search.",
+      "descriptions": [
+        "Returns search results for a manual search."
+      ],
+      "endpoint": "/api/v1/onlinestream/search",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Query",
+          "jsonName": "query",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Dubbed",
+          "jsonName": "dubbed",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]vendor_hibike_onlinestream.SearchResult",
+      "returnGoType": "vendor_hibike_onlinestream.SearchResult",
+      "returnTypescriptType": "Array\u003cHibikeOnlinestream_SearchResult\u003e"
+    }
+  },
+  {
+    "name": "HandleOnlinestreamManualMapping",
+    "trimmedName": "OnlinestreamManualMapping",
+    "comments": [
+      "HandleOnlinestreamManualMapping",
+      "",
+      "\t@summary manually maps an anime entry to an anime ID from the provider.",
+      "\t@desc This is used to manually map an anime entry to an anime ID from the provider.",
+      "\t@desc The client should re-fetch the chapter container after this.",
+      "\t@route /api/v1/onlinestream/manual-mapping [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "manually maps an anime entry to an anime ID from the provider.",
+      "descriptions": [
+        "This is used to manually map an anime entry to an anime ID from the provider.",
+        "The client should re-fetch the chapter container after this."
+      ],
+      "endpoint": "/api/v1/onlinestream/manual-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AnimeId",
+          "jsonName": "animeId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetOnlinestreamMapping",
+    "trimmedName": "GetOnlinestreamMapping",
+    "comments": [
+      "HandleGetOnlinestreamMapping",
+      "",
+      "\t@summary returns the mapping for an anime entry.",
+      "\t@desc This is used to get the mapping for an anime entry.",
+      "\t@desc An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned.",
+      "\t@route /api/v1/onlinestream/get-mapping [POST]",
+      "\t@returns onlinestream.MappingResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "returns the mapping for an anime entry.",
+      "descriptions": [
+        "This is used to get the mapping for an anime entry.",
+        "An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned."
+      ],
+      "endpoint": "/api/v1/onlinestream/get-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "onlinestream.MappingResponse",
+      "returnGoType": "onlinestream.MappingResponse",
+      "returnTypescriptType": "Onlinestream_MappingResponse"
+    }
+  },
+  {
+    "name": "HandleRemoveOnlinestreamMapping",
+    "trimmedName": "RemoveOnlinestreamMapping",
+    "comments": [
+      "HandleRemoveOnlinestreamMapping",
+      "",
+      "\t@summary removes the mapping for an anime entry.",
+      "\t@desc This is used to remove the mapping for an anime entry.",
+      "\t@desc The client should re-fetch the chapter container after this.",
+      "\t@route /api/v1/onlinestream/remove-mapping [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "removes the mapping for an anime entry.",
+      "descriptions": [
+        "This is used to remove the mapping for an anime entry.",
+        "The client should re-fetch the chapter container after this."
+      ],
+      "endpoint": "/api/v1/onlinestream/remove-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandlePlaybackPlayVideo",
     "trimmedName": "PlaybackPlayVideo",
     "comments": [

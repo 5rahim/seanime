@@ -27994,6 +27994,48 @@
     ]
   },
   {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "OnlinestreamMapping",
+    "formattedName": "Models_OnlinestreamMapping",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeID",
+        "jsonName": "anime_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID from search result, used to fetch episodes"
+        ]
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
     "filepath": "../internal/discordrpc/client/activity.go",
     "filename": "activity.go",
     "name": "Activity",
@@ -29731,8 +29773,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "SearchOptions",
-    "formattedName": "SearchOptions",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_SearchOptions",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "Query",
@@ -29768,8 +29810,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "Settings",
-    "formattedName": "Settings",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_Settings",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "EpisodeServers",
@@ -29796,8 +29838,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "SearchResult",
-    "formattedName": "SearchResult",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_SearchResult",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "ID",
@@ -29830,8 +29872,8 @@
         "name": "SubOrDub",
         "jsonName": "subOrDub",
         "goType": "SubOrDub",
-        "typescriptType": "SubOrDub",
-        "usedStructName": "vender_hibike_onlinestream.SubOrDub",
+        "typescriptType": "HibikeOnlinestream_SubOrDub",
+        "usedStructName": "vendor_hibike_onlinestream.SubOrDub",
         "required": true,
         "public": true,
         "comments": []
@@ -29843,8 +29885,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "EpisodeDetails",
-    "formattedName": "EpisodeDetails",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_EpisodeDetails",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "Provider",
@@ -29898,8 +29940,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "EpisodeServer",
-    "formattedName": "EpisodeServer",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_EpisodeServer",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "Provider",
@@ -29932,8 +29974,8 @@
         "name": "VideoSources",
         "jsonName": "videoSources",
         "goType": "[]VideoSource",
-        "typescriptType": "Array\u003cVideoSource\u003e",
-        "usedStructName": "vender_hibike_onlinestream.VideoSource",
+        "typescriptType": "Array\u003cHibikeOnlinestream_VideoSource\u003e",
+        "usedStructName": "vendor_hibike_onlinestream.VideoSource",
         "required": false,
         "public": true,
         "comments": []
@@ -29945,8 +29987,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "SubOrDub",
-    "formattedName": "SubOrDub",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_SubOrDub",
+    "package": "vendor_hibike_onlinestream",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -29963,8 +30005,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSourceType",
-    "formattedName": "VideoSourceType",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_VideoSourceType",
+    "package": "vendor_hibike_onlinestream",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -29980,8 +30022,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSource",
-    "formattedName": "VideoSource",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_VideoSource",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "URL",
@@ -29996,8 +30038,8 @@
         "name": "Type",
         "jsonName": "type",
         "goType": "VideoSourceType",
-        "typescriptType": "VideoSourceType",
-        "usedStructName": "vender_hibike_onlinestream.VideoSourceType",
+        "typescriptType": "HibikeOnlinestream_VideoSourceType",
+        "usedStructName": "vendor_hibike_onlinestream.VideoSourceType",
         "required": true,
         "public": true,
         "comments": []
@@ -30015,8 +30057,8 @@
         "name": "Subtitles",
         "jsonName": "subtitles",
         "goType": "[]VideoSubtitle",
-        "typescriptType": "Array\u003cVideoSubtitle\u003e",
-        "usedStructName": "vender_hibike_onlinestream.VideoSubtitle",
+        "typescriptType": "Array\u003cHibikeOnlinestream_VideoSubtitle\u003e",
+        "usedStructName": "vendor_hibike_onlinestream.VideoSubtitle",
         "required": false,
         "public": true,
         "comments": []
@@ -30028,8 +30070,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSubtitle",
-    "formattedName": "VideoSubtitle",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_VideoSubtitle",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "ID",
@@ -44247,6 +44289,25 @@
     "comments": []
   },
   {
+    "filepath": "../internal/onlinestream/manual_mapping.go",
+    "filename": "manual_mapping.go",
+    "name": "MappingResponse",
+    "formattedName": "Onlinestream_MappingResponse",
+    "package": "onlinestream",
+    "fields": [
+      {
+        "name": "MangaID",
+        "jsonName": "animeId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/onlinestream/providers/gogoanime.go",
     "filename": "gogoanime.go",
     "name": "Gogoanime",
@@ -44414,6 +44475,16 @@
         "goType": "anilist.BaseAnimeCache",
         "typescriptType": "AL_BaseAnimeCache",
         "usedStructName": "anilist.BaseAnimeCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": false,
         "comments": []
@@ -44653,6 +44724,16 @@
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": true,
         "comments": []

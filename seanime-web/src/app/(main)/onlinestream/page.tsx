@@ -13,6 +13,7 @@ import {
     OnlinestreamVideoQualitySubmenu,
     SwitchSubOrDubButton,
 } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
+import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useHandleOnlinestream } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { OnlinestreamManagerProvider } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import { __onlinestream_autoNextAtom, __onlinestream_autoPlayAtom } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
@@ -41,6 +42,7 @@ import { useAtom, useAtomValue } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
+import { FaSearch } from "react-icons/fa"
 import { useUpdateEffect } from "react-use"
 
 type ProgressItem = {
@@ -279,6 +281,14 @@ export default function Page() {
                                     setCurrentProgress(progressItem.episodeNumber)
                                 }}
                             >Update progress</Button>}
+
+                            {animeEntry && <OnlinestreamManualMappingModal entry={animeEntry}>
+                                <IconButton
+                                    size="sm"
+                                    intent="gray-basic"
+                                    icon={<FaSearch />}
+                                />
+                            </OnlinestreamManualMappingModal>}
 
                             <SwitchSubOrDubButton />
 

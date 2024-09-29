@@ -1256,6 +1256,50 @@
 //     })
 // }
 
+// export function useOnlinestreamManualSearch() {
+//     return useServerMutation<Array<HibikeOnlinestream_SearchResult>, OnlinestreamManualSearch_Variables>({
+//         endpoint: API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualSearch.endpoint,
+//         method: API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualSearch.methods[0],
+//         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualSearch.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useOnlinestreamManualMapping() {
+//     return useServerMutation<boolean, OnlinestreamManualMapping_Variables>({
+//         endpoint: API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualMapping.endpoint,
+//         method: API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.ONLINESTREAM.OnlinestreamManualMapping.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useGetOnlinestreamMapping() {
+//     return useServerMutation<Onlinestream_MappingResponse, GetOnlinestreamMapping_Variables>({
+//         endpoint: API_ENDPOINTS.ONLINESTREAM.GetOnlinestreamMapping.endpoint,
+//         method: API_ENDPOINTS.ONLINESTREAM.GetOnlinestreamMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.ONLINESTREAM.GetOnlinestreamMapping.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useRemoveOnlinestreamMapping() {
+//     return useServerMutation<boolean, RemoveOnlinestreamMapping_Variables>({
+//         endpoint: API_ENDPOINTS.ONLINESTREAM.RemoveOnlinestreamMapping.endpoint,
+//         method: API_ENDPOINTS.ONLINESTREAM.RemoveOnlinestreamMapping.methods[0],
+//         mutationKey: [API_ENDPOINTS.ONLINESTREAM.RemoveOnlinestreamMapping.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // playback_manager
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

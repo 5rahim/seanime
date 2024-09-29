@@ -171,6 +171,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher:       fileCacher,
 		MetadataProvider: metadataProvider,
 		Platform:         anilistPlatform,
+		Database:         database,
 	})
 
 	// Manga Repository

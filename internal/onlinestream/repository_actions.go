@@ -69,14 +69,15 @@ func (r *Repository) getEpisodeContainer(provider string, mId int, titles []*str
 		Str("key", providerEpisodeListKey).
 		Msgf("onlinestream: Fetching %s episode list", provider)
 
-	// Bucket
+	// Buckets for caching the episode list and episode data.
 	fcEpisodeListBucket := r.getFcEpisodeListBucket(provider, mId)
 	fcEpisodeDataBucket := r.getFcEpisodeDataBucket(provider, mId)
 
+	// Check if the episode list is cached to avoid fetching it again.
 	var providerEpisodeList []*hibikeonlinestream.EpisodeDetails
 	if found, _ := r.fileCacher.Get(fcEpisodeListBucket, providerEpisodeListKey, &providerEpisodeList); !found {
 		var err error
-		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, titles, dubbed, year)
+		providerEpisodeList, err = r.getProviderEpisodeListFromTitles(provider, mId, titles, dubbed, year)
 		if err != nil {
 			r.logger.Error().Err(err).Msg("onlinestream: Failed to get provider episodes")
 			return nil, err // ErrNoAnimeFound or ErrNoEpisodes
@@ -194,7 +195,7 @@ func (r *Repository) getProviderEpisodeServers(provider string, episodeDetails *
 
 // getProviderEpisodeListFromTitles gets all the hibikeonlinestream.EpisodeDetails from the provider based on the anime's titles.
 // It returns ErrNoAnimeFound if the anime is not found or ErrNoEpisodes if no episodes are found.
-func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []*string, dubbed bool, year int) ([]*hibikeonlinestream.EpisodeDetails, error) {
+func (r *Repository) getProviderEpisodeListFromTitles(provider string, mId int, titles []*string, dubbed bool, year int) ([]*hibikeonlinestream.EpisodeDetails, error) {
 	var ret []*hibikeonlinestream.EpisodeDetails
 	romajiTitle := strings.ReplaceAll(*titles[0], ":", "")
 	englishTitle := ""
@@ -207,37 +208,57 @@ func (r *Repository) getProviderEpisodeListFromTitles(provider string, titles []
 		return nil, fmt.Errorf("provider extension '%s' not found", provider)
 	}
 
-	// Get search results.
-	var searchResults []*hibikeonlinestream.SearchResult
+	var matchId string
 
-	// Search by romaji title
-	res, err := providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
-		Query: romajiTitle,
-		Dub:   dubbed,
-		Year:  year,
-	})
-	if err == nil {
-		searchResults = res
-	} else {
-		// Search by english title
-		res, err = providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
-			Query: englishTitle,
+	// +---------------------+
+	// |      Database       |
+	// +---------------------+
+
+	// Search for the mapping in the database
+	mapping, found := r.db.GetOnlinestreamMapping(provider, mId)
+	if found {
+		r.logger.Debug().Str("animeId", mapping.AnimeID).Msg("onlinestream: Using manual mapping")
+		matchId = mapping.AnimeID
+	}
+
+	if matchId == "" {
+		// +---------------------+
+		// |       Search        |
+		// +---------------------+
+
+		// Get search results.
+		var searchResults []*hibikeonlinestream.SearchResult
+
+		// Search by romaji title
+		res, err := providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
+			Query: romajiTitle,
 			Dub:   dubbed,
 			Year:  year,
 		})
 		if err == nil {
 			searchResults = res
+		} else {
+			// Search by english title
+			res, err = providerExtension.GetProvider().Search(hibikeonlinestream.SearchOptions{
+				Query: englishTitle,
+				Dub:   dubbed,
+				Year:  year,
+			})
+			if err == nil {
+				searchResults = res
+			}
 		}
-	}
 
-	if len(searchResults) == 0 {
-		return nil, ErrNoAnimeFound
-	}
+		if len(searchResults) == 0 {
+			return nil, ErrNoAnimeFound
+		}
 
-	bestResult := GetBestSearchResult(searchResults, titles)
+		bestResult := GetBestSearchResult(searchResults, titles)
+		matchId = bestResult.ID
+	}
 
 	// Fetch episodes.
-	ret, err = providerExtension.GetProvider().FindEpisodes(bestResult.ID)
+	ret, err := providerExtension.GetProvider().FindEpisodes(matchId)
 	if err != nil {
 		return nil, err
 	}

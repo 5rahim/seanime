@@ -1,4 +1,4 @@
-package vender_hibike_onlinestream
+package vendor_hibike_onlinestream
 
 type (
 	Provider interface {
