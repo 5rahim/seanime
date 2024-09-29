@@ -13,6 +13,7 @@ import {
 } from "@/app/(main)/mediastream/_lib/handle-mediastream"
 import {
     __mediastream_autoPlayAtom,
+    __mediastream_autoSkipIntroOutroAtom,
     useMediastreamCurrentFile,
     useMediastreamJassubOffscreenRender,
 } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
@@ -91,6 +92,7 @@ export default function Page() {
 
     const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
+    const autoSkipIntroOutro = useAtomValue(__mediastream_autoSkipIntroOutroAtom)
     const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
 
     /**
@@ -339,6 +341,9 @@ export default function Page() {
 
                                         if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
                                             setShowSkipIntroButton(true)
+                                            if (autoSkipIntroOutro) {
+                                                seekTo(aniSkipData.op.interval.endTime)
+                                            }
                                         } else {
                                             setShowSkipIntroButton(false)
                                         }
@@ -349,6 +354,9 @@ export default function Page() {
                                             e?.currentTime <= aniSkipData.ed.interval.endTime
                                         ) {
                                             setShowSkipEndingButton(true)
+                                            if (autoSkipIntroOutro) {
+                                                seekTo(aniSkipData.ed.interval.endTime)
+                                            }
                                         } else {
                                             setShowSkipEndingButton(false)
                                         }
@@ -373,14 +381,24 @@ export default function Page() {
                                     <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
                                         <div>
                                             {(showSkipIntroButton) && (
-                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
-                                                                                                                                       intro</Button>
+                                                <Button
+                                                    intent="white"
+                                                    onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}
+                                                    loading={autoSkipIntroOutro}
+                                                >
+                                                    Skip intro
+                                                </Button>
                                             )}
                                         </div>
                                         <div>
                                             {(showSkipEndingButton) && (
-                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
-                                                                                                                                       ending</Button>
+                                                <Button
+                                                    intent="white"
+                                                    onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}
+                                                    loading={autoSkipIntroOutro}
+                                                >
+                                                    Skip ending
+                                                </Button>
                                             )}
                                         </div>
                                     </div>

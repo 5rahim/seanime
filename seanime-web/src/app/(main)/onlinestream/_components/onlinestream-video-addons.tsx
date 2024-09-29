@@ -4,6 +4,7 @@ import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/on
 import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
+    __onlinestream_autoSkipIntroOutroAtom,
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
@@ -78,6 +79,7 @@ export function OnlinestreamPlaybackSubmenu() {
 
     const [autoPlay, setAutoPlay] = useAtom(__onlinestream_autoPlayAtom)
     const [autoNext, setAutoNext] = useAtom(__onlinestream_autoNextAtom)
+    const [autoSkipIntroOutro, setAutoSkipIntroOutro] = useAtom(__onlinestream_autoSkipIntroOutroAtom)
     const [discreteControls, setDiscreteControls] = useAtom(__mediaplayer_discreteControlsAtom)
 
     return (
@@ -111,6 +113,22 @@ export function OnlinestreamPlaybackSubmenu() {
                         fieldClass="py-2 px-2"
                         value={autoNext}
                         onValueChange={setAutoNext}
+                    />
+                </Menu.Content>
+            </Menu.Root>
+            <Menu.Root>
+                <VdsSubmenuButton
+                    label={`Skip Intro/Outro`}
+                    hint={autoSkipIntroOutro ? "On" : "Off"}
+                    disabled={false}
+                    icon={MdPlaylistPlay}
+                />
+                <Menu.Content className={submenuClass}>
+                    <Switch
+                        label="Skip intro/outro"
+                        fieldClass="py-2 px-2"
+                        value={autoSkipIntroOutro}
+                        onValueChange={setAutoSkipIntroOutro}
                     />
                 </Menu.Content>
             </Menu.Root>
