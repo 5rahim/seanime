@@ -42,8 +42,9 @@ export default function Page() {
             const episode = animeEntry?.episodes?.find(ep => ep.localFile?.path === filePath)
             logger("MEDIALINKS").info("Filepath", filePath, "Episode", episode)
 
-            if (!episode?.progressNumber) {
-                logger("MEDIALINKS").error("Episode progress number is not set.")
+            if (!episode) {
+                logger("MEDIALINKS").error("Episode not found.")
+                toast.error("Episode not found.")
                 return
             }
 
@@ -64,14 +65,19 @@ export default function Page() {
 
             window.open(getExternalPlayerURL(externalPlayerLink, urlToSend), "_blank")
 
-            // Start manual tracking
-            React.startTransition(() => {
-                startManualTracking({
-                    mediaId: animeEntry.mediaId,
-                    episodeNumber: episode?.progressNumber,
-                    clientId: clientId || "",
+            if (episode?.progressNumber) {
+                logger("MEDIALINKS").error("Starting manual tracking")
+                // Start manual tracking
+                React.startTransition(() => {
+                    startManualTracking({
+                        mediaId: animeEntry.mediaId,
+                        episodeNumber: episode?.progressNumber,
+                        clientId: clientId || "",
+                    })
                 })
-            })
+            } else {
+                logger("MEDIALINKS").warning("No manual tracking, progress number is not set.")
+            }
 
             // Clear the file path
             setFilePath(undefined)
