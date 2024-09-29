@@ -272,6 +272,10 @@ func (cd *Downloader) downloadChapterImages(queueInfo *QueueInfo) (err error) {
 		cd.logger.Info().Msgf("chapter downloader: Finished downloading chapter %s", queueInfo.ChapterId)
 	}
 
+	if queueInfo.Status == QueueStatusErrored {
+		return fmt.Errorf("chapter downloader: Failed to download chapter %s", queueInfo.ChapterId)
+	}
+
 	return
 }
 

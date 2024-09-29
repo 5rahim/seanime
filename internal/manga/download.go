@@ -2,6 +2,7 @@ package manga
 
 import (
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog"
 	"os"
 	"seanime/internal/api/anilist"
@@ -11,6 +12,7 @@ import (
 	"seanime/internal/manga/downloader"
 	"seanime/internal/manga/providers"
 	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"sync"
 )
 
@@ -22,6 +24,7 @@ type (
 		downloadDir       string
 		chapterDownloader *chapter_downloader.Downloader
 		repository        *Repository
+		filecacher        *filecache.Cacher
 
 		mediaMap   *MediaMap // Refreshed on start and after each download
 		mediaMapMu sync.RWMutex
@@ -72,6 +75,9 @@ type (
 )
 
 func NewDownloader(opts *NewDownloaderOptions) *Downloader {
+	_ = os.MkdirAll(opts.DownloadDir, os.ModePerm)
+	filecacher, _ := filecache.NewCacher(opts.DownloadDir)
+
 	d := &Downloader{
 		logger:         opts.Logger,
 		wsEventManager: opts.WSEventManager,
@@ -79,6 +85,7 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		downloadDir:    opts.DownloadDir,
 		repository:     opts.Repository,
 		mediaMap:       new(MediaMap),
+		filecacher:     filecacher,
 	}
 
 	d.chapterDownloader = chapter_downloader.NewDownloader(&chapter_downloader.NewDownloaderOptions{
@@ -87,8 +94,6 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		Database:       opts.Database,
 		DownloadDir:    opts.DownloadDir,
 	})
-
-	_ = os.MkdirAll(d.downloadDir, os.ModePerm)
 
 	go d.hydrateMediaMap()
 
@@ -101,12 +106,69 @@ func (d *Downloader) Start() {
 	go func() {
 		for {
 			select {
-			// Refresh the media map when a chapter is downloaded
-			case _ = <-d.chapterDownloader.ChapterDownloaded():
+			// Listen for downloaded chapters
+			case downloadId := <-d.chapterDownloader.ChapterDownloaded():
+				// When a chapter is downloaded, fetch the chapter container from the file cache
+				// and store it in the permanent bucket.
+				// DEVNOTE: This will be useful to avoid re-fetching the chapter container when the cache expires.
+				// This is deleted when a chapter is deleted.
+				go func() {
+					chapterContainerKey := getMangaChapterContainerCacheKey(downloadId.Provider, downloadId.MediaId)
+					chapterContainer, found := d.repository.getChapterContainerFromFilecache(downloadId.Provider, downloadId.MediaId)
+					if found {
+						// Store the chapter container in the permanent bucket
+						permBucket := getPermanentChapterContainerCacheBucket(downloadId.Provider, downloadId.MediaId)
+						_ = d.filecacher.SetPerm(permBucket, chapterContainerKey, chapterContainer)
+					}
+				}()
+
+				// Refresh the media map when a chapter is downloaded
 				d.hydrateMediaMap()
 			}
 		}
 	}()
+}
+
+// The bucket for storing downloaded chapter containers.
+// e.g. manga_downloaded_comick_chapters_1234
+// The key is the chapter ID.
+func getPermanentChapterContainerCacheBucket(provider string, mId int) filecache.PermanentBucket {
+	return filecache.NewPermanentBucket(fmt.Sprintf("manga_downloaded_%s_chapters_%d", provider, mId))
+}
+
+// getChapterContainerFromFilecache returns the chapter container from the temporary file cache.
+func (r *Repository) getChapterContainerFromFilecache(provider string, mId int) (*ChapterContainer, bool) {
+	// Find chapter container in the file cache
+	chapterBucket := r.getFcProviderBucket(provider, mId, bucketTypeChapter)
+
+	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mId)
+
+	var chapterContainer *ChapterContainer
+	// Get the key-value pair in the bucket
+	if found, _ := r.fileCacher.Get(chapterBucket, chapterContainerKey, &chapterContainer); !found {
+		// If the chapter container is not found, return an error
+		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
+		return nil, false
+	}
+
+	return chapterContainer, true
+}
+
+// getChapterContainerFromPermanentFilecache returns the chapter container from the permanent file cache.
+func (r *Repository) getChapterContainerFromPermanentFilecache(provider string, mId int) (*ChapterContainer, bool) {
+	permBucket := getPermanentChapterContainerCacheBucket(provider, mId)
+
+	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mId)
+
+	var chapterContainer *ChapterContainer
+	// Get the key-value pair in the bucket
+	if found, _ := r.fileCacher.GetPerm(permBucket, chapterContainerKey, &chapterContainer); !found {
+		// If the chapter container is not found, return an error
+		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
+		return nil, false
+	}
+
+	return chapterContainer, true
 }
 
 // DownloadChapter is called by the client to download a chapter.
@@ -114,16 +176,8 @@ func (d *Downloader) Start() {
 // and invokes the chapter_downloader.Downloader 'Download' method to add the chapter to the download queue.
 func (d *Downloader) DownloadChapter(opts DownloadChapterOptions) error {
 
-	// Find chapter container in the file cache
-	chapterBucket := d.repository.getFcProviderBucket(opts.Provider, opts.MediaId, bucketTypeChapter)
-
-	chapterContainerKey := getMangaChapterContainerCacheKey(opts.Provider, opts.MediaId)
-
-	var chapterContainer *ChapterContainer
-	// Get the only key-value pair in the bucket
-	if found, _ := d.repository.fileCacher.Get(chapterBucket, chapterContainerKey, &chapterContainer); !found {
-		// If the chapter container is not found, return an error
-		// since it means that it wasn't fetched (for some reason) -- This shouldn't happen
+	chapterContainer, found := d.repository.getChapterContainerFromFilecache(opts.Provider, opts.MediaId)
+	if !found {
 		return errors.New("chapters not found")
 	}
 
@@ -164,6 +218,9 @@ func (d *Downloader) DeleteChapter(provider string, mediaId int, chapterId strin
 		return err
 	}
 
+	permBucket := getPermanentChapterContainerCacheBucket(provider, mediaId)
+	_ = d.filecacher.DeletePerm(permBucket, chapterId)
+
 	d.hydrateMediaMap()
 
 	return nil
@@ -178,6 +235,9 @@ func (d *Downloader) DeleteChapters(ids []chapter_downloader.DownloadID) (err er
 			ChapterId:     id.ChapterId,
 			ChapterNumber: id.ChapterNumber,
 		})
+
+		permBucket := getPermanentChapterContainerCacheBucket(id.Provider, id.MediaId)
+		_ = d.filecacher.DeletePerm(permBucket, id.ChapterId)
 	}
 	if err != nil {
 		return err

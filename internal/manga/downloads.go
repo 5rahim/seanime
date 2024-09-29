@@ -2,7 +2,6 @@ package manga
 
 import (
 	"cmp"
-	"errors"
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"os"
@@ -77,28 +76,28 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 			continue
 		}
 
-		opts := GetMangaChapterContainerOptions{
-			Provider: provider,
-			MediaId:  mediaId,
-			Titles:   nil,
-			Year:     mangaEntry.GetMedia().GetStartYearSafe(),
-		}
-
-		// Get the manga chapter container (downloaded and non-downloaded)
-		// FIXME v2.2.0 This is a bit non-intuitive, we should store the downloaded chapter containers in a permanent cache
-		container, err := r.GetMangaChapterContainer(&opts)
-		if err != nil {
-			if errors.Is(err, ErrNoTitlesProvided) { // This means the cache has expired
-
-				opts.Titles = mangaEntry.GetMedia().GetAllTitles()
+		// Get the list of chapters for the manga
+		// Check the permanent file cache
+		container, found := r.getChapterContainerFromPermanentFilecache(provider, mediaId)
+		if !found {
+			// Check the temporary file cache
+			container, found = r.getChapterContainerFromFilecache(provider, mediaId)
+			if !found {
+				// Get the chapters from the provider
+				// This stays here for backwards compatibility, but ideally the method should not require an internet connection
+				// so this will fail if the chapters were not cached & with no internet
+				opts := GetMangaChapterContainerOptions{
+					Provider: provider,
+					MediaId:  mediaId,
+					Titles:   mangaEntry.GetMedia().GetAllTitles(),
+					Year:     mangaEntry.GetMedia().GetStartYearSafe(),
+				}
 				container, err = r.GetMangaChapterContainer(&opts)
 				if err != nil {
-					r.logger.Error().Err(err).Msg("manga: [GetDownloadedChapterContainers] Failed to get chapter container")
+					r.logger.Error().Err(err).Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Failed to retrieve cached list of manga chapters")
 					continue
 				}
-			} else {
-				r.logger.Error().Err(err).Msg("manga: [GetDownloadedChapterContainers] Failed to get chapter container")
-				continue
+
 			}
 		}
 

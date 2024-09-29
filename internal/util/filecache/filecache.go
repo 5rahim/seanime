@@ -3,6 +3,7 @@ package filecache
 import (
 	"fmt"
 	"github.com/goccy/go-json"
+	"github.com/samber/lo"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,11 +24,23 @@ type Bucket struct {
 	ttl  time.Duration
 }
 
+type PermanentBucket struct {
+	name string
+}
+
 func NewBucket(name string, ttl time.Duration) Bucket {
 	return Bucket{name: name, ttl: ttl}
 }
 
 func (b *Bucket) Name() string {
+	return b.name
+}
+
+func NewPermanentBucket(name string) PermanentBucket {
+	return PermanentBucket{name: name}
+}
+
+func (b *PermanentBucket) Name() string {
 	return b.name
 }
 
@@ -40,7 +53,7 @@ type Cacher struct {
 
 type cacheItem struct {
 	Value      interface{} `json:"value"`
-	Expiration time.Time   `json:"expiration"`
+	Expiration *time.Time  `json:"expiration,omitempty"`
 }
 
 // NewCacher creates a new instance of Cacher.
@@ -49,7 +62,7 @@ func NewCacher(dir string) (*Cacher, error) {
 	_, err := os.Stat(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if err := os.MkdirAll(dir, 0755); err != nil {
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 				return nil, err
 			}
 		} else {
@@ -101,7 +114,7 @@ func (c *Cacher) Set(bucket Bucket, key string, value interface{}) error {
 	}
 	store.mu.Lock()
 	defer store.mu.Unlock()
-	store.data[key] = &cacheItem{Value: value, Expiration: time.Now().Add(bucket.ttl)}
+	store.data[key] = &cacheItem{Value: value, Expiration: lo.ToPtr(time.Now().Add(bucket.ttl))}
 	return store.saveToFile()
 }
 
@@ -114,7 +127,7 @@ func Range[T any](c *Cacher, bucket Bucket, f func(key string, value T) bool) er
 	defer store.mu.Unlock()
 
 	for key, item := range store.data {
-		if time.Now().After(item.Expiration) {
+		if item.Expiration != nil && time.Now().After(*item.Expiration) {
 			delete(store.data, key)
 		} else {
 			itemVal, err := json.Marshal(item.Value)
@@ -147,7 +160,7 @@ func (c *Cacher) Get(bucket Bucket, key string, out interface{}) (bool, error) {
 	if !ok {
 		return false, nil
 	}
-	if time.Now().After(item.Expiration) {
+	if item.Expiration != nil && time.Now().After(*item.Expiration) {
 		delete(store.data, key)
 		_ = store.saveToFile() // Ignore errors here
 		return false, nil
@@ -243,6 +256,70 @@ func (c *Cacher) Remove(bucketName string) error {
 
 	return nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// SetPerm sets the value for the given key in the permanent bucket (no expiration).
+func (c *Cacher) SetPerm(bucket PermanentBucket, key string, value interface{}) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	store.data[key] = &cacheItem{Value: value, Expiration: nil} // No expiration
+	return store.saveToFile()
+}
+
+// GetPerm retrieves the value for the given key from the permanent bucket (ignores expiration).
+func (c *Cacher) GetPerm(bucket PermanentBucket, key string, out interface{}) (bool, error) {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return false, err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	item, ok := store.data[key]
+	if !ok {
+		return false, nil
+	}
+	data, err := json.Marshal(item.Value)
+	if err != nil {
+		return false, err
+	}
+	return true, json.Unmarshal(data, out)
+}
+
+// DeletePerm deletes the value for the given key from the permanent bucket.
+func (c *Cacher) DeletePerm(bucket PermanentBucket, key string) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	delete(store.data, key)
+	return store.saveToFile()
+}
+
+// EmptyPerm empties the permanent bucket.
+func (c *Cacher) EmptyPerm(bucket PermanentBucket) error {
+	store, err := c.getStore(bucket.name)
+	if err != nil {
+		return err
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	store.data = make(map[string]*cacheItem)
+	return store.saveToFile()
+}
+
+// RemovePerm calls Remove.
+func (c *Cacher) RemovePerm(bucketName string) error {
+	return c.Remove(bucketName)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (cs *CacheStore) loadFromFile() error {
 	file, err := os.Open(cs.filePath)

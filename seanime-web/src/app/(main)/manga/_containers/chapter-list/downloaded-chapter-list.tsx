@@ -215,7 +215,11 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
                     hideColumns={[
                         {
                             below: 1000,
-                            hide: ["chapterId", "number", "provider"],
+                            hide: ["chapterId", "number"],
+                        },
+                        {
+                            below: 600,
+                            hide: ["provider"],
                         },
                     ]}
                     onSortingChange={console.log}
