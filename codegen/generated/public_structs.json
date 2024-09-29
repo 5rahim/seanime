@@ -27641,6 +27641,15 @@
         "comments": []
       },
       {
+        "name": "DirectPlayOnly",
+        "jsonName": "directPlayOnly",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "PreTranscodeEnabled",
         "jsonName": "preTranscodeEnabled",
         "goType": "bool",

@@ -19,6 +19,7 @@ const mediastreamSchema = defineSchema(({ z }) => z.object({
     // preTranscodeEnabled: z.boolean(),
     // preTranscodeLibraryDir: z.string(),
     disableAutoSwitchToDirectPlay: z.boolean(),
+    directPlayOnly: z.boolean(),
     ffmpegPath: z.string().min(0),
     ffprobePath: z.string().min(0),
 }))
@@ -80,14 +81,15 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 }}
                 defaultValues={{
                     transcodeEnabled: settings?.transcodeEnabled ?? false,
-                    transcodeHwAccel: settings?.transcodeHwAccel ?? "cpu",
-                    transcodePreset: settings?.transcodePreset ?? "fast",
+                    transcodeHwAccel: settings?.transcodeHwAccel || "cpu",
+                    transcodePreset: settings?.transcodePreset || "fast",
                     // transcodeThreads: settings?.transcodeThreads,
                     // preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,
                     // preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
                     disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay ?? false,
-                    ffmpegPath: settings?.ffmpegPath ?? "",
-                    ffprobePath: settings?.ffprobePath ?? "",
+                    directPlayOnly: settings?.directPlayOnly ?? false,
+                    ffmpegPath: settings?.ffmpegPath || "",
+                    ffprobePath: settings?.ffprobePath || "",
                 }}
                 stackClass="space-y-6"
             >
@@ -127,6 +129,12 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             name="disableAutoSwitchToDirectPlay"
                             label="Don't auto switch to direct play"
                             help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
+                        />
+
+                        <Field.Switch
+                            name="directPlayOnly"
+                            label="Direct play only"
+                            help="Only allow direct play. Transcoding will never be started."
                         />
 
                         <Field.Select

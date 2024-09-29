@@ -200,7 +200,16 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         const codecSupported = isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec ?? "")
         // If the codec is supported, switch to direct play
         if (mediaContainer?.streamType === "transcode") {
-            if (codecSupported && !mediastreamSettings?.disableAutoSwitchToDirectPlay) {
+
+            if (!codecSupported && mediastreamSettings?.directPlayOnly) {
+                logger("MEDIASTREAM").warning("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
+                logger("MEDIASTREAM").warning("Stopping playback")
+                toast.warning("Codec not supported for direct play")
+                changeUrl(undefined)
+                return
+            }
+
+            if (codecSupported && (!mediastreamSettings?.disableAutoSwitchToDirectPlay || mediastreamSettings?.directPlayOnly)) {
                 logger("MEDIASTREAM").info("Codec supported", mediaContainer?.mediaInfo?.mimeCodec)
                 logger("MEDIASTREAM").warning("Switching to direct play")
                 setStreamType("direct")
