@@ -35,7 +35,7 @@ export function AnimeEntrySilenceToggle(props: AnimeEntrySilenceToggleProps) {
                     icon={isSilenced ? <LuBellOff /> : <LuBellRing />}
                     onClick={handleToggleSilenceStatus}
                     loading={isLoading || isPending}
-                    intent={isSilenced ? "warning-subtle" : "primary-subtle"}
+                    intent={isSilenced ? "warning-subtle" : "gray-subtle"}
                     size={size}
                     {...rest}
                 />}

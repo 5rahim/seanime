@@ -1,10 +1,11 @@
 package sync
 
 import (
+	"fmt"
 	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
 	"seanime/internal/util"
@@ -26,11 +27,8 @@ type (
 	//
 	// Synchronization can fail due to network issues. When it does, the anime or manga will be added to the failed queue.
 	Syncer struct {
-		animeJobQueue chan AnimeJob
-		mangaJobQueue chan MangaJob
-
-		changedAnimeQueue *result.Cache[int, *AnimeDiffResult]
-		changedMangaQueue *result.Cache[int, *MangaDiffResult]
+		animeJobQueue chan AnimeTask
+		mangaJobQueue chan MangaTask
 
 		failedAnimeQueue *result.Cache[int, *anilist.AnimeListEntry]
 		failedMangaQueue *result.Cache[int, *anilist.MangaListEntry]
@@ -39,34 +37,49 @@ type (
 		trackedMangaMap map[int]*TrackedMedia
 
 		manager *ManagerImpl
-		mu      sync.Mutex
+		mu      sync.RWMutex
 
 		shouldUpdateLocalCollections bool
 		doneUpdatingLocalCollections chan struct{}
+
+		queueState   QueueState
+		queueStateMu sync.RWMutex
 	}
 
-	QueueProgress struct {
+	QueueState struct {
+		AnimeTasks map[int]*QueueMediaTask `json:"animeTasks"`
+		MangaTasks map[int]*QueueMediaTask `json:"mangaTasks"`
 	}
 
-	AnimeJob struct {
+	QueueMediaTask struct {
+		MediaId int    `json:"mediaId"`
+		Image   string `json:"image"`
+		Title   string `json:"title"`
+		Type    string `json:"type"`
+	}
+	AnimeTask struct {
 		Diff *AnimeDiffResult
 	}
-	MangaJob struct {
+	MangaTask struct {
 		Diff *MangaDiffResult
 	}
 )
 
 func NewQueue(manager *ManagerImpl) *Syncer {
 	ret := &Syncer{
-		animeJobQueue:                make(chan AnimeJob, 100),
-		mangaJobQueue:                make(chan MangaJob, 100),
-		changedAnimeQueue:            result.NewCache[int, *AnimeDiffResult](),
-		changedMangaQueue:            result.NewCache[int, *MangaDiffResult](),
+		animeJobQueue:                make(chan AnimeTask, 100),
+		mangaJobQueue:                make(chan MangaTask, 100),
 		failedAnimeQueue:             result.NewCache[int, *anilist.AnimeListEntry](),
 		failedMangaQueue:             result.NewCache[int, *anilist.MangaListEntry](),
 		shouldUpdateLocalCollections: false,
 		doneUpdatingLocalCollections: make(chan struct{}, 1),
 		manager:                      manager,
+		mu:                           sync.RWMutex{},
+		queueState: QueueState{
+			AnimeTasks: make(map[int]*QueueMediaTask),
+			MangaTasks: make(map[int]*QueueMediaTask),
+		},
+		queueStateMu: sync.RWMutex{},
 	}
 
 	go ret.processAnimeJobs()
@@ -77,20 +90,55 @@ func NewQueue(manager *ManagerImpl) *Syncer {
 
 func (q *Syncer) processAnimeJobs() {
 	for job := range q.animeJobQueue {
+
+		q.queueStateMu.Lock()
+		q.queueState.AnimeTasks[job.Diff.AnimeEntry.Media.ID] = &QueueMediaTask{
+			MediaId: job.Diff.AnimeEntry.Media.ID,
+			Image:   job.Diff.AnimeEntry.Media.GetCoverImageSafe(),
+			Title:   job.Diff.AnimeEntry.Media.GetPreferredTitle(),
+			Type:    "anime",
+		}
+		q.SendQueueStateToClient()
+		q.queueStateMu.Unlock()
+
 		q.shouldUpdateLocalCollections = true
 		q.synchronizeAnime(job.Diff)
+
+		q.queueStateMu.Lock()
+		delete(q.queueState.AnimeTasks, job.Diff.AnimeEntry.Media.ID)
+		q.SendQueueStateToClient()
+		q.queueStateMu.Unlock()
+
 		q.checkAndUpdateLocalCollections()
 	}
 }
 
 func (q *Syncer) processMangaJobs() {
 	for job := range q.mangaJobQueue {
+
+		q.queueStateMu.Lock()
+		q.queueState.MangaTasks[job.Diff.MangaEntry.Media.ID] = &QueueMediaTask{
+			MediaId: job.Diff.MangaEntry.Media.ID,
+			Image:   job.Diff.MangaEntry.Media.GetCoverImageSafe(),
+			Title:   job.Diff.MangaEntry.Media.GetPreferredTitle(),
+			Type:    "manga",
+		}
+		q.SendQueueStateToClient()
+		q.queueStateMu.Unlock()
+
 		q.shouldUpdateLocalCollections = true
 		q.synchronizeManga(job.Diff)
+
+		q.queueStateMu.Lock()
+		delete(q.queueState.MangaTasks, job.Diff.MangaEntry.Media.ID)
+		q.SendQueueStateToClient()
+		q.queueStateMu.Unlock()
+
 		q.checkAndUpdateLocalCollections()
 	}
 }
 
+// checkAndUpdateLocalCollections will synchronize the local collections once the job queue is emptied.
 func (q *Syncer) checkAndUpdateLocalCollections() {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -104,10 +152,25 @@ func (q *Syncer) checkAndUpdateLocalCollections() {
 			if err != nil {
 				q.manager.logger.Error().Err(err).Msg("sync: Failed to synchronize collections")
 			}
+			q.SendQueueStateToClient()
+			q.manager.wsEventManager.SendEvent(events.SyncLocalFinished, nil)
 			q.shouldUpdateLocalCollections = false
-			q.doneUpdatingLocalCollections <- struct{}{}
+			select {
+			case q.doneUpdatingLocalCollections <- struct{}{}:
+			default:
+			}
 		}
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (q *Syncer) GetQueueState() QueueState {
+	return q.queueState
+}
+
+func (q *Syncer) SendQueueStateToClient() {
+	q.manager.wsEventManager.SendEvent(events.SyncLocalQueueState, q.GetQueueState())
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +180,8 @@ func (q *Syncer) checkAndUpdateLocalCollections() {
 // Instead of modifying the local collections directly, we create new collections that mirror the remote collections, but with up-to-date data.
 func (q *Syncer) synchronizeCollections() (err error) {
 	defer util.HandlePanicInModuleWithError("sync/synchronizeCollections", &err)
+
+	q.manager.loadTrackedMedia()
 
 	// DEVNOTE: "_" prefix = original/remote collection
 	// We shouldn't modify the remote collection, so making sure we get new pointers
@@ -332,18 +397,22 @@ func (q *Syncer) synchronizeCollections() (err error) {
 		}
 	}
 
+	fmt.Println("After saving local collections")
+	util.Spew(localAnimeCollection)
+
 	// Save the local collections
 	err = q.manager.localDb.SaveAnimeCollection(localAnimeCollection)
 	if err != nil {
 		return err
 	}
-	q.manager.localAnimeCollection = mo.Some(localAnimeCollection)
 
 	err = q.manager.localDb.SaveMangaCollection(localMangaCollection)
 	if err != nil {
 		return err
 	}
-	q.manager.localMangaCollection = mo.Some(localMangaCollection)
+
+	q.manager.loadLocalAnimeCollection()
+	q.manager.loadLocalMangaCollection()
 
 	q.manager.logger.Debug().Msg("sync: Synchronized local collections")
 
@@ -364,8 +433,21 @@ func (q *Syncer) sendMangaToFailedQueue(entry *anilist.MangaListEntry) {
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
+func (q *Syncer) refreshCollections() {
+
+	q.manager.logger.Trace().Msg("sync: Refreshing collections")
+
+	if len(q.animeJobQueue) > 0 || len(q.mangaJobQueue) > 0 {
+		q.manager.logger.Trace().Msg("sync: Skipping refreshCollections, job queues are not empty")
+		return
+	}
+
+	q.shouldUpdateLocalCollections = true
+	q.checkAndUpdateLocalCollections()
+}
+
 // runDiffs runs the diffing process to find outdated anime & manga.
-// The diffs are then added to the changedAnimeQueue and changedMangaQueue.
+// The diffs are then added to the job queues for synchronization.
 func (q *Syncer) runDiffs(
 	trackedAnimeMap map[int]*TrackedMedia,
 	trackedAnimeSnapshotMap map[int]*AnimeSnapshot,
@@ -397,9 +479,6 @@ func (q *Syncer) runDiffs(
 	diff := &Diff{
 		Logger: q.manager.logger,
 	}
-
-	q.trackedAnimeMap = trackedAnimeMap
-	q.trackedMangaMap = trackedMangaMap
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -439,10 +518,15 @@ func (q *Syncer) runDiffs(
 		q.manager.logger.Trace().Int("animeJobs", len(animeDiffs)).Int("mangaJobs", len(mangaDiffs)).Msg("sync: Adding diffs to the job queues")
 
 		for _, i := range animeDiffs {
-			q.animeJobQueue <- AnimeJob{Diff: i}
+			q.animeJobQueue <- AnimeTask{Diff: i}
 		}
 		for _, i := range mangaDiffs {
-			q.mangaJobQueue <- MangaJob{Diff: i}
+			q.mangaJobQueue <- MangaTask{Diff: i}
+		}
+
+		if len(animeDiffs) == 0 && len(mangaDiffs) == 0 {
+			q.manager.logger.Trace().Msg("sync: No diffs found")
+			//q.refreshCollections()
 		}
 	}()
 

@@ -2,6 +2,7 @@ package sync
 
 import (
 	"github.com/stretchr/testify/require"
+	"path/filepath"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/extension_repo"
@@ -18,8 +19,12 @@ func GetMockManager(t *testing.T, db *db.Database) Manager {
 
 	mangaRepository.InitExtensionBank(extensionRepository.GetExtensionBank())
 
+	localDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline")
+	assetsDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets")
+
 	m, err := NewManager(&NewManagerOptions{
-		DataDir:          test_utils.ConfigData.Path.DataDir,
+		LocalDir:         localDir,
+		AssetDir:         assetsDir,
 		Logger:           util.NewLogger(),
 		MetadataProvider: metadataProvider,
 		MangaRepository:  mangaRepository,

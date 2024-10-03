@@ -360,6 +360,13 @@ export type AL_AnimeDetailsById_Media_Trailer = {
 }
 
 /**
+ * - Filepath: internal/api/anilist/collection_helper.go
+ * - Filename: collection_helper.go
+ * - Package: anilist
+ */
+export type AL_AnimeListEntry = AL_AnimeCollection_MediaListCollection_Lists_Entries
+
+/**
  * - Filepath: internal/api/anilist/stats.go
  * - Filename: stats.go
  * - Package: anilist
@@ -1003,6 +1010,13 @@ export type AL_MangaDetailsById_Media_Relations_Edges = {
     relationType?: AL_MediaRelation
     node?: AL_BaseManga
 }
+
+/**
+ * - Filepath: internal/api/anilist/manga.go
+ * - Filename: manga.go
+ * - Package: anilist
+ */
+export type AL_MangaListEntry = AL_MangaCollection_MediaListCollection_Lists_Entries
 
 /**
  * - Filepath: internal/api/anilist/stats.go
@@ -1758,6 +1772,7 @@ export type DB_ScanSummaryItem = {
  * - Package: extension
  */
 export type Extension_Config = {
+    version: number
     requiresConfig: boolean
     fields?: Array<Extension_ConfigField>
 }
@@ -1876,7 +1891,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "mediaplayer"
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionPlayground
@@ -2783,6 +2798,44 @@ export type Summary_ScanSummaryLog = {
     filePath: string
     level: string
     message: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sync
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/sync/sync.go
+ * - Filename: sync.go
+ * - Package: sync
+ */
+export type Sync_QueueMediaTask = {
+    mediaId: number
+    image: string
+    title: string
+    type: string
+}
+
+/**
+ * - Filepath: internal/sync/sync.go
+ * - Filename: sync.go
+ * - Package: sync
+ */
+export type Sync_QueueState = {
+    animeTasks?: Record<number, Sync_QueueMediaTask>
+    mangaTasks?: Record<number, Sync_QueueMediaTask>
+}
+
+/**
+ * - Filepath: internal/sync/manager.go
+ * - Filename: manager.go
+ * - Package: sync
+ */
+export type Sync_TrackedMediaItem = {
+    mediaId: number
+    type: string
+    animeEntry?: AL_AnimeListEntry
+    mangaEntry?: AL_MangaListEntry
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

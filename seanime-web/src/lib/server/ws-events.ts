@@ -27,4 +27,7 @@ export const enum WSEvents {
     MEDIASTREAM_SHUTDOWN_STREAM = "mediastream-shutdown-stream",
     EXTENSIONS_RELOADED = "extensions-reloaded",
     ACTIVE_TORRENT_COUNT_UPDATED = "active-torrent-count-updated",
+    SYNC_LOCAL_QUEUE_STATE = "sync-local-queue-state",
+    SYNC_LOCAL_FINISHED = "sync-local-finished",
+    SYNC_ANILIST_FINISHED = "sync-anilist-finished",
 }

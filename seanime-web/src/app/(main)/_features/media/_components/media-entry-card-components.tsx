@@ -6,6 +6,7 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { Tooltip } from "@/components/ui/tooltip"
+import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { atom, useAtom } from "jotai/index"
@@ -101,7 +102,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
         >
             {(ts.enableMediaCardBlurredBackground && !!coverImage) && <div className="absolute top-0 left-0 w-full h-full rounded-md overflow-hidden">
                 <Image
-                    src={coverImage || ""}
+                    src={getImageUrl(coverImage || "")}
                     alt={""}
                     fill
                     placeholder={imageShimmer(700, 475)}
@@ -345,7 +346,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     {children}
 
                     <Image
-                        src={bannerImage || ""}
+                        src={getImageUrl(bannerImage || "")}
                         alt={""}
                         fill
                         placeholder={imageShimmer(700, 475)}
@@ -463,7 +464,7 @@ export const MediaEntryCardHoverPopupBanner = ({
             </div>}
 
             {(!!bannerImage) ? <Image
-                src={bannerImage || ""}
+                src={getImageUrl(bannerImage || "")}
                 alt={""}
                 fill
                 placeholder={imageShimmer(700, 475)}

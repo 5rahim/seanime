@@ -14,7 +14,6 @@ const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
 	TypeMangaProvider        Type = "manga-provider"
 	TypeOnlinestreamProvider Type = "onlinestream-provider"
-	TypeMediaPlayer          Type = "mediaplayer"
 )
 
 const (
@@ -131,6 +130,9 @@ type InvalidExtension struct {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type Config struct {
+	// The version of the extension configuration.
+	// This is used to determine if the configuration has changed.
+	Version int `json:"version"`
 	// Whether the extension requires user configuration.
 	RequiresConfig bool `json:"requiresConfig"`
 	// This will be used to generate the user configuration form, and the values will be passed to the extension.

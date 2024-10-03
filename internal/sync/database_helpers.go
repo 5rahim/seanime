@@ -23,6 +23,12 @@ func (ldb *Database) GetAllTrackedMediaByType(kind string) ([]*TrackedMedia, boo
 	return sm, err == nil
 }
 
+func (ldb *Database) GetAllTrackedMedia() ([]*TrackedMedia, bool) {
+	var sm []*TrackedMedia
+	err := ldb.gormdb.Find(&sm).Error
+	return sm, err == nil
+}
+
 func (ldb *Database) RemoveTrackedMedia(mediaId int, kind string) error {
 	return ldb.gormdb.Where("media_id = ? AND type = ?", mediaId, kind).Delete(&TrackedMedia{}).Error
 }

@@ -84,13 +84,11 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 	}
 
 	// Serve the offline assets
-	if app.IsOffline() {
-		app.Logger.Info().Msgf("app: Offline assets path: %s", app.Config.Offline.AssetDir)
-		fiberApp.Static("/offline-assets", app.Config.Offline.AssetDir, fiber.Static{
-			Index:    "index.html",
-			Compress: false,
-		})
-	}
+	app.Logger.Info().Msgf("app: Offline assets path: %s", app.Config.Offline.AssetDir)
+	fiberApp.Static("/offline-assets", app.Config.Offline.AssetDir, fiber.Static{
+		Index:    "index.html",
+		Compress: false,
+	})
 
 	return fiberApp
 }

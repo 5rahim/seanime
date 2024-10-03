@@ -1,6 +1,6 @@
 "use client"
 import { cn } from "@/components/ui/core/styling"
-import { getAssetUrl } from "@/lib/server/assets"
+import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import React from "react"
@@ -39,7 +39,7 @@ export function CustomBackgroundImage(props: CustomBackgroundImageProps) {
                             className,
                         )}
                         style={{
-                            backgroundImage: `url(${getAssetUrl(ts.libraryScreenCustomBackgroundImage)})`,
+                            backgroundImage: `url(${legacy_getAssetUrl(ts.libraryScreenCustomBackgroundImage)})`,
                             opacity: ts.libraryScreenCustomBackgroundOpacity / 100,
                         }}
                         {...rest}

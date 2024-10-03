@@ -1610,6 +1610,70 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// sync
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useSyncGetTrackedMediaItems() {
+//     return useServerQuery<Array<Sync_TrackedMediaItem>>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.methods[0],
+//         queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSyncAddMedia() {
+//     return useServerMutation<boolean, SyncAddMedia_Variables>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncAddMedia.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncAddMedia.methods[0],
+//         mutationKey: [API_ENDPOINTS.SYNC.SyncAddMedia.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSyncRemoveMedia() {
+//     return useServerMutation<boolean, SyncRemoveMedia_Variables>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncRemoveMedia.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncRemoveMedia.methods[0],
+//         mutationKey: [API_ENDPOINTS.SYNC.SyncRemoveMedia.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSyncGetIsMediaTracked(id: number, type: string) {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.endpoint.replace("{id}", String(id)).replace("{type}", String(type)),
+//         method: API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.methods[0],
+//         queryKey: [API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSyncLocalData() {
+//     return useServerMutation<boolean>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncLocalData.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncLocalData.methods[0],
+//         mutationKey: [API_ENDPOINTS.SYNC.SyncLocalData.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSyncGetQueueState() {
+//     return useServerQuery<Sync_QueueState>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncGetQueueState.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncGetQueueState.methods[0],
+//         queryKey: [API_ENDPOINTS.SYNC.SyncGetQueueState.key],
+//         enabled: true,
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // theme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

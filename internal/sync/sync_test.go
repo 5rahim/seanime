@@ -60,7 +60,7 @@ func TestSync2(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	err = manager.Synchronize()
+	err = manager.SynchronizeLocal()
 	require.NoError(t, err)
 
 	select {
@@ -81,7 +81,7 @@ func TestSync2(t *testing.T) {
 	fmt.Println("================================================================================================")
 	fmt.Println("================================================================================================")
 
-	err = manager.Synchronize()
+	err = manager.SynchronizeLocal()
 	require.NoError(t, err)
 
 	select {
@@ -119,7 +119,7 @@ func TestSync(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	err = manager.Synchronize()
+	err = manager.SynchronizeLocal()
 	require.NoError(t, err)
 
 	select {

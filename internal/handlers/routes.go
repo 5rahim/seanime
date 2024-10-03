@@ -417,6 +417,17 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Continuity.Get("/history", makeHandler(app, HandleGetContinuityWatchHistory))
 
 	//
+	// Sync
+	//
+	v1Sync := v1.Group("/sync")
+	v1Sync.Get("/track", makeHandler(app, HandleSyncGetTrackedMediaItems))
+	v1Sync.Post("/track", makeHandler(app, HandleSyncAddMedia))
+	v1Sync.Delete("/track", makeHandler(app, HandleSyncRemoveMedia))
+	v1Sync.Get("/track/:id/:type", makeHandler(app, HandleSyncGetIsMediaTracked))
+	v1Sync.Post("/local", makeHandler(app, HandleSyncLocalData))
+	v1Sync.Get("/queue", makeHandler(app, HandleSyncGetQueueState))
+
+	//
 	// Websocket
 	//
 

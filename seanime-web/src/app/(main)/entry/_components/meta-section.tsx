@@ -13,6 +13,7 @@ import {
     MediaPageHeaderDetailsContainer,
     MediaPageHeaderEntryDetails,
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
+import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
 import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { NextAiringEpisode } from "@/app/(main)/entry/_components/next-airing-episode"
@@ -112,6 +113,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     <div className="flex flex-1"></div>
 
                     {!!entry.libraryData && <>
+                        <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="lg" />
                         <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
                         <ToggleLockFilesButton
                             allFilesLocked={entry.libraryData.allFilesLocked}

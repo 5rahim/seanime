@@ -2,6 +2,7 @@
 import { AL_BaseManga } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { cn } from "@/components/ui/core/styling"
+import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { Transition } from "@headlessui/react"
 import { motion } from "framer-motion"
@@ -114,7 +115,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         leaveTo="opacity-0"
                     >
                         {(actualImage || prevImage) && <Image
-                            src={actualImage || prevImage!}
+                            src={getImageUrl(actualImage || prevImage!)}
                             alt="banner image"
                             fill
                             quality={100}
@@ -127,7 +128,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         />}
                     </Transition>
                     {prevImage && <Image
-                        src={prevImage}
+                        src={getImageUrl(prevImage)}
                         alt="banner image"
                         fill
                         quality={100}

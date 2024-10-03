@@ -10,6 +10,7 @@ import {
     MediaPageHeaderDetailsContainer,
     MediaPageHeaderEntryDetails,
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
+import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import React from "react"
@@ -63,6 +64,8 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                     </SeaLink>
 
                     <div className="flex flex-1"></div>
+
+                    <MediaSyncTrackButton mediaId={entry.mediaId} type="manga" size="lg" />
                 </div>
 
             </MediaPageHeaderDetailsContainer>

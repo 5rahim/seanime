@@ -10,8 +10,10 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
+	"seanime/internal/util"
 )
 
 var (
@@ -21,9 +23,6 @@ var (
 const (
 	AnimeType = "anime"
 	MangaType = "manga"
-
-	LocalDir  = "local"
-	AssetsDir = "assets"
 )
 
 type Manager interface {
@@ -31,6 +30,8 @@ type Manager interface {
 	SetMangaCollection(mc *anilist.MangaCollection)
 	GetLocalAnimeCollection() mo.Option[*anilist.AnimeCollection]
 	GetLocalMangaCollection() mo.Option[*anilist.MangaCollection]
+	SaveLocalAnimeCollection(ac *anilist.AnimeCollection)
+	SaveLocalMangaCollection(mc *anilist.MangaCollection)
 	GetQueue() *Syncer
 	// AddAnime adds an anime to track.
 	// It checks that the anime is currently in the user's anime collection.
@@ -42,9 +43,11 @@ type Manager interface {
 	AddManga(mId int) error
 	// RemoveManga removes a manga from tracking.
 	RemoveManga(mId int) error
-	// Synchronize syncs all currently tracked media.
+	IsMediaTracked(aId int, kind string) bool
+	GetTrackedMediaItems() []*TrackedMediaItem
+	// SynchronizeLocal syncs all currently tracked media.
 	// Compares the local database with the user's anime and manga collections and updates the local database accordingly.
-	Synchronize() error
+	SynchronizeLocal() error
 }
 
 type (
@@ -57,6 +60,7 @@ type (
 		logger           *zerolog.Logger
 		metadataProvider metadata.Provider
 		mangaRepository  *manga.Repository
+		wsEventManager   events.WSEventManagerInterface
 
 		syncer *Syncer
 
@@ -75,22 +79,29 @@ type (
 		// Local files, set by ManagerImpl.Synchronize, accessed by the synchronization Syncer
 		localFiles []*anime.LocalFile
 	}
+	TrackedMediaItem struct {
+		MediaId    int                     `json:"mediaId"`
+		Type       string                  `json:"type"`
+		AnimeEntry *anilist.AnimeListEntry `json:"animeEntry,omitempty"`
+		MangaEntry *anilist.MangaListEntry `json:"mangaEntry,omitempty"`
+	}
 
 	NewManagerOptions struct {
-		DataDir          string
+		LocalDir         string
+		AssetDir         string
 		Logger           *zerolog.Logger
 		MetadataProvider metadata.Provider
 		MangaRepository  *manga.Repository
 		Database         *db.Database
+		WSEventManager   events.WSEventManagerInterface
 	}
 )
 
 func NewManager(opts *NewManagerOptions) (Manager, error) {
-	localDir := filepath.Join(opts.DataDir, LocalDir)
 
-	_ = os.MkdirAll(localDir, 0755)
+	_ = os.MkdirAll(opts.LocalDir, os.ModePerm)
 
-	localDb, err := newLocalSyncDatabase(localDir, "local", opts.Logger)
+	localDb, err := newLocalSyncDatabase(opts.LocalDir, "local", opts.Logger)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +109,8 @@ func NewManager(opts *NewManagerOptions) (Manager, error) {
 	ret := &ManagerImpl{
 		db:                          opts.Database,
 		localDb:                     localDb,
-		localDir:                    localDir,
-		localAssetsDir:              filepath.Join(localDir, AssetsDir),
+		localDir:                    opts.LocalDir,
+		localAssetsDir:              opts.AssetDir,
 		logger:                      opts.Logger,
 		animeCollection:             mo.None[*anilist.AnimeCollection](),
 		mangaCollection:             mo.None[*anilist.MangaCollection](),
@@ -109,19 +120,17 @@ func NewManager(opts *NewManagerOptions) (Manager, error) {
 		mangaRepository:             opts.MangaRepository,
 		downloadedChapterContainers: make([]*manga.ChapterContainer, 0),
 		localFiles:                  make([]*anime.LocalFile, 0),
+		wsEventManager:              opts.WSEventManager,
 	}
 
 	ret.syncer = NewQueue(ret)
 
 	// Load the local collections
-	localAnimeCollection, ok := ret.localDb.GetLocalAnimeCollection()
-	if ok {
-		ret.localAnimeCollection = mo.Some(localAnimeCollection)
-	}
-	localMangaCollection, ok := ret.localDb.GetLocalMangaCollection()
-	if ok {
-		ret.localMangaCollection = mo.Some(localMangaCollection)
-	}
+	ret.loadLocalAnimeCollection()
+	ret.loadLocalMangaCollection()
+
+	fmt.Println("After initializing the manager")
+	util.Spew(ret.localAnimeCollection.MustGet())
 
 	return ret, nil
 }
@@ -131,6 +140,22 @@ func (m *ManagerImpl) GetQueue() *Syncer {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (m *ManagerImpl) loadLocalAnimeCollection() {
+	collection, ok := m.localDb.GetLocalAnimeCollection()
+	if !ok {
+		m.localAnimeCollection = mo.None[*anilist.AnimeCollection]()
+	}
+	m.localAnimeCollection = mo.Some(collection)
+}
+
+func (m *ManagerImpl) loadLocalMangaCollection() {
+	collection, ok := m.localDb.GetLocalMangaCollection()
+	if !ok {
+		m.localMangaCollection = mo.None[*anilist.MangaCollection]()
+	}
+	m.localMangaCollection = mo.Some(collection)
+}
 
 func (m *ManagerImpl) SetAnimeCollection(ac *anilist.AnimeCollection) {
 	if ac == nil {
@@ -154,6 +179,16 @@ func (m *ManagerImpl) GetLocalAnimeCollection() mo.Option[*anilist.AnimeCollecti
 
 func (m *ManagerImpl) GetLocalMangaCollection() mo.Option[*anilist.MangaCollection] {
 	return m.localMangaCollection
+}
+
+func (m *ManagerImpl) SaveLocalAnimeCollection(ac *anilist.AnimeCollection) {
+	_ = m.localDb.SaveAnimeCollection(ac)
+	m.loadLocalAnimeCollection()
+}
+
+func (m *ManagerImpl) SaveLocalMangaCollection(mc *anilist.MangaCollection) {
+	_ = m.localDb.SaveMangaCollection(mc)
+	m.loadLocalMangaCollection()
 }
 
 // AddAnime adds an anime to track.
@@ -201,6 +236,8 @@ func (m *ManagerImpl) RemoveAnime(mId int) error {
 	if err != nil {
 		return err
 	}
+
+	m.GetQueue().refreshCollections()
 
 	return nil
 }
@@ -253,12 +290,78 @@ func (m *ManagerImpl) RemoveManga(mId int) error {
 		return err
 	}
 
+	m.GetQueue().refreshCollections()
+
 	return nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-// Synchronize should be called after updates to the user's anime and manga collections.
+func (m *ManagerImpl) IsMediaTracked(aId int, kind string) bool {
+	_, found := m.localDb.GetTrackedMedia(aId, kind)
+	return found
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+func (m *ManagerImpl) GetTrackedMediaItems() (ret []*TrackedMediaItem) {
+	trackedMedia, ok := m.localDb.GetAllTrackedMedia()
+	if !ok {
+		return
+	}
+
+	if m.animeCollection.IsAbsent() || m.mangaCollection.IsAbsent() {
+		return
+	}
+
+	for _, item := range trackedMedia {
+		if item.Type == AnimeType {
+			if localAnimeCollection, found := m.localAnimeCollection.Get(); found {
+				if e, found := localAnimeCollection.GetListEntryFromAnimeId(item.MediaId); found {
+					ret = append(ret, &TrackedMediaItem{
+						MediaId:    item.MediaId,
+						Type:       item.Type,
+						AnimeEntry: e,
+					})
+					continue
+				}
+				if e, found := m.animeCollection.MustGet().GetListEntryFromAnimeId(item.MediaId); found {
+					ret = append(ret, &TrackedMediaItem{
+						MediaId:    item.MediaId,
+						Type:       item.Type,
+						AnimeEntry: e,
+					})
+					continue
+				}
+			}
+		} else if item.Type == MangaType {
+			if localMangaCollection, found := m.localMangaCollection.Get(); found {
+				if e, found := localMangaCollection.GetListEntryFromMangaId(item.MediaId); found {
+					ret = append(ret, &TrackedMediaItem{
+						MediaId:    item.MediaId,
+						Type:       item.Type,
+						MangaEntry: e,
+					})
+					continue
+				}
+			}
+			if e, found := m.mangaCollection.MustGet().GetListEntryFromMangaId(item.MediaId); found {
+				ret = append(ret, &TrackedMediaItem{
+					MediaId:    item.MediaId,
+					Type:       item.Type,
+					MangaEntry: e,
+				})
+				continue
+			}
+		}
+	}
+
+	return
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+// SynchronizeLocal should be called after updates to the user's anime and manga collections.
 //
 //   - After adding/removing an anime or manga to track
 //   - After the user's anime and manga collections have been updated (e.g. after a user's anime and manga list has been updated)
@@ -268,7 +371,7 @@ func (m *ManagerImpl) RemoveManga(mId int) error {
 //
 // It will remove any anime & manga from the local database that are not in the user's collection anymore.
 // It will then update the ManagerImpl.localAnimeCollection and ManagerImpl.localMangaCollection
-func (m *ManagerImpl) Synchronize() error {
+func (m *ManagerImpl) SynchronizeLocal() error {
 
 	lfs, _, err := db_bridge.GetLocalFiles(m.db)
 	if err != nil {
@@ -308,21 +411,10 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 		return fmt.Errorf("sync: Manga collection not set")
 	}
 
+	trackedAnimeMap, trackedMangaMap := m.loadTrackedMedia()
+
 	// Remove anime and manga from the local database that are not in the user's anime and manga collections
-	trackedAnime, _ := m.localDb.GetAllTrackedMediaByType(AnimeType)
-	trackedManga, _ := m.localDb.GetAllTrackedMediaByType(MangaType)
-
-	trackedAnimeMap := make(map[int]*TrackedMedia)
-	for _, item := range trackedAnime {
-		trackedAnimeMap[item.MediaId] = item
-	}
-
-	trackedMangaMap := make(map[int]*TrackedMedia)
-	for _, m := range trackedManga {
-		trackedMangaMap[m.MediaId] = m
-	}
-
-	for _, item := range trackedAnime {
+	for _, item := range trackedAnimeMap {
 		// If the anime is not in the user's anime collection, remove it from the local database
 		if _, found := m.animeCollection.MustGet().GetListEntryFromAnimeId(item.MediaId); !found {
 			err := m.removeAnime(item.MediaId)
@@ -331,8 +423,7 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 			}
 		}
 	}
-
-	for _, item := range trackedManga {
+	for _, item := range trackedMangaMap {
 		// If the manga is not in the user's manga collection, remove it from the local database
 		if _, found := m.mangaCollection.MustGet().GetListEntryFromMangaId(item.MediaId); !found {
 			err := m.removeManga(item.MediaId)
@@ -363,6 +454,26 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (m *ManagerImpl) loadTrackedMedia() (trackedAnimeMap map[int]*TrackedMedia, trackedMangaMap map[int]*TrackedMedia) {
+	trackedAnime, _ := m.localDb.GetAllTrackedMediaByType(AnimeType)
+	trackedManga, _ := m.localDb.GetAllTrackedMediaByType(MangaType)
+
+	trackedAnimeMap = make(map[int]*TrackedMedia)
+	for _, item := range trackedAnime {
+		trackedAnimeMap[item.MediaId] = item
+	}
+
+	trackedMangaMap = make(map[int]*TrackedMedia)
+	for _, m := range trackedManga {
+		trackedMangaMap[m.MediaId] = m
+	}
+
+	m.GetQueue().trackedMangaMap = trackedMangaMap
+	m.GetQueue().trackedAnimeMap = trackedAnimeMap
+
+	return trackedAnimeMap, trackedMangaMap
+}
 
 func (m *ManagerImpl) removeAnime(aId int) error {
 	m.logger.Trace().Msgf("sync: Removing anime %d from local database", aId)

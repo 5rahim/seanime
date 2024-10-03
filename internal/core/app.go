@@ -29,7 +29,9 @@ import (
 	"seanime/internal/offline"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/platforms/local_platform"
 	"seanime/internal/platforms/platform"
+	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
@@ -49,6 +51,8 @@ type (
 		Watcher                       *scanner.Watcher
 		AnilistClient                 anilist.AnilistClient
 		AnilistPlatform               platform.Platform
+		LocalPlatform                 platform.Platform
+		SyncManager                   sync2.Manager
 		FillerManager                 *fillermanager.FillerManager
 		WSEventManager                *events.WSEventManager
 		AutoDownloader                *autodownloader.AutoDownloader
@@ -150,9 +154,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
 
-	// Anilist Platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
-
 	// File Cacher
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
 	if err != nil {
@@ -165,15 +166,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher: fileCacher,
 	})
 
-	// Online Stream
-	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
-		Logger:           logger,
-		FileCacher:       fileCacher,
-		MetadataProvider: metadataProvider,
-		Platform:         anilistPlatform,
-		Database:         database,
-	})
-
 	// Manga Repository
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
@@ -182,6 +174,34 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		WsEventManager: wsEventManager,
 		DownloadDir:    cfg.Manga.DownloadDir,
 		Database:       database,
+	})
+
+	// Platforms
+	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
+		LocalDir:         cfg.Offline.Dir,
+		AssetDir:         cfg.Offline.AssetDir,
+		Logger:           logger,
+		MetadataProvider: metadataProvider,
+		MangaRepository:  mangaRepository,
+		Database:         database,
+		WSEventManager:   wsEventManager,
+	})
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize sync manager")
+	}
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
+	}
+
+	// Online Stream
+	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
+		Logger:           logger,
+		FileCacher:       fileCacher,
+		MetadataProvider: metadataProvider,
+		Platform:         anilistPlatform,
+		Database:         database,
 	})
 
 	// Extension Repository
@@ -198,6 +218,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:                      database,
 		AnilistClient:                 anilistCW,
 		AnilistPlatform:               anilistPlatform,
+		LocalPlatform:                 localPlatform,
+		SyncManager:                   syncManager,
 		WSEventManager:                wsEventManager,
 		Logger:                        logger,
 		Version:                       constants.Version,

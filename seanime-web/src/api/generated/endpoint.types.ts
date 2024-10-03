@@ -1260,6 +1260,52 @@ export type DeleteLogs_Variables = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// sync
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/track
+ * @description
+ * Route adds a media to be tracked for offline sync.
+ */
+export type SyncAddMedia_Variables = {
+    mediaId: number
+    type: string
+}
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/track
+ * @description
+ * Route remove media from being tracked for offline sync.
+ */
+export type SyncRemoveMedia_Variables = {
+    mediaId: number
+    type: string
+}
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/track/{id}/{type}
+ * @description
+ * Route checks if media is being tracked for offline sync.
+ */
+export type SyncGetIsMediaTracked_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+    /**
+     *  Type of media (anime/manga)
+     */
+    type: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // theme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

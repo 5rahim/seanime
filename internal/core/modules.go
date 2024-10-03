@@ -493,7 +493,13 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	_, err = a.RefreshAnimeCollection()
 	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
+		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist anime collection")
+		return
+	}
+
+	_, err = a.RefreshMangaCollection()
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist manga collection")
 		return
 	}
 

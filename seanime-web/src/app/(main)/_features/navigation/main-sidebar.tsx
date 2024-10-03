@@ -1,5 +1,6 @@
 "use client"
 import { useLogout } from "@/api/hooks/auth.hooks"
+import { useSyncIsActive } from "@/app/(main)/_atoms/sync.atoms"
 import { __globalSearch_isOpenAtom } from "@/app/(main)/_features/global-search/global-search"
 import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { UpdateModal } from "@/app/(main)/_features/update/update-modal"
@@ -28,9 +29,8 @@ import React from "react"
 import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
-import { IoLibrary } from "react-icons/io5"
+import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
-import { RiWifiOffLine } from "react-icons/ri"
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
 
@@ -97,6 +97,8 @@ export function MainSidebar() {
             setActiveTorrentCount(data)
         },
     })
+
+    const { syncIsActive } = useSyncIsActive()
 
     return (
         <>
@@ -228,10 +230,18 @@ export function MainSidebar() {
                                     isCurrent: pathname.includes("/extensions"),
                                 },
                                 {
-                                    iconType: RiWifiOffLine,
-                                    name: "Offline mode",
-                                    href: "/offline-mode",
-                                    isCurrent: pathname.includes("/offline-mode"),
+                                    iconType: IoCloudOfflineOutline,
+                                    name: "Offline sync",
+                                    href: "/sync",
+                                    isCurrent: pathname.includes("/sync"),
+                                    addon: (syncIsActive)
+                                        ? <Badge
+                                            className="absolute right-0 top-0 bg-blue-500" size="sm"
+                                            intent="alert-solid"
+                                        >
+                                            1
+                                        </Badge>
+                                        : undefined,
                                 },
                                 {
                                     iconType: FiSettings,

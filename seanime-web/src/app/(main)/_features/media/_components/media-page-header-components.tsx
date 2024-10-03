@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getScoreColor } from "@/lib/helpers/score"
+import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import capitalize from "lodash/capitalize"
@@ -60,7 +61,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 )}
             >
                 <Image
-                    src={backgroundImage || ""}
+                    src={getImageUrl(backgroundImage || "")}
                     alt={""}
                     fill
                     quality={100}
@@ -98,7 +99,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 <div className="absolute top-0 left-0 scroll-locked-offset w-full h-full">
                     {(!!backgroundImage) && <Image
-                        src={backgroundImage || ""}
+                        src={getImageUrl(backgroundImage || "")}
                         alt="banner image"
                         fill
                         quality={100}
@@ -239,7 +240,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     )}
                 >
                     <Image
-                        src={coverImage}
+                        src={getImageUrl(coverImage)}
                         alt="cover image"
                         fill
                         priority

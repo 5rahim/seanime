@@ -1376,6 +1376,48 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/logs",
         },
     },
+    SYNC: {
+        SyncGetTrackedMediaItems: {
+            key: "SYNC-sync-get-tracked-media-items",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/track",
+        },
+        SyncAddMedia: {
+            key: "SYNC-sync-add-media",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/track",
+        },
+        /**
+         *  @description
+         *  Route remove media from being tracked for offline sync.
+         *  This will remove anime from being tracked for offline sync and delete any associated data.
+         */
+        SyncRemoveMedia: {
+            key: "SYNC-sync-remove-media",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/sync/track",
+        },
+        SyncGetIsMediaTracked: {
+            key: "SYNC-sync-get-is-media-tracked",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/track/{id}/{type}",
+        },
+        SyncLocalData: {
+            key: "SYNC-sync-local-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/local",
+        },
+        /**
+         *  @description
+         *  Route gets the current sync queue state.
+         *  This will return the list of media that are currently queued for syncing.
+         */
+        SyncGetQueueState: {
+            key: "SYNC-sync-get-queue-state",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/queue",
+        },
+    },
     THEME: {
         GetTheme: {
             key: "THEME-get-theme",

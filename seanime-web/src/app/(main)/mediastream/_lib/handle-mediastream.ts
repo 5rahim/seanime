@@ -11,7 +11,7 @@ import {
 } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
-import { getAssetUrl } from "@/lib/server/assets"
+import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { WSEvents } from "@/lib/server/ws-events"
 import { isMobile } from "@/lib/utils/browser-detection"
 import {
@@ -257,7 +257,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     React.useEffect(() => {
         if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts?.length) {
             const legacyWasmUrl = process.env.NODE_ENV === "development"
-                ? "/jassub/jassub-worker.wasm.js" : getAssetUrl("/jassub/jassub-worker.wasm.js")
+                ? "/jassub/jassub-worker.wasm.js" : legacy_getAssetUrl("/jassub/jassub-worker.wasm.js")
 
             logger("MEDIASTREAM").info("Loading JASSUB renderer")
 
