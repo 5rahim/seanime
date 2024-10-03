@@ -85,7 +85,12 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const showTrailer = React.useMemo(() => _showTrailer && !libraryData && !media?.isAdult, [_showTrailer, libraryData, media])
 
-    const link = type === "anime" ? `/entry?id=${media.id}` : `/manga/entry?id=${media.id}`
+    const MANGA_LINK = serverStatus?.isOffline ? `/offline/manga?id=${media.id}` : `/manga/entry?id=${media.id}`
+    const ANIME_LINK = serverStatus?.isOffline ? `/offline/anime?id=${media.id}` : `/entry?id=${media.id}`
+
+    const link = React.useMemo(() => {
+        return type === "anime" ? ANIME_LINK : MANGA_LINK
+    }, [serverStatus?.isOffline, type])
 
     const progressTotal = type === "anime" ? (media as AL_BaseAnime)?.episodes : (media as AL_BaseManga)?.chapters
 
@@ -124,10 +129,10 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     const handleWatchButtonClicked = React.useCallback(() => {
         if ((!!listData?.progress && (listData?.status !== "COMPLETED"))) {
             setPlayNext(media.id, () => {
-                router.push(`/entry?id=${media.id}`)
+                router.push(ANIME_LINK)
             })
         } else {
-            router.push(`/entry?id=${media.id}`)
+            router.push(ANIME_LINK)
         }
     }, [])
 
@@ -177,10 +182,6 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     )}
 
                     {type === "anime" && <div className="py-1">
-                        {/*<Link*/}
-                        {/*    href={`/entry?id=${media.id}${(!!listData?.progress && (listData?.status !== "COMPLETED")) ? "&playNext=true" : ""}`}*/}
-                        {/*    tabIndex={-1}*/}
-                        {/*>*/}
                         <Button
                             leftIcon={<BiPlay className="text-2xl" />}
                             intent="white"
@@ -193,11 +194,10 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 ? "Continue watching"
                                 : "Watch"}
                         </Button>
-                        {/*</Link>*/}
                     </div>}
 
                     {type === "manga" && <SeaLink
-                        href={`/manga/entry?id=${props.media.id}`}
+                        href={MANGA_LINK}
                     >
                         <Button
                             leftIcon={<IoLibrarySharp />}

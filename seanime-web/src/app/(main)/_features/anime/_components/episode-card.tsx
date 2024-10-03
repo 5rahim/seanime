@@ -3,6 +3,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
+import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import React from "react"
@@ -80,7 +81,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
             >
                 <div className="absolute w-full h-full rounded-lg overflow-hidden z-[1]">
                     {!!image ? <Image
-                        src={image}
+                        src={getImageUrl(image)}
                         alt={""}
                         fill
                         quality={100}
@@ -142,7 +143,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
         >
             <div className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
                 {!!image ? <Image
-                    src={image}
+                    src={getImageUrl(image)}
                     alt={""}
                     fill
                     quality={100}

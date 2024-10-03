@@ -13,7 +13,6 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
-	"seanime/internal/util"
 )
 
 var (
@@ -32,6 +31,7 @@ type Manager interface {
 	GetLocalMangaCollection() mo.Option[*anilist.MangaCollection]
 	SaveLocalAnimeCollection(ac *anilist.AnimeCollection)
 	SaveLocalMangaCollection(mc *anilist.MangaCollection)
+	GetLocalMetadataProvider() metadata.Provider
 	GetQueue() *Syncer
 	// AddAnime adds an anime to track.
 	// It checks that the anime is currently in the user's anime collection.
@@ -57,10 +57,11 @@ type (
 		localDir       string
 		localAssetsDir string
 
-		logger           *zerolog.Logger
-		metadataProvider metadata.Provider
-		mangaRepository  *manga.Repository
-		wsEventManager   events.WSEventManagerInterface
+		logger                *zerolog.Logger
+		metadataProvider      metadata.Provider
+		mangaRepository       *manga.Repository
+		wsEventManager        events.WSEventManagerInterface
+		localMetadataProvider metadata.Provider
 
 		syncer *Syncer
 
@@ -124,19 +125,21 @@ func NewManager(opts *NewManagerOptions) (Manager, error) {
 	}
 
 	ret.syncer = NewQueue(ret)
+	ret.localMetadataProvider = NewLocalMetadataProvider(ret)
 
 	// Load the local collections
 	ret.loadLocalAnimeCollection()
 	ret.loadLocalMangaCollection()
-
-	fmt.Println("After initializing the manager")
-	util.Spew(ret.localAnimeCollection.MustGet())
 
 	return ret, nil
 }
 
 func (m *ManagerImpl) GetQueue() *Syncer {
 	return m.syncer
+}
+
+func (m *ManagerImpl) GetLocalMetadataProvider() metadata.Provider {
+	return m.localMetadataProvider
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +455,8 @@ func (m *ManagerImpl) synchronize(lfs []*anime.LocalFile, mangaChapterContainers
 
 	return nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

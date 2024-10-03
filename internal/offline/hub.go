@@ -79,14 +79,14 @@ func NewHub(opts *NewHubOptions) *Hub {
 		opts.Logger.Fatal().Err(err).Msg("offline hub: Failed to instantiate offline database")
 	}
 
-	if opts.IsOffline {
-
-		if !offlineDb.HasSnapshots() {
-			opts.Logger.Fatal().Msg("offline hub: No snapshots found")
-		}
-
-		opts.Logger.Info().Msg("offline hub: Offline mode enabled")
-	}
+	//if opts.IsOffline {
+	//
+	//	if !offlineDb.HasSnapshots() {
+	//		opts.Logger.Fatal().Msg("offline hub: No snapshots found")
+	//	}
+	//
+	//	opts.Logger.Info().Msg("offline hub: Offline mode enabled")
+	//}
 
 	imgDownloader := image_downloader.NewImageDownloader(opts.AssetDir, opts.Logger)
 

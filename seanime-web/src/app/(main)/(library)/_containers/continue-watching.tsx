@@ -4,6 +4,7 @@ import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinu
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
 import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
@@ -137,6 +138,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
     overrideLink?: string
     watchHistory: Continuity_WatchHistory | undefined
 }) => {
+    const serverStatus = useServerStatus()
     const router = useRouter()
     const setHeaderImage = useSetAtom(__libraryHeaderImageAtom)
     const setHeaderEpisode = useSetAtom(__libraryHeaderEpisodeAtom)
@@ -182,7 +184,11 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             onClick={() => {
                 if (!overrideLink) {
                     setPlayNext(episode.baseAnime?.id, () => {
-                        router.push(`/entry?id=${episode.baseAnime?.id}`)
+                        if (!serverStatus?.isOffline) {
+                            router.push(`/entry?id=${episode.baseAnime?.id}`)
+                        } else {
+                            router.push(`/offline/anime?id=${episode.baseAnime?.id}`)
+                        }
                     })
                 } else {
                     setPlayNext(episode.baseAnime?.id, () => {

@@ -166,6 +166,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher: fileCacher,
 	})
 
+	activeMetadataProvider := metadataProvider
+
 	// Manga Repository
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
 		Logger:         logger,
@@ -189,18 +191,29 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize sync manager")
 	}
+
+	if cfg.Server.Offline {
+		activeMetadataProvider = syncManager.GetLocalMetadataProvider()
+	}
+
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
 	}
 
+	activePlatform := anilistPlatform
+	// If offline mode is enabled, use the local platform
+	if cfg.Server.Offline {
+		activePlatform = localPlatform
+	}
+
 	// Online Stream
 	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
 		Logger:           logger,
 		FileCacher:       fileCacher,
-		MetadataProvider: metadataProvider,
-		Platform:         anilistPlatform,
+		MetadataProvider: activeMetadataProvider,
+		Platform:         activePlatform,
 		Database:         database,
 	})
 
@@ -211,13 +224,13 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		WSEventManager: wsEventManager,
 	})
 
-	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, anilistPlatform, metadataProvider)
+	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 
 	app := &App{
 		Config:                        cfg,
 		Database:                      database,
 		AnilistClient:                 anilistCW,
-		AnilistPlatform:               anilistPlatform,
+		AnilistPlatform:               activePlatform,
 		LocalPlatform:                 localPlatform,
 		SyncManager:                   syncManager,
 		WSEventManager:                wsEventManager,
@@ -226,7 +239,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Updater:                       updater.New(constants.Version, logger),
 		FileCacher:                    fileCacher,
 		OnlinestreamRepository:        onlinestreamRepository,
-		MetadataProvider:              metadataProvider,
+		MetadataProvider:              activeMetadataProvider,
 		MangaRepository:               mangaRepository,
 		ExtensionRepository:           extensionRepository,
 		ExtensionPlaygroundRepository: extensionPlaygroundRepository,

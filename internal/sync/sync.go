@@ -1,7 +1,6 @@
 package sync
 
 import (
-	"fmt"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -396,9 +395,6 @@ func (q *Syncer) synchronizeCollections() (err error) {
 			}
 		}
 	}
-
-	fmt.Println("After saving local collections")
-	util.Spew(localAnimeCollection)
 
 	// Save the local collections
 	err = q.manager.localDb.SaveAnimeCollection(localAnimeCollection)

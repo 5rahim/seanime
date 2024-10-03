@@ -12,7 +12,6 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/fiberlogger"
 	util2 "seanime/internal/util/proxies"
-	"strings"
 	"sync"
 	"time"
 )
@@ -74,33 +73,34 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")
 
-	if app.IsOffline() {
-		v1.Use(func(c *fiber.Ctx) error {
-			uriS := strings.Split(c.Request().URI().String(), "v1")
-			if len(uriS) > 1 {
-				if strings.HasPrefix(uriS[1], "/offline") ||
-					strings.HasPrefix(uriS[1], "/settings") ||
-					strings.HasPrefix(uriS[1], "/theme") ||
-					strings.HasPrefix(uriS[1], "/status") ||
-					strings.HasPrefix(uriS[1], "/media-player") ||
-					strings.HasPrefix(uriS[1], "/filecache") ||
-					strings.HasPrefix(uriS[1], "/playback-manager") ||
-					strings.HasPrefix(uriS[1], "/playlists") ||
-					strings.HasPrefix(uriS[1], "/directory-selector") ||
-					strings.HasPrefix(uriS[1], "/manga") ||
-					strings.HasPrefix(uriS[1], "/mediastream") ||
-					strings.HasPrefix(uriS[1], "/torrentstream") ||
-					strings.HasPrefix(uriS[1], "/extensions") ||
-					strings.HasPrefix(uriS[1], "/continuity") ||
-					strings.HasPrefix(uriS[1], "/open-in-explorer") {
-					return c.Next()
-				} else {
-					return c.Status(200).SendString("offline")
-				}
-			}
-			return c.Next()
-		})
-	}
+	//if app.IsOffline() {
+	//	v1.Use(func(c *fiber.Ctx) error {
+	//		uriS := strings.Split(c.Request().URI().String(), "v1")
+	//		if len(uriS) > 1 {
+	//			if strings.HasPrefix(uriS[1], "/offline") ||
+	//				strings.HasPrefix(uriS[1], "/settings") ||
+	//				strings.HasPrefix(uriS[1], "/theme") ||
+	//				strings.HasPrefix(uriS[1], "/status") ||
+	//				strings.HasPrefix(uriS[1], "/media-player") ||
+	//				strings.HasPrefix(uriS[1], "/filecache") ||
+	//				strings.HasPrefix(uriS[1], "/playback-manager") ||
+	//				strings.HasPrefix(uriS[1], "/playlists") ||
+	//				strings.HasPrefix(uriS[1], "/directory-selector") ||
+	//				strings.HasPrefix(uriS[1], "/manga") ||
+	//				strings.HasPrefix(uriS[1], "/mediastream") ||
+	//				strings.HasPrefix(uriS[1], "/torrentstream") ||
+	//				strings.HasPrefix(uriS[1], "/extensions") ||
+	//				strings.HasPrefix(uriS[1], "/continuity") ||
+	//				strings.HasPrefix(uriS[1], "/logs") ||
+	//				strings.HasPrefix(uriS[1], "/open-in-explorer") {
+	//				return c.Next()
+	//			} else {
+	//				return c.Status(200).SendString("offline")
+	//			}
+	//		}
+	//		return c.Next()
+	//	})
+	//}
 
 	//fiberApp.Use(pprof.New(pprof.Config{
 	//	Prefix: "/api/v1",
