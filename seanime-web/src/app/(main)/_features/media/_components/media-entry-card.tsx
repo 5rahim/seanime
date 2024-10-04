@@ -85,8 +85,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
     const showTrailer = React.useMemo(() => _showTrailer && !libraryData && !media?.isAdult, [_showTrailer, libraryData, media])
 
-    const MANGA_LINK = serverStatus?.isOffline ? `/offline/manga?id=${media.id}` : `/manga/entry?id=${media.id}`
-    const ANIME_LINK = serverStatus?.isOffline ? `/offline/anime?id=${media.id}` : `/entry?id=${media.id}`
+    const MANGA_LINK = serverStatus?.isOffline ? `/offline/entry/manga?id=${media.id}` : `/manga/entry?id=${media.id}`
+    const ANIME_LINK = serverStatus?.isOffline ? `/offline/entry/anime?id=${media.id}` : `/entry?id=${media.id}`
 
     const link = React.useMemo(() => {
         return type === "anime" ? ANIME_LINK : MANGA_LINK

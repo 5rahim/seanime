@@ -724,6 +724,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/manga/pages",
         },
+        GetMangaEntryDownloadedChapters: {
+            key: "MANGA-get-manga-entry-downloaded-chapters",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/downloaded-chapters/{id}",
+        },
         /**
          *  @description
          *  Route returns a list of manga based on the search parameters.

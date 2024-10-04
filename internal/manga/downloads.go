@@ -11,6 +11,21 @@ import (
 	"slices"
 )
 
+func (r *Repository) GetDownloadedMangaChapterContainers(mId int, mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
+	containers, err := r.GetDownloadedChapterContainers(mangaCollection)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, container := range containers {
+		if container.MediaId == mId {
+			ret = append(ret, container)
+		}
+	}
+
+	return ret, nil
+}
+
 func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
 	ret = make([]*ChapterContainer, 0)
 
@@ -101,23 +116,29 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 			}
 		}
 
+		downloadedContainer := &ChapterContainer{
+			MediaId:  container.MediaId,
+			Provider: container.Provider,
+			Chapters: make([]*hibikemanga.ChapterDetails, 0),
+		}
+
 		// Now that we have the container, we'll filter out the chapters that are not downloaded
 		// Go through each chapter and check if it's downloaded
 		for _, chapter := range container.Chapters {
 			// For each chapter, check if the chapter directory exists
 			for _, dir := range chapterDirs {
 				if dir == chapter_downloader.FormatChapterDirName(provider, mediaId, chapter.ID, chapter.Chapter) {
-					container.Chapters = append(container.Chapters, chapter)
+					downloadedContainer.Chapters = append(downloadedContainer.Chapters, chapter)
 					break
 				}
 			}
 		}
 
-		if len(container.Chapters) == 0 {
+		if len(downloadedContainer.Chapters) == 0 {
 			continue
 		}
 
-		ret = append(ret, container)
+		ret = append(ret, downloadedContainer)
 	}
 
 	return ret, nil

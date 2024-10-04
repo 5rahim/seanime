@@ -424,9 +424,7 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 		pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
 	}
 
-	if !pm.isOffline {
-		pm.refreshAnimeCollectionFunc()
-	}
+	pm.refreshAnimeCollectionFunc()
 
 	pm.eventMu.Unlock()
 	return nil
@@ -451,11 +449,6 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 		}
 
 		defer util.HandlePanicInModuleWithError("playbackmanager/updateProgress", &err)
-
-		/// Offline
-		if pm.isOffline {
-			return pm.updateProgressOffline()
-		}
 
 		/// Online
 		mediaId = pm.currentMediaListEntry.MustGet().GetMedia().GetID()
@@ -488,15 +481,6 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 				pm.manualTrackingCtxCancel()
 			}
 		}()
-
-		/// Offline
-		if pm.isOffline {
-			return pm.updateProgressOfflineWithVars(
-				pm.currentManualTrackingState.MustGet().MediaId,
-				pm.currentManualTrackingState.MustGet().EpisodeNumber,
-				pm.currentManualTrackingState.MustGet().TotalEpisodes,
-			)
-		}
 
 		/// Online
 		mediaId = pm.currentManualTrackingState.MustGet().MediaId

@@ -864,6 +864,15 @@
 //     })
 // }
 
+// export function useGetMangaEntryDownloadedChapters(id: number) {
+//     return useServerQuery<Array<Manga_ChapterContainer>>({
+//         endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.methods[0],
+//         queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useAnilistListManga() {
 //     return useServerMutation<AL_ListManga, AnilistListManga_Variables>({
 //         endpoint: API_ENDPOINTS.MANGA.AnilistListManga.endpoint,

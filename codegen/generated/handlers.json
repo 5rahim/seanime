@@ -3279,6 +3279,46 @@
     }
   },
   {
+    "name": "HandleGetMangaEntryDownloadedChapters",
+    "trimmedName": "GetMangaEntryDownloadedChapters",
+    "comments": [
+      "HandleGetMangaEntryDownloadedChapters",
+      "",
+      "\t@summary returns all download chapters for a manga entry,",
+      "\t@route /api/v1/manga/downloaded-chapters/{id} [GET]",
+      "\t@param id - int - true - \"AniList manga media ID\"",
+      "\t@returns []manga.ChapterContainer",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns all download chapters for a manga entry,",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/downloaded-chapters/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "AniList manga media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "[]manga.ChapterContainer",
+      "returnGoType": "manga.ChapterContainer",
+      "returnTypescriptType": "Array\u003cManga_ChapterContainer\u003e"
+    }
+  },
+  {
     "name": "HandleAnilistListManga",
     "trimmedName": "AnilistListManga",
     "comments": [

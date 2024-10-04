@@ -12,7 +12,6 @@ export default function Page() {
     return (
         <>
             {ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
-
             <OfflineAnimeLists />
         </>
     )

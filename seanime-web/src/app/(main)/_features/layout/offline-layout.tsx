@@ -1,5 +1,6 @@
-import { OfflineSnapshotProvider } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
 import { OfflineSidebar } from "@/app/(main)/_features/navigation/offline-sidebar"
+import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
+import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with-logo"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
@@ -29,11 +30,13 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             setContinue(false)
             return
         }
-        if (pathname.startsWith("/offline") && !pathname.startsWith("/offline-mode")) {
-            setContinue(true)
-            return
-        }
-        if (pathname.startsWith("/settings")) {
+
+        if (
+            pathname.startsWith("/offline") ||
+            pathname.startsWith("/settings") ||
+            pathname.startsWith("/mediastream") ||
+            pathname.startsWith("/medialinks")
+        ) {
             setContinue(true)
             return
         }
@@ -44,7 +47,10 @@ export function OfflineLayout(props: OfflineLayoutProps) {
     if (!cont) return <LoadingOverlayWithLogo />
 
     return (
-        <OfflineSnapshotProvider>
+        <>
+            <PlaybackManagerProgressTracking />
+            <ManualProgressTracking />
+
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">
                     <AppLayoutSidebar>
@@ -57,6 +63,6 @@ export function OfflineLayout(props: OfflineLayoutProps) {
                     </AppLayout>
                 </AppLayout>
             </AppSidebarProvider>
-        </OfflineSnapshotProvider>
+        </>
     )
 }

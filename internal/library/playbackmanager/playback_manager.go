@@ -478,16 +478,7 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/checkOrLoadAnimeCollection", &err)
 
-	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
-	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
-	if pm.isOffline && pm.animeCollection.IsAbsent() {
-		pm.Logger.Debug().Msg("playback manager: Loading offline AniList collection")
-		snapshot, found := pm.offlineHub.RetrieveCurrentSnapshot()
-		if !found {
-			return errors.New("could not retrieve anime collection")
-		}
-		pm.animeCollection = mo.Some(snapshot.Collections.AnimeCollection)
-	} else if pm.animeCollection.IsAbsent() {
+	if pm.animeCollection.IsAbsent() {
 		// If the anime collection is not present, we retrieve it from the platform
 		collection, err := pm.platform.GetAnimeCollection(false)
 		if err != nil {

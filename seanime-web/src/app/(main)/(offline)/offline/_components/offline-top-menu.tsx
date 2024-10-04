@@ -4,18 +4,17 @@ import { NavigationMenu, NavigationMenuProps } from "@/components/ui/navigation-
 import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 
-interface OfflineTopNavbarProps {
+interface OfflineTopMenuProps {
     children?: React.ReactNode
 }
 
-export const OfflineTopNavbar: React.FC<OfflineTopNavbarProps> = (props) => {
+export const OfflineTopMenu: React.FC<OfflineTopMenuProps> = (props) => {
 
     const { children, ...rest } = props
 
     const serverStatus = useServerStatus()
 
     const pathname = usePathname()
-
 
     const navigationItems = useMemo<NavigationMenuProps["items"]>(() => {
 
@@ -27,9 +26,9 @@ export const OfflineTopNavbar: React.FC<OfflineTopNavbarProps> = (props) => {
                 name: "My library",
             },
             ...[serverStatus?.settings?.library?.enableManga && {
-                href: "/offline#manga",
+                href: "/offline/manga",
                 icon: null,
-                isCurrent: pathname.includes("/offline#manga"),
+                isCurrent: pathname.includes("/offline/manga"),
                 name: "Manga",
             }].filter(Boolean) as NavigationMenuProps["items"],
         ].filter(Boolean)

@@ -293,9 +293,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             episodes={progressTotal}
                         />
 
-                        {!serverStatus?.isOffline ?
-                            <AnilistMediaEntryModal listData={listData} media={media} type={type} /> :
-                            offlineAnilistAnimeEntryModal}
+                        <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
                         <p className="text-base text-white md:text-lg">{capitalize(listData?.status === "CURRENT"
                             ? type === "anime" ? "watching" : "reading"

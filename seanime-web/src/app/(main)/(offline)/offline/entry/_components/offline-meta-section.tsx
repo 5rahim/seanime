@@ -1,7 +1,5 @@
 "use client"
-import { AL_BaseAnime, AL_BaseManga, Offline_AnimeEntry, Offline_AssetMapImageMap, Offline_MangaEntry } from "@/api/generated/types"
-import { OfflineAnilistMediaEntryModal } from "@/app/(main)/(offline)/offline/_containers/offline-anilist-media-entry-modal"
-import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
+import { AL_BaseAnime, AL_BaseManga, Anime_Entry, Manga_Entry } from "@/api/generated/types"
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import {
     MediaPageHeader,
@@ -12,29 +10,26 @@ import React from "react"
 
 type OfflineMetaSectionProps<T extends "anime" | "manga"> = {
     type: T,
-    entry: T extends "anime" ? Offline_AnimeEntry : Offline_MangaEntry
-    assetMap: Offline_AssetMapImageMap | undefined
+    entry: T extends "anime" ? Anime_Entry : Manga_Entry
 }
 
 export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMetaSectionProps<T>) {
 
-    const { type, entry, assetMap } = props
+    const { type, entry } = props
 
     if (!entry?.media) return null
 
     return (
         <MediaPageHeader
-            backgroundImage={offline_getAssetUrl(entry.media?.bannerImage, assetMap)
-                || offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)}
+            backgroundImage={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge}
         >
 
             <MediaPageHeaderDetailsContainer>
 
                 <MediaPageHeaderEntryDetails
-                    coverImage={offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)
-                        || offline_getAssetUrl(entry.media.coverImage?.extraLarge, assetMap)}
-                    color={entry.media?.coverImage?.color}
+                    coverImage={entry.media?.coverImage?.extraLarge || entry.media?.coverImage?.large}
                     title={entry.media?.title?.userPreferred}
+                    color={entry.media?.coverImage?.color}
                     englishTitle={entry.media?.title?.english}
                     romajiTitle={entry.media?.title?.romaji}
                     startDate={entry.media?.startDate}
@@ -44,13 +39,7 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
                     description={entry.media?.description}
                     listData={entry.listData}
                     media={entry.media}
-                    type={type}
-                    offlineAnilistAnimeEntryModal={<OfflineAnilistMediaEntryModal
-                        media={entry.media}
-                        assetMap={assetMap}
-                        type={type}
-                        listData={entry.listData}
-                    />}
+                    type="anime"
                 />
 
 

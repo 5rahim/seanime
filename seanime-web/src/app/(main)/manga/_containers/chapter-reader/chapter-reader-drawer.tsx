@@ -1,6 +1,5 @@
-import { AL_BaseManga, AL_MediaListStatus, Manga_ChapterContainer, Manga_EntryListData } from "@/api/generated/types"
+import { AL_BaseManga, Manga_ChapterContainer, Manga_EntryListData } from "@/api/generated/types"
 import { useGetMangaEntryPages, useUpdateMangaProgress } from "@/api/hooks/manga.hooks"
-import { useUpdateOfflineEntryListData } from "@/api/hooks/offline.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
@@ -93,9 +92,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     /**
      * Update the progress when the user confirms
      */
-    const { mutate: updateProgress, isPending: _isUpdatingProgress } = useUpdateMangaProgress(entry.mediaId)
-    const { mutate: updateProgressOffline, isPending: isUpdatingProgressOffline } = useUpdateOfflineEntryListData()
-    const isUpdatingProgress = _isUpdatingProgress || isUpdatingProgressOffline
+    const { mutate: updateProgress, isPending: isUpdatingProgress } = useUpdateMangaProgress(entry.mediaId)
 
     /**
      * Switch back to PAGED mode if the page dimensions could not be fetched efficiently
@@ -135,39 +132,16 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const handleUpdateProgress = () => {
         if (shouldUpdateProgress && !isUpdatingProgress) {
 
-            if (!serverStatus?.isOffline) {
-
-                updateProgress({
-                    chapterNumber: chapterIdToNumbersMap.get(currentChapter?.chapterId || "") || 0,
-                    mediaId: entry.mediaId,
-                    malId: entry.media?.idMal || undefined,
-                    totalChapters: entry.media?.chapters || 0,
-                }, {
-                    onSuccess: () => {
-                        goToChapter("next")
-                    },
-                })
-
-            } else {
-
-                let progress = chapterIdToNumbersMap.get(currentChapter?.chapterId || "") || 0
-                let status = "CURRENT"
-                if (!!entry.media?.chapters && progress >= entry.media?.chapters) {
-                    progress = entry.media?.chapters
-                    status = "COMPLETED"
-                }
-                updateProgressOffline({
-                    mediaId: entry.mediaId,
-                    type: "manga",
-                    progress: progress,
-                    status: status as AL_MediaListStatus,
-                }, {
-                    onSuccess: () => {
-                        goToChapter("next")
-                    },
-                })
-
-            }
+            updateProgress({
+                chapterNumber: chapterIdToNumbersMap.get(currentChapter?.chapterId || "") || 0,
+                mediaId: entry.mediaId,
+                malId: entry.media?.idMal || undefined,
+                totalChapters: entry.media?.chapters || 0,
+            }, {
+                onSuccess: () => {
+                    goToChapter("next")
+                },
+            })
 
         }
     }

@@ -1,4 +1,5 @@
-import { HibikeManga_ChapterDetails, Manga_ChapterContainer, Offline_MangaEntry } from "@/api/generated/types"
+import { HibikeManga_ChapterDetails, Manga_ChapterContainer, Manga_Entry } from "@/api/generated/types"
+import { useGetMangaEntryDownloadedChapters } from "@/api/hooks/manga.hooks"
 import { ChapterReaderDrawer } from "@/app/(main)/manga/_containers/chapter-reader/chapter-reader-drawer"
 import { __manga_selectedChapterAtom } from "@/app/(main)/manga/_lib/handle-chapter-reader"
 import { useHandleMangaDownloadData } from "@/app/(main)/manga/_lib/handle-manga-downloads"
@@ -7,12 +8,13 @@ import { primaryPillCheckboxClasses } from "@/components/shared/classnames"
 import { IconButton } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useSetAtom } from "jotai"
 import React from "react"
 import { GiOpenBook } from "react-icons/gi"
 
 type OfflineChapterListProps = {
-    entry: Offline_MangaEntry | undefined
+    entry: Manga_Entry | undefined
     children?: React.ReactNode
 }
 
@@ -24,6 +26,8 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
         ...rest
     } = props
 
+    const { data: chapterContainers, isLoading } = useGetMangaEntryDownloadedChapters(entry?.mediaId)
+
     /**
      * Set selected chapter
      */
@@ -33,8 +37,8 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
     useHandleMangaDownloadData(entry?.mediaId)
 
     const chapters = React.useMemo(() => {
-        return entry?.chapterContainers?.flatMap(n => n.chapters)?.filter(Boolean) ?? []
-    }, [entry?.chapterContainers])
+        return chapterContainers?.flatMap(n => n.chapters)?.filter(Boolean) ?? []
+    }, [chapterContainers])
 
 
     const chapterNumbersMap = React.useMemo(() => {
@@ -45,7 +49,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
         }
 
         return map
-    }, [entry?.chapterContainers])
+    }, [chapterContainers])
 
     const [selectedChapterContainer, setSelectedChapterContainer] = React.useState<Manga_ChapterContainer | undefined>(undefined)
 
@@ -83,7 +87,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
                             size="sm"
                             onClick={() => {
                                 // setProvider(row.original.provider)
-                                setSelectedChapterContainer(entry?.chapterContainers?.find(c => c.provider === row.original.provider))
+                                setSelectedChapterContainer(chapterContainers?.find(c => c.provider === row.original.provider))
                                 React.startTransition(() => {
                                     setSelectedChapter({
                                         chapterId: row.original.id,
@@ -108,7 +112,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
 
         const chapterNumber = chapterNumbersMap.get(chapter.id)
         return !!chapterNumber && chapterNumber > entry.listData?.progress
-    }, [chapterNumbersMap, entry?.chapterContainers, entry])
+    }, [chapterNumbersMap, chapterContainers, entry])
 
     const unreadChapters = React.useMemo(() => chapters.filter(ch => retainUnreadChapters(ch)) ?? [],
         [chapters, entry])
@@ -121,7 +125,7 @@ export function OfflineChapterList(props: OfflineChapterListProps) {
         return showUnreadChapter ? unreadChapters : chapters
     }, [showUnreadChapter, chapters, unreadChapters])
 
-    if (!entry) return null
+    if (!entry || isLoading) return <LoadingSpinner />
 
     return (
         <>

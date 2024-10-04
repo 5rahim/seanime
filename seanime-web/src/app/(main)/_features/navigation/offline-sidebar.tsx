@@ -1,6 +1,5 @@
 "use client"
-import { useOfflineSnapshot } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot-context"
-import { offline_getAssetUrl } from "@/app/(main)/(offline)/offline/_lib/offline-snapshot.utils"
+import { SidebarNavbar } from "@/app/(main)/_features/layout/top-navbar"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
@@ -18,13 +17,11 @@ export function OfflineSidebar() {
     const serverStatus = useServerStatus()
     const ctx = useAppSidebarContext()
     const ts = useThemeSettings()
-    const { snapshot } = useOfflineSnapshot()
 
     const [expandedSidebar, setExpandSidebar] = React.useState(false)
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
     const pathname = usePathname()
-
 
     const handleExpandSidebar = () => {
         if (!ctx.isBelowBreakpoint && ts.expandSidebarOnHover) {
@@ -75,12 +72,19 @@ export function OfflineSidebar() {
                             ...[serverStatus?.settings?.library?.enableManga && {
                                 iconType: FaBookReader,
                                 name: "Manga",
-                                href: "/offline#manga",
-                                isCurrent: pathname.startsWith("/offline#manga"),
+                                href: "/offline/manga",
+                                isCurrent: pathname.startsWith("/offline/manga"),
                             }].filter(Boolean) as any,
                         ].filter(Boolean)}
                         onLinkItemClick={() => ctx.setOpen(false)}
                     />
+
+                    <SidebarNavbar
+                        isCollapsed={isCollapsed}
+                        handleExpandSidebar={() => {}}
+                        handleUnexpandedSidebar={() => {}}
+                    />
+
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
                     <div>
@@ -108,9 +112,8 @@ export function OfflineSidebar() {
                             <Avatar
                                 size="sm"
                                 className="cursor-pointer"
-                                src={offline_getAssetUrl(snapshot?.user?.viewer?.avatar?.medium, snapshot?.assetMap) || ""}
                             />
-                            {expandedSidebar && <p className="truncate">{snapshot?.user?.viewer?.name}</p>}
+                            {expandedSidebar && <p className="truncate">Offline</p>}
                         </div>
                     </div>
                 </div>

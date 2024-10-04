@@ -44,9 +44,7 @@ export function AnimeEntryPage() {
     }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.fallbackToTorrentStreamingView, isTorrentStreamingView])
 
     React.useEffect(() => {
-        if (!mediaId) {
-            router.push("/")
-        } else if (!animeEntryLoading && !animeEntry) {
+        if (!mediaId || (!animeEntryLoading && !animeEntry)) {
             router.push("/")
         }
     }, [animeEntry, animeEntryLoading])

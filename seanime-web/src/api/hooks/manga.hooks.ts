@@ -184,3 +184,11 @@ export function useRemoveMangaMapping() {
         },
     })
 }
+
+export function useGetMangaEntryDownloadedChapters(mId: Nullish<string | number>) {
+    return useServerQuery<Array<Manga_ChapterContainer>>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.endpoint.replace("{id}", String(mId)),
+        method: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.key, String(mId)],
+    })
+}

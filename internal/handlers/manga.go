@@ -252,6 +252,32 @@ func HandleGetMangaEntryPages(c *RouteCtx) error {
 	return c.RespondWithData(container)
 }
 
+// HandleGetMangaEntryDownloadedChapters
+//
+//	@summary returns all download chapters for a manga entry,
+//	@route /api/v1/manga/downloaded-chapters/{id} [GET]
+//	@param id - int - true - "AniList manga media ID"
+//	@returns []manga.ChapterContainer
+func HandleGetMangaEntryDownloadedChapters(c *RouteCtx) error {
+
+	mId, err := c.Fiber.ParamsInt("id")
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	mangaCollection, err := c.App.GetMangaCollection(false)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	container, err := c.App.MangaRepository.GetDownloadedMangaChapterContainers(mId, mangaCollection)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(container)
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (

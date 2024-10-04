@@ -709,6 +709,20 @@ export type GetMangaEntryPages_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/downloaded-chapters/{id}
+ * @description
+ * Route returns all download chapters for a manga entry,
+ */
+export type GetMangaEntryDownloadedChapters_Variables = {
+    /**
+     *  AniList manga media ID
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
  * - Endpoint: /api/v1/manga/anilist/list
  * @description
  * Route returns a list of manga based on the search parameters.

@@ -187,7 +187,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
                         if (!serverStatus?.isOffline) {
                             router.push(`/entry?id=${episode.baseAnime?.id}`)
                         } else {
-                            router.push(`/offline/anime?id=${episode.baseAnime?.id}`)
+                            router.push(`/offline/entry/anime?id=${episode.baseAnime?.id}`)
                         }
                     })
                 } else {

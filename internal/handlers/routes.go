@@ -321,6 +321,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
 	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
+	v1Manga.Get("/downloaded-chapters/:id", makeHandler(app, HandleGetMangaEntryDownloadedChapters))
 	v1Manga.Get("/downloads", makeHandler(app, HandleGetMangaDownloadsList))
 	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
 	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
