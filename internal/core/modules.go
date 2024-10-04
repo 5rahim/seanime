@@ -18,7 +18,6 @@ import (
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
 	"seanime/internal/notifier"
-	"seanime/internal/offline"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
@@ -31,26 +30,9 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
 
-	// +---------------------+
-	// |     Offline Hub     |
-	// +---------------------+
-
-	// Will exit if offline mode is enabled and no snapshots are found
-	a.OfflineHub = offline.NewHub(&offline.NewHubOptions{
-		Platform:         a.AnilistPlatform,
-		MetadataProvider: a.MetadataProvider,
-		MangaRepository:  a.MangaRepository,
-		WSEventManager:   a.WSEventManager,
-		Database:         a.Database,
-		FileCacher:       a.FileCacher,
-		Logger:           a.Logger,
-		OfflineDir:       a.Config.Offline.Dir,
-		AssetDir:         a.Config.Offline.AssetDir,
-		IsOffline:        a.Config.Server.Offline,
-		RefreshAnimeCollectionsFunc: func() {
-			_, _ = a.RefreshAnimeCollection()
-			_, _ = a.RefreshMangaCollection()
-		},
+	a.SyncManager.SetRefreshAnilistCollectionsFunc(func() {
+		_, _ = a.RefreshAnimeCollection()
+		_, _ = a.RefreshMangaCollection()
 	})
 
 	// +---------------------+
@@ -93,7 +75,6 @@ func (a *App) initModulesOnce() {
 		Database:          a.Database,
 		DiscordPresence:   a.DiscordPresence,
 		IsOffline:         a.IsOffline(),
-		OfflineHub:        a.OfflineHub,
 		ContinuityManager: a.ContinuityManager,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()

@@ -356,16 +356,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Discord.Post("/presence/cancel", makeHandler(app, HandleCancelDiscordActivity))
 
 	//
-	// Offline
-	//
-
-	v1.Get("/offline/snapshot", makeHandler(app, HandleGetOfflineSnapshot))
-	v1.Get("/offline/snapshot-entry", makeHandler(app, HandleGetOfflineSnapshotEntry))
-	v1.Post("/offline/snapshot", makeHandler(app, HandleCreateOfflineSnapshot))
-	v1.Patch("/offline/snapshot-entry", makeHandler(app, HandleUpdateOfflineEntryListData))
-	v1.Post("/offline/sync", makeHandler(app, HandleSyncOfflineData))
-
-	//
 	// Media Stream
 	//
 	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
@@ -427,6 +417,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Sync.Get("/track/:id/:type", makeHandler(app, HandleSyncGetIsMediaTracked))
 	v1Sync.Post("/local", makeHandler(app, HandleSyncLocalData))
 	v1Sync.Get("/queue", makeHandler(app, HandleSyncGetQueueState))
+	v1Sync.Post("/anilist", makeHandler(app, HandleSyncAnilistData))
 
 	//
 	// Websocket

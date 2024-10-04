@@ -26,7 +26,6 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
-	"seanime/internal/offline"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/local_platform"
@@ -77,7 +76,6 @@ type (
 		MangaDownloader         *manga.Downloader
 		ContinuityManager       *continuity.Manager
 		Cleanups                []func()
-		OfflineHub              *offline.Hub
 		MediastreamRepository   *mediastream.Repository
 		TorrentstreamRepository *torrentstream.Repository
 		FeatureFlags            FeatureFlags
@@ -178,6 +176,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:       database,
 	})
 
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+
 	// Platforms
 	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
 		LocalDir:         cfg.Offline.Dir,
@@ -187,6 +187,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MangaRepository:  mangaRepository,
 		Database:         database,
 		WSEventManager:   wsEventManager,
+		IsOffline:        cfg.Server.Offline,
+		AnilistPlatform:  anilistPlatform,
 	})
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize sync manager")
@@ -196,7 +198,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		activeMetadataProvider = syncManager.GetLocalMetadataProvider()
 	}
 
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
@@ -251,7 +252,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		AutoScanner:                   nil, // Initialized in App.initModulesOnce
 		MediastreamRepository:         nil, // Initialized in App.initModulesOnce
 		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
-		OfflineHub:                    nil, // Initialized in App.initModulesOnce
 		ContinuityManager:             nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules

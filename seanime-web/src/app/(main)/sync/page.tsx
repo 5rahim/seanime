@@ -1,6 +1,6 @@
 "use client"
 import { Sync_QueueState } from "@/api/generated/types"
-import { useSyncGetTrackedMediaItems, useSyncLocalData } from "@/api/hooks/sync.hooks"
+import { useSyncAnilistData, useSyncGetTrackedMediaItems, useSyncLocalData } from "@/api/hooks/sync.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -27,6 +27,8 @@ export default function Page() {
 
     const { mutate: syncLocal, isPending: isSyncingLocal } = useSyncLocalData()
 
+    const { mutate: syncAnilist, isPending: isSyncingAnilist } = useSyncAnilistData()
+
     const trackedAnimeItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "anime" && !!n.animeEntry?.media) ?? []
     }, [trackedMediaItems])
@@ -45,6 +47,14 @@ export default function Page() {
 
     function handleSyncLocal() {
         syncLocal(undefined, {
+            onSuccess: () => {
+                setSyncModalOpen(false)
+            },
+        })
+    }
+
+    function handleSyncAnilist() {
+        syncAnilist(undefined, {
             onSuccess: () => {
                 setSyncModalOpen(false)
             },
@@ -88,6 +98,7 @@ export default function Page() {
                                 className="w-full"
                                 leftIcon={<LuDownloadCloud className="text-2xl" />}
                                 loading={isSyncingLocal}
+                                disabled={isSyncingAnilist}
                                 onClick={handleSyncLocal}
                             >
                                 Update local data
@@ -104,6 +115,8 @@ export default function Page() {
                                 className="w-full"
                                 leftIcon={<LuUploadCloud className="text-2xl" />}
                                 disabled={isSyncingLocal}
+                                loading={isSyncingAnilist}
+                                onClick={handleSyncAnilist}
                             >
                                 Update AniList data
                             </Button>

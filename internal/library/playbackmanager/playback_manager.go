@@ -14,7 +14,6 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
-	"seanime/internal/offline"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"sync"
@@ -94,7 +93,6 @@ type (
 		playlistHub *playlistHub // The playlist hub
 
 		isOffline       bool
-		offlineHub      offline.HubInterface
 		animeCollection mo.Option[*anilist.AnimeCollection]
 	}
 
@@ -121,7 +119,6 @@ type (
 		RefreshAnimeCollectionFunc func() // This function is called to refresh the AniList collection
 		DiscordPresence            *discordrpc_presence.Presence
 		IsOffline                  bool
-		OfflineHub                 offline.HubInterface
 		ContinuityManager          *continuity.Manager
 	}
 
@@ -144,7 +141,6 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		eventMu:                        sync.Mutex{},
 		historyMap:                     make(map[string]PlaybackState),
 		isOffline:                      opts.IsOffline,
-		offlineHub:                     opts.OfflineHub,
 		nextEpisodeLocalFile:           mo.None[*anime.LocalFile](),
 		currentStreamEpisodeCollection: mo.None[*anime.EpisodeCollection](),
 		currentStreamEpisode:           mo.None[*anime.Episode](),
@@ -402,8 +398,6 @@ func (pm *PlaybackManager) StartPlaylist(playlist *anime.Playlist) (err error) {
 
 	pm.playlistHub.loadPlaylist(playlist)
 
-	// When offline, pm.animeCollection is nil because SetAnimeCollection is not called
-	// So, when starting a video, we retrieve the AnimeCollection from the OfflineHub
 	_ = pm.checkOrLoadAnimeCollection()
 
 	// Play the first video in the playlist

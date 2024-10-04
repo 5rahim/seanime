@@ -154,6 +154,27 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 		}
 	}
 
+	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
+		mangaCollection := lp.syncManager.GetLocalMangaCollection().MustGet()
+
+		// Find the entry
+		for _, list := range mangaCollection.MediaListCollection.Lists {
+			for _, entry := range list.Entries {
+				if entry.Media.ID == mediaID {
+					// Update the entry
+					entry.Progress = &progress
+					if totalEpisodes != nil {
+						entry.Media.Chapters = totalEpisodes
+					}
+
+					// Save the collection
+					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
+					return nil
+				}
+			}
+		}
+	}
+
 	return ErrMediaNotFound
 }
 

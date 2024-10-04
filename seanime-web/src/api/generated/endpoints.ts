@@ -995,55 +995,6 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/metadata-provider/filler",
         },
     },
-    OFFLINE: {
-        /**
-         *  @description
-         *  Route creates an offline snapshot.
-         *  This will create an offline snapshot of the given anime media ids and downloaded manga chapters.
-         *  It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.
-         *  This is a non-blocking operation.
-         */
-        CreateOfflineSnapshot: {
-            key: "OFFLINE-create-offline-snapshot",
-            methods: ["POST"],
-            endpoint: "/api/v1/offline/snapshot",
-        },
-        /**
-         *  @description
-         *  Route retrieves the offline snapshot.
-         *  This will return the latest offline snapshot. (Offline only)
-         */
-        GetOfflineSnapshot: {
-            key: "OFFLINE-get-offline-snapshot",
-            methods: ["GET"],
-            endpoint: "/api/v1/offline/snapshot",
-        },
-        /**
-         *  @description
-         *  Route retrieves an offline snapshot entry.
-         *  This will return the latest offline snapshot entry so the client can display the data.
-         */
-        GetOfflineSnapshotEntry: {
-            key: "OFFLINE-get-offline-snapshot-entry",
-            methods: ["GET"],
-            endpoint: "/api/v1/offline/snapshot-entry",
-        },
-        /**
-         *  @description
-         *  Route updates data for an offline entry list.
-         *  This will update the offline entry list data. (Offline only)
-         */
-        UpdateOfflineEntryListData: {
-            key: "OFFLINE-update-offline-entry-list-data",
-            methods: ["PATCH"],
-            endpoint: "/api/v1/offline/snapshot-entry",
-        },
-        SyncOfflineData: {
-            key: "OFFLINE-sync-offline-data",
-            methods: ["POST"],
-            endpoint: "/api/v1/offline/sync",
-        },
-    },
     ONLINESTREAM: {
         /**
          *  @description
@@ -1421,6 +1372,11 @@ export const API_ENDPOINTS = {
             key: "SYNC-sync-get-queue-state",
             methods: ["GET"],
             endpoint: "/api/v1/sync/queue",
+        },
+        SyncAnilistData: {
+            key: "SYNC-sync-anilist-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/anilist",
         },
     },
     THEME: {

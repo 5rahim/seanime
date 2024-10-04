@@ -25412,16 +25412,6 @@
         "comments": []
       },
       {
-        "name": "OfflineHub",
-        "jsonName": "OfflineHub",
-        "goType": "offline.Hub",
-        "typescriptType": "Offline_Hub",
-        "usedStructName": "offline.Hub",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "MediastreamRepository",
         "jsonName": "MediastreamRepository",
         "goType": "mediastream.Repository",
@@ -35132,16 +35122,6 @@
         "comments": []
       },
       {
-        "name": "offlineHub",
-        "jsonName": "offlineHub",
-        "goType": "offline.HubInterface",
-        "typescriptType": "Offline_HubInterface",
-        "usedStructName": "offline.HubInterface",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "animeCollection",
         "jsonName": "animeCollection",
         "goType": "",
@@ -35339,16 +35319,6 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OfflineHub",
-        "jsonName": "OfflineHub",
-        "goType": "offline.HubInterface",
-        "typescriptType": "Offline_HubInterface",
-        "usedStructName": "offline.HubInterface",
-        "required": false,
         "public": true,
         "comments": []
       },
@@ -45629,6 +45599,15 @@
         "comments": []
       },
       {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "logger",
         "jsonName": "logger",
         "goType": "zerolog.Logger",
@@ -45674,6 +45653,16 @@
         "goType": "metadata.Provider",
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistPlatform",
+        "jsonName": "anilistPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
         "required": false,
         "public": false,
         "comments": []
@@ -45867,6 +45856,25 @@
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistPlatform",
+        "jsonName": "AnilistPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }

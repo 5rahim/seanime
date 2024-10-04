@@ -73,3 +73,25 @@ export function useSyncGetIsMediaTracked(id: number, type: string) {
         enabled: true,
     })
 }
+
+export function useSyncAnilistData() {
+    const qc = useQueryClient()
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.SYNC.SyncAnilistData.endpoint,
+        method: API_ENDPOINTS.SYNC.SyncAnilistData.methods[0],
+        mutationKey: [API_ENDPOINTS.SYNC.SyncAnilistData.key],
+        onSuccess: async () => {
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetRawAnimeCollection.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetAnilistMangaCollection.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetRawAnilistMangaCollection.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaCollection.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes] })
+            toast.success("Updated Anilist data")
+        },
+    })
+}

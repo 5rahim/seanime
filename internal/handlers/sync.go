@@ -114,3 +114,16 @@ func HandleSyncLocalData(c *RouteCtx) error {
 func HandleSyncGetQueueState(c *RouteCtx) error {
 	return c.RespondWithData(c.App.SyncManager.GetQueue().GetQueueState())
 }
+
+// HandleSyncAnilistData
+//
+//	@summary syncs AniList data with local.
+//	@route /api/v1/sync/anilist [POST]
+//	@returns bool
+func HandleSyncAnilistData(c *RouteCtx) error {
+	err := c.App.SyncManager.SynchronizeAnilist()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+	return c.RespondWithData(true)
+}

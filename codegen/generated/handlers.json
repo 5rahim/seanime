@@ -4510,231 +4510,6 @@
     }
   },
   {
-    "name": "HandleCreateOfflineSnapshot",
-    "trimmedName": "CreateOfflineSnapshot",
-    "comments": [
-      "HandleCreateOfflineSnapshot",
-      "",
-      "\t@summary creates an offline snapshot.",
-      "\t@desc This will create an offline snapshot of the given anime media ids and downloaded manga chapters.",
-      "\t@desc It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.",
-      "\t@desc This is a non-blocking operation.",
-      "\t@route /api/v1/offline/snapshot [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "creates an offline snapshot.",
-      "descriptions": [
-        "This will create an offline snapshot of the given anime media ids and downloaded manga chapters.",
-        "It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.",
-        "This is a non-blocking operation."
-      ],
-      "endpoint": "/api/v1/offline/snapshot",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "AnimeMediaIds",
-          "jsonName": "animeMediaIds",
-          "goType": "[]int",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cnumber\u003e",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleGetOfflineSnapshot",
-    "trimmedName": "GetOfflineSnapshot",
-    "comments": [
-      "HandleGetOfflineSnapshot",
-      "",
-      "\t@summary retrieves the offline snapshot.",
-      "\t@desc This will return the latest offline snapshot. (Offline only)",
-      "\t@route /api/v1/offline/snapshot [GET]",
-      "\t@returns offline.Snapshot",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "retrieves the offline snapshot.",
-      "descriptions": [
-        "This will return the latest offline snapshot. (Offline only)"
-      ],
-      "endpoint": "/api/v1/offline/snapshot",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "offline.Snapshot",
-      "returnGoType": "offline.Snapshot",
-      "returnTypescriptType": "Offline_Snapshot"
-    }
-  },
-  {
-    "name": "HandleGetOfflineSnapshotEntry",
-    "trimmedName": "GetOfflineSnapshotEntry",
-    "comments": [
-      "HandleGetOfflineSnapshotEntry",
-      "",
-      "\t@summary retrieves an offline snapshot entry.",
-      "\t@desc This will return the latest offline snapshot entry so the client can display the data.",
-      "\t@route /api/v1/offline/snapshot-entry [GET]",
-      "\t@returns offline.SnapshotEntry",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "retrieves an offline snapshot entry.",
-      "descriptions": [
-        "This will return the latest offline snapshot entry so the client can display the data."
-      ],
-      "endpoint": "/api/v1/offline/snapshot-entry",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "offline.SnapshotEntry",
-      "returnGoType": "offline.SnapshotEntry",
-      "returnTypescriptType": "Offline_SnapshotEntry"
-    }
-  },
-  {
-    "name": "HandleUpdateOfflineEntryListData",
-    "trimmedName": "UpdateOfflineEntryListData",
-    "comments": [
-      "HandleUpdateOfflineEntryListData",
-      "",
-      "\t@summary updates data for an offline entry list.",
-      "\t@desc This will update the offline entry list data. (Offline only)",
-      "\t@route /api/v1/offline/snapshot-entry [PATCH]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "updates data for an offline entry list.",
-      "descriptions": [
-        "This will update the offline entry list data. (Offline only)"
-      ],
-      "endpoint": "/api/v1/offline/snapshot-entry",
-      "methods": [
-        "PATCH"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Status",
-          "jsonName": "status",
-          "goType": "anilist.MediaListStatus",
-          "usedStructType": "anilist.MediaListStatus",
-          "typescriptType": "AL_MediaListStatus",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Score",
-          "jsonName": "score",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Progress",
-          "jsonName": "progress",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "StartDate",
-          "jsonName": "startDate",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "EndDate",
-          "jsonName": "endDate",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Type",
-          "jsonName": "type",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleSyncOfflineData",
-    "trimmedName": "SyncOfflineData",
-    "comments": [
-      "HandleSyncOfflineData",
-      "",
-      "\t@summary synchronizes offline data with AniList when the user is back online.",
-      "\t@route /api/v1/offline/sync [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "synchronizes offline data with AniList when the user is back online.",
-      "descriptions": [],
-      "endpoint": "/api/v1/offline/sync",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
     "name": "HandleGetOnlineStreamEpisodeList",
     "trimmedName": "GetOnlineStreamEpisodeList",
     "comments": [
@@ -6642,6 +6417,33 @@
       "returns": "sync.QueueState",
       "returnGoType": "sync.QueueState",
       "returnTypescriptType": "Sync_QueueState"
+    }
+  },
+  {
+    "name": "HandleSyncAnilistData",
+    "trimmedName": "SyncAnilistData",
+    "comments": [
+      "HandleSyncAnilistData",
+      "",
+      "\t@summary syncs AniList data with local.",
+      "\t@route /api/v1/sync/anilist [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "syncs AniList data with local.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/anilist",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {

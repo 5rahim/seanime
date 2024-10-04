@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"github.com/samber/mo"
-	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
@@ -511,40 +510,4 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 	pm.Logger.Info().Msg("playback manager: Updated progress on AniList")
 
 	return nil
-}
-
-func (pm *PlaybackManager) updateProgressOffline() (err error) {
-	if pm.currentLocalFileWrapperEntry.IsAbsent() || pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() {
-		return errors.New("no video is being watched or media data is missing")
-	}
-
-	mediaId := pm.currentMediaListEntry.MustGet().GetMedia().GetID()
-	epNum := pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet())
-	totalEpisodes := pm.currentMediaListEntry.MustGet().GetMedia().GetTotalEpisodeCount()
-
-	return pm.updateProgressOfflineWithVars(mediaId, epNum, totalEpisodes)
-}
-
-func (pm *PlaybackManager) updateProgressOfflineWithVars(
-	mediaId int,
-	epNum int,
-	totalEpisodes int,
-) (err error) {
-
-	totalEp := 0
-	if totalEpisodes != 0 && totalEpisodes > 0 {
-		totalEp = totalEpisodes
-	}
-
-	status := anilist.MediaListStatusCurrent
-	if totalEp > 0 && epNum >= totalEp {
-		status = anilist.MediaListStatusCompleted
-	}
-
-	if totalEp > 0 && epNum > totalEp {
-		epNum = totalEp
-	}
-
-	return pm.offlineHub.UpdateAnimeListStatus(mediaId, epNum, status)
-
 }
