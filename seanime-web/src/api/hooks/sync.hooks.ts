@@ -1,5 +1,5 @@
 import { useServerMutation, useServerQuery } from "@/api/client/requests"
-import { SyncAddMedia_Variables, SyncRemoveMedia_Variables } from "@/api/generated/endpoint.types"
+import { SyncAddMedia_Variables, SyncRemoveMedia_Variables, SyncSetHasLocalChanges_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Sync_QueueState, Sync_TrackedMediaItem } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -93,5 +93,26 @@ export function useSyncAnilistData() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes] })
             toast.success("Updated Anilist data")
         },
+    })
+}
+
+export function useSyncSetHasLocalChanges() {
+    const qc = useQueryClient()
+    return useServerMutation<boolean, SyncSetHasLocalChanges_Variables>({
+        endpoint: API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.endpoint,
+        method: API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.methods[0],
+        mutationKey: [API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.key],
+        onSuccess: async () => {
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.key] })
+        },
+    })
+}
+
+export function useSyncGetHasLocalChanges() {
+    return useServerQuery<boolean>({
+        endpoint: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.endpoint,
+        method: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.methods[0],
+        queryKey: [API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.key],
+        enabled: true,
     })
 }

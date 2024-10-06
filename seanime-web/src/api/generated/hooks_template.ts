@@ -1638,6 +1638,26 @@
 //     })
 // }
 
+// export function useSyncSetHasLocalChanges() {
+//     return useServerMutation<boolean, SyncSetHasLocalChanges_Variables>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.methods[0],
+//         mutationKey: [API_ENDPOINTS.SYNC.SyncSetHasLocalChanges.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useSyncGetHasLocalChanges() {
+//     return useServerQuery<boolean>({
+//         endpoint: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.endpoint,
+//         method: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.methods[0],
+//         queryKey: [API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.key],
+//         enabled: true,
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // theme
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

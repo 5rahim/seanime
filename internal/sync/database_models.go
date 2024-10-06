@@ -17,6 +17,12 @@ type BaseModel struct {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+type Settings struct {
+	BaseModel
+	// Flag to determine if there are local changes that need to be synced with AniList.
+	Updated bool `gorm:"column:updated" json:"updated"`
+}
+
 type LocalCollection struct {
 	BaseModel
 	Type  string `gorm:"column:type" json:"type"`   // "anime" or "manga"

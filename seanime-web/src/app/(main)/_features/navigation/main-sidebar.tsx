@@ -231,7 +231,7 @@ export function MainSidebar() {
                                 },
                                 {
                                     iconType: IoCloudOfflineOutline,
-                                    name: "Offline sync",
+                                    name: "Offline",
                                     href: "/sync",
                                     isCurrent: pathname.includes("/sync"),
                                     addon: (syncIsActive)

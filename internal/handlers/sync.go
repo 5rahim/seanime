@@ -127,3 +127,32 @@ func HandleSyncAnilistData(c *RouteCtx) error {
 	}
 	return c.RespondWithData(true)
 }
+
+// HandleSyncSetHasLocalChanges
+//
+//	@summary sets the flag to determine if there are local changes that need to be synced with AniList.
+//	@route /api/v1/sync/updated [POST]
+//	@returns bool
+func HandleSyncSetHasLocalChanges(c *RouteCtx) error {
+	type body struct {
+		Updated bool `json:"updated"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.SyncManager.SetHasLocalChanges(b.Updated)
+	return c.RespondWithData(true)
+}
+
+// HandleSyncGetHasLocalChanges
+//
+//	@summary gets the flag to determine if there are local changes that need to be synced with AniList.
+//	@route /api/v1/sync/updated [GET]
+//	@returns bool
+func HandleSyncGetHasLocalChanges(c *RouteCtx) error {
+	updated := c.App.SyncManager.HasLocalChanges()
+	return c.RespondWithData(updated)
+}

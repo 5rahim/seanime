@@ -81,6 +81,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         autoPlayNextEpisode: false,
                                         enableWatchContinuity: false,
                                         libraryPaths: [],
+                                        autoSyncOfflineLocalData: false,
                                     },
                                     manga: {
                                         defaultMangaProvider: "",

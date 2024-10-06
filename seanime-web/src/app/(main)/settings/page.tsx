@@ -148,6 +148,7 @@ export default function Page() {
                                         autoPlayNextEpisode: data.autoPlayNextEpisode ?? false,
                                         enableWatchContinuity: data.enableWatchContinuity ?? false,
                                         libraryPaths: data.libraryPaths ?? [],
+                                        autoSyncOfflineLocalData: data.autoSyncOfflineLocalData ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -250,6 +251,7 @@ export default function Page() {
                                 autoPlayNextEpisode: status?.settings?.library?.autoPlayNextEpisode ?? false,
                                 enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,
                                 libraryPaths: status?.settings?.library?.libraryPaths ?? [],
+                                autoSyncOfflineLocalData: status?.settings?.library?.autoSyncOfflineLocalData ?? false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -295,6 +297,16 @@ export default function Page() {
                                 <Field.Switch
                                     name="disableAutoScannerNotifications"
                                     label="Disable Auto Scanner notifications"
+                                />
+
+                                <Separator />
+
+                                <h3>Offline</h3>
+
+                                <Field.Switch
+                                    name="autoSyncOfflineLocalData"
+                                    label="Automatically refresh local data"
+                                    help="Automatically refresh local data with AniList data periodically if no offline changes have been made."
                                 />
 
                                 <SettingsSubmitButton isPending={isPending} />

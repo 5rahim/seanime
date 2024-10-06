@@ -74,8 +74,9 @@ type LibrarySettings struct {
 	// v2.1+
 	AutoPlayNextEpisode bool `gorm:"column:auto_play_next_episode" json:"autoPlayNextEpisode"`
 	// v2.2+
-	EnableWatchContinuity bool         `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
-	LibraryPaths          LibraryPaths `gorm:"column:library_paths;type:text" json:"libraryPaths"`
+	EnableWatchContinuity    bool         `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
+	LibraryPaths             LibraryPaths `gorm:"column:library_paths;type:text" json:"libraryPaths"`
+	AutoSyncOfflineLocalData bool         `gorm:"column:auto_sync_offline_local_data" json:"autoSyncOfflineLocalData"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

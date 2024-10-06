@@ -1378,6 +1378,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/sync/anilist",
         },
+        SyncSetHasLocalChanges: {
+            key: "SYNC-sync-set-has-local-changes",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/updated",
+        },
+        SyncGetHasLocalChanges: {
+            key: "SYNC-sync-get-has-local-changes",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/updated",
+        },
     },
     THEME: {
         GetTheme: {

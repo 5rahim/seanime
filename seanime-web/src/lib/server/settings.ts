@@ -70,6 +70,7 @@ export const settingsSchema = z.object({
     showActiveTorrentCount: z.boolean().optional().default(false),
     enableWatchContinuity: z.boolean().optional().default(false),
     libraryPaths: z.array(z.string()).optional().default([]),
+    autoSyncOfflineLocalData: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

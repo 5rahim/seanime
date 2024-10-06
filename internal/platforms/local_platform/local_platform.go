@@ -46,6 +46,80 @@ func (lp *LocalPlatform) SetAnilistClient(client anilist.AnilistClient) {
 	// no-op
 }
 
+func rearrangeAnimeCollectionLists(animeCollection *anilist.AnimeCollection) {
+	removedEntries := make([]*anilist.AnimeCollection_MediaListCollection_Lists_Entries, 0)
+	for _, list := range animeCollection.MediaListCollection.Lists {
+		if list.GetStatus() == nil || list.GetEntries() == nil {
+			continue
+		}
+		var indicesToRemove []int
+		for idx, entry := range list.GetEntries() {
+			if entry.GetStatus() == nil {
+				continue
+			}
+			// Mark for removal if status differs
+			if *list.GetStatus() != *entry.GetStatus() {
+				indicesToRemove = append(indicesToRemove, idx)
+				removedEntries = append(removedEntries, entry)
+			}
+		}
+		// Remove entries in reverse order to avoid re-slicing issues
+		for i := len(indicesToRemove) - 1; i >= 0; i-- {
+			idx := indicesToRemove[i]
+			list.Entries = append(list.Entries[:idx], list.Entries[idx+1:]...)
+		}
+	}
+
+	// Add removed entries to the correct list
+	for _, entry := range removedEntries {
+		for _, list := range animeCollection.MediaListCollection.Lists {
+			if list.GetStatus() == nil {
+				continue
+			}
+			if *list.GetStatus() == *entry.GetStatus() {
+				list.Entries = append(list.Entries, entry)
+			}
+		}
+	}
+}
+
+func rearrangeMangaCollectionLists(mangaCollection *anilist.MangaCollection) {
+	removedEntries := make([]*anilist.MangaCollection_MediaListCollection_Lists_Entries, 0)
+	for _, list := range mangaCollection.MediaListCollection.Lists {
+		if list.GetStatus() == nil || list.GetEntries() == nil {
+			continue
+		}
+		var indicesToRemove []int
+		for idx, entry := range list.GetEntries() {
+			if entry.GetStatus() == nil {
+				continue
+			}
+			// Mark for removal if status differs
+			if *list.GetStatus() != *entry.GetStatus() {
+				indicesToRemove = append(indicesToRemove, idx)
+				removedEntries = append(removedEntries, entry)
+			}
+		}
+		// Remove entries in reverse order to avoid re-slicing issues
+		for i := len(indicesToRemove) - 1; i >= 0; i-- {
+			idx := indicesToRemove[i]
+			list.Entries = append(list.Entries[:idx], list.Entries[idx+1:]...)
+		}
+	}
+
+	// Add removed entries to the correct list
+	for _, entry := range removedEntries {
+		for _, list := range mangaCollection.MediaListCollection.Lists {
+			if list.GetStatus() == nil {
+				continue
+			}
+			if *list.GetStatus() == *entry.GetStatus() {
+				list.Entries = append(list.Entries, entry)
+			}
+		}
+	}
+}
+
 // UpdateEntry updates the entry for the given media ID.
 // It doesn't add the entry if it doesn't exist.
 func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
@@ -54,8 +128,8 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
-			for _, entry := range list.Entries {
-				if entry.Media.ID == mediaID {
+			for _, entry := range list.GetEntries() {
+				if entry.GetMedia().GetID() == mediaID {
 					// Update the entry
 					if status != nil {
 						entry.Status = status
@@ -82,7 +156,9 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 					}
 
 					// Save the collection
+					rearrangeAnimeCollectionLists(animeCollection)
 					lp.syncManager.SaveLocalAnimeCollection(animeCollection)
+					lp.syncManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -95,7 +171,7 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
 			for _, entry := range list.Entries {
-				if entry.Media.ID == mediaID {
+				if entry.GetMedia().GetID() == mediaID {
 					// Update the entry
 					if status != nil {
 						entry.Status = status
@@ -122,7 +198,9 @@ func (lp *LocalPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatu
 					}
 
 					// Save the collection
+					rearrangeMangaCollectionLists(mangaCollection)
 					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
+					lp.syncManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -138,8 +216,8 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
-			for _, entry := range list.Entries {
-				if entry.Media.ID == mediaID {
+			for _, entry := range list.GetEntries() {
+				if entry.GetMedia().GetID() == mediaID {
 					// Update the entry
 					entry.Progress = &progress
 					if totalEpisodes != nil {
@@ -147,7 +225,9 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 					}
 
 					// Save the collection
+					rearrangeAnimeCollectionLists(animeCollection)
 					lp.syncManager.SaveLocalAnimeCollection(animeCollection)
+					lp.syncManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -160,7 +240,7 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
 			for _, entry := range list.Entries {
-				if entry.Media.ID == mediaID {
+				if entry.GetMedia().GetID() == mediaID {
 					// Update the entry
 					entry.Progress = &progress
 					if totalEpisodes != nil {
@@ -168,7 +248,9 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 					}
 
 					// Save the collection
+					rearrangeMangaCollectionLists(mangaCollection)
 					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
+					lp.syncManager.SetHasLocalChanges(true)
 					return nil
 				}
 			}
@@ -190,7 +272,7 @@ func (lp *LocalPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
 			for _, entry := range list.Entries {
-				if entry.Media.ID == mediaID {
+				if entry.GetMedia().GetID() == mediaID {
 					return entry.Media, nil
 				}
 			}
@@ -207,7 +289,7 @@ func (lp *LocalPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) 
 		// Find the entry
 		for _, list := range animeCollection.MediaListCollection.Lists {
 			for _, entry := range list.Entries {
-				if entry.Media.IDMal != nil && *entry.Media.IDMal == malID {
+				if entry.GetMedia().GetIDMal() != nil && *entry.GetMedia().GetIDMal() == malID {
 					return entry.Media, nil
 				}
 			}
@@ -234,7 +316,7 @@ func (lp *LocalPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 		// Find the entry
 		for _, list := range mangaCollection.MediaListCollection.Lists {
 			for _, entry := range list.Entries {
-				if entry.Media.ID == mediaID {
+				if entry.GetMedia().GetID() == mediaID {
 					return entry.Media, nil
 				}
 			}

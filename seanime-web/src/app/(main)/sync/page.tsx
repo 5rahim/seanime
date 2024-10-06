@@ -1,11 +1,19 @@
 "use client"
 import { Sync_QueueState } from "@/api/generated/types"
-import { useSyncAnilistData, useSyncGetTrackedMediaItems, useSyncLocalData } from "@/api/hooks/sync.hooks"
+import {
+    useSyncAnilistData,
+    useSyncGetHasLocalChanges,
+    useSyncGetTrackedMediaItems,
+    useSyncLocalData,
+    useSyncSetHasLocalChanges,
+} from "@/api/hooks/sync.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -16,10 +24,13 @@ import { anilist_getListDataFromEntry } from "@/lib/helpers/media"
 import { WSEvents } from "@/lib/server/ws-events"
 import React from "react"
 import { LuDownloadCloud, LuFolderSync, LuUploadCloud } from "react-icons/lu"
+import { VscSyncIgnored } from "react-icons/vsc"
+import { toast } from "sonner"
 
 export const dynamic = "force-static"
 
 export default function Page() {
+    const serverStatus = useServerStatus()
 
     const [syncModalOpen, setSyncModalOpen] = React.useState(false)
 
@@ -28,6 +39,9 @@ export default function Page() {
     const { mutate: syncLocal, isPending: isSyncingLocal } = useSyncLocalData()
 
     const { mutate: syncAnilist, isPending: isSyncingAnilist } = useSyncAnilistData()
+
+    const { data: hasLocalChanges } = useSyncGetHasLocalChanges()
+    const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useSyncSetHasLocalChanges()
 
     const trackedAnimeItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "anime" && !!n.animeEntry?.media) ?? []
@@ -57,6 +71,17 @@ export default function Page() {
         syncAnilist(undefined, {
             onSuccess: () => {
                 setSyncModalOpen(false)
+            },
+        })
+    }
+
+    function handleIgnoreLocalChanges() {
+        syncHasLocalChanges({
+            updated: false,
+        }, {
+            onSuccess: () => {
+                toast.success("Local changes ignored.")
+                handleSyncLocal()
             },
         })
     }
@@ -92,6 +117,11 @@ export default function Page() {
                         </Button>}
                     >
                         <div className="space-y-4">
+
+                            <Alert
+                                description="Changes are irreversible."
+                            />
+
                             <Button
                                 intent="white"
                                 rounded
@@ -104,13 +134,12 @@ export default function Page() {
                                 Update local data
                             </Button>
                             <p className="text-sm">
-                                Download the latest data from AniList to your local collection.
+                                Update your local snapshots with the data from AniList.
                                 This will overwrite your local changes.
-                                This is done automatically every 30 minutes.
                             </p>
                             <Separator />
                             <Button
-                                intent="gray-outline"
+                                intent="primary-subtle"
                                 rounded
                                 className="w-full"
                                 leftIcon={<LuUploadCloud className="text-2xl" />}
@@ -118,16 +147,54 @@ export default function Page() {
                                 loading={isSyncingAnilist}
                                 onClick={handleSyncAnilist}
                             >
-                                Update AniList data
+                                Upload local changes
                             </Button>
-                            <p>
-                                Update your AniList data with the latest data from your local collection.
-                                This should be done manually.
+                            <p className="text-sm">
+                                Update your AniList lists with the data from your local snapshots.
+                                This should be done after you've made changes offline.
                             </p>
                         </div>
                     </Modal>
                 </div>
             </div>
+
+            {hasLocalChanges && <>
+                <Alert
+                    intent="warning"
+                    description={<div className="space-y-2">
+                        <p>
+                            <span>You have local changes that have not been synced to AniList.</span>
+                            {serverStatus?.settings?.library?.autoSyncOfflineLocalData &&
+                                <span> Automatic refreshing of offline data will be paused.</span>}
+                        </p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <Button
+                                intent="white"
+                                leftIcon={<LuUploadCloud className="text-2xl" />}
+                                onClick={() => {
+                                    handleSyncAnilist()
+                                    syncHasLocalChanges({
+                                        updated: false,
+                                    })
+                                }}
+                                loading={isSyncingAnilist}
+                                disabled={isChangingLocalChangeStatus}
+                            >
+                                Upload local changes
+                            </Button>
+                            <Button
+                                intent="alert"
+                                leftIcon={<VscSyncIgnored className="text-2xl" />}
+                                onClick={handleIgnoreLocalChanges}
+                                loading={isChangingLocalChangeStatus}
+                                disabled={isSyncingAnilist}
+                            >
+                                Delete local changes
+                            </Button>
+                        </div>
+                    </div>}
+                />
+            </>}
 
             {/*{(queueState && (Object.keys(queueState.animeTasks!).length > 0 || Object.keys(queueState.mangaTasks!).length > 0)) &&*/}
             {/*    <div className="border rounded-md p-2">*/}

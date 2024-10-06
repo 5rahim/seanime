@@ -5,6 +5,37 @@ import (
 	"seanime/internal/api/anilist"
 )
 
+var CurrSettings *Settings
+
+func (ldb *Database) SaveSettings(s *Settings) error {
+	s.BaseModel.ID = 1
+	CurrSettings = nil
+	return ldb.gormdb.Save(s).Error
+}
+
+func (ldb *Database) GetSettings() *Settings {
+	if CurrSettings != nil {
+		return CurrSettings
+	}
+	var s Settings
+	err := ldb.gormdb.First(&s).Error
+	if err != nil {
+		_ = ldb.SaveSettings(&Settings{
+			BaseModel: BaseModel{
+				ID: 1,
+			},
+			Updated: false,
+		})
+		return &Settings{
+			BaseModel: BaseModel{
+				ID: 1,
+			},
+			Updated: false,
+		}
+	}
+	return &s
+}
+
 func (ldb *Database) SetTrackedMedia(sm *TrackedMedia) error {
 	return ldb.gormdb.Save(sm).Error
 }

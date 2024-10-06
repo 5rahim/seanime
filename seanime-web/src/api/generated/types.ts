@@ -2368,6 +2368,7 @@ export type Models_LibrarySettings = {
     autoPlayNextEpisode: boolean
     enableWatchContinuity: boolean
     libraryPaths: Models_LibraryPaths
+    autoSyncOfflineLocalData: boolean
 }
 
 /**

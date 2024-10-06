@@ -6447,6 +6447,70 @@
     }
   },
   {
+    "name": "HandleSyncSetHasLocalChanges",
+    "trimmedName": "SyncSetHasLocalChanges",
+    "comments": [
+      "HandleSyncSetHasLocalChanges",
+      "",
+      "\t@summary sets the flag to determine if there are local changes that need to be synced with AniList.",
+      "\t@route /api/v1/sync/updated [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "sets the flag to determine if there are local changes that need to be synced with AniList.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/updated",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Updated",
+          "jsonName": "updated",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncGetHasLocalChanges",
+    "trimmedName": "SyncGetHasLocalChanges",
+    "comments": [
+      "HandleSyncGetHasLocalChanges",
+      "",
+      "\t@summary gets the flag to determine if there are local changes that need to be synced with AniList.",
+      "\t@route /api/v1/sync/updated [GET]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "gets the flag to determine if there are local changes that need to be synced with AniList.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/updated",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetTheme",
     "trimmedName": "GetTheme",
     "comments": [

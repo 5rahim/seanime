@@ -53,6 +53,8 @@ type Manager interface {
 	// SynchronizeAnilist syncs the user's AniList data with data stored in the local database.
 	SynchronizeAnilist() error
 	SetRefreshAnilistCollectionsFunc(func())
+	HasLocalChanges() bool
+	SetHasLocalChanges(bool)
 }
 
 type (
@@ -145,6 +147,8 @@ func NewManager(opts *NewManagerOptions) (Manager, error) {
 	ret.loadLocalAnimeCollection()
 	ret.loadLocalMangaCollection()
 
+	_ = ret.localDb.GetSettings()
+
 	return ret, nil
 }
 
@@ -158,6 +162,20 @@ func (m *ManagerImpl) GetQueue() *Syncer {
 
 func (m *ManagerImpl) GetLocalMetadataProvider() metadata.Provider {
 	return m.localMetadataProvider
+}
+
+func (m *ManagerImpl) HasLocalChanges() bool {
+	s := m.localDb.GetSettings()
+	return s.Updated
+}
+
+func (m *ManagerImpl) SetHasLocalChanges(b bool) {
+	s := m.localDb.GetSettings()
+	if s.Updated == b {
+		return
+	}
+	s.Updated = b
+	_ = m.localDb.SaveSettings(s)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +412,14 @@ func (m *ManagerImpl) GetTrackedMediaItems() (ret []*TrackedMediaItem) {
 // It will then update the ManagerImpl.localAnimeCollection and ManagerImpl.localMangaCollection
 func (m *ManagerImpl) SynchronizeLocal() error {
 
+	m.loadLocalAnimeCollection()
+	m.loadLocalMangaCollection()
+
+	settings := m.localDb.GetSettings()
+	if settings.Updated {
+		return fmt.Errorf("cannot sync, upload or ignore local changes before syncing")
+	}
+
 	lfs, _, err := db_bridge.GetLocalFiles(m.db)
 	if err != nil {
 		return fmt.Errorf("sync: Couldn't start syncing, failed to get local files: %w", err)
@@ -490,10 +516,10 @@ func (m *ManagerImpl) SynchronizeAnilist() error {
 
 	if localAnimeCollection, ok := m.localAnimeCollection.Get(); ok {
 		for _, list := range localAnimeCollection.MediaListCollection.Lists {
-			if list.GetStatus() == nil {
+			if list.GetStatus() == nil || list.GetEntries() == nil {
 				continue
 			}
-			for _, entry := range list.Entries {
+			for _, entry := range list.GetEntries() {
 				if entry.GetStatus() == nil {
 					continue
 				}
@@ -552,10 +578,10 @@ func (m *ManagerImpl) SynchronizeAnilist() error {
 
 	if localMangaCollection, ok := m.localMangaCollection.Get(); ok {
 		for _, list := range localMangaCollection.MediaListCollection.Lists {
-			if list.GetStatus() == nil {
+			if list.GetStatus() == nil || list.GetEntries() == nil {
 				continue
 			}
-			for _, entry := range list.Entries {
+			for _, entry := range list.GetEntries() {
 				if entry.GetStatus() == nil {
 					continue
 				}

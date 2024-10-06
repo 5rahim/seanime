@@ -418,6 +418,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Sync.Post("/local", makeHandler(app, HandleSyncLocalData))
 	v1Sync.Get("/queue", makeHandler(app, HandleSyncGetQueueState))
 	v1Sync.Post("/anilist", makeHandler(app, HandleSyncAnilistData))
+	v1Sync.Post("/updated", makeHandler(app, HandleSyncSetHasLocalChanges))
+	v1Sync.Get("/updated", makeHandler(app, HandleSyncGetHasLocalChanges))
 
 	//
 	// Websocket

@@ -62,6 +62,7 @@ func newLocalSyncDatabase(appDataDir, dbName string, logger *zerolog.Logger) (*D
 // MigrateTables performs auto migration on the database
 func migrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
+		&Settings{},
 		&LocalCollection{},
 		&AnimeSnapshot{},
 		&MangaSnapshot{},

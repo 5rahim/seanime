@@ -274,7 +274,7 @@ func (q *Syncer) synchronizeCollections() (err error) {
 						continue
 					}
 
-					editedAnime := BaseAnimeDeepCopy(_animeEntry.Media)
+					editedAnime := BaseAnimeDeepCopy(_animeEntry.GetMedia())
 					editedAnime.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedAnime.CoverImage = &anilist.BaseAnime_CoverImage{
 						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
@@ -284,31 +284,31 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					var startedAt *anilist.AnimeCollection_MediaListCollection_Lists_Entries_StartedAt
-					if _animeEntry.StartedAt != nil {
+					if _animeEntry.GetStartedAt() != nil {
 						startedAt = &anilist.AnimeCollection_MediaListCollection_Lists_Entries_StartedAt{
-							Year:  ToNewPointer(_animeEntry.StartedAt.GetYear()),
-							Month: ToNewPointer(_animeEntry.StartedAt.GetMonth()),
-							Day:   ToNewPointer(_animeEntry.StartedAt.GetDay()),
+							Year:  ToNewPointer(_animeEntry.GetStartedAt().GetYear()),
+							Month: ToNewPointer(_animeEntry.GetStartedAt().GetMonth()),
+							Day:   ToNewPointer(_animeEntry.GetStartedAt().GetDay()),
 						}
 					}
 
 					var completedAt *anilist.AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt
-					if _animeEntry.CompletedAt != nil {
+					if _animeEntry.GetCompletedAt() != nil {
 						completedAt = &anilist.AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt{
-							Year:  ToNewPointer(_animeEntry.CompletedAt.GetYear()),
-							Month: ToNewPointer(_animeEntry.CompletedAt.GetMonth()),
-							Day:   ToNewPointer(_animeEntry.CompletedAt.GetDay()),
+							Year:  ToNewPointer(_animeEntry.GetCompletedAt().GetYear()),
+							Month: ToNewPointer(_animeEntry.GetCompletedAt().GetMonth()),
+							Day:   ToNewPointer(_animeEntry.GetCompletedAt().GetDay()),
 						}
 					}
 
 					entry := &anilist.AnimeListEntry{
-						ID:          _animeEntry.ID,
-						Score:       ToNewPointer(_animeEntry.Score),
-						Progress:    ToNewPointer(_animeEntry.Progress),
-						Status:      ToNewPointer(_animeEntry.Status),
-						Notes:       ToNewPointer(_animeEntry.Notes),
-						Repeat:      ToNewPointer(_animeEntry.Repeat),
-						Private:     ToNewPointer(_animeEntry.Private),
+						ID:          _animeEntry.GetID(),
+						Score:       ToNewPointer(_animeEntry.GetScore()),
+						Progress:    ToNewPointer(_animeEntry.GetProgress()),
+						Status:      ToNewPointer(_animeEntry.GetStatus()),
+						Notes:       ToNewPointer(_animeEntry.GetNotes()),
+						Repeat:      ToNewPointer(_animeEntry.GetRepeat()),
+						Private:     ToNewPointer(_animeEntry.GetPrivate()),
 						StartedAt:   startedAt,
 						CompletedAt: completedAt,
 						Media:       editedAnime,
@@ -349,7 +349,7 @@ func (q *Syncer) synchronizeCollections() (err error) {
 						continue
 					}
 
-					editedManga := BaseMangaDeepCopy(_mangaEntry.Media)
+					editedManga := BaseMangaDeepCopy(_mangaEntry.GetMedia())
 					editedManga.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedManga.CoverImage = &anilist.BaseManga_CoverImage{
 						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
@@ -359,31 +359,31 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					var startedAt *anilist.MangaCollection_MediaListCollection_Lists_Entries_StartedAt
-					if _mangaEntry.StartedAt != nil {
+					if _mangaEntry.GetStartedAt() != nil {
 						startedAt = &anilist.MangaCollection_MediaListCollection_Lists_Entries_StartedAt{
-							Year:  ToNewPointer(_mangaEntry.StartedAt.GetYear()),
-							Month: ToNewPointer(_mangaEntry.StartedAt.GetMonth()),
-							Day:   ToNewPointer(_mangaEntry.StartedAt.GetDay()),
+							Year:  ToNewPointer(_mangaEntry.GetStartedAt().GetYear()),
+							Month: ToNewPointer(_mangaEntry.GetStartedAt().GetMonth()),
+							Day:   ToNewPointer(_mangaEntry.GetStartedAt().GetDay()),
 						}
 					}
 
 					var completedAt *anilist.MangaCollection_MediaListCollection_Lists_Entries_CompletedAt
-					if _mangaEntry.CompletedAt != nil {
+					if _mangaEntry.GetCompletedAt() != nil {
 						completedAt = &anilist.MangaCollection_MediaListCollection_Lists_Entries_CompletedAt{
-							Year:  ToNewPointer(_mangaEntry.CompletedAt.GetYear()),
-							Month: ToNewPointer(_mangaEntry.CompletedAt.GetMonth()),
-							Day:   ToNewPointer(_mangaEntry.CompletedAt.GetDay()),
+							Year:  ToNewPointer(_mangaEntry.GetCompletedAt().GetYear()),
+							Month: ToNewPointer(_mangaEntry.GetCompletedAt().GetMonth()),
+							Day:   ToNewPointer(_mangaEntry.GetCompletedAt().GetDay()),
 						}
 					}
 
 					entry := &anilist.MangaListEntry{
-						ID:          _mangaEntry.ID,
-						Score:       ToNewPointer(_mangaEntry.Score),
-						Progress:    ToNewPointer(_mangaEntry.Progress),
-						Status:      ToNewPointer(_mangaEntry.Status),
-						Notes:       ToNewPointer(_mangaEntry.Notes),
-						Repeat:      ToNewPointer(_mangaEntry.Repeat),
-						Private:     ToNewPointer(_mangaEntry.Private),
+						ID:          _mangaEntry.GetID(),
+						Score:       ToNewPointer(_mangaEntry.GetScore()),
+						Progress:    ToNewPointer(_mangaEntry.GetProgress()),
+						Status:      ToNewPointer(_mangaEntry.GetStatus()),
+						Notes:       ToNewPointer(_mangaEntry.GetNotes()),
+						Repeat:      ToNewPointer(_mangaEntry.GetRepeat()),
+						Private:     ToNewPointer(_mangaEntry.GetPrivate()),
 						StartedAt:   startedAt,
 						CompletedAt: completedAt,
 						Media:       editedManga,
@@ -582,19 +582,19 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 
 		// Create a new snapshot
 		snapshot := &AnimeSnapshot{
-			MediaId:           entry.Media.ID,
+			MediaId:           entry.GetMedia().GetID(),
 			AnimeMetadata:     LocalAnimeMetadata(*animeMetadata),
 			BannerImagePath:   bannerImage,
 			CoverImagePath:    coverImage,
 			EpisodeImagePaths: episodeImagePaths,
-			ReferenceKey:      GetAnimeReferenceKey(entry.Media, q.manager.localFiles),
+			ReferenceKey:      GetAnimeReferenceKey(entry.GetMedia(), q.manager.localFiles),
 		}
 
 		// Save the snapshot
 		err := q.manager.localDb.SaveAnimeSnapshot(snapshot)
 		if err != nil {
 			q.sendAnimeToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save anime snapshot for anime %d", entry.Media.ID)
+			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save anime snapshot for anime %d", entry.GetMedia().GetID())
 		}
 		return
 	}
@@ -607,7 +607,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 
 		snapshot := *diff.AnimeSnapshot
 		snapshot.AnimeMetadata = LocalAnimeMetadata(*animeMetadata)
-		snapshot.ReferenceKey = GetAnimeReferenceKey(entry.Media, q.manager.localFiles)
+		snapshot.ReferenceKey = GetAnimeReferenceKey(entry.GetMedia(), q.manager.localFiles)
 
 		// Get the current episode image URLs
 		currentEpisodeImageUrls := make(map[string]string)
@@ -630,7 +630,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		// Download the episode images if needed
 		if len(episodeImageUrlsToDownload) > 0 {
 			// Download only the episode images that we need to download
-			episodeImagePaths, ok := DownloadAnimeEpisodeImages(q.manager.logger, q.manager.localAssetsDir, entry.Media.ID, episodeImageUrlsToDownload)
+			episodeImagePaths, ok := DownloadAnimeEpisodeImages(q.manager.logger, q.manager.localAssetsDir, entry.GetMedia().GetID(), episodeImageUrlsToDownload)
 			if !ok {
 				// DownloadAnimeEpisodeImages will log the error
 				q.sendAnimeToFailedQueue(entry)
@@ -646,7 +646,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 		err := q.manager.localDb.SaveAnimeSnapshot(&snapshot)
 		if err != nil {
 			q.sendAnimeToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save anime snapshot for anime %d", entry.Media.ID)
+			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save anime snapshot for anime %d", entry.GetMedia().GetID())
 		}
 		return
 	}
@@ -668,7 +668,7 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 		return
 	}
 
-	q.manager.logger.Trace().Msgf("sync: Starting synchronization of manga %d, diff type: %+v", entry.Media.ID, diff.DiffType)
+	q.manager.logger.Trace().Msgf("sync: Starting synchronization of manga %d, diff type: %+v", entry.GetMedia().GetID(), diff.DiffType)
 
 	if q.manager.mangaCollection.IsAbsent() {
 		return
@@ -677,7 +677,7 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 	eContainers := make([]*manga.ChapterContainer, 0)
 
 	// Get the manga
-	listEntry, ok := q.manager.mangaCollection.MustGet().GetListEntryFromMangaId(entry.Media.ID)
+	listEntry, ok := q.manager.mangaCollection.MustGet().GetListEntryFromMangaId(entry.GetMedia().GetID())
 	if !ok {
 		q.manager.logger.Error().Msgf("sync: Failed to get manga")
 		return
@@ -690,14 +690,14 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 	// Get all chapter containers for this manga
 	// A manga entry can have multiple chapter containers due to different sources
 	for _, c := range q.manager.downloadedChapterContainers {
-		if c.MediaId == entry.Media.ID {
+		if c.MediaId == entry.GetMedia().GetID() {
 			eContainers = append(eContainers, c)
 		}
 	}
 
 	// If there are no chapter containers (they may have been deleted), remove the manga from the local database
 	if len(eContainers) == 0 {
-		_ = q.manager.removeManga(entry.Media.ID)
+		_ = q.manager.removeManga(entry.GetMedia().GetID())
 		return
 	}
 
@@ -710,18 +710,18 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 
 		// Create a new snapshot
 		snapshot := &MangaSnapshot{
-			MediaId:           entry.Media.ID,
+			MediaId:           entry.GetMedia().GetID(),
 			ChapterContainers: eContainers,
 			BannerImagePath:   bannerImage,
 			CoverImagePath:    coverImage,
-			ReferenceKey:      GetMangaReferenceKey(entry.Media, eContainers),
+			ReferenceKey:      GetMangaReferenceKey(entry.GetMedia(), eContainers),
 		}
 
 		// Save the snapshot
 		err := q.manager.localDb.SaveMangaSnapshot(snapshot)
 		if err != nil {
 			q.sendMangaToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save manga snapshot for manga %d", entry.Media.ID)
+			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save manga snapshot for manga %d", entry.GetMedia().GetID())
 		}
 		return
 	}
@@ -731,13 +731,13 @@ func (q *Syncer) synchronizeManga(diff *MangaDiffResult) {
 
 		// Update the snapshot
 		snapshot.ChapterContainers = eContainers
-		snapshot.ReferenceKey = GetMangaReferenceKey(entry.Media, eContainers)
+		snapshot.ReferenceKey = GetMangaReferenceKey(entry.GetMedia(), eContainers)
 
 		// Save the snapshot
 		err := q.manager.localDb.SaveMangaSnapshot(&snapshot)
 		if err != nil {
 			q.sendMangaToFailedQueue(entry)
-			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save manga snapshot for manga %d", entry.Media.ID)
+			q.manager.logger.Error().Err(err).Msgf("sync: Failed to save manga snapshot for manga %d", entry.GetMedia().GetID())
 		}
 		return
 	}
