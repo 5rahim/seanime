@@ -17,7 +17,7 @@ import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
-import { Spinner } from "@/components/ui/loading-spinner"
+import { LoadingSpinner, Spinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
 import { anilist_getListDataFromEntry } from "@/lib/helpers/media"
@@ -34,7 +34,7 @@ export default function Page() {
 
     const [syncModalOpen, setSyncModalOpen] = React.useState(false)
 
-    const { data: trackedMediaItems } = useSyncGetTrackedMediaItems()
+    const { data: trackedMediaItems, isLoading } = useSyncGetTrackedMediaItems()
 
     const { mutate: syncLocal, isPending: isSyncingLocal } = useSyncLocalData()
 
@@ -85,6 +85,8 @@ export default function Page() {
             },
         })
     }
+
+    if (isLoading) return <LoadingSpinner />
 
 
     return (
