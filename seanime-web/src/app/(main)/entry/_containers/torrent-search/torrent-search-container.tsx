@@ -101,6 +101,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     const torrents = React.useMemo(() => data?.torrents ?? [], [data?.torrents])
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
+    const debridInstantAvailability = React.useMemo(() => data?.debridInstantAvailability ?? {}, [data?.debridInstantAvailability])
 
     const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
@@ -321,6 +322,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             isLoading={isLoading}
                                             selectedTorrents={selectedTorrents}
                                             onToggleTorrent={handleToggleTorrent}
+                                            debridInstantAvailability={debridInstantAvailability}
                                         />
                                     </>
                                 )}

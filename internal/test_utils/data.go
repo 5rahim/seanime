@@ -64,6 +64,7 @@ type (
 		VlcPath              string `mapstructure:"vlc_path"`
 		MpvPath              string `mapstructure:"mpv_path"`
 		MpvSocket            string `mapstructure:"mpv_socket"`
+		TorBoxApiKey         string `mapstructure:"torbox_api_key"`
 	}
 	PathConfig struct {
 		DataDir string `mapstructure:"dataDir"`

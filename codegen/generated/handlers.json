@@ -1664,6 +1664,295 @@
     }
   },
   {
+    "name": "HandleGetDebridSettings",
+    "trimmedName": "GetDebridSettings",
+    "comments": [
+      "HandleGetDebridSettings",
+      "",
+      "\t@summary get debrid settings.",
+      "\t@desc This returns the debrid settings.",
+      "\t@returns models.DebridSettings",
+      "\t@route /api/v1/debrid/settings [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get debrid settings.",
+      "descriptions": [
+        "This returns the debrid settings."
+      ],
+      "endpoint": "/api/v1/debrid/settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "models.DebridSettings",
+      "returnGoType": "models.DebridSettings",
+      "returnTypescriptType": "Models_DebridSettings"
+    }
+  },
+  {
+    "name": "HandleSaveDebridSettings",
+    "trimmedName": "SaveDebridSettings",
+    "comments": [
+      "HandleSaveDebridSettings",
+      "",
+      "\t@summary save debrid settings.",
+      "\t@desc This saves the debrid settings.",
+      "\t@desc The client should refetch the server status.",
+      "\t@returns models.DebridSettings",
+      "\t@route /api/v1/debrid/settings [PATCH]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "save debrid settings.",
+      "descriptions": [
+        "This saves the debrid settings.",
+        "The client should refetch the server status."
+      ],
+      "endpoint": "/api/v1/debrid/settings",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "models.DebridSettings",
+          "usedStructType": "models.DebridSettings",
+          "typescriptType": "Models_DebridSettings",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.DebridSettings",
+      "returnGoType": "models.DebridSettings",
+      "returnTypescriptType": "Models_DebridSettings"
+    }
+  },
+  {
+    "name": "HandleDebridAddTorrents",
+    "trimmedName": "DebridAddTorrents",
+    "comments": [
+      "HandleDebridAddTorrents",
+      "",
+      "\t@summary add torrent to debrid.",
+      "\t@desc This adds a torrent to the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrents [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "add torrent to debrid.",
+      "descriptions": [
+        "This adds a torrent to the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Torrents",
+          "jsonName": "torrents",
+          "goType": "[]hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Destination",
+          "jsonName": "destination",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridDownloadTorrent",
+    "trimmedName": "DebridDownloadTorrent",
+    "comments": [
+      "HandleDebridDownloadTorrent",
+      "",
+      "\t@summary download torrent from debrid.",
+      "\t@desc Manually downloads a torrent from the debrid service locally.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrents/download [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "download torrent from debrid.",
+      "descriptions": [
+        "Manually downloads a torrent from the debrid service locally."
+      ],
+      "endpoint": "/api/v1/debrid/torrents/download",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "TorrentItem",
+          "jsonName": "torrentItem",
+          "goType": "debrid.TorrentItem",
+          "usedStructType": "debrid.TorrentItem",
+          "typescriptType": "Debrid_TorrentItem",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Destination",
+          "jsonName": "destination",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridCancelDownload",
+    "trimmedName": "DebridCancelDownload",
+    "comments": [
+      "HandleDebridCancelDownload",
+      "",
+      "\t@summary cancel download from debrid.",
+      "\t@desc This cancels a download from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrents/cancel [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "cancel download from debrid.",
+      "descriptions": [
+        "This cancels a download from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents/cancel",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ItemID",
+          "jsonName": "itemID",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridDeleteTorrent",
+    "trimmedName": "DebridDeleteTorrent",
+    "comments": [
+      "HandleDebridDeleteTorrent",
+      "",
+      "\t@summary remove torrent from debrid.",
+      "\t@desc This removes a torrent from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrent [DELETE]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "remove torrent from debrid.",
+      "descriptions": [
+        "This removes a torrent from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrent",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "TorrentItem",
+          "jsonName": "torrentItem",
+          "goType": "debrid.TorrentItem",
+          "usedStructType": "debrid.TorrentItem",
+          "typescriptType": "Debrid_TorrentItem",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridGetTorrents",
+    "trimmedName": "DebridGetTorrents",
+    "comments": [
+      "HandleDebridGetTorrents",
+      "",
+      "\t@summary get torrents from debrid.",
+      "\t@desc This gets the torrents from the debrid service.",
+      "\t@returns []debrid.TorrentItem",
+      "\t@route /api/v1/debrid/torrents [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get torrents from debrid.",
+      "descriptions": [
+        "This gets the torrents from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]debrid.TorrentItem",
+      "returnGoType": "debrid.TorrentItem",
+      "returnTypescriptType": "Array\u003cDebrid_TorrentItem\u003e"
+    }
+  },
+  {
     "name": "HandleDirectorySelector",
     "trimmedName": "DirectorySelector",
     "comments": [

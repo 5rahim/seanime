@@ -1,6 +1,5 @@
 "use client"
 import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
-import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
@@ -9,6 +8,7 @@ import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplay
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { DataSettings } from "@/app/(main)/settings/_containers/data-settings"
+import { DebridSettings } from "@/app/(main)/settings/_containers/debrid-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { LibrarySettings } from "@/app/(main)/settings/_containers/library-settings"
 import { LogsSettings } from "@/app/(main)/settings/_containers/logs-settings"
@@ -30,6 +30,7 @@ import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FiDatabase } from "react-icons/fi"
+import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
 import { LuBookKey } from "react-icons/lu"
@@ -65,8 +66,6 @@ export default function Page() {
     const [tab, setTab] = useAtom(tabAtom)
 
     const { data: torrentProviderExtensions } = useAnimeListTorrentProviderExtensions()
-
-    const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
 
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 
@@ -110,6 +109,7 @@ export default function Page() {
                                                                                                                                     streaming</TabsTrigger>
                         <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                         <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                        <TabsTrigger value="debrid"><HiOutlineServerStack className="text-lg mr-3" /> Debrid Service</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                         <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
@@ -542,7 +542,7 @@ export default function Page() {
 
                             <h3>Media streaming</h3>
 
-                            <MediastreamSettings settings={mediastreamSettings} isLoading={mediastreamSettingsLoading} />
+                            <MediastreamSettings />
 
                         </TabsContent>
 
@@ -570,12 +570,20 @@ export default function Page() {
 
                         </TabsContent>
 
+
                         <TabsContent value="data" className="space-y-6">
 
                             <DataSettings />
 
                         </TabsContent>
 
+                        <TabsContent value="debrid" className="space-y-6">
+
+                            <h3>Debrid Service</h3>
+
+                            <DebridSettings />
+
+                        </TabsContent>
                     </div>
                 </Tabs>
                 {/*</Card>*/}

@@ -29,6 +29,7 @@ import React from "react"
 import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
+import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
@@ -186,6 +187,12 @@ export function MainSidebar() {
                                         intent="alert-solid"
                                     >{activeTorrentCount.downloading + activeTorrentCount.paused}</Badge>
                                     : undefined,
+                            }],
+                            ...[(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && {
+                                iconType: HiOutlineServerStack,
+                                name: "Debrid",
+                                href: "/debrid",
+                                isCurrent: pathname === "/debrid",
                             }],
                             {
                                 iconType: PiClockCounterClockwiseFill,

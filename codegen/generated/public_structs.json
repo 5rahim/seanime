@@ -25164,6 +25164,16 @@
         "comments": []
       },
       {
+        "name": "DebridClientRepository",
+        "jsonName": "DebridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Watcher",
         "jsonName": "Watcher",
         "goType": "scanner.Watcher",
@@ -25627,6 +25637,16 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Debrid",
+        "jsonName": "Debrid",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -26036,7 +26056,7 @@
         "name": "EmbeddedLogo",
         "jsonName": "EmbeddedLogo",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -26336,7 +26356,7 @@
         "name": "Viewer",
         "jsonName": "viewer",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -26358,7 +26378,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27107,7 +27127,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27129,7 +27149,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27280,6 +27300,15 @@
       {
         "name": "EnableSeasonCheck",
         "jsonName": "enableSeasonCheck",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseDebrid",
+        "jsonName": "useDebrid",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -27527,7 +27556,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27585,7 +27614,7 @@
         "name": "PageData",
         "jsonName": "pageData",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -27851,7 +27880,7 @@
         "name": "Torrent",
         "jsonName": "torrent",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27910,7 +27939,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -28001,7 +28030,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -28053,6 +28082,921 @@
     "embeddedStructNames": [
       "models.BaseModel"
     ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "DebridSettings",
+    "formattedName": "Models_DebridSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Enabled",
+        "jsonName": "enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ApiKey",
+        "jsonName": "apiKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "DebridTorrentItem",
+    "formattedName": "Models_DebridTorrentItem",
+    "package": "models",
+    "fields": [
+      {
+        "name": "TorrentItemID",
+        "jsonName": "torrentItemId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/debrid/client/client.go",
+    "filename": "client.go",
+    "name": "Repository",
+    "formattedName": "DebridClient_Repository",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctxMap",
+        "jsonName": "ctxMap",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadLoopCancelFunc",
+        "jsonName": "downloadLoopCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/client.go",
+    "filename": "client.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "DebridClient_NewRepositoryOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "AddTorrentOptions",
+    "formattedName": "Debrid_AddTorrentOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "MagnetLink",
+        "jsonName": "magnetLink",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "StreamTorrentOptions",
+    "formattedName": "Debrid_StreamTorrentOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileId",
+        "jsonName": "fileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID or index of the file to stream"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "DownloadTorrentOptions",
+    "formattedName": "Debrid_DownloadTorrentOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItem",
+    "formattedName": "Debrid_TorrentItem",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Name of the torrent or file"
+        ]
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " SHA1 hash of the torrent"
+        ]
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of the selected files (size in bytes)"
+        ]
+      },
+      {
+        "name": "FormattedSize",
+        "jsonName": "formattedSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Formatted size of the selected files"
+        ]
+      },
+      {
+        "name": "CompletionPercentage",
+        "jsonName": "completionPercentage",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Progress percentage (0 to 100)"
+        ]
+      },
+      {
+        "name": "ETA",
+        "jsonName": "eta",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Formatted estimated time remaining"
+        ]
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "TorrentItemStatus",
+        "typescriptType": "Debrid_TorrentItemStatus",
+        "usedStructName": "debrid.TorrentItemStatus",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Current download status"
+        ]
+      },
+      {
+        "name": "AddedAt",
+        "jsonName": "added",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Date when the torrent was added, RFC3339 format"
+        ]
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Current download speed (optional, present in downloading state)"
+        ]
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Number of seeders (optional, present in downloading state)"
+        ]
+      },
+      {
+        "name": "IsReady",
+        "jsonName": "isReady",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether the torrent is ready to be downloaded"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItemStatus",
+    "formattedName": "Debrid_TorrentItemStatus",
+    "package": "debrid",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"downloading\"",
+        "\"completed\"",
+        "\"seeding\"",
+        "\"error\"",
+        "\"stalled\"",
+        "\"paused\"",
+        "\"other\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "Settings",
+    "formattedName": "Debrid_Settings",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CanStream",
+        "jsonName": "canStream",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CanSelectStreamFile",
+        "jsonName": "canSelectStreamFile",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "TorBox",
+    "formattedName": "TorBox",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "apiKey",
+        "jsonName": "apiKey",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "Response",
+    "formattedName": "Response",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Success",
+        "jsonName": "success",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Detail",
+        "jsonName": "detail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "File",
+    "formattedName": "File",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MD5",
+        "jsonName": "md5",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "S3Path",
+        "jsonName": "s3_path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeType",
+        "jsonName": "mimetype",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShortName",
+        "jsonName": "short_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "Torrent",
+    "formattedName": "Torrent",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "created_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updated_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Magnet",
+        "jsonName": "magnet",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Active",
+        "jsonName": "active",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AuthID",
+        "jsonName": "auth_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadState",
+        "jsonName": "download_state",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeds",
+        "jsonName": "seeds",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Peers",
+        "jsonName": "peers",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ratio",
+        "jsonName": "ratio",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadSpeed",
+        "jsonName": "download_speed",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadSpeed",
+        "jsonName": "upload_speed",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ETA",
+        "jsonName": "eta",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentFile",
+        "jsonName": "torrent_file",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExpiresAt",
+        "jsonName": "expires_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadPresent",
+        "jsonName": "download_present",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadFinished",
+        "jsonName": "download_finished",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]File",
+        "typescriptType": "Array\u003cFile\u003e",
+        "usedStructName": "torbox.File",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InactiveCheck",
+        "jsonName": "inactive_check",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Availability",
+        "jsonName": "availability",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "InstantAvailabilityItem",
+    "formattedName": "InstantAvailabilityItem",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/discordrpc/client/activity.go",
@@ -31901,6 +32845,16 @@
         "comments": []
       },
       {
+        "name": "DebridSettings",
+        "jsonName": "debridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "AnilistClientID",
         "jsonName": "anilistClientId",
         "goType": "string",
@@ -34143,6 +35097,16 @@
         "comments": []
       },
       {
+        "name": "debridClientRepository",
+        "jsonName": "debridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "database",
         "jsonName": "database",
         "goType": "db.Database",
@@ -34303,6 +35267,16 @@
         "goType": "metadata.Provider",
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridClientRepository",
+        "jsonName": "DebridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -43538,7 +44512,8 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"Auto Downloader\"",
-        "\"Auto Scanner\""
+        "\"Auto Scanner\"",
+        "\"Debrid\""
       ]
     },
     "comments": []
@@ -44387,7 +45362,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -45792,6 +46767,15 @@
       {
         "name": "MpvSocket",
         "jsonName": "MpvSocket",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorBoxApiKey",
+        "jsonName": "TorBoxApiKey",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -51578,6 +52562,17 @@
         "public": true,
         "comments": [
           " TorrentPreview for each torrent"
+        ]
+      },
+      {
+        "name": "DebridInstantAvailability",
+        "jsonName": "debridInstantAvailability",
+        "goType": "map[string]bool",
+        "typescriptType": "Record\u003cstring, boolean\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Debrid instant availability"
         ]
       }
     ],

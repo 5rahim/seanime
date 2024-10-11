@@ -13,6 +13,8 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
+	"seanime/internal/debrid/client"
+	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/notifier"
@@ -36,6 +38,7 @@ type (
 		logger                  *zerolog.Logger
 		torrentClientRepository *torrent_client.Repository
 		torrentRepository       *torrent.Repository
+		debridClientRepository  *debrid_client.Repository
 		database                *db.Database
 		animeCollection         mo.Option[*anilist.AnimeCollection]
 		wsEventManager          events.WSEventManagerInterface
@@ -55,6 +58,7 @@ type (
 		WSEventManager          events.WSEventManagerInterface
 		Database                *db.Database
 		MetadataProvider        metadata.Provider
+		DebridClientRepository  *debrid_client.Repository
 	}
 
 	tmpTorrentToDownload struct {
@@ -72,6 +76,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		wsEventManager:          opts.WSEventManager,
 		animeCollection:         mo.None[*anilist.AnimeCollection](),
 		metadataProvider:        opts.MetadataProvider,
+		debridClientRepository:  opts.DebridClientRepository,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              torrent.ProviderAnimeTosho, // Default provider, will be updated after the settings are fetched
 			Interval:              10,
@@ -445,19 +450,19 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		return false
 	}
 
-	started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
-	if !started {
-		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
-		return false
+	useDebrid := false
+
+	if ad.settings.UseDebrid {
+		// Check if the debrid provider is enabled
+		if !ad.debridClientRepository.HasProvider() || !ad.debridClientRepository.GetSettings().Enabled {
+			ad.logger.Error().Msg("autodownloader: Debrid provider not found or not enabled")
+			// We return instead of falling back to torrent client
+			return false
+		}
+		useDebrid = true
 	}
 
-	// Return if the torrent is already added
-	torrentExists := ad.torrentClientRepository.TorrentExists(t.InfoHash)
-	if torrentExists {
-		//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
-		return false
-	}
-
+	// Get torrent magnet
 	magnet, err := t.GetMagnet(providerExtension.GetProvider())
 	if err != nil {
 		ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to get magnet link for torrent")
@@ -466,19 +471,69 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 
 	downloaded := false
 
-	// Pause the torrent when it's added
-	if ad.settings.DownloadAutomatically {
+	switch useDebrid {
+	case true:
+		//
+		// Debrid
+		//
 
-		ad.logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
+		if ad.settings.DownloadAutomatically {
+			// Add the torrent to the debrid provider and queue it
+			_, err := ad.debridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
+				MagnetLink: magnet,
+			}, rule.Destination, rule.MediaId)
+			if err != nil {
+				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to debrid")
+				return false
+			}
+		} else {
+			debridProvider, err := ad.debridClientRepository.GetProvider()
+			if err != nil {
+				ad.logger.Error().Err(err).Msg("autodownloader: Failed to get debrid provider")
+				return false
+			}
 
-		// Add the torrent to torrent client
-		err := ad.torrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
-		if err != nil {
-			ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
+			// Add the torrent to the debrid provider
+			_, err = debridProvider.AddTorrent(debrid.AddTorrentOptions{
+				MagnetLink: magnet,
+			})
+			if err != nil {
+				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to debrid")
+				return false
+			}
+		}
+
+	case false:
+		//
+		// Torrent client
+		//
+		started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
+		if !started {
+			ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
 			return false
 		}
 
-		downloaded = true
+		// Return if the torrent is already added
+		torrentExists := ad.torrentClientRepository.TorrentExists(t.InfoHash)
+		if torrentExists {
+			//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
+			return false
+		}
+
+		// Pause the torrent when it's added
+		if ad.settings.DownloadAutomatically {
+
+			ad.logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
+
+			// Add the torrent to torrent client
+			err := ad.torrentClientRepository.AddMagnets([]string{magnet}, rule.Destination)
+			if err != nil {
+				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to torrent client")
+				return false
+			}
+
+			downloaded = true
+		}
 	}
 
 	ad.logger.Info().Str("name", t.Name).Msg("autodownloader: Added torrent")

@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/models"
+	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
@@ -91,6 +92,16 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
+	// |  Debrid Client Repo |
+	// +---------------------+
+
+	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
+		Logger:         a.Logger,
+		WSEventManager: a.WSEventManager,
+		Database:       a.Database,
+	})
+
+	// +---------------------+
 	// |   Auto Downloader   |
 	// +---------------------+
 
@@ -101,6 +112,7 @@ func (a *App) initModulesOnce() {
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		MetadataProvider:        a.MetadataProvider,
+		DebridClientRepository:  a.DebridClientRepository,
 	})
 
 	if !a.IsOffline() {
@@ -449,6 +461,33 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 	// Set torrent streaming settings in secondary settings
 	// so the client can use them
 	a.SecondarySettings.Torrentstream = settings
+}
+
+func (a *App) InitOrRefreshDebridSettings() {
+
+	settings, found := a.Database.GetDebridSettings()
+	if !found {
+
+		var err error
+		settings, err = a.Database.UpsertDebridSettings(&models.DebridSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			Enabled: false,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid module")
+			return
+		}
+	}
+
+	a.SecondarySettings.Debrid = settings
+
+	err := a.DebridClientRepository.InitializeProvider(settings)
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid provider")
+		return
+	}
 }
 
 // InitOrRefreshAnilistData will initialize the Anilist anime collection and the account.

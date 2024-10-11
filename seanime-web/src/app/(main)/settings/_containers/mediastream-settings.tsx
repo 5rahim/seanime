@@ -1,5 +1,4 @@
-import { Models_MediastreamSettings } from "@/api/generated/types"
-import { useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
+import { useGetMediastreamSettings, useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
@@ -41,20 +40,18 @@ const MEDIASTREAM_PRESET_OPTIONS = [
 
 type MediastreamSettingsProps = {
     children?: React.ReactNode
-    settings: Models_MediastreamSettings | undefined
-    isLoading: boolean
 }
 
 export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     const {
         children,
-        settings,
-        isLoading,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
+
+    const { data: settings, isLoading } = useGetMediastreamSettings(true)
 
     const { mutate, isPending } = useSaveMediastreamSettings()
 

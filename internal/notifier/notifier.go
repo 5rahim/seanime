@@ -23,6 +23,7 @@ type (
 const (
 	AutoDownloader Notification = "Auto Downloader"
 	AutoScanner    Notification = "Auto Scanner"
+	Debrid         Notification = "Debrid"
 )
 
 var GlobalNotifier = NewNotifier()

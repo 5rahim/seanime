@@ -1,14 +1,22 @@
 package debrid
 
-import "time"
+import (
+	"fmt"
+)
+
+var (
+	ErrNotAuthenticated     = fmt.Errorf("not authenticated")
+	ErrFailedToAuthenticate = fmt.Errorf("failed to authenticate")
+)
 
 type (
 	Provider interface {
 		GetSettings() Settings
 		Authenticate(apiKey string) error
-		AddTorrent(opts AddTorrentOptions) error
-		StreamTorrent(id string) (streamUrl string, err error)
-		DownloadTorrent(id string) (downloadUrl string, err error)
+		AddTorrent(opts AddTorrentOptions) (string, error)
+		GetTorrentStreamUrl(opts StreamTorrentOptions) (streamUrl string, err error)
+		GetTorrentDownloadUrl(opts DownloadTorrentOptions) (downloadUrl string, err error)
+		GetInstantAvailability(hashes []string) map[string]bool
 		GetTorrent(id string) (*TorrentItem, error)
 		GetTorrents() ([]*TorrentItem, error)
 		DeleteTorrent(id string) error
@@ -18,17 +26,28 @@ type (
 		MagnetLink string `json:"magnetLink"`
 	}
 
+	StreamTorrentOptions struct {
+		ID     string `json:"id"`
+		FileId string `json:"fileId"` // ID or index of the file to stream
+	}
+
+	DownloadTorrentOptions struct {
+		ID string `json:"id"`
+	}
+
 	TorrentItem struct {
 		ID                   string            `json:"id"`
-		Name                 string            `json:"name"`              // Name of the torrent or file
-		Hash                 string            `json:"hash"`              // SHA1 hash of the torrent
-		Bytes                int64             `json:"bytes"`             // Size of the selected files (size in bytes)
-		CompletionPercentage int               `json:"progress"`          // Progress percentage (0 to 100)
-		Status               TorrentItemStatus `json:"status"`            // Current download status
-		AddedAt              time.Time         `json:"added"`             // Date when the torrent was added
-		EndedAt              *time.Time        `json:"ended,omitempty"`   // Date when the torrent finished (optional, only when finished)
-		Speed                int64             `json:"speed,omitempty"`   // Current download speed (optional, present in downloading state)
-		Seeders              int               `json:"seeders,omitempty"` // Number of seeders (optional, present in downloading state)
+		Name                 string            `json:"name"`                 // Name of the torrent or file
+		Hash                 string            `json:"hash"`                 // SHA1 hash of the torrent
+		Size                 int64             `json:"size"`                 // Size of the selected files (size in bytes)
+		FormattedSize        string            `json:"formattedSize"`        // Formatted size of the selected files
+		CompletionPercentage int               `json:"completionPercentage"` // Progress percentage (0 to 100)
+		ETA                  string            `json:"eta"`                  // Formatted estimated time remaining
+		Status               TorrentItemStatus `json:"status"`               // Current download status
+		AddedAt              string            `json:"added"`                // Date when the torrent was added, RFC3339 format
+		Speed                string            `json:"speed,omitempty"`      // Current download speed (optional, present in downloading state)
+		Seeders              int               `json:"seeders,omitempty"`    // Number of seeders (optional, present in downloading state)
+		IsReady              bool              `json:"isReady"`              // Whether the torrent is ready to be downloaded
 	}
 
 	TorrentItemStatus string
@@ -36,15 +55,19 @@ type (
 	////////////////////////////////////////////////////////////////////
 
 	Settings struct {
-		CanStream           bool `json:"canStream"`
-		CanSelectStreamFile bool `json:"canSelectStreamFile"`
+		ID                  string `json:"id"`
+		Name                string `json:"name"`
+		CanStream           bool   `json:"canStream"`
+		CanSelectStreamFile bool   `json:"canSelectStreamFile"`
 	}
 )
 
 const (
 	TorrentItemStatusDownloading TorrentItemStatus = "downloading"
-	TorrentItemStatusFinished    TorrentItemStatus = "finished"
+	TorrentItemStatusCompleted   TorrentItemStatus = "completed"
 	TorrentItemStatusSeeding     TorrentItemStatus = "seeding"
 	TorrentItemStatusError       TorrentItemStatus = "error"
 	TorrentItemStatusStalled     TorrentItemStatus = "stalled"
+	TorrentItemStatusPaused      TorrentItemStatus = "paused"
+	TorrentItemStatusOther       TorrentItemStatus = "other"
 )

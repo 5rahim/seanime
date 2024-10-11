@@ -382,6 +382,79 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/continuity/history",
         },
     },
+    DEBRID: {
+        /**
+         *  @description
+         *  Route get debrid settings.
+         *  This returns the debrid settings.
+         */
+        GetDebridSettings: {
+            key: "DEBRID-get-debrid-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/debrid/settings",
+        },
+        /**
+         *  @description
+         *  Route save debrid settings.
+         *  This saves the debrid settings.
+         *  The client should refetch the server status.
+         */
+        SaveDebridSettings: {
+            key: "DEBRID-save-debrid-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/debrid/settings",
+        },
+        /**
+         *  @description
+         *  Route add torrent to debrid.
+         *  This adds a torrent to the debrid service.
+         */
+        DebridAddTorrents: {
+            key: "DEBRID-debrid-add-torrents",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents",
+        },
+        /**
+         *  @description
+         *  Route download torrent from debrid.
+         *  Manually downloads a torrent from the debrid service locally.
+         */
+        DebridDownloadTorrent: {
+            key: "DEBRID-debrid-download-torrent",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/download",
+        },
+        /**
+         *  @description
+         *  Route cancel download from debrid.
+         *  This cancels a download from the debrid service.
+         */
+        DebridCancelDownload: {
+            key: "DEBRID-debrid-cancel-download",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/cancel",
+        },
+        /**
+         *  @description
+         *  Route remove torrent from debrid.
+         *  This removes a torrent from the debrid service.
+         */
+        DebridDeleteTorrent: {
+            key: "DEBRID-debrid-delete-torrent",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/debrid/torrent",
+        },
+        /**
+         *  @description
+         *  Route get torrents from debrid.
+         *  This gets the torrents from the debrid service.
+         */
+        DebridGetTorrents: {
+            key: "DEBRID-debrid-get-torrents",
+            methods: ["GET"],
+            endpoint: "/api/v1/debrid/torrents",
+        },
+    },
     DIRECTORY_SELECTOR: {
         /**
          *  @description

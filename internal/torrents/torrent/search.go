@@ -47,10 +47,12 @@ type (
 		Episode *anime.Episode              `json:"episode"` // nil if batch
 		Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
 	}
+
 	// SearchData is the struct returned by NewSmartSearch
 	SearchData struct {
-		Torrents []*hibiketorrent.AnimeTorrent `json:"torrents"` // Torrents found
-		Previews []*Preview                    `json:"previews"` // TorrentPreview for each torrent
+		Torrents                  []*hibiketorrent.AnimeTorrent `json:"torrents"`                  // Torrents found
+		Previews                  []*Preview                    `json:"previews"`                  // TorrentPreview for each torrent
+		DebridInstantAvailability map[string]bool               `json:"debridInstantAvailability"` // Debrid instant availability
 	}
 )
 

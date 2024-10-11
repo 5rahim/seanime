@@ -207,6 +207,7 @@ type AutoDownloaderSettings struct {
 	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
 	EnableEnhancedQueries bool   `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
 	EnableSeasonCheck     bool   `gorm:"column:auto_downloader_enable_season_check" json:"enableSeasonCheck"`
+	UseDebrid             bool   `gorm:"column:auto_downloader_use_debrid" json:"useDebrid"`
 }
 
 // +---------------------+
@@ -364,4 +365,23 @@ type OnlinestreamMapping struct {
 	Provider string `gorm:"column:provider" json:"provider"`
 	MediaID  int    `gorm:"column:media_id" json:"mediaId"`
 	AnimeID  string `gorm:"column:anime_id" json:"anime_id"` // ID from search result, used to fetch episodes
+}
+
+// +---------------------+
+// |       Debrid        |
+// +---------------------+
+
+type DebridSettings struct {
+	BaseModel
+	Enabled  bool   `gorm:"column:enabled" json:"enabled"`
+	Provider string `gorm:"column:provider" json:"provider"`
+	ApiKey   string `gorm:"column:api_key" json:"apiKey"`
+}
+
+type DebridTorrentItem struct {
+	BaseModel
+	TorrentItemID string `gorm:"column:torrent_item_id" json:"torrentItemId"`
+	Destination   string `gorm:"column:destination" json:"destination"`
+	Provider      string `gorm:"column:provider" json:"provider"`
+	MediaId       int    `gorm:"column:media_id" json:"mediaId"`
 }

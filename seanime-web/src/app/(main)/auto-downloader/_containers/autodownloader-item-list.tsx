@@ -1,6 +1,8 @@
 import { Models_AutoDownloaderItem } from "@/api/generated/types"
 import { useDeleteAutoDownloaderItem } from "@/api/hooks/auto_downloader.hooks"
 import { useTorrentClientAddMagnetFromRule } from "@/api/hooks/torrent_client.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { formatDateAndTimeShort } from "@/lib/server/utils"
@@ -21,6 +23,8 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
         isLoading,
         ...rest
     } = props
+
+    const serverStatus = useServerStatus()
 
     const { mutate: deleteItem, isPending } = useDeleteAutoDownloaderItem()
 
@@ -58,22 +62,37 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                         </div>
                         <div className="flex gap-2 items-center">
                             {!item.downloaded && (
-                                <Button
-                                    leftIcon={<BiDownload />}
-                                    size="sm"
-                                    intent="primary-subtle"
-                                    onClick={() => {
-                                        addMagnet({
-                                            magnetUrl: item.magnet,
-                                            ruleId: item.ruleId,
-                                            queuedItemId: item.id,
-                                        })
-                                    }}
-                                    loading={isAdding}
-                                    disabled={isPending}
-                                >
-                                    Download
-                                </Button>
+                                <>
+                                    {!serverStatus?.settings?.autoDownloader?.useDebrid ? (
+                                        <Button
+                                            leftIcon={<BiDownload />}
+                                            size="sm"
+                                            intent="primary-subtle"
+                                            onClick={() => {
+                                                addMagnet({
+                                                    magnetUrl: item.magnet,
+                                                    ruleId: item.ruleId,
+                                                    queuedItemId: item.id,
+                                                })
+                                            }}
+                                            loading={isAdding}
+                                            disabled={isPending}
+                                        >
+                                            Download
+                                        </Button>
+                                    ) : (
+                                        <SeaLink href="/debrid">
+                                            <Button
+                                                leftIcon={<BiDownload />}
+                                                size="sm"
+                                                intent="primary-subtle"
+                                                disabled={isPending}
+                                            >
+                                                Download
+                                            </Button>
+                                        </SeaLink>
+                                    )}
+                                </>
                             )}
                             <Button
                                 leftIcon={<BiTrash />}

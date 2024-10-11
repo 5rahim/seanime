@@ -1763,6 +1763,76 @@ export type DB_ScanSummaryItem = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Debrid
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItem = {
+    id: string
+    /**
+     * Name of the torrent or file
+     */
+    name: string
+    /**
+     * SHA1 hash of the torrent
+     */
+    hash: string
+    /**
+     * Size of the selected files (size in bytes)
+     */
+    size: number
+    /**
+     * Formatted size of the selected files
+     */
+    formattedSize: string
+    /**
+     * Progress percentage (0 to 100)
+     */
+    completionPercentage: number
+    /**
+     * Formatted estimated time remaining
+     */
+    eta: string
+    /**
+     * Current download status
+     */
+    status: Debrid_TorrentItemStatus
+    /**
+     * Date when the torrent was added, RFC3339 format
+     */
+    added: string
+    /**
+     * Current download speed (optional, present in downloading state)
+     */
+    speed?: string
+    /**
+     * Number of seeders (optional, present in downloading state)
+     */
+    seeders?: number
+    /**
+     * Whether the torrent is ready to be downloaded
+     */
+    isReady: boolean
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItemStatus = "downloading" |
+    "completed" |
+    "seeding" |
+    "error" |
+    "stalled" |
+    "paused" |
+    "other"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Extension
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2071,6 +2141,7 @@ export type Status = {
     isOffline: boolean
     mediastreamSettings?: Models_MediastreamSettings
     torrentstreamSettings?: Models_TorrentstreamSettings
+    debridSettings?: Models_DebridSettings
     anilistClientId: string
     /**
      * If true, a new screen will be displayed
@@ -2304,6 +2375,7 @@ export type Models_AutoDownloaderSettings = {
     downloadAutomatically: boolean
     enableEnhancedQueries: boolean
     enableSeasonCheck: boolean
+    useDebrid: boolean
 }
 
 /**
@@ -2319,8 +2391,22 @@ export type Models_ChapterDownloadQueueItem = {
     /**
      * Contains map of page index to page details
      */
-    pageData?: string
+    pageData?: Array<string>
     status: string
+    id: number
+    createdAt?: string
+    updatedAt?: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_DebridSettings = {
+    enabled: boolean
+    provider: string
+    apiKey: string
     id: number
     createdAt?: string
     updatedAt?: string
@@ -2762,6 +2848,10 @@ export type Torrent_SearchData = {
      * TorrentPreview for each torrent
      */
     previews?: Array<Torrent_Preview>
+    /**
+     * Debrid instant availability
+     */
+    debridInstantAvailability?: Record<string, boolean>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

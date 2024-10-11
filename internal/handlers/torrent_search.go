@@ -3,7 +3,11 @@ package handlers
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/torrents/torrent"
+	"seanime/internal/util/result"
+	"strings"
 )
+
+var debridInstantAvailabilityCache = result.NewCache[string, map[string]bool]()
 
 // HandleSearchTorrent
 //
@@ -44,6 +48,30 @@ func HandleSearchTorrent(c *RouteCtx) error {
 	})
 	if err != nil {
 		return c.RespondWithError(err)
+	}
+
+	//
+	// Debrid torrent instant availability
+	//
+	if c.App.SecondarySettings.Debrid.Enabled {
+		hashes := make([]string, 0)
+		for _, t := range data.Torrents {
+			if t.InfoHash == "" {
+				continue
+			}
+			hashes = append(hashes, t.InfoHash)
+		}
+		hashesKey := strings.Join(hashes, ",")
+		var found bool
+		data.DebridInstantAvailability, found = debridInstantAvailabilityCache.Get(hashesKey)
+		if !found {
+			provider, err := c.App.DebridClientRepository.GetProvider()
+			if err == nil {
+				instantAvail := provider.GetInstantAvailability(hashes)
+				data.DebridInstantAvailability = instantAvail
+				debridInstantAvailabilityCache.Set(hashesKey, instantAvail)
+			}
+		}
 	}
 
 	return c.RespondWithData(data)

@@ -41,4 +41,6 @@ const (
 	SyncLocalQueueState = "sync-local-queue-state"
 	SyncLocalFinished   = "sync-local-finished"
 	SyncAnilistFinished = "sync-anilist-finished"
+
+	DebridDownloadProgress = "debrid-download-progress"
 )

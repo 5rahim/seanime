@@ -400,6 +400,83 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// debrid
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// export function useGetDebridSettings() {
+//     return useServerQuery<Models_DebridSettings>({
+//         endpoint: API_ENDPOINTS.DEBRID.GetDebridSettings.endpoint,
+//         method: API_ENDPOINTS.DEBRID.GetDebridSettings.methods[0],
+//         queryKey: [API_ENDPOINTS.DEBRID.GetDebridSettings.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveDebridSettings() {
+//     return useServerMutation<Models_DebridSettings, SaveDebridSettings_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.SaveDebridSettings.endpoint,
+//         method: API_ENDPOINTS.DEBRID.SaveDebridSettings.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.SaveDebridSettings.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridAddTorrents() {
+//     return useServerMutation<boolean, DebridAddTorrents_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridAddTorrents.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridAddTorrents.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridAddTorrents.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridDownloadTorrent() {
+//     return useServerMutation<boolean, DebridDownloadTorrent_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridDownloadTorrent.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridDownloadTorrent.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridDownloadTorrent.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridCancelDownload() {
+//     return useServerMutation<boolean, DebridCancelDownload_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridCancelDownload.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridCancelDownload.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridCancelDownload.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridDeleteTorrent() {
+//     return useServerMutation<boolean, DebridDeleteTorrent_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridDeleteTorrent.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridDeleteTorrent.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridDeleteTorrent.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridGetTorrents() {
+//     return useServerQuery<Array<Debrid_TorrentItem>>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridGetTorrents.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridGetTorrents.methods[0],
+//         queryKey: [API_ENDPOINTS.DEBRID.DebridGetTorrents.key],
+//         enabled: true,
+//     })
+// }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // directory_selector
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

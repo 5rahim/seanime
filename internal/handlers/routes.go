@@ -422,6 +422,18 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Sync.Get("/updated", makeHandler(app, HandleSyncGetHasLocalChanges))
 
 	//
+	// Debrid
+	//
+
+	v1.Get("/debrid/settings", makeHandler(app, HandleGetDebridSettings))
+	v1.Patch("/debrid/settings", makeHandler(app, HandleSaveDebridSettings))
+	v1.Post("/debrid/torrents", makeHandler(app, HandleDebridAddTorrents))
+	v1.Post("/debrid/torrents/download", makeHandler(app, HandleDebridDownloadTorrent))
+	v1.Post("/debrid/torrents/cancel", makeHandler(app, HandleDebridCancelDownload))
+	v1.Delete("/debrid/torrent", makeHandler(app, HandleDebridDeleteTorrent))
+	v1.Get("/debrid/torrents", makeHandler(app, HandleDebridGetTorrents))
+
+	//
 	// Websocket
 	//
 

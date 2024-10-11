@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import React from "react"
+import { HiOutlineServerStack } from "react-icons/hi2"
 
 export function TorrentResolutionBadge({ resolution }: { resolution?: string }) {
 
@@ -27,9 +28,23 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
         <Badge
             className="rounded-md"
             intent={(seeders) > 4 ? (seeders) > 19 ? "primary" : "success" : "gray"}
-            // leftIcon={<FcLineChart/>}
         >
             <span className="text-sm">{seeders}</span> seeders
+        </Badge>
+    )
+
+}
+
+
+export function TorrentDebridInstantAvailabilityBadge() {
+
+    return (
+        <Badge
+            className="rounded-md"
+            intent="white-solid"
+            leftIcon={<HiOutlineServerStack className="text-xl" />}
+        >
+            Cached
         </Badge>
     )
 

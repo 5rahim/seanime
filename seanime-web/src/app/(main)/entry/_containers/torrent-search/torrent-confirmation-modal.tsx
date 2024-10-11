@@ -1,4 +1,5 @@
 import { AL_BaseAnime, Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { useDebridAddTorrents } from "@/api/hooks/debrid.hooks"
 import { useDownloadTorrentFile } from "@/api/hooks/download.hooks"
 import { useTorrentClientDownload } from "@/api/hooks/torrent_client.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -6,12 +7,15 @@ import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_contai
 import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Button, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
+import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useMemo, useState } from "react"
+import { AiOutlineCloudServer } from "react-icons/ai"
 import { BiCollection, BiDownload, BiX } from "react-icons/bi"
 import { FcFilmReel, FcFolder } from "react-icons/fc"
 import { toast } from "sonner"
@@ -79,7 +83,14 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         setTorrentDrawerIsOpen(undefined)
     })
 
-    const isDisabled = isPending || isDownloadingFiles
+    // download via debrid service
+    const { mutate: debridAddTorrents, isPending: isDownloadingDebrid } = useDebridAddTorrents(() => {
+        setIsOpen(false)
+        setTorrentDrawerIsOpen(undefined)
+        router.push("/debrid")
+    })
+
+    const isDisabled = isPending || isDownloadingFiles || isDownloadingDebrid
 
     function handleLaunchDownload(smartSelect: boolean) {
         if (!libraryPath || !destination.toLowerCase().startsWith(libraryPath.slice(0, -1).toLowerCase())) {
@@ -117,6 +128,17 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
         })
     }
 
+    function handleDebridAddTorrents() {
+        debridAddTorrents({
+            torrents: selectedTorrents,
+            destination,
+            media,
+        })
+    }
+
+    const debridActive = serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider
+    const [isDebrid, setIsDebrid] = useState(debridActive)
+
     if (selectedTorrents.length === 0) return null
 
     return (
@@ -126,6 +148,15 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
             contentClass="max-w-3xl"
             title="Choose the destination"
         >
+
+            {debridActive && (
+                <Switch
+                    label="Download with Debrid service"
+                    value={isDebrid}
+                    onValueChange={v => setIsDebrid(v)}
+                />
+            )}
+
             <div className="pb-0">
                 <DirectorySelector
                     name="destination"
@@ -138,78 +169,101 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                 />
             </div>
 
-            <div className="space-y-2">
-                {selectedTorrents.map(torrent => (
-                    <Tooltip
-                        key={`${torrent.link}`}
-                        trigger={<div
-                            className="ml-12 gap-2 p-2 border rounded-md hover:bg-gray-800 relative"
-                            key={torrent.name}
-                        >
-                            <div
-                                className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
-                                onClick={() => window.open(torrent.link, "_blank")}
-                            >
-                                <span className="text-lg">
-                                    {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
-                                        <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
-                                </span>
-                                <p className="line-clamp-1">{torrent.name}</p>
-                            </div>
-                            <IconButton
-                                icon={<BiX />}
-                                className="absolute right-2 top-2 rounded-full"
-                                size="xs"
-                                intent="gray-outline"
-                                onClick={() => {
-                                    onToggleTorrent(torrent)
-                                }}
-                            />
-                        </div>}
+            {selectedTorrents.map(torrent => (
+                <Tooltip
+                    key={`${torrent.link}`}
+                    trigger={<div
+                        className={cn(
+                            "ml-12 gap-2 p-2 border rounded-md hover:bg-gray-800 relative",
+                        )}
+                        key={torrent.name}
                     >
-                        Open in browser
-                    </Tooltip>
-                ))}
-                <div className="!mt-4 flex w-full justify-between gap-2 items-center">
-                    <div>
-                        {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
-                            leftIcon={<BiDownload />}
+                        <div
+                            className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
+                            onClick={() => window.open(torrent.link, "_blank")}
+                        >
+                            <span className="text-lg">
+                                {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :
+                                    <FcFolder className="text-2xl" />} {/*<BsCollectionPlayFill/>*/}
+                            </span>
+                            <p className="line-clamp-1">{torrent.name}</p>
+                        </div>
+                        <IconButton
+                            icon={<BiX />}
+                            className="absolute right-2 top-2 rounded-full"
+                            size="xs"
                             intent="gray-outline"
-                            onClick={() => handleDownloadFiles()}
-                            disabled={isDisabled}
-                            loading={isDownloadingFiles}
-                        >Download torrent files</Button>}
-                    </div>
+                            onClick={() => {
+                                onToggleTorrent(torrent)
+                            }}
+                        />
+                    </div>}
+                >
+                    Open in browser
+                </Tooltip>
+            ))}
 
-                    <div className="flex w-full justify-end gap-2">
+            {isDebrid ? (
+                <>
+                    {(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
+                        <Button
+                            leftIcon={<AiOutlineCloudServer className="text-2xl" />}
+                            intent="white"
+                            onClick={() => handleDebridAddTorrents()}
+                            disabled={isDisabled}
+                            loading={isDownloadingDebrid}
+                            className="w-full"
+                        >
+                            Download with Debrid service
+                        </Button>
+                    )}
+                </>
+            ) : (
+                <>
+                    <div className="space-y-2">
+
+                        <div className="flex w-full gap-2">
+                            {!!selectedTorrents?.every(t => t.downloadUrl) && <Button
+                                leftIcon={<BiDownload />}
+                                intent="gray-outline"
+                                onClick={() => handleDownloadFiles()}
+                                disabled={isDisabled}
+                                loading={isDownloadingFiles}
+                                className="w-full"
+                            >Download '.torrent' files</Button>}
+
+                            {selectedTorrents.length > 0 && (
+                                <Button
+                                    leftIcon={<BiDownload />}
+                                    intent="white"
+                                    onClick={() => handleLaunchDownload(false)}
+                                    disabled={isDisabled}
+                                    loading={isPending}
+                                    className="w-full"
+                                >
+                                    {!serverStatus?.debridSettings?.enabled
+                                        ? (canSmartSelect ? "Download all" : "Download")
+                                        : "Download with torrent client"}
+                                </Button>
+                            )}
+                        </div>
 
                         {(selectedTorrents.length > 0 && canSmartSelect) && (
                             <Button
                                 leftIcon={<BiCollection />}
-                                intent="white-outline"
+                                intent="gray-outline"
                                 onClick={() => handleLaunchDownload(true)}
                                 disabled={isDisabled}
                                 loading={isPending}
+                                className="w-full"
                             >
                                 Download missing episodes
                             </Button>
                         )}
 
-                        {selectedTorrents.length > 0 && (
-                            <Button
-                                leftIcon={<BiDownload />}
-                                intent="white"
-                                onClick={() => handleLaunchDownload(false)}
-                                disabled={isDisabled}
-                                loading={isPending}
-                            >
-                                {canSmartSelect ? "Download all" : "Download"}
-                            </Button>
-                        )}
-
                     </div>
-                </div>
-            </div>
+                </>
+            )}
         </Modal>
     )
 

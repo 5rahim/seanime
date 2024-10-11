@@ -10,6 +10,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
+	"seanime/internal/debrid/client"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
@@ -47,6 +48,7 @@ type (
 		Logger                        *zerolog.Logger
 		TorrentClientRepository       *torrent_client.Repository
 		TorrentRepository             *torrent.Repository
+		DebridClientRepository        *debrid_client.Repository
 		Watcher                       *scanner.Watcher
 		AnilistClient                 anilist.AnilistClient
 		AnilistPlatform               platform.Platform
@@ -82,6 +84,7 @@ type (
 		SecondarySettings       struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
+			Debrid        *models.DebridSettings
 		} // Struct for other settings sent to client
 		SelfUpdater        *updater.SelfUpdater
 		TotalLibrarySize   uint64 // Initialized in modules.go
@@ -253,6 +256,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MediastreamRepository:         nil, // Initialized in App.initModulesOnce
 		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
 		ContinuityManager:             nil, // Initialized in App.initModulesOnce
+		DebridClientRepository:        nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
@@ -261,6 +265,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
+			Debrid        *models.DebridSettings
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater: selfupdater,
 		moduleMu:    sync.Mutex{},
@@ -290,6 +295,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Initialize torrentstream settings
 	app.InitOrRefreshTorrentstreamSettings()
+
+	// Initialize debrid settings
+	app.InitOrRefreshDebridSettings()
 
 	// Perform actions that need to be done after the app has been initialized
 	app.performActionsOnce()

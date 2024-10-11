@@ -15,9 +15,11 @@ import type {
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
+    Models_DebridSettings,
     Models_DiscordSettings,
     Models_LibrarySettings,
     Models_MangaSettings,
@@ -363,6 +365,68 @@ export type GetContinuityWatchHistoryItem_Variables = {
      *  AniList anime media ID
      */
     id: number
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// debrid
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/settings
+ * @description
+ * Route save debrid settings.
+ */
+export type SaveDebridSettings_Variables = {
+    settings: Models_DebridSettings
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents
+ * @description
+ * Route add torrent to debrid.
+ */
+export type DebridAddTorrents_Variables = {
+    torrents: Array<HibikeTorrent_AnimeTorrent>
+    media?: AL_BaseAnime
+    destination: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/download
+ * @description
+ * Route download torrent from debrid.
+ */
+export type DebridDownloadTorrent_Variables = {
+    torrentItem: Debrid_TorrentItem
+    destination: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/cancel
+ * @description
+ * Route cancel download from debrid.
+ */
+export type DebridCancelDownload_Variables = {
+    itemID: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrent
+ * @description
+ * Route remove torrent from debrid.
+ */
+export type DebridDeleteTorrent_Variables = {
+    torrentItem: Debrid_TorrentItem
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
