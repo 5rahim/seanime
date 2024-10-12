@@ -175,5 +175,5 @@ func fuzzyDateToString(year *int, month *int, day *int) string {
 	if day != nil {
 		_day = *day
 	}
-	return time.Date(_year, time.Month(_month), _day, 0, 0, 0, 0, time.Local).UTC().Format(time.RFC3339)
+	return time.Date(_year, time.Month(_month), _day, 0, 0, 0, 0, time.UTC).Format(time.RFC3339)
 }

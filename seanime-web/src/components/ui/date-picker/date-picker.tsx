@@ -1,7 +1,7 @@
 "use client"
 
 import { cva } from "class-variance-authority"
-import { format, getYear, Locale, setYear } from "date-fns"
+import { formatISO, getYear, Locale, setYear } from "date-fns"
 import * as React from "react"
 import { DayPickerBase } from "react-day-picker"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
@@ -170,7 +170,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>((
             {...rest}
         >
             {date ?
-                format(date, "P", { locale: locale }) :
+                formatISO(date, { representation: "date" }) :
                 <span className={cn(DatePickerAnatomy.placeholder(), placeholderClass)}>{placeholder || "Select a date"}</span>}
         </button>
     )
@@ -198,6 +198,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>((
                 locale={locale}
                 initialFocus
                 tableClass="w-auto mx-auto"
+                weekStartsOn={1}
             />
         </div>
     )

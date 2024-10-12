@@ -45,6 +45,11 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
         toggle(false)
     })
 
+    React.useEffect(() => {
+        console.log(listData?.completedAt)
+        listData?.completedAt && console.log(normalizeDate(listData?.completedAt))
+    }, [listData])
+
     if (!user) return null
 
     return (
