@@ -1,12 +1,4 @@
-import {
-    AL_BaseAnime,
-    AL_BaseManga,
-    AL_MediaStatus,
-    Anime_EntryListData,
-    Manga_EntryListData,
-    Nullish,
-    Offline_ListData,
-} from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_EntryListData, Nullish } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -200,7 +192,7 @@ type MediaPageHeaderEntryDetailsProps = {
     status?: AL_MediaStatus
     description?: string
 
-    listData?: Anime_EntryListData | Manga_EntryListData | Offline_ListData
+    listData?: Anime_EntryListData | Manga_EntryListData
     media: AL_BaseAnime | AL_BaseManga
     type: "anime" | "manga"
     offlineAnilistAnimeEntryModal?: React.ReactNode

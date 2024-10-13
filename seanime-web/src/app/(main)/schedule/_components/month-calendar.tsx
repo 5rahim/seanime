@@ -2,14 +2,19 @@ import { AL_BaseAnime, Anime_Episode } from "@/api/generated/types"
 import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Modal } from "@/components/ui/modal"
 import { Popover } from "@/components/ui/popover"
+import { RadioGroup } from "@/components/ui/radio-group"
 import { Tooltip } from "@/components/ui/tooltip"
-import { addMonths, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns"
+import { addMonths, Day, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths } from "date-fns"
 import { addDays } from "date-fns/addDays"
 import { isSameDay } from "date-fns/isSameDay"
+import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
+import { BiCog } from "react-icons/bi"
 
 type WeekCalendarProps = {
     children?: React.ReactNode
@@ -18,6 +23,8 @@ type WeekCalendarProps = {
 }
 
 const MAX_EVENT_COUNT = 5
+
+export const weekStartsOnAtom = atomWithStorage("sea-calendar-week-starts-on", 1)
 
 export function MonthCalendar(props: WeekCalendarProps) {
 
@@ -30,6 +37,8 @@ export function MonthCalendar(props: WeekCalendarProps) {
 
     // State for the current displayed month
     const [currentDate, setCurrentDate] = React.useState(new Date())
+
+    const [weekStartsOn, setWeekStartsOn] = useAtom(weekStartsOnAtom)
 
     // Function to go to the previous month
     const goToPreviousMonth = () => {
@@ -54,8 +63,8 @@ export function MonthCalendar(props: WeekCalendarProps) {
         const startOfCurrentMonth = startOfMonth(currentDate)
         const endOfCurrentMonth = endOfMonth(currentDate)
 
-        const startOfCalendar = startOfWeek(startOfCurrentMonth, { weekStartsOn: 1 })
-        const endOfCalendar = endOfWeek(endOfCurrentMonth, { weekStartsOn: 1 })
+        const startOfCalendar = startOfWeek(startOfCurrentMonth, { weekStartsOn: weekStartsOn as Day })
+        const endOfCalendar = endOfWeek(endOfCurrentMonth, { weekStartsOn: weekStartsOn as Day })
 
         const daysArray = []
         let day = startOfCalendar
@@ -79,7 +88,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                 return {
                     id: String(item.baseAnime?.id!) + String(item.fileMetadata?.episode!),
                     name: item.baseAnime?.title?.userPreferred,
-                    time: "",
+                    time: `${item.episodeMetadata?.airDate}`,
                     datetime: item.episodeMetadata?.airDate,
                     href: `/entry?id=${item.baseAnime?.id}`,
                     image: item.baseAnime?.bannerImage ?? item.baseAnime?.coverImage?.extraLarge ?? item.baseAnime?.coverImage?.large ?? item.baseAnime?.coverImage?.medium,
@@ -97,16 +106,14 @@ export function MonthCalendar(props: WeekCalendarProps) {
             day = addDays(day, 1)
         }
         return daysArray
-    }, [currentDate, media, missingEpisodes])
+    }, [currentDate, media, missingEpisodes, weekStartsOn])
 
     if (media?.length === 0 && missingEpisodes?.length === 0) return null
-
-    // const selectedDay = days.find((day) => day.isSelected)
 
     return (
         <>
             <div className="hidden lg:flex lg:h-full lg:flex-col rounded-md border">
-                <header className="flex items-center justify-center py-4 px-6 gap-4 lg:flex-none rounded-tr-md rounded-tl-md border-b bg-[--background]">
+                <header className="relative flex items-center justify-center py-4 px-6 gap-4 lg:flex-none rounded-tr-md rounded-tl-md border-b bg-[--background]">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
@@ -119,9 +126,24 @@ export function MonthCalendar(props: WeekCalendarProps) {
                         </time>
                     </h1>
                     <IconButton icon={<AiOutlineArrowRight />} onClick={goToNextMonth} rounded intent="gray-outline" size="sm" />
+
+                    <Modal
+                        title="Calendar Settings"
+                        trigger={<IconButton icon={<BiCog />} intent="gray-basic" className="absolute right-3 top-4" size="sm" />}
+                    >
+                        <RadioGroup
+                            label="Week starts on" options={[
+                            { label: "Monday", value: "1" },
+                            { label: "Sunday", value: "0" },
+                        ]} value={String(weekStartsOn)} onValueChange={v => setWeekStartsOn(Number(v))}
+                        />
+                    </Modal>
                 </header>
                 <div className="lg:flex lg:flex-auto lg:flex-col rounded-br-md rounded-bl-md">
                     <div className="grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 lg:flex-none">
+                        {weekStartsOn === 0 && <div className="py-2">
+                            S<span className="sr-only sm:not-sr-only">un</span>
+                        </div>}
                         <div className="py-2">
                             M<span className="sr-only sm:not-sr-only">on</span>
                         </div>
@@ -140,9 +162,9 @@ export function MonthCalendar(props: WeekCalendarProps) {
                         <div className="py-2">
                             S<span className="sr-only sm:not-sr-only">at</span>
                         </div>
-                        <div className="py-2">
+                        {weekStartsOn === 1 && <div className="py-2">
                             S<span className="sr-only sm:not-sr-only">un</span>
-                        </div>
+                        </div>}
                     </div>
                     <div className="flex bg-gray-950 text-xs leading-6 text-gray-200 lg:flex-auto">
                         <div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
