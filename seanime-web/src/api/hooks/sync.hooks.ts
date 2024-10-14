@@ -25,7 +25,7 @@ export function useSyncAddMedia() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetQueueState.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.key] })
-            toast.success("Added media for syncing")
+            toast.success("Added media for offline syncing")
         },
     })
 }
@@ -40,7 +40,7 @@ export function useSyncRemoveMedia() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetQueueState.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.key] })
-            toast.success("Removed media from syncing")
+            toast.success("Removed offline data")
         },
     })
 }

@@ -92,11 +92,6 @@ func (mf *Mangafire) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Sear
 		}
 	})
 
-	c.OnResponse(func(r *colly.Response) {
-		mf.logger.Debug().Str("uri", r.Request.URL.String()).Msg("mangafire: Visiting")
-		fmt.Println(string(r.Body))
-	})
-
 	err := c.Visit(uri)
 	if err != nil {
 		mf.logger.Error().Err(err).Msg("mangafire: Failed to visit")
@@ -117,7 +112,7 @@ func (mf *Mangafire) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.Sear
 			c2.WithTransport(mf.Client.Transport)
 
 			result := &hibikemanga.SearchResult{
-				Provider: string(MangafireProvider),
+				Provider: MangafireProvider,
 			}
 
 			// Synonyms

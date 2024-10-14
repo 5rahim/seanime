@@ -13,7 +13,8 @@ import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
-import { MdInfo } from "react-icons/md"
+import { MdInfo, MdOutlineOndemandVideo } from "react-icons/md"
+import { RiEdit2Line } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
 import { useCopyToClipboard } from "react-use"
 import { toast } from "sonner"
@@ -76,14 +77,18 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                         }
                     >
                         <MetadataModalButton />
-                        <DropdownMenuSeparator />
                         {episode.localFile && <DropdownMenuItem
                             onClick={() => {
                                 copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile!.path))
+                                toast.info("Stream URL copied")
                             }}
-                        >Copy stream URL</DropdownMenuItem>}
+                        >
+                            <MdOutlineOndemandVideo />
+                            Copy stream URL
+                        </DropdownMenuItem>}
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            className="!text-red-300 !dark:text-red-200"
+                            className="text-[--orange]"
                             onClick={() => {
                                 if (episode.localFile) {
                                     updateLocalFile(episode.localFile, {
@@ -91,7 +96,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                     })
                                 }
                             }}
-                        >Unmatch</DropdownMenuItem>
+                        >
+                            Unmatch
+                        </DropdownMenuItem>
                     </DropdownMenu>
 
                     {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.anidbId &&
@@ -179,7 +186,10 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
 
 function MetadataModalButton() {
     const [, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
-    return <DropdownMenuItem onClick={() => setIsOpen(true)}>Update metadata</DropdownMenuItem>
+    return <DropdownMenuItem onClick={() => setIsOpen(true)}>
+        <RiEdit2Line />
+        Update metadata
+    </DropdownMenuItem>
 }
 
 function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {

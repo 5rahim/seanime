@@ -490,7 +490,7 @@ func (q *Syncer) runDiffs(
 			Snapshots:       trackedAnimeSnapshotMap,
 		})
 		wg.Done()
-		q.manager.logger.Trace().Msg("sync: Finished getting anime diffs")
+		//q.manager.logger.Trace().Msg("sync: Finished getting anime diffs")
 	}()
 
 	var mangaDiffs map[int]*MangaDiffResult
@@ -504,7 +504,7 @@ func (q *Syncer) runDiffs(
 			Snapshots:                   trackedMangaSnapshotMap,
 		})
 		wg.Done()
-		q.manager.logger.Trace().Msg("sync: Finished getting manga diffs")
+		//q.manager.logger.Trace().Msg("sync: Finished getting manga diffs")
 	}()
 
 	wg.Wait()

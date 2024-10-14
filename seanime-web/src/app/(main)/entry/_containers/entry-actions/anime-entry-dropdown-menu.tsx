@@ -47,11 +47,11 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     <DropdownMenuItem
                         onClick={() => openEntryInExplorer({ mediaId: entry.mediaId })}
                     >
-                        Open folder
+                        Open directory
                     </DropdownMenuItem>
 
                     {serverStatus?.settings?.mediaPlayer?.defaultPlayer != "mpv" && <DropdownMenuItem
-                        onClick={() => startDefaultMediaPlayer}
+                        onClick={() => startDefaultMediaPlayer()}
                     >
                         Start video player
                     </DropdownMenuItem>}
@@ -75,7 +75,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                         <span>Download some files</span> <BiRightArrowAlt />
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        className="text-red-500 dark:text-red-200 flex justify-between"
+                        className="text-orange-500 dark:text-orange-200 flex justify-between"
                         onClick={() => setAnimeEntryUnmatchFilesModalOpen(true)}
                     >
                         <span>Unmatch some files</span> <BiRightArrowAlt />

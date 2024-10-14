@@ -286,6 +286,20 @@ export type GetAutoDownloaderRule_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/rule/anime/{id}
+ * @description
+ * Route returns the rules with the given media id.
+ */
+export type GetAutoDownloaderRulesByAnime_Variables = {
+    /**
+     *  The AniList anime id of the rules
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
  * - Endpoint: /api/v1/auto-downloader/rule
  * @description
  * Route creates a new rule.
@@ -1288,6 +1302,7 @@ export type SaveAutoDownloaderSettings_Variables = {
     downloadAutomatically: boolean
     enableEnhancedQueries: boolean
     enableSeasonCheck: boolean
+    useDebrid: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

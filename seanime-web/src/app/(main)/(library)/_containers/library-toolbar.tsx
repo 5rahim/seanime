@@ -127,7 +127,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         }}
                     >
                         <BiFolder />
-                        <span>Open folder</span>
+                        <span>Open directory</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem

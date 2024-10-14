@@ -29,6 +29,7 @@ import upath from "upath"
 type AutoDownloaderRuleFormProps = {
     type: "create" | "edit"
     rule?: Anime_AutoDownloaderRule
+    mediaId?: number
     onRuleCreatedOrDeleted?: () => void
 }
 
@@ -50,6 +51,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         type,
         rule,
         onRuleCreatedOrDeleted,
+        mediaId,
     } = props
 
     const userMedia = useAnilistUserAnime()
@@ -110,7 +112,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                 onSubmit={handleSave}
                 defaultValues={{
                     enabled: rule?.enabled ?? true,
-                    mediaId: rule?.mediaId ?? notFinishedMedia[0]?.id,
+                    mediaId: mediaId ?? rule?.mediaId ?? notFinishedMedia[0]?.id,
                     releaseGroups: rule?.releaseGroups ?? [],
                     resolutions: rule?.resolutions ?? [],
                     comparisonTitle: rule?.comparisonTitle ?? "",
@@ -126,6 +128,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                 {(f) => <RuleFormFields
                     form={f}
                     allMedia={allMedia}
+                    mediaId={mediaId}
                     type={type}
                     isPending={isPending}
                     notFinishedMedia={notFinishedMedia}
@@ -148,6 +151,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
 type RuleFormFieldsProps = {
     form: UseFormReturn<InferType<typeof schema>>
     allMedia: AL_BaseAnime[]
+    mediaId?: number
     type: "create" | "edit"
     isPending: boolean
     notFinishedMedia: AL_BaseAnime[]
@@ -160,6 +164,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     const {
         form,
         allMedia,
+        mediaId,
         type,
         isPending,
         notFinishedMedia,
@@ -208,7 +213,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
-                <div className="flex gap-4 items-end">
+                {!mediaId && <div className="flex gap-4 items-end">
                     <div
                         className="w-[6rem] h-[6rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
                     >
@@ -229,10 +234,10 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                             .toSorted((a, b) => a.label.localeCompare(b.label))}
                         value={String(form.watch("mediaId"))}
                         onValueChange={(v) => form.setValue("mediaId", parseInt(v))}
-                        help="The anime must be airing or upcoming"
-                        disabled={type === "edit"}
+                        help={!mediaId ? "The anime must be airing or upcoming" : undefined}
+                        disabled={type === "edit" || !!mediaId}
                     />
-                </div>
+                </div>}
 
                 {selectedMedia?.status === "FINISHED" && <div className="py-2 text-red-300 text-center">This anime is no longer airing</div>}
 

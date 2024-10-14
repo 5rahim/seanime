@@ -304,6 +304,15 @@
 //     })
 // }
 
+// export function useGetAutoDownloaderRulesByAnime(id: number) {
+//     return useServerQuery<Array<Anime_AutoDownloaderRule>>({
+//         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.endpoint.replace("{id}", String(id)),
+//         method: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.methods[0],
+//         queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useGetAutoDownloaderRules() {
 //     return useServerQuery<Array<Anime_AutoDownloaderRule>>({
 //         endpoint: API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.endpoint,

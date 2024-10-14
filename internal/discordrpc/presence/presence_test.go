@@ -16,7 +16,8 @@ func TestPresence(t *testing.T) {
 	}
 
 	presence := New(nil, util.NewLogger())
-	presence.SetSettings(settings, "test")
+	presence.SetSettings(settings)
+	presence.SetUsername("test")
 	defer presence.Close()
 
 	presence.SetMangaActivity(&MangaActivity{
@@ -30,7 +31,8 @@ func TestPresence(t *testing.T) {
 	// Simulate settings being updated
 
 	settings.EnableMangaRichPresence = false
-	presence.SetSettings(settings, "test")
+	presence.SetSettings(settings)
+	presence.SetUsername("test")
 
 	time.Sleep(5 * time.Second)
 
@@ -43,7 +45,8 @@ func TestPresence(t *testing.T) {
 	// Simulate settings being updated
 
 	settings.EnableMangaRichPresence = true
-	presence.SetSettings(settings, "test")
+	presence.SetSettings(settings)
+	presence.SetUsername("test")
 
 	time.Sleep(5 * time.Second)
 

@@ -284,6 +284,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/auto-downloader/rule/{id}",
         },
+        GetAutoDownloaderRulesByAnime: {
+            key: "AUTO-DOWNLOADER-get-auto-downloader-rules-by-anime",
+            methods: ["GET"],
+            endpoint: "/api/v1/auto-downloader/rule/anime/{id}",
+        },
         /**
          *  @description
          *  Route returns all rules.

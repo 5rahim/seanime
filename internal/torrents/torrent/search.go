@@ -8,6 +8,7 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/debrid/debrid"
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
@@ -50,9 +51,9 @@ type (
 
 	// SearchData is the struct returned by NewSmartSearch
 	SearchData struct {
-		Torrents                  []*hibiketorrent.AnimeTorrent `json:"torrents"`                  // Torrents found
-		Previews                  []*Preview                    `json:"previews"`                  // TorrentPreview for each torrent
-		DebridInstantAvailability map[string]bool               `json:"debridInstantAvailability"` // Debrid instant availability
+		Torrents                  []*hibiketorrent.AnimeTorrent                    `json:"torrents"`                  // Torrents found
+		Previews                  []*Preview                                       `json:"previews"`                  // TorrentPreview for each torrent
+		DebridInstantAvailability map[string]debrid.TorrentItemInstantAvailability `json:"debridInstantAvailability"` // Debrid instant availability
 	}
 )
 

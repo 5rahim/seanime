@@ -72,9 +72,13 @@ type (
 	}
 
 	InstantAvailabilityItem struct {
-		Name string `json:"name"`
-		Hash string `json:"hash"`
-		Size int64  `json:"size"`
+		Name  string `json:"name"`
+		Hash  string `json:"hash"`
+		Size  int64  `json:"size"`
+		Files []struct {
+			Name string `json:"name"`
+			Size int64  `json:"size"`
+		} `json:"files"`
 	}
 )
 
@@ -136,11 +140,11 @@ func (t *TorBox) Authenticate(apiKey string) error {
 	return nil
 }
 
-func (t *TorBox) GetInstantAvailability(hashes []string) map[string]bool {
+func (t *TorBox) GetInstantAvailability(hashes []string) map[string]debrid.TorrentItemInstantAvailability {
 
 	t.logger.Trace().Strs("hashes", hashes).Msg("torbox: Checking instant availability")
 
-	availability := make(map[string]bool)
+	availability := make(map[string]debrid.TorrentItemInstantAvailability)
 
 	var hashBatches [][]string
 
@@ -167,7 +171,16 @@ func (t *TorBox) GetInstantAvailability(hashes []string) map[string]bool {
 		}
 
 		for _, item := range items {
-			availability[item.Hash] = true
+			availability[item.Hash] = debrid.TorrentItemInstantAvailability{
+				CachedFiles: make(map[string]*debrid.CachedFile),
+			}
+
+			for idx, file := range item.Files {
+				availability[item.Hash].CachedFiles[strconv.Itoa(idx)] = &debrid.CachedFile{
+					Name: file.Name,
+					Size: file.Size,
+				}
+			}
 		}
 
 	}

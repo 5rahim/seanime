@@ -361,7 +361,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Discord != nil && a.DiscordPresence != nil {
-		a.DiscordPresence.SetSettings(settings.Discord, "")
+		a.DiscordPresence.SetSettings(settings.Discord)
 	}
 
 	// +---------------------+

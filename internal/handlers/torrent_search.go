@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/debrid/debrid"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util/result"
 	"strings"
 )
 
-var debridInstantAvailabilityCache = result.NewCache[string, map[string]bool]()
+var debridInstantAvailabilityCache = result.NewCache[string, map[string]debrid.TorrentItemInstantAvailability]()
 
 // HandleSearchTorrent
 //

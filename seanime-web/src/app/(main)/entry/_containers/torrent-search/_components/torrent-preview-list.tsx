@@ -1,4 +1,4 @@
-import { Anime_Entry, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
+import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
 import {
     TorrentDebridInstantAvailabilityBadge,
     TorrentResolutionBadge,
@@ -16,7 +16,7 @@ import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 type TorrentPreviewList = {
     entry: Anime_Entry
     previews: Torrent_Preview[]
-    debridInstantAvailability: Record<string, boolean>
+    debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
     isLoading: boolean
     selectedTorrents: HibikeTorrent_AnimeTorrent[]
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void

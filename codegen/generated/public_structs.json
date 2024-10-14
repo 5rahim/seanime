@@ -28173,8 +28173,8 @@
     ]
   },
   {
-    "filepath": "../internal/debrid/client/client.go",
-    "filename": "client.go",
+    "filepath": "../internal/debrid/client/repository.go",
+    "filename": "repository.go",
     "name": "Repository",
     "formattedName": "DebridClient_Repository",
     "package": "debrid_client",
@@ -28251,8 +28251,8 @@
     "comments": []
   },
   {
-    "filepath": "../internal/debrid/client/client.go",
-    "filename": "client.go",
+    "filepath": "../internal/debrid/client/repository.go",
+    "filename": "repository.go",
     "name": "NewRepositoryOptions",
     "formattedName": "DebridClient_NewRepositoryOptions",
     "package": "debrid_client",
@@ -28519,6 +28519,56 @@
         "\"other\""
       ]
     },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItemInstantAvailability",
+    "formattedName": "Debrid_TorrentItemInstantAvailability",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "CachedFiles",
+        "jsonName": "cachedFiles",
+        "goType": "map[string]CachedFile",
+        "typescriptType": "Record\u003cstring, Debrid_CachedFile\u003e",
+        "usedStructName": "debrid.CachedFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the file ID"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "CachedFile",
+    "formattedName": "Debrid_CachedFile",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -28992,6 +29042,15 @@
         "goType": "int64",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ name: string; size: number; }\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -52567,8 +52626,9 @@
       {
         "name": "DebridInstantAvailability",
         "jsonName": "debridInstantAvailability",
-        "goType": "map[string]bool",
-        "typescriptType": "Record\u003cstring, boolean\u003e",
+        "goType": "map[string]debrid.TorrentItemInstantAvailability",
+        "typescriptType": "Record\u003cstring, Debrid_TorrentItemInstantAvailability\u003e",
+        "usedStructName": "debrid.TorrentItemInstantAvailability",
         "required": false,
         "public": true,
         "comments": [

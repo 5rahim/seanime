@@ -1233,6 +1233,46 @@
     }
   },
   {
+    "name": "HandleGetAutoDownloaderRulesByAnime",
+    "trimmedName": "GetAutoDownloaderRulesByAnime",
+    "comments": [
+      "HandleGetAutoDownloaderRulesByAnime",
+      "",
+      "\t@summary returns the rules with the given media id.",
+      "\t@route /api/v1/auto-downloader/rule/anime/{id} [GET]",
+      "\t@param id - int - true - \"The AniList anime id of the rules\"",
+      "\t@returns []anime.AutoDownloaderRule",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "returns the rules with the given media id.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/rule/anime/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The AniList anime id of the rules"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "[]anime.AutoDownloaderRule",
+      "returnGoType": "anime.AutoDownloaderRule",
+      "returnTypescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e"
+    }
+  },
+  {
     "name": "HandleGetAutoDownloaderRules",
     "trimmedName": "GetAutoDownloaderRules",
     "comments": [
@@ -6337,6 +6377,15 @@
         {
           "name": "EnableSeasonCheck",
           "jsonName": "enableSeasonCheck",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "UseDebrid",
+          "jsonName": "useDebrid",
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",

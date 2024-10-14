@@ -1,4 +1,5 @@
 import { useSyncAddMedia, useSyncGetIsMediaTracked, useSyncRemoveMedia } from "@/api/hooks/sync.hooks"
+import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { IconButton } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import React from "react"
@@ -31,20 +32,30 @@ export function MediaSyncTrackButton(props: MediaSyncTrackButtonProps) {
         }
     }
 
+    const confirmUntrack = useConfirmationDialog({
+        title: "Remove offline data",
+        description: "This action will remove the offline data for this media entry. Are you sure you want to proceed?",
+        onConfirm: () => {
+            handleToggle()
+        },
+    })
+
     return (
         <>
             <Tooltip
                 trigger={<IconButton
                     icon={isTracked ? <MdOutlineOfflinePin /> : <MdOutlineDownloadForOffline />}
-                    onClick={handleToggle}
+                    onClick={() => isTracked ? confirmUntrack.open() : handleToggle()}
                     loading={isLoading || isAdding || isRemoving}
-                    intent={isTracked ? "primary-basic" : "gray-subtle"}
+                    intent={isTracked ? "primary-subtle" : "gray-subtle"}
                     size={size}
                     {...rest}
                 />}
             >
-                {isTracked ? `Un-track ${type}` : `Sync offline`}
+                {isTracked ? `Remove offline data` : `Save locally`}
             </Tooltip>
+
+            <ConfirmationDialog {...confirmUntrack} />
         </>
     )
 }

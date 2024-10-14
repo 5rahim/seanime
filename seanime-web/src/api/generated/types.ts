@@ -1771,6 +1771,16 @@ export type DB_ScanSummaryItem = {
  * - Filename: debrid.go
  * - Package: debrid
  */
+export type Debrid_CachedFile = {
+    size: number
+    name: string
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
 export type Debrid_TorrentItem = {
     id: string
     /**
@@ -1817,6 +1827,18 @@ export type Debrid_TorrentItem = {
      * Whether the torrent is ready to be downloaded
      */
     isReady: boolean
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItemInstantAvailability = {
+    /**
+     * Key is the file ID
+     */
+    cachedFiles?: Record<string, Debrid_CachedFile>
 }
 
 /**
@@ -2851,7 +2873,7 @@ export type Torrent_SearchData = {
     /**
      * Debrid instant availability
      */
-    debridInstantAvailability?: Record<string, boolean>
+    debridInstantAvailability?: Record<string, Debrid_TorrentItemInstantAvailability>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

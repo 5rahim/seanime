@@ -17,6 +17,10 @@ func TestMangafire_Search(t *testing.T) {
 			name:  "Boku no Kokoro no Yabai Yatsu",
 			query: "Boku no Kokoro no Yabai Yatsu",
 		},
+		{
+			name:  "Dangers in My Heart",
+			query: "Dangers in My Heart",
+		},
 	}
 
 	provider := NewMangafire(util.NewLogger())
@@ -49,49 +53,49 @@ func TestMangafire_Search(t *testing.T) {
 
 }
 
-//func TestMangafire_FindChapters(t *testing.T) {
-//
-//	tests := []struct {
-//		name    string
-//		id      string
-//		atLeast int
-//	}{
-//		{
-//			name:    "The Dangers in My Heart",
-//			id:      "",
-//			atLeast: 141,
-//		},
-//	}
-//
-//	provider := NewMangafire(util.NewLogger())
-//
-//	for _, tt := range tests {
-//
-//		t.Run(tt.name, func(t *testing.T) {
-//
-//			chapters, err := provider.FindChapters(tt.id)
-//			if assert.NoError(t, err, "provider.FindChapters() error") {
-//
-//				assert.NotEmpty(t, chapters, "chapters is empty")
-//
-//				assert.GreaterOrEqual(t, len(chapters), tt.atLeast, "chapters length is less than expected")
-//
-//				for _, chapter := range chapters {
-//					t.Logf("Title: %s", chapter.Title)
-//					t.Logf("\tSlug: %s", chapter.ID)
-//					t.Logf("\tURL: %s", chapter.URL)
-//					t.Logf("\tIndex: %d", chapter.Index)
-//					t.Logf("\tUpdatedAt: %s", chapter.UpdatedAt)
-//					t.Log("--------------------------------------------------")
-//				}
-//			}
-//
-//		})
-//
-//	}
-//
-//}
-//
+func TestMangafire_FindChapters(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		id      string
+		atLeast int
+	}{
+		{
+			name:    "The Dangers in My Heart",
+			id:      "/manga/boku-no-kokoro-no-yabai-yatsu.vv882",
+			atLeast: 141,
+		},
+	}
+
+	provider := NewMangafire(util.NewLogger())
+
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			chapters, err := provider.FindChapters(tt.id)
+			if assert.NoError(t, err, "provider.FindChapters() error") {
+
+				assert.NotEmpty(t, chapters, "chapters is empty")
+
+				assert.GreaterOrEqual(t, len(chapters), tt.atLeast, "chapters length is less than expected")
+
+				for _, chapter := range chapters {
+					t.Logf("Title: %s", chapter.Title)
+					t.Logf("\tSlug: %s", chapter.ID)
+					t.Logf("\tURL: %s", chapter.URL)
+					t.Logf("\tIndex: %d", chapter.Index)
+					t.Logf("\tUpdatedAt: %s", chapter.UpdatedAt)
+					t.Log("--------------------------------------------------")
+				}
+			}
+
+		})
+
+	}
+
+}
+
 //func TestMangafire_FindChapterPages(t *testing.T) {
 //
 //	tests := []struct {
