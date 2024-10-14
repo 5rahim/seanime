@@ -24,7 +24,6 @@ export function getAssetUrl(path: string) {
     return `${getServerBaseUrl()}/assets/${p}`
 }
 
-// @DEPRECATED
 export function legacy_getAssetUrl(path: string) {
     let p = path.replaceAll("\\", "/")
 

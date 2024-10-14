@@ -1,7 +1,7 @@
 "use client"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { cn } from "@/components/ui/core/styling"
-import { legacy_getAssetUrl } from "@/lib/server/assets"
+import { getAssetUrl } from "@/lib/server/assets"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import React, { useEffect } from "react"
@@ -19,7 +19,7 @@ export function CustomLibraryBanner(props: CustomLibraryBannerProps) {
      */
     const { discrete, isLibraryScreen } = props
     const ts = useThemeSettings()
-    const image = React.useMemo(() => ts.libraryScreenCustomBannerImage ? legacy_getAssetUrl(ts.libraryScreenCustomBannerImage) : "",
+    const image = React.useMemo(() => ts.libraryScreenCustomBannerImage ? getAssetUrl(ts.libraryScreenCustomBannerImage) : "",
         [ts.libraryScreenCustomBannerImage])
     const [dimmed, setDimmed] = React.useState(false)
 

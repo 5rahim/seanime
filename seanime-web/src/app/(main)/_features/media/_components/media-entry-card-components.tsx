@@ -465,7 +465,7 @@ export const MediaEntryCardHoverPopupBanner = ({
 
             {(!!bannerImage) ? <Image
                 src={getImageUrl(bannerImage || "")}
-                alt={""}
+                alt={"banner"}
                 fill
                 placeholder={imageShimmer(700, 475)}
                 quality={100}

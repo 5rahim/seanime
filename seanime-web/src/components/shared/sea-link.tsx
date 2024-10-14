@@ -18,9 +18,8 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
 
     if (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && rest.target !== "_blank") {
         return (
-            <div
+            <a
                 className={cn(
-                    "inline-block cursor-pointer",
                     className,
                 )}
                 onClick={() => {
@@ -28,7 +27,7 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
                 }}
             >
                 {children}
-            </div>
+            </a>
         )
     }
 
