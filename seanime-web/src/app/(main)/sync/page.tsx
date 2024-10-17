@@ -3,6 +3,7 @@ import { Sync_QueueState } from "@/api/generated/types"
 import {
     useSyncAnilistData,
     useSyncGetHasLocalChanges,
+    useSyncGetLocalStorageSize,
     useSyncGetTrackedMediaItems,
     useSyncLocalData,
     useSyncSetHasLocalChanges,
@@ -42,6 +43,8 @@ export default function Page() {
 
     const { data: hasLocalChanges } = useSyncGetHasLocalChanges()
     const { mutate: syncHasLocalChanges, isPending: isChangingLocalChangeStatus } = useSyncSetHasLocalChanges()
+
+    const { data: localStorageSize } = useSyncGetLocalStorageSize()
 
     const trackedAnimeItems = React.useMemo(() => {
         return trackedMediaItems?.filter(n => n.type === "anime" && !!n.animeEntry?.media) ?? []
@@ -120,10 +123,6 @@ export default function Page() {
                     >
                         <div className="space-y-4">
 
-                            <Alert
-                                description="Changes are irreversible."
-                            />
-
                             <Button
                                 intent="white"
                                 rounded
@@ -137,7 +136,7 @@ export default function Page() {
                             </Button>
                             <p className="text-sm">
                                 Update your local snapshots with the data from AniList.
-                                This will overwrite your local changes.
+                                This will overwrite your offline changes. You can automate this in <kbd>Settings {`>`} Seanime {`>`} Offline</kbd>.
                             </p>
                             <Separator />
                             <Button
@@ -149,16 +148,26 @@ export default function Page() {
                                 loading={isSyncingAnilist}
                                 onClick={handleSyncAnilist}
                             >
-                                Upload local changes
+                                Upload local changes to AniList
                             </Button>
                             <p className="text-sm">
                                 Update your AniList lists with the data from your local snapshots.
                                 This should be done after you've made changes offline.
                             </p>
+
+                            <Alert
+                                intent="warning-basic"
+                                description="Changes are irreversible."
+                            />
                         </div>
                     </Modal>
                 </div>
             </div>
+
+            <p className="text-sm">
+                <span>Local storage size: </span>
+                <span>{localStorageSize}</span>
+            </p>
 
             {hasLocalChanges && <>
                 <Alert

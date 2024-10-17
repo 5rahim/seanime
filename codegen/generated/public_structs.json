@@ -28495,6 +28495,75 @@
         "comments": [
           " Whether the torrent is ready to be downloaded"
         ]
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentItemFile",
+        "typescriptType": "Array\u003cDebrid_TorrentItemFile\u003e",
+        "usedStructName": "debrid.TorrentItemFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " List of files in the torrent (optional)"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItemFile",
+    "formattedName": "Debrid_TorrentItemFile",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID of the file, usually the index"
+        ]
+      },
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []

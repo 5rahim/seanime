@@ -122,7 +122,7 @@ func (t *TorBox) doQuery(method, uri string, body io.Reader, contentType string)
 	var ret Response
 
 	if err := json.NewDecoder(resp.Body).Decode(&ret); err != nil {
-		t.logger.Error().Err(err).Msg("debrid: Failed to decode response")
+		t.logger.Error().Err(err).Msg("torbox: Failed to decode response")
 		return nil, err
 	}
 

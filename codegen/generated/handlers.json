@@ -6849,6 +6849,33 @@
     }
   },
   {
+    "name": "HandleSyncGetLocalStorageSize",
+    "trimmedName": "SyncGetLocalStorageSize",
+    "comments": [
+      "HandleSyncGetLocalStorageSize",
+      "",
+      "\t@summary gets the size of the local storage in a human-readable format.",
+      "\t@route /api/v1/sync/storage/size [GET]",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "gets the size of the local storage in a human-readable format.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/storage/size",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
     "name": "HandleGetTheme",
     "trimmedName": "GetTheme",
     "comments": [

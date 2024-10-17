@@ -78,7 +78,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 }}
                 defaultValues={{
                     transcodeEnabled: settings?.transcodeEnabled ?? false,
-                    transcodeHwAccel: settings?.transcodeHwAccel || "cpu",
+                    transcodeHwAccel: settings?.transcodeHwAccel === "none" ? "cpu" : settings?.transcodeHwAccel || "cpu",
                     transcodePreset: settings?.transcodePreset || "fast",
                     // transcodeThreads: settings?.transcodeThreads,
                     // preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,

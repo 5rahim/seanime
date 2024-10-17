@@ -421,6 +421,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Sync.Post("/anilist", makeHandler(app, HandleSyncAnilistData))
 	v1Sync.Post("/updated", makeHandler(app, HandleSyncSetHasLocalChanges))
 	v1Sync.Get("/updated", makeHandler(app, HandleSyncGetHasLocalChanges))
+	v1Sync.Get("/storage/size", makeHandler(app, HandleSyncGetLocalStorageSize))
 
 	//
 	// Debrid

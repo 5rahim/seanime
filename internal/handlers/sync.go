@@ -1,5 +1,7 @@
 package handlers
 
+import "github.com/dustin/go-humanize"
+
 // HandleSyncGetTrackedMediaItems
 //
 //	@summary gets all tracked media.
@@ -155,4 +157,14 @@ func HandleSyncSetHasLocalChanges(c *RouteCtx) error {
 func HandleSyncGetHasLocalChanges(c *RouteCtx) error {
 	updated := c.App.SyncManager.HasLocalChanges()
 	return c.RespondWithData(updated)
+}
+
+// HandleSyncGetLocalStorageSize
+//
+//	@summary gets the size of the local storage in a human-readable format.
+//	@route /api/v1/sync/storage/size [GET]
+//	@returns string
+func HandleSyncGetLocalStorageSize(c *RouteCtx) error {
+	size := c.App.SyncManager.GetLocalStorageSize()
+	return c.RespondWithData(humanize.Bytes(uint64(size)))
 }

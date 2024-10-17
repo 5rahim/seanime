@@ -1466,6 +1466,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/sync/updated",
         },
+        SyncGetLocalStorageSize: {
+            key: "SYNC-sync-get-local-storage-size",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/storage/size",
+        },
     },
     THEME: {
         GetTheme: {

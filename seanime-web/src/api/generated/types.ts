@@ -1827,6 +1827,26 @@ export type Debrid_TorrentItem = {
      * Whether the torrent is ready to be downloaded
      */
     isReady: boolean
+    /**
+     * List of files in the torrent (optional)
+     */
+    files?: Array<Debrid_TorrentItemFile>
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItemFile = {
+    /**
+     * ID of the file, usually the index
+     */
+    id: string
+    index: number
+    name: string
+    path: string
+    size: number
 }
 
 /**

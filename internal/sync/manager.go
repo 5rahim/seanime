@@ -55,6 +55,7 @@ type Manager interface {
 	SetRefreshAnilistCollectionsFunc(func())
 	HasLocalChanges() bool
 	SetHasLocalChanges(bool)
+	GetLocalStorageSize() int64
 }
 
 type (
@@ -412,6 +413,8 @@ func (m *ManagerImpl) GetTrackedMediaItems() (ret []*TrackedMediaItem) {
 // It will then update the ManagerImpl.localAnimeCollection and ManagerImpl.localMangaCollection
 func (m *ManagerImpl) SynchronizeLocal() error {
 
+	localStorageSizeCache = 0
+
 	m.loadLocalAnimeCollection()
 	m.loadLocalMangaCollection()
 
@@ -707,4 +710,28 @@ func (m *ManagerImpl) removeMediaImages(mediaId int) error {
 	//	return fmt.Errorf("sync: Failed to remove images for media %d: %w", mediaId, err)
 	//}
 	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Avoids recalculating the size of the cache directory every time it is requested
+var localStorageSizeCache int64
+
+func (m *ManagerImpl) GetLocalStorageSize() int64 {
+
+	if localStorageSizeCache != 0 {
+		return localStorageSizeCache
+	}
+
+	var size int64
+	_ = filepath.Walk(m.localDir, func(path string, info os.FileInfo, err error) error {
+		if info != nil {
+			size += info.Size()
+		}
+		return nil
+	})
+
+	localStorageSizeCache = size
+
+	return size
 }

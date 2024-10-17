@@ -25,6 +25,7 @@ export function useSyncAddMedia() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetQueueState.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetLocalStorageSize] })
             toast.success("Added media for offline syncing")
         },
     })
@@ -40,6 +41,7 @@ export function useSyncRemoveMedia() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetTrackedMediaItems.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetQueueState.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetIsMediaTracked.key] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetLocalStorageSize] })
             toast.success("Removed offline data")
         },
     })
@@ -91,6 +93,7 @@ export function useSyncAnilistData() {
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntry.key] })
             await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetMissingEpisodes] })
+            await qc.invalidateQueries({ queryKey: [API_ENDPOINTS.SYNC.SyncGetLocalStorageSize] })
             toast.success("Updated Anilist data")
         },
     })
@@ -113,6 +116,15 @@ export function useSyncGetHasLocalChanges() {
         endpoint: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.endpoint,
         method: API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.methods[0],
         queryKey: [API_ENDPOINTS.SYNC.SyncGetHasLocalChanges.key],
+        enabled: true,
+    })
+}
+
+export function useSyncGetLocalStorageSize() {
+    return useServerQuery<string>({
+        endpoint: API_ENDPOINTS.SYNC.SyncGetLocalStorageSize.endpoint,
+        method: API_ENDPOINTS.SYNC.SyncGetLocalStorageSize.methods[0],
+        queryKey: [API_ENDPOINTS.SYNC.SyncGetLocalStorageSize.key],
         enabled: true,
     })
 }
