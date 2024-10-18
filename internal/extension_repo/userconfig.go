@@ -105,8 +105,6 @@ func (r *Repository) GetExtensionUserConfig(id string) (ret *ExtensionUserConfig
 func (r *Repository) SaveExtensionUserConfig(id string, savedConfig *extension.SavedUserConfig) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/SaveExtensionUserConfig", &err)
 
-	util.Spew(savedConfig)
-
 	// Save the config
 	bucket := filecache.NewPermanentBucket(getExtensionUserConfigBucketKey(id))
 	err = r.fileCacher.SetPerm(bucket, id, savedConfig)
