@@ -399,6 +399,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
 	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
 	v1Extensions.Get("/list/anime-torrent-provider", makeHandler(app, HandleListAnimeTorrentProviderExtensions))
+	v1Extensions.Get("/user-config/:id", makeHandler(app, HandleGetExtensionUserConfig))
+	v1Extensions.Post("/user-config", makeHandler(app, HandleSaveExtensionUserConfig))
 
 	//
 	// Continuity

@@ -697,6 +697,26 @@
 //     })
 // }
 
+// export function useGetExtensionUserConfig() {
+//     return useServerQuery<ExtensionRepo_ExtensionUserConfig>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSaveExtensionUserConfig() {
+//     return useServerMutation<boolean, SaveExtensionUserConfig_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // filecache
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

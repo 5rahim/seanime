@@ -1883,23 +1883,12 @@ export type Debrid_TorrentItemStatus = "downloading" |
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Config = {
-    version: number
-    requiresConfig: boolean
-    fields?: Array<Extension_ConfigField>
-}
-
-/**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
- * - Package: extension
- */
 export type Extension_ConfigField = {
     type: Extension_ConfigFieldType
     name: string
     label: string
     options?: Array<Extension_ConfigFieldSelectOption>
-    default: string
+    default?: string
 }
 
 /**
@@ -1917,7 +1906,7 @@ export type Extension_ConfigFieldSelectOption = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_ConfigFieldType = "text" | "switch" | "select" | "number"
+export type Extension_ConfigFieldType = "text" | "switch" | "select"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -1964,10 +1953,7 @@ export type Extension_Extension = {
      * NOT IMPLEMENTED
      */
     scopes?: Array<string>
-    /**
-     * NOT IMPLEMENTED
-     */
-    config?: Extension_Config
+    userConfig?: Extension_UserConfig
     payload: string
 }
 
@@ -1989,7 +1975,7 @@ export type Extension_InvalidExtension = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "invalid_authorization"
+export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "user_config_error" | "invalid_authorization"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2003,7 +1989,28 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Filename: extension.go
  * - Package: extension
  */
+export type Extension_SavedUserConfig = {
+    version: number
+    values?: Record<string, string>
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
 export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider"
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_UserConfig = {
+    version: number
+    requiresConfig: boolean
+    fields?: Array<Extension_ConfigField>
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionPlayground
@@ -2044,6 +2051,7 @@ export type RunPlaygroundCodeResponse = {
 export type ExtensionRepo_AllExtensions = {
     extensions?: Array<Extension_Extension>
     invalidExtensions?: Array<Extension_InvalidExtension>
+    invalidUserConfigExtensions?: Array<Extension_InvalidExtension>
     hasUpdate?: Array<ExtensionRepo_UpdateData>
 }
 
@@ -2069,6 +2077,16 @@ export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
  */
 export type ExtensionRepo_ExtensionInstallResponse = {
     message: string
+}
+
+/**
+ * - Filepath: internal/extension_repo/userconfig.go
+ * - Filename: userconfig.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_ExtensionUserConfig = {
+    userConfig?: Extension_UserConfig
+    savedUserConfig?: Extension_SavedUserConfig
 }
 
 /**

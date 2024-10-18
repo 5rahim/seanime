@@ -226,6 +226,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Logger:         logger,
 		ExtensionDir:   cfg.Extensions.Dir,
 		WSEventManager: wsEventManager,
+		FileCacher:     fileCacher,
 	})
 
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)

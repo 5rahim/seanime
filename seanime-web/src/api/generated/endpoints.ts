@@ -586,6 +586,16 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/playground/run",
         },
+        GetExtensionUserConfig: {
+            key: "EXTENSIONS-get-extension-user-config",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/user-config/{id}",
+        },
+        SaveExtensionUserConfig: {
+            key: "EXTENSIONS-save-extension-user-config",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/user-config",
+        },
     },
     FILECACHE: {
         /**

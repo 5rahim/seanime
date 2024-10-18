@@ -81,6 +81,6 @@ func (m *AnimeTorrentProviderExtensionImpl) GetScopes() []string {
 	return m.ext.Scopes
 }
 
-func (m *AnimeTorrentProviderExtensionImpl) GetConfig() Config {
-	return m.ext.Config
+func (m *AnimeTorrentProviderExtensionImpl) GetUserConfig() *UserConfig {
+	return m.ext.UserConfig
 }

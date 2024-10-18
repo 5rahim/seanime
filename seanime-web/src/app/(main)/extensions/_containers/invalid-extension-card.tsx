@@ -39,7 +39,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 )}
             ></div>
 
-            <div className="absolute top-3 right-3 flex flex-col gap-2 z-[2]">
+            <div className="absolute top-3 right-3 grid grid-cols-2 gap-1 p-1 rounded-md bg-gray-950 z-[2]">
                 <Modal
                     trigger={<IconButton
                         size="sm"
@@ -58,7 +58,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                         {extension.reason}
                     </code>
 
-                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto">
+                    <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-sm text-center">
                         {extension.path}
                     </p>
                 </Modal>

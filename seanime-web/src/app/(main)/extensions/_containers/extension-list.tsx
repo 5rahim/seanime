@@ -109,6 +109,7 @@ export function ExtensionList(props: ExtensionListProps) {
                         extension={extension}
                         hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                         isInstalled={isExtensionInstalled(extension.id)}
+                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
                     />
                 ))}
             </div>
@@ -121,6 +122,7 @@ export function ExtensionList(props: ExtensionListProps) {
                         extension={extension}
                         hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                         isInstalled={isExtensionInstalled(extension.id)}
+                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
                     />
                 ))}
             </div>
@@ -133,6 +135,7 @@ export function ExtensionList(props: ExtensionListProps) {
                         extension={extension}
                         hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
                         isInstalled={isExtensionInstalled(extension.id)}
+                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
                     />
                 ))}
             </div>

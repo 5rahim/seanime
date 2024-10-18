@@ -30263,16 +30263,14 @@
         ]
       },
       {
-        "name": "Config",
-        "jsonName": "config",
-        "goType": "Config",
-        "typescriptType": "Extension_Config",
-        "usedStructName": "extension.Config",
+        "name": "UserConfig",
+        "jsonName": "userConfig",
+        "goType": "UserConfig",
+        "typescriptType": "Extension_UserConfig",
+        "usedStructName": "extension.UserConfig",
         "required": false,
         "public": true,
-        "comments": [
-          " NOT IMPLEMENTED"
-        ]
+        "comments": []
       },
       {
         "name": "Payload",
@@ -30299,6 +30297,7 @@
       "declaredValues": [
         "\"invalid_manifest\"",
         "\"invalid_payload\"",
+        "\"user_config_error\"",
         "\"invalid_authorization\""
       ]
     },
@@ -30364,8 +30363,8 @@
   {
     "filepath": "../internal/extension/extension.go",
     "filename": "extension.go",
-    "name": "Config",
-    "formattedName": "Extension_Config",
+    "name": "UserConfig",
+    "formattedName": "Extension_UserConfig",
     "package": "extension",
     "fields": [
       {
@@ -30392,6 +30391,34 @@
         "goType": "[]ConfigField",
         "typescriptType": "Array\u003cExtension_ConfigField\u003e",
         "usedStructName": "extension.ConfigField",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "SavedUserConfig",
+    "formattedName": "Extension_SavedUserConfig",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Values",
+        "jsonName": "values",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -30449,7 +30476,7 @@
         "jsonName": "default",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -30469,8 +30496,7 @@
       "declaredValues": [
         "\"text\"",
         "\"switch\"",
-        "\"select\"",
-        "\"number\""
+        "\"select\""
       ]
     },
     "comments": []
@@ -32001,6 +32027,16 @@
         "comments": []
       },
       {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
         "goType": "events.WSEventManagerInterface",
@@ -32080,6 +32116,16 @@
       {
         "name": "InvalidExtensions",
         "jsonName": "invalidExtensions",
+        "goType": "[]extension.InvalidExtension",
+        "typescriptType": "Array\u003cExtension_InvalidExtension\u003e",
+        "usedStructName": "extension.InvalidExtension",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InvalidUserConfigExtensions",
+        "jsonName": "invalidUserConfigExtensions",
         "goType": "[]extension.InvalidExtension",
         "typescriptType": "Array\u003cExtension_InvalidExtension\u003e",
         "usedStructName": "extension.InvalidExtension",
@@ -32324,6 +32370,16 @@
         "goType": "events.WSEventManagerInterface",
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
         "required": false,
         "public": true,
         "comments": []
@@ -32594,6 +32650,36 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/userconfig.go",
+    "filename": "userconfig.go",
+    "name": "ExtensionUserConfig",
+    "formattedName": "ExtensionRepo_ExtensionUserConfig",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "UserConfig",
+        "jsonName": "userConfig",
+        "goType": "extension.UserConfig",
+        "typescriptType": "Extension_UserConfig",
+        "usedStructName": "extension.UserConfig",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SavedUserConfig",
+        "jsonName": "savedUserConfig",
+        "goType": "extension.SavedUserConfig",
+        "typescriptType": "Extension_SavedUserConfig",
+        "usedStructName": "extension.SavedUserConfig",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],

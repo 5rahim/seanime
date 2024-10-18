@@ -595,6 +595,19 @@ export type RunExtensionPlaygroundCode_Variables = {
     params?: RunPlaygroundCodeParams
 }
 
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/user-config
+ * @description
+ * Route saves the user config for the extension with the given ID and reloads it.
+ */
+export type SaveExtensionUserConfig_Variables = {
+    id: string
+    version: number
+    values: Record<string, string>
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // filecache
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

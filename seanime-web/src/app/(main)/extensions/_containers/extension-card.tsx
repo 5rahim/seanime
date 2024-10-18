@@ -1,7 +1,8 @@
-import { Extension_Extension } from "@/api/generated/types"
+import { Extension_Extension, Extension_InvalidExtension } from "@/api/generated/types"
 import { useFetchExternalExtensionData, useInstallExternalExtension, useUninstallExternalExtension } from "@/api/hooks/extensions.hooks"
 import { ExtensionDetails } from "@/app/(main)/extensions/_components/extension-details"
 import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
+import { ExtensionUserConfigModal } from "@/app/(main)/extensions/_containers/extension-user-config"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +16,7 @@ import React from "react"
 import { BiCog } from "react-icons/bi"
 import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
+import { HiOutlineAdjustments } from "react-icons/hi"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
 import { toast } from "sonner"
@@ -23,6 +25,7 @@ type ExtensionCardProps = {
     extension: Extension_Extension
     hasUpdate: boolean
     isInstalled: boolean
+    userConfigError?: Extension_InvalidExtension | undefined
 }
 
 export function ExtensionCard(props: ExtensionCardProps) {
@@ -31,6 +34,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
         extension,
         hasUpdate,
         isInstalled,
+        userConfigError,
         ...rest
     } = props
 
@@ -72,6 +76,20 @@ export function ExtensionCard(props: ExtensionCardProps) {
                             icon={<FaCode />}
                         />
                     </ExtensionCodeModal>
+                )}
+                {!!extension.userConfig && (
+                    <>
+                        <ExtensionUserConfigModal extension={extension} userConfigError={userConfigError}>
+                            <IconButton
+                                size="sm"
+                                intent={userConfigError ? "alert" : "gray-basic"}
+                                icon={<HiOutlineAdjustments />}
+                                className={cn(
+                                    userConfigError && "animate-bounce",
+                                )}
+                            />
+                        </ExtensionUserConfigModal>
+                    </>
                 )}
             </div>
 

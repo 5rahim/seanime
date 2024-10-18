@@ -10,8 +10,9 @@ import (
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
-	vendor_hibike_manga "seanime/internal/extension/vendoring/manga"
+	"seanime/internal/extension/vendoring/manga"
 	"seanime/internal/extension/vendoring/torrent"
+	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 )
 
@@ -19,6 +20,7 @@ type (
 	// Repository manages all extensions
 	Repository struct {
 		logger         *zerolog.Logger
+		fileCacher     *filecache.Cacher
 		wsEventManager events.WSEventManagerInterface
 		// Absolute path to the directory containing all extensions
 		extensionDir string
@@ -37,6 +39,8 @@ type (
 	AllExtensions struct {
 		Extensions        []*extension.Extension        `json:"extensions"`
 		InvalidExtensions []*extension.InvalidExtension `json:"invalidExtensions"`
+		// List of extensions with invalid user config extensions, these extensions are still loaded
+		InvalidUserConfigExtensions []*extension.InvalidExtension `json:"invalidUserConfigExtensions"`
 		// List of extension IDs that have an update available
 		// This is only populated when the user clicks on "Check for updates"
 		HasUpdate []UpdateData `json:"hasUpdate"`
@@ -75,6 +79,7 @@ type NewRepositoryOptions struct {
 	Logger         *zerolog.Logger
 	ExtensionDir   string
 	WSEventManager events.WSEventManagerInterface
+	FileCacher     *filecache.Cacher
 }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -89,6 +94,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		gojaExtensions:    result.NewResultMap[string, GojaExtension](),
 		extensionBank:     extension.NewUnifiedBank(),
 		invalidExtensions: result.NewResultMap[string, *extension.InvalidExtension](),
+		fileCacher:        opts.FileCacher,
 	}
 
 	ret.loadYaegiInterpreter()
@@ -97,9 +103,20 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 }
 
 func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
+	invalidExtensions := r.ListInvalidExtensions()
+
+	fatalInvalidExtensions := lo.Filter(invalidExtensions, func(ext *extension.InvalidExtension, _ int) bool {
+		return ext.Code != extension.InvalidExtensionUserConfigError
+	})
+
+	userConfigInvalidExtensions := lo.Filter(invalidExtensions, func(ext *extension.InvalidExtension, _ int) bool {
+		return ext.Code == extension.InvalidExtensionUserConfigError
+	})
+
 	ret = &AllExtensions{
-		Extensions:        r.ListExtensionData(),
-		InvalidExtensions: r.ListInvalidExtensions(),
+		Extensions:                  r.ListExtensionData(),
+		InvalidExtensions:           fatalInvalidExtensions,
+		InvalidUserConfigExtensions: userConfigInvalidExtensions,
 	}
 	if withUpdates {
 		ret.HasUpdate = r.checkForUpdates()

@@ -1,6 +1,10 @@
 package handlers
 
-import "seanime/internal/extension_playground"
+import (
+	"fmt"
+	"seanime/internal/extension"
+	"seanime/internal/extension_playground"
+)
 
 // HandleFetchExternalExtensionData
 //
@@ -188,4 +192,50 @@ func HandleRunExtensionPlaygroundCode(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(res)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// HandleGetExtensionUserConfig
+//
+//	@summary returns the user config definition and current values for the extension with the given ID.
+//	@route /api/v1/extensions/user-config/{id} [GET]
+//	@returns extension_repo.ExtensionUserConfig
+func HandleGetExtensionUserConfig(c *RouteCtx) error {
+	id := c.Fiber.Params("id", "")
+	if id == "" {
+		return c.RespondWithError(fmt.Errorf("id is required"))
+	}
+	config := c.App.ExtensionRepository.GetExtensionUserConfig(id)
+	return c.RespondWithData(config)
+}
+
+// HandleSaveExtensionUserConfig
+//
+//	@summary saves the user config for the extension with the given ID and reloads it.
+//	@route /api/v1/extensions/user-config [POST]
+//	@returns bool
+func HandleSaveExtensionUserConfig(c *RouteCtx) error {
+	type body struct {
+		ID      string            `json:"id"`      // The extension ID
+		Version int               `json:"version"` // The current extension user config definition version
+		Values  map[string]string `json:"values"`  // The values
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	config := &extension.SavedUserConfig{
+		Version: b.Version,
+		Values:  b.Values,
+	}
+
+	err := c.App.ExtensionRepository.SaveExtensionUserConfig(b.ID, config)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
 }

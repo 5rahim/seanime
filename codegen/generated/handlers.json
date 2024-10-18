@@ -2674,6 +2674,88 @@
     }
   },
   {
+    "name": "HandleGetExtensionUserConfig",
+    "trimmedName": "GetExtensionUserConfig",
+    "comments": [
+      "HandleGetExtensionUserConfig",
+      "",
+      "\t@summary returns the user config definition and current values for the extension with the given ID.",
+      "\t@route /api/v1/extensions/user-config/{id} [GET]",
+      "\t@returns extension_repo.ExtensionUserConfig",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the user config definition and current values for the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/user-config/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "extension_repo.ExtensionUserConfig",
+      "returnGoType": "extension_repo.ExtensionUserConfig",
+      "returnTypescriptType": "ExtensionRepo_ExtensionUserConfig"
+    }
+  },
+  {
+    "name": "HandleSaveExtensionUserConfig",
+    "trimmedName": "SaveExtensionUserConfig",
+    "comments": [
+      "HandleSaveExtensionUserConfig",
+      "",
+      "\t@summary saves the user config for the extension with the given ID and reloads it.",
+      "\t@route /api/v1/extensions/user-config [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "saves the user config for the extension with the given ID and reloads it.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/user-config",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Version",
+          "jsonName": "version",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Values",
+          "jsonName": "values",
+          "goType": "map[string]string",
+          "usedStructType": "",
+          "typescriptType": "Record\u003cstring, string\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleGetFileCacheTotalSize",
     "trimmedName": "GetFileCacheTotalSize",
     "comments": [

@@ -68,6 +68,8 @@ export default function Page() {
 
     const { data: torrentProviderExtensions } = useAnimeListTorrentProviderExtensions()
 
+    console.log(torrentProviderExtensions)
+
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 
     React.useEffect(() => {
