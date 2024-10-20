@@ -1,7 +1,7 @@
 import { AL_BaseAnime, Anime_LibraryCollectionEntry, Anime_LocalFile } from "@/api/generated/types"
 import { useGetLocalFiles } from "@/api/hooks/localfiles.hooks"
 import { useGetPlaylistEpisodes } from "@/api/hooks/playlist.hooks"
-import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -33,7 +33,7 @@ export function PlaylistManager(props: PlaylistManagerProps) {
         ...rest
     } = props
 
-    const libraryCollection = useAtomValue(libraryCollectionAtom)
+    const libraryCollection = useAtomValue(animeLibraryCollectionAtom)
 
     const { data: localFiles } = useGetLocalFiles()
 

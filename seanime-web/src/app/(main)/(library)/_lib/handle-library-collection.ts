@@ -1,5 +1,5 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
-import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries } from "@/lib/helpers/filtering"
 import { atomWithImmer } from "jotai-immer"
@@ -18,7 +18,7 @@ export const __mainLibrary_paramsInputAtom = atomWithImmer<CollectionParams>(MAI
 export function useHandleLibraryCollection() {
     const serverStatus = useServerStatus()
 
-    const atom_setLibraryCollection = useSetAtom(libraryCollectionAtom)
+    const atom_setLibraryCollection = useSetAtom(animeLibraryCollectionAtom)
 
     /**
      * Fetch the library collection data

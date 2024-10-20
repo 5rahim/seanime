@@ -14,13 +14,15 @@ func HandleSyncGetTrackedMediaItems(c *RouteCtx) error {
 
 // HandleSyncAddMedia
 //
-//	@summary adds a media to be tracked for offline sync.
+//	@summary adds one or multiple media to be tracked for offline sync.
 //	@route /api/v1/sync/track [POST]
 //	@returns bool
 func HandleSyncAddMedia(c *RouteCtx) error {
 	type body struct {
-		MediaId int    `json:"mediaId"`
-		Type    string `json:"type"`
+		Media []struct {
+			MediaId int    `json:"mediaId"`
+			Type    string `json:"type"`
+		} `json:"media"`
 	}
 
 	var b body
@@ -29,11 +31,13 @@ func HandleSyncAddMedia(c *RouteCtx) error {
 	}
 
 	var err error
-	switch b.Type {
-	case "anime":
-		err = c.App.SyncManager.AddAnime(b.MediaId)
-	case "manga":
-		err = c.App.SyncManager.AddManga(b.MediaId)
+	for _, m := range b.Media {
+		switch m.Type {
+		case "anime":
+			err = c.App.SyncManager.AddAnime(m.MediaId)
+		case "manga":
+			err = c.App.SyncManager.AddManga(m.MediaId)
+		}
 	}
 
 	if err != nil {

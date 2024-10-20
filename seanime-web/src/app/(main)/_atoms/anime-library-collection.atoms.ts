@@ -1,11 +1,11 @@
 import { Anime_LibraryCollection } from "@/api/generated/types"
 import { atom } from "jotai/index"
 
-export const libraryCollectionAtom = atom<Anime_LibraryCollection | undefined>(undefined)
+export const animeLibraryCollectionAtom = atom<Anime_LibraryCollection | undefined>(undefined)
 
-export const getAtomicLibraryEntryAtom = atom(get => get(libraryCollectionAtom)?.lists?.length,
+export const getAtomicLibraryEntryAtom = atom(get => get(animeLibraryCollectionAtom)?.lists?.length,
     (get, set, payload: number) => {
-        const lists = get(libraryCollectionAtom)?.lists
+        const lists = get(animeLibraryCollectionAtom)?.lists
         if (!lists) {
             return undefined
         }

@@ -12,6 +12,7 @@ import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/medi
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SyncAddMediaModal } from "@/app/(main)/sync/_containers/sync-add-media-modal"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Alert } from "@/components/ui/alert"
@@ -96,15 +97,17 @@ export default function Page() {
         <PageWrapper
             className="p-4 sm:p-8 pt-4 relative space-y-8"
         >
-            <div className="flex justify-between">
+            <div className="flex gap-2">
                 <div>
-                    <h2 className="text-center lg:text-left">Sync for offline</h2>
+                    <h2 className="text-center lg:text-left">Saved locally</h2>
                     <p className="text-[--muted]">
-                        View your tracked media for offline syncing.
+                        View your saved media for offline.
                     </p>
                 </div>
 
-                <div>
+                <div className="flex flex-1"></div>
+
+                <div className="contents">
                     <Modal
                         title="Sync"
                         open={syncModalOpen}
@@ -161,6 +164,10 @@ export default function Page() {
                             />
                         </div>
                     </Modal>
+
+                    <SyncAddMediaModal
+                        savedMediaIds={trackedMediaItems?.map(n => n.mediaId) ?? []}
+                    />
                 </div>
             </div>
 
@@ -220,7 +227,7 @@ export default function Page() {
             />}
 
             {!!trackedAnimeItems?.length && <div className="space-y-4">
-                <h3>Tracked anime</h3>
+                <h3>Saved anime</h3>
                 <MediaCardLazyGrid itemCount={trackedAnimeItems?.length}>
                     {trackedAnimeItems?.map((item) => (
                         <MediaEntryCard
@@ -236,7 +243,7 @@ export default function Page() {
             </div>}
 
             {!!trackedMangaItems?.length && <div className="space-y-4">
-                <h3>Tracked manga</h3>
+                <h3>Saved manga</h3>
                 <MediaCardLazyGrid itemCount={trackedMangaItems?.length}>
                     {trackedMangaItems?.map((item) => (
                         <MediaEntryCard

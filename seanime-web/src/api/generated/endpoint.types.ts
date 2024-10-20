@@ -1342,11 +1342,10 @@ export type DeleteLogs_Variables = {
  * - Filename: sync.go
  * - Endpoint: /api/v1/sync/track
  * @description
- * Route adds a media to be tracked for offline sync.
+ * Route adds one or multiple media to be tracked for offline sync.
  */
 export type SyncAddMedia_Variables = {
-    mediaId: number
-    type: string
+    media: Array<{ mediaId: number; type: string; }>
 }
 
 /**

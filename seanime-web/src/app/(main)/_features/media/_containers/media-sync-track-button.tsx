@@ -28,7 +28,12 @@ export function MediaSyncTrackButton(props: MediaSyncTrackButtonProps) {
         if (isTracked) {
             removeMedia({ mediaId, type })
         } else {
-            addMedia({ mediaId, type })
+            addMedia({
+                media: [{
+                    mediaId: mediaId,
+                    type: type,
+                }],
+            })
         }
     }
 

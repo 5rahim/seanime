@@ -6641,7 +6641,7 @@
     "comments": [
       "HandleSyncAddMedia",
       "",
-      "\t@summary adds a media to be tracked for offline sync.",
+      "\t@summary adds one or multiple media to be tracked for offline sync.",
       "\t@route /api/v1/sync/track [POST]",
       "\t@returns bool",
       ""
@@ -6649,7 +6649,7 @@
     "filepath": "internal/handlers/sync.go",
     "filename": "sync.go",
     "api": {
-      "summary": "adds a media to be tracked for offline sync.",
+      "summary": "adds one or multiple media to be tracked for offline sync.",
       "descriptions": [],
       "endpoint": "/api/v1/sync/track",
       "methods": [
@@ -6658,20 +6658,11 @@
       "params": [],
       "bodyFields": [
         {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "[]__STRUCT__",
           "usedStructType": "",
-          "typescriptType": "number",
-          "required": true,
-          "descriptions": []
-        },
-        {
-          "name": "Type",
-          "jsonName": "type",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
+          "typescriptType": "Array\u003c{ mediaId: number; type: string; }\u003e",
           "required": true,
           "descriptions": []
         }

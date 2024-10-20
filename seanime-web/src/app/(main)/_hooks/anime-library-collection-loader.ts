@@ -1,5 +1,5 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
-import { libraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
+import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
 
@@ -9,7 +9,7 @@ import React from "react"
  */
 export function useAnimeLibraryCollectionLoader() {
 
-    const setter = useSetAtom(libraryCollectionAtom)
+    const setter = useSetAtom(animeLibraryCollectionAtom)
 
     const { data, status } = useGetLibraryCollection()
 
@@ -23,5 +23,5 @@ export function useAnimeLibraryCollectionLoader() {
 }
 
 export function useLibraryCollection() {
-    return useAtomValue(libraryCollectionAtom)
+    return useAtomValue(animeLibraryCollectionAtom)
 }
