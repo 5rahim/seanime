@@ -24,9 +24,10 @@ import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-ac
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { TorrentStreamButton } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-button"
 import { SeaLink } from "@/components/shared/sea-link"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { useAtomValue } from "jotai"
 import React from "react"
+import { SiAnilist } from "react-icons/si"
 
 
 export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetailsById_Media | undefined }) {
@@ -93,38 +94,39 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
                 <NextAiringEpisode media={entry.media} />
 
-                <div className="w-full flex justify-between flex-wrap gap-4 items-center">
+                <div className="w-full flex flex-wrap gap-4 items-center">
 
-                    <EntryOnlinestreamButton entry={entry} />
+                    <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
+                        <EntryOnlinestreamButton entry={entry} />
 
-                    <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
-                        <Button intent="gray-link" className="px-0">
-                            AniList
-                        </Button>
-                    </SeaLink>
+                        <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
+                            <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
+                        </SeaLink>
 
-                    {!!entry?.media?.trailer?.id && <TrailerModal
-                        trailerId={entry?.media?.trailer?.id} trigger={
-                        <Button intent="gray-link" className="px-0">
-                            Trailer
-                        </Button>}
-                    />}
+                        {!!entry?.media?.trailer?.id && <TrailerModal
+                            trailerId={entry?.media?.trailer?.id} trigger={
+                            <Button intent="gray-link" className="px-0">
+                                Trailer
+                            </Button>}
+                        />}
+                    </div>
 
+                    <div className="flex-1 hidden lg:flex"></div>
 
-                    <div className="flex flex-1"></div>
+                    <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
+                        <AnimeAutoDownloaderButton entry={entry} size="lg" />
 
-                    <AnimeAutoDownloaderButton entry={entry} size="lg" />
-
-                    {!!entry.libraryData && <>
-                        <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="lg" />
-                        <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
-                        <ToggleLockFilesButton
-                            allFilesLocked={entry.libraryData.allFilesLocked}
-                            mediaId={entry.mediaId}
-                            size="lg"
-                        />
-                    </>}
-                    <AnimeEntryDropdownMenu entry={entry} />
+                        {!!entry.libraryData && <>
+                            <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="lg" />
+                            <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
+                            <ToggleLockFilesButton
+                                allFilesLocked={entry.libraryData.allFilesLocked}
+                                mediaId={entry.mediaId}
+                                size="lg"
+                            />
+                        </>}
+                        <AnimeEntryDropdownMenu entry={entry} />
+                    </div>
                 </div>
 
                 {(!entry.anidbId || entry.anidbId === 0) && (

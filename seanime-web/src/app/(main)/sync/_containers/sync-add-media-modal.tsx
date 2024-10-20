@@ -51,6 +51,10 @@ export function SyncAddMediaModal(props: SyncAddMediaModalProps) {
             </Button>}
         >
 
+            <p className="text-[--muted]">
+                Select the media you want to save locally. Click on already saved media to remove it from local storage.
+            </p>
+
             <MediaSelector
                 selectedMedia={selectedMedia}
                 setSelectedMedia={setSelectedMedia}

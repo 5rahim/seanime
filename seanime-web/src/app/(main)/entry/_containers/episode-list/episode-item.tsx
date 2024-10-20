@@ -13,7 +13,7 @@ import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
-import { MdInfo, MdOutlineOndemandVideo } from "react-icons/md"
+import { MdInfo, MdOutlineOndemandVideo, MdOutlineRemoveDone } from "react-icons/md"
 import { RiEdit2Line } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
 import { useCopyToClipboard } from "react-use"
@@ -97,7 +97,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                 }
                             }}
                         >
-                            Unmatch
+                            <MdOutlineRemoveDone /> Unmatch
                         </DropdownMenuItem>
                     </DropdownMenu>
 

@@ -99,9 +99,9 @@ export default function Page() {
         >
             <div className="flex gap-2">
                 <div>
-                    <h2 className="text-center lg:text-left">Saved locally</h2>
+                    <h2 className="text-center lg:text-left">Synced media</h2>
                     <p className="text-[--muted]">
-                        View your saved media for offline.
+                        View the media you've saved locally for offline use.
                     </p>
                 </div>
 
