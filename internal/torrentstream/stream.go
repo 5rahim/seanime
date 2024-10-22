@@ -34,8 +34,7 @@ type StartStreamOptions struct {
 
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(opts *StartStreamOptions) error {
-	// MY DUMBASS SHUT DOWN THE CLIENT BEFORE STARTING THE STREAM
-	// NO SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
+	// DEVNOTE: Do not
 	//r.Shutdown()
 
 	r.logger.Info().
@@ -96,7 +95,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	go func() {
 		// Add the torrent to the history if it is a batch & manually selected
 		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
-			r.addBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
+			r.AddBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
 		}
 
 		for {
@@ -118,7 +117,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 			// Start the stream
 			//
 			r.logger.Debug().Msg("torrentstream: Starting the media player")
-			err = r.playbackManager.StartStreamingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+			err = r.playbackManager.StartStreamingUsingMediaPlayer("torrentstream", &playbackmanager.StartPlayingOptions{
 				Payload:   r.client.GetStreamingUrl(),
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,

@@ -1,5 +1,6 @@
 import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
+import { DebridStreamFileSelectionModal } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-file-selection-modal"
 import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
@@ -10,11 +11,11 @@ import {
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
     __torrentSearch_torrentstreamSelectedTorrentAtom,
     TorrentstreamFileSelectionModal,
-} from "@/app/(main)/entry/_containers/torrent-search/torrentstream-file-section-modal"
-import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+} from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
 import { useTorrentStreamingSelectedEpisode } from "@/app/(main)/entry/_lib/torrent-streaming.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
@@ -176,6 +177,15 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                 })
             }
         } else if (type === "select-file") {
+            // Open the drawer to select the file
+            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+                // This opens the file selection drawer
+                setTorrentstreamSelectedTorrent(selectedTorrents[0])
+                React.startTransition(() => {
+                    setSelectedTorrents([])
+                })
+            }
+        } else if (type === "debrid-stream") {
             // Open the drawer to select the file
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 // This opens the file selection drawer
@@ -362,6 +372,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
             />}
 
             {type === "select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
+            {type === "debrid-stream" && <DebridStreamFileSelectionModal entry={entry} />}
         </>
     )
 

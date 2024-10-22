@@ -459,6 +459,36 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/debrid/torrents",
         },
+        /**
+         *  @description
+         *  Route get torrent info from debrid.
+         *  This gets the torrent info from the debrid service.
+         */
+        DebridGetTorrentInfo: {
+            key: "DEBRID-debrid-get-torrent-info",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/info",
+        },
+        /**
+         *  @description
+         *  Route start stream from debrid.
+         *  This starts streaming a torrent from the debrid service.
+         */
+        DebridStartStream: {
+            key: "DEBRID-debrid-start-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/stream/start",
+        },
+        /**
+         *  @description
+         *  Route cancel stream from debrid.
+         *  This cancels a stream from the debrid service.
+         */
+        DebridCancelStream: {
+            key: "DEBRID-debrid-cancel-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/stream/cancel",
+        },
     },
     DIRECTORY_SELECTOR: {
         /**

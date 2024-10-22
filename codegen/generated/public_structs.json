@@ -28116,6 +28116,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FallbackToDebridStreamingView",
+        "jsonName": "fallbackToDebridStreamingView",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IncludeDebridStreamInLibrary",
+        "jsonName": "includeDebridStreamInLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -28246,6 +28264,56 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "playbackManager",
+        "jsonName": "playbackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "streamManager",
+        "jsonName": "streamManager",
+        "goType": "StreamManager",
+        "typescriptType": "DebridClient_StreamManager",
+        "usedStructName": "debrid_client.StreamManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "completeAnimeCache",
+        "jsonName": "completeAnimeCache",
+        "goType": "anilist.CompleteAnimeCache",
+        "typescriptType": "AL_CompleteAnimeCache",
+        "usedStructName": "anilist.CompleteAnimeCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -28284,6 +28352,260 @@
         "typescriptType": "DB_Database",
         "usedStructName": "db.Database",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackManager",
+        "jsonName": "PlaybackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamManager",
+    "formattedName": "DebridClient_StreamManager",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTorrentItemId",
+        "jsonName": "currentTorrentItemId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadCtxCancelFunc",
+        "jsonName": "downloadCtxCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamPlaybackType",
+    "formattedName": "DebridClient_StreamPlaybackType",
+    "package": "debrid_client",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"default\"",
+        "\"externalPlayerLink\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamStatus",
+    "formattedName": "DebridClient_StreamStatus",
+    "package": "debrid_client",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"downloading\"",
+        "\"ready\"",
+        "\"failed\"",
+        "\"started\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamState",
+    "formattedName": "DebridClient_StreamState",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "StreamStatus",
+        "typescriptType": "DebridClient_StreamStatus",
+        "usedStructName": "debrid_client.StreamStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentName",
+        "jsonName": "torrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Message",
+        "jsonName": "message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StartStreamOptions",
+    "formattedName": "DebridClient_StartStreamOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " RELATIVE Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "AniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Anizip episode"
+        ]
+      },
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Selected torrent"
+        ]
+      },
+      {
+        "name": "FileIndex",
+        "jsonName": "FileIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Index of the file to stream"
+        ]
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackType",
+        "jsonName": "PlaybackType",
+        "goType": "StreamPlaybackType",
+        "typescriptType": "DebridClient_StreamPlaybackType",
+        "usedStructName": "debrid_client.StreamPlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "CancelStreamOptions",
+    "formattedName": "DebridClient_CancelStreamOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "RemoveTorrent",
+        "jsonName": "removeTorrent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -28342,6 +28664,34 @@
   {
     "filepath": "../internal/debrid/debrid/debrid.go",
     "filename": "debrid.go",
+    "name": "GetTorrentInfoOptions",
+    "formattedName": "Debrid_GetTorrentInfoOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "MagnetLink",
+        "jsonName": "magnetLink",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHash",
+        "jsonName": "infoHash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
     "name": "DownloadTorrentOptions",
     "formattedName": "Debrid_DownloadTorrentOptions",
     "package": "debrid",
@@ -28354,6 +28704,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "FileId",
+        "jsonName": "fileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID or index of the file to download"
+        ]
       }
     ],
     "comments": []
@@ -28606,8 +28967,55 @@
         "required": false,
         "public": true,
         "comments": [
-          " Key is the file ID"
+          " Key is the file ID (or index)"
         ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentInfo",
+    "formattedName": "Debrid_TorrentInfo",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentItemFile",
+        "typescriptType": "Array\u003cDebrid_TorrentItemFile\u003e",
+        "usedStructName": "debrid.TorrentItemFile",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28661,24 +29069,6 @@
         "jsonName": "name",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CanStream",
-        "jsonName": "canStream",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CanSelectStreamFile",
-        "jsonName": "canSelectStreamFile",
-        "goType": "bool",
-        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -29072,6 +29462,83 @@
         "name": "Availability",
         "jsonName": "availability",
         "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "TorrentInfo",
+    "formattedName": "TorrentInfo",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentInfoFile",
+        "typescriptType": "Array\u003cTorrentInfoFile\u003e",
+        "usedStructName": "torbox.TorrentInfoFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "TorrentInfoFile",
+    "formattedName": "TorrentInfoFile",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g. \"Big Buck Bunny/Big Buck Bunny.mp4\""
+        ]
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
         "typescriptType": "number",
         "required": true,
         "public": true,
@@ -36232,9 +36699,7 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
-        "comments": [
-          " This is set by [SetStreamEpisodeCollection]"
-        ]
+        "comments": []
       },
       {
         "name": "currentStreamEpisode",
@@ -36243,9 +36708,7 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
-        "comments": [
-          " The current episode being streamed"
-        ]
+        "comments": []
       },
       {
         "name": "currentStreamMedia",
@@ -36254,9 +36717,7 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
-        "comments": [
-          " The current media being streamed"
-        ]
+        "comments": []
       },
       {
         "name": "manualTrackingCtx",

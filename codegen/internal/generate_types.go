@@ -23,6 +23,7 @@ var additionalStructNames = []string{
 	"vendor_hibike_torrent.AnimeTorrentProviderType",
 	"torrentstream.TorrentLoadingStatus",
 	"torrentstream.TorrentStatus",
+	"debrid_client.StreamState",
 }
 
 // GenerateTypescriptFile generates a Typescript file containing the types for the API routes parameters and responses based on the Docs struct.

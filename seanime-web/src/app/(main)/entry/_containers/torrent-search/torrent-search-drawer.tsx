@@ -9,7 +9,11 @@ import React, { useEffect } from "react"
 export const __torrentSearch_drawerIsOpenAtom = atom<TorrentSelectionType | undefined>(undefined)
 export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefined)
 
-export type TorrentSelectionType = "select" | "select-file" | "download"
+export type TorrentSelectionType =
+    "select" // torrent streaming, torrent selection
+    | "select-file" // torrent streaming, torrent & file selection
+    | "debrid-stream"  // debrid streaming, torrent & file selection
+    | "download"
 
 export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
 

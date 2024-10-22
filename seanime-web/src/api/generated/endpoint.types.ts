@@ -16,6 +16,8 @@ import type {
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
     Debrid_TorrentItem,
+    DebridClient_CancelStreamOptions,
+    DebridClient_StreamPlaybackType,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
@@ -441,6 +443,45 @@ export type DebridCancelDownload_Variables = {
  */
 export type DebridDeleteTorrent_Variables = {
     torrentItem: Debrid_TorrentItem
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/info
+ * @description
+ * Route get torrent info from debrid.
+ */
+export type DebridGetTorrentInfo_Variables = {
+    torrent: HibikeTorrent_AnimeTorrent
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/stream/start
+ * @description
+ * Route start stream from debrid.
+ */
+export type DebridStartStream_Variables = {
+    mediaId: number
+    episodeNumber: number
+    aniDBEpisode: string
+    torrent?: HibikeTorrent_AnimeTorrent
+    fileIndex: number
+    playbackType: DebridClient_StreamPlaybackType
+    clientId: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/stream/cancel
+ * @description
+ * Route cancel stream from debrid.
+ */
+export type DebridCancelStream_Variables = {
+    options?: DebridClient_CancelStreamOptions
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1462,7 +1503,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string

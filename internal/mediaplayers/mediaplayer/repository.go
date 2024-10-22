@@ -370,7 +370,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 							m.Logger.Warn().Msg("media player: Ending goroutine, waited too long")
 							return
 						}
-						m.Logger.Trace().Msgf("media player: Waiting for torrent file, %d seconds", waitInSeconds)
+						m.Logger.Trace().Msgf("media player: Waiting for stream, %d seconds", waitInSeconds)
 						waitInSeconds += 3
 						continue
 					} else {

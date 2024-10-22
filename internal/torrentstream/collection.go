@@ -26,9 +26,6 @@ type (
 )
 
 func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOptions) {
-	if r.settings.IsAbsent() || !r.settings.MustGet().Enabled {
-		return
-	}
 
 	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched

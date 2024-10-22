@@ -1,12 +1,14 @@
 package debrid
 
 import (
+	"context"
 	"fmt"
 )
 
 var (
 	ErrNotAuthenticated     = fmt.Errorf("not authenticated")
 	ErrFailedToAuthenticate = fmt.Errorf("failed to authenticate")
+	ErrStreamInterrupted    = fmt.Errorf("stream interrupted")
 )
 
 type (
@@ -14,10 +16,14 @@ type (
 		GetSettings() Settings
 		Authenticate(apiKey string) error
 		AddTorrent(opts AddTorrentOptions) (string, error)
-		GetTorrentStreamUrl(opts StreamTorrentOptions) (streamUrl string, err error)
+		// GetTorrentStreamUrl returns the stream URL for the torrent file. It should block until the stream URL is available.
+		GetTorrentStreamUrl(ctx context.Context, opts StreamTorrentOptions, itemCh chan TorrentItem) (streamUrl string, err error)
+		// GetTorrentDownloadUrl returns the download URL for the torrent. It should return an error if the torrent is not ready.
 		GetTorrentDownloadUrl(opts DownloadTorrentOptions) (downloadUrl string, err error)
+		// GetInstantAvailability returns a map where the key is the torrent's info hash
 		GetInstantAvailability(hashes []string) map[string]TorrentItemInstantAvailability
 		GetTorrent(id string) (*TorrentItem, error)
+		GetTorrentInfo(opts GetTorrentInfoOptions) (*TorrentInfo, error)
 		GetTorrents() ([]*TorrentItem, error)
 		DeleteTorrent(id string) error
 	}
@@ -31,10 +37,17 @@ type (
 		FileId string `json:"fileId"` // ID or index of the file to stream
 	}
 
-	DownloadTorrentOptions struct {
-		ID string `json:"id"`
+	GetTorrentInfoOptions struct {
+		MagnetLink string `json:"magnetLink"`
+		InfoHash   string `json:"infoHash"`
 	}
 
+	DownloadTorrentOptions struct {
+		ID     string `json:"id"`
+		FileId string `json:"fileId"` // ID or index of the file to download
+	}
+
+	// TorrentItem represents a torrent added to a Debrid service
 	TorrentItem struct {
 		ID                   string             `json:"id"`
 		Name                 string             `json:"name"`                 // Name of the torrent or file
@@ -62,7 +75,16 @@ type (
 	TorrentItemStatus string
 
 	TorrentItemInstantAvailability struct {
-		CachedFiles map[string]*CachedFile `json:"cachedFiles"` // Key is the file ID
+		CachedFiles map[string]*CachedFile `json:"cachedFiles"` // Key is the file ID (or index)
+	}
+
+	//------------------------------------------------------------------
+
+	TorrentInfo struct {
+		Name  string             `json:"name"`
+		Hash  string             `json:"hash"`
+		Size  int64              `json:"size"`
+		Files []*TorrentItemFile `json:"files"`
 	}
 
 	CachedFile struct {
@@ -72,10 +94,8 @@ type (
 	////////////////////////////////////////////////////////////////////
 
 	Settings struct {
-		ID                  string `json:"id"`
-		Name                string `json:"name"`
-		CanStream           bool   `json:"canStream"`
-		CanSelectStreamFile bool   `json:"canSelectStreamFile"`
+		ID   string `json:"id"`
+		Name string `json:"name"`
 	}
 )
 

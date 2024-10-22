@@ -43,4 +43,6 @@ const (
 	SyncAnilistFinished = "sync-anilist-finished"
 
 	DebridDownloadProgress = "debrid-download-progress"
+
+	DebridStreamState = "debrid-stream-state"
 )

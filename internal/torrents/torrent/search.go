@@ -152,6 +152,10 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 			BestReleases:  opts.BestReleases,
 		})
 
+		torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
+			return t.InfoHash
+		})
+
 	case AnimeSearchTypeSimple:
 
 		queryKey = fmt.Sprintf("%d-%s", opts.Media.GetID(), opts.Query)

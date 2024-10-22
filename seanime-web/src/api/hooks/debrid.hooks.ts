@@ -2,12 +2,15 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
     DebridAddTorrents_Variables,
     DebridCancelDownload_Variables,
+    DebridCancelStream_Variables,
     DebridDeleteTorrent_Variables,
     DebridDownloadTorrent_Variables,
+    DebridGetTorrentInfo_Variables,
+    DebridStartStream_Variables,
     SaveDebridSettings_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Debrid_TorrentItem, Models_DebridSettings } from "@/api/generated/types"
+import { Debrid_TorrentInfo, Debrid_TorrentItem, Models_DebridSettings } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -91,5 +94,37 @@ export function useDebridGetTorrents(enabled: boolean, refetchInterval: number) 
         enabled: enabled,
         retry: 3,
         refetchInterval: refetchInterval,
+    })
+}
+
+export function useDebridGetTorrentInfo(variables: Partial<DebridGetTorrentInfo_Variables>, enabled: boolean) {
+    return useServerQuery<Debrid_TorrentInfo, DebridGetTorrentInfo_Variables>({
+        endpoint: API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.endpoint,
+        method: API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.methods[0],
+        queryKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.key, variables?.torrent?.infoHash],
+        data: variables as DebridGetTorrentInfo_Variables,
+        enabled: enabled,
+        gcTime: 0,
+    })
+}
+
+export function useDebridStartStream() {
+    return useServerMutation<boolean, DebridStartStream_Variables>({
+        endpoint: API_ENDPOINTS.DEBRID.DebridStartStream.endpoint,
+        method: API_ENDPOINTS.DEBRID.DebridStartStream.methods[0],
+        mutationKey: [API_ENDPOINTS.DEBRID.DebridStartStream.key],
+        onSuccess: async () => {
+        },
+    })
+}
+
+export function useDebridCancelStream() {
+    return useServerMutation<boolean, DebridCancelStream_Variables>({
+        endpoint: API_ENDPOINTS.DEBRID.DebridCancelStream.endpoint,
+        method: API_ENDPOINTS.DEBRID.DebridCancelStream.methods[0],
+        mutationKey: [API_ENDPOINTS.DEBRID.DebridCancelStream.key],
+        onSuccess: async () => {
+            toast.success("Stream cancelled")
+        },
     })
 }

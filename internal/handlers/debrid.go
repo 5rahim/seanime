@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/models"
+	"seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
 )
@@ -207,4 +208,98 @@ func HandleDebridGetTorrents(c *RouteCtx) error {
 	}
 
 	return c.RespondWithData(torrents)
+}
+
+// HandleDebridGetTorrentInfo
+//
+//	@summary get torrent info from debrid.
+//	@desc This gets the torrent info from the debrid service.
+//	@returns debrid.TorrentInfo
+//	@route /api/v1/debrid/torrents/info [POST]
+func HandleDebridGetTorrentInfo(c *RouteCtx) error {
+	type body struct {
+		Torrent hibiketorrent.AnimeTorrent `json:"torrent"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	provider, err := c.App.DebridClientRepository.GetProvider()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	torrentInfo, err := provider.GetTorrentInfo(debrid.GetTorrentInfoOptions{
+		MagnetLink: b.Torrent.MagnetLink,
+		InfoHash:   b.Torrent.InfoHash,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(torrentInfo)
+}
+
+// HandleDebridStartStream
+//
+//	@summary start stream from debrid.
+//	@desc This starts streaming a torrent from the debrid service.
+//	@returns bool
+//	@route /api/v1/debrid/stream/start [POST]
+func HandleDebridStartStream(c *RouteCtx) error {
+	type body struct {
+		MediaId       int                              `json:"mediaId"`
+		EpisodeNumber int                              `json:"episodeNumber"`
+		AniDBEpisode  string                           `json:"aniDBEpisode"`
+		Torrent       *hibiketorrent.AnimeTorrent      `json:"torrent"`
+		FileIndex     int                              `json:"fileIndex"`
+		PlaybackType  debrid_client.StreamPlaybackType `json:"playbackType"` // "default" or "externalPlayerLink"
+		ClientId      string                           `json:"clientId"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	userAgent := c.Fiber.Get("User-Agent")
+
+	err := c.App.DebridClientRepository.StartStream(&debrid_client.StartStreamOptions{
+		MediaId:       b.MediaId,
+		EpisodeNumber: b.EpisodeNumber,
+		AniDBEpisode:  b.AniDBEpisode,
+		Torrent:       b.Torrent,
+		FileIndex:     b.FileIndex,
+		UserAgent:     userAgent,
+		ClientId:      b.ClientId,
+		PlaybackType:  b.PlaybackType,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(true)
+}
+
+// HandleDebridCancelStream
+//
+//	@summary cancel stream from debrid.
+//	@desc This cancels a stream from the debrid service.
+//	@returns bool
+//	@route /api/v1/debrid/stream/cancel [POST]
+func HandleDebridCancelStream(c *RouteCtx) error {
+	type body struct {
+		Options *debrid_client.CancelStreamOptions `json:"options"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	c.App.DebridClientRepository.CancelStream(b.Options)
+
+	return c.RespondWithData(true)
 }

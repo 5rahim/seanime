@@ -24,3 +24,11 @@ export function useHasTorrentProvider() {
             [serverStatus?.settings?.library?.torrentProvider]),
     }
 }
+
+export function useHasDebridService() {
+    const serverStatus = useServerStatus()
+    return {
+        hasDebridService: React.useMemo(() => !!serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider,
+            [serverStatus?.debridSettings]),
+    }
+}

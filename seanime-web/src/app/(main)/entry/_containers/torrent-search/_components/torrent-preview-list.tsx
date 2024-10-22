@@ -46,7 +46,7 @@ export const TorrentPreviewList = React.memo((
                 return (
                     <TorrentPreviewItem
                         confirmed={item.torrent?.confirmed}
-                        key={item.torrent.link + item.episode?.displayTitle}
+                        key={item.torrent.link}
                         title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
                         releaseGroup={item.torrent.releaseGroup || ""}
                         filename={item.torrent.name}

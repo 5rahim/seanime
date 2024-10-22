@@ -6,11 +6,15 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"path/filepath"
+	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/debrid/torbox"
 	"seanime/internal/events"
+	"seanime/internal/library/playbackmanager"
+	"seanime/internal/platforms/platform"
 	"seanime/internal/util/result"
 )
 
@@ -27,12 +31,22 @@ type (
 		wsEventManager         events.WSEventManagerInterface
 		ctxMap                 *result.Map[string, context.CancelFunc]
 		downloadLoopCancelFunc context.CancelFunc
+
+		playbackManager    *playbackmanager.PlaybackManager
+		streamManager      *StreamManager
+		completeAnimeCache *anilist.CompleteAnimeCache
+		metadataProvider   metadata.Provider
+		platform           platform.Platform
 	}
 
 	NewRepositoryOptions struct {
 		Logger         *zerolog.Logger
 		WSEventManager events.WSEventManagerInterface
 		Database       *db.Database
+
+		PlaybackManager  *playbackmanager.PlaybackManager
+		MetadataProvider metadata.Provider
+		Platform         platform.Platform
 	}
 )
 
@@ -45,8 +59,15 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		settings: &models.DebridSettings{
 			Enabled: false,
 		},
-		ctxMap: result.NewResultMap[string, context.CancelFunc](),
+		platform:           opts.Platform,
+		playbackManager:    opts.PlaybackManager,
+		metadataProvider:   opts.MetadataProvider,
+		completeAnimeCache: anilist.NewCompleteAnimeCache(),
+		ctxMap:             result.NewResultMap[string, context.CancelFunc](),
 	}
+
+	ret.streamManager = NewStreamManager(ret)
+
 	return
 }
 
@@ -118,6 +139,8 @@ func (r *Repository) GetProvider() (debrid.Provider, error) {
 	return p, nil
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // AddAndQueueTorrent adds a torrent to the debrid service and queues it for automatic download
 func (r *Repository) AddAndQueueTorrent(opts debrid.AddTorrentOptions, destination string, mId int) (string, error) {
 	provider, err := r.GetProvider()
@@ -145,6 +168,23 @@ func (r *Repository) AddAndQueueTorrent(opts debrid.AddTorrentOptions, destinati
 	})
 
 	return torrentItemId, nil
+}
+
+// GetTorrentInfo retrieves information about a torrent.
+// This is used for file section for debrid streaming.
+// On Real Debrid, this adds the torrent to the user's account.
+func (r *Repository) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.TorrentInfo, error) {
+	provider, err := r.GetProvider()
+	if err != nil {
+		return nil, err
+	}
+
+	torrentInfo, err := provider.GetTorrentInfo(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return torrentInfo, nil
 }
 
 func (r *Repository) HasProvider() bool {
@@ -176,6 +216,14 @@ func (r *Repository) CancelDownload(itemID string) error {
 	})
 
 	return nil
+}
+
+func (r *Repository) StartStream(opts *StartStreamOptions) error {
+	return r.streamManager.startStream(opts)
+}
+
+func (r *Repository) CancelStream(opts *CancelStreamOptions) {
+	r.streamManager.cancelStream(opts)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

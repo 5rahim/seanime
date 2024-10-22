@@ -485,6 +485,39 @@
 //     })
 // }
 
+// export function useDebridGetTorrentInfo() {
+//     return useServerMutation<Debrid_TorrentInfo, DebridGetTorrentInfo_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridStartStream() {
+//     return useServerMutation<boolean, DebridStartStream_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridStartStream.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridStartStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridStartStream.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
+// export function useDebridCancelStream() {
+//     return useServerMutation<boolean, DebridCancelStream_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridCancelStream.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridCancelStream.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridCancelStream.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // directory_selector
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

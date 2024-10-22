@@ -1993,6 +1993,180 @@
     }
   },
   {
+    "name": "HandleDebridGetTorrentInfo",
+    "trimmedName": "DebridGetTorrentInfo",
+    "comments": [
+      "HandleDebridGetTorrentInfo",
+      "",
+      "\t@summary get torrent info from debrid.",
+      "\t@desc This gets the torrent info from the debrid service.",
+      "\t@returns debrid.TorrentInfo",
+      "\t@route /api/v1/debrid/torrents/info [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get torrent info from debrid.",
+      "descriptions": [
+        "This gets the torrent info from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents/info",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "debrid.TorrentInfo",
+      "returnGoType": "debrid.TorrentInfo",
+      "returnTypescriptType": "Debrid_TorrentInfo"
+    }
+  },
+  {
+    "name": "HandleDebridStartStream",
+    "trimmedName": "DebridStartStream",
+    "comments": [
+      "HandleDebridStartStream",
+      "",
+      "\t@summary start stream from debrid.",
+      "\t@desc This starts streaming a torrent from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/stream/start [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "start stream from debrid.",
+      "descriptions": [
+        "This starts streaming a torrent from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/stream/start",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AniDBEpisode",
+          "jsonName": "aniDBEpisode",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "FileIndex",
+          "jsonName": "fileIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "PlaybackType",
+          "jsonName": "playbackType",
+          "goType": "debrid_client.StreamPlaybackType",
+          "usedStructType": "debrid_client.StreamPlaybackType",
+          "typescriptType": "DebridClient_StreamPlaybackType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridCancelStream",
+    "trimmedName": "DebridCancelStream",
+    "comments": [
+      "HandleDebridCancelStream",
+      "",
+      "\t@summary cancel stream from debrid.",
+      "\t@desc This cancels a stream from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/stream/cancel [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "cancel stream from debrid.",
+      "descriptions": [
+        "This cancels a stream from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/stream/cancel",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Options",
+          "jsonName": "options",
+          "goType": "debrid_client.CancelStreamOptions",
+          "usedStructType": "debrid_client.CancelStreamOptions",
+          "typescriptType": "DebridClient_CancelStreamOptions",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleDirectorySelector",
     "trimmedName": "DirectorySelector",
     "comments": [

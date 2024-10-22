@@ -18,10 +18,9 @@ type (
 
 // NewEpisodeCollection creates a new episode collection by leveraging anime.EntryDownloadInfo.
 // It stores the EpisodeCollection in the repository instance for the lifetime of the repository.
+//
+// Note: This is also used by the Debrid streaming view.
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
-	if err = r.FailIfNoSettings(); err != nil {
-		return nil, err
-	}
 
 	// Get the media info, this is cached
 	completeAnime, animeMetadata, err := r.getMediaInfo(mId)

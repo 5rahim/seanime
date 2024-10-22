@@ -9,12 +9,16 @@ import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 export const LoadingSpinnerAnatomy = defineStyleAnatomy({
     container: cva([
         "UI-LoadingSpinner__container",
-        "flex w-full items-center h-24 justify-center",
+        "flex flex-col w-full items-center h-24 justify-center",
     ]),
     icon: cva([
         "UI-LoadingSpinner__icon",
         "inline w-10 h-10 mr-2 animate-spin",
         "text-gray-200 dark:text-gray-600 fill-brand-500",
+    ]),
+    title: cva([
+        "UI-LoadingSpinner__title",
+        "text-base font-medium text-[--foreground] py-2",
     ]),
 })
 
@@ -34,6 +38,7 @@ export const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerPro
         containerClass,
         iconClass,
         spinner,
+        title,
         ...rest
     } = props
 
@@ -47,6 +52,7 @@ export const LoadingSpinner = React.forwardRef<HTMLDivElement, LoadingSpinnerPro
             ref={ref}
         >
             {spinner ? spinner : <Spinner className={iconClass} />}
+            {title && <p className={LoadingSpinnerAnatomy.title()}>{title}</p>}
         </div>
     )
 

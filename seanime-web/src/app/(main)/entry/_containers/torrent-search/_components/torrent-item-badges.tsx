@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { Tooltip } from "@/components/ui/tooltip"
 import React from "react"
 import { HiOutlineServerStack } from "react-icons/hi2"
 
@@ -39,13 +40,17 @@ export function TorrentSeedersBadge({ seeders }: { seeders: number }) {
 export function TorrentDebridInstantAvailabilityBadge() {
 
     return (
-        <Badge
+        <Tooltip
+            trigger={<Badge
             className="rounded-md"
             intent="white-solid"
             leftIcon={<HiOutlineServerStack className="text-xl" />}
         >
             Cached
-        </Badge>
+            </Badge>}
+        >
+            Instantly available on Debrid service
+        </Tooltip>
     )
 
 }

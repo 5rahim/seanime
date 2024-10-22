@@ -373,9 +373,11 @@ type OnlinestreamMapping struct {
 
 type DebridSettings struct {
 	BaseModel
-	Enabled  bool   `gorm:"column:enabled" json:"enabled"`
-	Provider string `gorm:"column:provider" json:"provider"`
-	ApiKey   string `gorm:"column:api_key" json:"apiKey"`
+	Enabled                       bool   `gorm:"column:enabled" json:"enabled"`
+	Provider                      string `gorm:"column:provider" json:"provider"`
+	ApiKey                        string `gorm:"column:api_key" json:"apiKey"`
+	FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"`
+	IncludeDebridStreamInLibrary  bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
 }
 
 type DebridTorrentItem struct {

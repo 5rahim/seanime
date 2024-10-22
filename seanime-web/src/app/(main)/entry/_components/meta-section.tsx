@@ -15,10 +15,11 @@ import {
     MediaPageHeaderEntryDetails,
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
-import { useHasTorrentProvider } from "@/app/(main)/_hooks/use-server-status"
+import { useHasDebridService, useHasTorrentProvider, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
 import { NextAiringEpisode } from "@/app/(main)/entry/_components/next-airing-episode"
-import { __anime_torrentStreamingViewActiveAtom } from "@/app/(main)/entry/_containers/anime-entry-page"
+import { __anime_debridStreamingViewActiveAtom, __anime_torrentStreamingViewActiveAtom } from "@/app/(main)/entry/_containers/anime-entry-page"
+import { DebridStreamButton } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-button"
 import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-dropdown-menu"
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
@@ -31,13 +32,15 @@ import { SiAnilist } from "react-icons/si"
 
 
 export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetailsById_Media | undefined }) {
-
+    const serverStatus = useServerStatus()
     const { entry, details } = props
 
     if (!entry.media) return null
 
     const { hasTorrentProvider } = useHasTorrentProvider()
+    const { hasDebridService } = useHasDebridService()
     const isTorrentStreamingView = useAtomValue(__anime_torrentStreamingViewActiveAtom)
+    const isDebridStreamingView = useAtomValue(__anime_debridStreamingViewActiveAtom)
 
     return (
         <MediaPageHeader
@@ -78,6 +81,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     {(
                         entry.media.status !== "NOT_YET_RELEASED"
                         && !isTorrentStreamingView
+                        && !isDebridStreamingView
                         && hasTorrentProvider
                     ) && (
                         <TorrentSearchButton
@@ -85,8 +89,19 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         />
                     )}
 
-                    {entry.media.status !== "NOT_YET_RELEASED" && (
+                    {(entry.media.status !== "NOT_YET_RELEASED"
+                        && !isDebridStreamingView
+                    ) && (
                         <TorrentStreamButton
+                            entry={entry}
+                        />
+                    )}
+
+                    {(entry.media.status !== "NOT_YET_RELEASED"
+                        && !isTorrentStreamingView
+                        && hasDebridService
+                    ) && (
+                        <DebridStreamButton
                             entry={entry}
                         />
                     )}

@@ -1781,6 +1781,18 @@ export type Debrid_CachedFile = {
  * - Filename: debrid.go
  * - Package: debrid
  */
+export type Debrid_TorrentInfo = {
+    name: string
+    hash: string
+    size: number
+    files?: Array<Debrid_TorrentItemFile>
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
 export type Debrid_TorrentItem = {
     id: string
     /**
@@ -1856,7 +1868,7 @@ export type Debrid_TorrentItemFile = {
  */
 export type Debrid_TorrentItemInstantAvailability = {
     /**
-     * Key is the file ID
+     * Key is the file ID (or index)
      */
     cachedFiles?: Record<string, Debrid_CachedFile>
 }
@@ -1873,6 +1885,44 @@ export type Debrid_TorrentItemStatus = "downloading" |
     "stalled" |
     "paused" |
     "other"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DebridClient
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_CancelStreamOptions = {
+    removeTorrent: boolean
+}
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_StreamPlaybackType = "default" | "externalPlayerLink"
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_StreamState = {
+    status: DebridClient_StreamStatus
+    torrentName: string
+    message: string
+}
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_StreamStatus = "downloading" | "ready" | "failed" | "started"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Extension
@@ -2467,6 +2517,8 @@ export type Models_DebridSettings = {
     enabled: boolean
     provider: string
     apiKey: string
+    fallbackToDebridStreamingView: boolean
+    includeDebridStreamInLibrary: boolean
     id: number
     createdAt?: string
     updatedAt?: string
