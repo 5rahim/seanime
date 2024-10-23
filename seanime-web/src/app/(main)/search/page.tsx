@@ -10,22 +10,21 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutGrid } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { useSetAtom } from "jotai/react"
+import { useParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { useMount } from "react-use"
 
-export const dynamic = "force-static"
+export default function Page() {
 
-export default function Page({ params: urlParams }: {
-    params: {
+    const urlParams = useParams<{
         sorting?: AL_MediaSort,
         genre?: string,
         format?: AL_MediaFormat,
         season?: AL_MediaSeason,
         status?: AL_MediaStatus,
         year?: string
-    }
-}) {
+    }>()
 
     const setParams = useSetAtom(__advancedSearch_paramsAtom)
 

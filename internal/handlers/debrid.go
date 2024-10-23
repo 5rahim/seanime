@@ -78,9 +78,26 @@ func HandleDebridAddTorrents(c *RouteCtx) error {
 	}
 
 	for _, torrent := range b.Torrents {
+		// Get the torrent's provider extension
+		providerExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(torrent.Provider)
+		if !ok {
+			return c.RespondWithError(errors.New("provider extension not found for torrent"))
+		}
+
+		magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(&torrent)
+		if err != nil {
+			if len(b.Torrents) == 1 {
+				return c.RespondWithError(err)
+			} else {
+				c.App.Logger.Err(err).Msg("debrid: Failed to get magnet link")
+				c.App.WSEventManager.SendEvent(events.ErrorToast, err.Error())
+				continue
+			}
+		}
+
 		// Add the torrent to the debrid service
-		_, err := c.App.DebridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
-			MagnetLink: torrent.MagnetLink,
+		_, err = c.App.DebridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
+			MagnetLink: magnet,
 		}, b.Destination, b.Media.ID)
 		if err != nil {
 			// If there is only one torrent, return the error
@@ -88,7 +105,7 @@ func HandleDebridAddTorrents(c *RouteCtx) error {
 				return c.RespondWithError(err)
 			} else {
 				// If there are multiple torrents, send an error toast and continue to the next torrent
-				c.App.Logger.Err(err).Msg("Failed to add torrent to debrid")
+				c.App.Logger.Err(err).Msg("debrid: Failed to add torrent to debrid")
 				c.App.WSEventManager.SendEvent(events.ErrorToast, err.Error())
 				continue
 			}
