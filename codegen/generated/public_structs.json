@@ -26933,6 +26933,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HideTorrentList",
+        "jsonName": "hideTorrentList",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -28552,14 +28561,14 @@
         ]
       },
       {
-        "name": "FileIndex",
-        "jsonName": "FileIndex",
-        "goType": "int",
-        "typescriptType": "number",
+        "name": "FileId",
+        "jsonName": "FileId",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": [
-          " Index of the file to stream"
+          " File ID or index"
         ]
       },
       {
@@ -28622,6 +28631,15 @@
       {
         "name": "MagnetLink",
         "jsonName": "magnetLink",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHash",
+        "jsonName": "infoHash",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

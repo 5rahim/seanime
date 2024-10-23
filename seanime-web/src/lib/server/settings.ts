@@ -34,6 +34,7 @@ export const settingsSchema = z.object({
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
     defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
+    hideTorrentList: z.boolean().optional().default(false),
     qbittorrentPath: z.string().optional().default(""),
     qbittorrentHost: z.string().optional().default(""),
     qbittorrentPort: z.number(),

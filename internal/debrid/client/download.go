@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
 	"seanime/internal/notifier"
@@ -116,13 +117,13 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 		}
 
 		// Download the files to a temporary folder
-		tmpDir, err := os.MkdirTemp("", "torrent-")
+		tmpDirPath, err := os.MkdirTemp("", "torrent-")
 		if err != nil {
 			r.logger.Err(err).Msg("debrid: Failed to create temp folder")
 			r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Failed to create temp folder: %v", err))
 			return
 		}
-		defer os.RemoveAll(tmpDir) // Clean up temp folder on exit
+		defer os.RemoveAll(tmpDirPath) // Clean up temp folder on exit
 
 		// Execute the request
 		client := &http.Client{}
@@ -165,14 +166,13 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 
 		// Create a file in the temporary folder to store the download
 		// e.g. "/tmp/torrent-123456789/my-torrent.zip"
-		tmpDownloadedFile := filepath.Join(tmpDir, filename)
-		out, err := os.Create(tmpDownloadedFile)
+		tmpDownloadedFilePath := filepath.Join(tmpDirPath, filename)
+		file, err := os.Create(tmpDownloadedFilePath)
 		if err != nil {
 			r.logger.Err(err).Msg("debrid: Failed to create temp file")
 			r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Failed to create temp file: %v", err))
 			return
 		}
-		defer out.Close()
 
 		totalSize := resp.ContentLength
 		speed := 0
@@ -186,8 +186,9 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 		for {
 			n, err := resp.Body.Read(buffer)
 			if n > 0 {
-				_, writeErr := out.Write(buffer[:n])
+				_, writeErr := file.Write(buffer[:n])
 				if writeErr != nil {
+					_ = file.Close()
 					r.logger.Err(writeErr).Msg("debrid: Failed to write to temp file")
 					r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Download failed / Failed to write to temp file: %v", writeErr))
 					r.sendDownloadCancelledEvent(tId)
@@ -216,16 +217,20 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 					break
 				}
 				if errors.Is(err, context.Canceled) {
+					_ = file.Close()
 					r.logger.Debug().Msg("debrid: Download cancelled")
 					r.sendDownloadCancelledEvent(tId)
 					return
 				}
+				_ = file.Close()
 				r.logger.Err(err).Msg("debrid: Failed to read from response body")
 				r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Download failed / Failed to read from response body: %v", err))
 				r.sendDownloadCancelledEvent(tId)
 				return
 			}
 		}
+
+		_ = file.Close()
 
 		r.wsEventManager.SendEvent(events.DebridDownloadProgress, map[string]interface{}{
 			"status":     "downloading",
@@ -235,15 +240,21 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 			"speed":      "",
 		})
 
+		switch runtime.GOOS {
+		case "windows":
+			time.Sleep(time.Second * 1)
+		}
+
+		// Extract the downloaded file
 		var extractedDir string
 		switch ext {
 		case ".zip":
-			extractedDir, err = unzipFile(tmpDownloadedFile, tmpDir)
+			extractedDir, err = unzipFile(tmpDownloadedFilePath, tmpDirPath)
 		case ".rar":
-			extractedDir, err = unrarFile(tmpDownloadedFile, tmpDir)
+			extractedDir, err = unrarFile(tmpDownloadedFilePath, tmpDirPath)
 		default:
 			// Move the file directly to the destination
-			err = moveFolderOrFileTo(tmpDownloadedFile, destination)
+			err = moveFolderOrFileTo(tmpDownloadedFilePath, destination)
 			if err != nil {
 				r.logger.Err(err).Msg("debrid: Failed to move downloaded file")
 				r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Failed to move downloaded file: %v", err))
@@ -257,6 +268,13 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 			r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Failed to extract downloaded file: %v", err))
 			r.sendDownloadCancelledEvent(tId)
 			return
+		}
+
+		// Delete the downloaded file
+		err = os.Remove(tmpDownloadedFilePath)
+		if err != nil {
+			r.logger.Err(err).Msg("debrid: Failed to delete downloaded file")
+			// Do not stop here, continue with the extracted files
 		}
 
 		// Move the extracted files to the destination

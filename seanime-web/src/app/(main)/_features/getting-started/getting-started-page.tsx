@@ -119,6 +119,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
                                         showActiveTorrentCount: false,
+                                        hideTorrentList: false,
                                     },
                                     anilist: {
                                         hideAudienceScore: false,

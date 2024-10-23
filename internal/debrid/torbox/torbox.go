@@ -202,11 +202,13 @@ func (t *TorBox) GetInstantAvailability(hashes []string) map[string]debrid.Torre
 func (t *TorBox) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 
 	// Check if the torrent is already added
-	torrents, err := t.getTorrents()
-	if err == nil {
-		for _, torrent := range torrents {
-			if torrent.Magnet == opts.MagnetLink {
-				return strconv.Itoa(torrent.ID), nil
+	if opts.InfoHash != "" {
+		torrents, err := t.getTorrents()
+		if err == nil {
+			for _, torrent := range torrents {
+				if torrent.Hash == opts.InfoHash {
+					return strconv.Itoa(torrent.ID), nil
+				}
 			}
 		}
 	}
@@ -216,7 +218,7 @@ func (t *TorBox) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 
 	t.logger.Trace().Str("magnetLink", opts.MagnetLink).Msg("torbox: Adding torrent")
 
-	err = writer.WriteField("magnet", opts.MagnetLink)
+	err := writer.WriteField("magnet", opts.MagnetLink)
 	if err != nil {
 		return "", fmt.Errorf("torbox: Failed to add torrent: %w", err)
 	}
@@ -285,7 +287,7 @@ func (t *TorBox) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamTorr
 				if torrent.IsReady {
 					downloadUrl, err := t.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
 						ID:     opts.ID,
-						FileId: opts.FileId,
+						FileId: opts.FileId, // Filename
 					})
 					if err != nil {
 						t.logger.Error().Err(err).Msg("torbox: Failed to get download URL")
@@ -310,17 +312,32 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 
 	apiKey, found := t.apiKey.Get()
 	if !found {
-		return "", fmt.Errorf("torbox: Failed to downloaded torrent: %w", debrid.ErrNotAuthenticated)
+		return "", fmt.Errorf("torbox: Failed to get download URL: %w", debrid.ErrNotAuthenticated)
 	}
 
 	url := t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&zip_link=true", apiKey, opts.ID)
 	if opts.FileId != "" {
-		url = t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&file_id=%s", apiKey, opts.ID, opts.FileId)
+		// Get the actual file ID
+		torrent, err := t.getTorrent(opts.ID)
+		if err != nil {
+			return "", fmt.Errorf("torbox: Failed to get download URL: %w", err)
+		}
+		var fId string
+		for _, f := range torrent.Files {
+			if f.ShortName == opts.FileId {
+				fId = strconv.Itoa(f.ID)
+				break
+			}
+		}
+		if fId == "" {
+			return "", fmt.Errorf("torbox: Failed to get download URL, file not found")
+		}
+		url = t.baseUrl + fmt.Sprintf("/torrents/requestdl?token=%s&torrent_id=%s&file_id=%s", apiKey, opts.ID, fId)
 	}
 
 	resp, err := t.doQuery("GET", url, nil, "application/json")
 	if err != nil {
-		return "", fmt.Errorf("torbox: Failed to download torrent: %w", err)
+		return "", fmt.Errorf("torbox: Failed to get download URL: %w", err)
 	}
 
 	marshaledData, _ := json.Marshal(resp.Data)
@@ -328,7 +345,7 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 	var d string
 	err = json.Unmarshal(marshaledData, &d)
 	if err != nil {
-		return "", fmt.Errorf("torbox: Failed to download torrent: %w", err)
+		return "", fmt.Errorf("torbox: Failed to get download URL: %w", err)
 	}
 
 	t.logger.Debug().Str("downloadUrl", d).Msg("torbox: Download link retrieved")
@@ -337,6 +354,17 @@ func (t *TorBox) GetTorrentDownloadUrl(opts debrid.DownloadTorrentOptions) (down
 }
 
 func (t *TorBox) GetTorrent(id string) (ret *debrid.TorrentItem, err error) {
+	torrent, err := t.getTorrent(id)
+	if err != nil {
+		return nil, err
+	}
+
+	ret = toDebridTorrent(torrent)
+
+	return ret, nil
+}
+
+func (t *TorBox) getTorrent(id string) (ret *Torrent, err error) {
 
 	resp, err := t.doQuery("GET", t.baseUrl+fmt.Sprintf("/torrents/mylist?bypass_cache=true&id=%s", id), nil, "application/json")
 	if err != nil {
@@ -345,13 +373,10 @@ func (t *TorBox) GetTorrent(id string) (ret *debrid.TorrentItem, err error) {
 
 	marshaledData, _ := json.Marshal(resp.Data)
 
-	var torrent Torrent
-	err = json.Unmarshal(marshaledData, &torrent)
+	err = json.Unmarshal(marshaledData, &ret)
 	if err != nil {
 		return nil, fmt.Errorf("torbox: Failed to parse torrent: %w", err)
 	}
-
-	ret = toDebridTorrent(&torrent)
 
 	return ret, nil
 }
@@ -470,7 +495,7 @@ func toDebridTorrentInfo(t *TorrentInfo) (ret *debrid.TorrentInfo) {
 		}
 
 		files = append(files, &debrid.TorrentItemFile{
-			ID:    strconv.Itoa(idx),
+			ID:    name, // Set the ID to the og name so GetStreamUrl can use that to get the real file ID
 			Index: idx,
 			Name:  name,                       // e.g. "Big Buck Bunny.mp4"
 			Path:  fmt.Sprintf("/%s", f.Name), // e.g. "/Big Buck Bunny/Big Buck Bunny.mp4"

@@ -179,6 +179,7 @@ export default function Page() {
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
                                         showActiveTorrentCount: data.showActiveTorrentCount ?? false,
+                                        hideTorrentList: data.hideTorrentList ?? false,
                                     },
                                     discord: {
                                         enableRichPresence: data?.enableRichPresence ?? false,
@@ -216,6 +217,7 @@ export default function Page() {
                                 mpvPath: status?.settings?.mediaPlayer?.mpvPath,
                                 defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards
                                                                                                                                  // compatibility)
+                                hideTorrentList: status?.settings?.torrent?.hideTorrentList ?? false,
                                 qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                                 qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                                 qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
@@ -444,6 +446,10 @@ export default function Page() {
                                 />
 
                                 <h4>Interface</h4>
+                                <Field.Switch
+                                    name="hideTorrentList"
+                                    label="Hide torrent list navigation icon"
+                                />
                                 <Field.Switch
                                     name="showActiveTorrentCount"
                                     label="Show active torrent count"

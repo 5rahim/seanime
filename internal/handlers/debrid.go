@@ -79,12 +79,12 @@ func HandleDebridAddTorrents(c *RouteCtx) error {
 
 	for _, torrent := range b.Torrents {
 		// Get the torrent's provider extension
-		providerExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(torrent.Provider)
+		animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(torrent.Provider)
 		if !ok {
 			return c.RespondWithError(errors.New("provider extension not found for torrent"))
 		}
 
-		magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(&torrent)
+		magnet, err := animeTorrentProviderExtension.GetProvider().GetTorrentMagnetLink(&torrent)
 		if err != nil {
 			if len(b.Torrents) == 1 {
 				return c.RespondWithError(err)
@@ -94,6 +94,8 @@ func HandleDebridAddTorrents(c *RouteCtx) error {
 				continue
 			}
 		}
+
+		torrent.MagnetLink = magnet
 
 		// Add the torrent to the debrid service
 		_, err = c.App.DebridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
@@ -248,6 +250,18 @@ func HandleDebridGetTorrentInfo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
+	animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
+	if !ok {
+		return c.RespondWithError(errors.New("provider extension not found for torrent"))
+	}
+
+	magnet, err := animeTorrentProviderExtension.GetProvider().GetTorrentMagnetLink(&b.Torrent)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	b.Torrent.MagnetLink = magnet
+
 	torrentInfo, err := provider.GetTorrentInfo(debrid.GetTorrentInfoOptions{
 		MagnetLink: b.Torrent.MagnetLink,
 		InfoHash:   b.Torrent.InfoHash,
@@ -271,7 +285,7 @@ func HandleDebridStartStream(c *RouteCtx) error {
 		EpisodeNumber int                              `json:"episodeNumber"`
 		AniDBEpisode  string                           `json:"aniDBEpisode"`
 		Torrent       *hibiketorrent.AnimeTorrent      `json:"torrent"`
-		FileIndex     int                              `json:"fileIndex"`
+		FileId        string                           `json:"fileId"`
 		PlaybackType  debrid_client.StreamPlaybackType `json:"playbackType"` // "default" or "externalPlayerLink"
 		ClientId      string                           `json:"clientId"`
 	}
@@ -283,12 +297,24 @@ func HandleDebridStartStream(c *RouteCtx) error {
 
 	userAgent := c.Fiber.Get("User-Agent")
 
-	err := c.App.DebridClientRepository.StartStream(&debrid_client.StartStreamOptions{
+	animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
+	if !ok {
+		return c.RespondWithError(errors.New("provider extension not found for torrent"))
+	}
+
+	magnet, err := animeTorrentProviderExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	b.Torrent.MagnetLink = magnet
+
+	err = c.App.DebridClientRepository.StartStream(&debrid_client.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 		AniDBEpisode:  b.AniDBEpisode,
 		Torrent:       b.Torrent,
-		FileIndex:     b.FileIndex,
+		FileId:        b.FileId,
 		UserAgent:     userAgent,
 		ClientId:      b.ClientId,
 		PlaybackType:  b.PlaybackType,

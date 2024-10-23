@@ -117,7 +117,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 			// Start the stream
 			//
 			r.logger.Debug().Msg("torrentstream: Starting the media player")
-			err = r.playbackManager.StartStreamingUsingMediaPlayer("torrentstream", &playbackmanager.StartPlayingOptions{
+			err = r.playbackManager.StartStreamingUsingMediaPlayer("", &playbackmanager.StartPlayingOptions{
 				Payload:   r.client.GetStreamingUrl(),
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,

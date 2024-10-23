@@ -2743,6 +2743,7 @@ export type Models_TorrentSettings = {
     transmissionUsername: string
     transmissionPassword: string
     showActiveTorrentCount: boolean
+    hideTorrentList: boolean
 }
 
 /**

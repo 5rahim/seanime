@@ -2094,11 +2094,11 @@
           "descriptions": []
         },
         {
-          "name": "FileIndex",
-          "jsonName": "fileIndex",
-          "goType": "int",
+          "name": "FileId",
+          "jsonName": "fileId",
+          "goType": "string",
           "usedStructType": "",
-          "typescriptType": "number",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         },

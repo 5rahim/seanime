@@ -174,7 +174,7 @@ export function MainSidebar() {
                                     intent="alert-solid"
                                 >{autoDownloaderQueueCount}</Badge> : undefined,
                             }],
-                            ...[serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && {
+                            ...[(serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && !serverStatus?.settings?.torrent?.hideTorrentList) && {
                                 iconType: BiDownload,
                                 name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
                                     ? "Torrent list"

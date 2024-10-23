@@ -34,7 +34,7 @@ type (
 		EpisodeNumber int                         // RELATIVE Episode number to identify the file
 		AniDBEpisode  string                      // Anizip episode
 		Torrent       *hibiketorrent.AnimeTorrent // Selected torrent
-		FileIndex     int                         // Index of the file to stream
+		FileId        string                      // File ID or index
 		UserAgent     string
 		ClientId      string
 		PlaybackType  StreamPlaybackType
@@ -156,7 +156,7 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 		// For Torbox, this will wait until the entire torrent is downloaded
 		streamUrl, err := provider.GetTorrentStreamUrl(ctx, debrid.StreamTorrentOptions{
 			ID:     torrentItemId,
-			FileId: strconv.Itoa(opts.FileIndex),
+			FileId: opts.FileId,
 		}, itemCh)
 
 		go func() {
@@ -206,7 +206,7 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			s.repository.logger.Debug().Msg("debridstream: Starting the media player")
 			// Sends the stream to the media player
 			// DEVNOTE: Events are handled by the torrentstream.Repository module
-			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer("debridstream", &playbackmanager.StartPlayingOptions{
+			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer(fmt.Sprintf("%s - Episode %s", opts.Torrent.Name, aniDbEpisode), &playbackmanager.StartPlayingOptions{
 				Payload:   streamUrl,
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,
@@ -237,7 +237,7 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
 				Status:      StreamStatusReady,
 				TorrentName: opts.Torrent.Name,
-				Message:     "Cannot stream this file format",
+				Message:     "External player link sent",
 			})
 		}
 	}(ctx)

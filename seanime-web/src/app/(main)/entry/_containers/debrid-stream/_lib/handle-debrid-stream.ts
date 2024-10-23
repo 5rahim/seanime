@@ -12,7 +12,7 @@ type DebridStreamSelectionProps = {
     entry: Anime_Entry
     episodeNumber: number
     aniDBEpisode: string
-    chosenFileIndex: number
+    chosenFileId: string
 }
 
 export function useHandleStartDebridStream() {
@@ -41,7 +41,7 @@ export function useHandleStartDebridStream() {
             episodeNumber: params.episodeNumber,
             torrent: params.torrent,
             aniDBEpisode: params.aniDBEpisode,
-            fileIndex: params.chosenFileIndex,
+            fileId: params.chosenFileId,
             playbackType: playbackType,
             clientId: clientId || "",
         }, {

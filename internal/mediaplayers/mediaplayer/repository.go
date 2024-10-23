@@ -200,7 +200,7 @@ func (m *Repository) Play(path string) error {
 
 }
 
-func (m *Repository) Stream(streamUrl string, episode int, mediaId int) error {
+func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTitle string) error {
 
 	m.Logger.Debug().Str("streamUrl", streamUrl).Msg("media player: Stream requested")
 	var err error
@@ -251,14 +251,17 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int) error {
 		}
 
 	case "mpv":
+		args := []string{"--force-window"}
+		if windowTitle != "" {
+			args = append(args, fmt.Sprintf("--title=%s", windowTitle))
+		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			args := []string{"--force-window"}
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
 				args = append(args, fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
 			}
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 		} else {
-			err = m.Mpv.OpenAndPlay(streamUrl, "--force-window")
+			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 		}
 
 	}

@@ -30,6 +30,7 @@ type (
 
 	AddTorrentOptions struct {
 		MagnetLink string `json:"magnetLink"`
+		InfoHash   string `json:"infoHash"`
 	}
 
 	StreamTorrentOptions struct {

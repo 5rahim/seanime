@@ -30,7 +30,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
     const [selectedTorrent, setSelectedTorrent] = useAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
 
-    const [selectedFileIdx, setSelectedFileIdx] = React.useState(-1)
+    const [selectedFileId, setSelectedFileIdx] = React.useState("")
 
     const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
 
@@ -41,25 +41,25 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
     const { handleStreamSelection } = useHandleStartDebridStream()
 
     function onStream() {
-        if (selectedFileIdx == -1 || !selectedTorrent || !torrentStreamingSelectedEpisode || !torrentStreamingSelectedEpisode.aniDBEpisode) return
+        if (selectedFileId == "" || !selectedTorrent || !torrentStreamingSelectedEpisode || !torrentStreamingSelectedEpisode.aniDBEpisode) return
 
         handleStreamSelection({
             torrent: selectedTorrent,
             entry,
             aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
             episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
-            chosenFileIndex: selectedFileIdx,
+            chosenFileId: selectedFileId,
         })
 
         setSelectedTorrent(undefined)
-        setSelectedFileIdx(-1)
+        setSelectedFileIdx("")
         setter(undefined)
     }
 
     const FileSelection = React.useCallback(() => {
         return <RadioGroup
-            value={String(selectedFileIdx)}
-            onValueChange={v => setSelectedFileIdx(Number(v))}
+            value={selectedFileId}
+            onValueChange={v => setSelectedFileIdx(v)}
             options={(torrentInfo?.files?.toSorted((a, b) => a.path.localeCompare(b.path))?.map((f, i) => {
                 return {
                     label: <div className="w-full">
@@ -70,7 +70,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                             {f.path}
                         </Tooltip>
                     </div>,
-                    value: String(f.index),
+                    value: String(f.id),
                 }
             }) || [])}
             itemContainerClass={cn(
@@ -89,7 +89,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
             itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
             stackClass="flex flex-col gap-2 space-y-0"
         />
-    }, [torrentInfo, selectedFileIdx])
+    }, [torrentInfo, selectedFileId])
 
     return (
         <Modal
@@ -97,7 +97,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
             onOpenChange={open => {
                 if (!open) {
                     setSelectedTorrent(undefined)
-                    setSelectedFileIdx(-1)
+                    setSelectedFileIdx("")
                 }
             }}
             // size="xl"
@@ -113,7 +113,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                             intent="primary"
                             className=""
                             rightIcon={<IoPlayCircle className="text-xl" />}
-                            disabled={selectedFileIdx === -1 || isLoading}
+                            disabled={selectedFileId === "" || isLoading}
                             onClick={onStream}
                         >
                             Stream

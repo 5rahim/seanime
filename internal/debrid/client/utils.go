@@ -17,14 +17,14 @@ import (
 func unzipFile(src, dest string) (string, error) {
 	r, err := zip.OpenReader(src)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to open zip file: %w", err)
 	}
 	defer r.Close()
 
 	// Create a temporary folder to extract the files
 	extractedDir, err := os.MkdirTemp(dest, "extracted-")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create temp folder: %w", err)
 	}
 
 	// Iterate through the files in the archive
@@ -63,7 +63,7 @@ func unzipFile(src, dest string) (string, error) {
 		}
 	}
 	// Remove the original archive file
-	return extractedDir, os.Remove(src)
+	return extractedDir, nil
 }
 
 // Unrars a file to the destination
@@ -74,14 +74,14 @@ func unzipFile(src, dest string) (string, error) {
 func unrarFile(src, dest string) (string, error) {
 	r, err := rardecode.OpenReader(src)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to open rar file: %w", err)
 	}
 	defer r.Close()
 
 	// Create a temporary folder to extract the files
 	extractedDir, err := os.MkdirTemp(dest, "extracted-")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create temp folder: %w", err)
 	}
 
 	// Iterate through the files in the archive
@@ -122,7 +122,7 @@ func unrarFile(src, dest string) (string, error) {
 		}
 	}
 	// Remove the original archive file
-	return extractedDir, os.Remove(src)
+	return extractedDir, nil
 }
 
 // Moves a folder or file to the destination

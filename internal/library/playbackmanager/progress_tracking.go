@@ -181,9 +181,9 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 					continue
 				}
 
-				// Get the media list entry
-				// Note that it might be absent if the user is watching a stream that is not in the library
-				pm.currentMediaListEntry = pm.getStreamPlaybackDetails(pm.currentStreamMedia.MustGet().ID)
+				//// Get the media list entry
+				//// Note that it might be absent if the user is watching a stream that is not in the library
+				pm.currentMediaListEntry = pm.getStreamPlaybackDetails(pm.currentStreamMedia.MustGet().GetID())
 
 				// Set the playback type
 				pm.currentPlaybackType = StreamPlayback
@@ -203,7 +203,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				pm.continuityManager.SetExternalPlayerEpisodeDetails(&continuity.ExternalPlayerEpisodeDetails{
 					EpisodeNumber: pm.currentStreamEpisode.MustGet().GetProgressNumber(),
-					MediaId:       pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
+					MediaId:       pm.currentStreamMedia.MustGet().GetID(),
 					Filepath:      "",
 				})
 

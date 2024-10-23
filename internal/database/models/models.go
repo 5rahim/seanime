@@ -136,6 +136,8 @@ type TorrentSettings struct {
 	TransmissionPassword string `gorm:"column:transmission_password" json:"transmissionPassword"`
 	// v2.1+
 	ShowActiveTorrentCount bool `gorm:"column:show_active_torrent_count" json:"showActiveTorrentCount"`
+	// v2.2+
+	HideTorrentList bool `gorm:"column:hide_torrent_list" json:"hideTorrentList"`
 }
 
 type ListSyncSettings struct {
