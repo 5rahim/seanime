@@ -65,6 +65,7 @@ func (r *Repository) launchDownloadLoop(ctx context.Context) {
 								r.logger.Err(err).Msg("debrid: Failed to remove debrid torrent item")
 								continue
 							}
+							time.Sleep(1 * time.Second)
 							// Download the torrent locally
 							err = r.downloadTorrentItem(readyItem.ID, readyItem.Name, dbItem.Destination)
 							if err != nil {

@@ -146,7 +146,7 @@ function Content() {
 
                     {data?.filter(Boolean)?.map(torrent => {
                         return <TorrentItem
-                            key={torrent.hash}
+                            key={torrent.id}
                             torrent={torrent}
                         />
                     })}

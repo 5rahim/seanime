@@ -211,6 +211,7 @@ func (t *TorBox) AddTorrent(opts debrid.AddTorrentOptions) (string, error) {
 				}
 			}
 		}
+		time.Sleep(1 * time.Second)
 	}
 
 	var body bytes.Buffer
@@ -273,7 +274,7 @@ func (t *TorBox) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamTorr
 			case <-ctx.Done():
 				err = ctx.Err()
 				return
-			case <-time.After(5 * time.Second):
+			case <-time.After(4 * time.Second):
 				torrent, _err := t.GetTorrent(opts.ID)
 				if _err != nil {
 					t.logger.Error().Err(_err).Msg("torbox: Failed to get torrent")
@@ -285,6 +286,7 @@ func (t *TorBox) GetTorrentStreamUrl(ctx context.Context, opts debrid.StreamTorr
 
 				// Check if the torrent is ready
 				if torrent.IsReady {
+					time.Sleep(1 * time.Second)
 					downloadUrl, err := t.GetTorrentDownloadUrl(debrid.DownloadTorrentOptions{
 						ID:     opts.ID,
 						FileId: opts.FileId, // Filename

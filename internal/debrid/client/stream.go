@@ -10,6 +10,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"strconv"
+	"time"
 )
 
 type (
@@ -112,10 +113,13 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 	// For Real Debrid, this will just add the torrent to the user's account
 	torrentItemId, err := provider.AddTorrent(debrid.AddTorrentOptions{
 		MagnetLink: opts.Torrent.MagnetLink,
+		InfoHash:   opts.Torrent.InfoHash,
 	})
 	if err != nil {
 		return fmt.Errorf("debridstream: Failed to add torrent: %w", err)
 	}
+
+	time.Sleep(1 * time.Second)
 
 	// Save the current torrent item id
 	s.currentTorrentItemId = torrentItemId
