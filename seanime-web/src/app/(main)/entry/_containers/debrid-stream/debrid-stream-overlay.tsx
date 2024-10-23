@@ -44,7 +44,7 @@ export function DebridStreamOverlay() {
                 }
                 if (data.status === "ready") {
                     setState(null)
-                    toast.info("Sending stream to player...", { duration: 5000 })
+                    toast.info("Sending stream to player...", { duration: 10000 })
                     return
                 }
             }
@@ -134,16 +134,16 @@ export function DebridStreamOverlay() {
                     <div className="flex justify-center gap-4 mt-4">
                         <Button
                             onClick={() => confirmCancelStream.open()}
-                            disabled={isCancelling}
-                            intent="alert"
+                            intent="alert-subtle"
+                            disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..."}
                             size="sm"
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={() => confirmCancelAndRemoveTorrent.open()}
-                            disabled={isCancelling}
-                            intent="alert"
+                            intent="alert-subtle"
+                            disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..."}
                             size="sm"
                         >
                             Cancel and remove torrent
