@@ -273,8 +273,6 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 
 	episodeNumber := 0
 
-	util.Spew(pm.currentStreamEpisodeCollection)
-
 	// Set the current episode being streamed
 	// If the episode collection is not set, we'll still let the stream start. The progress will just not be tracked
 	if pm.currentStreamEpisodeCollection.IsPresent() {

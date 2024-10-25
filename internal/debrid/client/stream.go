@@ -105,9 +105,6 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 	episodeNumber := opts.EpisodeNumber
 	aniDbEpisode := strconv.Itoa(episodeNumber)
 
-	ctx, cancelCtx := context.WithCancel(context.Background())
-	s.downloadCtxCancelFunc = cancelCtx
-
 	// Add the torrent to the debrid service
 	// For Torbox, this will automatically start downloading the torrent
 	// For Real Debrid, this will just add the torrent to the user's account
@@ -116,6 +113,11 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 		InfoHash:   opts.Torrent.InfoHash,
 	})
 	if err != nil {
+		s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+			Status:      StreamStatusFailed,
+			TorrentName: opts.Torrent.Name,
+			Message:     fmt.Sprintf("Failed to add torrent, %v", err),
+		})
 		return fmt.Errorf("debridstream: Failed to add torrent: %w", err)
 	}
 
@@ -123,6 +125,8 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 
 	// Save the current torrent item id
 	s.currentTorrentItemId = torrentItemId
+	ctx, cancelCtx := context.WithCancel(context.Background())
+	s.downloadCtxCancelFunc = cancelCtx
 
 	// Launch a goroutine that will listen to the added torrent's status
 	go func(ctx context.Context) {

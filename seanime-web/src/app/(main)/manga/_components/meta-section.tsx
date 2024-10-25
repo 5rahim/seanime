@@ -12,8 +12,9 @@ import {
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
 import { SeaLink } from "@/components/shared/sea-link"
-import { Button } from "@/components/ui/button"
+import { IconButton } from "@/components/ui/button"
 import React from "react"
+import { SiAnilist } from "react-icons/si"
 
 
 export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL_MangaDetailsById_Media | undefined }) {
@@ -58,9 +59,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">
 
                     <SeaLink href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
-                        <Button intent="gray-link" className="px-0">
-                            AniList
-                        </Button>
+                        <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
                     </SeaLink>
 
                     <div className="flex flex-1"></div>
