@@ -89,7 +89,7 @@ type (
 		SelfUpdater        *updater.SelfUpdater
 		TotalLibrarySize   uint64 // Initialized in modules.go
 		LibraryDir         string
-		animeCollection    *anilist.AnimeCollection // TODO: Rename to animeCollection
+		animeCollection    *anilist.AnimeCollection
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection    *anilist.MangaCollection
 		rawMangaCollection *anilist.MangaCollection // (retains custom lists)

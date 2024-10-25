@@ -121,10 +121,12 @@ func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
 		return
 	}
 
-	m.ScanLogger.LogMatcher(zerolog.DebugLevel).
-		Str("filename", lf.Name).
-		Any("titleVariations", util.InlineSpewT(titleVariations)).
-		Msg("Matching local file")
+	if m.ScanLogger != nil {
+		m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+			Str("filename", lf.Name).
+			Any("titleVariations", util.InlineSpewT(titleVariations)).
+			Msg("Matching local file")
+	}
 
 	// Using Sorensen-Dice
 	// Get the best results for each title variation
