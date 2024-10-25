@@ -2,7 +2,9 @@
 import { Anime_Episode, Continuity_WatchHistory } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { __libraryHeaderImageAtom } from "@/app/(main)/(library)/_components/library-header"
+import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
@@ -11,7 +13,7 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
-import React, { useDeferredValue, useEffect } from "react"
+import React, { useDeferredValue } from "react"
 
 export const __libraryHeaderEpisodeAtom = atom<Anime_Episode | null>(null)
 
@@ -35,12 +37,12 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     const debounceTimeout = React.useRef<NodeJS.Timeout | null>(null)
 
     // Create refs for each episode
-    useEffect(() => {
+    React.useEffect(() => {
         setEpisodeRefs(episodes.map(() => React.createRef()))
     }, [episodes])
 
     // Observe each episode
-    useEffect(() => {
+    React.useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 const index = episodeRefs.findIndex(ref => ref.current === entry.target)
@@ -70,7 +72,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
     }, [episodeRefs])
 
     // Set header image when new episode is in view
-    useEffect(() => {
+    React.useEffect(() => {
         if (debounceTimeout.current) {
             clearTimeout(debounceTimeout.current)
         }
@@ -136,11 +138,12 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
     overrideLink?: string
     watchHistory: Continuity_WatchHistory | undefined
 }) => {
+    const serverStatus = useServerStatus()
     const router = useRouter()
     const setHeaderImage = useSetAtom(__libraryHeaderImageAtom)
     const setHeaderEpisode = useSetAtom(__libraryHeaderEpisodeAtom)
 
-    useEffect(() => {
+    React.useEffect(() => {
         setHeaderImage(prev => {
             if (prev === null) {
                 return episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null
@@ -154,6 +157,8 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             return prev
         })
     }, [])
+
+    const { setPlayNext } = usePlayNext()
 
     return (
         <EpisodeCard
@@ -178,9 +183,17 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             mRef={mRef}
             onClick={() => {
                 if (!overrideLink) {
-                    router.push(`/entry?id=${episode.baseAnime?.id}&playNext=true`)
+                    setPlayNext(episode.baseAnime?.id, () => {
+                        if (!serverStatus?.isOffline) {
+                            router.push(`/entry?id=${episode.baseAnime?.id}`)
+                        } else {
+                            router.push(`/offline/entry/anime?id=${episode.baseAnime?.id}`)
+                        }
+                    })
                 } else {
-                    router.push(overrideLink.replace("{id}", episode.baseAnime?.id ? String(episode.baseAnime.id) : ""))
+                    setPlayNext(episode.baseAnime?.id, () => {
+                        router.push(overrideLink.replace("{id}", episode.baseAnime?.id ? String(episode.baseAnime.id) : ""))
+                    })
                 }
             }}
         />

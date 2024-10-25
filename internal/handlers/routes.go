@@ -12,7 +12,6 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/fiberlogger"
 	util2 "seanime/internal/util/proxies"
-	"strings"
 	"sync"
 	"time"
 )
@@ -74,32 +73,34 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	api := fiberApp.Group("/api")
 	v1 := api.Group("/v1")
 
-	if app.IsOffline() {
-		v1.Use(func(c *fiber.Ctx) error {
-			uriS := strings.Split(c.Request().URI().String(), "v1")
-			if len(uriS) > 1 {
-				if strings.HasPrefix(uriS[1], "/offline") ||
-					strings.HasPrefix(uriS[1], "/settings") ||
-					strings.HasPrefix(uriS[1], "/theme") ||
-					strings.HasPrefix(uriS[1], "/status") ||
-					strings.HasPrefix(uriS[1], "/media-player") ||
-					strings.HasPrefix(uriS[1], "/filecache") ||
-					strings.HasPrefix(uriS[1], "/playback-manager") ||
-					strings.HasPrefix(uriS[1], "/playlists") ||
-					strings.HasPrefix(uriS[1], "/directory-selector") ||
-					strings.HasPrefix(uriS[1], "/manga") ||
-					strings.HasPrefix(uriS[1], "/mediastream") ||
-					strings.HasPrefix(uriS[1], "/torrentstream") ||
-					strings.HasPrefix(uriS[1], "/extensions") ||
-					strings.HasPrefix(uriS[1], "/open-in-explorer") {
-					return c.Next()
-				} else {
-					return c.Status(200).SendString("offline")
-				}
-			}
-			return c.Next()
-		})
-	}
+	//if app.IsOffline() {
+	//	v1.Use(func(c *fiber.Ctx) error {
+	//		uriS := strings.Split(c.Request().URI().String(), "v1")
+	//		if len(uriS) > 1 {
+	//			if strings.HasPrefix(uriS[1], "/offline") ||
+	//				strings.HasPrefix(uriS[1], "/settings") ||
+	//				strings.HasPrefix(uriS[1], "/theme") ||
+	//				strings.HasPrefix(uriS[1], "/status") ||
+	//				strings.HasPrefix(uriS[1], "/media-player") ||
+	//				strings.HasPrefix(uriS[1], "/filecache") ||
+	//				strings.HasPrefix(uriS[1], "/playback-manager") ||
+	//				strings.HasPrefix(uriS[1], "/playlists") ||
+	//				strings.HasPrefix(uriS[1], "/directory-selector") ||
+	//				strings.HasPrefix(uriS[1], "/manga") ||
+	//				strings.HasPrefix(uriS[1], "/mediastream") ||
+	//				strings.HasPrefix(uriS[1], "/torrentstream") ||
+	//				strings.HasPrefix(uriS[1], "/extensions") ||
+	//				strings.HasPrefix(uriS[1], "/continuity") ||
+	//				strings.HasPrefix(uriS[1], "/logs") ||
+	//				strings.HasPrefix(uriS[1], "/open-in-explorer") {
+	//				return c.Next()
+	//			} else {
+	//				return c.Status(200).SendString("offline")
+	//			}
+	//		}
+	//		return c.Next()
+	//	})
+	//}
 
 	//fiberApp.Use(pprof.New(pprof.Config{
 	//	Prefix: "/api/v1",
@@ -134,6 +135,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	// Auto Downloader
 	v1.Post("/auto-downloader/run", makeHandler(app, HandleRunAutoDownloader))
 	v1.Get("/auto-downloader/rule/:id", makeHandler(app, HandleGetAutoDownloaderRule))
+	v1.Get("/auto-downloader/rule/anime/:id", makeHandler(app, HandleGetAutoDownloaderRulesByAnime))
 	v1.Get("/auto-downloader/rules", makeHandler(app, HandleGetAutoDownloaderRules))
 	v1.Post("/auto-downloader/rule", makeHandler(app, HandleCreateAutoDownloaderRule))
 	v1.Patch("/auto-downloader/rule", makeHandler(app, HandleUpdateAutoDownloaderRule))
@@ -288,6 +290,11 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/onlinestream/episode-list", makeHandler(app, HandleGetOnlineStreamEpisodeList))
 	v1.Delete("/onlinestream/cache", makeHandler(app, HandleOnlineStreamEmptyCache))
 
+	v1.Post("/onlinestream/search", makeHandler(app, HandleOnlinestreamManualSearch))
+	v1.Post("/onlinestream/manual-mapping", makeHandler(app, HandleOnlinestreamManualMapping))
+	v1.Post("/onlinestream/get-mapping", makeHandler(app, HandleGetOnlinestreamMapping))
+	v1.Post("/onlinestream/remove-mapping", makeHandler(app, HandleRemoveOnlinestreamMapping))
+
 	//
 	// Metadata Provider
 	//
@@ -315,6 +322,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
 	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
 
+	v1Manga.Get("/downloaded-chapters/:id", makeHandler(app, HandleGetMangaEntryDownloadedChapters))
 	v1Manga.Get("/downloads", makeHandler(app, HandleGetMangaDownloadsList))
 	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
 	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
@@ -347,16 +355,6 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Discord := v1.Group("/discord")
 	v1Discord.Post("/presence/manga", makeHandler(app, HandleSetDiscordMangaActivity))
 	v1Discord.Post("/presence/cancel", makeHandler(app, HandleCancelDiscordActivity))
-
-	//
-	// Offline
-	//
-
-	v1.Get("/offline/snapshot", makeHandler(app, HandleGetOfflineSnapshot))
-	v1.Get("/offline/snapshot-entry", makeHandler(app, HandleGetOfflineSnapshotEntry))
-	v1.Post("/offline/snapshot", makeHandler(app, HandleCreateOfflineSnapshot))
-	v1.Patch("/offline/snapshot-entry", makeHandler(app, HandleUpdateOfflineEntryListData))
-	v1.Post("/offline/sync", makeHandler(app, HandleSyncOfflineData))
 
 	//
 	// Media Stream
@@ -401,6 +399,8 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
 	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
 	v1Extensions.Get("/list/anime-torrent-provider", makeHandler(app, HandleListAnimeTorrentProviderExtensions))
+	v1Extensions.Get("/user-config/:id", makeHandler(app, HandleGetExtensionUserConfig))
+	v1Extensions.Post("/user-config", makeHandler(app, HandleSaveExtensionUserConfig))
 
 	//
 	// Continuity
@@ -409,6 +409,36 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Continuity.Patch("/item", makeHandler(app, HandleUpdateContinuityWatchHistoryItem))
 	v1Continuity.Get("/item/:id", makeHandler(app, HandleGetContinuityWatchHistoryItem))
 	v1Continuity.Get("/history", makeHandler(app, HandleGetContinuityWatchHistory))
+
+	//
+	// Sync
+	//
+	v1Sync := v1.Group("/sync")
+	v1Sync.Get("/track", makeHandler(app, HandleSyncGetTrackedMediaItems))
+	v1Sync.Post("/track", makeHandler(app, HandleSyncAddMedia))
+	v1Sync.Delete("/track", makeHandler(app, HandleSyncRemoveMedia))
+	v1Sync.Get("/track/:id/:type", makeHandler(app, HandleSyncGetIsMediaTracked))
+	v1Sync.Post("/local", makeHandler(app, HandleSyncLocalData))
+	v1Sync.Get("/queue", makeHandler(app, HandleSyncGetQueueState))
+	v1Sync.Post("/anilist", makeHandler(app, HandleSyncAnilistData))
+	v1Sync.Post("/updated", makeHandler(app, HandleSyncSetHasLocalChanges))
+	v1Sync.Get("/updated", makeHandler(app, HandleSyncGetHasLocalChanges))
+	v1Sync.Get("/storage/size", makeHandler(app, HandleSyncGetLocalStorageSize))
+
+	//
+	// Debrid
+	//
+
+	v1.Get("/debrid/settings", makeHandler(app, HandleGetDebridSettings))
+	v1.Patch("/debrid/settings", makeHandler(app, HandleSaveDebridSettings))
+	v1.Post("/debrid/torrents", makeHandler(app, HandleDebridAddTorrents))
+	v1.Post("/debrid/torrents/download", makeHandler(app, HandleDebridDownloadTorrent))
+	v1.Post("/debrid/torrents/cancel", makeHandler(app, HandleDebridCancelDownload))
+	v1.Delete("/debrid/torrent", makeHandler(app, HandleDebridDeleteTorrent))
+	v1.Get("/debrid/torrents", makeHandler(app, HandleDebridGetTorrents))
+	v1.Post("/debrid/torrents/info", makeHandler(app, HandleDebridGetTorrentInfo))
+	v1.Post("/debrid/stream/start", makeHandler(app, HandleDebridStartStream))
+	v1.Post("/debrid/stream/cancel", makeHandler(app, HandleDebridCancelStream))
 
 	//
 	// Websocket

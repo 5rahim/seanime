@@ -8,6 +8,7 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/debrid/debrid"
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
@@ -47,10 +48,12 @@ type (
 		Episode *anime.Episode              `json:"episode"` // nil if batch
 		Torrent *hibiketorrent.AnimeTorrent `json:"torrent"`
 	}
+
 	// SearchData is the struct returned by NewSmartSearch
 	SearchData struct {
-		Torrents []*hibiketorrent.AnimeTorrent `json:"torrents"` // Torrents found
-		Previews []*Preview                    `json:"previews"` // TorrentPreview for each torrent
+		Torrents                  []*hibiketorrent.AnimeTorrent                    `json:"torrents"`                  // Torrents found
+		Previews                  []*Preview                                       `json:"previews"`                  // TorrentPreview for each torrent
+		DebridInstantAvailability map[string]debrid.TorrentItemInstantAvailability `json:"debridInstantAvailability"` // Debrid instant availability
 	}
 )
 
@@ -147,6 +150,10 @@ func (r *Repository) SearchAnime(opts AnimeSearchOptions) (ret *SearchData, err 
 			AnidbAID:      anidbAID,
 			AnidbEID:      anidbEID,
 			BestReleases:  opts.BestReleases,
+		})
+
+		torrents = lo.UniqBy(torrents, func(t *hibiketorrent.AnimeTorrent) string {
+			return t.InfoHash
 		})
 
 	case AnimeSearchTypeSimple:

@@ -10239,8 +10239,8 @@
   {
     "filepath": "../internal/api/anilist/collection_helper.go",
     "filename": "collection_helper.go",
-    "name": "MediaListEntry",
-    "formattedName": "AL_MediaListEntry",
+    "name": "AnimeListEntry",
+    "formattedName": "AL_AnimeListEntry",
     "package": "anilist",
     "fields": [],
     "aliasOf": {
@@ -24720,7 +24720,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\continuity\\history.go",
+    "filepath": "../internal/continuity/history.go",
     "filename": "history.go",
     "name": "WatchHistory",
     "formattedName": "Continuity_WatchHistory",
@@ -24983,7 +24983,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -25164,6 +25164,16 @@
         "comments": []
       },
       {
+        "name": "DebridClientRepository",
+        "jsonName": "DebridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Watcher",
         "jsonName": "Watcher",
         "goType": "scanner.Watcher",
@@ -25189,6 +25199,26 @@
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalPlatform",
+        "jsonName": "LocalPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SyncManager",
+        "jsonName": "SyncManager",
+        "goType": "sync2.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "sync2.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -25392,16 +25422,6 @@
         "comments": []
       },
       {
-        "name": "OfflineHub",
-        "jsonName": "OfflineHub",
-        "goType": "offline.Hub",
-        "typescriptType": "Offline_Hub",
-        "usedStructName": "offline.Hub",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "MediastreamRepository",
         "jsonName": "MediastreamRepository",
         "goType": "mediastream.Repository",
@@ -25542,7 +25562,7 @@
         "name": "moduleMu",
         "jsonName": "moduleMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -25614,6 +25634,16 @@
         "goType": "models.TorrentstreamSettings",
         "typescriptType": "Models_TorrentstreamSettings",
         "usedStructName": "models.TorrentstreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Debrid",
+        "jsonName": "Debrid",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
         "required": false,
         "public": true,
         "comments": []
@@ -26026,7 +26056,7 @@
         "name": "EmbeddedLogo",
         "jsonName": "EmbeddedLogo",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -26326,7 +26356,7 @@
         "name": "Viewer",
         "jsonName": "viewer",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -26348,7 +26378,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -26641,12 +26671,21 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AutoSyncOfflineLocalData",
+        "jsonName": "autoSyncOfflineLocalData",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
   },
   {
-    "filepath": "..\\internal\\database\\models\\models.go",
+    "filepath": "../internal/database/models/models.go",
     "filename": "models.go",
     "name": "LibraryPaths",
     "formattedName": "Models_LibraryPaths",
@@ -26894,6 +26933,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HideTorrentList",
+        "jsonName": "hideTorrentList",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -27088,7 +27136,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27110,7 +27158,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27252,6 +27300,24 @@
       {
         "name": "EnableEnhancedQueries",
         "jsonName": "enableEnhancedQueries",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EnableSeasonCheck",
+        "jsonName": "enableSeasonCheck",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UseDebrid",
+        "jsonName": "useDebrid",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -27499,7 +27565,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27557,7 +27623,7 @@
         "name": "PageData",
         "jsonName": "pageData",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -27625,6 +27691,15 @@
       {
         "name": "DisableAutoSwitchToDirectPlay",
         "jsonName": "disableAutoSwitchToDirectPlay",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DirectPlayOnly",
+        "jsonName": "directPlayOnly",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -27735,6 +27810,15 @@
         "comments": []
       },
       {
+        "name": "TorrentClientHost",
+        "jsonName": "torrentClientHost",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "TorrentClientPort",
         "jsonName": "torrentClientPort",
         "goType": "int",
@@ -27805,7 +27889,7 @@
         "name": "Torrent",
         "jsonName": "torrent",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27864,7 +27948,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27955,7 +28039,7 @@
         "name": "Data",
         "jsonName": "data",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -27965,6 +28049,1567 @@
     "embeddedStructNames": [
       "models.BaseModel"
     ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "OnlinestreamMapping",
+    "formattedName": "Models_OnlinestreamMapping",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeID",
+        "jsonName": "anime_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID from search result, used to fetch episodes"
+        ]
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "DebridSettings",
+    "formattedName": "Models_DebridSettings",
+    "package": "models",
+    "fields": [
+      {
+        "name": "Enabled",
+        "jsonName": "enabled",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ApiKey",
+        "jsonName": "apiKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FallbackToDebridStreamingView",
+        "jsonName": "fallbackToDebridStreamingView",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IncludeDebridStreamInLibrary",
+        "jsonName": "includeDebridStreamInLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "DebridTorrentItem",
+    "formattedName": "Models_DebridTorrentItem",
+    "package": "models",
+    "fields": [
+      {
+        "name": "TorrentItemID",
+        "jsonName": "torrentItemId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/debrid/client/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "DebridClient_Repository",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctxMap",
+        "jsonName": "ctxMap",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadLoopCancelFunc",
+        "jsonName": "downloadLoopCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playbackManager",
+        "jsonName": "playbackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "streamManager",
+        "jsonName": "streamManager",
+        "goType": "StreamManager",
+        "typescriptType": "DebridClient_StreamManager",
+        "usedStructName": "debrid_client.StreamManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "completeAnimeCache",
+        "jsonName": "completeAnimeCache",
+        "goType": "anilist.CompleteAnimeCache",
+        "typescriptType": "AL_CompleteAnimeCache",
+        "usedStructName": "anilist.CompleteAnimeCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platform",
+        "jsonName": "platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/repository.go",
+    "filename": "repository.go",
+    "name": "NewRepositoryOptions",
+    "formattedName": "DebridClient_NewRepositoryOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackManager",
+        "jsonName": "PlaybackManager",
+        "goType": "playbackmanager.PlaybackManager",
+        "typescriptType": "PlaybackManager_PlaybackManager",
+        "usedStructName": "playbackmanager.PlaybackManager",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Platform",
+        "jsonName": "Platform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamManager",
+    "formattedName": "DebridClient_StreamManager",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "repository",
+        "jsonName": "repository",
+        "goType": "Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentTorrentItemId",
+        "jsonName": "currentTorrentItemId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadCtxCancelFunc",
+        "jsonName": "downloadCtxCancelFunc",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamPlaybackType",
+    "formattedName": "DebridClient_StreamPlaybackType",
+    "package": "debrid_client",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"default\"",
+        "\"externalPlayerLink\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamStatus",
+    "formattedName": "DebridClient_StreamStatus",
+    "package": "debrid_client",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"downloading\"",
+        "\"ready\"",
+        "\"failed\"",
+        "\"started\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StreamState",
+    "formattedName": "DebridClient_StreamState",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "StreamStatus",
+        "typescriptType": "DebridClient_StreamStatus",
+        "usedStructName": "debrid_client.StreamStatus",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentName",
+        "jsonName": "torrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Message",
+        "jsonName": "message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "StartStreamOptions",
+    "formattedName": "DebridClient_StartStreamOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " RELATIVE Episode number to identify the file"
+        ]
+      },
+      {
+        "name": "AniDBEpisode",
+        "jsonName": "AniDBEpisode",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Anizip episode"
+        ]
+      },
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Selected torrent"
+        ]
+      },
+      {
+        "name": "FileId",
+        "jsonName": "FileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " File ID or index"
+        ]
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientId",
+        "jsonName": "ClientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PlaybackType",
+        "jsonName": "PlaybackType",
+        "goType": "StreamPlaybackType",
+        "typescriptType": "DebridClient_StreamPlaybackType",
+        "usedStructName": "debrid_client.StreamPlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/stream.go",
+    "filename": "stream.go",
+    "name": "CancelStreamOptions",
+    "formattedName": "DebridClient_CancelStreamOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "RemoveTorrent",
+        "jsonName": "removeTorrent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "AddTorrentOptions",
+    "formattedName": "Debrid_AddTorrentOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "MagnetLink",
+        "jsonName": "magnetLink",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHash",
+        "jsonName": "infoHash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "StreamTorrentOptions",
+    "formattedName": "Debrid_StreamTorrentOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileId",
+        "jsonName": "fileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID or index of the file to stream"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "GetTorrentInfoOptions",
+    "formattedName": "Debrid_GetTorrentInfoOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "MagnetLink",
+        "jsonName": "magnetLink",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InfoHash",
+        "jsonName": "infoHash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "DownloadTorrentOptions",
+    "formattedName": "Debrid_DownloadTorrentOptions",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileId",
+        "jsonName": "fileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID or index of the file to download"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItem",
+    "formattedName": "Debrid_TorrentItem",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Name of the torrent or file"
+        ]
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " SHA1 hash of the torrent"
+        ]
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of the selected files (size in bytes)"
+        ]
+      },
+      {
+        "name": "FormattedSize",
+        "jsonName": "formattedSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Formatted size of the selected files"
+        ]
+      },
+      {
+        "name": "CompletionPercentage",
+        "jsonName": "completionPercentage",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Progress percentage (0 to 100)"
+        ]
+      },
+      {
+        "name": "ETA",
+        "jsonName": "eta",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Formatted estimated time remaining"
+        ]
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "TorrentItemStatus",
+        "typescriptType": "Debrid_TorrentItemStatus",
+        "usedStructName": "debrid.TorrentItemStatus",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Current download status"
+        ]
+      },
+      {
+        "name": "AddedAt",
+        "jsonName": "added",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Date when the torrent was added, RFC3339 format"
+        ]
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Current download speed (optional, present in downloading state)"
+        ]
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Number of seeders (optional, present in downloading state)"
+        ]
+      },
+      {
+        "name": "IsReady",
+        "jsonName": "isReady",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether the torrent is ready to be downloaded"
+        ]
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentItemFile",
+        "typescriptType": "Array\u003cDebrid_TorrentItemFile\u003e",
+        "usedStructName": "debrid.TorrentItemFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " List of files in the torrent (optional)"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItemFile",
+    "formattedName": "Debrid_TorrentItemFile",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " ID of the file, usually the index"
+        ]
+      },
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItemStatus",
+    "formattedName": "Debrid_TorrentItemStatus",
+    "package": "debrid",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"downloading\"",
+        "\"completed\"",
+        "\"seeding\"",
+        "\"error\"",
+        "\"stalled\"",
+        "\"paused\"",
+        "\"other\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentItemInstantAvailability",
+    "formattedName": "Debrid_TorrentItemInstantAvailability",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "CachedFiles",
+        "jsonName": "cachedFiles",
+        "goType": "map[string]CachedFile",
+        "typescriptType": "Record\u003cstring, Debrid_CachedFile\u003e",
+        "usedStructName": "debrid.CachedFile",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Key is the file ID (or index)"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "TorrentInfo",
+    "formattedName": "Debrid_TorrentInfo",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentItemFile",
+        "typescriptType": "Array\u003cDebrid_TorrentItemFile\u003e",
+        "usedStructName": "debrid.TorrentItemFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "CachedFile",
+    "formattedName": "Debrid_CachedFile",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/debrid/debrid.go",
+    "filename": "debrid.go",
+    "name": "Settings",
+    "formattedName": "Debrid_Settings",
+    "package": "debrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "TorBox",
+    "formattedName": "TorBox",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "apiKey",
+        "jsonName": "apiKey",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "Response",
+    "formattedName": "Response",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Success",
+        "jsonName": "success",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Detail",
+        "jsonName": "detail",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "File",
+    "formattedName": "File",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MD5",
+        "jsonName": "md5",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "S3Path",
+        "jsonName": "s3_path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MimeType",
+        "jsonName": "mimetype",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShortName",
+        "jsonName": "short_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "Torrent",
+    "formattedName": "Torrent",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "created_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UpdatedAt",
+        "jsonName": "updated_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Magnet",
+        "jsonName": "magnet",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Active",
+        "jsonName": "active",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AuthID",
+        "jsonName": "auth_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadState",
+        "jsonName": "download_state",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeds",
+        "jsonName": "seeds",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Peers",
+        "jsonName": "peers",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ratio",
+        "jsonName": "ratio",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadSpeed",
+        "jsonName": "download_speed",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadSpeed",
+        "jsonName": "upload_speed",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ETA",
+        "jsonName": "eta",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Server",
+        "jsonName": "server",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentFile",
+        "jsonName": "torrent_file",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExpiresAt",
+        "jsonName": "expires_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadPresent",
+        "jsonName": "download_present",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadFinished",
+        "jsonName": "download_finished",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]File",
+        "typescriptType": "Array\u003cFile\u003e",
+        "usedStructName": "torbox.File",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InactiveCheck",
+        "jsonName": "inactive_check",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Availability",
+        "jsonName": "availability",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "TorrentInfo",
+    "formattedName": "TorrentInfo",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentInfoFile",
+        "typescriptType": "Array\u003cTorrentInfoFile\u003e",
+        "usedStructName": "torbox.TorrentInfoFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "TorrentInfoFile",
+    "formattedName": "TorrentInfoFile",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g. \"Big Buck Bunny/Big Buck Bunny.mp4\""
+        ]
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/torbox/torbox.go",
+    "filename": "torbox.go",
+    "name": "InstantAvailabilityItem",
+    "formattedName": "InstantAvailabilityItem",
+    "package": "torbox",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ name: string; size: number; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/discordrpc/client/activity.go",
@@ -28573,7 +30218,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -28714,7 +30359,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -28875,7 +30520,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -28922,7 +30567,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -28944,8 +30589,7 @@
       "declaredValues": [
         "\"anime-torrent-provider\"",
         "\"manga-provider\"",
-        "\"onlinestream-provider\"",
-        "\"mediaplayer\""
+        "\"onlinestream-provider\""
       ]
     },
     "comments": []
@@ -29104,16 +30748,14 @@
         ]
       },
       {
-        "name": "Config",
-        "jsonName": "config",
-        "goType": "Config",
-        "typescriptType": "Extension_Config",
-        "usedStructName": "extension.Config",
+        "name": "UserConfig",
+        "jsonName": "userConfig",
+        "goType": "UserConfig",
+        "typescriptType": "Extension_UserConfig",
+        "usedStructName": "extension.UserConfig",
         "required": false,
         "public": true,
-        "comments": [
-          " NOT IMPLEMENTED"
-        ]
+        "comments": []
       },
       {
         "name": "Payload",
@@ -29140,6 +30782,7 @@
       "declaredValues": [
         "\"invalid_manifest\"",
         "\"invalid_payload\"",
+        "\"user_config_error\"",
         "\"invalid_authorization\""
       ]
     },
@@ -29205,10 +30848,19 @@
   {
     "filepath": "../internal/extension/extension.go",
     "filename": "extension.go",
-    "name": "Config",
-    "formattedName": "Extension_Config",
+    "name": "UserConfig",
+    "formattedName": "Extension_UserConfig",
     "package": "extension",
     "fields": [
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "RequiresConfig",
         "jsonName": "requiresConfig",
@@ -29224,6 +30876,34 @@
         "goType": "[]ConfigField",
         "typescriptType": "Array\u003cExtension_ConfigField\u003e",
         "usedStructName": "extension.ConfigField",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "SavedUserConfig",
+    "formattedName": "Extension_SavedUserConfig",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Values",
+        "jsonName": "values",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -29281,7 +30961,7 @@
         "jsonName": "default",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -29301,8 +30981,7 @@
       "declaredValues": [
         "\"text\"",
         "\"switch\"",
-        "\"select\"",
-        "\"number\""
+        "\"select\""
       ]
     },
     "comments": []
@@ -29704,8 +31383,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "SearchOptions",
-    "formattedName": "SearchOptions",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_SearchOptions",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "Query",
@@ -29741,8 +31420,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "Settings",
-    "formattedName": "Settings",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_Settings",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "EpisodeServers",
@@ -29769,8 +31448,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "SearchResult",
-    "formattedName": "SearchResult",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_SearchResult",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "ID",
@@ -29803,8 +31482,8 @@
         "name": "SubOrDub",
         "jsonName": "subOrDub",
         "goType": "SubOrDub",
-        "typescriptType": "SubOrDub",
-        "usedStructName": "vender_hibike_onlinestream.SubOrDub",
+        "typescriptType": "HibikeOnlinestream_SubOrDub",
+        "usedStructName": "vendor_hibike_onlinestream.SubOrDub",
         "required": true,
         "public": true,
         "comments": []
@@ -29816,8 +31495,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "EpisodeDetails",
-    "formattedName": "EpisodeDetails",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_EpisodeDetails",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "Provider",
@@ -29871,8 +31550,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "EpisodeServer",
-    "formattedName": "EpisodeServer",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_EpisodeServer",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "Provider",
@@ -29905,8 +31584,8 @@
         "name": "VideoSources",
         "jsonName": "videoSources",
         "goType": "[]VideoSource",
-        "typescriptType": "Array\u003cVideoSource\u003e",
-        "usedStructName": "vender_hibike_onlinestream.VideoSource",
+        "typescriptType": "Array\u003cHibikeOnlinestream_VideoSource\u003e",
+        "usedStructName": "vendor_hibike_onlinestream.VideoSource",
         "required": false,
         "public": true,
         "comments": []
@@ -29918,8 +31597,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "SubOrDub",
-    "formattedName": "SubOrDub",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_SubOrDub",
+    "package": "vendor_hibike_onlinestream",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -29936,8 +31615,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSourceType",
-    "formattedName": "VideoSourceType",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_VideoSourceType",
+    "package": "vendor_hibike_onlinestream",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -29953,8 +31632,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSource",
-    "formattedName": "VideoSource",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_VideoSource",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "URL",
@@ -29969,8 +31648,8 @@
         "name": "Type",
         "jsonName": "type",
         "goType": "VideoSourceType",
-        "typescriptType": "VideoSourceType",
-        "usedStructName": "vender_hibike_onlinestream.VideoSourceType",
+        "typescriptType": "HibikeOnlinestream_VideoSourceType",
+        "usedStructName": "vendor_hibike_onlinestream.VideoSourceType",
         "required": true,
         "public": true,
         "comments": []
@@ -29988,8 +31667,8 @@
         "name": "Subtitles",
         "jsonName": "subtitles",
         "goType": "[]VideoSubtitle",
-        "typescriptType": "Array\u003cVideoSubtitle\u003e",
-        "usedStructName": "vender_hibike_onlinestream.VideoSubtitle",
+        "typescriptType": "Array\u003cHibikeOnlinestream_VideoSubtitle\u003e",
+        "usedStructName": "vendor_hibike_onlinestream.VideoSubtitle",
         "required": false,
         "public": true,
         "comments": []
@@ -30001,8 +31680,8 @@
     "filepath": "../internal/extension/vendoring/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSubtitle",
-    "formattedName": "VideoSubtitle",
-    "package": "vender_hibike_onlinestream",
+    "formattedName": "HibikeOnlinestream_VideoSubtitle",
+    "package": "vendor_hibike_onlinestream",
     "fields": [
       {
         "name": "ID",
@@ -30833,6 +32512,16 @@
         "comments": []
       },
       {
+        "name": "fileCacher",
+        "jsonName": "fileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
         "goType": "events.WSEventManagerInterface",
@@ -30912,6 +32601,16 @@
       {
         "name": "InvalidExtensions",
         "jsonName": "invalidExtensions",
+        "goType": "[]extension.InvalidExtension",
+        "typescriptType": "Array\u003cExtension_InvalidExtension\u003e",
+        "usedStructName": "extension.InvalidExtension",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "InvalidUserConfigExtensions",
+        "jsonName": "invalidUserConfigExtensions",
         "goType": "[]extension.InvalidExtension",
         "typescriptType": "Array\u003cExtension_InvalidExtension\u003e",
         "usedStructName": "extension.InvalidExtension",
@@ -31156,6 +32855,16 @@
         "goType": "events.WSEventManagerInterface",
         "typescriptType": "Events_WSEventManagerInterface",
         "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileCacher",
+        "jsonName": "FileCacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
         "required": false,
         "public": true,
         "comments": []
@@ -31426,6 +33135,36 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/userconfig.go",
+    "filename": "userconfig.go",
+    "name": "ExtensionUserConfig",
+    "formattedName": "ExtensionRepo_ExtensionUserConfig",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "UserConfig",
+        "jsonName": "userConfig",
+        "goType": "extension.UserConfig",
+        "typescriptType": "Extension_UserConfig",
+        "usedStructName": "extension.UserConfig",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SavedUserConfig",
+        "jsonName": "savedUserConfig",
+        "goType": "extension.SavedUserConfig",
+        "typescriptType": "Extension_SavedUserConfig",
+        "usedStructName": "extension.SavedUserConfig",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -31800,6 +33539,16 @@
         "goType": "models.TorrentstreamSettings",
         "typescriptType": "Models_TorrentstreamSettings",
         "usedStructName": "models.TorrentstreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridSettings",
+        "jsonName": "debridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
         "required": false,
         "public": true,
         "comments": []
@@ -34047,6 +35796,16 @@
         "comments": []
       },
       {
+        "name": "debridClientRepository",
+        "jsonName": "debridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "database",
         "jsonName": "database",
         "goType": "db.Database",
@@ -34135,7 +35894,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -34207,6 +35966,16 @@
         "goType": "metadata.Provider",
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridClientRepository",
+        "jsonName": "DebridClientRepository",
+        "goType": "debrid_client.Repository",
+        "typescriptType": "DebridClient_Repository",
+        "usedStructName": "debrid_client.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -34292,7 +36061,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -34829,7 +36598,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -34839,7 +36608,7 @@
         "name": "eventMu",
         "jsonName": "eventMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -34891,7 +36660,7 @@
         "name": "autoPlayMu",
         "jsonName": "autoPlayMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -34948,9 +36717,7 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
-        "comments": [
-          " This is set by [SetStreamEpisodeCollection]"
-        ]
+        "comments": []
       },
       {
         "name": "currentStreamEpisode",
@@ -34959,9 +36726,7 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
-        "comments": [
-          " The current episode being streamed"
-        ]
+        "comments": []
       },
       {
         "name": "currentStreamMedia",
@@ -34970,9 +36735,7 @@
         "typescriptType": "any",
         "required": true,
         "public": false,
-        "comments": [
-          " The current media being streamed"
-        ]
+        "comments": []
       },
       {
         "name": "manualTrackingCtx",
@@ -35031,16 +36794,6 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "offlineHub",
-        "jsonName": "offlineHub",
-        "goType": "offline.HubInterface",
-        "typescriptType": "Offline_HubInterface",
-        "usedStructName": "offline.HubInterface",
-        "required": false,
         "public": false,
         "comments": []
       },
@@ -35242,16 +36995,6 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OfflineHub",
-        "jsonName": "OfflineHub",
-        "goType": "offline.HubInterface",
-        "typescriptType": "Offline_HubInterface",
-        "usedStructName": "offline.HubInterface",
-        "required": false,
         "public": true,
         "comments": []
       },
@@ -36904,6 +38647,16 @@
         "comments": []
       },
       {
+        "name": "filecacher",
+        "jsonName": "filecacher",
+        "goType": "filecache.Cacher",
+        "typescriptType": "Filecache_Cacher",
+        "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mediaMap",
         "jsonName": "mediaMap",
         "goType": "MediaMap",
@@ -36919,7 +38672,7 @@
         "name": "mediaMapMu",
         "jsonName": "mediaMapMu",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -36947,7 +38700,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\manga\\download.go",
+    "filepath": "../internal/manga/download.go",
     "filename": "download.go",
     "name": "MediaMap",
     "formattedName": "Manga_MediaMap",
@@ -36962,7 +38715,7 @@
     "comments": null
   },
   {
-    "filepath": "..\\internal\\manga\\download.go",
+    "filepath": "../internal/manga/download.go",
     "filename": "download.go",
     "name": "ProviderDownloadMap",
     "formattedName": "Manga_ProviderDownloadMap",
@@ -37248,7 +39001,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -37258,7 +39011,7 @@
         "name": "downloadMu",
         "jsonName": "downloadMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -37366,7 +39119,7 @@
     "comments": []
   },
   {
-    "filepath": "..\\internal\\manga\\downloader\\chapter_downloader.go",
+    "filepath": "../internal/manga/downloader/chapter_downloader.go",
     "filename": "chapter_downloader.go",
     "name": "Registry",
     "formattedName": "ChapterDownloader_Registry",
@@ -37546,7 +39299,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -39565,7 +41318,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -39759,7 +41512,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -40371,7 +42124,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -40381,7 +42134,7 @@
         "name": "playbackMu",
         "jsonName": "playbackMu",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -40557,7 +42310,7 @@
         "name": "lock",
         "jsonName": "lock",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -41878,7 +43631,7 @@
         "name": "reqMu",
         "jsonName": "reqMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -42040,7 +43793,7 @@
         "name": "ready",
         "jsonName": "ready",
         "goType": "sync.WaitGroup",
-        "typescriptType": "WaitGroup",
+        "typescriptType": "Sync_WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -42249,7 +44002,7 @@
         "name": "mutex",
         "jsonName": "mutex",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -42259,7 +44012,7 @@
         "name": "ready",
         "jsonName": "ready",
         "goType": "sync.WaitGroup",
-        "typescriptType": "WaitGroup",
+        "typescriptType": "Sync_WaitGroup",
         "usedStructName": "sync.WaitGroup",
         "required": false,
         "public": false,
@@ -42421,7 +44174,7 @@
         "name": "segmentsLock",
         "jsonName": "segmentsLock",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -42431,7 +44184,7 @@
         "name": "headsLock",
         "jsonName": "headsLock",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,
@@ -43413,7 +45166,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -43452,767 +45205,25 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"Auto Downloader\"",
-        "\"Auto Scanner\""
+        "\"Auto Scanner\"",
+        "\"Debrid\""
       ]
     },
     "comments": []
   },
   {
-    "filepath": "../internal/offline/hub.go",
-    "filename": "hub.go",
-    "name": "Hub",
-    "formattedName": "Offline_Hub",
-    "package": "offline",
+    "filepath": "../internal/onlinestream/manual_mapping.go",
+    "filename": "manual_mapping.go",
+    "name": "MappingResponse",
+    "formattedName": "Onlinestream_MappingResponse",
+    "package": "onlinestream",
     "fields": [
       {
-        "name": "platform",
-        "jsonName": "platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Used to fetch anime and manga data from AniList"
-        ]
-      },
-      {
-        "name": "metadataProvider",
-        "jsonName": "metadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Provides metadata for anime and manga entries"
-        ]
-      },
-      {
-        "name": "wsEventManager",
-        "jsonName": "wsEventManager",
-        "goType": "events.WSEventManagerInterface",
-        "typescriptType": "Events_WSEventManagerInterface",
-        "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaRepository",
-        "jsonName": "mangaRepository",
-        "goType": "manga.Repository",
-        "typescriptType": "Manga_Repository",
-        "usedStructName": "manga.Repository",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "db",
-        "jsonName": "db",
-        "goType": "db.Database",
-        "typescriptType": "DB_Database",
-        "usedStructName": "db.Database",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "offlineDb",
-        "jsonName": "offlineDb",
-        "goType": "database",
-        "typescriptType": "Offline_database",
-        "usedStructName": "offline.database",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Stores snapshots"
-        ]
-      },
-      {
-        "name": "fileCacher",
-        "jsonName": "fileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "logger",
-        "jsonName": "logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "assetsHandler",
-        "jsonName": "assetsHandler",
-        "goType": "assetsHandler",
-        "typescriptType": "Offline_assetsHandler",
-        "usedStructName": "offline.assetsHandler",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Handles downloading metadata assets"
-        ]
-      },
-      {
-        "name": "offlineDir",
-        "jsonName": "offlineDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": [
-          " Contains database"
-        ]
-      },
-      {
-        "name": "assetDir",
-        "jsonName": "assetDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": false,
-        "comments": [
-          " Contains assets"
-        ]
-      },
-      {
-        "name": "isOffline",
-        "jsonName": "isOffline",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": false,
-        "comments": [
-          " User enabled offline mode"
-        ]
-      },
-      {
-        "name": "mu",
-        "jsonName": "mu",
-        "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
-        "usedStructName": "sync.Mutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "currentSnapshot",
-        "jsonName": "currentSnapshot",
-        "goType": "Snapshot",
-        "typescriptType": "Offline_Snapshot",
-        "usedStructName": "offline.Snapshot",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "RefreshAnilistCollectionsFunc",
-        "jsonName": "RefreshAnilistCollectionsFunc",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/hub.go",
-    "filename": "hub.go",
-    "name": "NewHubOptions",
-    "formattedName": "Offline_NewHubOptions",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "Platform",
-        "jsonName": "Platform",
-        "goType": "platform.Platform",
-        "typescriptType": "Platform",
-        "usedStructName": "platform.Platform",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WSEventManager",
-        "jsonName": "WSEventManager",
-        "goType": "events.WSEventManagerInterface",
-        "typescriptType": "Events_WSEventManagerInterface",
-        "usedStructName": "events.WSEventManagerInterface",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MetadataProvider",
-        "jsonName": "MetadataProvider",
-        "goType": "metadata.Provider",
-        "typescriptType": "Metadata_Provider",
-        "usedStructName": "metadata.Provider",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MangaRepository",
-        "jsonName": "MangaRepository",
-        "goType": "manga.Repository",
-        "typescriptType": "Manga_Repository",
-        "usedStructName": "manga.Repository",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Database",
-        "jsonName": "Database",
-        "goType": "db.Database",
-        "typescriptType": "DB_Database",
-        "usedStructName": "db.Database",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FileCacher",
-        "jsonName": "FileCacher",
-        "goType": "filecache.Cacher",
-        "typescriptType": "Filecache_Cacher",
-        "usedStructName": "filecache.Cacher",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OfflineDir",
-        "jsonName": "OfflineDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AssetDir",
-        "jsonName": "AssetDir",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsOffline",
-        "jsonName": "IsOffline",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "RefreshAnimeCollectionsFunc",
-        "jsonName": "RefreshAnimeCollectionsFunc",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/mock.go",
-    "filename": "mock.go",
-    "name": "MockHub",
-    "formattedName": "Offline_MockHub",
-    "package": "offline",
-    "fields": [],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/models.go",
-    "filename": "models.go",
-    "name": "SnapshotEntry",
-    "formattedName": "Offline_SnapshotEntry",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "User",
-        "jsonName": "user",
+        "name": "AnimeId",
+        "jsonName": "animeId",
         "goType": "string",
         "typescriptType": "string",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Collections",
-        "jsonName": "collections",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AssetMap",
-        "jsonName": "assetMap",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Synced",
-        "jsonName": "synced",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Used",
-        "jsonName": "used",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "models.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/offline/models.go",
-    "filename": "models.go",
-    "name": "SnapshotMediaEntryType",
-    "formattedName": "Offline_SnapshotMediaEntryType",
-    "package": "offline",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"anime\"",
-        "\"manga\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/models.go",
-    "filename": "models.go",
-    "name": "SnapshotMediaEntry",
-    "formattedName": "Offline_SnapshotMediaEntry",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "Type",
-        "jsonName": "type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SnapshotItemId",
-        "jsonName": "snapshotItemId",
-        "goType": "uint",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Value",
-        "jsonName": "value",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "models.BaseModel"
-    ]
-  },
-  {
-    "filepath": "../internal/offline/snapshot.go",
-    "filename": "snapshot.go",
-    "name": "NewSnapshotOptions",
-    "formattedName": "Offline_NewSnapshotOptions",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "AnimeToDownload",
-        "jsonName": "AnimeToDownload",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " MediaIds"
-        ]
-      },
-      {
-        "name": "DownloadAssetsOf",
-        "jsonName": "DownloadAssetsOf",
-        "goType": "[]int",
-        "typescriptType": "Array\u003cnumber\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " MediaIds"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "Snapshot",
-    "formattedName": "Offline_Snapshot",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "DbId",
-        "jsonName": "dbId",
-        "goType": "uint",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "User",
-        "jsonName": "user",
-        "goType": "anime.User",
-        "typescriptType": "Anime_User",
-        "usedStructName": "anime.User",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Entries",
-        "jsonName": "entries",
-        "goType": "Entries",
-        "typescriptType": "Offline_Entries",
-        "usedStructName": "offline.Entries",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Collections",
-        "jsonName": "libraryCollections",
-        "goType": "Collections",
-        "typescriptType": "Offline_Collections",
-        "usedStructName": "offline.Collections",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AssetMap",
-        "jsonName": "assetMap",
-        "goType": "AssetMapImageMap",
-        "typescriptType": "Offline_AssetMapImageMap",
-        "usedStructName": "offline.AssetMapImageMap",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Key MediaId, Value: [Key: URL, Value: Local path]"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "..\\internal\\offline\\snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "AssetMapImageMap",
-    "formattedName": "Offline_AssetMapImageMap",
-    "package": "offline",
-    "fields": [],
-    "aliasOf": {
-      "goType": "map[string]string",
-      "typescriptType": "Record\u003cstring, string\u003e",
-      "declaredValues": null
-    },
-    "comments": null
-  },
-  {
-    "filepath": "../internal/offline/snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "Collections",
-    "formattedName": "Offline_Collections",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "AnimeCollection",
-        "jsonName": "animeCollection",
-        "goType": "anilist.AnimeCollection",
-        "typescriptType": "AL_AnimeCollection",
-        "usedStructName": "anilist.AnimeCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "MangaCollection",
-        "jsonName": "mangaCollection",
-        "goType": "anilist.MangaCollection",
-        "typescriptType": "AL_MangaCollection",
-        "usedStructName": "anilist.MangaCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "Entries",
-    "formattedName": "Offline_Entries",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "AnimeEntries",
-        "jsonName": "animeEntries",
-        "goType": "[]AnimeEntry",
-        "typescriptType": "Array\u003cOffline_AnimeEntry\u003e",
-        "usedStructName": "offline.AnimeEntry",
-        "required": false,
-        "public": true,
-        "comments": [
-          " All anime entries in the local library"
-        ]
-      },
-      {
-        "name": "MangaEntries",
-        "jsonName": "mangaEntries",
-        "goType": "[]MangaEntry",
-        "typescriptType": "Array\u003cOffline_MangaEntry\u003e",
-        "usedStructName": "offline.MangaEntry",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Will only contain manga entries with downloaded chapters"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "AnimeEntry",
-    "formattedName": "Offline_AnimeEntry",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ListData",
-        "jsonName": "listData",
-        "goType": "ListData",
-        "typescriptType": "Offline_ListData",
-        "usedStructName": "offline.ListData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseAnime",
-        "typescriptType": "AL_BaseAnime",
-        "usedStructName": "anilist.BaseAnime",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Episodes",
-        "jsonName": "episodes",
-        "goType": "[]anime.Episode",
-        "typescriptType": "Array\u003cAnime_Episode\u003e",
-        "usedStructName": "anime.Episode",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadedAssets",
-        "jsonName": "downloadedAssets",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "MangaEntry",
-    "formattedName": "Offline_MangaEntry",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "MediaId",
-        "jsonName": "mediaId",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ListData",
-        "jsonName": "listData",
-        "goType": "ListData",
-        "typescriptType": "Offline_ListData",
-        "usedStructName": "offline.ListData",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Media",
-        "jsonName": "media",
-        "goType": "anilist.BaseManga",
-        "typescriptType": "AL_BaseManga",
-        "usedStructName": "anilist.BaseManga",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ChapterContainers",
-        "jsonName": "chapterContainers",
-        "goType": "[]manga.ChapterContainer",
-        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
-        "usedStructName": "manga.ChapterContainer",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "DownloadedAssets",
-        "jsonName": "downloadedAssets",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/offline/snapshot_entities.go",
-    "filename": "snapshot_entities.go",
-    "name": "ListData",
-    "formattedName": "Offline_ListData",
-    "package": "offline",
-    "fields": [
-      {
-        "name": "Score",
-        "jsonName": "score",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Status",
-        "jsonName": "status",
-        "goType": "anilist.MediaListStatus",
-        "typescriptType": "AL_MediaListStatus",
-        "usedStructName": "anilist.MediaListStatus",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Progress",
-        "jsonName": "progress",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "StartedAt",
-        "jsonName": "startedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CompletedAt",
-        "jsonName": "completedAt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
         "public": true,
         "comments": []
       }
@@ -44387,6 +45398,16 @@
         "goType": "anilist.BaseAnimeCache",
         "typescriptType": "AL_BaseAnimeCache",
         "usedStructName": "anilist.BaseAnimeCache",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": false,
         "comments": []
@@ -44626,6 +45647,16 @@
         "goType": "platform.Platform",
         "typescriptType": "Platform",
         "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
         "required": false,
         "public": true,
         "comments": []
@@ -44886,90 +45917,37 @@
         "comments": []
       },
       {
-        "name": "anilistClient",
-        "jsonName": "anilistClient",
+        "name": "syncManager",
+        "jsonName": "syncManager",
+        "goType": "sync.Manager",
+        "typescriptType": "Sync_Manager",
+        "usedStructName": "sync.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
         "goType": "anilist.AnilistClient",
         "typescriptType": "AL_AnilistClient",
         "usedStructName": "anilist.AnilistClient",
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "animeCollection",
-        "jsonName": "animeCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "rawAnimeCollection",
-        "jsonName": "rawAnimeCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaCollection",
-        "jsonName": "mangaCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "rawMangaCollection",
-        "jsonName": "rawMangaCollection",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "mangaMu",
-        "jsonName": "mangaMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "animeMu",
-        "jsonName": "animeMu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
-        "usedStructName": "sync.RWMutex",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "localDb",
-        "jsonName": "localDb",
-        "goType": "LocalPlatformDatabase",
-        "typescriptType": "LocalPlatformDatabase",
-        "usedStructName": "local_platform.LocalPlatformDatabase",
-        "required": false,
-        "public": false,
-        "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " LocalPlatform used when offline.",
+      " It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op."
+    ]
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_database.go",
-    "filename": "local_platform_database.go",
-    "name": "LocalPlatformDatabase",
-    "formattedName": "LocalPlatformDatabase",
-    "package": "local_platform",
+    "filepath": "../internal/sync/database.go",
+    "filename": "database.go",
+    "name": "Database",
+    "formattedName": "Sync_Database",
+    "package": "sync",
     "fields": [
       {
         "name": "gormdb",
@@ -44995,11 +45973,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_models.go",
-    "filename": "local_platform_models.go",
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
     "name": "BaseModel",
-    "formattedName": "BaseModel",
-    "package": "local_platform",
+    "formattedName": "Sync_BaseModel",
+    "package": "sync",
     "fields": [
       {
         "name": "ID",
@@ -45034,11 +46012,33 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_models.go",
-    "filename": "local_platform_models.go",
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "Settings",
+    "formattedName": "Sync_Settings",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Updated",
+        "jsonName": "updated",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
     "name": "LocalCollection",
-    "formattedName": "LocalCollection",
-    "package": "local_platform",
+    "formattedName": "Sync_LocalCollection",
+    "package": "sync",
     "fields": [
       {
         "name": "Type",
@@ -45055,7 +46055,7 @@
         "name": "Value",
         "jsonName": "value",
         "goType": "string",
-        "typescriptType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": [
@@ -45065,19 +46065,71 @@
     ],
     "comments": [],
     "embeddedStructNames": [
-      "local_platform.BaseModel"
+      "sync.BaseModel"
     ]
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
-    "filename": "local_platform_save.go",
-    "name": "MediaSnapshot",
-    "formattedName": "MediaSnapshot",
-    "package": "local_platform",
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "TrackedMedia",
+    "formattedName": "Sync_TrackedMedia",
+    "package": "sync",
     "fields": [
       {
-        "name": "MediaID",
+        "name": "MediaId",
         "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"anime\" or \"manga\""
+        ]
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "AnimeSnapshot",
+    "formattedName": "Sync_AnimeSnapshot",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeMetadata",
+        "jsonName": "animeMetadata",
+        "goType": "LocalAnimeMetadata",
+        "typescriptType": "Sync_LocalAnimeMetadata",
+        "usedStructName": "sync.LocalAnimeMetadata",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImagePath",
+        "jsonName": "bannerImagePath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -45085,22 +46137,353 @@
         "comments": []
       },
       {
+        "name": "CoverImagePath",
+        "jsonName": "coverImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeImagePaths",
+        "jsonName": "episodeImagePaths",
+        "goType": "StringMap",
+        "typescriptType": "Sync_StringMap",
+        "usedStructName": "sync.StringMap",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReferenceKey",
+        "jsonName": "referenceKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "MangaSnapshot",
+    "formattedName": "Sync_MangaSnapshot",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterContainers",
+        "jsonName": "chapterContainers",
+        "goType": "LocalMangaChapterContainers",
+        "typescriptType": "Sync_LocalMangaChapterContainers",
+        "usedStructName": "sync.LocalMangaChapterContainers",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BannerImagePath",
+        "jsonName": "bannerImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CoverImagePath",
+        "jsonName": "coverImagePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReferenceKey",
+        "jsonName": "referenceKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "sync.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "StringMap",
+    "formattedName": "Sync_StringMap",
+    "package": "sync",
+    "fields": [],
+    "aliasOf": {
+      "goType": "map[string]string",
+      "typescriptType": "Record\u003cstring, string\u003e",
+      "declaredValues": null
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/sync/database_models.go",
+    "filename": "database_models.go",
+    "name": "LocalMangaChapterContainers",
+    "formattedName": "Sync_LocalMangaChapterContainers",
+    "package": "sync",
+    "fields": [],
+    "aliasOf": {
+      "goType": "[]manga.ChapterContainer",
+      "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+      "declaredValues": null,
+      "usedStructName": "manga.ChapterContainer"
+    },
+    "comments": null
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "Diff",
+    "formattedName": "Sync_Diff",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "DiffType",
+    "formattedName": "Sync_DiffType",
+    "package": "sync",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "GetAnimeDiffOptions",
+    "formattedName": "Sync_GetAnimeDiffOptions",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Collection",
+        "jsonName": "Collection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalCollection",
+        "jsonName": "LocalCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackedAnime",
+        "jsonName": "TrackedAnime",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Snapshots",
+        "jsonName": "Snapshots",
+        "goType": "map[int]AnimeSnapshot",
+        "typescriptType": "Record\u003cnumber, Sync_AnimeSnapshot\u003e",
+        "usedStructName": "sync.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "AnimeDiffResult",
+    "formattedName": "Sync_AnimeDiffResult",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "AnimeEntry",
+        "jsonName": "AnimeEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "AnimeSnapshot",
-        "jsonName": "animeSnapshot",
+        "jsonName": "AnimeSnapshot",
         "goType": "AnimeSnapshot",
-        "typescriptType": "AnimeSnapshot",
-        "usedStructName": "local_platform.AnimeSnapshot",
+        "typescriptType": "Sync_AnimeSnapshot",
+        "usedStructName": "sync.AnimeSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DiffType",
+        "jsonName": "DiffType",
+        "goType": "DiffType",
+        "typescriptType": "Sync_DiffType",
+        "usedStructName": "sync.DiffType",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "GetMangaDiffOptions",
+    "formattedName": "Sync_GetMangaDiffOptions",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Collection",
+        "jsonName": "Collection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalCollection",
+        "jsonName": "LocalCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DownloadedChapterContainers",
+        "jsonName": "DownloadedChapterContainers",
+        "goType": "[]manga.ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrackedManga",
+        "jsonName": "TrackedManga",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Snapshots",
+        "jsonName": "Snapshots",
+        "goType": "map[int]MangaSnapshot",
+        "typescriptType": "Record\u003cnumber, Sync_MangaSnapshot\u003e",
+        "usedStructName": "sync.MangaSnapshot",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/diff.go",
+    "filename": "diff.go",
+    "name": "MangaDiffResult",
+    "formattedName": "Sync_MangaDiffResult",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MangaEntry",
+        "jsonName": "MangaEntry",
+        "goType": "anilist.MangaListEntry",
+        "typescriptType": "AL_MangaListEntry",
+        "usedStructName": "anilist.MangaListEntry",
         "required": false,
         "public": true,
         "comments": []
       },
       {
         "name": "MangaSnapshot",
-        "jsonName": "mangaSnapshot",
+        "jsonName": "MangaSnapshot",
         "goType": "MangaSnapshot",
-        "typescriptType": "MangaSnapshot",
-        "usedStructName": "local_platform.MangaSnapshot",
+        "typescriptType": "Sync_MangaSnapshot",
+        "usedStructName": "sync.MangaSnapshot",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DiffType",
+        "jsonName": "DiffType",
+        "goType": "DiffType",
+        "typescriptType": "Sync_DiffType",
+        "usedStructName": "sync.DiffType",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -45108,15 +46491,216 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
-    "filename": "local_platform_save.go",
-    "name": "ImageSnapshot",
-    "formattedName": "ImageSnapshot",
-    "package": "local_platform",
+    "filepath": "../internal/sync/manager.go",
+    "filename": "manager.go",
+    "name": "ManagerImpl",
+    "formattedName": "Sync_ManagerImpl",
+    "package": "sync",
     "fields": [
       {
-        "name": "CoverImage",
-        "jsonName": "coverImage",
+        "name": "db",
+        "jsonName": "db",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDb",
+        "jsonName": "localDb",
+        "goType": "Database",
+        "typescriptType": "Sync_Database",
+        "usedStructName": "sync.Database",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localDir",
+        "jsonName": "localDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localAssetsDir",
+        "jsonName": "localAssetsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "isOffline",
+        "jsonName": "isOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadataProvider",
+        "jsonName": "metadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaRepository",
+        "jsonName": "mangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localMetadataProvider",
+        "jsonName": "localMetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "anilistPlatform",
+        "jsonName": "anilistPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "syncer",
+        "jsonName": "syncer",
+        "goType": "Syncer",
+        "typescriptType": "Sync_Syncer",
+        "usedStructName": "sync.Syncer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localAnimeCollection",
+        "jsonName": "localAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localMangaCollection",
+        "jsonName": "localMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeCollection",
+        "jsonName": "animeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "downloadedChapterContainers",
+        "jsonName": "downloadedChapterContainers",
+        "goType": "[]manga.ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "localFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "RefreshAnilistCollectionsFunc",
+        "jsonName": "RefreshAnilistCollectionsFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/manager.go",
+    "filename": "manager.go",
+    "name": "TrackedMediaItem",
+    "formattedName": "Sync_TrackedMediaItem",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -45124,8 +46708,38 @@
         "comments": []
       },
       {
-        "name": "BannerImage",
-        "jsonName": "bannerImage",
+        "name": "AnimeEntry",
+        "jsonName": "animeEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaEntry",
+        "jsonName": "mangaEntry",
+        "goType": "anilist.MangaListEntry",
+        "typescriptType": "AL_MangaListEntry",
+        "usedStructName": "anilist.MangaListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/manager.go",
+    "filename": "manager.go",
+    "name": "NewManagerOptions",
+    "formattedName": "Sync_NewManagerOptions",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "LocalDir",
+        "jsonName": "LocalDir",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -45133,42 +46747,304 @@
         "comments": []
       },
       {
-        "name": "EpisodeImages",
-        "jsonName": "episodeImages",
-        "goType": "map[string]string",
-        "typescriptType": "Record\u003cstring, string\u003e",
-        "required": false,
+        "name": "AssetDir",
+        "jsonName": "AssetDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
-        "comments": [
-          " Local filepath to image file"
-        ]
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
-    "filename": "local_platform_save.go",
-    "name": "AnimeSnapshot",
-    "formattedName": "AnimeSnapshot",
-    "package": "local_platform",
-    "fields": [
+        "comments": []
+      },
       {
-        "name": "Entry",
-        "jsonName": "entry",
-        "goType": "anime.Entry",
-        "typescriptType": "Anime_Entry",
-        "usedStructName": "anime.Entry",
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
         "required": false,
         "public": true,
         "comments": []
       },
       {
-        "name": "Images",
-        "jsonName": "images",
-        "goType": "ImageSnapshot",
-        "typescriptType": "ImageSnapshot",
-        "usedStructName": "local_platform.ImageSnapshot",
+        "name": "MetadataProvider",
+        "jsonName": "MetadataProvider",
+        "goType": "metadata.Provider",
+        "typescriptType": "Metadata_Provider",
+        "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaRepository",
+        "jsonName": "MangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Database",
+        "jsonName": "Database",
+        "goType": "db.Database",
+        "typescriptType": "DB_Database",
+        "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WSEventManager",
+        "jsonName": "WSEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistPlatform",
+        "jsonName": "AnilistPlatform",
+        "goType": "platform.Platform",
+        "typescriptType": "Platform",
+        "usedStructName": "platform.Platform",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsOffline",
+        "jsonName": "IsOffline",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/metadata.go",
+    "filename": "metadata.go",
+    "name": "LocalMetadataProvider",
+    "formattedName": "Sync_LocalMetadataProvider",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "ManagerImpl",
+        "typescriptType": "Sync_ManagerImpl",
+        "usedStructName": "sync.ManagerImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeSnapshots",
+        "jsonName": "animeSnapshots",
+        "goType": "map[int]AnimeSnapshot",
+        "typescriptType": "Record\u003cnumber, Sync_AnimeSnapshot\u003e",
+        "usedStructName": "sync.AnimeSnapshot",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "animeMetadataCache",
+        "jsonName": "animeMetadataCache",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " LocalMetadataProvider replaces the metadata provider only when offline"
+    ]
+  },
+  {
+    "filepath": "../internal/sync/metadata.go",
+    "filename": "metadata.go",
+    "name": "LocalAnimeMetadataWrapper",
+    "formattedName": "Sync_LocalAnimeMetadataWrapper",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "anime",
+        "jsonName": "anime",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metadata",
+        "jsonName": "metadata",
+        "goType": "metadata.AnimeMetadata",
+        "typescriptType": "Metadata_AnimeMetadata",
+        "usedStructName": "metadata.AnimeMetadata",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "Syncer",
+    "formattedName": "Sync_Syncer",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "animeJobQueue",
+        "jsonName": "animeJobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaJobQueue",
+        "jsonName": "mangaJobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "failedAnimeQueue",
+        "jsonName": "failedAnimeQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "failedMangaQueue",
+        "jsonName": "failedMangaQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trackedAnimeMap",
+        "jsonName": "trackedAnimeMap",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trackedMangaMap",
+        "jsonName": "trackedMangaMap",
+        "goType": "map[int]TrackedMedia",
+        "typescriptType": "Record\u003cnumber, Sync_TrackedMedia\u003e",
+        "usedStructName": "sync.TrackedMedia",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "ManagerImpl",
+        "typescriptType": "Sync_ManagerImpl",
+        "usedStructName": "sync.ManagerImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "shouldUpdateLocalCollections",
+        "jsonName": "shouldUpdateLocalCollections",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "doneUpdatingLocalCollections",
+        "jsonName": "doneUpdatingLocalCollections",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "queueState",
+        "jsonName": "queueState",
+        "goType": "QueueState",
+        "typescriptType": "Sync_QueueState",
+        "usedStructName": "sync.QueueState",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "queueStateMu",
+        "jsonName": "queueStateMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "QueueState",
+    "formattedName": "Sync_QueueState",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "AnimeTasks",
+        "jsonName": "animeTasks",
+        "goType": "map[int]QueueMediaTask",
+        "typescriptType": "Record\u003cnumber, Sync_QueueMediaTask\u003e",
+        "usedStructName": "sync.QueueMediaTask",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaTasks",
+        "jsonName": "mangaTasks",
+        "goType": "map[int]QueueMediaTask",
+        "typescriptType": "Record\u003cnumber, Sync_QueueMediaTask\u003e",
+        "usedStructName": "sync.QueueMediaTask",
         "required": false,
         "public": true,
         "comments": []
@@ -45177,28 +47053,84 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/local_platform/local_platform_save.go",
-    "filename": "local_platform_save.go",
-    "name": "MangaSnapshot",
-    "formattedName": "MangaSnapshot",
-    "package": "local_platform",
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "QueueMediaTask",
+    "formattedName": "Sync_QueueMediaTask",
+    "package": "sync",
     "fields": [
       {
-        "name": "Entry",
-        "jsonName": "entry",
-        "goType": "manga.Entry",
-        "typescriptType": "Manga_Entry",
-        "usedStructName": "manga.Entry",
-        "required": false,
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "Images",
-        "jsonName": "images",
-        "goType": "ImageSnapshot",
-        "typescriptType": "ImageSnapshot",
-        "usedStructName": "local_platform.ImageSnapshot",
+        "name": "Image",
+        "jsonName": "image",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Title",
+        "jsonName": "title",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "AnimeTask",
+    "formattedName": "Sync_AnimeTask",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Diff",
+        "jsonName": "Diff",
+        "goType": "AnimeDiffResult",
+        "typescriptType": "Sync_AnimeDiffResult",
+        "usedStructName": "sync.AnimeDiffResult",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/sync/sync.go",
+    "filename": "sync.go",
+    "name": "MangaTask",
+    "formattedName": "Sync_MangaTask",
+    "package": "sync",
+    "fields": [
+      {
+        "name": "Diff",
+        "jsonName": "Diff",
+        "goType": "MangaDiffResult",
+        "typescriptType": "Sync_MangaDiffResult",
+        "usedStructName": "sync.MangaDiffResult",
         "required": false,
         "public": true,
         "comments": []
@@ -45528,6 +47460,15 @@
       {
         "name": "MpvSocket",
         "jsonName": "MpvSocket",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorBoxApiKey",
+        "jsonName": "TorBoxApiKey",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -51092,7 +53033,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -51315,6 +53256,18 @@
         "comments": [
           " TorrentPreview for each torrent"
         ]
+      },
+      {
+        "name": "DebridInstantAvailability",
+        "jsonName": "debridInstantAvailability",
+        "goType": "map[string]debrid.TorrentItemInstantAvailability",
+        "typescriptType": "Record\u003cstring, Debrid_TorrentItemInstantAvailability\u003e",
+        "usedStructName": "debrid.TorrentItemInstantAvailability",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Debrid instant availability"
+        ]
       }
     ],
     "comments": []
@@ -51387,7 +53340,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -52749,7 +54702,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -52920,7 +54873,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -52975,6 +54928,25 @@
   {
     "filepath": "../internal/util/filecache/filecache.go",
     "filename": "filecache.go",
+    "name": "PermanentBucket",
+    "formattedName": "Filecache_PermanentBucket",
+    "package": "filecache",
+    "fields": [
+      {
+        "name": "name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/util/filecache/filecache.go",
+    "filename": "filecache.go",
     "name": "Cacher",
     "formattedName": "Filecache_Cacher",
     "package": "filecache",
@@ -53002,7 +54974,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -53062,7 +55034,7 @@
         "name": "actionMu",
         "jsonName": "actionMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -53072,7 +55044,7 @@
         "name": "registryMu",
         "jsonName": "registryMu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -53130,7 +55102,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -53225,7 +55197,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
-        "typescriptType": "Mutex",
+        "typescriptType": "Sync_Mutex",
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
@@ -53245,7 +55217,7 @@
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.RWMutex",
-        "typescriptType": "RWMutex",
+        "typescriptType": "Sync_RWMutex",
         "usedStructName": "sync.RWMutex",
         "required": false,
         "public": false,

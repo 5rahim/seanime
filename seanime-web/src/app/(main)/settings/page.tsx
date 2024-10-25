@@ -1,6 +1,5 @@
 "use client"
 import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
-import { useGetMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
@@ -9,6 +8,7 @@ import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplay
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { DataSettings } from "@/app/(main)/settings/_containers/data-settings"
+import { DebridSettings } from "@/app/(main)/settings/_containers/debrid-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { LibrarySettings } from "@/app/(main)/settings/_containers/library-settings"
 import { LogsSettings } from "@/app/(main)/settings/_containers/logs-settings"
@@ -16,6 +16,7 @@ import { MangaSettings } from "@/app/(main)/settings/_containers/manga-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
+import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
@@ -30,6 +31,7 @@ import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FiDatabase } from "react-icons/fi"
+import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
 import { LuBookKey } from "react-icons/lu"
@@ -65,8 +67,6 @@ export default function Page() {
     const [tab, setTab] = useAtom(tabAtom)
 
     const { data: torrentProviderExtensions } = useAnimeListTorrentProviderExtensions()
-
-    const { data: mediastreamSettings, isFetching: mediastreamSettingsLoading } = useGetMediastreamSettings(true)
 
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
 
@@ -110,6 +110,7 @@ export default function Page() {
                                                                                                                                     streaming</TabsTrigger>
                         <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                         <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                        <TabsTrigger value="debrid"><HiOutlineServerStack className="text-lg mr-3" /> Debrid Service</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
                         <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
@@ -148,6 +149,7 @@ export default function Page() {
                                         autoPlayNextEpisode: data.autoPlayNextEpisode ?? false,
                                         enableWatchContinuity: data.enableWatchContinuity ?? false,
                                         libraryPaths: data.libraryPaths ?? [],
+                                        autoSyncOfflineLocalData: data.autoSyncOfflineLocalData ?? false,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -177,6 +179,7 @@ export default function Page() {
                                         transmissionUsername: data.transmissionUsername,
                                         transmissionPassword: data.transmissionPassword,
                                         showActiveTorrentCount: data.showActiveTorrentCount ?? false,
+                                        hideTorrentList: data.hideTorrentList ?? false,
                                     },
                                     discord: {
                                         enableRichPresence: data?.enableRichPresence ?? false,
@@ -214,6 +217,7 @@ export default function Page() {
                                 mpvPath: status?.settings?.mediaPlayer?.mpvPath,
                                 defaultTorrentClient: status?.settings?.torrent?.defaultTorrentClient || DEFAULT_TORRENT_CLIENT, // (Backwards
                                                                                                                                  // compatibility)
+                                hideTorrentList: status?.settings?.torrent?.hideTorrentList ?? false,
                                 qbittorrentPath: status?.settings?.torrent?.qbittorrentPath,
                                 qbittorrentHost: status?.settings?.torrent?.qbittorrentHost,
                                 qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
@@ -250,6 +254,7 @@ export default function Page() {
                                 autoPlayNextEpisode: status?.settings?.library?.autoPlayNextEpisode ?? false,
                                 enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,
                                 libraryPaths: status?.settings?.library?.libraryPaths ?? [],
+                                autoSyncOfflineLocalData: status?.settings?.library?.autoSyncOfflineLocalData ?? false,
                             }}
                             stackClass="space-y-4"
                         >
@@ -295,6 +300,16 @@ export default function Page() {
                                 <Field.Switch
                                     name="disableAutoScannerNotifications"
                                     label="Disable Auto Scanner notifications"
+                                />
+
+                                <Separator />
+
+                                <h3>Offline</h3>
+
+                                <Field.Switch
+                                    name="autoSyncOfflineLocalData"
+                                    label="Automatically refresh local data"
+                                    help="Automatically refresh local data with AniList data periodically if no offline changes have been made."
                                 />
 
                                 <SettingsSubmitButton isPending={isPending} />
@@ -432,6 +447,10 @@ export default function Page() {
 
                                 <h4>Interface</h4>
                                 <Field.Switch
+                                    name="hideTorrentList"
+                                    label="Hide torrent list navigation icon"
+                                />
+                                <Field.Switch
                                     name="showActiveTorrentCount"
                                     label="Show active torrent count"
                                     help="Show the number of active torrents in the sidebar. (Memory intensive)"
@@ -530,7 +549,7 @@ export default function Page() {
 
                             <h3>Media streaming</h3>
 
-                            <MediastreamSettings settings={mediastreamSettings} isLoading={mediastreamSettingsLoading} />
+                            <MediastreamSettings />
 
                         </TabsContent>
 
@@ -558,12 +577,20 @@ export default function Page() {
 
                         </TabsContent>
 
+
                         <TabsContent value="data" className="space-y-6">
 
                             <DataSettings />
 
                         </TabsContent>
 
+                        <TabsContent value="debrid" className="space-y-6">
+
+                            <h3>Debrid Service <BetaBadge /></h3>
+
+                            <DebridSettings />
+
+                        </TabsContent>
                     </div>
                 </Tabs>
                 {/*</Card>*/}

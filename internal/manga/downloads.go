@@ -2,7 +2,6 @@ package manga
 
 import (
 	"cmp"
-	"errors"
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"os"
@@ -11,6 +10,21 @@ import (
 	"seanime/internal/manga/downloader"
 	"slices"
 )
+
+func (r *Repository) GetDownloadedMangaChapterContainers(mId int, mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
+	containers, err := r.GetDownloadedChapterContainers(mangaCollection)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, container := range containers {
+		if container.MediaId == mId {
+			ret = append(ret, container)
+		}
+	}
+
+	return ret, nil
+}
 
 func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
 	ret = make([]*ChapterContainer, 0)
@@ -71,34 +85,41 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 		mediaId := pair.mediaId
 
 		// Get the manga from the collection
-		mangaEntry, ok := mangaCollection.GetListEntryFromMediaId(mediaId)
+		mangaEntry, ok := mangaCollection.GetListEntryFromMangaId(mediaId)
 		if !ok {
 			r.logger.Warn().Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Manga not found in collection")
 			continue
 		}
 
-		opts := GetMangaChapterContainerOptions{
-			Provider: provider,
-			MediaId:  mediaId,
-			Titles:   nil,
-			Year:     mangaEntry.GetMedia().GetStartYearSafe(),
-		}
-
-		// Get the manga chapter container (downloaded and non-downloaded)
-		container, err := r.GetMangaChapterContainer(&opts)
-		if err != nil {
-			if errors.Is(err, ErrNoTitlesProvided) { // This means the cache has expired
-
-				opts.Titles = mangaEntry.GetMedia().GetAllTitles()
+		// Get the list of chapters for the manga
+		// Check the permanent file cache
+		container, found := r.getChapterContainerFromPermanentFilecache(provider, mediaId)
+		if !found {
+			// Check the temporary file cache
+			container, found = r.getChapterContainerFromFilecache(provider, mediaId)
+			if !found {
+				// Get the chapters from the provider
+				// This stays here for backwards compatibility, but ideally the method should not require an internet connection
+				// so this will fail if the chapters were not cached & with no internet
+				opts := GetMangaChapterContainerOptions{
+					Provider: provider,
+					MediaId:  mediaId,
+					Titles:   mangaEntry.GetMedia().GetAllTitles(),
+					Year:     mangaEntry.GetMedia().GetStartYearSafe(),
+				}
 				container, err = r.GetMangaChapterContainer(&opts)
 				if err != nil {
-					r.logger.Error().Err(err).Msg("manga: [GetDownloadedChapterContainers] Failed to get chapter container")
+					r.logger.Error().Err(err).Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Failed to retrieve cached list of manga chapters")
 					continue
 				}
-			} else {
-				r.logger.Error().Err(err).Msg("manga: [GetDownloadedChapterContainers] Failed to get chapter container")
-				continue
+
 			}
+		}
+
+		downloadedContainer := &ChapterContainer{
+			MediaId:  container.MediaId,
+			Provider: container.Provider,
+			Chapters: make([]*hibikemanga.ChapterDetails, 0),
 		}
 
 		// Now that we have the container, we'll filter out the chapters that are not downloaded
@@ -107,17 +128,17 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 			// For each chapter, check if the chapter directory exists
 			for _, dir := range chapterDirs {
 				if dir == chapter_downloader.FormatChapterDirName(provider, mediaId, chapter.ID, chapter.Chapter) {
-					container.Chapters = append(container.Chapters, chapter)
+					downloadedContainer.Chapters = append(downloadedContainer.Chapters, chapter)
 					break
 				}
 			}
 		}
 
-		if len(container.Chapters) == 0 {
+		if len(downloadedContainer.Chapters) == 0 {
 			continue
 		}
 
-		ret = append(ret, container)
+		ret = append(ret, downloadedContainer)
 	}
 
 	return ret, nil

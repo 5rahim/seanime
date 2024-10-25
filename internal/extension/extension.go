@@ -14,7 +14,6 @@ const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
 	TypeMangaProvider        Type = "manga-provider"
 	TypeOnlinestreamProvider Type = "onlinestream-provider"
-	TypeMediaPlayer          Type = "mediaplayer"
 )
 
 const (
@@ -50,8 +49,8 @@ type Extension struct {
 	Lang string `json:"lang"`
 	// List of authorization scopes required by the extension.
 	// The user must grant these permissions before the extension can be loaded.
-	Scopes []string `json:"scopes,omitempty"` // NOT IMPLEMENTED
-	Config Config   `json:"config,omitempty"` // NOT IMPLEMENTED
+	Scopes     []string    `json:"scopes,omitempty"` // NOT IMPLEMENTED
+	UserConfig *UserConfig `json:"userConfig,omitempty"`
 	// Payload is the content of the extension.
 	Payload string `json:"payload"`
 }
@@ -74,7 +73,7 @@ type BaseExtension interface {
 	GetIcon() string
 	GetWebsite() string
 	GetScopes() []string
-	GetConfig() Config
+	GetUserConfig() *UserConfig
 }
 
 func ToExtensionData(ext BaseExtension) *Extension {
@@ -89,7 +88,7 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Description: ext.GetDescription(),
 		Author:      ext.GetAuthor(),
 		Scopes:      ext.GetScopes(),
-		Config:      ext.GetConfig(),
+		UserConfig:  ext.GetUserConfig(),
 		Icon:        ext.GetIcon(),
 		Website:     ext.GetWebsite(),
 		Payload:     ext.GetPayload(),
@@ -114,7 +113,8 @@ const (
 	// InvalidExtensionManifestError is returned when the extension manifest is invalid
 	InvalidExtensionManifestError InvalidExtensionErrorCode = "invalid_manifest"
 	// InvalidExtensionPayloadError is returned when the extension code is invalid / obsolete
-	InvalidExtensionPayloadError InvalidExtensionErrorCode = "invalid_payload"
+	InvalidExtensionPayloadError    InvalidExtensionErrorCode = "invalid_payload"
+	InvalidExtensionUserConfigError InvalidExtensionErrorCode = "user_config_error"
 	// InvalidExtensionAuthorizationError is returned when some authorization scopes have not been granted
 	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
 )
@@ -130,29 +130,39 @@ type InvalidExtension struct {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type Config struct {
+type UserConfig struct {
+	// The version of the extension configuration.
+	// This is used to determine if the configuration has changed.
+	Version int `json:"version"`
 	// Whether the extension requires user configuration.
 	RequiresConfig bool `json:"requiresConfig"`
 	// This will be used to generate the user configuration form, and the values will be passed to the extension.
 	Fields []ConfigField `json:"fields"`
 }
 
+type SavedUserConfig struct {
+	// The version of the extension configuration.
+	Version int `json:"version"`
+	// The values of the user configuration fields.
+	Values map[string]string `json:"values"`
+}
+
 const (
 	ConfigFieldTypeText   ConfigFieldType = "text"
 	ConfigFieldTypeSwitch ConfigFieldType = "switch"
 	ConfigFieldTypeSelect ConfigFieldType = "select"
-	ConfigFieldTypeNumber ConfigFieldType = "number"
 )
 
 type (
+
 	// ConfigField represents a field in an extension's configuration.
 	// The fields are defined in the manifest file.
 	ConfigField struct {
 		Type    ConfigFieldType           `json:"type"`
 		Name    string                    `json:"name"`
 		Label   string                    `json:"label"`
-		Options []ConfigFieldSelectOption `json:"options"`
-		Default string                    `json:"default"`
+		Options []ConfigFieldSelectOption `json:"options,omitempty"`
+		Default string                    `json:"default,omitempty"`
 	}
 
 	ConfigFieldType string

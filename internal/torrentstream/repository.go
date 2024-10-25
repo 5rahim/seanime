@@ -87,6 +87,8 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 }
 
 // setEpisodeCollection sets the current episode collection in the repository.
+//
+// Note: This is also used for Debrid streaming
 func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
 	if ec == nil {
 		r.currentEpisodeCollection = mo.None[*EpisodeCollection]()
@@ -102,7 +104,9 @@ func (r *Repository) setEpisodeCollection(ec *EpisodeCollection) {
 }
 
 // SetMediaPlayerRepository sets the mediaplayer repository and listens to events.
-// This MUST be called after instantiating the repository.
+// This MUST be called after instantiating the repository and will run even if the module is disabled.
+//
+// // Note: This is also used for Debrid streaming
 func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer.Repository) {
 	r.mediaPlayerRepository = mediaPlayerRepository
 	r.listenToMediaPlayerEvents()

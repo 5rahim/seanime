@@ -1,7 +1,7 @@
 "use client"
 
+import { SeaLink } from "@/components/shared/sea-link"
 import { cva, VariantProps } from "class-variance-authority"
-import Link from "next/link"
 import * as React from "react"
 import { useContext } from "react"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
@@ -239,9 +239,9 @@ export const VerticalMenu = React.forwardRef<HTMLDivElement, VerticalMenuProps>(
                         <React.Fragment key={item.name + idx}>
                             {!item.subContent ?
                                 item.href ? (
-                                    <Link href={item.href} {...itemProps(item)}>
+                                    <SeaLink href={item.href} {...itemProps(item)}>
                                         <ItemContent {...item} />
-                                    </Link>
+                                    </SeaLink>
                                 ) : (
                                     <button {...itemProps(item)}>
                                         <ItemContent {...item} />

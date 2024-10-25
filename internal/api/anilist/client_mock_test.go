@@ -27,7 +27,7 @@ func TestGenerateBoilerplateAnimeCollection(t *testing.T) {
 
 		lists := ac.GetMediaListCollection().GetLists()
 
-		entriesToAddToPlanning := make([]*MediaListEntry, 0)
+		entriesToAddToPlanning := make([]*AnimeListEntry, 0)
 
 		if assert.NoError(t, err) {
 
@@ -41,7 +41,7 @@ func TestGenerateBoilerplateAnimeCollection(t *testing.T) {
 							entry.Status = lo.ToPtr(MediaListStatusPlanning)
 							entriesToAddToPlanning = append(entriesToAddToPlanning, entry)
 						}
-						list.Entries = make([]*MediaListEntry, 0)
+						list.Entries = make([]*AnimeListEntry, 0)
 					}
 				}
 			}

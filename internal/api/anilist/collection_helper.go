@@ -3,7 +3,7 @@ package anilist
 import "time"
 
 type (
-	MediaListEntry = AnimeCollection_MediaListCollection_Lists_Entries
+	AnimeListEntry = AnimeCollection_MediaListCollection_Lists_Entries
 
 	EntryDate struct {
 		Year  *int `json:"year,omitempty"`
@@ -12,7 +12,7 @@ type (
 	}
 )
 
-func (ac *AnimeCollection) GetListEntryFromAnimeId(id int) (*MediaListEntry, bool) {
+func (ac *AnimeCollection) GetListEntryFromAnimeId(id int) (*AnimeListEntry, bool) {
 	if ac == nil || ac.MediaListCollection == nil {
 		return nil, false
 	}
@@ -175,5 +175,5 @@ func fuzzyDateToString(year *int, month *int, day *int) string {
 	if day != nil {
 		_day = *day
 	}
-	return time.Date(_year, time.Month(_month), _day, 0, 0, 0, 0, time.Local).UTC().Format(time.RFC3339)
+	return time.Date(_year, time.Month(_month), _day, 0, 0, 0, 0, time.UTC).Format(time.RFC3339)
 }

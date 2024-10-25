@@ -2,6 +2,7 @@ import { Anime_UnmatchedGroup } from "@/api/generated/types"
 import { useAnimeEntryManualMatch, useFetchAnimeEntrySuggestions } from "@/api/hooks/anime_entries.hooks"
 import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useUpdateLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -13,7 +14,6 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
 import { FcFolder } from "react-icons/fc"
@@ -274,7 +274,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         Fetch suggestions
                     </Button>
 
-                    <Link
+                    <SeaLink
                         target="_blank"
                         href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || "")}`}
                     >
@@ -283,7 +283,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         >
                             Search on AniList
                         </Button>
-                    </Link>
+                    </SeaLink>
 
                     <div className="flex flex-1"></div>
 

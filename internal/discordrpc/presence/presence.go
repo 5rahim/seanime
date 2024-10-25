@@ -55,7 +55,7 @@ func (p *Presence) Close() {
 	p.client = nil
 }
 
-func (p *Presence) SetSettings(settings *models.DiscordSettings, username string) {
+func (p *Presence) SetSettings(settings *models.DiscordSettings) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
@@ -65,7 +65,6 @@ func (p *Presence) SetSettings(settings *models.DiscordSettings, username string
 	p.Close()
 
 	p.settings = settings
-	p.username = username
 
 	// Create a new client if rich presence is enabled
 	if settings.EnableRichPresence {

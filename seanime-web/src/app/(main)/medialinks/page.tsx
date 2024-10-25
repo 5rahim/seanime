@@ -11,12 +11,12 @@ import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { useMediastreamCurrentFile } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -42,8 +42,9 @@ export default function Page() {
             const episode = animeEntry?.episodes?.find(ep => ep.localFile?.path === filePath)
             logger("MEDIALINKS").info("Filepath", filePath, "Episode", episode)
 
-            if (!episode?.progressNumber) {
-                logger("MEDIALINKS").error("Episode progress number is not set.")
+            if (!episode) {
+                logger("MEDIALINKS").error("Episode not found.")
+                toast.error("Episode not found.")
                 return
             }
 
@@ -64,14 +65,19 @@ export default function Page() {
 
             window.open(getExternalPlayerURL(externalPlayerLink, urlToSend), "_blank")
 
-            // Start manual tracking
-            React.startTransition(() => {
-                startManualTracking({
-                    mediaId: animeEntry.mediaId,
-                    episodeNumber: episode?.progressNumber,
-                    clientId: clientId || "",
+            if (episode?.progressNumber) {
+                logger("MEDIALINKS").error("Starting manual tracking")
+                // Start manual tracking
+                React.startTransition(() => {
+                    startManualTracking({
+                        mediaId: animeEntry.mediaId,
+                        episodeNumber: episode?.progressNumber,
+                        clientId: clientId || "",
+                    })
                 })
-            })
+            } else {
+                logger("MEDIALINKS").warning("No manual tracking, progress number is not set.")
+            }
 
             // Clear the file path
             setFilePath(undefined)
@@ -104,9 +110,9 @@ export default function Page() {
 
                 <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
-                        <Link href={`/entry?id=${animeEntry?.mediaId}`}>
+                        <SeaLink href={`/entry?id=${animeEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
-                        </Link>
+                        </SeaLink>
                         <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{animeEntry?.media?.title?.userPreferred}</h3>
                     </div>
                 </div>

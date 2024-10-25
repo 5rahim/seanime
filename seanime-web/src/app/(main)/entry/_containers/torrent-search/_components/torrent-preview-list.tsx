@@ -1,5 +1,9 @@
-import { Anime_Entry, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
-import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent, Torrent_Preview } from "@/api/generated/types"
+import {
+    TorrentDebridInstantAvailabilityBadge,
+    TorrentResolutionBadge,
+    TorrentSeedersBadge,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
@@ -11,7 +15,8 @@ import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
 
 type TorrentPreviewList = {
     entry: Anime_Entry
-    previews: Torrent_Preview[],
+    previews: Torrent_Preview[]
+    debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
     isLoading: boolean
     selectedTorrents: HibikeTorrent_AnimeTorrent[]
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
@@ -24,6 +29,7 @@ export const TorrentPreviewList = React.memo((
         isLoading,
         selectedTorrents,
         onToggleTorrent,
+        debridInstantAvailability,
     }: TorrentPreviewList) => {
 
     if (isLoading) return <div className="space-y-2">
@@ -40,7 +46,7 @@ export const TorrentPreviewList = React.memo((
                 return (
                     <TorrentPreviewItem
                         confirmed={item.torrent?.confirmed}
-                        key={item.torrent.link + item.episode?.displayTitle}
+                        key={item.torrent.link}
                         title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
                         releaseGroup={item.torrent.releaseGroup || ""}
                         filename={item.torrent.name}
@@ -72,6 +78,9 @@ export const TorrentPreviewList = React.memo((
                             )}
                             <TorrentResolutionBadge resolution={item.torrent.resolution} />
                             <TorrentSeedersBadge seeders={item.torrent.seeders} />
+                            {(!!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
+                                <TorrentDebridInstantAvailabilityBadge />
+                            )}
                             {!!item.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
                                 <BiFile /> {item.torrent.formattedSize}</p>}
                             <p className="text-[--muted] text-sm flex items-center gap-1">

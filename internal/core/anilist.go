@@ -60,6 +60,8 @@ func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
 	// Save the collection to AutoDownloader
 	a.AutoDownloader.SetAnimeCollection(ret)
 
+	a.SyncManager.SetAnimeCollection(ret)
+
 	return ret, nil
 }
 
@@ -77,5 +79,13 @@ func (a *App) GetRawMangaCollection(bypassCache bool) (*anilist.MangaCollection,
 
 // RefreshMangaCollection queries Anilist for the user's manga collection
 func (a *App) RefreshMangaCollection() (*anilist.MangaCollection, error) {
-	return a.AnilistPlatform.RefreshMangaCollection()
+	mc, err := a.AnilistPlatform.RefreshMangaCollection()
+
+	if err != nil {
+		return nil, err
+	}
+
+	a.SyncManager.SetMangaCollection(mc)
+
+	return mc, nil
 }

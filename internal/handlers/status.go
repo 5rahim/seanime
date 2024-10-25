@@ -29,6 +29,7 @@ type Status struct {
 	//FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
 	MediastreamSettings   *models.MediastreamSettings   `json:"mediastreamSettings"`
 	TorrentstreamSettings *models.TorrentstreamSettings `json:"torrentstreamSettings"`
+	DebridSettings        *models.DebridSettings        `json:"debridSettings"`
 	AnilistClientID       string                        `json:"anilistClientId"`
 	Updating              bool                          `json:"updating"` // If true, a new screen will be displayed
 }
@@ -78,6 +79,7 @@ func NewStatus(c *RouteCtx) *Status {
 		IsOffline:             c.App.Config.Server.Offline,
 		MediastreamSettings:   c.App.SecondarySettings.Mediastream,
 		TorrentstreamSettings: c.App.SecondarySettings.Torrentstream,
+		DebridSettings:        c.App.SecondarySettings.Debrid,
 		AnilistClientID:       c.App.Config.Anilist.ClientID,
 		Updating:              false,
 		//FeatureFlags:          c.App.FeatureFlags,

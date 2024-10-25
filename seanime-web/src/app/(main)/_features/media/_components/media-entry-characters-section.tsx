@@ -1,10 +1,10 @@
 import { AL_AnimeDetailsById_Media, AL_MangaDetailsById_Media } from "@/api/generated/types"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { SeaLink } from "@/components/shared/sea-link"
 import { cn } from "@/components/ui/core/styling"
 import { Separator } from "@/components/ui/separator"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
-import Link from "next/link"
 import React from "react"
 import { BiSolidHeart } from "react-icons/bi"
 
@@ -76,7 +76,7 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                             </div>
 
                             <div>
-                                <Link href={edge?.node?.siteUrl || "#"} target="_blank">
+                                <SeaLink href={edge?.node?.siteUrl || "#"} target="_blank">
                                     <p
                                         className={cn(
                                             "text-lg font-semibold transition line-clamp-2 leading-5 hover:text-brand-100",
@@ -84,7 +84,7 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
                                     >
                                         {edge?.node?.name?.full}
                                     </p>
-                                </Link>
+                                </SeaLink>
 
                                 {edge?.node?.age && <p className="text-sm">
                                     {edge?.node?.age} years old

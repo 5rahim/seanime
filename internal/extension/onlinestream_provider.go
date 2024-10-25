@@ -81,6 +81,6 @@ func (m *OnlinestreamProviderExtensionImpl) GetScopes() []string {
 	return m.ext.Scopes
 }
 
-func (m *OnlinestreamProviderExtensionImpl) GetConfig() Config {
-	return m.ext.Config
+func (m *OnlinestreamProviderExtensionImpl) GetUserConfig() *UserConfig {
+	return m.ext.UserConfig
 }

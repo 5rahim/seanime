@@ -1,3 +1,4 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { AL_BaseAnime, Anime_Episode, Anime_LocalFileType } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
@@ -12,8 +13,10 @@ import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
 import { BiDotsHorizontal, BiLockOpenAlt } from "react-icons/bi"
-import { MdInfo } from "react-icons/md"
+import { MdInfo, MdOutlineOndemandVideo, MdOutlineRemoveDone } from "react-icons/md"
+import { RiEdit2Line } from "react-icons/ri"
 import { VscVerified } from "react-icons/vsc"
+import { useCopyToClipboard } from "react-use"
 import { toast } from "sonner"
 
 export const EpisodeItemIsolation = createIsolation()
@@ -30,6 +33,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
 }) => {
 
     const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
+
+    const [_, copyToClipboard] = useCopyToClipboard()
 
     return (
         <EpisodeItemIsolation.Provider>
@@ -72,16 +77,18 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                         }
                     >
                         <MetadataModalButton />
+                        {episode.localFile && <DropdownMenuItem
+                            onClick={() => {
+                                copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile!.path))
+                                toast.info("Stream URL copied")
+                            }}
+                        >
+                            <MdOutlineOndemandVideo />
+                            Copy stream URL
+                        </DropdownMenuItem>}
                         <DropdownMenuSeparator />
-                        {/*<DropdownMenuItem*/}
-                        {/*    onClick={() => {*/}
-                        {/*        if (episode.localFile) {*/}
-                        {/*            window.open(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile.path), "_blank")*/}
-                        {/*        }*/}
-                        {/*    }}*/}
-                        {/*>Download</DropdownMenuItem>*/}
                         <DropdownMenuItem
-                            className="!text-red-300 !dark:text-red-200"
+                            className="text-[--orange]"
                             onClick={() => {
                                 if (episode.localFile) {
                                     updateLocalFile(episode.localFile, {
@@ -89,7 +96,9 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                     })
                                 }
                             }}
-                        >Unmatch</DropdownMenuItem>
+                        >
+                            <MdOutlineRemoveDone /> Unmatch
+                        </DropdownMenuItem>
                     </DropdownMenu>
 
                     {(!!episode.episodeMetadata && (episode.type === "main" || episode.type === "special")) && !!episode.episodeMetadata?.anidbId &&
@@ -177,7 +186,10 @@ function MetadataModal({ episode }: { episode: Anime_Episode }) {
 
 function MetadataModalButton() {
     const [, setIsOpen] = EpisodeItemIsolation.useAtom(__metadataModalIsOpenAtom)
-    return <DropdownMenuItem onClick={() => setIsOpen(true)}>Update metadata</DropdownMenuItem>
+    return <DropdownMenuItem onClick={() => setIsOpen(true)}>
+        <RiEdit2Line />
+        Update metadata
+    </DropdownMenuItem>
 }
 
 function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {

@@ -2,8 +2,8 @@ package extension_repo
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"io/fs"
 	"net/http"
@@ -152,6 +152,10 @@ func (r *Repository) UninstallExternalExtension(id string) error {
 	// Reload the extensions
 	//r.loadExternalExtensions()
 
+	go func() {
+		_ = r.deleteExtensionUserConfig(id)
+	}()
+
 	r.reloadExtension(id)
 
 	return nil
@@ -214,7 +218,7 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// UpdateExtensionCode updates the code of a user-made application
+// UpdateExtensionCode updates the code of an external application
 func (r *Repository) UpdateExtensionCode(id string, payload string) error {
 
 	if id == "" {
@@ -394,6 +398,22 @@ func (r *Repository) loadExternalExtension(filePath string) {
 
 	var loadingErr error
 
+	// Load user config
+	configErr := r.loadUserConfig(ext)
+
+	// If there was an error loading the user config, we add it to the InvalidExtensions list
+	// BUT we still load the extension
+	// DEVNOTE: Failure to load the user config is not a critical error
+	if configErr != nil {
+		r.invalidExtensions.Set(invalidExtensionID, &extension.InvalidExtension{
+			ID:        invalidExtensionID,
+			Reason:    configErr.Error(),
+			Path:      filePath,
+			Code:      extension.InvalidExtensionUserConfigError,
+			Extension: *ext,
+		})
+	}
+
 	// Load extension
 	switch ext.Type {
 	case extension.TypeMangaProvider:
@@ -405,11 +425,6 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	case extension.TypeAnimeTorrentProvider:
 		// Load torrent provider
 		loadingErr = r.loadExternalAnimeTorrentProviderExtension(ext)
-	case extension.TypeMediaPlayer:
-		// Load media player
-		// TODO
-		//loadingErr = r.loadExternalMediaPlayerExtension(ext)
-		loadingErr = fmt.Errorf("media player extension type not yet supported")
 	default:
 		r.logger.Error().Str("type", string(ext.Type)).Msg("extensions: Extension type not supported")
 		loadingErr = fmt.Errorf("extension type not supported")

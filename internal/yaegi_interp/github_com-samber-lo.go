@@ -27,7 +27,7 @@ func init() {
 		"Range":                   reflect.ValueOf(lo.Range),
 		"RuneLength":              reflect.ValueOf(lo.RuneLength),
 		"SpecialCharset":          reflect.ValueOf(&lo.SpecialCharset).Elem(),
-		"Synchronize":             reflect.ValueOf(lo.Synchronize),
+		"SynchronizeLocal":        reflect.ValueOf(lo.Synchronize),
 		"Try":                     reflect.ValueOf(lo.Try),
 		"Try0":                    reflect.ValueOf(lo.Try0),
 		"Try1":                    reflect.ValueOf(lo.Try1),

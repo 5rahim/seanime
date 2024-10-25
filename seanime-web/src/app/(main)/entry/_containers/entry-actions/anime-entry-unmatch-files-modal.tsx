@@ -81,7 +81,7 @@ function Content({ entry }: { entry: Anime_Entry }) {
             />
             <div className="flex justify-end gap-2 mt-2">
                 <Button
-                    intent="warning-subtle"
+                    intent="warning"
                     onClick={() => confirmUnmatch.open()}
                     loading={isDeleting}
                 >

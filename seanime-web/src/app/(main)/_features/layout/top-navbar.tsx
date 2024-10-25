@@ -1,9 +1,11 @@
 import { useRefreshAnimeCollection } from "@/api/hooks/anilist.hooks"
+import { OfflineTopMenu } from "@/app/(main)/(offline)/offline/_components/offline-top-menu"
 import { RefreshAnilistButton } from "@/app/(main)/_features/anilist/refresh-anilist-button"
 import { LayoutHeaderBackground } from "@/app/(main)/_features/layout/_components/layout-header-background"
 import { TopMenu } from "@/app/(main)/_features/navigation/top-menu"
 import { ManualProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTrackingButton } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ChapterDownloadsButton } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-button"
 import { __manga_chapterDownloadsDrawerIsOpenAtom } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppSidebarTrigger } from "@/components/ui/app-layout"
@@ -28,6 +30,8 @@ export function TopNavbar(props: TopNavbarProps) {
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
+    const isOffline = serverStatus?.isOffline
     const ts = useThemeSettings()
 
     return (
@@ -41,12 +45,12 @@ export function TopNavbar(props: TopNavbarProps) {
                 <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
                     <div className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
-                        <TopMenu />
+                        {!isOffline ? <TopMenu /> : <OfflineTopMenu />}
                         <PlaybackManagerProgressTrackingButton />
                         <ManualProgressTrackingButton />
                         <div className="flex flex-1"></div>
-                        <ChapterDownloadsButton />
-                        <RefreshAnilistButton />
+                        {!isOffline && <ChapterDownloadsButton />}
+                        {!isOffline && <RefreshAnilistButton />}
                     </div>
                 </div>
                 <LayoutHeaderBackground />
@@ -71,6 +75,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
     const ts = useThemeSettings()
     const pathname = usePathname()
 
@@ -90,7 +95,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
             <div className="px-4 lg:py-1">
                 <Separator className="px-4" />
             </div>
-            <VerticalMenu
+            {!serverStatus?.isOffline && <VerticalMenu
                 className="px-4"
                 collapsed={isCollapsed}
                 itemClass="relative"
@@ -115,7 +120,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                         },
                     ] : []),
                 ]}
-            />
+            />}
             <div className="flex justify-center">
                 <PlaybackManagerProgressTrackingButton asSidebarButton />
             </div>

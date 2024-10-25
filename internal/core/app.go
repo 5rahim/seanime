@@ -10,6 +10,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
+	"seanime/internal/debrid/client"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
@@ -26,10 +27,11 @@ import (
 	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
-	"seanime/internal/offline"
 	"seanime/internal/onlinestream"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/platforms/local_platform"
 	"seanime/internal/platforms/platform"
+	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
@@ -46,9 +48,12 @@ type (
 		Logger                        *zerolog.Logger
 		TorrentClientRepository       *torrent_client.Repository
 		TorrentRepository             *torrent.Repository
+		DebridClientRepository        *debrid_client.Repository
 		Watcher                       *scanner.Watcher
 		AnilistClient                 anilist.AnilistClient
 		AnilistPlatform               platform.Platform
+		LocalPlatform                 platform.Platform
+		SyncManager                   sync2.Manager
 		FillerManager                 *fillermanager.FillerManager
 		WSEventManager                *events.WSEventManager
 		AutoDownloader                *autodownloader.AutoDownloader
@@ -73,13 +78,13 @@ type (
 		MangaDownloader         *manga.Downloader
 		ContinuityManager       *continuity.Manager
 		Cleanups                []func()
-		OfflineHub              *offline.Hub
 		MediastreamRepository   *mediastream.Repository
 		TorrentstreamRepository *torrentstream.Repository
 		FeatureFlags            FeatureFlags
 		SecondarySettings       struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
+			Debrid        *models.DebridSettings
 		} // Struct for other settings sent to client
 		SelfUpdater        *updater.SelfUpdater
 		TotalLibrarySize   uint64 // Initialized in modules.go
@@ -150,9 +155,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
 
-	// Anilist Platform
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
-
 	// File Cacher
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
 	if err != nil {
@@ -165,13 +167,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher: fileCacher,
 	})
 
-	// Online Stream
-	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
-		Logger:           logger,
-		FileCacher:       fileCacher,
-		MetadataProvider: metadataProvider,
-		Platform:         anilistPlatform,
-	})
+	activeMetadataProvider := metadataProvider
 
 	// Manga Repository
 	mangaRepository := manga.NewRepository(&manga.NewRepositoryOptions{
@@ -183,27 +179,72 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:       database,
 	})
 
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+
+	// Platforms
+	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
+		LocalDir:         cfg.Offline.Dir,
+		AssetDir:         cfg.Offline.AssetDir,
+		Logger:           logger,
+		MetadataProvider: metadataProvider,
+		MangaRepository:  mangaRepository,
+		Database:         database,
+		WSEventManager:   wsEventManager,
+		IsOffline:        cfg.Server.Offline,
+		AnilistPlatform:  anilistPlatform,
+	})
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize sync manager")
+	}
+
+	if cfg.Server.Offline {
+		activeMetadataProvider = syncManager.GetLocalMetadataProvider()
+	}
+
+	localPlatform, err := local_platform.NewLocalPlatform(syncManager, anilistCW, logger)
+	if err != nil {
+		logger.Fatal().Err(err).Msgf("app: Failed to initialize local platform")
+	}
+
+	activePlatform := anilistPlatform
+	// If offline mode is enabled, use the local platform
+	if cfg.Server.Offline {
+		activePlatform = localPlatform
+	}
+
+	// Online Stream
+	onlinestreamRepository := onlinestream.NewRepository(&onlinestream.NewRepositoryOptions{
+		Logger:           logger,
+		FileCacher:       fileCacher,
+		MetadataProvider: activeMetadataProvider,
+		Platform:         activePlatform,
+		Database:         database,
+	})
+
 	// Extension Repository
 	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
 		Logger:         logger,
 		ExtensionDir:   cfg.Extensions.Dir,
 		WSEventManager: wsEventManager,
+		FileCacher:     fileCacher,
 	})
 
-	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, anilistPlatform, metadataProvider)
+	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 
 	app := &App{
 		Config:                        cfg,
 		Database:                      database,
 		AnilistClient:                 anilistCW,
-		AnilistPlatform:               anilistPlatform,
+		AnilistPlatform:               activePlatform,
+		LocalPlatform:                 localPlatform,
+		SyncManager:                   syncManager,
 		WSEventManager:                wsEventManager,
 		Logger:                        logger,
 		Version:                       constants.Version,
 		Updater:                       updater.New(constants.Version, logger),
 		FileCacher:                    fileCacher,
 		OnlinestreamRepository:        onlinestreamRepository,
-		MetadataProvider:              metadataProvider,
+		MetadataProvider:              activeMetadataProvider,
 		MangaRepository:               mangaRepository,
 		ExtensionRepository:           extensionRepository,
 		ExtensionPlaygroundRepository: extensionPlaygroundRepository,
@@ -215,8 +256,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		AutoScanner:                   nil, // Initialized in App.initModulesOnce
 		MediastreamRepository:         nil, // Initialized in App.initModulesOnce
 		TorrentstreamRepository:       nil, // Initialized in App.initModulesOnce
-		OfflineHub:                    nil, // Initialized in App.initModulesOnce
 		ContinuityManager:             nil, // Initialized in App.initModulesOnce
+		DebridClientRepository:        nil, // Initialized in App.initModulesOnce
 		TorrentClientRepository:       nil, // Initialized in App.InitOrRefreshModules
 		MediaPlayerRepository:         nil, // Initialized in App.InitOrRefreshModules
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
@@ -225,6 +266,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings
+			Debrid        *models.DebridSettings
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater: selfupdater,
 		moduleMu:    sync.Mutex{},
@@ -254,6 +296,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Initialize torrentstream settings
 	app.InitOrRefreshTorrentstreamSettings()
+
+	// Initialize debrid settings
+	app.InitOrRefreshDebridSettings()
 
 	// Perform actions that need to be done after the app has been initialized
 	app.performActionsOnce()

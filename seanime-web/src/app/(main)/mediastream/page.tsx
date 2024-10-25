@@ -13,11 +13,13 @@ import {
 } from "@/app/(main)/mediastream/_lib/handle-mediastream"
 import {
     __mediastream_autoPlayAtom,
+    __mediastream_autoSkipIntroOutroAtom,
     useMediastreamCurrentFile,
     useMediastreamJassubOffscreenRender,
 } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
@@ -37,7 +39,6 @@ import { useAtom } from "jotai/react"
 import { uniq } from "lodash"
 import { CaptionsFileFormat } from "media-captions"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
@@ -91,6 +92,7 @@ export default function Page() {
 
     const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
+    const autoSkipIntroOutro = useAtomValue(__mediastream_autoSkipIntroOutroAtom)
     const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
 
     /**
@@ -178,9 +180,9 @@ export default function Page() {
 
                 <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                     <div className="flex gap-4 items-center relative w-full">
-                        <Link href={`/entry?id=${animeEntry?.mediaId}`}>
+                        <SeaLink href={`/entry?id=${animeEntry?.mediaId}`}>
                             <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
-                        </Link>
+                        </SeaLink>
                         <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{animeEntry?.media?.title?.userPreferred}</h3>
                     </div>
 
@@ -339,6 +341,9 @@ export default function Page() {
 
                                         if (aniSkipData?.op && e?.currentTime && e?.currentTime >= aniSkipData.op.interval.startTime && e?.currentTime <= aniSkipData.op.interval.endTime) {
                                             setShowSkipIntroButton(true)
+                                            if (autoSkipIntroOutro) {
+                                                seekTo(aniSkipData.op.interval.endTime)
+                                            }
                                         } else {
                                             setShowSkipIntroButton(false)
                                         }
@@ -349,6 +354,9 @@ export default function Page() {
                                             e?.currentTime <= aniSkipData.ed.interval.endTime
                                         ) {
                                             setShowSkipEndingButton(true)
+                                            if (autoSkipIntroOutro) {
+                                                seekTo(aniSkipData.ed.interval.endTime)
+                                            }
                                         } else {
                                             setShowSkipEndingButton(false)
                                         }
@@ -373,14 +381,24 @@ export default function Page() {
                                     <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
                                         <div>
                                             {(showSkipIntroButton) && (
-                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}>Skip
-                                                                                                                                       intro</Button>
+                                                <Button
+                                                    intent="white"
+                                                    onClick={() => seekTo(aniSkipData?.op?.interval?.endTime || 0)}
+                                                    loading={autoSkipIntroOutro}
+                                                >
+                                                    Skip intro
+                                                </Button>
                                             )}
                                         </div>
                                         <div>
                                             {(showSkipEndingButton) && (
-                                                <Button intent="white" onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}>Skip
-                                                                                                                                       ending</Button>
+                                                <Button
+                                                    intent="white"
+                                                    onClick={() => seekTo(aniSkipData?.ed?.interval?.endTime || 0)}
+                                                    loading={autoSkipIntroOutro}
+                                                >
+                                                    Skip ending
+                                                </Button>
                                             )}
                                         </div>
                                     </div>

@@ -143,3 +143,38 @@ func (db *Database) GetTorrentstreamSettings() (*models.TorrentstreamSettings, b
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var CurrentDebridSettings *models.DebridSettings
+
+func (db *Database) UpsertDebridSettings(settings *models.DebridSettings) (*models.DebridSettings, error) {
+	err := db.gormdb.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		UpdateAll: true,
+	}).Create(settings).Error
+
+	if err != nil {
+		db.Logger.Error().Err(err).Msg("db: Failed to save debrid settings in the database")
+		return nil, err
+	}
+
+	CurrentDebridSettings = settings
+
+	db.Logger.Debug().Msg("db: Debrid settings saved")
+	return settings, nil
+}
+
+func (db *Database) GetDebridSettings() (*models.DebridSettings, bool) {
+
+	if CurrentDebridSettings != nil {
+		return CurrentDebridSettings, true
+	}
+
+	var settings models.DebridSettings
+	err := db.gormdb.Where("id = ?", 1).First(&settings).Error
+	if err != nil {
+		return nil, false
+	}
+	return &settings, true
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

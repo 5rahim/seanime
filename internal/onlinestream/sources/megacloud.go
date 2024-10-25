@@ -134,10 +134,10 @@ func (m *MegaCloud) Extract(uri string) (vs []*hibikeonlinestream.VideoSource, e
 				return nil, err
 			}
 
-			secret, encryptedSource, err := m.getSecret(encryptedString.(string), values)
-			if err != nil {
-				return nil, err
-			}
+			secret, encryptedSource := m.getSecret(encryptedString.(string), values)
+			//if err != nil {
+			//	return nil, err
+			//}
 
 			decrypted, err := m.decrypt(encryptedSource, secret)
 			if err != nil {
@@ -172,81 +172,126 @@ func (m *MegaCloud) Extract(uri string) (vs []*hibikeonlinestream.VideoSource, e
 	return nil, ErrNoVideoSourceFound
 }
 
-func (m *MegaCloud) extractVariables(text string) ([]int, error) {
-	var allVars string
+func (m *MegaCloud) extractVariables(text string) ([][]int, error) {
+	re := regexp.MustCompile(`case\s*0x[0-9a-f]+:\s*\w+\s*=\s*(\w+)\s*,\s*\w+\s*=\s*(\w+);`)
+	matches := re.FindAllStringSubmatch(text, -1)
 
-	re := regexp.MustCompile(`const \w{1,2}=new URLSearchParams.+?;function`)
-	matches := re.FindAllString(text, -1)
-	if len(matches) > 0 {
-		allVars = matches[len(matches)-1]
-		if strings.HasSuffix(allVars, "function") {
-			allVars = strings.TrimSuffix(allVars, "function")
-		}
-	}
+	var vars [][]int
 
-	pairs := strings.Split(allVars[:len(allVars)-1], "=")[1:]
-	var values []int
-	for _, pair := range pairs {
-		value, err := strconv.ParseInt(strings.Split(pair, ",")[0][2:], 16, 64)
-		if err != nil || value == 0 {
+	for _, match := range matches {
+		if len(match) < 3 {
 			continue
 		}
-		values = append(values, int(value))
-	}
 
-	return values, nil
-}
-
-func (m *MegaCloud) getSecret(encryptedString string, values []int) (string, string, error) {
-	var secret string
-	var encryptedSource = encryptedString
-	var totalInc int
-
-	for i := 0; i < values[0]; i++ {
-		var start, inc int
-
-		switch i {
-		case 0:
-			start = values[2]
-			inc = values[1]
-		case 1:
-			start = values[4]
-			inc = values[3]
-		case 2:
-			start = values[6]
-			inc = values[5]
-		case 3:
-			start = values[8]
-			inc = values[7]
-		case 4:
-			start = values[10]
-			inc = values[9]
-		case 5:
-			start = values[12]
-			inc = values[11]
-		case 6:
-			start = values[14]
-			inc = values[13]
-		case 7:
-			start = values[16]
-			inc = values[15]
-		case 8:
-			start = values[18]
-			inc = values[17]
-		default:
-			return "", "", errors.New("invalid index")
+		caseLine := match[0]
+		if strings.Contains(caseLine, "partKey") {
+			continue
 		}
 
-		from := start + totalInc
-		to := from + inc
+		matchKey1, err1 := m.matchingKey(match[1], text)
+		matchKey2, err2 := m.matchingKey(match[2], text)
 
-		secret += encryptedString[from:to]
-		encryptedSource = strings.Replace(encryptedSource, encryptedString[from:to], "", 1)
-		totalInc += inc
+		if err1 != nil || err2 != nil {
+			continue
+		}
+
+		key1, err1 := strconv.ParseInt(matchKey1, 16, 64)
+		key2, err2 := strconv.ParseInt(matchKey2, 16, 64)
+
+		if err1 != nil || err2 != nil {
+			continue
+		}
+
+		vars = append(vars, []int{int(key1), int(key2)})
 	}
 
-	return secret, encryptedSource, nil
+	return vars, nil
 }
+
+func (m *MegaCloud) matchingKey(value, script string) (string, error) {
+	regexPattern := `,` + regexp.QuoteMeta(value) + `=((?:0x)?([0-9a-fA-F]+))`
+	re := regexp.MustCompile(regexPattern)
+
+	match := re.FindStringSubmatch(script)
+	if len(match) > 1 {
+		return strings.TrimPrefix(match[1], "0x"), nil
+	}
+
+	return "", errors.New("failed to match the key")
+}
+
+func (m *MegaCloud) getSecret(encryptedString string, values [][]int) (string, string) {
+	secret := ""
+	encryptedSourceArray := strings.Split(encryptedString, "")
+	currentIndex := 0
+
+	for _, index := range values {
+		start := index[0] + currentIndex
+		end := start + index[1]
+
+		for i := start; i < end; i++ {
+			secret += string(encryptedString[i])
+			encryptedSourceArray[i] = ""
+		}
+
+		currentIndex += index[1]
+	}
+
+	encryptedSource := strings.Join(encryptedSourceArray, "")
+
+	return secret, encryptedSource
+}
+
+//func (m *MegaCloud) getSecret(encryptedString string, values []int) (string, string, error) {
+//	var secret string
+//	var encryptedSource = encryptedString
+//	var totalInc int
+//
+//	for i := 0; i < values[0]; i++ {
+//		var start, inc int
+//
+//		switch i {
+//		case 0:
+//			start = values[2]
+//			inc = values[1]
+//		case 1:
+//			start = values[4]
+//			inc = values[3]
+//		case 2:
+//			start = values[6]
+//			inc = values[5]
+//		case 3:
+//			start = values[8]
+//			inc = values[7]
+//		case 4:
+//			start = values[10]
+//			inc = values[9]
+//		case 5:
+//			start = values[12]
+//			inc = values[11]
+//		case 6:
+//			start = values[14]
+//			inc = values[13]
+//		case 7:
+//			start = values[16]
+//			inc = values[15]
+//		case 8:
+//			start = values[18]
+//			inc = values[17]
+//		default:
+//			return "", "", errors.New("invalid index")
+//		}
+//
+//		from := start + totalInc
+//		to := from + inc
+//
+//		secret += encryptedString[from:to]
+//		encryptedSource = strings.Replace(encryptedSource, encryptedString[from:to], "", 1)
+//		totalInc += inc
+//	}
+//
+//	return secret, encryptedSource, nil
+//}
 
 func (m *MegaCloud) decrypt(encrypted, keyOrSecret string) (string, error) {
 	cypher, err := base64.StdEncoding.DecodeString(encrypted)

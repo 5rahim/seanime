@@ -1,13 +1,33 @@
 "use client"
 
 
+import { DatePicker } from "@/components/ui/date-picker"
+import { normalizeDate } from "@/lib/helpers/date"
 import React from "react"
 
 export default function Page() {
 
+    const [value, setValue] = React.useState<Date | undefined>(undefined)
+
+    React.useEffect(() => {
+
+        setValue(normalizeDate("2024-04-15T00:00:00Z"))
+        console.log(normalizeDate("2024-04-15T00:00:00Z"))
+        console.log(new Date("2024-04-15T00:00:00Z"))
+
+    }, [])
+
+    React.useEffect(() => {
+        console.log(value)
+    }, [value])
+
 
     return (
         <div className="space-y-4 container py-10">
+            <DatePicker
+                value={value}
+                onValueChange={setValue}
+            />
             {/*{data?.routeGroups?.map((group, i) => (*/}
             {/*    <div key={group.filename + i} className="space-y-4">*/}
             {/*        <h4 className="">{group.filename}</h4>*/}

@@ -49,6 +49,20 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 	return ci.value, true
 }
 
+func (c *Cache[K, V]) Pop() (K, V, bool) {
+	var key K
+	var value V
+	var ok bool
+	c.store.Range(func(k, v interface{}) bool {
+		key = k.(K)
+		value = v.(*cacheItem[K, V]).value
+		ok = true
+		c.store.Delete(k)
+		return false
+	})
+	return key, value, ok
+}
+
 func (c *Cache[K, V]) Has(key K) bool {
 	_, ok := c.store.Load(key)
 	return ok

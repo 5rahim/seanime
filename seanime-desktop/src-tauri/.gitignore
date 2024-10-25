@@ -5,3 +5,4 @@
 /gen/schemas
 # Sidecar binaries
 /binaries/*.exe
+/binaries/seanime-aarch64-apple-darwin

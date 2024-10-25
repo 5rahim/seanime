@@ -1,3 +1,5 @@
+import { Nullish } from "@/api/generated/types"
+import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 
@@ -53,5 +55,25 @@ export function useExternalPlayerLink() {
     return {
         externalPlayerLink,
         setExternalPlayerLink,
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const __playback_playNext = atom<number | null>(null)
+
+export function usePlayNext() {
+    const [playNext, _setPlayNext] = useAtom(__playback_playNext)
+
+    function setPlayNext(ep: Nullish<number>, callback: () => void) {
+        if (!ep) return
+        _setPlayNext(ep)
+        callback()
+    }
+
+    return {
+        playNext,
+        setPlayNext,
+        resetPlayNext: () => _setPlayNext(null),
     }
 }

@@ -281,7 +281,7 @@ func (c *ComicK) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error)
 	for index, image := range data.Chapter.MdImages {
 		ret = append(ret, &hibikemanga.ChapterPage{
 			Provider: ComickProvider,
-			URL:      fmt.Sprintf("https://meo.comick.pictures/%s?width=%d", image.B2Key, image.W),
+			URL:      fmt.Sprintf("https://meo.comick.pictures/%s", image.B2Key),
 			Index:    index,
 			Headers:  make(map[string]string),
 		})

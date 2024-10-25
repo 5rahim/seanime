@@ -10,13 +10,13 @@ import { __unknownMedia_drawerIsOpen } from "@/app/(main)/(library)/_containers/
 import { __unmatchedFileManagerIsOpen } from "@/app/(main)/(library)/_containers/unmatched-file-manager"
 import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Tooltip } from "@/components/ui/tooltip"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom, useSetAtom } from "jotai/react"
-import Link from "next/link"
 import React from "react"
 import { BiCollection, BiDotsVerticalRounded, BiFolder } from "react-icons/bi"
 import { FiSearch } from "react-icons/fi"
@@ -127,7 +127,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         }}
                     >
                         <BiFolder />
-                        <span>Open folder</span>
+                        <span>Open directory</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
@@ -148,7 +148,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                         <span>Ignored files</span>
                     </DropdownMenuItem>
 
-                    <Link href="/scan-summaries">
+                    <SeaLink href="/scan-summaries">
                         <DropdownMenuItem
 
                             className={cn({ "!text-[--muted]": !hasScanned })}
@@ -156,7 +156,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             <PiClockCounterClockwiseFill />
                             <span>Scan summaries</span>
                         </DropdownMenuItem>
-                    </Link>
+                    </SeaLink>
                 </DropdownMenu>
 
             </div>

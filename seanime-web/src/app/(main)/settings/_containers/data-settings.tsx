@@ -1,9 +1,9 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { useImportLocalFiles } from "@/api/hooks/localfiles.hooks"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { TextInput } from "@/components/ui/text-input"
-import Link from "next/link"
 import React from "react"
 import { CgImport } from "react-icons/cg"
 import { TbDatabaseExport } from "react-icons/tb"
@@ -44,7 +44,7 @@ export function DataSettings(props: DataSettingsProps) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-                <Link href={`${getServerBaseUrl()}/api/v1/library/local-files/dump`} target="_blank" className="block">
+                <SeaLink href={`${getServerBaseUrl()}/api/v1/library/local-files/dump`} target="_blank" className="block">
                     <Button
                         intent="primary-subtle"
                         leftIcon={<TbDatabaseExport className="text-xl" />}
@@ -53,7 +53,7 @@ export function DataSettings(props: DataSettingsProps) {
                     >
                         Export local file data
                     </Button>
-                </Link>
+                </SeaLink>
 
                 <Modal
                     title="Import local files"

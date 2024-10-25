@@ -34,6 +34,7 @@ export const settingsSchema = z.object({
     mpvSocket: z.string().optional().default(""),
     mpvPath: z.string().optional().default(""),
     defaultTorrentClient: z.string().optional().default(DEFAULT_TORRENT_CLIENT),
+    hideTorrentList: z.boolean().optional().default(false),
     qbittorrentPath: z.string().optional().default(""),
     qbittorrentHost: z.string().optional().default(""),
     qbittorrentPort: z.number(),
@@ -70,6 +71,7 @@ export const settingsSchema = z.object({
     showActiveTorrentCount: z.boolean().optional().default(false),
     enableWatchContinuity: z.boolean().optional().default(false),
     libraryPaths: z.array(z.string()).optional().default([]),
+    autoSyncOfflineLocalData: z.boolean().optional().default(false),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

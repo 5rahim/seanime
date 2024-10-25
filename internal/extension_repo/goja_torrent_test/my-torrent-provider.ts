@@ -2,14 +2,16 @@
 
 class Provider {
 
-    api = "https://feed.animetosho.org/json"
+    api = "{{api}}"
+    withSmartSearch = "{{withSmartSearch}}"
+    type = "{{type}}"
 
     getSettings(): AnimeProviderSettings {
         return {
-            canSmartSearch: true,
+            canSmartSearch: this.withSmartSearch === "true",
             smartSearchFilters: ["batch", "episodeNumber", "resolution"],
             supportsAdult: false,
-            type: "main",
+            type: this.type as AnimeProviderType,
         }
     }
 

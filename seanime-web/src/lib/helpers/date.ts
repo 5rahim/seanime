@@ -32,12 +32,11 @@ export function formatSafe(value: Date, formatString: string, options?: FormatOp
 export function normalizeDate(value: string) {
     try {
         let arr = value.split(/[\-\+ :T]/)
+        let year = parseInt(arr[0])
+        let month = parseInt(arr[1]) - 1
+        let day = parseInt(arr[2])
 
-        let date = new Date()
-        date.setFullYear(parseInt(arr[0]))
-        date.setMonth(parseInt(arr[1]) - 1)
-        date.setDate(parseInt(arr[2]))
-        return date
+        return new Date(`${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}T00:00:00`)
     }
     catch (e) {
         return new Date(value)

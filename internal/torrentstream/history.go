@@ -25,9 +25,9 @@ func (r *Repository) GetBatchHistory(mId int) (ret *BatchHistoryResponse) {
 	}
 }
 
-func (r *Repository) addBatchHistory(mId int, torrent *hibiketorrent.AnimeTorrent) {
+func (r *Repository) AddBatchHistory(mId int, torrent *hibiketorrent.AnimeTorrent) {
 	go func() {
-		defer util.HandlePanicInModuleThen("torrentstream/addBatchHistory", func() {})
+		defer util.HandlePanicInModuleThen("torrentstream/AddBatchHistory", func() {})
 
 		_ = db_bridge.InsertTorrentstreamHistory(r.db, mId, torrent)
 	}()

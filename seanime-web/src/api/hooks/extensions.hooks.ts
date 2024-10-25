@@ -4,6 +4,7 @@ import {
     GetAllExtensions_Variables,
     InstallExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
+    SaveExtensionUserConfig_Variables,
     UninstallExternalExtension_Variables,
     UpdateExtensionCode_Variables,
 } from "@/api/generated/endpoint.types"
@@ -13,6 +14,7 @@ import {
     ExtensionRepo_AllExtensions,
     ExtensionRepo_AnimeTorrentProviderExtensionItem,
     ExtensionRepo_ExtensionInstallResponse,
+    ExtensionRepo_ExtensionUserConfig,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
     Nullish,
@@ -50,7 +52,7 @@ export function useInstallExternalExtension() {
         method: API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.InstallExternalExtension.key],
         onSuccess: async () => {
-
+            // DEVNOTE: No need to refetch, the websocket listener will do it
         },
     })
 }
@@ -61,6 +63,7 @@ export function useUninstallExternalExtension() {
         method: API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.UninstallExternalExtension.key],
         onSuccess: async () => {
+            // DEVNOTE: No need to refetch, the websocket listener will do it
             toast.success("Extension uninstalled successfully.")
         },
     })
@@ -72,6 +75,7 @@ export function useUpdateExtensionCode() {
         method: API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.UpdateExtensionCode.key],
         onSuccess: async () => {
+            // DEVNOTE: No need to refetch, the websocket listener will do it
             toast.success("Extension updated successfully.")
         },
     })
@@ -131,6 +135,28 @@ export function useRunExtensionPlaygroundCode() {
         mutationKey: [API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.key],
         onSuccess: async () => {
 
+        },
+    })
+}
+
+export function useGetExtensionUserConfig(id: string) {
+    return useServerQuery<ExtensionRepo_ExtensionUserConfig>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.endpoint.replace("{id}", id),
+        method: API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionUserConfig.key, id],
+        enabled: true,
+        gcTime: 0,
+    })
+}
+
+export function useSaveExtensionUserConfig() {
+    return useServerMutation<boolean, SaveExtensionUserConfig_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.SaveExtensionUserConfig.key],
+        onSuccess: async () => {
+            // DEVNOTE: No need to refetch, the websocket listener will do it
+            toast.success("Config saved successfully.")
         },
     })
 }

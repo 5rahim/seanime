@@ -304,25 +304,29 @@ func TestModifyAnimeCollectionEntry(ac *AnimeCollection, mId int, input TestModi
 	// Move the entry to the correct list
 	if input.Status != nil {
 		for _, list := range lists {
-			if list.Status == nil {
-				continue
-			}
-			if list.Entries == nil {
+			if list.Status == nil || list.Entries == nil {
 				continue
 			}
 			entries := list.GetEntries()
 			for idx, entry := range entries {
 				if entry.GetMedia().ID == mId {
+					// Remove from current list if status differs
 					if *list.Status != *input.Status {
 						removedFromList = true
-						entries = append(entries[:idx], entries[idx+1:]...)
 						rEntry = entry
+						// Ensure we're not going out of bounds
+						if idx >= 0 && idx < len(entries) {
+							// Safely remove the entry by re-slicing
+							list.Entries = append(entries[:idx], entries[idx+1:]...)
+						}
 						break
 					}
 				}
 			}
 		}
-		if removedFromList {
+
+		// Add the entry to the correct list if it was removed
+		if removedFromList && rEntry != nil {
 			for _, list := range lists {
 				if list.Status == nil {
 					continue
@@ -331,6 +335,7 @@ func TestModifyAnimeCollectionEntry(ac *AnimeCollection, mId int, input TestModi
 					if list.Entries == nil {
 						list.Entries = make([]*AnimeCollection_MediaListCollection_Lists_Entries, 0)
 					}
+					// Add the removed entry to the new list
 					list.Entries = append(list.Entries, rEntry)
 					break
 				}
@@ -338,6 +343,7 @@ func TestModifyAnimeCollectionEntry(ac *AnimeCollection, mId int, input TestModi
 		}
 	}
 
+	// Update the entry details
 out:
 	for _, list := range lists {
 		entries := list.GetEntries()

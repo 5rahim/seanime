@@ -394,7 +394,11 @@ export function ChapterList(props: ChapterListProps) {
                                         hideColumns={[
                                             {
                                                 below: 1000,
-                                                hide: ["number", "scanlator", "language"],
+                                                hide: ["number"],
+                                            },
+                                            {
+                                                below: 600,
+                                                hide: ["scanlator", "language"],
                                             },
                                         ]}
                                         onRowSelect={onRowSelectionChange}

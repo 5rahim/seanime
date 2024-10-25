@@ -1,8 +1,8 @@
 "use client"
 
+import { SeaLink } from "@/components/shared/sea-link"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva, VariantProps } from "class-variance-authority"
-import Link from "next/link"
 import * as React from "react"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 import { Drawer } from "../drawer"
@@ -270,7 +270,7 @@ export const NavigationMenu = React.forwardRef<HTMLDivElement, NavigationMenuPro
                             <NavigationMenuPrimitive.Item key={item.name}>
                                 <NavigationMenuPrimitive.NavigationMenuLink asChild>
                                     {item.href ? (
-                                        <Link
+                                        <SeaLink
                                             href={item.href}
                                             className={cn(
                                                 NavigationMenuAnatomy.item({ size }),
@@ -281,7 +281,7 @@ export const NavigationMenu = React.forwardRef<HTMLDivElement, NavigationMenuPro
                                             <Icon item={item} />
                                             <span className="flex-none">{item.name}</span>
                                             {item.addon}
-                                        </Link>
+                                        </SeaLink>
                                     ) : (
                                         <button
                                             className={cn(

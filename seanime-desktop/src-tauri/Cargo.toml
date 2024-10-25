@@ -15,17 +15,17 @@ name = "app_lib"
 crate-type = ["staticlib", "cdylib", "lib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-rc.7", features = [] }
+tauri-build = { version = "2.0.1", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.0.0-rc.8", features = [ "tray-icon"] }
-tauri-plugin-shell = "2.0.0-rc"
+tauri = { version = "2.0.3", features = ["tray-icon"] }
+tauri-plugin-shell = "2.0.1"
 strip-ansi-escapes = "0.2.0"
 tokio = "1.40.0"
-tauri-plugin-decorum = "1.0.0"
-tauri-plugin-os = "2.0.0-rc"
+tauri-plugin-decorum = "1.1.1"
+tauri-plugin-os = "2.0.1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2.0.0-rc"

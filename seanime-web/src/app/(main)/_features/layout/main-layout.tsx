@@ -15,7 +15,9 @@ import { useAutoDownloaderItemListener } from "@/app/(main)/_listeners/autodownl
 import { useExtensionListener } from "@/app/(main)/_listeners/extensions.listeners"
 import { useExternalPlayerLinkListener } from "@/app/(main)/_listeners/external-player-link.listeners"
 import { useMangaListener } from "@/app/(main)/_listeners/manga.listeners"
+import { useSyncListener } from "@/app/(main)/_listeners/sync.listeners"
 import { useToastEventListeners } from "@/app/(main)/_listeners/toast-events.listeners"
+import { DebridStreamOverlay } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-overlay"
 import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-overlay"
 import { AnimePreviewModal } from "@/app/(main)/entry/anime-preview-modal"
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
@@ -40,6 +42,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     useExtensionListener()
     useMangaListener()
     useExternalPlayerLinkListener()
+    useSyncListener()
 
     return (
         <>
@@ -50,6 +53,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaylistsModal />
             <ChapterDownloadsDrawer />
             <TorrentStreamOverlay />
+            <DebridStreamOverlay />
             <AnimePreviewModal />
             <PlaybackManagerProgressTracking />
             <ManualProgressTracking />

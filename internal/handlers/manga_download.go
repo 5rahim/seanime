@@ -3,7 +3,7 @@ package handlers
 import (
 	"seanime/internal/events"
 	"seanime/internal/manga"
-	chapter_downloader "seanime/internal/manga/downloader"
+	"seanime/internal/manga/downloader"
 	"time"
 )
 

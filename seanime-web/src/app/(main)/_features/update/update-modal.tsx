@@ -5,6 +5,7 @@ import { useGetLatestUpdate, useInstallLatestUpdate } from "@/api/hooks/releases
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
@@ -12,7 +13,6 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Link from "next/link"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiDownload, BiLinkExternal } from "react-icons/bi"
@@ -114,9 +114,9 @@ export function UpdateModal(props: UpdateModalProps) {
                             </div>
                         </Modal>
                         <div className="flex flex-1" />
-                        <Link href={updateData?.release?.html_url || ""} target="_blank">
+                        <SeaLink href={updateData?.release?.html_url || ""} target="_blank">
                             <Button intent="white-subtle" rightIcon={<BiLinkExternal />}>See on GitHub</Button>
-                        </Link>
+                        </SeaLink>
                         <Button intent="white" leftIcon={<BiDownload />} onClick={() => setDownloaderOpen(true)}>Download</Button>
                     </div>
                 </div>

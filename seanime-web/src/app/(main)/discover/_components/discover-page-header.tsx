@@ -3,6 +3,7 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -12,14 +13,13 @@ import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
 import { RiSignalTowerLine } from "react-icons/ri"
 
 export const __discover_hoveringHeaderAtom = atom(false)
 
-const MotionImage = motion(Image)
+const MotionImage = motion.create(Image)
 
 export function DiscoverPageHeader() {
     const ts = useThemeSettings()
@@ -177,7 +177,7 @@ export function DiscoverPageHeader() {
                                         <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
                                             /(<([^>]+)>)/ig,
                                             "")}</ScrollArea>
-                                        <Link
+                                        <SeaLink
                                             href={pageType === "anime"
                                                 ? `/entry?id=${randomTrending.id}`
                                                 : `/manga/entry?id=${randomTrending.id}`}
@@ -190,7 +190,7 @@ export function DiscoverPageHeader() {
                                                 {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" :
                                                     pageType === "anime" ? "Watch now" : "Read now"}
                                             </Button>
-                                        </Link>
+                                        </SeaLink>
                                     </div>
                                 </div>
                             </div>

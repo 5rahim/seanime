@@ -34,8 +34,7 @@ type StartStreamOptions struct {
 
 // StartStream is called by the client to start streaming a torrent
 func (r *Repository) StartStream(opts *StartStreamOptions) error {
-	// MY DUMBASS SHUT DOWN THE CLIENT BEFORE STARTING THE STREAM
-	// NO SHIT IT DIDN'T WORK! WASTED 2 DAYS TRYING TO DEBUG THIS SHIT
+	// DEVNOTE: Do not
 	//r.Shutdown()
 
 	r.logger.Info().
@@ -96,7 +95,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 	go func() {
 		// Add the torrent to the history if it is a batch & manually selected
 		if len(r.client.currentTorrent.MustGet().Files()) > 1 && opts.Torrent != nil {
-			r.addBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
+			r.AddBatchHistory(opts.MediaId, opts.Torrent) // ran in goroutine
 		}
 
 		for {
@@ -118,7 +117,7 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 			// Start the stream
 			//
 			r.logger.Debug().Msg("torrentstream: Starting the media player")
-			err = r.playbackManager.StartStreamingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+			err = r.playbackManager.StartStreamingUsingMediaPlayer("", &playbackmanager.StartPlayingOptions{
 				Payload:   r.client.GetStreamingUrl(),
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,
@@ -236,14 +235,33 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 		// Fetch the media
 		media, err = r.platform.GetAnimeWithRelations(mediaId)
 		if err != nil {
-			return nil, nil, fmt.Errorf("torrentstream: failed to fetch media: %w", err)
+			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
 		}
 	}
 
 	// Get the media
 	animeMetadata, err = r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 	if err != nil {
-		return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
+		//return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
+		animeMetadata = &metadata.AnimeMetadata{
+			Titles:       make(map[string]string),
+			Episodes:     make(map[string]*metadata.EpisodeMetadata),
+			EpisodeCount: 0,
+			SpecialCount: 0,
+			Mappings: &metadata.AnimeMappings{
+				AnilistId: media.GetID(),
+			},
+		}
+		animeMetadata.Titles["en"] = media.GetTitleSafe()
+		animeMetadata.Titles["x-jat"] = media.GetRomajiTitleSafe()
+		err = nil
+		//for i := 1; i <= media.GetCurrentEpisodeCount(); i++ {
+		//	animeMetadata.Episodes[fmt.Sprintf("%d", i)] = &metadata.EpisodeMetadata{
+		//		AniDBEpisode: fmt.Sprintf("%d", i),
+		//		EpisodeNumber: i,
+		//		EpisodeTitle: media.GetPreferredTitle(),
+		//	}
+		//}
 	}
 
 	return

@@ -218,3 +218,38 @@ func TestGojaCrypto(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestGojaTorrentUtils(t *testing.T) {
+
+	// VM
+	vm, err := extension_repo.CreateJSVM(util.NewLogger())
+	require.NoError(t, err)
+
+	filepath := "./goja_bindings/goja_torrent_test/torrent-utils-example.ts"
+	fileB, err := os.ReadFile(filepath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = vm.RunString(string(fileB))
+	require.NoError(t, err)
+
+	// Get the function
+	runFunc, ok := goja.AssertFunction(vm.Get("run"))
+	require.True(t, ok)
+
+	// Call the function
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	promise := ret.Export().(*goja.Promise)
+
+	for promise.State() == goja.PromiseStatePending {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if promise.State() == goja.PromiseStateRejected {
+		err := promise.Result()
+		t.Fatal(err)
+	}
+}

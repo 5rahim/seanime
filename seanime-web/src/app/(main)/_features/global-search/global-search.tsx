@@ -1,6 +1,7 @@
 "use client"
 import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { useAnilistListManga } from "@/api/hooks/manga.hooks"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -11,7 +12,6 @@ import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { Fragment } from "react"
 import { BiChevronRight } from "react-icons/bi"
@@ -211,7 +211,7 @@ export function GlobalSearch() {
                                                                     : "-"}
                                                                 </p>
                                                             </div>
-                                                            <Link
+                                                            <SeaLink
                                                                 href={type === "anime"
                                                                     ? `/entry?id=${activeOption.id}`
                                                                     : `/manga/entry?id=${activeOption.id}`}
@@ -224,7 +224,7 @@ export function GlobalSearch() {
                                                                 >
                                                                     Open
                                                                 </Button>
-                                                            </Link>
+                                                            </SeaLink>
                                                         </div>
                                                     )}
                                                 </Combobox.Options>

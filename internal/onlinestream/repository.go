@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/database/db"
 	"seanime/internal/extension"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
@@ -22,6 +23,7 @@ type (
 		metadataProvider      metadata.Provider
 		platform              platform.Platform
 		anilistBaseAnimeCache *anilist.BaseAnimeCache
+		db                    *db.Database
 	}
 )
 
@@ -67,6 +69,7 @@ type (
 		FileCacher       *filecache.Cacher
 		MetadataProvider metadata.Provider
 		Platform         platform.Platform
+		Database         *db.Database
 	}
 )
 
@@ -78,6 +81,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		providerExtensionBank: extension.NewUnifiedBank(),
 		anilistBaseAnimeCache: anilist.NewBaseAnimeCache(),
 		platform:              opts.Platform,
+		db:                    opts.Database,
 	}
 }
 

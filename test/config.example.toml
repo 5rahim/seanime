@@ -25,6 +25,7 @@ mpc_path = 'C:\Program Files\MPC-HC\mpc-hc64.exe'
 vlc_host = '127.0.0.1'
 vlc_port = 8080
 vlc_path = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
+torbox_api_key = ""
 
 [path]
 dataDir = ''

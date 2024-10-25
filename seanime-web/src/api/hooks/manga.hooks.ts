@@ -132,7 +132,7 @@ export function useUpdateMangaProgress(id: Nullish<string | number>) {
     })
 }
 
-////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function useMangaManualSearch(mediaId: Nullish<number>, provider: Nullish<string>) {
     return useServerMutation<Array<HibikeManga_SearchResult>, MangaManualSearch_Variables>({
@@ -177,10 +177,18 @@ export function useRemoveMangaMapping() {
         method: API_ENDPOINTS.MANGA.RemoveMangaMapping.methods[0],
         mutationKey: [API_ENDPOINTS.MANGA.RemoveMangaMapping.key],
         onSuccess: async () => {
-            toast.success("Mapping removed")
+            toast.info("Mapping removed")
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaMapping.key] })
         },
+    })
+}
+
+export function useGetMangaEntryDownloadedChapters(mId: Nullish<string | number>) {
+    return useServerQuery<Array<Manga_ChapterContainer>>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.endpoint.replace("{id}", String(mId)),
+        method: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.key, String(mId)],
     })
 }

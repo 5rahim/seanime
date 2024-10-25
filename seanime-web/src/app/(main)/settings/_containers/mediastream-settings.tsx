@@ -1,5 +1,4 @@
-import { Models_MediastreamSettings } from "@/api/generated/types"
-import { useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
+import { useGetMediastreamSettings, useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
@@ -19,6 +18,7 @@ const mediastreamSchema = defineSchema(({ z }) => z.object({
     // preTranscodeEnabled: z.boolean(),
     // preTranscodeLibraryDir: z.string(),
     disableAutoSwitchToDirectPlay: z.boolean(),
+    directPlayOnly: z.boolean(),
     ffmpegPath: z.string().min(0),
     ffprobePath: z.string().min(0),
 }))
@@ -40,20 +40,18 @@ const MEDIASTREAM_PRESET_OPTIONS = [
 
 type MediastreamSettingsProps = {
     children?: React.ReactNode
-    settings: Models_MediastreamSettings | undefined
-    isLoading: boolean
 }
 
 export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     const {
         children,
-        settings,
-        isLoading,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
+
+    const { data: settings, isLoading } = useGetMediastreamSettings(true)
 
     const { mutate, isPending } = useSaveMediastreamSettings()
 
@@ -80,14 +78,15 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                 }}
                 defaultValues={{
                     transcodeEnabled: settings?.transcodeEnabled ?? false,
-                    transcodeHwAccel: settings?.transcodeHwAccel ?? "cpu",
-                    transcodePreset: settings?.transcodePreset ?? "fast",
+                    transcodeHwAccel: settings?.transcodeHwAccel === "none" ? "cpu" : settings?.transcodeHwAccel || "cpu",
+                    transcodePreset: settings?.transcodePreset || "fast",
                     // transcodeThreads: settings?.transcodeThreads,
                     // preTranscodeEnabled: settings?.preTranscodeEnabled ?? false,
                     // preTranscodeLibraryDir: settings?.preTranscodeLibraryDir,
                     disableAutoSwitchToDirectPlay: settings?.disableAutoSwitchToDirectPlay ?? false,
-                    ffmpegPath: settings?.ffmpegPath ?? "",
-                    ffprobePath: settings?.ffprobePath ?? "",
+                    directPlayOnly: settings?.directPlayOnly ?? false,
+                    ffmpegPath: settings?.ffmpegPath || "",
+                    ffprobePath: settings?.ffprobePath || "",
                 }}
                 stackClass="space-y-6"
             >
@@ -127,6 +126,12 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             name="disableAutoSwitchToDirectPlay"
                             label="Don't auto switch to direct play"
                             help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
+                        />
+
+                        <Field.Switch
+                            name="directPlayOnly"
+                            label="Direct play only"
+                            help="Only allow direct play. Transcoding will never be started."
                         />
 
                         <Field.Select

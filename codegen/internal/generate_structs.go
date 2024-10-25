@@ -101,6 +101,9 @@ var typePrefixesByPackage = map[string]string{
 	"hibikemediaplayer":          "HibikeMediaPlayer_",
 	"hibikeextension":            "HibikeExtension_",
 	"continuity":                 "Continuity_",
+	"sync":                       "Sync_",
+	"debrid":                     "Debrid_",
+	"debrid_client":              "DebridClient_",
 }
 
 func getTypePrefix(packageName string) string {
@@ -487,6 +490,10 @@ func fieldTypeToTypescriptType(fieldType ast.Expr, usedStructPkgName string) str
 			return "number"
 		case "bool":
 			return "boolean"
+		case "byte":
+			return "string"
+		case "time.Time":
+			return "string"
 		case "nil":
 			return "null"
 		default:
@@ -528,6 +535,8 @@ func stringGoTypeToTypescriptType(goType string) string {
 		return "null"
 	case "bool":
 		return "boolean"
+	case "time.Time":
+		return "string"
 	}
 
 	if strings.HasPrefix(goType, "[]") {
@@ -570,6 +579,8 @@ func goTypeToTypescriptType(goType string) string {
 		return "boolean"
 	case "nil":
 		return "null"
+	case "time.Time":
+		return "string"
 	default:
 		return "unknown"
 	}

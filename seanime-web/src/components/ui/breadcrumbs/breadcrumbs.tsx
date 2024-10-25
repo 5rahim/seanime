@@ -1,7 +1,7 @@
 "use client"
 
+import { SeaLink } from "@/components/shared/sea-link"
 import { cva } from "class-variance-authority"
-import Link from "next/link"
 import * as React from "react"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
@@ -83,7 +83,7 @@ export const Breadcrumbs = React.forwardRef<HTMLElement, BreadcrumbsProps>((prop
                 {showHomeButton &&
                     <li>
                         <div>
-                            <Link
+                            <SeaLink
                                 href={rootHref}
                                 className={cn(BreadcrumbsAnatomy.homeItem(), homeItemClass)}
                             >
@@ -98,7 +98,7 @@ export const Breadcrumbs = React.forwardRef<HTMLElement, BreadcrumbsProps>((prop
                                             d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
                                         />
                                     </svg>}
-                            </Link>
+                            </SeaLink>
                         </div>
                     </li>
                 }
@@ -116,14 +116,14 @@ export const Breadcrumbs = React.forwardRef<HTMLElement, BreadcrumbsProps>((prop
                                     <polyline points="9 18 15 12 9 6"></polyline>
                                 </svg>
                             }
-                            <Link
+                            <SeaLink
                                 href={page.href ?? "#"}
                                 className={cn(BreadcrumbsAnatomy.itemLink(), itemLinkClass)}
                                 data-selected={page.isCurrent}
                                 aria-current={page.isCurrent ? "page" : undefined}
                             >
                                 {page.name}
-                            </Link>
+                            </SeaLink>
                         </div>
                     </li>
                 ))}

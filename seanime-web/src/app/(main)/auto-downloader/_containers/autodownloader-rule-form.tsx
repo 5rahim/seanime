@@ -8,13 +8,13 @@ import {
 import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { useQueryClient } from "@tanstack/react-query"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
@@ -24,10 +24,12 @@ import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
 import { MdVerified } from "react-icons/md"
 import { toast } from "sonner"
+import upath from "upath"
 
 type AutoDownloaderRuleFormProps = {
     type: "create" | "edit"
     rule?: Anime_AutoDownloaderRule
+    mediaId?: number
     onRuleCreatedOrDeleted?: () => void
 }
 
@@ -49,9 +51,9 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
         type,
         rule,
         onRuleCreatedOrDeleted,
+        mediaId,
     } = props
 
-    const qc = useQueryClient()
     const userMedia = useAnilistUserAnime()
     const libraryCollection = useLibraryCollection()
 
@@ -110,7 +112,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                 onSubmit={handleSave}
                 defaultValues={{
                     enabled: rule?.enabled ?? true,
-                    mediaId: rule?.mediaId ?? notFinishedMedia[0]?.id,
+                    mediaId: mediaId ?? rule?.mediaId ?? notFinishedMedia[0]?.id,
                     releaseGroups: rule?.releaseGroups ?? [],
                     resolutions: rule?.resolutions ?? [],
                     comparisonTitle: rule?.comparisonTitle ?? "",
@@ -123,9 +125,10 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                     toast.error("An error occurred, verify the fields.")
                 }}
             >
-                {(f) => <RuleFormForm
+                {(f) => <RuleFormFields
                     form={f}
                     allMedia={allMedia}
+                    mediaId={mediaId}
                     type={type}
                     isPending={isPending}
                     notFinishedMedia={notFinishedMedia}
@@ -145,9 +148,10 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
     )
 }
 
-type RuleFormFormProps = {
+type RuleFormFieldsProps = {
     form: UseFormReturn<InferType<typeof schema>>
     allMedia: AL_BaseAnime[]
+    mediaId?: number
     type: "create" | "edit"
     isPending: boolean
     notFinishedMedia: AL_BaseAnime[]
@@ -155,11 +159,12 @@ type RuleFormFormProps = {
     rule?: Anime_AutoDownloaderRule
 }
 
-export function RuleFormForm(props: RuleFormFormProps) {
+export function RuleFormFields(props: RuleFormFieldsProps) {
 
     const {
         form,
         allMedia,
+        mediaId,
         type,
         isPending,
         notFinishedMedia,
@@ -167,6 +172,8 @@ export function RuleFormForm(props: RuleFormFormProps) {
         rule,
         ...rest
     } = props
+
+    const serverStatus = useServerStatus()
 
     const selectedMedia = allMedia.find(media => media.id === Number(form.watch("mediaId")))
 
@@ -181,8 +188,11 @@ export function RuleFormForm(props: RuleFormFormProps) {
         }
         if (destination) {
             form.setValue("destination", destination)
-        } else {
-            form.setValue("destination", "")
+        } else if (type === "create") {
+            // form.setValue("destination", "")
+            const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""),
+                sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || ""))
+            form.setValue("destination", newDestination)
         }
     }, [form.watch("mediaId"), selectedMedia, libraryCollection])
 
@@ -203,7 +213,7 @@ export function RuleFormForm(props: RuleFormFormProps) {
                     !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
-                <div className="flex gap-4 items-end">
+                {!mediaId && <div className="flex gap-4 items-end">
                     <div
                         className="w-[6rem] h-[6rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
                     >
@@ -224,10 +234,10 @@ export function RuleFormForm(props: RuleFormFormProps) {
                             .toSorted((a, b) => a.label.localeCompare(b.label))}
                         value={String(form.watch("mediaId"))}
                         onValueChange={(v) => form.setValue("mediaId", parseInt(v))}
-                        help="The anime must be airing or upcoming"
-                        disabled={type === "edit"}
+                        help={!mediaId ? "The anime must be airing or upcoming" : undefined}
+                        disabled={type === "edit" || !!mediaId}
                     />
-                </div>
+                </div>}
 
                 {selectedMedia?.status === "FINISHED" && <div className="py-2 text-red-300 text-center">This anime is no longer airing</div>}
 
@@ -398,4 +408,14 @@ export function TextArrayField<T extends string | number>(props: TextArrayFieldP
             />
         </div>
     )
+}
+
+function sanitizeDirectoryName(input: string): string {
+    const disallowedChars = /[<>:"/\\|?*\x00-\x1F.!`]/g // Pattern for disallowed characters
+    // Replace disallowed characters with an underscore
+    const sanitized = input.replace(disallowedChars, " ")
+    // Remove leading/trailing spaces and dots (periods) which are not allowed
+    const trimmed = sanitized.trim().replace(/^\.+|\.+$/g, "").replace(/\s+/g, " ")
+    // Ensure the directory name is not empty after sanitization
+    return trimmed || "Untitled"
 }

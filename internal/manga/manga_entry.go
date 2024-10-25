@@ -41,7 +41,7 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 		MediaId: opts.MediaId,
 	}
 
-	anilistEntry, found := opts.MangaCollection.GetListEntryFromMediaId(opts.MediaId)
+	anilistEntry, found := opts.MangaCollection.GetListEntryFromMangaId(opts.MediaId)
 
 	// If the entry is not found, we fetch the manga from the Anilist API.
 	if !found {

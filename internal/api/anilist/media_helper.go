@@ -511,21 +511,21 @@ func (m *CompleteAnime) ToBaseAnime() *BaseAnime {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (m *MediaListEntry) GetProgressSafe() int {
+func (m *AnimeListEntry) GetProgressSafe() int {
 	if m.Progress == nil {
 		return 0
 	}
 	return *m.Progress
 }
 
-func (m *MediaListEntry) GetScoreSafe() float64 {
+func (m *AnimeListEntry) GetScoreSafe() float64 {
 	if m.Score == nil {
 		return 0
 	}
 	return *m.Score
 }
 
-func (m *MediaListEntry) GetStatusSafe() MediaListStatus {
+func (m *AnimeListEntry) GetStatusSafe() MediaListStatus {
 	if m.Status == nil {
 		return ""
 	}

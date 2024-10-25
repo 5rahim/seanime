@@ -26,9 +26,6 @@ type (
 )
 
 func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOptions) {
-	if r.settings.IsAbsent() || !r.settings.MustGet().Enabled {
-		return
-	}
 
 	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched
@@ -55,14 +52,14 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 
 	visitedMediaIds := make(map[int]struct{})
 
-	animeAdded := make(map[int]*anilist.MediaListEntry)
+	animeAdded := make(map[int]*anilist.AnimeListEntry)
 
 	// Go through each entry in the currently watching list
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 	wg.Add(len(currentlyWatching.Entries))
 	for _, entry := range currentlyWatching.Entries {
-		go func(entry *anilist.MediaListEntry) {
+		go func(entry *anilist.AnimeListEntry) {
 			defer wg.Done()
 
 			mu.Lock()

@@ -68,7 +68,7 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 
 					return &CollectionEntry{
 						Media:   entry.GetMedia(),
-						MediaId: entry.GetID(),
+						MediaId: entry.GetMedia().GetID(),
 						EntryListData: &EntryListData{
 							Progress:    *entry.Progress,
 							Score:       *entry.Score,

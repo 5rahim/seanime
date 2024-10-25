@@ -3,8 +3,10 @@ package updater
 import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"seanime/internal/constants"
 	"seanime/internal/util"
+	"strings"
 	"testing"
 )
 
@@ -42,6 +44,16 @@ func TestUpdater_CompareVersion(t *testing.T) {
 			shouldUpdate:  false,
 		},
 		{
+			currVersion:   "2.2.0-prerelease",
+			latestVersion: "2.2.0",
+			shouldUpdate:  true,
+		},
+		{
+			currVersion:   "2.2.0",
+			latestVersion: "2.2.0-prerelease",
+			shouldUpdate:  false,
+		},
+		{
 			currVersion:   "0.2.2",
 			latestVersion: "0.2.3",
 			shouldUpdate:  true,
@@ -76,4 +88,21 @@ func TestUpdater_CompareVersion(t *testing.T) {
 		})
 	}
 
+}
+
+func TestUpdater(t *testing.T) {
+
+	u := New(constants.Version, util.NewLogger())
+
+	rl, err := u.GetLatestRelease()
+	require.NoError(t, err)
+
+	rl.TagName = "v2.2.1"
+	newV := strings.TrimPrefix(rl.TagName, "v")
+	updateTypeI, shouldUpdate := util.CompareVersion(u.CurrentVersion, newV)
+	isOlder := util.VersionIsOlderThan(u.CurrentVersion, newV)
+
+	util.Spew(isOlder)
+	util.Spew(shouldUpdate)
+	util.Spew(updateTypeI)
 }

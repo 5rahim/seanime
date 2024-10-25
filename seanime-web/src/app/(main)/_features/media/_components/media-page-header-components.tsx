@@ -1,12 +1,4 @@
-import {
-    AL_BaseAnime,
-    AL_BaseManga,
-    AL_MediaStatus,
-    Anime_EntryListData,
-    Manga_EntryListData,
-    Nullish,
-    Offline_ListData,
-} from "@/api/generated/types"
+import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_EntryListData, Nullish } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -15,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getScoreColor } from "@/lib/helpers/score"
+import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import capitalize from "lodash/capitalize"
@@ -60,7 +53,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 )}
             >
                 <Image
-                    src={backgroundImage || ""}
+                    src={getImageUrl(backgroundImage || "")}
                     alt={""}
                     fill
                     quality={100}
@@ -98,7 +91,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 <div className="absolute top-0 left-0 scroll-locked-offset w-full h-full">
                     {(!!backgroundImage) && <Image
-                        src={backgroundImage || ""}
+                        src={getImageUrl(backgroundImage || "")}
                         alt="banner image"
                         fill
                         quality={100}
@@ -199,7 +192,7 @@ type MediaPageHeaderEntryDetailsProps = {
     status?: AL_MediaStatus
     description?: string
 
-    listData?: Anime_EntryListData | Manga_EntryListData | Offline_ListData
+    listData?: Anime_EntryListData | Manga_EntryListData
     media: AL_BaseAnime | AL_BaseManga
     type: "anime" | "manga"
     offlineAnilistAnimeEntryModal?: React.ReactNode
@@ -239,7 +232,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     )}
                 >
                     <Image
-                        src={coverImage}
+                        src={getImageUrl(coverImage)}
                         alt="cover image"
                         fill
                         priority
@@ -292,9 +285,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             episodes={progressTotal}
                         />
 
-                        {!serverStatus?.isOffline ?
-                            <AnilistMediaEntryModal listData={listData} media={media} type={type} /> :
-                            offlineAnilistAnimeEntryModal}
+                        <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
                         <p className="text-base text-white md:text-lg">{capitalize(listData?.status === "CURRENT"
                             ? type === "anime" ? "watching" : "reading"

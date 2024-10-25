@@ -43,6 +43,23 @@ func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 	return c.RespondWithData(rule)
 }
 
+// HandleGetAutoDownloaderRulesByAnime
+//
+//	@summary returns the rules with the given media id.
+//	@route /api/v1/auto-downloader/rule/anime/{id} [GET]
+//	@param id - int - true - "The AniList anime id of the rules"
+//	@returns []anime.AutoDownloaderRule
+func HandleGetAutoDownloaderRulesByAnime(c *RouteCtx) error {
+
+	id, err := c.Fiber.ParamsInt("id")
+	if err != nil {
+		return c.RespondWithError(errors.New("invalid id"))
+	}
+
+	rules := db_bridge.GetAutoDownloaderRulesByMediaId(c.App.Database, id)
+	return c.RespondWithData(rules)
+}
+
 // HandleGetAutoDownloaderRules
 //
 //	@summary returns all rules.

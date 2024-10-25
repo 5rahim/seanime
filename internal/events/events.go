@@ -37,4 +37,12 @@ const (
 	ExtensionsReloaded = "extensions-reloaded"
 
 	ActiveTorrentCountUpdated = "active-torrent-count-updated"
+
+	SyncLocalQueueState = "sync-local-queue-state"
+	SyncLocalFinished   = "sync-local-finished"
+	SyncAnilistFinished = "sync-anilist-finished"
+
+	DebridDownloadProgress = "debrid-download-progress"
+
+	DebridStreamState = "debrid-stream-state"
 )

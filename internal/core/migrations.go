@@ -63,7 +63,7 @@ func (a *App) runMigrations() {
 			//-----------------------------------------------------------------------------------------
 
 			// DEVNOTE: 1.5.6 uses a different cache format for media streaming info
-			// -> Delete the cache files when migrating from any version between 1.5.0 and 1.5.5
+			// -> Delete the cache files when updated from any version between 1.5.0 and 1.5.5
 			c2, _ := semver.NewConstraint("<= 1.5.5, >= 1.5.0")
 			if c2.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")
@@ -80,7 +80,7 @@ func (a *App) runMigrations() {
 			//-----------------------------------------------------------------------------------------
 
 			// DEVNOTE: 2.0.0 uses a different cache format for online streaming
-			// -> Delete the cache files when migrating from a version older than 2.0.0 and newer than 1.5.0
+			// -> Delete the cache files when updated from a version older than 2.0.0 and newer than 1.5.0
 			c3, _ := semver.NewConstraint("< 2.0.0, >= 1.5.0")
 			if c3.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")
@@ -97,7 +97,7 @@ func (a *App) runMigrations() {
 			//-----------------------------------------------------------------------------------------
 
 			// DEVNOTE: 2.1.0 refactored the manga cache format
-			// -> Delete the cache files when migrating from a version older than 2.1.0
+			// -> Delete the cache files when updated from a version older than 2.1.0
 			c4, _ := semver.NewConstraint("< 2.1.0")
 			if c4.Check(previousVersion) {
 				a.Logger.Debug().Msg("app: Executing version migration task")

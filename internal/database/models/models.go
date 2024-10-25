@@ -74,8 +74,9 @@ type LibrarySettings struct {
 	// v2.1+
 	AutoPlayNextEpisode bool `gorm:"column:auto_play_next_episode" json:"autoPlayNextEpisode"`
 	// v2.2+
-	EnableWatchContinuity bool         `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
-	LibraryPaths          LibraryPaths `gorm:"column:library_paths;type:text" json:"libraryPaths"`
+	EnableWatchContinuity    bool         `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
+	LibraryPaths             LibraryPaths `gorm:"column:library_paths;type:text" json:"libraryPaths"`
+	AutoSyncOfflineLocalData bool         `gorm:"column:auto_sync_offline_local_data" json:"autoSyncOfflineLocalData"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {
@@ -135,6 +136,8 @@ type TorrentSettings struct {
 	TransmissionPassword string `gorm:"column:transmission_password" json:"transmissionPassword"`
 	// v2.1+
 	ShowActiveTorrentCount bool `gorm:"column:show_active_torrent_count" json:"showActiveTorrentCount"`
+	// v2.2+
+	HideTorrentList bool `gorm:"column:hide_torrent_list" json:"hideTorrentList"`
 }
 
 type ListSyncSettings struct {
@@ -205,6 +208,8 @@ type AutoDownloaderSettings struct {
 	Enabled               bool   `gorm:"column:auto_downloader_enabled" json:"enabled"`
 	DownloadAutomatically bool   `gorm:"column:auto_downloader_download_automatically" json:"downloadAutomatically"`
 	EnableEnhancedQueries bool   `gorm:"column:auto_downloader_enable_enhanced_queries" json:"enableEnhancedQueries"`
+	EnableSeasonCheck     bool   `gorm:"column:auto_downloader_enable_season_check" json:"enableSeasonCheck"`
+	UseDebrid             bool   `gorm:"column:auto_downloader_use_debrid" json:"useDebrid"`
 }
 
 // +---------------------+
@@ -280,15 +285,18 @@ type ChapterDownloadQueueItem struct {
 
 type MediastreamSettings struct {
 	BaseModel
+	// DEVNOTE: Should really be "Enabled"
 	TranscodeEnabled              bool   `gorm:"column:transcode_enabled" json:"transcodeEnabled"`
 	TranscodeHwAccel              string `gorm:"column:transcode_hw_accel" json:"transcodeHwAccel"`
 	TranscodeThreads              int    `gorm:"column:transcode_threads" json:"transcodeThreads"`
 	TranscodePreset               string `gorm:"column:transcode_preset" json:"transcodePreset"`
 	DisableAutoSwitchToDirectPlay bool   `gorm:"column:disable_auto_switch_to_direct_play" json:"disableAutoSwitchToDirectPlay"`
+	DirectPlayOnly                bool   `gorm:"column:direct_play_only" json:"directPlayOnly"`
 	PreTranscodeEnabled           bool   `gorm:"column:pre_transcode_enabled" json:"preTranscodeEnabled"`
 	PreTranscodeLibraryDir        string `gorm:"column:pre_transcode_library_dir" json:"preTranscodeLibraryDir"`
 	FfmpegPath                    string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
 	FfprobePath                   string `gorm:"column:ffprobe_path" json:"ffprobePath"`
+
 	//TranscodeTempDir              string `gorm:"column:transcode_temp_dir" json:"transcodeTempDir"` // DEPRECATED
 }
 
@@ -304,6 +312,7 @@ type TorrentstreamSettings struct {
 	DisableIPV6                    bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
 	DownloadDir                    string `gorm:"column:download_dir" json:"downloadDir"`
 	AddToLibrary                   bool   `gorm:"column:add_to_library" json:"addToLibrary"`
+	TorrentClientHost              string `gorm:"column:torrent_client_host" json:"torrentClientHost"`
 	TorrentClientPort              int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
 	StreamingServerHost            string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
 	StreamingServerPort            int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
@@ -347,4 +356,36 @@ type MangaChapterContainer struct {
 	MediaID   int    `gorm:"column:media_id" json:"mediaId"`
 	ChapterID string `gorm:"column:chapter_id" json:"chapterId"`
 	Data      []byte `gorm:"column:data" json:"data"`
+}
+
+// +---------------------+
+// |  Online streaming   |
+// +---------------------+
+
+type OnlinestreamMapping struct {
+	BaseModel
+	Provider string `gorm:"column:provider" json:"provider"`
+	MediaID  int    `gorm:"column:media_id" json:"mediaId"`
+	AnimeID  string `gorm:"column:anime_id" json:"anime_id"` // ID from search result, used to fetch episodes
+}
+
+// +---------------------+
+// |       Debrid        |
+// +---------------------+
+
+type DebridSettings struct {
+	BaseModel
+	Enabled                       bool   `gorm:"column:enabled" json:"enabled"`
+	Provider                      string `gorm:"column:provider" json:"provider"`
+	ApiKey                        string `gorm:"column:api_key" json:"apiKey"`
+	FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"`
+	IncludeDebridStreamInLibrary  bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
+}
+
+type DebridTorrentItem struct {
+	BaseModel
+	TorrentItemID string `gorm:"column:torrent_item_id" json:"torrentItemId"`
+	Destination   string `gorm:"column:destination" json:"destination"`
+	Provider      string `gorm:"column:provider" json:"provider"`
+	MediaId       int    `gorm:"column:media_id" json:"mediaId"`
 }

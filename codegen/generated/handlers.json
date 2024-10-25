@@ -1233,6 +1233,46 @@
     }
   },
   {
+    "name": "HandleGetAutoDownloaderRulesByAnime",
+    "trimmedName": "GetAutoDownloaderRulesByAnime",
+    "comments": [
+      "HandleGetAutoDownloaderRulesByAnime",
+      "",
+      "\t@summary returns the rules with the given media id.",
+      "\t@route /api/v1/auto-downloader/rule/anime/{id} [GET]",
+      "\t@param id - int - true - \"The AniList anime id of the rules\"",
+      "\t@returns []anime.AutoDownloaderRule",
+      ""
+    ],
+    "filepath": "internal/handlers/auto_downloader.go",
+    "filename": "auto_downloader.go",
+    "api": {
+      "summary": "returns the rules with the given media id.",
+      "descriptions": [],
+      "endpoint": "/api/v1/auto-downloader/rule/anime/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "The AniList anime id of the rules"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "[]anime.AutoDownloaderRule",
+      "returnGoType": "anime.AutoDownloaderRule",
+      "returnTypescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e"
+    }
+  },
+  {
     "name": "HandleGetAutoDownloaderRules",
     "trimmedName": "GetAutoDownloaderRules",
     "comments": [
@@ -1661,6 +1701,469 @@
       "returns": "continuity.WatchHistory",
       "returnGoType": "continuity.WatchHistory",
       "returnTypescriptType": "Continuity_WatchHistory"
+    }
+  },
+  {
+    "name": "HandleGetDebridSettings",
+    "trimmedName": "GetDebridSettings",
+    "comments": [
+      "HandleGetDebridSettings",
+      "",
+      "\t@summary get debrid settings.",
+      "\t@desc This returns the debrid settings.",
+      "\t@returns models.DebridSettings",
+      "\t@route /api/v1/debrid/settings [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get debrid settings.",
+      "descriptions": [
+        "This returns the debrid settings."
+      ],
+      "endpoint": "/api/v1/debrid/settings",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "models.DebridSettings",
+      "returnGoType": "models.DebridSettings",
+      "returnTypescriptType": "Models_DebridSettings"
+    }
+  },
+  {
+    "name": "HandleSaveDebridSettings",
+    "trimmedName": "SaveDebridSettings",
+    "comments": [
+      "HandleSaveDebridSettings",
+      "",
+      "\t@summary save debrid settings.",
+      "\t@desc This saves the debrid settings.",
+      "\t@desc The client should refetch the server status.",
+      "\t@returns models.DebridSettings",
+      "\t@route /api/v1/debrid/settings [PATCH]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "save debrid settings.",
+      "descriptions": [
+        "This saves the debrid settings.",
+        "The client should refetch the server status."
+      ],
+      "endpoint": "/api/v1/debrid/settings",
+      "methods": [
+        "PATCH"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Settings",
+          "jsonName": "settings",
+          "goType": "models.DebridSettings",
+          "usedStructType": "models.DebridSettings",
+          "typescriptType": "Models_DebridSettings",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "models.DebridSettings",
+      "returnGoType": "models.DebridSettings",
+      "returnTypescriptType": "Models_DebridSettings"
+    }
+  },
+  {
+    "name": "HandleDebridAddTorrents",
+    "trimmedName": "DebridAddTorrents",
+    "comments": [
+      "HandleDebridAddTorrents",
+      "",
+      "\t@summary add torrent to debrid.",
+      "\t@desc This adds a torrent to the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrents [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "add torrent to debrid.",
+      "descriptions": [
+        "This adds a torrent to the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Torrents",
+          "jsonName": "torrents",
+          "goType": "[]hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "anilist.BaseAnime",
+          "usedStructType": "anilist.BaseAnime",
+          "typescriptType": "AL_BaseAnime",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "Destination",
+          "jsonName": "destination",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridDownloadTorrent",
+    "trimmedName": "DebridDownloadTorrent",
+    "comments": [
+      "HandleDebridDownloadTorrent",
+      "",
+      "\t@summary download torrent from debrid.",
+      "\t@desc Manually downloads a torrent from the debrid service locally.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrents/download [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "download torrent from debrid.",
+      "descriptions": [
+        "Manually downloads a torrent from the debrid service locally."
+      ],
+      "endpoint": "/api/v1/debrid/torrents/download",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "TorrentItem",
+          "jsonName": "torrentItem",
+          "goType": "debrid.TorrentItem",
+          "usedStructType": "debrid.TorrentItem",
+          "typescriptType": "Debrid_TorrentItem",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Destination",
+          "jsonName": "destination",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridCancelDownload",
+    "trimmedName": "DebridCancelDownload",
+    "comments": [
+      "HandleDebridCancelDownload",
+      "",
+      "\t@summary cancel download from debrid.",
+      "\t@desc This cancels a download from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrents/cancel [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "cancel download from debrid.",
+      "descriptions": [
+        "This cancels a download from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents/cancel",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ItemID",
+          "jsonName": "itemID",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridDeleteTorrent",
+    "trimmedName": "DebridDeleteTorrent",
+    "comments": [
+      "HandleDebridDeleteTorrent",
+      "",
+      "\t@summary remove torrent from debrid.",
+      "\t@desc This removes a torrent from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/torrent [DELETE]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "remove torrent from debrid.",
+      "descriptions": [
+        "This removes a torrent from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrent",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "TorrentItem",
+          "jsonName": "torrentItem",
+          "goType": "debrid.TorrentItem",
+          "usedStructType": "debrid.TorrentItem",
+          "typescriptType": "Debrid_TorrentItem",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridGetTorrents",
+    "trimmedName": "DebridGetTorrents",
+    "comments": [
+      "HandleDebridGetTorrents",
+      "",
+      "\t@summary get torrents from debrid.",
+      "\t@desc This gets the torrents from the debrid service.",
+      "\t@returns []debrid.TorrentItem",
+      "\t@route /api/v1/debrid/torrents [GET]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get torrents from debrid.",
+      "descriptions": [
+        "This gets the torrents from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]debrid.TorrentItem",
+      "returnGoType": "debrid.TorrentItem",
+      "returnTypescriptType": "Array\u003cDebrid_TorrentItem\u003e"
+    }
+  },
+  {
+    "name": "HandleDebridGetTorrentInfo",
+    "trimmedName": "DebridGetTorrentInfo",
+    "comments": [
+      "HandleDebridGetTorrentInfo",
+      "",
+      "\t@summary get torrent info from debrid.",
+      "\t@desc This gets the torrent info from the debrid service.",
+      "\t@returns debrid.TorrentInfo",
+      "\t@route /api/v1/debrid/torrents/info [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "get torrent info from debrid.",
+      "descriptions": [
+        "This gets the torrent info from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/torrents/info",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "debrid.TorrentInfo",
+      "returnGoType": "debrid.TorrentInfo",
+      "returnTypescriptType": "Debrid_TorrentInfo"
+    }
+  },
+  {
+    "name": "HandleDebridStartStream",
+    "trimmedName": "DebridStartStream",
+    "comments": [
+      "HandleDebridStartStream",
+      "",
+      "\t@summary start stream from debrid.",
+      "\t@desc This starts streaming a torrent from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/stream/start [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "start stream from debrid.",
+      "descriptions": [
+        "This starts streaming a torrent from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/stream/start",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AniDBEpisode",
+          "jsonName": "aniDBEpisode",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Torrent",
+          "jsonName": "torrent",
+          "goType": "hibiketorrent.AnimeTorrent",
+          "usedStructType": "hibiketorrent.AnimeTorrent",
+          "typescriptType": "HibikeTorrent_AnimeTorrent",
+          "required": false,
+          "descriptions": []
+        },
+        {
+          "name": "FileId",
+          "jsonName": "fileId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "PlaybackType",
+          "jsonName": "playbackType",
+          "goType": "debrid_client.StreamPlaybackType",
+          "usedStructType": "debrid_client.StreamPlaybackType",
+          "typescriptType": "DebridClient_StreamPlaybackType",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ClientId",
+          "jsonName": "clientId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDebridCancelStream",
+    "trimmedName": "DebridCancelStream",
+    "comments": [
+      "HandleDebridCancelStream",
+      "",
+      "\t@summary cancel stream from debrid.",
+      "\t@desc This cancels a stream from the debrid service.",
+      "\t@returns bool",
+      "\t@route /api/v1/debrid/stream/cancel [POST]",
+      ""
+    ],
+    "filepath": "internal/handlers/debrid.go",
+    "filename": "debrid.go",
+    "api": {
+      "summary": "cancel stream from debrid.",
+      "descriptions": [
+        "This cancels a stream from the debrid service."
+      ],
+      "endpoint": "/api/v1/debrid/stream/cancel",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Options",
+          "jsonName": "options",
+          "goType": "debrid_client.CancelStreamOptions",
+          "usedStructType": "debrid_client.CancelStreamOptions",
+          "typescriptType": "DebridClient_CancelStreamOptions",
+          "required": false,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -2342,6 +2845,88 @@
       "returns": "extension_playground.RunPlaygroundCodeResponse",
       "returnGoType": "extension_playground.RunPlaygroundCodeResponse",
       "returnTypescriptType": "RunPlaygroundCodeResponse"
+    }
+  },
+  {
+    "name": "HandleGetExtensionUserConfig",
+    "trimmedName": "GetExtensionUserConfig",
+    "comments": [
+      "HandleGetExtensionUserConfig",
+      "",
+      "\t@summary returns the user config definition and current values for the extension with the given ID.",
+      "\t@route /api/v1/extensions/user-config/{id} [GET]",
+      "\t@returns extension_repo.ExtensionUserConfig",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "returns the user config definition and current values for the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/user-config/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "extension_repo.ExtensionUserConfig",
+      "returnGoType": "extension_repo.ExtensionUserConfig",
+      "returnTypescriptType": "ExtensionRepo_ExtensionUserConfig"
+    }
+  },
+  {
+    "name": "HandleSaveExtensionUserConfig",
+    "trimmedName": "SaveExtensionUserConfig",
+    "comments": [
+      "HandleSaveExtensionUserConfig",
+      "",
+      "\t@summary saves the user config for the extension with the given ID and reloads it.",
+      "\t@route /api/v1/extensions/user-config [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "saves the user config for the extension with the given ID and reloads it.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/user-config",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Version",
+          "jsonName": "version",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Values",
+          "jsonName": "values",
+          "goType": "map[string]string",
+          "usedStructType": "",
+          "typescriptType": "Record\u003cstring, string\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -3276,6 +3861,46 @@
       "returns": "manga.PageContainer",
       "returnGoType": "manga.PageContainer",
       "returnTypescriptType": "Manga_PageContainer"
+    }
+  },
+  {
+    "name": "HandleGetMangaEntryDownloadedChapters",
+    "trimmedName": "GetMangaEntryDownloadedChapters",
+    "comments": [
+      "HandleGetMangaEntryDownloadedChapters",
+      "",
+      "\t@summary returns all download chapters for a manga entry,",
+      "\t@route /api/v1/manga/downloaded-chapters/{id} [GET]",
+      "\t@param id - int - true - \"AniList manga media ID\"",
+      "\t@returns []manga.ChapterContainer",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns all download chapters for a manga entry,",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/downloaded-chapters/{id}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "AniList manga media ID"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "[]manga.ChapterContainer",
+      "returnGoType": "manga.ChapterContainer",
+      "returnTypescriptType": "Array\u003cManga_ChapterContainer\u003e"
     }
   },
   {
@@ -4470,231 +5095,6 @@
     }
   },
   {
-    "name": "HandleCreateOfflineSnapshot",
-    "trimmedName": "CreateOfflineSnapshot",
-    "comments": [
-      "HandleCreateOfflineSnapshot",
-      "",
-      "\t@summary creates an offline snapshot.",
-      "\t@desc This will create an offline snapshot of the given anime media ids and downloaded manga chapters.",
-      "\t@desc It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.",
-      "\t@desc This is a non-blocking operation.",
-      "\t@route /api/v1/offline/snapshot [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "creates an offline snapshot.",
-      "descriptions": [
-        "This will create an offline snapshot of the given anime media ids and downloaded manga chapters.",
-        "It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.",
-        "This is a non-blocking operation."
-      ],
-      "endpoint": "/api/v1/offline/snapshot",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "AnimeMediaIds",
-          "jsonName": "animeMediaIds",
-          "goType": "[]int",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cnumber\u003e",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleGetOfflineSnapshot",
-    "trimmedName": "GetOfflineSnapshot",
-    "comments": [
-      "HandleGetOfflineSnapshot",
-      "",
-      "\t@summary retrieves the offline snapshot.",
-      "\t@desc This will return the latest offline snapshot. (Offline only)",
-      "\t@route /api/v1/offline/snapshot [GET]",
-      "\t@returns offline.Snapshot",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "retrieves the offline snapshot.",
-      "descriptions": [
-        "This will return the latest offline snapshot. (Offline only)"
-      ],
-      "endpoint": "/api/v1/offline/snapshot",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "offline.Snapshot",
-      "returnGoType": "offline.Snapshot",
-      "returnTypescriptType": "Offline_Snapshot"
-    }
-  },
-  {
-    "name": "HandleGetOfflineSnapshotEntry",
-    "trimmedName": "GetOfflineSnapshotEntry",
-    "comments": [
-      "HandleGetOfflineSnapshotEntry",
-      "",
-      "\t@summary retrieves an offline snapshot entry.",
-      "\t@desc This will return the latest offline snapshot entry so the client can display the data.",
-      "\t@route /api/v1/offline/snapshot-entry [GET]",
-      "\t@returns offline.SnapshotEntry",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "retrieves an offline snapshot entry.",
-      "descriptions": [
-        "This will return the latest offline snapshot entry so the client can display the data."
-      ],
-      "endpoint": "/api/v1/offline/snapshot-entry",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "offline.SnapshotEntry",
-      "returnGoType": "offline.SnapshotEntry",
-      "returnTypescriptType": "Offline_SnapshotEntry"
-    }
-  },
-  {
-    "name": "HandleUpdateOfflineEntryListData",
-    "trimmedName": "UpdateOfflineEntryListData",
-    "comments": [
-      "HandleUpdateOfflineEntryListData",
-      "",
-      "\t@summary updates data for an offline entry list.",
-      "\t@desc This will update the offline entry list data. (Offline only)",
-      "\t@route /api/v1/offline/snapshot-entry [PATCH]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "updates data for an offline entry list.",
-      "descriptions": [
-        "This will update the offline entry list data. (Offline only)"
-      ],
-      "endpoint": "/api/v1/offline/snapshot-entry",
-      "methods": [
-        "PATCH"
-      ],
-      "params": [],
-      "bodyFields": [
-        {
-          "name": "MediaId",
-          "jsonName": "mediaId",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Status",
-          "jsonName": "status",
-          "goType": "anilist.MediaListStatus",
-          "usedStructType": "anilist.MediaListStatus",
-          "typescriptType": "AL_MediaListStatus",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Score",
-          "jsonName": "score",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Progress",
-          "jsonName": "progress",
-          "goType": "int",
-          "usedStructType": "",
-          "typescriptType": "number",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "StartDate",
-          "jsonName": "startDate",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "EndDate",
-          "jsonName": "endDate",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": false,
-          "descriptions": []
-        },
-        {
-          "name": "Type",
-          "jsonName": "type",
-          "goType": "string",
-          "usedStructType": "",
-          "typescriptType": "string",
-          "required": true,
-          "descriptions": []
-        }
-      ],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "HandleSyncOfflineData",
-    "trimmedName": "SyncOfflineData",
-    "comments": [
-      "HandleSyncOfflineData",
-      "",
-      "\t@summary synchronizes offline data with AniList when the user is back online.",
-      "\t@route /api/v1/offline/sync [POST]",
-      "\t@returns bool",
-      ""
-    ],
-    "filepath": "internal/handlers/offline.go",
-    "filename": "offline.go",
-    "api": {
-      "summary": "synchronizes offline data with AniList when the user is back online.",
-      "descriptions": [],
-      "endpoint": "/api/v1/offline/sync",
-      "methods": [
-        "POST"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
     "name": "HandleGetOnlineStreamEpisodeList",
     "trimmedName": "GetOnlineStreamEpisodeList",
     "comments": [
@@ -4844,6 +5244,226 @@
       ],
       "params": [],
       "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleOnlinestreamManualSearch",
+    "trimmedName": "OnlinestreamManualSearch",
+    "comments": [
+      "HandleOnlinestreamManualSearch",
+      "",
+      "\t@summary returns search results for a manual search.",
+      "\t@desc Returns search results for a manual search.",
+      "\t@route /api/v1/onlinestream/search [POST]",
+      "\t@returns []vendor_hibike_onlinestream.SearchResult",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "returns search results for a manual search.",
+      "descriptions": [
+        "Returns search results for a manual search."
+      ],
+      "endpoint": "/api/v1/onlinestream/search",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Query",
+          "jsonName": "query",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Dubbed",
+          "jsonName": "dubbed",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "[]vendor_hibike_onlinestream.SearchResult",
+      "returnGoType": "vendor_hibike_onlinestream.SearchResult",
+      "returnTypescriptType": "Array\u003cHibikeOnlinestream_SearchResult\u003e"
+    }
+  },
+  {
+    "name": "HandleOnlinestreamManualMapping",
+    "trimmedName": "OnlinestreamManualMapping",
+    "comments": [
+      "HandleOnlinestreamManualMapping",
+      "",
+      "\t@summary manually maps an anime entry to an anime ID from the provider.",
+      "\t@desc This is used to manually map an anime entry to an anime ID from the provider.",
+      "\t@desc The client should re-fetch the chapter container after this.",
+      "\t@route /api/v1/onlinestream/manual-mapping [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "manually maps an anime entry to an anime ID from the provider.",
+      "descriptions": [
+        "This is used to manually map an anime entry to an anime ID from the provider.",
+        "The client should re-fetch the chapter container after this."
+      ],
+      "endpoint": "/api/v1/onlinestream/manual-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "AnimeId",
+          "jsonName": "animeId",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetOnlinestreamMapping",
+    "trimmedName": "GetOnlinestreamMapping",
+    "comments": [
+      "HandleGetOnlinestreamMapping",
+      "",
+      "\t@summary returns the mapping for an anime entry.",
+      "\t@desc This is used to get the mapping for an anime entry.",
+      "\t@desc An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned.",
+      "\t@route /api/v1/onlinestream/get-mapping [POST]",
+      "\t@returns onlinestream.MappingResponse",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "returns the mapping for an anime entry.",
+      "descriptions": [
+        "This is used to get the mapping for an anime entry.",
+        "An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned."
+      ],
+      "endpoint": "/api/v1/onlinestream/get-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "onlinestream.MappingResponse",
+      "returnGoType": "onlinestream.MappingResponse",
+      "returnTypescriptType": "Onlinestream_MappingResponse"
+    }
+  },
+  {
+    "name": "HandleRemoveOnlinestreamMapping",
+    "trimmedName": "RemoveOnlinestreamMapping",
+    "comments": [
+      "HandleRemoveOnlinestreamMapping",
+      "",
+      "\t@summary removes the mapping for an anime entry.",
+      "\t@desc This is used to remove the mapping for an anime entry.",
+      "\t@desc The client should re-fetch the chapter container after this.",
+      "\t@route /api/v1/onlinestream/remove-mapping [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/onlinestream.go",
+    "filename": "onlinestream.go",
+    "api": {
+      "summary": "removes the mapping for an anime entry.",
+      "descriptions": [
+        "This is used to remove the mapping for an anime entry.",
+        "The client should re-fetch the chapter container after this."
+      ],
+      "endpoint": "/api/v1/onlinestream/remove-mapping",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Provider",
+          "jsonName": "provider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
         {
           "name": "MediaId",
           "jsonName": "mediaId",
@@ -6009,6 +6629,24 @@
           "typescriptType": "boolean",
           "required": true,
           "descriptions": []
+        },
+        {
+          "name": "EnableSeasonCheck",
+          "jsonName": "enableSeasonCheck",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "UseDebrid",
+          "jsonName": "useDebrid",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
         }
       ],
       "returns": "bool",
@@ -6142,6 +6780,346 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncGetTrackedMediaItems",
+    "trimmedName": "SyncGetTrackedMediaItems",
+    "comments": [
+      "HandleSyncGetTrackedMediaItems",
+      "",
+      "\t@summary gets all tracked media.",
+      "\t@route /api/v1/sync/track [GET]",
+      "\t@returns []sync.TrackedMediaItem",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "gets all tracked media.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/track",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "[]sync.TrackedMediaItem",
+      "returnGoType": "sync.TrackedMediaItem",
+      "returnTypescriptType": "Array\u003cSync_TrackedMediaItem\u003e"
+    }
+  },
+  {
+    "name": "HandleSyncAddMedia",
+    "trimmedName": "SyncAddMedia",
+    "comments": [
+      "HandleSyncAddMedia",
+      "",
+      "\t@summary adds one or multiple media to be tracked for offline sync.",
+      "\t@route /api/v1/sync/track [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "adds one or multiple media to be tracked for offline sync.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/track",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Media",
+          "jsonName": "media",
+          "goType": "[]__STRUCT__",
+          "usedStructType": "",
+          "typescriptType": "Array\u003c{ mediaId: number; type: string; }\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncRemoveMedia",
+    "trimmedName": "SyncRemoveMedia",
+    "comments": [
+      "HandleSyncRemoveMedia",
+      "",
+      "\t@summary remove media from being tracked for offline sync.",
+      "\t@desc This will remove anime from being tracked for offline sync and delete any associated data.",
+      "\t@route /api/v1/sync/track [DELETE]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "remove media from being tracked for offline sync.",
+      "descriptions": [
+        "This will remove anime from being tracked for offline sync and delete any associated data."
+      ],
+      "endpoint": "/api/v1/sync/track",
+      "methods": [
+        "DELETE"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Type",
+          "jsonName": "type",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncGetIsMediaTracked",
+    "trimmedName": "SyncGetIsMediaTracked",
+    "comments": [
+      "HandleSyncGetIsMediaTracked",
+      "",
+      "\t@summary checks if media is being tracked for offline sync.",
+      "\t@route /api/v1/sync/track/{id}/{type} [GET]",
+      "\t@param id - int - true - \"AniList anime media ID\"",
+      "\t@param type - string - true - \"Type of media (anime/manga)\"",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "checks if media is being tracked for offline sync.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/track/{id}/{type}",
+      "methods": [
+        "GET"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "jsonName": "id",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": [
+            "AniList anime media ID"
+          ]
+        },
+        {
+          "name": "type",
+          "jsonName": "type",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": [
+            "Type of media (anime/manga)"
+          ]
+        }
+      ],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncLocalData",
+    "trimmedName": "SyncLocalData",
+    "comments": [
+      "HandleSyncLocalData",
+      "",
+      "\t@summary syncs local data with AniList.",
+      "\t@route /api/v1/sync/local [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "syncs local data with AniList.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/local",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncGetQueueState",
+    "trimmedName": "SyncGetQueueState",
+    "comments": [
+      "HandleSyncGetQueueState",
+      "",
+      "\t@summary gets the current sync queue state.",
+      "\t@desc This will return the list of media that are currently queued for syncing.",
+      "\t@route /api/v1/sync/queue [GET]",
+      "\t@returns sync.QueueState",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "gets the current sync queue state.",
+      "descriptions": [
+        "This will return the list of media that are currently queued for syncing."
+      ],
+      "endpoint": "/api/v1/sync/queue",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "sync.QueueState",
+      "returnGoType": "sync.QueueState",
+      "returnTypescriptType": "Sync_QueueState"
+    }
+  },
+  {
+    "name": "HandleSyncAnilistData",
+    "trimmedName": "SyncAnilistData",
+    "comments": [
+      "HandleSyncAnilistData",
+      "",
+      "\t@summary syncs AniList data with local.",
+      "\t@route /api/v1/sync/anilist [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "syncs AniList data with local.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/anilist",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncSetHasLocalChanges",
+    "trimmedName": "SyncSetHasLocalChanges",
+    "comments": [
+      "HandleSyncSetHasLocalChanges",
+      "",
+      "\t@summary sets the flag to determine if there are local changes that need to be synced with AniList.",
+      "\t@route /api/v1/sync/updated [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "sets the flag to determine if there are local changes that need to be synced with AniList.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/updated",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "Updated",
+          "jsonName": "updated",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncGetHasLocalChanges",
+    "trimmedName": "SyncGetHasLocalChanges",
+    "comments": [
+      "HandleSyncGetHasLocalChanges",
+      "",
+      "\t@summary gets the flag to determine if there are local changes that need to be synced with AniList.",
+      "\t@route /api/v1/sync/updated [GET]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "gets the flag to determine if there are local changes that need to be synced with AniList.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/updated",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSyncGetLocalStorageSize",
+    "trimmedName": "SyncGetLocalStorageSize",
+    "comments": [
+      "HandleSyncGetLocalStorageSize",
+      "",
+      "\t@summary gets the size of the local storage in a human-readable format.",
+      "\t@route /api/v1/sync/storage/size [GET]",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/sync.go",
+    "filename": "sync.go",
+    "api": {
+      "summary": "gets the size of the local storage in a human-readable format.",
+      "descriptions": [],
+      "endpoint": "/api/v1/sync/storage/size",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
     }
   },
   {

@@ -2,6 +2,7 @@
 import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { EpisodeItem } from "@/app/(main)/entry/_containers/episode-list/episode-item"
 import { UndownloadedEpisodeList } from "@/app/(main)/entry/_containers/episode-list/undownloaded-episode-list"
@@ -22,6 +23,7 @@ type EpisodeSectionProps = {
 
 export function EpisodeSection({ entry, details, bottomSection }: EpisodeSectionProps) {
     const ts = useThemeSettings()
+    const serverStatus = useServerStatus()
 
     const {
         media,
@@ -37,7 +39,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
     if (!media) return null
 
-    if (!!media && (!entry.listData || !entry.libraryData)) {
+    if (!!media && (!entry.listData || !entry.libraryData) && !serverStatus?.isOffline) {
         return <div className="space-y-10">
             {media?.status !== "NOT_YET_RELEASED"
                 ? <h4 className="text-yellow-50 flex items-center gap-2"><IoLibrarySharp /> Not in your library</h4>
@@ -115,10 +117,10 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                         ))}
                     </EpisodeListGrid>
 
-                    <UndownloadedEpisodeList
+                    {!serverStatus?.isOffline && <UndownloadedEpisodeList
                         downloadInfo={entry.downloadInfo}
                         media={media}
-                    />
+                    />}
 
                     {specialEpisodes.length > 0 && <>
                         <h2>Specials</h2>

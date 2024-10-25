@@ -12,6 +12,8 @@ export const __onlinestream_autoPlayAtom = atomWithStorage("sea-onlinestream-aut
 
 export const __onlinestream_autoNextAtom = atomWithStorage("sea-onlinestream-autonext", false)
 
+export const __onlinestream_autoSkipIntroOutroAtom = atomWithStorage("sea-onlinestream-autoskip-intro-outro", false)
+
 export const __onlinestream_selectedServerAtom = atomWithStorage<string | undefined>("sea-onlinestream-server", undefined)
 
 export const __onlinestream_qualityAtom = atomWithStorage<string | undefined>("sea-onlinestream-quality", undefined)

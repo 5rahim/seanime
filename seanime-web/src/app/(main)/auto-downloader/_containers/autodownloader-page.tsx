@@ -6,6 +6,7 @@ import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { tabsListClass, tabsTriggerClass } from "@/components/shared/classnames"
+import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -25,6 +26,8 @@ const settingsSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean(),
     downloadAutomatically: z.boolean(),
     enableEnhancedQueries: z.boolean(),
+    enableSeasonCheck: z.boolean(),
+    useDebrid: z.boolean(),
 }))
 
 export function AutoDownloaderPage() {
@@ -133,6 +136,8 @@ export function AutoDownloaderPage() {
                                 interval: serverStatus?.settings?.autoDownloader?.interval || 10,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
                                 enableEnhancedQueries: serverStatus?.settings?.autoDownloader?.enableEnhancedQueries ?? false,
+                                enableSeasonCheck: serverStatus?.settings?.autoDownloader?.enableSeasonCheck ?? false,
+                                useDebrid: serverStatus?.settings?.autoDownloader?.useDebrid ?? false,
                             }}
                             stackClass="space-y-6"
                         >
@@ -142,6 +147,19 @@ export function AutoDownloaderPage() {
                                         label="Enabled"
                                         name="enabled"
                                     />
+
+                                    <Field.Switch
+                                        label="Use Debrid service"
+                                        name="useDebrid"
+                                    />
+
+                                    {f.watch("useDebrid") && !(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
+                                        <Alert
+                                            intent="alert"
+                                            title="Auto Downloader deactivated"
+                                            description="Debrid service is not enabled or configured. Please enable it in the settings."
+                                        />
+                                    )}
 
                                     <Separator />
 
@@ -154,9 +172,14 @@ export function AutoDownloaderPage() {
                                         <Field.Switch
                                             label="Use enhanced queries"
                                             name="enableEnhancedQueries"
-                                            help="Seanime will use multiple custom queries instead of a single one."
+                                            help="Seanime will use multiple custom queries instead of a single one. Enable this if you notice some missing downloads."
                                         />
-                                        <Field.Checkbox
+                                        <Field.Switch
+                                            label="Verify season"
+                                            name="enableSeasonCheck"
+                                            help="Seanime will perform an additional check to ensure the season number is correct. This is not needed in most cases."
+                                        />
+                                        <Field.Switch
                                             label="Download episodes immediately"
                                             name="downloadAutomatically"
                                             help="If disabled, torrents will be added to the queue."

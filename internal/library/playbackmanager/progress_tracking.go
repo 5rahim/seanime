@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"github.com/samber/mo"
-	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
@@ -175,15 +174,16 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 				//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 				//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			case status := <-pm.mediaPlayerRepoSubscriber.StreamingTrackingStartedCh:
+
 				pm.eventMu.Lock()
 				if pm.currentStreamEpisode.IsAbsent() || pm.currentStreamMedia.IsAbsent() {
 					pm.eventMu.Unlock()
 					continue
 				}
 
-				// Get the media list entry
-				// Note that it might be absent if the user is watching a stream that is not in the library
-				pm.currentMediaListEntry = pm.getStreamPlaybackDetails(pm.currentStreamMedia.MustGet().ID)
+				//// Get the media list entry
+				//// Note that it might be absent if the user is watching a stream that is not in the library
+				pm.currentMediaListEntry = pm.getStreamPlaybackDetails(pm.currentStreamMedia.MustGet().GetID())
 
 				// Set the playback type
 				pm.currentPlaybackType = StreamPlayback
@@ -203,7 +203,7 @@ func (pm *PlaybackManager) listenToMediaPlayerEvents(ctx context.Context) {
 
 				pm.continuityManager.SetExternalPlayerEpisodeDetails(&continuity.ExternalPlayerEpisodeDetails{
 					EpisodeNumber: pm.currentStreamEpisode.MustGet().GetProgressNumber(),
-					MediaId:       pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
+					MediaId:       pm.currentStreamMedia.MustGet().GetID(),
 					Filepath:      "",
 				})
 
@@ -424,9 +424,7 @@ func (pm *PlaybackManager) SyncCurrentProgress() error {
 		pm.wsEventManager.SendEvent(events.PlaybackManagerProgressUpdated, _ps)
 	}
 
-	if !pm.isOffline {
-		pm.refreshAnimeCollectionFunc()
-	}
+	pm.refreshAnimeCollectionFunc()
 
 	pm.eventMu.Unlock()
 	return nil
@@ -451,11 +449,6 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 		}
 
 		defer util.HandlePanicInModuleWithError("playbackmanager/updateProgress", &err)
-
-		/// Offline
-		if pm.isOffline {
-			return pm.updateProgressOffline()
-		}
 
 		/// Online
 		mediaId = pm.currentMediaListEntry.MustGet().GetMedia().GetID()
@@ -489,15 +482,6 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 			}
 		}()
 
-		/// Offline
-		if pm.isOffline {
-			return pm.updateProgressOfflineWithVars(
-				pm.currentManualTrackingState.MustGet().MediaId,
-				pm.currentManualTrackingState.MustGet().EpisodeNumber,
-				pm.currentManualTrackingState.MustGet().TotalEpisodes,
-			)
-		}
-
 		/// Online
 		mediaId = pm.currentManualTrackingState.MustGet().MediaId
 		epNum = pm.currentManualTrackingState.MustGet().EpisodeNumber
@@ -527,40 +511,4 @@ func (pm *PlaybackManager) updateProgress() (err error) {
 	pm.Logger.Info().Msg("playback manager: Updated progress on AniList")
 
 	return nil
-}
-
-func (pm *PlaybackManager) updateProgressOffline() (err error) {
-	if pm.currentLocalFileWrapperEntry.IsAbsent() || pm.currentLocalFile.IsAbsent() || pm.currentMediaListEntry.IsAbsent() {
-		return errors.New("no video is being watched or media data is missing")
-	}
-
-	mediaId := pm.currentMediaListEntry.MustGet().GetMedia().GetID()
-	epNum := pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet())
-	totalEpisodes := pm.currentMediaListEntry.MustGet().GetMedia().GetTotalEpisodeCount()
-
-	return pm.updateProgressOfflineWithVars(mediaId, epNum, totalEpisodes)
-}
-
-func (pm *PlaybackManager) updateProgressOfflineWithVars(
-	mediaId int,
-	epNum int,
-	totalEpisodes int,
-) (err error) {
-
-	totalEp := 0
-	if totalEpisodes != 0 && totalEpisodes > 0 {
-		totalEp = totalEpisodes
-	}
-
-	status := anilist.MediaListStatusCurrent
-	if totalEp > 0 && epNum >= totalEp {
-		status = anilist.MediaListStatusCompleted
-	}
-
-	if totalEp > 0 && epNum > totalEp {
-		epNum = totalEp
-	}
-
-	return pm.offlineHub.UpdateAnimeListStatus(mediaId, epNum, status)
-
 }

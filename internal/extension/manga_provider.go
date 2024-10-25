@@ -81,6 +81,6 @@ func (m *MangaProviderExtensionImpl) GetScopes() []string {
 	return m.ext.Scopes
 }
 
-func (m *MangaProviderExtensionImpl) GetConfig() Config {
-	return m.ext.Config
+func (m *MangaProviderExtensionImpl) GetUserConfig() *UserConfig {
+	return m.ext.UserConfig
 }

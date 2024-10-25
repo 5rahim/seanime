@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/models"
+	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/discordrpc/presence"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
@@ -18,7 +19,6 @@ import (
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
 	"seanime/internal/notifier"
-	"seanime/internal/offline"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
@@ -31,26 +31,9 @@ import (
 // The settings of these modules will be set/refreshed in InitOrRefreshModules.
 func (a *App) initModulesOnce() {
 
-	// +---------------------+
-	// |     Offline Hub     |
-	// +---------------------+
-
-	// Will exit if offline mode is enabled and no snapshots are found
-	a.OfflineHub = offline.NewHub(&offline.NewHubOptions{
-		Platform:         a.AnilistPlatform,
-		MetadataProvider: a.MetadataProvider,
-		MangaRepository:  a.MangaRepository,
-		WSEventManager:   a.WSEventManager,
-		Database:         a.Database,
-		FileCacher:       a.FileCacher,
-		Logger:           a.Logger,
-		OfflineDir:       a.Config.Offline.Dir,
-		AssetDir:         a.Config.Offline.AssetDir,
-		IsOffline:        a.Config.Server.Offline,
-		RefreshAnimeCollectionsFunc: func() {
-			_, _ = a.RefreshAnimeCollection()
-			_, _ = a.RefreshMangaCollection()
-		},
+	a.SyncManager.SetRefreshAnilistCollectionsFunc(func() {
+		_, _ = a.RefreshAnimeCollection()
+		_, _ = a.RefreshMangaCollection()
 	})
 
 	// +---------------------+
@@ -93,7 +76,6 @@ func (a *App) initModulesOnce() {
 		Database:          a.Database,
 		DiscordPresence:   a.DiscordPresence,
 		IsOffline:         a.IsOffline(),
-		OfflineHub:        a.OfflineHub,
 		ContinuityManager: a.ContinuityManager,
 		RefreshAnimeCollectionFunc: func() {
 			_, _ = a.RefreshAnimeCollection()
@@ -110,6 +92,19 @@ func (a *App) initModulesOnce() {
 	})
 
 	// +---------------------+
+	// |  Debrid Client Repo |
+	// +---------------------+
+
+	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
+		Logger:           a.Logger,
+		WSEventManager:   a.WSEventManager,
+		Database:         a.Database,
+		MetadataProvider: a.MetadataProvider,
+		Platform:         a.AnilistPlatform,
+		PlaybackManager:  a.PlaybackManager,
+	})
+
+	// +---------------------+
 	// |   Auto Downloader   |
 	// +---------------------+
 
@@ -120,6 +115,7 @@ func (a *App) initModulesOnce() {
 		Database:                a.Database,
 		WSEventManager:          a.WSEventManager,
 		MetadataProvider:        a.MetadataProvider,
+		DebridClientRepository:  a.DebridClientRepository,
 	})
 
 	if !a.IsOffline() {
@@ -368,7 +364,7 @@ func (a *App) InitOrRefreshModules() {
 	// +---------------------+
 
 	if settings.Discord != nil && a.DiscordPresence != nil {
-		a.DiscordPresence.SetSettings(settings.Discord, "")
+		a.DiscordPresence.SetSettings(settings.Discord)
 	}
 
 	// +---------------------+
@@ -470,6 +466,33 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 	a.SecondarySettings.Torrentstream = settings
 }
 
+func (a *App) InitOrRefreshDebridSettings() {
+
+	settings, found := a.Database.GetDebridSettings()
+	if !found {
+
+		var err error
+		settings, err = a.Database.UpsertDebridSettings(&models.DebridSettings{
+			BaseModel: models.BaseModel{
+				ID: 1,
+			},
+			Enabled: false,
+		})
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid module")
+			return
+		}
+	}
+
+	a.SecondarySettings.Debrid = settings
+
+	err := a.DebridClientRepository.InitializeProvider(settings)
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid provider")
+		return
+	}
+}
+
 // InitOrRefreshAnilistData will initialize the Anilist anime collection and the account.
 // This function should be called after App.Database is initialized and after settings are updated.
 func (a *App) InitOrRefreshAnilistData() {
@@ -493,7 +516,13 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	_, err = a.RefreshAnimeCollection()
 	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist collection")
+		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist anime collection")
+		return
+	}
+
+	_, err = a.RefreshMangaCollection()
+	if err != nil {
+		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist manga collection")
 		return
 	}
 

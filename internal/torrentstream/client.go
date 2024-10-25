@@ -92,6 +92,11 @@ func (c *Client) initializeClient() error {
 	cfg.Logger = alog.Logger{}
 	//cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
+
+	if settings.TorrentClientHost != "" {
+		cfg.ListenHost = func(network string) string { return settings.TorrentClientHost }
+	}
+
 	if settings.TorrentClientPort == 0 {
 		settings.TorrentClientPort = 43213
 	}

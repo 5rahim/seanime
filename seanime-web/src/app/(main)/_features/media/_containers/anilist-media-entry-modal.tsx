@@ -8,6 +8,7 @@ import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { normalizeDate } from "@/lib/helpers/date"
+import { getImageUrl } from "@/lib/server/assets"
 import Image from "next/image"
 import React, { Fragment } from "react"
 import { AiFillEdit } from "react-icons/ai"
@@ -89,7 +90,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     className="h-24 w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
                 >
                     <Image
-                        src={media?.bannerImage!}
+                        src={getImageUrl(media?.bannerImage!)}
                         alt="banner"
                         fill
                         quality={80}

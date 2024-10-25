@@ -7,7 +7,14 @@ import (
 	"seanime/internal/library/anime"
 )
 
+var CurrAutoDownloaderRules []*anime.AutoDownloaderRule
+
 func GetAutoDownloaderRules(db *db.Database) ([]*anime.AutoDownloaderRule, error) {
+
+	if CurrAutoDownloaderRules != nil {
+		return CurrAutoDownloaderRules, nil
+	}
+
 	var res []*models.AutoDownloaderRule
 	err := db.Gorm().Find(&res).Error
 	if err != nil {
@@ -25,6 +32,8 @@ func GetAutoDownloaderRules(db *db.Database) ([]*anime.AutoDownloaderRule, error
 		sm.DbID = r.ID
 		rules = append(rules, &sm)
 	}
+
+	CurrAutoDownloaderRules = rules
 
 	return rules, nil
 }
@@ -47,7 +56,25 @@ func GetAutoDownloaderRule(db *db.Database, id uint) (*anime.AutoDownloaderRule,
 	return &sm, nil
 }
 
+func GetAutoDownloaderRulesByMediaId(db *db.Database, mediaId int) (ret []*anime.AutoDownloaderRule) {
+	rules, err := GetAutoDownloaderRules(db)
+	if err != nil {
+		return
+	}
+
+	for _, rule := range rules {
+		if rule.MediaId == mediaId {
+			ret = append(ret, rule)
+		}
+	}
+
+	return
+}
+
 func InsertAutoDownloaderRule(db *db.Database, sm *anime.AutoDownloaderRule) error {
+
+	CurrAutoDownloaderRules = nil
+
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {
@@ -61,10 +88,16 @@ func InsertAutoDownloaderRule(db *db.Database, sm *anime.AutoDownloaderRule) err
 }
 
 func DeleteAutoDownloaderRule(db *db.Database, id uint) error {
+
+	CurrAutoDownloaderRules = nil
+
 	return db.Gorm().Delete(&models.AutoDownloaderRule{}, id).Error
 }
 
 func UpdateAutoDownloaderRule(db *db.Database, id uint, sm *anime.AutoDownloaderRule) error {
+
+	CurrAutoDownloaderRules = nil
+
 	// Marshal the data
 	bytes, err := json.Marshal(sm)
 	if err != nil {

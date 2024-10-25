@@ -15,9 +15,13 @@ import type {
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
+    Debrid_TorrentItem,
+    DebridClient_CancelStreamOptions,
+    DebridClient_StreamPlaybackType,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
+    Models_DebridSettings,
     Models_DiscordSettings,
     Models_LibrarySettings,
     Models_MangaSettings,
@@ -284,6 +288,20 @@ export type GetAutoDownloaderRule_Variables = {
 /**
  * - Filepath: internal/handlers/auto_downloader.go
  * - Filename: auto_downloader.go
+ * - Endpoint: /api/v1/auto-downloader/rule/anime/{id}
+ * @description
+ * Route returns the rules with the given media id.
+ */
+export type GetAutoDownloaderRulesByAnime_Variables = {
+    /**
+     *  The AniList anime id of the rules
+     */
+    id: number
+}
+
+/**
+ * - Filepath: internal/handlers/auto_downloader.go
+ * - Filename: auto_downloader.go
  * - Endpoint: /api/v1/auto-downloader/rule
  * @description
  * Route creates a new rule.
@@ -363,6 +381,107 @@ export type GetContinuityWatchHistoryItem_Variables = {
      *  AniList anime media ID
      */
     id: number
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// debrid
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/settings
+ * @description
+ * Route save debrid settings.
+ */
+export type SaveDebridSettings_Variables = {
+    settings: Models_DebridSettings
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents
+ * @description
+ * Route add torrent to debrid.
+ */
+export type DebridAddTorrents_Variables = {
+    torrents: Array<HibikeTorrent_AnimeTorrent>
+    media?: AL_BaseAnime
+    destination: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/download
+ * @description
+ * Route download torrent from debrid.
+ */
+export type DebridDownloadTorrent_Variables = {
+    torrentItem: Debrid_TorrentItem
+    destination: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/cancel
+ * @description
+ * Route cancel download from debrid.
+ */
+export type DebridCancelDownload_Variables = {
+    itemID: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrent
+ * @description
+ * Route remove torrent from debrid.
+ */
+export type DebridDeleteTorrent_Variables = {
+    torrentItem: Debrid_TorrentItem
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/info
+ * @description
+ * Route get torrent info from debrid.
+ */
+export type DebridGetTorrentInfo_Variables = {
+    torrent: HibikeTorrent_AnimeTorrent
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/stream/start
+ * @description
+ * Route start stream from debrid.
+ */
+export type DebridStartStream_Variables = {
+    mediaId: number
+    episodeNumber: number
+    aniDBEpisode: string
+    torrent?: HibikeTorrent_AnimeTorrent
+    fileId: string
+    playbackType: DebridClient_StreamPlaybackType
+    clientId: string
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/stream/cancel
+ * @description
+ * Route cancel stream from debrid.
+ */
+export type DebridCancelStream_Variables = {
+    options?: DebridClient_CancelStreamOptions
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -515,6 +634,19 @@ export type GetAllExtensions_Variables = {
  */
 export type RunExtensionPlaygroundCode_Variables = {
     params?: RunPlaygroundCodeParams
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/user-config
+ * @description
+ * Route saves the user config for the extension with the given ID and reloads it.
+ */
+export type SaveExtensionUserConfig_Variables = {
+    id: string
+    version: number
+    values: Record<string, string>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -704,6 +836,20 @@ export type GetMangaEntryPages_Variables = {
     provider: string
     chapterId: string
     doublePage: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/downloaded-chapters/{id}
+ * @description
+ * Route returns all download chapters for a manga entry,
+ */
+export type GetMangaEntryDownloadedChapters_Variables = {
+    /**
+     *  AniList manga media ID
+     */
+    id: number
 }
 
 /**
@@ -929,38 +1075,6 @@ export type RemoveFillerData_Variables = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// offline
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/handlers/offline.go
- * - Filename: offline.go
- * - Endpoint: /api/v1/offline/snapshot
- * @description
- * Route creates an offline snapshot.
- */
-export type CreateOfflineSnapshot_Variables = {
-    animeMediaIds: Array<number>
-}
-
-/**
- * - Filepath: internal/handlers/offline.go
- * - Filename: offline.go
- * - Endpoint: /api/v1/offline/snapshot-entry
- * @description
- * Route updates data for an offline entry list.
- */
-export type UpdateOfflineEntryListData_Variables = {
-    mediaId?: number
-    status?: AL_MediaListStatus
-    score?: number
-    progress?: number
-    startDate?: string
-    endDate?: string
-    type: string
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // onlinestream
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -999,6 +1113,56 @@ export type GetOnlineStreamEpisodeSource_Variables = {
  * Route empties the cache for the given media.
  */
 export type OnlineStreamEmptyCache_Variables = {
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/search
+ * @description
+ * Route returns search results for a manual search.
+ */
+export type OnlinestreamManualSearch_Variables = {
+    provider: string
+    query: string
+    dubbed: boolean
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/manual-mapping
+ * @description
+ * Route manually maps an anime entry to an anime ID from the provider.
+ */
+export type OnlinestreamManualMapping_Variables = {
+    provider: string
+    mediaId: number
+    animeId: string
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/get-mapping
+ * @description
+ * Route returns the mapping for an anime entry.
+ */
+export type GetOnlinestreamMapping_Variables = {
+    provider: string
+    mediaId: number
+}
+
+/**
+ * - Filepath: internal/handlers/onlinestream.go
+ * - Filename: onlinestream.go
+ * - Endpoint: /api/v1/onlinestream/remove-mapping
+ * @description
+ * Route removes the mapping for an anime entry.
+ */
+export type RemoveOnlinestreamMapping_Variables = {
+    provider: string
     mediaId: number
 }
 
@@ -1191,6 +1355,8 @@ export type SaveAutoDownloaderSettings_Variables = {
     enabled: boolean
     downloadAutomatically: boolean
     enableEnhancedQueries: boolean
+    enableSeasonCheck: boolean
+    useDebrid: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1206,6 +1372,62 @@ export type SaveAutoDownloaderSettings_Variables = {
  */
 export type DeleteLogs_Variables = {
     filenames: Array<string>
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// sync
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/track
+ * @description
+ * Route adds one or multiple media to be tracked for offline sync.
+ */
+export type SyncAddMedia_Variables = {
+    media: Array<{ mediaId: number; type: string; }>
+}
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/track
+ * @description
+ * Route remove media from being tracked for offline sync.
+ */
+export type SyncRemoveMedia_Variables = {
+    mediaId: number
+    type: string
+}
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/track/{id}/{type}
+ * @description
+ * Route checks if media is being tracked for offline sync.
+ */
+export type SyncGetIsMediaTracked_Variables = {
+    /**
+     *  AniList anime media ID
+     */
+    id: number
+    /**
+     *  Type of media (anime/manga)
+     */
+    type: string
+}
+
+/**
+ * - Filepath: internal/handlers/sync.go
+ * - Filename: sync.go
+ * - Endpoint: /api/v1/sync/updated
+ * @description
+ * Route sets the flag to determine if there are local changes that need to be synced with AniList.
+ */
+export type SyncSetHasLocalChanges_Variables = {
+    updated: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1281,7 +1503,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *  
+     *
      *  "smart" or "simple"
      */
     type?: string

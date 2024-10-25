@@ -284,6 +284,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/auto-downloader/rule/{id}",
         },
+        GetAutoDownloaderRulesByAnime: {
+            key: "AUTO-DOWNLOADER-get-auto-downloader-rules-by-anime",
+            methods: ["GET"],
+            endpoint: "/api/v1/auto-downloader/rule/anime/{id}",
+        },
         /**
          *  @description
          *  Route returns all rules.
@@ -380,6 +385,109 @@ export const API_ENDPOINTS = {
             key: "CONTINUITY-get-continuity-watch-history",
             methods: ["GET"],
             endpoint: "/api/v1/continuity/history",
+        },
+    },
+    DEBRID: {
+        /**
+         *  @description
+         *  Route get debrid settings.
+         *  This returns the debrid settings.
+         */
+        GetDebridSettings: {
+            key: "DEBRID-get-debrid-settings",
+            methods: ["GET"],
+            endpoint: "/api/v1/debrid/settings",
+        },
+        /**
+         *  @description
+         *  Route save debrid settings.
+         *  This saves the debrid settings.
+         *  The client should refetch the server status.
+         */
+        SaveDebridSettings: {
+            key: "DEBRID-save-debrid-settings",
+            methods: ["PATCH"],
+            endpoint: "/api/v1/debrid/settings",
+        },
+        /**
+         *  @description
+         *  Route add torrent to debrid.
+         *  This adds a torrent to the debrid service.
+         */
+        DebridAddTorrents: {
+            key: "DEBRID-debrid-add-torrents",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents",
+        },
+        /**
+         *  @description
+         *  Route download torrent from debrid.
+         *  Manually downloads a torrent from the debrid service locally.
+         */
+        DebridDownloadTorrent: {
+            key: "DEBRID-debrid-download-torrent",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/download",
+        },
+        /**
+         *  @description
+         *  Route cancel download from debrid.
+         *  This cancels a download from the debrid service.
+         */
+        DebridCancelDownload: {
+            key: "DEBRID-debrid-cancel-download",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/cancel",
+        },
+        /**
+         *  @description
+         *  Route remove torrent from debrid.
+         *  This removes a torrent from the debrid service.
+         */
+        DebridDeleteTorrent: {
+            key: "DEBRID-debrid-delete-torrent",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/debrid/torrent",
+        },
+        /**
+         *  @description
+         *  Route get torrents from debrid.
+         *  This gets the torrents from the debrid service.
+         */
+        DebridGetTorrents: {
+            key: "DEBRID-debrid-get-torrents",
+            methods: ["GET"],
+            endpoint: "/api/v1/debrid/torrents",
+        },
+        /**
+         *  @description
+         *  Route get torrent info from debrid.
+         *  This gets the torrent info from the debrid service.
+         */
+        DebridGetTorrentInfo: {
+            key: "DEBRID-debrid-get-torrent-info",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/info",
+        },
+        /**
+         *  @description
+         *  Route start stream from debrid.
+         *  This starts streaming a torrent from the debrid service.
+         */
+        DebridStartStream: {
+            key: "DEBRID-debrid-start-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/stream/start",
+        },
+        /**
+         *  @description
+         *  Route cancel stream from debrid.
+         *  This cancels a stream from the debrid service.
+         */
+        DebridCancelStream: {
+            key: "DEBRID-debrid-cancel-stream",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/stream/cancel",
         },
     },
     DIRECTORY_SELECTOR: {
@@ -507,6 +615,16 @@ export const API_ENDPOINTS = {
             key: "EXTENSIONS-run-extension-playground-code",
             methods: ["POST"],
             endpoint: "/api/v1/extensions/playground/run",
+        },
+        GetExtensionUserConfig: {
+            key: "EXTENSIONS-get-extension-user-config",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/user-config/{id}",
+        },
+        SaveExtensionUserConfig: {
+            key: "EXTENSIONS-save-extension-user-config",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/user-config",
         },
     },
     FILECACHE: {
@@ -723,6 +841,11 @@ export const API_ENDPOINTS = {
             key: "MANGA-get-manga-entry-pages",
             methods: ["POST"],
             endpoint: "/api/v1/manga/pages",
+        },
+        GetMangaEntryDownloadedChapters: {
+            key: "MANGA-get-manga-entry-downloaded-chapters",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/downloaded-chapters/{id}",
         },
         /**
          *  @description
@@ -990,55 +1113,6 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/metadata-provider/filler",
         },
     },
-    OFFLINE: {
-        /**
-         *  @description
-         *  Route creates an offline snapshot.
-         *  This will create an offline snapshot of the given anime media ids and downloaded manga chapters.
-         *  It sends a websocket event when the snapshot is created, telling the client to refetch the offline snapshot.
-         *  This is a non-blocking operation.
-         */
-        CreateOfflineSnapshot: {
-            key: "OFFLINE-create-offline-snapshot",
-            methods: ["POST"],
-            endpoint: "/api/v1/offline/snapshot",
-        },
-        /**
-         *  @description
-         *  Route retrieves the offline snapshot.
-         *  This will return the latest offline snapshot. (Offline only)
-         */
-        GetOfflineSnapshot: {
-            key: "OFFLINE-get-offline-snapshot",
-            methods: ["GET"],
-            endpoint: "/api/v1/offline/snapshot",
-        },
-        /**
-         *  @description
-         *  Route retrieves an offline snapshot entry.
-         *  This will return the latest offline snapshot entry so the client can display the data.
-         */
-        GetOfflineSnapshotEntry: {
-            key: "OFFLINE-get-offline-snapshot-entry",
-            methods: ["GET"],
-            endpoint: "/api/v1/offline/snapshot-entry",
-        },
-        /**
-         *  @description
-         *  Route updates data for an offline entry list.
-         *  This will update the offline entry list data. (Offline only)
-         */
-        UpdateOfflineEntryListData: {
-            key: "OFFLINE-update-offline-entry-list-data",
-            methods: ["PATCH"],
-            endpoint: "/api/v1/offline/snapshot-entry",
-        },
-        SyncOfflineData: {
-            key: "OFFLINE-sync-offline-data",
-            methods: ["POST"],
-            endpoint: "/api/v1/offline/sync",
-        },
-    },
     ONLINESTREAM: {
         /**
          *  @description
@@ -1062,6 +1136,49 @@ export const API_ENDPOINTS = {
             key: "ONLINESTREAM-online-stream-empty-cache",
             methods: ["DELETE"],
             endpoint: "/api/v1/onlinestream/cache",
+        },
+        /**
+         *  @description
+         *  Route returns search results for a manual search.
+         *  Returns search results for a manual search.
+         */
+        OnlinestreamManualSearch: {
+            key: "ONLINESTREAM-onlinestream-manual-search",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/search",
+        },
+        /**
+         *  @description
+         *  Route manually maps an anime entry to an anime ID from the provider.
+         *  This is used to manually map an anime entry to an anime ID from the provider.
+         *  The client should re-fetch the chapter container after this.
+         */
+        OnlinestreamManualMapping: {
+            key: "ONLINESTREAM-onlinestream-manual-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/manual-mapping",
+        },
+        /**
+         *  @description
+         *  Route returns the mapping for an anime entry.
+         *  This is used to get the mapping for an anime entry.
+         *  An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned.
+         */
+        GetOnlinestreamMapping: {
+            key: "ONLINESTREAM-get-onlinestream-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/get-mapping",
+        },
+        /**
+         *  @description
+         *  Route removes the mapping for an anime entry.
+         *  This is used to remove the mapping for an anime entry.
+         *  The client should re-fetch the chapter container after this.
+         */
+        RemoveOnlinestreamMapping: {
+            key: "ONLINESTREAM-remove-onlinestream-mapping",
+            methods: ["POST"],
+            endpoint: "/api/v1/onlinestream/remove-mapping",
         },
     },
     PLAYBACK_MANAGER: {
@@ -1331,6 +1448,68 @@ export const API_ENDPOINTS = {
             key: "STATUS-delete-logs",
             methods: ["DELETE"],
             endpoint: "/api/v1/logs",
+        },
+    },
+    SYNC: {
+        SyncGetTrackedMediaItems: {
+            key: "SYNC-sync-get-tracked-media-items",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/track",
+        },
+        SyncAddMedia: {
+            key: "SYNC-sync-add-media",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/track",
+        },
+        /**
+         *  @description
+         *  Route remove media from being tracked for offline sync.
+         *  This will remove anime from being tracked for offline sync and delete any associated data.
+         */
+        SyncRemoveMedia: {
+            key: "SYNC-sync-remove-media",
+            methods: ["DELETE"],
+            endpoint: "/api/v1/sync/track",
+        },
+        SyncGetIsMediaTracked: {
+            key: "SYNC-sync-get-is-media-tracked",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/track/{id}/{type}",
+        },
+        SyncLocalData: {
+            key: "SYNC-sync-local-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/local",
+        },
+        /**
+         *  @description
+         *  Route gets the current sync queue state.
+         *  This will return the list of media that are currently queued for syncing.
+         */
+        SyncGetQueueState: {
+            key: "SYNC-sync-get-queue-state",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/queue",
+        },
+        SyncAnilistData: {
+            key: "SYNC-sync-anilist-data",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/anilist",
+        },
+        SyncSetHasLocalChanges: {
+            key: "SYNC-sync-set-has-local-changes",
+            methods: ["POST"],
+            endpoint: "/api/v1/sync/updated",
+        },
+        SyncGetHasLocalChanges: {
+            key: "SYNC-sync-get-has-local-changes",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/updated",
+        },
+        SyncGetLocalStorageSize: {
+            key: "SYNC-sync-get-local-storage-size",
+            methods: ["GET"],
+            endpoint: "/api/v1/sync/storage/size",
         },
     },
     THEME: {

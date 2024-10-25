@@ -360,6 +360,13 @@ export type AL_AnimeDetailsById_Media_Trailer = {
 }
 
 /**
+ * - Filepath: internal/api/anilist/collection_helper.go
+ * - Filename: collection_helper.go
+ * - Package: anilist
+ */
+export type AL_AnimeListEntry = AL_AnimeCollection_MediaListCollection_Lists_Entries
+
+/**
  * - Filepath: internal/api/anilist/stats.go
  * - Filename: stats.go
  * - Package: anilist
@@ -1003,6 +1010,13 @@ export type AL_MangaDetailsById_Media_Relations_Edges = {
     relationType?: AL_MediaRelation
     node?: AL_BaseManga
 }
+
+/**
+ * - Filepath: internal/api/anilist/manga.go
+ * - Filename: manga.go
+ * - Package: anilist
+ */
+export type AL_MangaListEntry = AL_MangaCollection_MediaListCollection_Lists_Entries
 
 /**
  * - Filepath: internal/api/anilist/stats.go
@@ -1702,7 +1716,7 @@ export type Continuity_UpdateWatchHistoryItemOptions = {
 }
 
 /**
- * - Filepath: ..\internal\continuity\history.go
+ * - Filepath: internal/continuity/history.go
  * - Filename: history.go
  * - Package: continuity
  */
@@ -1749,18 +1763,170 @@ export type DB_ScanSummaryItem = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Extension
+// Debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
- * - Package: extension
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
  */
-export type Extension_Config = {
-    requiresConfig: boolean
-    fields?: Array<Extension_ConfigField>
+export type Debrid_CachedFile = {
+    size: number
+    name: string
 }
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentInfo = {
+    name: string
+    hash: string
+    size: number
+    files?: Array<Debrid_TorrentItemFile>
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItem = {
+    id: string
+    /**
+     * Name of the torrent or file
+     */
+    name: string
+    /**
+     * SHA1 hash of the torrent
+     */
+    hash: string
+    /**
+     * Size of the selected files (size in bytes)
+     */
+    size: number
+    /**
+     * Formatted size of the selected files
+     */
+    formattedSize: string
+    /**
+     * Progress percentage (0 to 100)
+     */
+    completionPercentage: number
+    /**
+     * Formatted estimated time remaining
+     */
+    eta: string
+    /**
+     * Current download status
+     */
+    status: Debrid_TorrentItemStatus
+    /**
+     * Date when the torrent was added, RFC3339 format
+     */
+    added: string
+    /**
+     * Current download speed (optional, present in downloading state)
+     */
+    speed?: string
+    /**
+     * Number of seeders (optional, present in downloading state)
+     */
+    seeders?: number
+    /**
+     * Whether the torrent is ready to be downloaded
+     */
+    isReady: boolean
+    /**
+     * List of files in the torrent (optional)
+     */
+    files?: Array<Debrid_TorrentItemFile>
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItemFile = {
+    /**
+     * ID of the file, usually the index
+     */
+    id: string
+    index: number
+    name: string
+    path: string
+    size: number
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItemInstantAvailability = {
+    /**
+     * Key is the file ID (or index)
+     */
+    cachedFiles?: Record<string, Debrid_CachedFile>
+}
+
+/**
+ * - Filepath: internal/debrid/debrid/debrid.go
+ * - Filename: debrid.go
+ * - Package: debrid
+ */
+export type Debrid_TorrentItemStatus = "downloading" |
+    "completed" |
+    "seeding" |
+    "error" |
+    "stalled" |
+    "paused" |
+    "other"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DebridClient
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_CancelStreamOptions = {
+    removeTorrent: boolean
+}
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_StreamPlaybackType = "default" | "externalPlayerLink"
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_StreamState = {
+    status: DebridClient_StreamStatus
+    torrentName: string
+    message: string
+}
+
+/**
+ * - Filepath: internal/debrid/client/stream.go
+ * - Filename: stream.go
+ * - Package: debrid_client
+ */
+export type DebridClient_StreamStatus = "downloading" | "ready" | "failed" | "started"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Extension
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -1772,7 +1938,7 @@ export type Extension_ConfigField = {
     name: string
     label: string
     options?: Array<Extension_ConfigFieldSelectOption>
-    default: string
+    default?: string
 }
 
 /**
@@ -1790,7 +1956,7 @@ export type Extension_ConfigFieldSelectOption = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_ConfigFieldType = "text" | "switch" | "select" | "number"
+export type Extension_ConfigFieldType = "text" | "switch" | "select"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -1837,10 +2003,7 @@ export type Extension_Extension = {
      * NOT IMPLEMENTED
      */
     scopes?: Array<string>
-    /**
-     * NOT IMPLEMENTED
-     */
-    config?: Extension_Config
+    userConfig?: Extension_UserConfig
     payload: string
 }
 
@@ -1862,7 +2025,7 @@ export type Extension_InvalidExtension = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "invalid_authorization"
+export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "user_config_error" | "invalid_authorization"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -1876,7 +2039,28 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "mediaplayer"
+export type Extension_SavedUserConfig = {
+    version: number
+    values?: Record<string, string>
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider"
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_UserConfig = {
+    version: number
+    requiresConfig: boolean
+    fields?: Array<Extension_ConfigField>
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ExtensionPlayground
@@ -1917,6 +2101,7 @@ export type RunPlaygroundCodeResponse = {
 export type ExtensionRepo_AllExtensions = {
     extensions?: Array<Extension_Extension>
     invalidExtensions?: Array<Extension_InvalidExtension>
+    invalidUserConfigExtensions?: Array<Extension_InvalidExtension>
     hasUpdate?: Array<ExtensionRepo_UpdateData>
 }
 
@@ -1942,6 +2127,16 @@ export type ExtensionRepo_AnimeTorrentProviderExtensionItem = {
  */
 export type ExtensionRepo_ExtensionInstallResponse = {
     message: string
+}
+
+/**
+ * - Filepath: internal/extension_repo/userconfig.go
+ * - Filename: userconfig.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_ExtensionUserConfig = {
+    userConfig?: Extension_UserConfig
+    savedUserConfig?: Extension_SavedUserConfig
 }
 
 /**
@@ -2056,6 +2251,7 @@ export type Status = {
     isOffline: boolean
     mediastreamSettings?: Models_MediastreamSettings
     torrentstreamSettings?: Models_TorrentstreamSettings
+    debridSettings?: Models_DebridSettings
     anilistClientId: string
     /**
      * If true, a new screen will be displayed
@@ -2197,7 +2393,7 @@ export type Manga_PageDimension = {
 }
 
 /**
- * - Filepath: ..\internal\manga\download.go
+ * - Filepath: internal/manga/download.go
  * - Filename: download.go
  * - Package: manga
  */
@@ -2288,6 +2484,8 @@ export type Models_AutoDownloaderSettings = {
     enabled: boolean
     downloadAutomatically: boolean
     enableEnhancedQueries: boolean
+    enableSeasonCheck: boolean
+    useDebrid: boolean
 }
 
 /**
@@ -2303,8 +2501,24 @@ export type Models_ChapterDownloadQueueItem = {
     /**
      * Contains map of page index to page details
      */
-    pageData?: string
+    pageData?: Array<string>
     status: string
+    id: number
+    createdAt?: string
+    updatedAt?: string
+}
+
+/**
+ * - Filepath: internal/database/models/models.go
+ * - Filename: models.go
+ * - Package: models
+ */
+export type Models_DebridSettings = {
+    enabled: boolean
+    provider: string
+    apiKey: string
+    fallbackToDebridStreamingView: boolean
+    includeDebridStreamInLibrary: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -2325,7 +2539,7 @@ export type Models_DiscordSettings = {
 }
 
 /**
- * - Filepath: ..\internal\database\models\models.go
+ * - Filepath: internal/database/models/models.go
  * - Filename: models.go
  * - Package: models
  */
@@ -2352,6 +2566,7 @@ export type Models_LibrarySettings = {
     autoPlayNextEpisode: boolean
     enableWatchContinuity: boolean
     libraryPaths: Models_LibraryPaths
+    autoSyncOfflineLocalData: boolean
 }
 
 /**
@@ -2420,6 +2635,7 @@ export type Models_MediastreamSettings = {
     transcodeThreads: number
     transcodePreset: string
     disableAutoSwitchToDirectPlay: boolean
+    directPlayOnly: boolean
     preTranscodeEnabled: boolean
     preTranscodeLibraryDir: string
     ffmpegPath: string
@@ -2527,6 +2743,7 @@ export type Models_TorrentSettings = {
     transmissionUsername: string
     transmissionPassword: string
     showActiveTorrentCount: boolean
+    hideTorrentList: boolean
 }
 
 /**
@@ -2541,119 +2758,12 @@ export type Models_TorrentstreamSettings = {
     disableIPV6: boolean
     downloadDir: string
     addToLibrary: boolean
+    torrentClientHost: string
     torrentClientPort: number
     streamingServerHost: string
     streamingServerPort: number
     fallbackToTorrentStreamingView: boolean
     includeInLibrary: boolean
-    id: number
-    createdAt?: string
-    updatedAt?: string
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Offline
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/offline/snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_AnimeEntry = {
-    mediaId: number
-    listData?: Offline_ListData
-    media?: AL_BaseAnime
-    episodes?: Array<Anime_Episode>
-    downloadedAssets: boolean
-}
-
-/**
- * - Filepath: ..\internal\offline\snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_AssetMapImageMap = Record<string, string>
-
-/**
- * - Filepath: internal/offline/snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_Collections = {
-    animeCollection?: AL_AnimeCollection
-    mangaCollection?: AL_MangaCollection
-}
-
-/**
- * - Filepath: internal/offline/snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_Entries = {
-    /**
-     * All anime entries in the local library
-     */
-    animeEntries?: Array<Offline_AnimeEntry>
-    /**
-     * Will only contain manga entries with downloaded chapters
-     */
-    mangaEntries?: Array<Offline_MangaEntry>
-}
-
-/**
- * - Filepath: internal/offline/snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_ListData = {
-    score: number
-    status?: AL_MediaListStatus
-    progress: number
-    startedAt: string
-    completedAt: string
-}
-
-/**
- * - Filepath: internal/offline/snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_MangaEntry = {
-    mediaId: number
-    listData?: Offline_ListData
-    media?: AL_BaseManga
-    chapterContainers?: Array<Manga_ChapterContainer>
-    downloadedAssets: boolean
-}
-
-/**
- * - Filepath: internal/offline/snapshot_entities.go
- * - Filename: snapshot_entities.go
- * - Package: offline
- */
-export type Offline_Snapshot = {
-    dbId: number
-    user?: Anime_User
-    entries?: Offline_Entries
-    libraryCollections?: Offline_Collections
-    /**
-     * Key MediaId, Value: [Key: URL, Value: Local path]
-     */
-    assetMap?: Offline_AssetMapImageMap
-}
-
-/**
- * - Filepath: internal/offline/models.go
- * - Filename: models.go
- * - Package: offline
- */
-export type Offline_SnapshotEntry = {
-    user?: string
-    collections?: string
-    assetMap?: string
-    synced: boolean
-    used: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -2694,6 +2804,15 @@ export type Onlinestream_EpisodeSource = {
     number: number
     videoSources?: Array<Onlinestream_VideoSource>
     subtitles?: Array<Onlinestream_Subtitle>
+}
+
+/**
+ * - Filepath: internal/onlinestream/manual_mapping.go
+ * - Filename: manual_mapping.go
+ * - Package: onlinestream
+ */
+export type Onlinestream_MappingResponse = {
+    animeId?: string
 }
 
 /**
@@ -2774,6 +2893,44 @@ export type Summary_ScanSummaryLog = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sync
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/sync/sync.go
+ * - Filename: sync.go
+ * - Package: sync
+ */
+export type Sync_QueueMediaTask = {
+    mediaId: number
+    image: string
+    title: string
+    type: string
+}
+
+/**
+ * - Filepath: internal/sync/sync.go
+ * - Filename: sync.go
+ * - Package: sync
+ */
+export type Sync_QueueState = {
+    animeTasks?: Record<number, Sync_QueueMediaTask>
+    mangaTasks?: Record<number, Sync_QueueMediaTask>
+}
+
+/**
+ * - Filepath: internal/sync/manager.go
+ * - Filename: manager.go
+ * - Package: sync
+ */
+export type Sync_TrackedMediaItem = {
+    mediaId: number
+    type: string
+    animeEntry?: AL_AnimeListEntry
+    mangaEntry?: AL_MangaListEntry
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Torrent
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2804,6 +2961,10 @@ export type Torrent_SearchData = {
      * TorrentPreview for each torrent
      */
     previews?: Array<Torrent_Preview>
+    /**
+     * Debrid instant availability
+     */
+    debridInstantAvailability?: Record<string, Debrid_TorrentItemInstantAvailability>
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3039,6 +3200,29 @@ export type HibikeManga_Settings = {
     supportsMultiScanlator: boolean
     supportsMultiLanguage: boolean
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VendorHibikeOnlinestream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/vendoring/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_onlinestream
+ */
+export type HibikeOnlinestream_SearchResult = {
+    id: string
+    title: string
+    url: string
+    subOrDub: HibikeOnlinestream_SubOrDub
+}
+
+/**
+ * - Filepath: internal/extension/vendoring/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: vendor_hibike_onlinestream
+ */
+export type HibikeOnlinestream_SubOrDub = "sub" | "dub" | "both"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // VendorHibikeTorrent

@@ -1,5 +1,5 @@
+import { SeaLink } from "@/components/shared/sea-link"
 import { cva } from "class-variance-authority"
-import Link from "next/link"
 import * as React from "react"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 
@@ -62,7 +62,7 @@ export const StaticTabs = React.forwardRef<HTMLElement, StaticTabsProps>((props,
             {...rest}
         >
             {items.map((tab) => !!tab.href ? (
-                <Link
+                <SeaLink
                     key={tab.name}
                     href={tab.href ?? "#"}
                     className={cn(
@@ -81,7 +81,7 @@ export const StaticTabs = React.forwardRef<HTMLElement, StaticTabsProps>((props,
                         data-current={tab.isCurrent}
                     />}
                     <span>{tab.name}</span>
-                </Link>
+                </SeaLink>
             ) : (
                 <div
                     key={tab.name}

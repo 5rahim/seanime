@@ -57,6 +57,10 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
     useUpdateEffect(() => {
         onSelect(debouncedInput)
         prevState.current = debouncedInput
+
+        // if (!isLoading && data && shouldExist && !data.exists && input.length > 0) {
+        //     onSelect("")
+        // }
     }, [debouncedInput, data])
 
     const checkDirectoryExists = React.useCallback(() => {

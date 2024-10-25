@@ -57,7 +57,7 @@ func NewSimpleEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
 	// If the Anilist List entry does not exist, fetch the media from AniList
 	if !found {
 		// If the Anilist entry does not exist, instantiate one with zero values
-		anilistEntry = &anilist.MediaListEntry{}
+		anilistEntry = &anilist.AnimeListEntry{}
 
 		// Fetch the media
 		fetchedMedia, err := opts.Platform.GetAnime(opts.MediaId) // DEVNOTE: Maybe cache it?

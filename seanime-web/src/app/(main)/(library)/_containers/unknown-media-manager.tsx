@@ -1,12 +1,12 @@
 import { Anime_UnknownGroup } from "@/api/generated/types"
 import { useAddUnknownMedia } from "@/api/hooks/anime_collection.hooks"
 import { useAnimeEntryBulkAction } from "@/api/hooks/anime_entries.hooks"
+import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Drawer } from "@/components/ui/drawer"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
-import Link from "next/link"
 import React, { useCallback } from "react"
 import { BiLinkExternal } from "react-icons/bi"
 import { TbDatabasePlus } from "react-icons/tb"
@@ -99,13 +99,13 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                 <div className="flex items-center w-full justify-between">
                                     <h4 className="font-semibold flex gap-2 items-center">
                                         <span>Anilist ID:{" "}</span>
-                                        <Link
+                                        <SeaLink
                                             href={`https://anilist.co/anime/${group.mediaId}`}
                                             target="_blank"
                                             className="underline text-brand-200 flex gap-1.5 items-center"
                                         >
                                             {group.mediaId} <BiLinkExternal />
-                                        </Link>
+                                        </SeaLink>
                                     </h4>
                                     <div>
                                         <Button
