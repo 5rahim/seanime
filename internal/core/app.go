@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/rs/zerolog"
+	"os"
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -122,6 +123,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	if err != nil {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize config")
 	}
+
+	_ = os.MkdirAll(cfg.Logs.Dir, 0755)
 
 	logger.Info().Msgf("app: Data directory: %s", cfg.Data.AppDataDir)
 

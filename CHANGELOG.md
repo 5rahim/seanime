@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.2.1
+
+- 🦺 Torrent streaming: Fixed auto-select regression
+- 🦺 Fixed issue with inexistant log directory
+
 ## v2.2.0
 
 - 🎉 New offline mode

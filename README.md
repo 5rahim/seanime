@@ -131,7 +131,7 @@ Feel free to turn to other tools or services that better suit your needs.
 - Support for other providers such as Trakt, SIMKL, etc.
 - Support for other media players
 - Dedicated clients (TV, mobile, etc.)
-- Support for Usenet, Debrid services, private trackers
+- Support for Usenet, private trackers
 - Support for other languages (internationalization)
 
 These features will not be implemented, mainly due to the scope of the project, time required or lack of resources.
