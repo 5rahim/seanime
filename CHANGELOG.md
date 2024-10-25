@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Media streaming: Direct play only option
 - ⚡️ Built-in player: Discrete controls (Hide controls when seeking)
 - ⚡️ Built-in player: Auto skip intro, outro
+- ⚡️ Support for more video extensions #144
 - 🦺 Fixed Semver version comparison implementation (affects migrations)
 - 🦺 Fixed Auto Downloader form #133
 - 🦺 Fixed ‘continue watching’ button for non-downloaded media #135
