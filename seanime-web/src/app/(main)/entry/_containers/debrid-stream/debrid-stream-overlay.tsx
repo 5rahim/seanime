@@ -135,7 +135,7 @@ export function DebridStreamOverlay() {
                         <Button
                             onClick={() => confirmCancelStream.open()}
                             intent="alert-subtle"
-                            disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..."}
+                            disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..." || state?.message === "Checking stream file..."}
                             size="sm"
                         >
                             Cancel
@@ -143,7 +143,7 @@ export function DebridStreamOverlay() {
                         <Button
                             onClick={() => confirmCancelAndRemoveTorrent.open()}
                             intent="alert-subtle"
-                            disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..."}
+                            disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..." || state?.message === "Checking stream file..."}
                             size="sm"
                         >
                             Cancel and remove torrent

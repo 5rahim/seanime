@@ -19,6 +19,7 @@ func RunJobs(app *core.App) {
 		}
 
 		refreshAnilistTicker := time.NewTicker(10 * time.Minute)
+		refreshLocalDataTicker := time.NewTicker(31 * time.Minute)
 		refetchReleaseTicker := time.NewTicker(1 * time.Hour)
 
 		go func() {
@@ -26,6 +27,7 @@ func RunJobs(app *core.App) {
 				select {
 				case <-refreshAnilistTicker.C:
 					RefreshAnilistDataJob(ctx)
+				case <-refreshLocalDataTicker.C:
 					SyncLocalDataJob(ctx)
 				case <-refetchReleaseTicker.C:
 					app.Updater.ShouldRefetchReleases()

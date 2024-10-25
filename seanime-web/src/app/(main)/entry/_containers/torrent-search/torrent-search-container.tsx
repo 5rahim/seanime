@@ -199,7 +199,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     return (
         <>
-            {(type === "select" || type === "select-file") &&
+            {(type === "select" || type === "select-file" || type === "debrid-stream") &&
                 <TorrentSearchTorrentStreamBatchHistory type={type} entry={entry} />}
 
             <div className="py-4 space-y-4">
@@ -418,7 +418,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
                             })
                             setter(undefined)
                         }
-                    } else if (type === "select-file") {
+                    } else if (type === "select-file" || type === "debrid-stream") {
                         // Open the drawer to select the file
                         if (!!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                             // This opens the file selection drawer

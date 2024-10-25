@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"seanime/internal/database/db_bridge"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
@@ -184,6 +185,11 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 		}
 
 		s.repository.logger.Debug().Msg("debridstream: Stream URL received, checking stream file")
+		s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+			Status:      StreamStatusDownloading,
+			TorrentName: opts.Torrent.Name,
+			Message:     "Checking stream file...",
+		})
 
 		// Check if we can stream the URL
 		if canStream, reason := CanStream(streamUrl); !canStream {
@@ -248,6 +254,12 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 				Message:     "External player link sent",
 			})
 		}
+
+		go func() {
+			defer util.HandlePanicInModuleThen("debridstream/AddBatchHistory", func() {})
+
+			_ = db_bridge.InsertTorrentstreamHistory(s.repository.db, media.GetID(), opts.Torrent)
+		}()
 	}(ctx)
 
 	s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{

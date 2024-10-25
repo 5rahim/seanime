@@ -245,7 +245,6 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 // StartStreamingUsingMediaPlayer starts streaming a video using the media player.
 // This sets PlaybackManager.currentStreamMedia and PlaybackManager.currentStreamEpisode used for progress tracking.
 // Note that PlaybackManager.currentStreamEpisodeCollection is not required to start streaming but is needed for progress tracking.
-// Potential issue: If the episode collection is not set due to the server restarting but not reloading the page, the progress will not be tracked.
 func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartStreamingUsingMediaPlayer", &err)
 
@@ -284,7 +283,8 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 			}
 		}
 	} else {
-		pm.Logger.Warn().Msg("playback manager: Stream episode collection is not set, no tracking will be done")
+		//DEVNOTE: This will happen if the server is restarted and the stream page is not reloaded
+		pm.Logger.Warn().Msg("playback manager: Stream episode collection is not set, no tracking will be done. Please refresh the page and try again if this shouldn't happen")
 	}
 
 	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, media.ID, windowTitle)
