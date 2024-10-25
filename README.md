@@ -72,7 +72,8 @@ Leave a star if you like the project! ⭐️
 ### ⬇️ Download new episodes & movies
 
 - Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei, SeaDex)
-- Integration with **qBittorrent** & **Transmission** for a seamless download experience
+- Support for **qBittorrent** & **Transmission** for a seamless downloading experience
+- Support for [**TorBox**](https://torbox.app)'s debrid service for downloading torrents without the need for a VPN
 - View upcoming and missing episodes to never miss a release
 - Let Seanime **automatically download** new episodes or movies for you by creating custom rules
 - Support for extensions to add more sources
@@ -87,13 +88,15 @@ Leave a star if you like the project! ⭐️
 - Watch your downloaded episodes on any device
 - Built-in player with **on-the-fly transcoding** powered by **FFmpeg** & **Direct Play**
 - Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
-- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
 
 ### 📽️ Torrent streaming
 - Stream torrents directly to your media player (desktop or mobile) without waiting for the download to complete
 - Automatic torrent selection with no input required - click and play
 - Auto-selection or manual selection of files from batches
-- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
+
+### 📽️ Debrid streaming
+- Support for [**TorBox**](https://torbox.app)'s debrid service for streaming torrents directly to your media player (desktop or mobile)
+without the need for a VPN.
 
 ### 📺 Online streaming
 - Watch episodes from online sources using the built-in player

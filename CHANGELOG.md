@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.2.0
+
+- 🎉 New offline mode
+    - New local data system with granular updates, removing the need for re-downloading metadata each time. Option for automatic local data refreshing. Support for media streaming. Better user interface for offline mode.
+- 🎉 Debrid support starting with TorBox integration
+    - TorBox is now supported for downloading/auto-downloading and streaming torrents.
+    - Automatic local downloading once a torrent is ready
+- 🎉 Watch continuity / Resumable playback
+    - Resume where you left off across all playback types (downloaded, online streaming, torrent/debrid streaming)
+- ✨ Support for multiple library directories
+- ✨ Export & import anime library data
+- ⚡️ Improved scanner and matcher
+    - Matcher now prioritizes distance comparisons to avoid erroneous matches
+- ⚡️ Extensions: User configs
+- ⚡️ Improved Auto Downloader title comparisons #134
+    - New ‘Verify season’ optional setting to improve accuracy if needed
+- ⚡️ Online streaming: Manual match
+- ⚡️ Torrent streaming: Change default torrent client host #132
+- ⚡️ JS Extensions: Torrent data to magnet link global helper function #138
+- ⚡️ Media streaming: Direct play only option
+- ⚡️ Built-in player: Discrete controls (Hide controls when seeking)
+- ⚡️ Built-in player: Auto skip intro, outro
+- 🦺 Fixed Semver version comparison implementation (affects migrations)
+- 🦺 Fixed Auto Downloader form #133
+- 🦺 Fixed ‘continue watching’ button for non-downloaded media #135
+- 🦺 Fixed Hianime extension
+- 🦺 Fixed specials not working with external player link for torrent streaming #139
+- 🦺 Fixed some specials not being streamable
+- 🏗️ Refactored metadata provider code
+- 🏗️ New documentation website
+
 ## v2.1.1
 
 - ✨ Discover: New 'Schedule' and 'Missed sequels' section
