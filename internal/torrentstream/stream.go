@@ -235,14 +235,33 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 		// Fetch the media
 		media, err = r.platform.GetAnimeWithRelations(mediaId)
 		if err != nil {
-			return nil, nil, fmt.Errorf("torrentstream: failed to fetch media: %w", err)
+			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
 		}
 	}
 
 	// Get the media
 	animeMetadata, err = r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 	if err != nil {
-		return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
+		//return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
+		animeMetadata = &metadata.AnimeMetadata{
+			Titles:       make(map[string]string),
+			Episodes:     make(map[string]*metadata.EpisodeMetadata),
+			EpisodeCount: 0,
+			SpecialCount: 0,
+			Mappings: &metadata.AnimeMappings{
+				AnilistId: media.GetID(),
+			},
+		}
+		animeMetadata.Titles["en"] = media.GetTitleSafe()
+		animeMetadata.Titles["x-jat"] = media.GetRomajiTitleSafe()
+		err = nil
+		//for i := 1; i <= media.GetCurrentEpisodeCount(); i++ {
+		//	animeMetadata.Episodes[fmt.Sprintf("%d", i)] = &metadata.EpisodeMetadata{
+		//		AniDBEpisode: fmt.Sprintf("%d", i),
+		//		EpisodeNumber: i,
+		//		EpisodeTitle: media.GetPreferredTitle(),
+		//	}
+		//}
 	}
 
 	return
