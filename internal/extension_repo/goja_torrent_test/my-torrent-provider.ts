@@ -15,6 +15,33 @@ class Provider {
         }
     }
 
+    async fetchTorrents(url: string): Promise<ToshoTorrent[]> {
+        const furl = `${this.api}${url}`
+
+        try {
+            const response = await fetch(furl)
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch torrents, ${response.statusText}`)
+            }
+
+            const torrents: ToshoTorrent[] = await response.json()
+
+            return torrents.map(t => {
+                if (t.seeders > 30000) {
+                    t.seeders = 0
+                }
+                if (t.leechers > 30000) {
+                    t.leechers = 0
+                }
+                return t
+            })
+        }
+        catch (error) {
+            throw new Error(`Error fetching torrents: ${error}`)
+        }
+    }
+
     async search(opts: AnimeSearchOptions): Promise<AnimeTorrent[]> {
         const query = `?q=${encodeURIComponent(opts.query)}&only_tor=1`
         console.log(query)
@@ -80,32 +107,6 @@ class Provider {
         return this.fetchTorrents(query)
     }
 
-    async fetchTorrents(url: string): Promise<ToshoTorrent[]> {
-        const furl = `${this.api}${url}`
-
-        try {
-            const response = await fetch(furl)
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch torrents, ${response.statusText}`)
-            }
-
-            const torrents: ToshoTorrent[] = await response.json()
-
-            return torrents.map(t => {
-                if (t.seeders > 30000) {
-                    t.seeders = 0
-                }
-                if (t.leechers > 30000) {
-                    t.leechers = 0
-                }
-                return t
-            })
-        }
-        catch (error) {
-            throw new Error(`Error fetching torrents: ${error}`)
-        }
-    }
 
     formatCommonQuery(quality: string): string {
         if (quality === "") {

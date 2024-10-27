@@ -133,3 +133,95 @@ func TestComparison(t *testing.T) {
 	}
 
 }
+
+func TestComparison2(t *testing.T) {
+	ad := AutoDownloader{
+		metadataProvider: metadata.GetMockProvider(t),
+		settings: &models.AutoDownloaderSettings{
+			EnableSeasonCheck: true,
+		},
+	}
+	//name1 := "DANDADAN"
+	//name2 := "Dandadan"
+	//aniListEntry := &anilist.AnimeListEntry{
+	//	Media: &anilist.BaseAnime{
+	//		Title: &anilist.BaseAnime_Title{
+	//			Romaji:  &name1,
+	//			English: &name2,
+	//		},
+	//		Episodes: lo.ToPtr(12),
+	//		Format:   lo.ToPtr(anilist.MediaFormatTv),
+	//	},
+	//}
+
+	rule := &anime.AutoDownloaderRule{
+		MediaId:             166531,
+		ReleaseGroups:       []string{},
+		Resolutions:         []string{"1080p"},
+		TitleComparisonType: "likely",
+		EpisodeType:         "recent",
+		EpisodeNumbers:      []int{},
+		Destination:         "/data/seanime/library/Dandadan",
+		ComparisonTitle:     "Dandadan",
+	}
+
+	tests := []struct {
+		torrentName                 string
+		succeedAdditionalTermsMatch bool
+		ruleAdditionalTerms         []string
+	}{
+		{
+			torrentName:                 "[Anime Time] Dandadan - 04 [Dual Audio][1080p][HEVC 10bit x265][AAC][Multi Sub] [Weekly]",
+			ruleAdditionalTerms:         []string{},
+			succeedAdditionalTermsMatch: true,
+		},
+		{
+			torrentName: "[Anime Time] Dandadan - 04 [Dual Audio][1080p][HEVC 10bit x265][AAC][Multi Sub] [Weekly]",
+			ruleAdditionalTerms: []string{
+				"H265,H.265, H 265,x265",
+				"10bit,10-bit,10 bit",
+			},
+			succeedAdditionalTermsMatch: true,
+		},
+		{
+			torrentName: "[Raze] Dandadan - 04 x265 10bit 1080p 143.8561fps.mkv",
+			ruleAdditionalTerms: []string{
+				"H265,H.265, H 265,x265",
+				"10bit,10-bit,10 bit",
+			},
+			succeedAdditionalTermsMatch: true,
+		},
+		{
+			torrentName: "[Sokudo] DAN DA DAN | Dandadan - S01E03 [1080p EAC-3 AV1][Dual Audio] (weekly)",
+			ruleAdditionalTerms: []string{
+				"H265,H.265, H 265,x265",
+				"10bit,10-bit,10 bit",
+			},
+			succeedAdditionalTermsMatch: false,
+		},
+		{
+			torrentName: "[Raze] Dandadan - 04 x265 10bit 1080p 143.8561fps.mkv",
+			ruleAdditionalTerms: []string{
+				"H265,H.265, H 265,x265",
+				"10bit,10-bit,10 bit",
+				"AAC",
+			},
+			succeedAdditionalTermsMatch: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.torrentName, func(t *testing.T) {
+
+			rule.AdditionalTerms = tt.ruleAdditionalTerms
+
+			ok := ad.isAdditionalTermsMatch(tt.torrentName, rule)
+			if tt.succeedAdditionalTermsMatch {
+				require.True(t, ok)
+			} else {
+				require.False(t, ok)
+			}
+		})
+	}
+
+}

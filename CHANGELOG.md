@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## v2.2.1
 
+- ⚡️ Auto Downloader: Added 'additional terms' filter option
 - 🦺 Torrent streaming: Fixed auto-select regression
+- 🦺 Fixed auto-scanning regression
 - 🦺 Fixed issue with inexistant log directory
 
 ## v2.2.0

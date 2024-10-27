@@ -5,7 +5,7 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { Spinner } from "@/components/ui/loading-spinner"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useAtom } from "jotai/react"
-import { useState } from "react"
+import React, { useState } from "react"
 
 export function ScanProgressBar() {
 
@@ -14,17 +14,18 @@ export function ScanProgressBar() {
     const [progress, setProgress] = useState(0)
     const [status, setStatus] = useState("Scanning...")
 
+    React.useEffect(() => {
+        if (!isScanning) {
+            setProgress(0)
+            setStatus("Scanning...")
+        }
+    }, [isScanning])
+
     useWebsocketMessageListener<number>({
         type: WSEvents.SCAN_PROGRESS,
         onMessage: data => {
             console.log("Scan progress", data)
             setProgress(data)
-            // reset progress
-            if (data === 100) {
-                setTimeout(() => {
-                    setProgress(0)
-                }, 2000)
-            }
         },
     })
 
@@ -33,12 +34,6 @@ export function ScanProgressBar() {
         onMessage: data => {
             console.log("Scan status", data)
             setStatus(data)
-            // reset progress
-            if (data === "Scan completed") {
-                setTimeout(() => {
-                    setStatus("Scanning...")
-                }, 2000)
-            }
         },
     })
 

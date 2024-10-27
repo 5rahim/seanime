@@ -35,8 +35,10 @@ type Scanner struct {
 
 // Scan will scan the directory and return a list of anime.LocalFile.
 func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
-
 	defer util.HandlePanicWithError(&err)
+
+	scn.WSEventManager.SendEvent(events.EventScanProgress, 0)
+	scn.WSEventManager.SendEvent(events.EventScanStatus, "Retrieving local files...")
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 

@@ -135,6 +135,7 @@ func (a *App) initModulesOnce() {
 		Enabled:          false, // Will be set in InitOrRefreshModules
 		AutoDownloader:   a.AutoDownloader,
 		MetadataProvider: a.MetadataProvider,
+		LogsDir:          a.Config.Logs.Dir,
 	})
 
 	// This is run in a goroutine

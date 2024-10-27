@@ -25501,9 +25501,7 @@
         "usedStructName": "anilist.AnimeCollection",
         "required": false,
         "public": false,
-        "comments": [
-          " TODO: Rename to animeCollection"
-        ]
+        "comments": []
       },
       {
         "name": "rawAnimeCollection",
@@ -33713,6 +33711,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AdditionalTerms",
+        "jsonName": "additionalTerms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -36160,6 +36167,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "logsDir",
+        "jsonName": "logsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -36247,6 +36263,15 @@
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LogsDir",
+        "jsonName": "LogsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }

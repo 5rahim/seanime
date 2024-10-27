@@ -425,6 +425,10 @@ func (ad *AutoDownloader) torrentFollowsRule(
 		return -1, false
 	}
 
+	if ok := ad.isAdditionalTermsMatch(t.Name, rule); !ok {
+		return -1, false
+	}
+
 	episode, ok := ad.isSeasonAndEpisodeMatch(t.ParsedData, rule, listEntry, localEntry, items)
 	if !ok {
 		return -1, false
@@ -557,6 +561,36 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (ad *AutoDownloader) isAdditionalTermsMatch(torrentName string, rule *anime.AutoDownloaderRule) (ok bool) {
+	defer util.HandlePanicInModuleThen("autodownloader/isAdditionalTermsMatch", func() {
+		ok = false
+	})
+
+	if len(rule.AdditionalTerms) == 0 {
+		return true
+	}
+
+	// Go through each additional term
+	for _, optionsText := range rule.AdditionalTerms {
+		// Split the options by comma
+		options := strings.Split(strings.TrimSpace(optionsText), ",")
+		// Check if the torrent name contains at least one of the options
+		foundOption := false
+		for _, option := range options {
+			option := strings.TrimSpace(option)
+			if strings.Contains(strings.ToLower(torrentName), strings.ToLower(option)) {
+				foundOption = true
+			}
+		}
+		// If the torrent name doesn't contain any of the options, return false
+		if !foundOption {
+			return false
+		}
+	}
+
+	// If all options are found, return true
+	return true
+}
 func (ad *AutoDownloader) isReleaseGroupMatch(releaseGroup string, rule *anime.AutoDownloaderRule) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isReleaseGroupMatch", func() {
 		ok = false

@@ -201,7 +201,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         <Button
                             intent="white"
                             onClick={handleMatchSelected}
-                            loading={isUpdating}
+                            disabled={isUpdating}
                         >Match selection</Button>
                     </div>
 
@@ -292,7 +292,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                         intent="warning-subtle"
                         size="sm"
                         rounded
-                        loading={isUpdating}
+                        disabled={isUpdating}
                         onClick={handleIgnoreSelected}
                     >
                         Ignore selection

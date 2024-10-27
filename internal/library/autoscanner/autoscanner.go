@@ -32,6 +32,7 @@ type (
 		db               *db.Database                   // Database instance is required to update the local files.
 		autoDownloader   *autodownloader.AutoDownloader // AutoDownloader instance is required to refresh queue.
 		metadataProvider metadata.Provider
+		logsDir          string
 	}
 	NewAutoScannerOptions struct {
 		Database         *db.Database
@@ -42,6 +43,7 @@ type (
 		AutoDownloader   *autodownloader.AutoDownloader
 		WaitTime         time.Duration
 		MetadataProvider metadata.Provider
+		LogsDir          string
 	}
 )
 
@@ -65,6 +67,7 @@ func New(opts *NewAutoScannerOptions) *AutoScanner {
 		db:               opts.Database,
 		autoDownloader:   opts.AutoDownloader,
 		metadataProvider: opts.MetadataProvider,
+		logsDir:          opts.LogsDir,
 	}
 }
 
@@ -196,6 +199,16 @@ func (as *AutoScanner) scan() {
 		return
 	}
 
+	// Create a new scan logger
+	var scanLogger *scanner.ScanLogger
+	if as.logsDir != "" {
+		scanLogger, err = scanner.NewScanLogger(as.logsDir)
+		if err != nil {
+			as.logger.Error().Err(err).Msg("autoscanner: Failed to create scan logger")
+			return
+		}
+	}
+
 	// Create a new scanner
 	sc := scanner.Scanner{
 		DirPath:            settings.Library.LibraryPath,
@@ -208,6 +221,7 @@ func (as *AutoScanner) scan() {
 		SkipLockedFiles:    true, // Skip locked files by default.
 		SkipIgnoredFiles:   true,
 		ScanSummaryLogger:  scanSummaryLogger,
+		ScanLogger:         scanLogger,
 		MetadataProvider:   as.metadataProvider,
 	}
 

@@ -73,7 +73,6 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 // If the best match is above a certain threshold, set the local file's mediaId to the best match's id
 // If the best match is below a certain threshold, leave the local file's mediaId to 0
 func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
-
 	defer util.HandlePanicInModuleThenS("scanner/matcher/matchLocalFileWithMedia", func(stackTrace string) {
 		lf.MediaId = 0
 		/*Log*/

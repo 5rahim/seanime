@@ -30,5 +30,6 @@ type (
 		EpisodeType         AutoDownloaderRuleEpisodeType         `json:"episodeType"`
 		EpisodeNumbers      []int                                 `json:"episodeNumbers,omitempty"`
 		Destination         string                                `json:"destination"`
+		AdditionalTerms     []string                              `json:"additionalTerms"`
 	}
 )

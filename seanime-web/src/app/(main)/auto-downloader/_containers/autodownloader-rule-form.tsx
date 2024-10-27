@@ -9,6 +9,7 @@ import { useCreateAutoDownloaderRule, useDeleteAutoDownloaderRule, useUpdateAuto
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DangerZone, defineSchema, Field, Form, InferType } from "@/components/ui/form"
@@ -39,6 +40,7 @@ const schema = defineSchema(({ z }) => z.object({
     releaseGroups: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     resolutions: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     episodeNumbers: z.array(z.number()).transform(value => uniq(value.filter(Boolean))),
+    additionalTerms: z.array(z.string()).transform(value => uniq(value.filter(Boolean))),
     comparisonTitle: z.string().min(1),
     titleComparisonType: z.string(),
     episodeType: z.string(),
@@ -120,6 +122,7 @@ export function AutoDownloaderRuleForm(props: AutoDownloaderRuleFormProps) {
                     episodeType: rule?.episodeType ?? "recent",
                     episodeNumbers: rule?.episodeNumbers ?? [],
                     destination: rule?.destination ?? "",
+                    additionalTerms: rule?.additionalTerms ?? [],
                 }}
                 onError={() => {
                     toast.error("An error occurred, verify the fields.")
@@ -249,7 +252,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     shouldExist={false}
                 />
 
-                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Title</div>
                     <Field.Text
                         name="comparisonTitle"
@@ -315,7 +318,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     />}
                 </div>
 
-                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Release Groups</div>
                     <p className="text-sm">
                         List of release groups to look for. If empty, any release group will be accepted.
@@ -326,10 +329,11 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         onChange={(value) => form.setValue("releaseGroups", value)}
                         type="text"
                         placeholder="e.g. SubsPlease"
+                        separatorText="OR"
                     />
                 </div>
 
-                <div className="border  rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
                     <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Resolutions</div>
                     <p className="text-sm">
                         List of resolutions to look for. If empty, the highest resolution will be accepted.
@@ -340,8 +344,47 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         onChange={(value) => form.setValue("resolutions", value)}
                         type="text"
                         placeholder="e.g. 1080p"
+                        separatorText="OR"
                     />
                 </div>
+
+                <Accordion type="single" collapsible className="!my-4" defaultValue={!!rule?.additionalTerms?.length ? "more" : undefined}>
+                    <AccordionItem value="more">
+                        <AccordionTrigger className="border rounded-[--radius] bg-gray-900">
+                            More filters
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-0">
+                            <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
+                                <div className="absolute -top-2.5 tracking-wide font-semibold uppercase text-sm left-4 bg-gray-950 px-2">Additional
+                                                                                                                                         terms
+                                </div>
+                                <div>
+                                    {/*<p className="text-sm">*/}
+                                    {/*    List of video terms to look for. If any term is found in the torrent name, it will be accepted.*/}
+                                    {/*</p>*/}
+                                    <p className="text-sm -top-2 relative"><span className="text-red-100">
+                                        All options must be included for the torrent to be accepted.</span> Within each option, you can
+                                                                                                            include variations separated by
+                                                                                                            commas. For example, adding
+                                                                                                            "H265,H.265, H 265,x265" and
+                                                                                                            "10bit,10-bit,10 bit" will match
+                                        <code className="text-gray-400"> [Group] Torrent name [HEVC 10bit
+                                                                         x265]</code> but not <code className="text-gray-400">[Group] Torrent name
+                                                                                                                              [H265]</code>. Case
+                                                                                                            insensitive.</p>
+                                </div>
+
+                                <TextArrayField
+                                    value={form.watch("additionalTerms") || []}
+                                    onChange={(value) => form.setValue("additionalTerms", value)}
+                                    type="text"
+                                    placeholder="e.g. H265,H.265,H 265,x265"
+                                    separatorText="AND"
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
 
             </div>
             {type === "create" &&
@@ -357,6 +400,7 @@ type TextArrayFieldProps<T extends string | number> = {
     type?: "text" | "number"
     label?: string
     placeholder?: string
+    separatorText?: string
 }
 
 export function TextArrayField<T extends string | number>(props: TextArrayFieldProps<T>) {
@@ -367,36 +411,39 @@ export function TextArrayField<T extends string | number>(props: TextArrayFieldP
                 <div className="text-base font-semibold">{props.label}</div>
             </div>}
             {props.value.map((value, index) => (
-                <div key={index} className="flex gap-2 items-center">
-                    {props.type === "text" && <TextInput
-                        value={value}
-                        onChange={(e) => {
-                            const newValue = [...props.value]
-                            newValue[index] = e.target.value as any
-                            props.onChange(newValue)
-                        }}
-                        placeholder={props.placeholder}
-                    />}
-                    {props.type === "number" && <TextInput
-                        type="number"
-                        value={value as number}
-                        onChange={(e) => {
-                            const newValue = [...props.value]
-                            const intVal = parseInt(e.target.value) as number
-                            newValue[index] = (isNaN(parseInt(e.target.value)) ? 1 : (intVal < 1 ? 1 : intVal)) as any
-                            props.onChange(newValue)
-                        }}
-                    />}
-                    <CloseButton
-                        size="sm"
-                        intent="alert-subtle"
-                        onClick={() => {
-                            const newValue = [...props.value]
-                            newValue.splice(index, 1)
-                            props.onChange(newValue)
-                        }}
-                    />
-                </div>
+                <React.Fragment key={index}>
+                    <div key={index} className="flex gap-2 items-center">
+                        {props.type === "text" && <TextInput
+                            value={value}
+                            onChange={(e) => {
+                                const newValue = [...props.value]
+                                newValue[index] = e.target.value as any
+                                props.onChange(newValue)
+                            }}
+                            placeholder={props.placeholder}
+                        />}
+                        {props.type === "number" && <TextInput
+                            type="number"
+                            value={value as number}
+                            onChange={(e) => {
+                                const newValue = [...props.value]
+                                const intVal = parseInt(e.target.value) as number
+                                newValue[index] = (isNaN(parseInt(e.target.value)) ? 1 : (intVal < 1 ? 1 : intVal)) as any
+                                props.onChange(newValue)
+                            }}
+                        />}
+                        <CloseButton
+                            size="sm"
+                            intent="alert-subtle"
+                            onClick={() => {
+                                const newValue = [...props.value]
+                                newValue.splice(index, 1)
+                                props.onChange(newValue)
+                            }}
+                        />
+                    </div>
+                    {(!!props.separatorText && index < props.value.length - 1) && <p className="text-center text-[--muted]">{props.separatorText}</p>}
+                </React.Fragment>
             ))}
             <IconButton
                 intent="success"

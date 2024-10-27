@@ -88,6 +88,7 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 		MediaId             int                                         `json:"mediaId"`
 		ReleaseGroups       []string                                    `json:"releaseGroups"`
 		Resolutions         []string                                    `json:"resolutions"`
+		AdditionalTerms     []string                                    `json:"additionalTerms"`
 		ComparisonTitle     string                                      `json:"comparisonTitle"`
 		TitleComparisonType anime.AutoDownloaderRuleTitleComparisonType `json:"titleComparisonType"`
 		EpisodeType         anime.AutoDownloaderRuleEpisodeType         `json:"episodeType"`
@@ -111,6 +112,7 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 		EpisodeType:         b.EpisodeType,
 		EpisodeNumbers:      b.EpisodeNumbers,
 		Destination:         b.Destination,
+		AdditionalTerms:     b.AdditionalTerms,
 	}
 
 	if err := db_bridge.InsertAutoDownloaderRule(c.App.Database, rule); err != nil {
