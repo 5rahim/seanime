@@ -1366,6 +1366,15 @@
           "descriptions": []
         },
         {
+          "name": "AdditionalTerms",
+          "jsonName": "additionalTerms",
+          "goType": "[]string",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "ComparisonTitle",
           "jsonName": "comparisonTitle",
           "goType": "string",
@@ -6467,6 +6476,24 @@
           "goType": "bool",
           "usedStructType": "",
           "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "DebridProvider",
+          "jsonName": "debridProvider",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "DebridApiKey",
+          "jsonName": "debridApiKey",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
           "required": true,
           "descriptions": []
         }

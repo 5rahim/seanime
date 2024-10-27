@@ -245,11 +245,12 @@ func (as *AutoScanner) scan() {
 			return
 		}
 
-		// Save the scan summary
-		err = db_bridge.InsertScanSummary(as.db, scanSummaryLogger.GenerateSummary())
-		if err != nil {
-			as.logger.Error().Err(err).Msg("failed to insert scan summary")
-		}
+	}
+
+	// Save the scan summary
+	err = db_bridge.InsertScanSummary(as.db, scanSummaryLogger.GenerateSummary())
+	if err != nil {
+		as.logger.Error().Err(err).Msg("failed to insert scan summary")
 	}
 
 	// Refresh the queue

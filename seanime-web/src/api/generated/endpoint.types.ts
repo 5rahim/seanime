@@ -311,6 +311,7 @@ export type CreateAutoDownloaderRule_Variables = {
     mediaId: number
     releaseGroups: Array<string>
     resolutions: Array<string>
+    additionalTerms: Array<string>
     comparisonTitle: string
     titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
     episodeType: Anime_AutoDownloaderRuleEpisodeType
@@ -1324,6 +1325,8 @@ export type GettingStarted_Variables = {
     notifications: Models_NotificationSettings
     enableTranscode: boolean
     enableTorrentStreaming: boolean
+    debridProvider: string
+    debridApiKey: string
 }
 
 /**

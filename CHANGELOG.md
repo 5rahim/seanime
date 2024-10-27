@@ -4,10 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## v2.2.1
 
+- ⚡️ New getting started page
 - ⚡️ Auto Downloader: Added 'additional terms' filter option
-- 🦺 Torrent streaming: Fixed auto-select regression
-- 🦺 Fixed auto-scanning regression
+- 🦺 Torrent streaming: Fixed auto-select runtime error
+- 🦺 Fixed auto-scanning runtime error
 - 🦺 Fixed issue with inexistant log directory
+- 🦺 Torrent streaming: Fixed runtime error caused by missing settings
+- 🦺 Fixed scan summaries of unresolved files not showing up
 
 ## v2.2.0
 

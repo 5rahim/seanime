@@ -17,6 +17,8 @@ export const enum TORRENT_PROVIDER {
 export const _gettingStartedSchema = z.object({
     enableTranscode: z.boolean().optional().default(false),
     enableTorrentStreaming: z.boolean().optional().default(false),
+    debridProvider: z.string().optional().default("none"),
+    debridApiKey: z.string().optional().default(""),
 })
 
 export const settingsSchema = z.object({

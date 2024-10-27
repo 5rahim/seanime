@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/goccy/go-json"
 	"seanime/internal/database/models"
+	"seanime/internal/util"
 	"time"
 )
 
@@ -71,6 +72,13 @@ func HandleLogin(c *RouteCtx) error {
 	c.App.InitOrRefreshAnilistData()
 
 	c.App.InitOrRefreshModules()
+
+	go func() {
+		defer util.HandlePanicThen(func() {})
+		c.App.InitOrRefreshTorrentstreamSettings()
+		c.App.InitOrRefreshMediastreamSettings()
+		c.App.InitOrRefreshDebridSettings()
+	}()
 
 	// Return new status
 	return c.RespondWithData(status)

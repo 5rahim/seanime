@@ -33,7 +33,7 @@ export default function Page() {
 
     const selectedSummary = React.useMemo(() => {
         const summary = data?.find(summary => summary.scanSummary?.id === selectedSummaryId)
-        if (!summary || !summary?.createdAt || !summary?.scanSummary?.id || !summary.scanSummary?.groups?.length) return undefined
+        if (!summary || !summary?.createdAt || !summary?.scanSummary?.id) return undefined
         return {
             createdAt: summary?.createdAt,
             ...summary.scanSummary,

@@ -5,6 +5,8 @@ import { LoadingOverlayWithLogo } from "@/components/shared/loading-overlay-with
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Card } from "@/components/ui/card"
+import { CheckboxProps } from "@/components/ui/checkbox"
+import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import {
     DEFAULT_DOH_PROVIDER,
@@ -18,6 +20,7 @@ import { useRouter } from "next/navigation"
 import React from "react"
 import { FcClapperboard, FcFolder, FcVideoCall, FcVlc } from "react-icons/fc"
 import { HiPlay } from "react-icons/hi"
+import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
@@ -54,7 +57,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
             <div className="mb-4 flex justify-center w-full">
                 <img src="/logo_2.png" alt="logo" className="w-36 h-auto" />
             </div>
-            <Card className="relative p-4">
+            <Card className="relative p-4 bg-transparent border-none">
                 <AppLayoutStack>
                     <div className="space-y-4 p-1">
                         <div>
@@ -133,6 +136,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         disableAutoDownloaderNotifications: false,
                                         disableAutoScannerNotifications: false,
                                     },
+                                    debridProvider: data.debridProvider,
+                                    debridApiKey: data.debridApiKey,
                                 })
                             }}
                             defaultValues={{
@@ -157,300 +162,367 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                 enableAdultContent: true,
                                 enableTorrentStreaming: false,
                                 enableTranscode: false,
+                                debridProvider: "none",
+                                debridApiKey: "",
                             }}
-                            stackClass="space-y-4"
+                            stackClass="space-y-8"
                         >
-                            <Field.DirectorySelector
-                                name="libraryPath"
-                                label="Library folder"
-                                leftIcon={<FcFolder />}
-                                shouldExist
-                            />
+                            {(f) => (<>
 
-                            <div>
-                                <h4 className="text-center">Desktop Media Player</h4>
+                                <Card className="p-4 space-y-4">
+                                    <div>
+                                        <h4 className="text-center">Anime library</h4>
+                                    </div>
 
-                                <p className="text-[--muted] text-center">
-                                    Used to play media files and track your progress automatically.
-                                </p>
-                            </div>
+                                    <Field.DirectorySelector
+                                        name="libraryPath"
+                                        label="Anime library folder"
+                                        leftIcon={<FcFolder />}
+                                        shouldExist
+                                        required
+                                        help="Create an empty folder if you don't have one yet. You can add more folders later."
+                                    />
+                                </Card>
 
-                            <Field.Select
-                                name="defaultPlayer"
-                                label="Default player"
-                                leftIcon={<FcVideoCall />}
-                                options={[
-                                    { label: "MPV", value: "mpv" },
-                                    { label: "VLC", value: "vlc" },
-                                    { label: "MPC-HC", value: "mpc-hc" },
-                                ]}
-                            />
 
-                            <Accordion
-                                type="single"
-                                className=""
-                                triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
-                                itemClass="border-b"
-                                contentClass="pb-8"
-                                collapsible
-                            >
-                                <AccordionItem value="mpv">
-                                    <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center"><HiPlay /> MPV</h4>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-1 py-4 space-y-4">
-                                        <div className="flex gap-4 flex-col md:flex-row">
-                                            <Field.Text
-                                                name="mpvSocket"
-                                                label="Socket / Pipe"
-                                            />
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                                <AccordionItem value="vlc">
-                                    <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-1 py-4 space-y-4">
-                                        <p className="text-[--muted]">
-                                            Leave these fields if you don't want to use VLC.
+                                <Card className="p-4 space-y-4">
+                                    <div>
+                                        <h4 className="text-center">Desktop Media Player</h4>
+
+                                        <p className="text-[--muted] text-center text-sm">
+                                            Used to play media files on your host computer and track your progress automatically.
                                         </p>
-                                        <div className="flex gap-4 flex-col md:flex-row">
-                                            <Field.Text
-                                                name="mediaPlayerHost"
-                                                label="Host"
-                                            />
-                                            <Field.Number
-                                                name="vlcPort"
-                                                label="Port"
-                                                formatOptions={{
-                                                    useGrouping: false,
-                                                }}
-                                            />
-                                        </div>
-                                        <div className="flex gap-4 flex-col md:flex-row">
-                                            <Field.Text
-                                                name="vlcUsername"
-                                                label="Username"
-                                            />
-                                            <Field.Text
-                                                name="vlcPassword"
-                                                label="Password"
-                                            />
-                                        </div>
-                                        <Field.Text
-                                            name="vlcPath"
-                                            label="Executable"
-                                            help="Path to the VLC executable, this is used to launch the application."
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <Field.Select
+                                            name="defaultPlayer"
+                                            label="Default media player"
+                                            required
+                                            leftIcon={<FcVideoCall />}
+                                            options={[
+                                                { label: "MPV", value: "mpv" },
+                                                { label: "VLC", value: "vlc" },
+                                                { label: "MPC-HC", value: "mpc-hc" },
+                                            ]}
                                         />
-                                    </AccordionContent>
-                                </AccordionItem>
-                                <AccordionItem value="mpc-hc">
-                                    <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-1 py-4 space-y-4">
-                                        <p className="text-[--muted]">
-                                            Leave these fields if you don't want to use MPC-HC.
+
+                                        <Accordion
+                                            type="single"
+                                            className=""
+                                            triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
+                                            itemClass="border-b"
+                                            contentClass="pb-8"
+                                            collapsible
+                                        >
+                                            <AccordionItem value="mpv">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center"><HiPlay /> MPV</h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="px-1 py-4 space-y-4">
+                                                    <div className="flex gap-4 flex-col md:flex-row">
+                                                        <Field.Text
+                                                            name="mpvSocket"
+                                                            label="Socket / Pipe"
+                                                        />
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="vlc">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="px-1 py-4 space-y-4">
+                                                    <p className="text-[--muted]">
+                                                        Leave these fields if you don't want to use VLC.
+                                                    </p>
+                                                    <div className="flex gap-4 flex-col md:flex-row">
+                                                        <Field.Text
+                                                            name="mediaPlayerHost"
+                                                            label="Host"
+                                                        />
+                                                        <Field.Number
+                                                            name="vlcPort"
+                                                            label="Port"
+                                                            formatOptions={{
+                                                                useGrouping: false,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="flex gap-4 flex-col md:flex-row">
+                                                        <Field.Text
+                                                            name="vlcUsername"
+                                                            label="Username"
+                                                        />
+                                                        <Field.Text
+                                                            name="vlcPassword"
+                                                            label="Password"
+                                                        />
+                                                    </div>
+                                                    <Field.Text
+                                                        name="vlcPath"
+                                                        label="Executable"
+                                                        help="Path to the VLC executable, this is used to launch the application."
+                                                    />
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="mpc-hc">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="px-1 py-4 space-y-4">
+                                                    <p className="text-[--muted]">
+                                                        Leave these fields if you don't want to use MPC-HC.
+                                                    </p>
+                                                    <div className="flex gap-4 flex-col md:flex-row">
+                                                        <Field.Text
+                                                            name="mediaPlayerHost"
+                                                            label="Host"
+                                                        />
+                                                        <Field.Number
+                                                            name="mpcPort"
+                                                            label="Port"
+                                                            formatOptions={{
+                                                                useGrouping: false,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className="flex gap-4 flex-col md:flex-row">
+                                                        <Field.Text
+                                                            name="mpcPath"
+                                                            label="Executable"
+                                                            help="Path to the MPC-HC executable, this is used to launch the application."
+                                                        />
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        </Accordion>
+                                    </div>
+                                </Card>
+
+
+                                <Card className="p-4 space-y-4">
+                                    <div>
+                                        <h4 className="text-center">Torrent Provider Extension</h4>
+
+                                        <p className="text-[--muted] text-center text-sm">
+                                            Built-in torrent provider extension used by the search engine and Auto Downloader.
                                         </p>
-                                        <div className="flex gap-4 flex-col md:flex-row">
-                                            <Field.Text
-                                                name="mediaPlayerHost"
-                                                label="Host"
-                                            />
-                                            <Field.Number
-                                                name="mpcPort"
-                                                label="Port"
-                                                formatOptions={{
-                                                    useGrouping: false,
-                                                }}
-                                            />
-                                        </div>
-                                        <div className="flex gap-4 flex-col md:flex-row">
-                                            <Field.Text
-                                                name="vlcPath"
-                                                label="Executable"
-                                                help="Path to the MPC-HC executable, this is used to launch the application."
-                                            />
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
+                                    </div>
 
-                            <div>
-                                <h4 className="text-center">Torrent Provider Extension</h4>
 
-                                <p className="text-[--muted] text-center">
-                                    Built-in torrent provider extension used by the search engine and auto downloader. AnimeTosho is recommended for
-                                    more accurate results.
-                                </p>
-                            </div>
+                                    <Field.Select
+                                        name="torrentProvider"
+                                        label="Torrent Provider"
+                                        required
+                                        leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
+                                        options={[
+                                            { label: "AnimeTosho (recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
+                                            { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
+                                        ]}
+                                    />
+                                </Card>
 
-                            <Field.Select
-                                name="torrentProvider"
-                                // label="Torrent Provider"
-                                leftIcon={<RiFolderDownloadFill className="text-orange-500" />}
-                                options={[
-                                    { label: "AnimeTosho (recommended)", value: TORRENT_PROVIDER.ANIMETOSHO },
-                                    { label: "Nyaa", value: TORRENT_PROVIDER.NYAA },
-                                ]}
-                            />
 
-                            <div>
-                                <h4 className="text-center">Torrent Client</h4>
+                                <Card className="p-4 space-y-4">
+                                    <div>
+                                        <h4 className="text-center">Torrent Client</h4>
 
-                                <p className="text-[--muted] text-center">
-                                    Torrent client used to download media.
-                                </p>
-                            </div>
+                                        <p className="text-[--muted] text-center">
+                                            Torrent client used to download media.
+                                        </p>
+                                    </div>
 
-                            <Field.Select
-                                name="defaultTorrentClient"
-                                // label="Default torrent client"
-                                leftIcon={<ImDownload className="text-blue-400" />}
-                                options={[
-                                    { label: "qBittorrent", value: "qbittorrent" },
-                                    { label: "Transmission", value: "transmission" },
-                                ]}
-                            />
-
-                            <Accordion
-                                type="single"
-                                className=""
-                                triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
-                                itemClass="border-b"
-                                contentClass="pb-8"
-                                collapsible
-                            >
-                                <AccordionItem value="qbittorrent">
-                                    <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center">qBittorrent</h4>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-1 py-4 space-y-4">
-                                        <Field.Text
-                                            name="qbittorrentHost"
-                                            label="Host"
+                                    <div className="space-y-4">
+                                        <Field.Select
+                                            name="defaultTorrentClient"
+                                            label="Default torrent client"
+                                            leftIcon={<ImDownload className="text-blue-400" />}
+                                            options={[
+                                                { label: "qBittorrent", value: "qbittorrent" },
+                                                { label: "Transmission", value: "transmission" },
+                                            ]}
                                         />
-                                        <div className="flex flex-col md:flex-row gap-4">
-                                            <Field.Text
-                                                name="qbittorrentUsername"
-                                                label="Username"
-                                            />
-                                            <Field.Text
-                                                name="qbittorrentPassword"
-                                                label="Password"
-                                            />
-                                            <Field.Number
-                                                name="qbittorrentPort"
-                                                label="Port"
-                                                formatOptions={{
-                                                    useGrouping: false,
-                                                }}
-                                            />
-                                        </div>
-                                        <Field.Text
-                                            name="qbittorrentPath"
-                                            label="Executable"
-                                            help="Path to the qBittorrent executable, this is used to launch the application."
+
+                                        <Accordion
+                                            type="single"
+                                            className=""
+                                            triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
+                                            itemClass="border-b"
+                                            contentClass="pb-8"
+                                            collapsible
+                                        >
+                                            <AccordionItem value="qbittorrent">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center">qBittorrent</h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="px-1 py-4 space-y-4">
+                                                    <Field.Text
+                                                        name="qbittorrentHost"
+                                                        label="Host"
+                                                    />
+                                                    <div className="flex flex-col md:flex-row gap-4">
+                                                        <Field.Text
+                                                            name="qbittorrentUsername"
+                                                            label="Username"
+                                                        />
+                                                        <Field.Text
+                                                            name="qbittorrentPassword"
+                                                            label="Password"
+                                                        />
+                                                        <Field.Number
+                                                            name="qbittorrentPort"
+                                                            label="Port"
+                                                            formatOptions={{
+                                                                useGrouping: false,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Field.Text
+                                                        name="qbittorrentPath"
+                                                        label="Executable"
+                                                        help="Path to the qBittorrent executable, this is used to launch the application."
+                                                    />
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="transmission">
+                                                <AccordionTrigger>
+                                                    <h4 className="flex gap-2 items-center">Transmission</h4>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="px-1 py-4 space-y-4">
+                                                    <Field.Text
+                                                        name="transmissionHost"
+                                                        label="Host"
+                                                    />
+                                                    <div className="flex flex-col md:flex-row gap-4">
+                                                        <Field.Text
+                                                            name="transmissionUsername"
+                                                            label="Username"
+                                                        />
+                                                        <Field.Text
+                                                            name="transmissionPassword"
+                                                            label="Password"
+                                                        />
+                                                        <Field.Number
+                                                            name="transmissionPort"
+                                                            label="Port"
+                                                            formatOptions={{
+                                                                useGrouping: false,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <Field.Text
+                                                        name="transmissionPath"
+                                                        label="Executable"
+                                                        help="Path to the Transmission executable, this is used to launch the application."
+                                                    />
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        </Accordion>
+                                    </div>
+                                </Card>
+
+                                <Card className="p-4 space-y-4">
+                                    <div>
+                                        <h4 className="text-center">Debrid Service</h4>
+
+                                        <p className="text-[--muted] text-center">
+                                            Debrid service used to download or stream anime.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <Field.Select
+                                            name="debridProvider"
+                                            label="Debrid service"
+                                            leftIcon={<HiOutlineServerStack className="text-yellow-500" />}
+                                            options={[
+                                                { label: "None", value: "none" },
+                                                { label: "TorBox", value: "torbox" },
+                                            ]}
                                         />
-                                    </AccordionContent>
-                                </AccordionItem>
-                                <AccordionItem value="transmission">
-                                    <AccordionTrigger>
-                                        <h4 className="flex gap-2 items-center">Transmission</h4>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="px-1 py-4 space-y-4">
-                                        <Field.Text
-                                            name="transmissionHost"
-                                            label="Host"
-                                        />
-                                        <div className="flex flex-col md:flex-row gap-4">
+
+                                        {f.watch("debridProvider") !== "none" && f.watch("debridProvider") !== "" && (
                                             <Field.Text
-                                                name="transmissionUsername"
-                                                label="Username"
+                                                name="debridApiKey"
+                                                label="API Key"
+                                                help="API key provided by the debrid service."
                                             />
-                                            <Field.Text
-                                                name="transmissionPassword"
-                                                label="Password"
-                                            />
-                                            <Field.Number
-                                                name="transmissionPort"
-                                                label="Port"
-                                                formatOptions={{
-                                                    useGrouping: false,
-                                                }}
-                                            />
-                                        </div>
-                                        <Field.Text
-                                            name="transmissionPath"
-                                            label="Executable"
-                                            help="Path to the Transmission executable, this is used to launch the application."
+                                        )}
+                                    </div>
+                                </Card>
+
+                                <Card className="p-4 space-y-4">
+                                    <div>
+                                        <h4 className="text-center">Features</h4>
+
+                                        <p className="text-[--muted] text-center">
+                                            Select additional features you want to use.
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <Field.Checkbox
+                                            name="enableManga"
+                                            label={<span>Manga</span>}
+                                            help="Read and download manga chapters."
+                                            size="lg"
+                                            {...cardCheckboxStyles}
                                         />
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </Accordion>
 
-                            <div>
-                                <h4 className="text-center">More features</h4>
+                                        <Field.Checkbox
+                                            name="enableTranscode"
+                                            label={<span>Media streaming / Transcoding</span>}
+                                            help="Stream downloaded episodes to other devices using transcoding or direct play. FFmpeg is required."
+                                            size="lg"
+                                            {...cardCheckboxStyles}
+                                        />
 
-                                <p className="text-[--muted] text-center">
-                                    Select additional features you want to use.
-                                </p>
-                            </div>
+                                        <Field.Checkbox
+                                            name="enableTorrentStreaming"
+                                            label={<span>Torrent streaming</span>}
+                                            help="Stream torrents directly to your media player without having to wait for the download to complete."
+                                            size="lg"
+                                            {...cardCheckboxStyles}
+                                        />
 
-                            <Field.Checkbox
-                                name="enableManga"
-                                label={<span>Manga</span>}
-                                help="Read and download manga chapters."
-                                size="lg"
-                            />
+                                        <Field.Checkbox
+                                            name="enableOnlinestream"
+                                            label={<span>Online streaming</span>}
+                                            help="Watch anime episodes from online sources."
+                                            size="lg"
+                                            {...cardCheckboxStyles}
+                                        />
 
-                            <Field.Checkbox
-                                name="enableTranscode"
-                                label={<span>Media streaming / Transcoding</span>}
-                                help="Stream downloaded episodes to other devices using transcoding or direct play. FFmpeg is required."
-                                size="lg"
-                            />
-
-
-                            <Field.Checkbox
-                                name="enableTorrentStreaming"
-                                label={<span>Torrent streaming</span>}
-                                help="Stream torrents directly to your media player without having to wait for the download to complete."
-                                size="lg"
-                            />
-
-                            <Field.Checkbox
-                                name="enableOnlinestream"
-                                label={<span>Online streaming</span>}
-                                help="Watch anime episodes from online sources."
-                                size="lg"
-                            />
-
-                            <Field.Checkbox
-                                name="enableRichPresence"
-                                label={<span>Discord Rich Presence</span>}
-                                help="Show what you're watching/reading on Discord."
-                                size="lg"
-                            />
+                                        <Field.Checkbox
+                                            name="enableRichPresence"
+                                            label={<span>Discord Rich Presence</span>}
+                                            help="Show what you're watching/reading on Discord."
+                                            size="lg"
+                                            {...cardCheckboxStyles}
+                                        />
 
 
-                            <Field.Checkbox
-                                name="enableAdultContent"
-                                label={<span>NSFW</span>}
-                                help={<div>
-                                    <p>Show adult content in your library and search results.</p>
-                                </div>}
-                                size="lg"
-                            />
+                                        <Field.Checkbox
+                                            name="enableAdultContent"
+                                            label={<span>NSFW</span>}
+                                            help={<div>
+                                                <p>Show adult content in your library and search results.</p>
+                                            </div>}
+                                            size="lg"
+                                            {...cardCheckboxStyles}
+                                        />
+                                    </div>
+                                </Card>
 
 
-                            <Field.Submit
-                                className="w-full"
-                                role="submit"
-                                showLoadingOverlayOnSuccess={true}
-                                loading={isPending}
-                            >Continue</Field.Submit>
+                                <Field.Submit
+                                    className="w-full"
+                                    role="submit"
+                                    showLoadingOverlayOnSuccess={true}
+                                    loading={isPending}
+                                >Continue</Field.Submit>
+                            </>)}
                         </Form>
                     </div>
                 </AppLayoutStack>
@@ -458,4 +530,29 @@ export function GettingStartedPage({ status }: { status: Status }) {
             <p className="text-[--muted] mt-5 text-center">Made by 5rahim</p>
         </div>
     )
+}
+
+const cardCheckboxStyles: CheckboxProps = {
+    labelClass: cn(
+        "block cursor-pointer transition overflow-hidden w-full py-1 px-2 rounded-md",
+        "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-950 border-dashed",
+        "data-[checked=false]:text-[--muted] hover:data-[checked=false]:opacity-50",
+        "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",
+        "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
+        "data-[checked=true]:ring-offset-0",
+        "data-[checked=true]:text-[--brand]",
+    ),
+    containerClass: "flex items-center justify-between",
+    className: cn(
+        "absolute top-0 right-0 z-10 rounded-tl-none rounded-br-none",
+    ),
+    fieldClass: "border p-2 rounded-md relative",
+    fieldHelpTextClass: "text-pretty",
+    // labelClass: cn(
+    //     "border-transparent border data-[checked=true]:border-brand dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
+    //     "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
+    //     "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
+    // ),
+    // itemLabelClass: "font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer",
+    // stackClass: "flex md:flex-row flex-col space-y-0 gap-4",
 }

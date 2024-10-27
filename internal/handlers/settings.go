@@ -49,6 +49,8 @@ func HandleGettingStarted(c *RouteCtx) error {
 		Notifications          models.NotificationSettings `json:"notifications"`
 		EnableTranscode        bool                        `json:"enableTranscode"`
 		EnableTorrentStreaming bool                        `json:"enableTorrentStreaming"`
+		DebridProvider         string                      `json:"debridProvider"`
+		DebridApiKey           string                      `json:"debridApiKey"`
 	}
 	var b body
 
@@ -93,6 +95,7 @@ func HandleGettingStarted(c *RouteCtx) error {
 			prev, found := c.App.Database.GetTorrentstreamSettings()
 			if found {
 				prev.Enabled = true
+				//prev.IncludeInLibrary = true
 				_, _ = c.App.Database.UpsertTorrentstreamSettings(prev)
 			}
 		}()
@@ -105,6 +108,20 @@ func HandleGettingStarted(c *RouteCtx) error {
 			if found {
 				prev.TranscodeEnabled = true
 				_, _ = c.App.Database.UpsertMediastreamSettings(prev)
+			}
+		}()
+	}
+
+	if b.DebridProvider != "" && b.DebridProvider != "none" {
+		go func() {
+			defer util.HandlePanicThen(func() {})
+			prev, found := c.App.Database.GetDebridSettings()
+			if found {
+				prev.Enabled = true
+				prev.Provider = b.DebridProvider
+				prev.ApiKey = b.DebridApiKey
+				//prev.IncludeDebridStreamInLibrary = true
+				_, _ = c.App.Database.UpsertDebridSettings(prev)
 			}
 		}()
 	}
