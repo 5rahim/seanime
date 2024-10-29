@@ -153,6 +153,7 @@ func (fs *FileStream) GetMaster() string {
 		if audio.IsDefault {
 			master += "DEFAULT=YES,"
 		}
+		master += "CHANNELS=\"2\","
 		master += fmt.Sprintf("URI=\"./audio/%d/index.m3u8\"\n", audio.Index)
 	}
 	return master
