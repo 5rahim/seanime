@@ -191,16 +191,33 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			Message:     "Checking stream file...",
 		})
 
-		// Check if we can stream the URL
-		if canStream, reason := CanStream(streamUrl); !canStream {
-			s.repository.logger.Warn().Msg("debridstream: Cannot stream the file")
+		retries := 0
 
-			s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-				Status:      StreamStatusFailed,
-				TorrentName: opts.Torrent.Name,
-				Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
-			})
-			return
+	streamUrlCheckLoop:
+		for { // Retry loop for a total of 4 times (32 seconds)
+			// Check if we can stream the URL
+			if canStream, reason := CanStream(streamUrl); !canStream {
+				if retries >= 4 {
+					s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
+
+					s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+						Status:      StreamStatusFailed,
+						TorrentName: opts.Torrent.Name,
+						Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
+					})
+					return
+				}
+				s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
+				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+					Status:      StreamStatusDownloading,
+					TorrentName: opts.Torrent.Name,
+					Message:     "Checking stream file...",
+				})
+				retries++
+				time.Sleep(8 * time.Second)
+				continue
+			}
+			break streamUrlCheckLoop
 		}
 
 		s.repository.logger.Debug().Msg("debridstream: Stream is ready")
