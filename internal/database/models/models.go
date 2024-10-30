@@ -380,6 +380,8 @@ type DebridSettings struct {
 	ApiKey                        string `gorm:"column:api_key" json:"apiKey"`
 	FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"`
 	IncludeDebridStreamInLibrary  bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
+	StreamAutoSelect              bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
+	StreamPreferredResolution     string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
 }
 
 type DebridTorrentItem struct {

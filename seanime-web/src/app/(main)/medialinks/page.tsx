@@ -50,7 +50,6 @@ export default function Page() {
 
             if (episode.type !== "main") {
                 logger("MEDIALINKS").warning("Episode is not a main episode. Cannot track progress.")
-                return
             }
 
             if (!externalPlayerLink) {
@@ -65,7 +64,7 @@ export default function Page() {
 
             window.open(getExternalPlayerURL(externalPlayerLink, urlToSend), "_blank")
 
-            if (episode?.progressNumber) {
+            if (episode?.progressNumber && episode.type === "main") {
                 logger("MEDIALINKS").error("Starting manual tracking")
                 // Start manual tracking
                 React.startTransition(() => {

@@ -40,6 +40,12 @@ func TestMediaTreeAnalysis(t *testing.T) {
 			absoluteEpisodeNumber:         12,
 			expectedRelativeEpisodeNumber: 1,
 		},
+		{
+			name:                          "Re:zero",
+			mediaId:                       21355, // Re:Zero kara Hajimeru Isekai Seikatsu
+			absoluteEpisodeNumber:         51,
+			expectedRelativeEpisodeNumber: 1,
+		},
 	}
 
 	for _, tt := range tests {

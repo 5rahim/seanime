@@ -7,7 +7,10 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/util"
 	"seanime/internal/util/limiter"
+	"sort"
+	"time"
 )
 
 type (
@@ -32,6 +35,7 @@ type (
 		minAbsoluteEpisode           int
 		maxAbsoluteEpisode           int
 		totalEpisodeCount            int
+		noAbsoluteEpisodesFound      bool
 	}
 )
 
@@ -78,7 +82,7 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 			}
 
 			// If the first episode exists and has a valid absolute episode number, create a new MediaTreeAnalysisBranch
-			if animeMetadata.Episodes != nil && firstEp.AbsoluteEpisodeNumber > 0 {
+			if animeMetadata.Episodes != nil {
 				return &MediaTreeAnalysisBranch{
 					media:                        rel,
 					animeMetadata:                animeMetadata,
@@ -88,8 +92,9 @@ func NewMediaTreeAnalysis(opts *MediaTreeAnalysisOptions) (*MediaTreeAnalysis, e
 					// The max absolute episode number is the first episode's absolute episode number plus the total episode count minus 1
 					// We subtract 1 because the first episode's absolute episode number is already included in the total episode count
 					// e.g, if the first episode's absolute episode number is 13 and the total episode count is 12, the max absolute episode number is 24
-					maxAbsoluteEpisode: firstEp.AbsoluteEpisodeNumber + (animeMetadata.GetMainEpisodeCount() - 1),
-					totalEpisodeCount:  animeMetadata.GetMainEpisodeCount(),
+					maxAbsoluteEpisode:      firstEp.AbsoluteEpisodeNumber + (animeMetadata.GetMainEpisodeCount() - 1),
+					totalEpisodeCount:       animeMetadata.GetMainEpisodeCount(),
+					noAbsoluteEpisodesFound: firstEp.AbsoluteEpisodeNumber == 0,
 				}, nil
 			}
 
@@ -131,6 +136,63 @@ func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, m
 		return false
 	})
 	if !ok {
+		// Sort branches manually
+		type branchByFirstEpDate struct {
+			branch             *MediaTreeAnalysisBranch
+			firstEpDate        time.Time
+			minAbsoluteEpisode int
+			maxAbsoluteEpisode int
+		}
+		branches := make([]*branchByFirstEpDate, 0)
+		for _, b := range o.branches {
+			// Get the first episode date
+			firstEp, ok := b.animeMetadata.Episodes["1"]
+			if !ok {
+				continue
+			}
+			// parse date
+			t, err := time.Parse(time.DateOnly, firstEp.AirDate)
+			if err != nil {
+				continue
+			}
+			branches = append(branches, &branchByFirstEpDate{
+				branch:      b,
+				firstEpDate: t,
+			})
+		}
+
+		// Sort branches by first episode date
+		// If the first episode date is not available, the branch will be placed at the end
+		sort.Slice(branches, func(i, j int) bool {
+			return branches[i].firstEpDate.Before(branches[j].firstEpDate)
+		})
+
+		// Hydrate branches with min and max absolute episode numbers
+		visited := make(map[int]*branchByFirstEpDate)
+		for idx, b := range branches {
+			visited[idx] = b
+			if v, ok := visited[idx-1]; ok {
+				b.minAbsoluteEpisode = v.maxAbsoluteEpisode + 1
+				b.maxAbsoluteEpisode = b.minAbsoluteEpisode + b.branch.totalEpisodeCount - 1
+				continue
+			}
+			b.minAbsoluteEpisode = 1
+			b.maxAbsoluteEpisode = b.minAbsoluteEpisode + b.branch.totalEpisodeCount - 1
+		}
+
+		for _, b := range branches {
+			util.SpewMany(b.minAbsoluteEpisode, b.maxAbsoluteEpisode, abs)
+			if b.minAbsoluteEpisode <= abs && b.maxAbsoluteEpisode >= abs {
+				b.branch.minAbsoluteEpisode = b.minAbsoluteEpisode
+				b.branch.maxAbsoluteEpisode = b.maxAbsoluteEpisode
+				branch = b.branch
+				relativeEp = abs - (branch.minAbsoluteEpisode - 1)
+				mediaId = branch.media.ID
+				ok = true
+				return
+			}
+		}
+
 		return 0, 0, false
 	}
 
