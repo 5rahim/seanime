@@ -284,6 +284,7 @@ func HandleDebridStartStream(c *RouteCtx) error {
 		MediaId       int                              `json:"mediaId"`
 		EpisodeNumber int                              `json:"episodeNumber"`
 		AniDBEpisode  string                           `json:"aniDBEpisode"`
+		AutoSelect    bool                             `json:"autoSelect"`
 		Torrent       *hibiketorrent.AnimeTorrent      `json:"torrent"`
 		FileId        string                           `json:"fileId"`
 		PlaybackType  debrid_client.StreamPlaybackType `json:"playbackType"` // "default" or "externalPlayerLink"
@@ -297,19 +298,21 @@ func HandleDebridStartStream(c *RouteCtx) error {
 
 	userAgent := c.Fiber.Get("User-Agent")
 
-	animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
-	if !ok {
-		return c.RespondWithError(errors.New("provider extension not found for torrent"))
+	if b.Torrent != nil {
+		animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
+		if !ok {
+			return c.RespondWithError(errors.New("provider extension not found for torrent"))
+		}
+
+		magnet, err := animeTorrentProviderExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
+		if err != nil {
+			return c.RespondWithError(err)
+		}
+
+		b.Torrent.MagnetLink = magnet
 	}
 
-	magnet, err := animeTorrentProviderExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
-	b.Torrent.MagnetLink = magnet
-
-	err = c.App.DebridClientRepository.StartStream(&debrid_client.StartStreamOptions{
+	err := c.App.DebridClientRepository.StartStream(&debrid_client.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 		AniDBEpisode:  b.AniDBEpisode,
@@ -318,6 +321,7 @@ func HandleDebridStartStream(c *RouteCtx) error {
 		UserAgent:     userAgent,
 		ClientId:      b.ClientId,
 		PlaybackType:  b.PlaybackType,
+		AutoSelect:    b.AutoSelect,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

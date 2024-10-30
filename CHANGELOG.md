@@ -7,8 +7,8 @@ All notable changes to this project will be documented in this file.
 - ✨ Debrid Streaming: Auto select
 - ⚡️ Debrid Streaming: Added retry mechanism for un-streamable URLs 
 - ⚡️ Scanner: Improved episode normalization logic as a fallback
-- 🦺 Fixed custom background images not showing up
-- 🦺 Fixed external player link for downloaded Specials/NC files
+- 🦺 Fixed custom background images not showing up #148
+- 🦺 Fixed external player link for downloaded Specials/NC files #139
 
 ## v2.2.1
 

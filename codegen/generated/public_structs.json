@@ -28141,6 +28141,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "StreamAutoSelect",
+        "jsonName": "streamAutoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamPreferredResolution",
+        "jsonName": "streamPreferredResolution",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -37740,6 +37758,15 @@
         "jsonName": "totalEpisodeCount",
         "goType": "int",
         "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "noAbsoluteEpisodesFound",
+        "jsonName": "noAbsoluteEpisodesFound",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": false,
         "comments": []

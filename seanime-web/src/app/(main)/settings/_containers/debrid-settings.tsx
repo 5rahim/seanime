@@ -14,6 +14,8 @@ const debridSettingsSchema = defineSchema(({ z }) => z.object({
     apiKey: z.string().optional().default(""),
     fallbackToDebridStreamingView: z.boolean().default(false),
     includeDebridStreamInLibrary: z.boolean().default(false),
+    streamAutoSelect: z.boolean().default(false),
+    streamPreferredResolution: z.string(),
 }))
 
 type DebridSettingsProps = {
@@ -45,6 +47,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                                 ...settings,
                                 ...data,
                                 provider: data.provider === "-" ? "" : data.provider,
+                                streamPreferredResolution: data.streamPreferredResolution === "-" ? "" : data.streamPreferredResolution,
                             },
                         })
                     }
@@ -55,6 +58,8 @@ export function DebridSettings(props: DebridSettingsProps) {
                     apiKey: settings?.apiKey,
                     fallbackToDebridStreamingView: settings?.fallbackToDebridStreamingView,
                     includeDebridStreamInLibrary: settings?.includeDebridStreamInLibrary,
+                    streamAutoSelect: settings?.streamAutoSelect ?? false,
+                    streamPreferredResolution: settings?.streamPreferredResolution || "-",
                 }}
                 stackClass="space-y-6"
             >
@@ -95,8 +100,12 @@ export function DebridSettings(props: DebridSettingsProps) {
                         <Separator />
 
                         <h3>
-                            Streaming integration
+                            Streaming
                         </h3>
+
+                        <h4>
+                            Integration
+                        </h4>
 
                         <Field.Switch
                             name="fallbackToDebridStreamingView"
@@ -108,6 +117,30 @@ export function DebridSettings(props: DebridSettingsProps) {
                             name="includeDebridStreamInLibrary"
                             label="Include in library"
                             help="Make non-downloaded episodes and shows appear in your library for torrent streaming."
+                        />
+
+                        <Separator />
+
+                        <h4>
+                            Auto-select
+                        </h4>
+
+                        <Field.Switch
+                            name="streamAutoSelect"
+                            label="Enable"
+                            help="Let Seanime find the best torrent automatically, based on cache and resolution."
+                        />
+
+                        <Field.Select
+                            name="streamPreferredResolution"
+                            label="Preferred resolution"
+                            help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
+                            options={[
+                                { label: "Highest", value: "-" },
+                                { label: "480p", value: "480" },
+                                { label: "720p", value: "720" },
+                                { label: "1080p", value: "1080" },
+                            ]}
                         />
 
 

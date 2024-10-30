@@ -1,6 +1,7 @@
 import { Anime_Entry, Anime_Episode, HibikeTorrent_AnimeTorrent, Torrentstream_PlaybackType } from "@/api/generated/types"
 import { useTorrentstreamStartStream } from "@/api/hooks/torrentstream.hooks"
 import { PlaybackTorrentStreaming, useCurrentDevicePlaybackSettings, useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
+import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import {
     __torrentstream__loadingStateAtom,
     __torrentstream__stateAtom,
@@ -132,5 +133,49 @@ export function useTorrentStreamAutoplay() {
         setTorrentstreamAutoplayInfo: setInfo,
         autoplayNextTorrentstreamEpisode: handleAutoplayNextTorrentstreamEpisode,
         resetTorrentstreamAutoplayInfo: () => setInfo(null),
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type DebridStreamAutoplayInfo = {
+    allEpisodes: Anime_Episode[]
+    entry: Anime_Entry
+    episodeNumber: number
+    aniDBEpisode: string
+}
+const __debridstream_autoplayAtom = atom<DebridStreamAutoplayInfo | null>(null)
+
+export function useDebridStreamAutoplay() {
+    const [info, setInfo] = useAtom(__debridstream_autoplayAtom)
+
+    const { handleAutoSelectStream } = useHandleStartDebridStream()
+
+    function handleAutoplayNextTorrentstreamEpisode() {
+        if (!info) return
+        const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
+        handleAutoSelectStream({ entry, episodeNumber: episodeNumber, aniDBEpisode })
+
+        const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
+        if (nextEpisode && !!nextEpisode.aniDBEpisode) {
+            setInfo({
+                allEpisodes,
+                entry,
+                episodeNumber: nextEpisode.episodeNumber,
+                aniDBEpisode: nextEpisode.aniDBEpisode,
+            })
+        } else {
+            setInfo(null)
+        }
+
+        toast.info("Requesting next torrent")
+    }
+
+    return {
+        hasNextDebridstreamEpisode: !!info,
+        setDebridstreamAutoplayInfo: setInfo,
+        autoplayNextDebridstreamEpisode: handleAutoplayNextTorrentstreamEpisode,
+        resetDebridstreamAutoplayInfo: () => setInfo(null),
     }
 }

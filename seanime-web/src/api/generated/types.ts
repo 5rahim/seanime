@@ -2520,6 +2520,8 @@ export type Models_DebridSettings = {
     apiKey: string
     fallbackToDebridStreamingView: boolean
     includeDebridStreamInLibrary: boolean
+    streamAutoSelect: boolean
+    streamPreferredResolution: string
     id: number
     createdAt?: string
     updatedAt?: string

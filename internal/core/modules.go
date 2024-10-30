@@ -96,12 +96,13 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
-		Logger:           a.Logger,
-		WSEventManager:   a.WSEventManager,
-		Database:         a.Database,
-		MetadataProvider: a.MetadataProvider,
-		Platform:         a.AnilistPlatform,
-		PlaybackManager:  a.PlaybackManager,
+		Logger:            a.Logger,
+		WSEventManager:    a.WSEventManager,
+		Database:          a.Database,
+		MetadataProvider:  a.MetadataProvider,
+		Platform:          a.AnilistPlatform,
+		PlaybackManager:   a.PlaybackManager,
+		TorrentRepository: a.TorrentRepository,
 	})
 
 	// +---------------------+

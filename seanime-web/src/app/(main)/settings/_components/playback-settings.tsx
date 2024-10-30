@@ -54,8 +54,8 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
 
             <Select
                 name="-"
-                label="Torrent streaming"
-                help="Player to use for torrent or Debrid streaming."
+                label="Torrent/Debrid streaming"
+                help="Player to use for torrent or debrid streaming."
                 value={torrentStreamingPlayback}
                 onValueChange={v => setTorrentStreamingPlayback(v)}
                 options={playbackTorrentStreamingOptions}

@@ -2094,6 +2094,15 @@
           "descriptions": []
         },
         {
+          "name": "AutoSelect",
+          "jsonName": "autoSelect",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "Torrent",
           "jsonName": "torrent",
           "goType": "hibiketorrent.AnimeTorrent",
