@@ -21,9 +21,9 @@ var additionalStructNamesForEndpoints = []string{
 	"vendor_hibike_torrent.AnimeTorrent",
 }
 
-func GenerateTypescriptEndpointsFile(docsPath string, structsPath string, outDir string) []string {
-	handlers := LoadHandlers(docsPath)
-	structs := LoadPublicStructs(structsPath)
+func GenerateTypescriptEndpointsFile(handlersJsonPath string, structsJsonPath string, outDir string) []string {
+	handlers := LoadHandlers(handlersJsonPath)
+	structs := LoadPublicStructs(structsJsonPath)
 
 	_ = os.MkdirAll(outDir, os.ModePerm)
 	f, err := os.Create(filepath.Join(outDir, typescriptEndpointsFileName))

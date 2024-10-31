@@ -47,13 +47,13 @@ Note that the web interface should be built first before building the server.
 
 # Development
 
-To get started, you will need to be familiar with Go and React.
+1. To get started, you **must be familiar with Go and React**.
 
-I recommend creating a dummy AniList account for testing purposes.
+2. I recommend creating a dummy AniList account to use for testing. This will prevent the tests from affecting your actual account.
 
 ## Server
 
-1. Choose a data directory for testing.
+1. Create/choose a dummy data directory for testing.
 This will prevent the server from writing to your actual data directory.
 
 2. Create a dummy `web` folder if you want to develop the web interface too or build the web interface first and move the contents to a `web` directory at the root of the project before running the server.
@@ -85,19 +85,23 @@ Either way, a `web` directory should be present at the root of the project.
 During development, the web interface is served by the Next.js development server instead of the Go server,
 leading to different ports.
 
-## Codegen
+## Handlers & Codegen
 
-1. All routes are declared in `internal/handlers/routes.go` where a `handler` method is passed to each route.
-2. Route handlers are defined in `internal/handlers`.
-   - The comments above each route handler declaration is a form of documentation similar to OpenAPI
-   - These comments allow the internal code generator (`codegen/main.go`) to generate endpoint objects & types for the client.
-   - Types for the frontend are auto-generated in `seanime-web/api/generated/types.ts` based on the `@returns` directive and request body variables of each route handler. The code generator will analyze the entire Go codebase and convert _returned_ public structs into Typescript types.
+> The following points are very important for understanding the codebase.
+
+- All routes are declared in `internal/handlers/routes.go` where a `handler` method is passed to each route.
+- Route handlers are defined in `internal/handlers`.
+- The comments above each route handler declaration is a form of documentation similar to OpenAPI
+- These comments allow the internal code generator (`codegen/main.go`) to generate endpoint objects & types for the client.
+- Types for the frontend are auto-generated in `seanime-web/api/generated/types.ts`, `seanime-web/api/generated/endpoint.types.ts`, `seanime-web/api/generated/hooks_template.ts` based on the comments above route handlers and all public Go structs. 
 
 Run the `go generate` command at the top of `codegen/main.go` to generate the necessary types for the frontend.
-This should be done after making changes to the route handlers or structs returned by the route handlers.
+This should be done **each time you make changes** to the **route handlers** or **structs** that are used in the frontend.
 
 
 ## AniList GraphQL API
+
+> The following points are for understanding the AniList API integration.
 
 Anilist queries are defined in `internal/anilist/queries/*.graphql` and generated using `gqlgenc`.
 
@@ -119,11 +123,11 @@ cd ../../..
 go mod tidy
 ```
 
-`gqlgenc` will generate the different queries, mutations and structs associated with the AniList API and the queries we defined.
-These are located in `internal/api/anilist/clieng_gen.go`.
+- `gqlgenc` will generate the different queries, mutations and structs associated with the AniList API and the queries we defined.
+These are located in `internal/api/anilist/client_gen.go`.
 
 
-In `internal/api/anilist/client.go`, we manually reimplements the different queries and mutations into a `ClientWrapper` struct and a `MockClientWrapper` for testing.
+- In `internal/api/anilist/client.go`, we manually reimplements the different queries and mutations into a `ClientWrapper` struct and a `MockClientWrapper` for testing.
 This is done to avoid using the generated code directly in the business logic. It also allows us to mock the AniList API for testing.
 
 ## Tests

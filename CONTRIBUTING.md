@@ -1,11 +1,17 @@
 # Contribution Guide
 
-All contributions are welcome. If you're not sure about something, feel free to ask.
+All contributions are welcome _if_ they are in the scope of the project. If you're not sure about something, feel free to ask.
 
 ## Guidelines
 
-Note that you should try and make your changes against the **most active branch**, which is usually the `main` branch but
-may be different when a new minor version is being developed.
+- Make sure you are familiar with Go and React.
+- Your contributions must be small and focused. If you want to add a new feature that requires substantial changes or additions to the codebase, please contact the dev first.
+- Make sure your changes are in line with the project's goals (Create a feature request if you're unsure).
+- Make sure your changes are well tested and do not introduce any new issues or regressions.
+- You should try and make your changes against the **most active branch**, which is usually the `main` branch but
+  may be different when a new version is being developed.
+
+## How to contribute
 
 1. Create an issue before starting work on a feature or a bug fix.
 2. Fork the repository, clone it, and create a new branch.

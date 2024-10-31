@@ -97,7 +97,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
             })
 
             daysArray.push({
-                date: format(day, "yyyy-MM-dd"),
+                date: "Aired",
                 isCurrentMonth: isSameMonth(day, currentDate),
                 isToday: isToday(day),
                 isSelected: false,

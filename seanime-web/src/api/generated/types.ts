@@ -1783,6 +1783,10 @@ export type Debrid_CachedFile = {
  * - Package: debrid
  */
 export type Debrid_TorrentInfo = {
+    /**
+     * ID of the torrent if added to the debrid service
+     */
+    id?: string
     name: string
     hash: string
     size: number
@@ -2187,6 +2191,17 @@ export type ExtensionRepo_UpdateData = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * - Filepath: internal/handlers/docs.go
+ * - Filename: docs.go
+ * - Package: handlers
+ */
+export type ApiDocsGroup = {
+    filename: string
+    name: string
+    handlers?: Array<RouteHandler>
+}
+
+/**
  * - Filepath: internal/handlers/directory_selector.go
  * - Filename: directory_selector.go
  * - Package: handlers
@@ -2229,6 +2244,61 @@ export type MalAuthResponse = {
     refresh_token: string
     expires_in: number
     token_type: string
+}
+
+/**
+ * - Filepath: internal/handlers/docs.go
+ * - Filename: docs.go
+ * - Package: handlers
+ */
+export type RouteHandler = {
+    name: string
+    trimmedName: string
+    comments?: Array<string>
+    filepath: string
+    filename: string
+    api?: RouteHandlerApi
+}
+
+/**
+ * - Filepath: internal/handlers/docs.go
+ * - Filename: docs.go
+ * - Package: handlers
+ */
+export type RouteHandlerApi = {
+    summary: string
+    descriptions?: Array<string>
+    endpoint: string
+    methods?: Array<string>
+    params?: Array<RouteHandlerParam>
+    bodyFields?: Array<RouteHandlerParam>
+    returns: string
+    returnGoType: string
+    returnTypescriptType: string
+}
+
+/**
+ * - Filepath: internal/handlers/docs.go
+ * - Filename: docs.go
+ * - Package: handlers
+ */
+export type RouteHandlerParam = {
+    name: string
+    jsonName: string
+    /**
+     * e.g., []models.User
+     */
+    goType: string
+    /**
+     * e.g., models.User
+     */
+    usedStructType: string
+    /**
+     * e.g., Array<User>
+     */
+    typescriptType: string
+    required: boolean
+    descriptions?: Array<string>
 }
 
 /**

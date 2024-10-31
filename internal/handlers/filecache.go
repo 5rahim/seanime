@@ -10,7 +10,7 @@ import (
 //	@summary returns the total size of cache files.
 //	@desc The total size of the cache files is returned in human-readable format.
 //	@route /api/v1/filecache/total-size [GET]
-//	@returns bool
+//	@returns string
 func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 	// Get the cache size
 	size, err := c.App.FileCacher.GetTotalSize()
@@ -59,7 +59,7 @@ func HandleRemoveFileCacheBucket(c *RouteCtx) error {
 //	@summary returns the total size of cached video file data.
 //	@desc The total size of the cache video file data is returned in human-readable format.
 //	@route /api/v1/filecache/mediastream/videofiles/total-size [GET]
-//	@returns bool
+//	@returns string
 func HandleGetFileCacheMediastreamVideoFilesTotalSize(c *RouteCtx) error {
 	// Get the cache size
 	size, err := c.App.FileCacher.GetMediastreamVideoFilesTotalSize()

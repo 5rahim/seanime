@@ -564,7 +564,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useGetDocs() {
-//     return useServerQuery<INTERNAL_Docs>({
+//     return useServerQuery<Array<ApiDocsGroup>>({
 //         endpoint: API_ENDPOINTS.DOCS.GetDocs.endpoint,
 //         method: API_ENDPOINTS.DOCS.GetDocs.methods[0],
 //         queryKey: [API_ENDPOINTS.DOCS.GetDocs.key],
@@ -755,7 +755,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useGetFileCacheTotalSize() {
-//     return useServerQuery<boolean>({
+//     return useServerQuery<string>({
 //         endpoint: API_ENDPOINTS.FILECACHE.GetFileCacheTotalSize.endpoint,
 //         method: API_ENDPOINTS.FILECACHE.GetFileCacheTotalSize.methods[0],
 //         queryKey: [API_ENDPOINTS.FILECACHE.GetFileCacheTotalSize.key],
@@ -775,7 +775,7 @@
 // }
 
 // export function useGetFileCacheMediastreamVideoFilesTotalSize() {
-//     return useServerQuery<boolean>({
+//     return useServerQuery<string>({
 //         endpoint: API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.endpoint,
 //         method: API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.methods[0],
 //         queryKey: [API_ENDPOINTS.FILECACHE.GetFileCacheMediastreamVideoFilesTotalSize.key],

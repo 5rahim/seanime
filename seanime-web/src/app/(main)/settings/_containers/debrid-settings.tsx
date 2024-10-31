@@ -131,6 +131,16 @@ export function DebridSettings(props: DebridSettingsProps) {
                             help="Let Seanime find the best torrent automatically, based on cache and resolution."
                         />
 
+                        {f.watch("streamAutoSelect") && f.watch("provider") === "torbox" && (
+                            <Alert
+                                intent="warning-basic"
+                                title="Auto-select with TorBox"
+                                description={<p>
+                                    Avoid using auto-select if you have a limited amount of downloads on your Debrid service.
+                                </p>}
+                            />
+                        )}
+
                         <Field.Select
                             name="streamPreferredResolution"
                             label="Preferred resolution"
