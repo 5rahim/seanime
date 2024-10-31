@@ -6,15 +6,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
-import React, { useEffect } from "react"
+import React from "react"
 
 export default function Page() {
 
     const { data, isLoading } = useGetDocs()
-
-    useEffect(() => {
-        console.log(data)
-    })
 
     if (isLoading) return <LoadingSpinner />
 

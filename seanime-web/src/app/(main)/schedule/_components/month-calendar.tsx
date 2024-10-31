@@ -88,7 +88,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                 return {
                     id: String(item.baseAnime?.id!) + String(item.fileMetadata?.episode!),
                     name: item.baseAnime?.title?.userPreferred,
-                    time: `${item.episodeMetadata?.airDate}`,
+                    time: "Aired",
                     datetime: item.episodeMetadata?.airDate,
                     href: `/entry?id=${item.baseAnime?.id}`,
                     image: item.baseAnime?.bannerImage ?? item.baseAnime?.coverImage?.extraLarge ?? item.baseAnime?.coverImage?.large ?? item.baseAnime?.coverImage?.medium,
@@ -97,7 +97,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
             })
 
             daysArray.push({
-                date: "Aired",
+                date: format(day, "yyyy-MM-dd"),
                 isCurrentMonth: isSameMonth(day, currentDate),
                 isToday: isToday(day),
                 isSelected: false,
