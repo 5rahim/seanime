@@ -93,7 +93,7 @@ Leave a star if you like the project! ⭐️
 - Stream torrents directly to your media player (desktop or mobile) without waiting for the download to complete
 - Automatic torrent selection with no input required - click and play
 - Auto-selection or manual selection of files from batches
-- Support for Torbox's debrid service for streaming torrents directly to your media player (desktop or mobile)
+- Support for [Torbox](https://torbox.app)'s debrid service for streaming torrents directly to your media player (desktop or mobile)
 without the need for a VPN.
 
 ### 📽️ Debrid streaming
