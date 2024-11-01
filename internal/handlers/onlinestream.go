@@ -55,6 +55,8 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 		Media:    media,
 	}
 
+	c.App.FillerManager.HydrateOnlinestreamFillerData(b.MediaId, ret.Episodes)
+
 	return c.RespondWithData(ret)
 }
 

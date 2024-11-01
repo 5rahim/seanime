@@ -20,7 +20,7 @@ import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useDisclosure } from "@/hooks/use-disclosure"
 import { ANILIST_OAUTH_URL } from "@/lib/server/config"
-import { TORRENT_PROVIDER } from "@/lib/server/settings"
+import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
@@ -174,7 +174,11 @@ export function MainSidebar() {
                                     intent="alert-solid"
                                 >{autoDownloaderQueueCount}</Badge> : undefined,
                             }],
-                            ...[(serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE && !serverStatus?.settings?.torrent?.hideTorrentList) && {
+                            ...[(
+                                serverStatus?.settings?.library?.torrentProvider !== TORRENT_PROVIDER.NONE
+                                && !serverStatus?.settings?.torrent?.hideTorrentList
+                                && serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE)
+                            && {
                                 iconType: BiDownload,
                                 name: (activeTorrentCount.seeding === 0 || !serverStatus?.settings?.torrent?.showActiveTorrentCount)
                                     ? "Torrent list"

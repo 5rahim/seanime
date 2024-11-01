@@ -59,18 +59,19 @@ type AnilistSettings struct {
 }
 
 type LibrarySettings struct {
-	LibraryPath              string `gorm:"column:library_path" json:"libraryPath"`
-	AutoUpdateProgress       bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
-	DisableUpdateCheck       bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
-	TorrentProvider          string `gorm:"column:torrent_provider" json:"torrentProvider"`
-	AutoScan                 bool   `gorm:"column:auto_scan" json:"autoScan"`
-	EnableOnlinestream       bool   `gorm:"column:enable_onlinestream" json:"enableOnlinestream"`
-	DisableAnimeCardTrailers bool   `gorm:"column:disable_anime_card_trailers" json:"disableAnimeCardTrailers"`
-	EnableManga              bool   `gorm:"column:enable_manga" json:"enableManga"`
-	DOHProvider              string `gorm:"column:doh_provider" json:"dohProvider"`
-	OpenTorrentClientOnStart bool   `gorm:"column:open_torrent_client_on_start" json:"openTorrentClientOnStart"`
-	OpenWebURLOnStart        bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
-	RefreshLibraryOnStart    bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
+	LibraryPath                     string `gorm:"column:library_path" json:"libraryPath"`
+	AutoUpdateProgress              bool   `gorm:"column:auto_update_progress" json:"autoUpdateProgress"`
+	DisableUpdateCheck              bool   `gorm:"column:disable_update_check" json:"disableUpdateCheck"`
+	TorrentProvider                 string `gorm:"column:torrent_provider" json:"torrentProvider"`
+	AutoScan                        bool   `gorm:"column:auto_scan" json:"autoScan"`
+	EnableOnlinestream              bool   `gorm:"column:enable_onlinestream" json:"enableOnlinestream"`
+	IncludeOnlineStreamingInLibrary bool   `gorm:"column:include_online_streaming_in_library" json:"includeOnlineStreamingInLibrary"`
+	DisableAnimeCardTrailers        bool   `gorm:"column:disable_anime_card_trailers" json:"disableAnimeCardTrailers"`
+	EnableManga                     bool   `gorm:"column:enable_manga" json:"enableManga"`
+	DOHProvider                     string `gorm:"column:doh_provider" json:"dohProvider"`
+	OpenTorrentClientOnStart        bool   `gorm:"column:open_torrent_client_on_start" json:"openTorrentClientOnStart"`
+	OpenWebURLOnStart               bool   `gorm:"column:open_web_url_on_start" json:"openWebURLOnStart"`
+	RefreshLibraryOnStart           bool   `gorm:"column:refresh_library_on_start" json:"refreshLibraryOnStart"`
 	// v2.1+
 	AutoPlayNextEpisode bool `gorm:"column:auto_play_next_episode" json:"autoPlayNextEpisode"`
 	// v2.2+
@@ -306,18 +307,18 @@ type MediastreamSettings struct {
 
 type TorrentstreamSettings struct {
 	BaseModel
-	Enabled                        bool   `gorm:"column:enabled" json:"enabled"`
-	AutoSelect                     bool   `gorm:"column:auto_select" json:"autoSelect"`
-	PreferredResolution            string `gorm:"column:preferred_resolution" json:"preferredResolution"`
-	DisableIPV6                    bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
-	DownloadDir                    string `gorm:"column:download_dir" json:"downloadDir"`
-	AddToLibrary                   bool   `gorm:"column:add_to_library" json:"addToLibrary"`
-	TorrentClientHost              string `gorm:"column:torrent_client_host" json:"torrentClientHost"`
-	TorrentClientPort              int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
-	StreamingServerHost            string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
-	StreamingServerPort            int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
-	FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"`
-	IncludeInLibrary               bool   `gorm:"column:include_in_library" json:"includeInLibrary"`
+	Enabled             bool   `gorm:"column:enabled" json:"enabled"`
+	AutoSelect          bool   `gorm:"column:auto_select" json:"autoSelect"`
+	PreferredResolution string `gorm:"column:preferred_resolution" json:"preferredResolution"`
+	DisableIPV6         bool   `gorm:"column:disable_ipv6" json:"disableIPV6"`
+	DownloadDir         string `gorm:"column:download_dir" json:"downloadDir"`
+	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`
+	TorrentClientHost   string `gorm:"column:torrent_client_host" json:"torrentClientHost"`
+	TorrentClientPort   int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
+	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
+	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
+	//FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"`
+	IncludeInLibrary bool `gorm:"column:include_in_library" json:"includeInLibrary"`
 }
 
 type TorrentstreamHistory struct {
@@ -375,13 +376,13 @@ type OnlinestreamMapping struct {
 
 type DebridSettings struct {
 	BaseModel
-	Enabled                       bool   `gorm:"column:enabled" json:"enabled"`
-	Provider                      string `gorm:"column:provider" json:"provider"`
-	ApiKey                        string `gorm:"column:api_key" json:"apiKey"`
-	FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"`
-	IncludeDebridStreamInLibrary  bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
-	StreamAutoSelect              bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
-	StreamPreferredResolution     string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
+	Enabled  bool   `gorm:"column:enabled" json:"enabled"`
+	Provider string `gorm:"column:provider" json:"provider"`
+	ApiKey   string `gorm:"column:api_key" json:"apiKey"`
+	//FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"`
+	IncludeDebridStreamInLibrary bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
+	StreamAutoSelect             bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
+	StreamPreferredResolution    string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
 }
 
 type DebridTorrentItem struct {

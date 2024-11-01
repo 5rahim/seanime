@@ -117,7 +117,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 >
                     Resolve hidden media ({unknownGroups.length})
                 </Button>}
-                <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
+                {!!status?.settings?.library?.libraryPath &&
+                    <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" />}>
 
                     <DropdownMenuItem
                         disabled={!status?.settings?.library?.libraryPath}
@@ -157,7 +158,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             <span>Scan summaries</span>
                         </DropdownMenuItem>
                     </SeaLink>
-                </DropdownMenu>
+                    </DropdownMenu>}
 
             </div>
         </>

@@ -170,6 +170,12 @@ func (m *BaseAnime) GetCurrentEpisodeCount() int {
 			ceil = m.NextAiringEpisode.Episode - 1
 		}
 	}
+
+	// FIXME This is a temporary fix for One Piece since it's in hiatus and AniList doesn't return any information about the episode count
+	if m.ID == 21 && ceil == -1 {
+		ceil = 1120
+	}
+
 	return ceil
 }
 

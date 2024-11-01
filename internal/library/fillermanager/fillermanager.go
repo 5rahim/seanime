@@ -7,6 +7,7 @@ import (
 	"seanime/internal/api/filler"
 	"seanime/internal/database/db"
 	"seanime/internal/library/anime"
+	"seanime/internal/onlinestream"
 	"seanime/internal/util"
 	"strconv"
 	"sync"
@@ -196,6 +197,24 @@ func (fm *FillerManager) HydrateFillerData(e *anime.Entry) {
 		}
 		ep.EpisodeMetadata.IsFiller = fm.IsEpisodeFiller(e.Media.ID, ep.EpisodeNumber)
 	})
+}
+
+func (fm *FillerManager) HydrateOnlinestreamFillerData(mId int, episodes []*onlinestream.Episode) {
+	if fm == nil {
+		return
+	}
+	if episodes == nil || len(episodes) == 0 {
+		return
+	}
+
+	// Check if the filler data has been fetched
+	if !fm.HasFillerFetched(mId) {
+		return
+	}
+
+	for _, ep := range episodes {
+		ep.IsFiller = fm.IsEpisodeFiller(mId, ep.Number)
+	}
 }
 
 func (fm *FillerManager) HydrateEpisodeFillerData(mId int, e *anime.Episode) {

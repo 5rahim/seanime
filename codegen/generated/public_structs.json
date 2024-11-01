@@ -26589,6 +26589,15 @@
         "comments": []
       },
       {
+        "name": "IncludeOnlineStreamingInLibrary",
+        "jsonName": "includeOnlineStreamingInLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "DisableAnimeCardTrailers",
         "jsonName": "disableAnimeCardTrailers",
         "goType": "bool",
@@ -27844,15 +27853,6 @@
         "comments": []
       },
       {
-        "name": "FallbackToTorrentStreamingView",
-        "jsonName": "fallbackToTorrentStreamingView",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "IncludeInLibrary",
         "jsonName": "includeInLibrary",
         "goType": "bool",
@@ -28120,15 +28120,6 @@
         "jsonName": "apiKey",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FallbackToDebridStreamingView",
-        "jsonName": "fallbackToDebridStreamingView",
-        "goType": "bool",
-        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -45821,6 +45812,15 @@
         "jsonName": "description",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsFiller",
+        "jsonName": "isFiller",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []

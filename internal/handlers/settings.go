@@ -164,8 +164,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 		b.Library.LibraryPath = filepath.ToSlash(filepath.Clean(b.Library.LibraryPath))
 	}
 
-	// Check settings
-	if b.Library.LibraryPaths == nil {
+	if b.Library.LibraryPaths == nil || b.Library.LibraryPath == "" {
 		b.Library.LibraryPaths = []string{}
 	}
 

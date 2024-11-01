@@ -37,6 +37,7 @@ type (
 		Title       string `json:"title,omitempty"`
 		Image       string `json:"image,omitempty"`
 		Description string `json:"description,omitempty"`
+		IsFiller    bool   `json:"isFiller,omitempty"`
 	}
 
 	EpisodeSource struct {
@@ -152,6 +153,8 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	animeMetadata, err := r.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mId)
 	foundAnimeMetadata := err == nil && animeMetadata != nil
 
+	aw := r.metadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
+
 	// +---------------------+
 	// |    Episode list     |
 	// +---------------------+
@@ -169,7 +172,11 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 			if found {
 				img := episodeMetadata.Image
 				if img == "" {
-					img = media.GetCoverImageSafe()
+					epMetadata := aw.GetEpisodeMetadata(episodeDetails.Number)
+					img = epMetadata.Image
+					if img == "" {
+						img = media.GetCoverImageSafe()
+					}
 				}
 				episodes = append(episodes, &Episode{
 					Number:      episodeDetails.Number,

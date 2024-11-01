@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"path/filepath"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"strconv"
@@ -100,6 +101,14 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if b.Destination == "" {
+		return c.RespondWithError(errors.New("destination is required"))
+	}
+
+	if !filepath.IsAbs(b.Destination) {
+		return c.RespondWithError(errors.New("destination must be an absolute path"))
 	}
 
 	rule := &anime.AutoDownloaderRule{

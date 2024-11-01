@@ -14,13 +14,9 @@ export function TorrentSearchButton({ entry }: { entry: Anime_Entry }) {
 
     return (
         <div className="w-full">
-            {entry.downloadInfo?.hasInaccurateSchedule && <p className="text-orange-200 text-center mb-3">
-                <span className="block">Could not retrieve accurate scheduling information for this show.</span>
-                <span className="block text-[--muted]">Please check the schedule online for more information.</span>
-            </p>}
             <Button
                 className="w-full"
-                intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "gray-subtle") : "warning-subtle"}
+                intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "gray-subtle") : "white-subtle"}
                 size="md"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClass="text-2xl"

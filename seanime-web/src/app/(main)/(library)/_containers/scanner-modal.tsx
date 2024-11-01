@@ -1,4 +1,5 @@
 import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -16,6 +17,7 @@ export const __scanner_isScanningAtom = atom(false)
 
 
 export function ScannerModal() {
+    const serverStatus = useServerStatus()
     const [isOpen, setOpen] = useAtom(__scanner_modalIsOpen)
     const [, setScannerIsScanning] = useAtom(__scanner_isScanningAtom)
     const enhanced = useBoolean(false)
@@ -100,6 +102,7 @@ export function ScannerModal() {
                     leftIcon={<FiSearch />}
                     loading={isScanning}
                     className="w-full"
+                    disabled={!serverStatus?.settings?.library?.libraryPath}
                 >
                     Scan
                 </Button>

@@ -18,6 +18,7 @@ import (
 const (
 	QbittorrentClient  = "qbittorrent"
 	TransmissionClient = "transmission"
+	NoneClient         = "none"
 )
 
 type (
@@ -98,12 +99,18 @@ func (r *Repository) InitActiveTorrentCount(enabled bool, wsEventManager events.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func (r *Repository) GetProvider() string {
+	return r.provider
+}
+
 func (r *Repository) Start() bool {
 	switch r.provider {
 	case QbittorrentClient:
 		return r.qBittorrentClient.CheckStart()
 	case TransmissionClient:
 		return r.transmission.CheckStart()
+	case NoneClient:
+		return true
 	default:
 		return false
 	}
@@ -233,6 +240,8 @@ func (r *Repository) AddMagnets(magnets []string, dest string) error {
 				break
 			}
 		}
+	case NoneClient:
+		return errors.New("torrent client: No torrent client selected")
 	}
 
 	if err != nil {

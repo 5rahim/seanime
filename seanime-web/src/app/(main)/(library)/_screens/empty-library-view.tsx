@@ -1,13 +1,14 @@
 import { __scanner_modalIsOpen } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { __mainLibrary_paramsAtom, __mainLibrary_paramsInputAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
+import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Button } from "@/components/ui/button"
 import { HorizontalDraggableScroll } from "@/components/ui/horizontal-draggable-scroll"
 import { StaticTabs } from "@/components/ui/tabs"
 import { useDebounce } from "@/hooks/use-debounce"
-import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -26,7 +27,7 @@ export function EmptyLibraryView(props: EmptyLibraryViewProps) {
         ...rest
     } = props
 
-    const ts = useThemeSettings()
+    const serverStatus = useServerStatus()
     const setScannerModalOpen = useSetAtom(__scanner_modalIsOpen)
 
     if (hasScanned || isLoading) return null
@@ -40,16 +41,49 @@ export function EmptyLibraryView(props: EmptyLibraryViewProps) {
             <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8 relative z-[4]">
                 <div className="text-center space-y-4">
                     <div className="w-fit mx-auto space-y-4">
-                        <h2>Empty library</h2>
-                        <Button
-                            intent="primary-outline"
-                            leftIcon={<FiSearch />}
-                            size="xl"
-                            rounded
-                            onClick={() => setScannerModalOpen(true)}
-                        >
-                            Scan your library
-                        </Button>
+                        {!!serverStatus?.settings?.library?.libraryPath ? <>
+                            <h2>Empty library</h2>
+                            <Button
+                                intent="primary-outline"
+                                leftIcon={<FiSearch />}
+                                size="xl"
+                                rounded
+                                onClick={() => setScannerModalOpen(true)}
+                            >
+                                Scan your library
+                            </Button>
+                        </> : (
+                            <LuffyError
+                                title="Nothing to see"
+                                className=""
+                            >
+                                <div className="text-center">
+                                    <p>
+                                        Set your <span className="">library path under <span className="text-[--muted]">Settings {`>`} Anime
+                                                                                                                        library</span> to start
+                                                                    scanning your library</span>.
+                                    </p>
+                                    {serverStatus?.settings?.library?.enableOnlinestream && <p>
+                                        Or, enable <span className="text-[--muted] text-base">Include in
+                                                                                              library</span> under <span className="text-[--muted]">Settings {`>`} Online
+                                                                                                                                                    Streaming</span> to
+                                        show non-downloaded anime here.
+                                    </p>}
+                                    {serverStatus?.torrentstreamSettings?.enabled && <p>
+                                        Or, enable <span className="text-[--muted] text-base">Include in
+                                                                                              library</span> under <span className="text-[--muted]">Settings {`>`} Torrent
+                                                                                                                                                    Streaming</span> to
+                                        show non-downloaded anime here.
+                                    </p>}
+                                    {serverStatus?.debridSettings?.enabled && <p>
+                                        Or, enable <span className="text-[--muted] text-base">Include in
+                                                                                              library</span> under <span className="text-[--muted]">Settings {`>`} Debrid
+                                                                                                                                                    Service</span> to
+                                        show non-downloaded anime here.
+                                    </p>}
+                                </div>
+                            </LuffyError>
+                        )}
                     </div>
                 </div>
                 <div className="">

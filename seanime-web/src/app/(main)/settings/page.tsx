@@ -14,6 +14,7 @@ import { LibrarySettings } from "@/app/(main)/settings/_containers/library-setti
 import { LogsSettings } from "@/app/(main)/settings/_containers/logs-settings"
 import { MangaSettings } from "@/app/(main)/settings/_containers/manga-settings"
 import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastream-settings"
+import { ServerSettings } from "@/app/(main)/settings/_containers/server-settings"
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
 import { BetaBadge } from "@/components/shared/beta-badge"
@@ -103,19 +104,21 @@ export default function Page() {
                     <TabsList className="flex-wrap max-w-full">
                         <TabsTrigger value="seanime">Seanime</TabsTrigger>
                         <Separator className="hidden lg:block" />
-                        <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime library</TabsTrigger>
+                        <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime Library</TabsTrigger>
+                        <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
+                                                                                                                                    Streaming</TabsTrigger>
+                        <Separator className="hidden lg:block" />
                         <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
                         <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> External Media Player</TabsTrigger>
-                        <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
-                                                                                                                                    streaming</TabsTrigger>
+                        <Separator className="hidden lg:block" />
                         <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
                         <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
                         <TabsTrigger value="debrid"><HiOutlineServerStack className="text-lg mr-3" /> Debrid Service</TabsTrigger>
+                        <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
+                                                                                                                          Streaming</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
-                        <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
-                                                                                                                          streaming</TabsTrigger>
-                        <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online streaming</TabsTrigger>
+                        <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online Streaming</TabsTrigger>
                         <Separator className="hidden lg:block" />
                         <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
                         <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
@@ -140,6 +143,7 @@ export default function Page() {
                                         torrentProvider: data.torrentProvider,
                                         autoScan: data.autoScan,
                                         enableOnlinestream: data.enableOnlinestream,
+                                        includeOnlineStreamingInLibrary: data.includeOnlineStreamingInLibrary ?? false,
                                         disableAnimeCardTrailers: data.disableAnimeCardTrailers,
                                         enableManga: data.enableManga,
                                         dohProvider: data.dohProvider === "-" ? "" : data.dohProvider,
@@ -232,6 +236,7 @@ export default function Page() {
                                 autoUpdateProgress: status?.settings?.library?.autoUpdateProgress ?? false,
                                 disableUpdateCheck: status?.settings?.library?.disableUpdateCheck ?? false,
                                 enableOnlinestream: status?.settings?.library?.enableOnlinestream ?? false,
+                                includeOnlineStreamingInLibrary: status?.settings?.library?.includeOnlineStreamingInLibrary ?? false,
                                 disableAnimeCardTrailers: status?.settings?.library?.disableAnimeCardTrailers ?? false,
                                 enableManga: status?.settings?.library?.enableManga ?? false,
                                 enableRichPresence: status?.settings?.discord?.enableRichPresence ?? false,
@@ -258,61 +263,19 @@ export default function Page() {
                             }}
                             stackClass="space-y-4"
                         >
-                            <TabsContent value="library" className="space-y-6">
-
-                                <h3>Library</h3>
-
-                                <LibrarySettings isPending={isPending} />
-
-                            </TabsContent>
-
                             <TabsContent value="seanime" className="space-y-6">
 
                                 <h3>Server</h3>
 
-                                <Field.Switch
-                                    name="disableUpdateCheck"
-                                    label="Do not check for updates"
-                                    help="If enabled, Seanime will not check for new releases."
-                                />
-                                <Field.Switch
-                                    name="openTorrentClientOnStart"
-                                    label="Open torrent client on startup"
-                                />
-                                <Field.Switch
-                                    name="openWebURLOnStart"
-                                    label="Open localhost web URL on startup"
-                                />
-                                <Separator />
+                                <ServerSettings isPending={isPending} />
 
-                                <h3>Notifications</h3>
+                            </TabsContent>
 
-                                <Field.Switch
-                                    name="disableNotifications"
-                                    label="Disable notifications"
-                                />
+                            <TabsContent value="library" className="space-y-6">
 
-                                <Field.Switch
-                                    name="disableAutoDownloaderNotifications"
-                                    label="Disable Auto Downloader notifications"
-                                />
+                                <h3>Anime Library</h3>
 
-                                <Field.Switch
-                                    name="disableAutoScannerNotifications"
-                                    label="Disable Auto Scanner notifications"
-                                />
-
-                                <Separator />
-
-                                <h3>Offline</h3>
-
-                                <Field.Switch
-                                    name="autoSyncOfflineLocalData"
-                                    label="Automatically refresh local data"
-                                    help="Automatically refresh local data with AniList data periodically if no offline changes have been made."
-                                />
-
-                                <SettingsSubmitButton isPending={isPending} />
+                                <LibrarySettings isPending={isPending} />
 
                             </TabsContent>
 
@@ -363,12 +326,22 @@ export default function Page() {
 
                             <TabsContent value="onlinestream" className="space-y-6">
 
-                                <h3>Online streaming</h3>
+                                <h3>Online Streaming</h3>
 
                                 <Field.Switch
                                     name="enableOnlinestream"
-                                    label={<span className="flex gap-1 items-center">Enable </span>}
+                                    label="Enable"
                                     help="Watch anime episodes from online sources."
+                                />
+
+                                <Separator />
+
+                                <h3>Integration</h3>
+
+                                <Field.Switch
+                                    name="includeOnlineStreamingInLibrary"
+                                    label="Include in library"
+                                    help="Shows that are currently being watched but haven't been downloaded will default to the online streaming view and appear in your library."
                                 />
 
                                 <SettingsSubmitButton isPending={isPending} />
@@ -442,6 +415,7 @@ export default function Page() {
                                     options={[
                                         { label: "qBittorrent", value: "qbittorrent" },
                                         { label: "Transmission", value: "transmission" },
+                                        { label: "None", value: "none" },
                                     ]}
                                 />
 
@@ -547,7 +521,7 @@ export default function Page() {
 
                         <TabsContent value="mediastream" className="space-y-6">
 
-                            <h3>Media streaming</h3>
+                            <h3>Media Streaming</h3>
 
                             <MediastreamSettings />
 
@@ -563,7 +537,7 @@ export default function Page() {
 
                         <TabsContent value="torrentstream" className="space-y-6">
 
-                            <h3>Torrent streaming</h3>
+                            <h3>Torrent Streaming</h3>
 
                             <TorrentstreamSettings settings={torrentstreamSettings} />
 

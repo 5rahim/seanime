@@ -12,7 +12,6 @@ const debridSettingsSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean().default(false),
     provider: z.string().default(""),
     apiKey: z.string().optional().default(""),
-    fallbackToDebridStreamingView: z.boolean().default(false),
     includeDebridStreamInLibrary: z.boolean().default(false),
     streamAutoSelect: z.boolean().default(false),
     streamPreferredResolution: z.string(),
@@ -56,7 +55,6 @@ export function DebridSettings(props: DebridSettingsProps) {
                     enabled: settings?.enabled,
                     provider: settings?.provider || "-",
                     apiKey: settings?.apiKey,
-                    fallbackToDebridStreamingView: settings?.fallbackToDebridStreamingView,
                     includeDebridStreamInLibrary: settings?.includeDebridStreamInLibrary,
                     streamAutoSelect: settings?.streamAutoSelect ?? false,
                     streamPreferredResolution: settings?.streamPreferredResolution || "-",
@@ -108,15 +106,9 @@ export function DebridSettings(props: DebridSettingsProps) {
                         </h4>
 
                         <Field.Switch
-                            name="fallbackToDebridStreamingView"
-                            label="Default to Debrid streaming view"
-                            help="If the anime is not downloaded, the Debrid streaming view will be shown by default."
-                        />
-
-                        <Field.Switch
                             name="includeDebridStreamInLibrary"
                             label="Include in library"
-                            help="Make non-downloaded episodes and shows appear in your library for torrent streaming."
+                            help="Shows that are currently being watched but haven't been downloaded will default to the debrid streaming view and appear in your library."
                         />
 
                         <Separator />

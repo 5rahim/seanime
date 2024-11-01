@@ -436,7 +436,7 @@ const MultiDirectorySelectorField = React.memo(withControlledInput(forwardRef<HT
                 {help && <p className="text-sm text-[--muted]">{help}</p>}
             </div>
             {paths?.map((v, i) => (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" key={i}>
                     <div className="w-full">
                         <DirectorySelector
                             shouldExist={shouldExist}

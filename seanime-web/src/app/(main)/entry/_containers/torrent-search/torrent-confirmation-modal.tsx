@@ -11,6 +11,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
+import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
@@ -237,7 +238,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                                     leftIcon={<BiDownload />}
                                     intent="white"
                                     onClick={() => handleLaunchDownload(false)}
-                                    disabled={isDisabled}
+                                    disabled={isDisabled || serverStatus?.settings?.torrent?.defaultTorrentClient === TORRENT_CLIENT.NONE}
                                     loading={isPending}
                                     className="w-full"
                                 >

@@ -2588,7 +2588,6 @@ export type Models_DebridSettings = {
     enabled: boolean
     provider: string
     apiKey: string
-    fallbackToDebridStreamingView: boolean
     includeDebridStreamInLibrary: boolean
     streamAutoSelect: boolean
     streamPreferredResolution: string
@@ -2630,6 +2629,7 @@ export type Models_LibrarySettings = {
     torrentProvider: string
     autoScan: boolean
     enableOnlinestream: boolean
+    includeOnlineStreamingInLibrary: boolean
     disableAnimeCardTrailers: boolean
     enableManga: boolean
     dohProvider: string
@@ -2835,7 +2835,6 @@ export type Models_TorrentstreamSettings = {
     torrentClientPort: number
     streamingServerHost: string
     streamingServerPort: number
-    fallbackToTorrentStreamingView: boolean
     includeInLibrary: boolean
     id: number
     createdAt?: string
@@ -2856,6 +2855,7 @@ export type Onlinestream_Episode = {
     title?: string
     image?: string
     description?: string
+    isFiller?: boolean
 }
 
 /**

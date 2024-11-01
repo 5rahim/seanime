@@ -85,6 +85,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         enableWatchContinuity: false,
                                         libraryPaths: [],
                                         autoSyncOfflineLocalData: false,
+                                        includeOnlineStreamingInLibrary: false,
                                     },
                                     manga: {
                                         defaultMangaProvider: "",
@@ -171,16 +172,15 @@ export function GettingStartedPage({ status }: { status: Status }) {
 
                                 <Card className="p-4 space-y-4">
                                     <div>
-                                        <h4 className="text-center">Anime library</h4>
+                                        <h4 className="text-center">Local anime library</h4>
                                     </div>
 
                                     <Field.DirectorySelector
                                         name="libraryPath"
-                                        label="Anime library folder"
+                                        label="Anime library path"
                                         leftIcon={<FcFolder />}
                                         shouldExist
-                                        required
-                                        help="Create an empty folder if you don't have one yet. You can add more folders later."
+                                        help="Enter the full path. You can add more folders later."
                                     />
                                 </Card>
 
@@ -190,7 +190,12 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         <h4 className="text-center">Desktop Media Player</h4>
 
                                         <p className="text-[--muted] text-center text-sm">
-                                            Used to play media files on your host computer and track your progress automatically.
+                                            Used to play media on your host computer and track your progress automatically.
+                                        </p>
+                                        <p className="text-[--muted] text-center text-sm">
+                                            Used for <span className="font-bold">anime library</span>, <span className="font-bold">torrent streaming &
+                                                                                                                                   debrid
+                                                                                                                                   streaming</span>.
                                         </p>
                                     </div>
 
@@ -308,6 +313,11 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         <p className="text-[--muted] text-center text-sm">
                                             Built-in torrent provider extension used by the search engine and Auto Downloader.
                                         </p>
+                                        <p className="text-[--muted] text-center text-sm">
+                                            Used for <span className="font-bold">anime library</span>, <span className="font-bold">torrent streaming &
+                                                                                                                                   debrid
+                                                                                                                                   streaming</span>.
+                                        </p>
                                     </div>
 
 
@@ -329,7 +339,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         <h4 className="text-center">Torrent Client</h4>
 
                                         <p className="text-[--muted] text-center">
-                                            Torrent client used to download media.
+                                            Torrent client used to download anime.
                                         </p>
                                     </div>
 
@@ -341,6 +351,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                             options={[
                                                 { label: "qBittorrent", value: "qbittorrent" },
                                                 { label: "Transmission", value: "transmission" },
+                                                { label: "None", value: "none" },
                                             ]}
                                         />
 
@@ -534,7 +545,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
 
 const cardCheckboxStyles: CheckboxProps = {
     labelClass: cn(
-        "block cursor-pointer transition overflow-hidden w-full py-1 px-2 rounded-md",
+        "block cursor-pointer transition overflow-hidden w-full py-1 rounded-md",
         "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-950 border-dashed",
         "data-[checked=false]:text-[--muted] hover:data-[checked=false]:opacity-50",
         "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",
@@ -546,13 +557,6 @@ const cardCheckboxStyles: CheckboxProps = {
     className: cn(
         "absolute top-0 right-0 z-10 rounded-tl-none rounded-br-none",
     ),
-    fieldClass: "border p-2 rounded-md relative",
+    fieldClass: "border p-4 rounded-md relative",
     fieldHelpTextClass: "text-pretty",
-    // labelClass: cn(
-    //     "border-transparent border data-[checked=true]:border-brand dark:bg-transparent dark:data-[state=unchecked]:bg-transparent",
-    //     "data-[state=unchecked]:bg-transparent data-[state=unchecked]:hover:bg-transparent dark:data-[state=unchecked]:hover:bg-transparent",
-    //     "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:ring-offset-transparent",
-    // ),
-    // itemLabelClass: "font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer",
-    // stackClass: "flex md:flex-row flex-col space-y-0 gap-4",
 }
