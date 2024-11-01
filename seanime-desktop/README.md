@@ -12,19 +12,7 @@ Desktop app for Seanime. Embeds server and web interface.
 
 ## Roadmap
 
-- [x] Custom title bar
-- [x] Fix Windows fullscreen
-- [x] Fix macOS overlay title bar drag
-- [x] Check Getting started
-- [x] Dedicated log-in
-- [x] Dedicated update process
-  - [x] Dedicated update modal
-  - [x] Test update locally
-- [x] Fix macOS startup
-- [x] Fix title bar z-index
-- [x] Fix drawer close buttons overlapping with title bar
-- [ ] Test all features
-- [ ] Test on Linux?
+- [ ] Test local network serving
 
 ---
 

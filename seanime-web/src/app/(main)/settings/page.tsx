@@ -84,7 +84,9 @@ export default function Page() {
                 <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
                     <div className="space-y-1">
                         <h2 className="text-center lg:text-left">Settings</h2>
-                        <p className="text-[--muted]">App version: {status?.version} - OS: {capitalize(status?.os)}</p>
+                        <p className="text-[--muted]">App version: {status?.version} -
+                                                      OS: {capitalize(status?.os)} {process.env.NEXT_PUBLIC_PLATFORM === "desktop" &&
+                                <span className="text-[--muted]">(Desktop)</span>}</p>
                     </div>
                     <div>
 
