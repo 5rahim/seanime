@@ -18,7 +18,6 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     torrentClientHost: z.string().optional().default(""),
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
-    fallbackToTorrentStreamingView: z.boolean(),
     includeInLibrary: z.boolean(),
 }))
 
@@ -68,7 +67,6 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     torrentClientHost: settings.torrentClientHost || "",
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
-                    fallbackToTorrentStreamingView: settings.fallbackToTorrentStreamingView,
                     includeInLibrary: settings.includeInLibrary,
                 }}
                 stackClass="space-y-6"
@@ -85,15 +83,9 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 </h3>
 
                 <Field.Switch
-                    name="fallbackToTorrentStreamingView"
-                    label="Default to torrent streaming view"
-                    help="If the anime is not downloaded, the torrent streaming view will be shown by default."
-                />
-
-                <Field.Switch
                     name="includeInLibrary"
                     label="Include in library"
-                    help="Make non-downloaded episodes and shows appear in your library for torrent streaming."
+                    help="Shows that are currently being watched but haven't been downloaded will default to the torrent streaming view and appear in your library."
                 />
 
                 <Separator />

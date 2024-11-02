@@ -15,6 +15,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/torrents/torrent"
 	"seanime/internal/util/result"
 )
 
@@ -31,6 +32,7 @@ type (
 		wsEventManager         events.WSEventManagerInterface
 		ctxMap                 *result.Map[string, context.CancelFunc]
 		downloadLoopCancelFunc context.CancelFunc
+		torrentRepository      *torrent.Repository
 
 		playbackManager    *playbackmanager.PlaybackManager
 		streamManager      *StreamManager
@@ -44,9 +46,10 @@ type (
 		WSEventManager events.WSEventManagerInterface
 		Database       *db.Database
 
-		PlaybackManager  *playbackmanager.PlaybackManager
-		MetadataProvider metadata.Provider
-		Platform         platform.Platform
+		TorrentRepository *torrent.Repository
+		PlaybackManager   *playbackmanager.PlaybackManager
+		MetadataProvider  metadata.Provider
+		Platform          platform.Platform
 	}
 )
 
@@ -59,6 +62,7 @@ func NewRepository(opts *NewRepositoryOptions) (ret *Repository) {
 		settings: &models.DebridSettings{
 			Enabled: false,
 		},
+		torrentRepository:  opts.TorrentRepository,
 		platform:           opts.Platform,
 		playbackManager:    opts.PlaybackManager,
 		metadataProvider:   opts.MetadataProvider,
@@ -182,6 +186,13 @@ func (r *Repository) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.
 	torrentInfo, err := provider.GetTorrentInfo(opts)
 	if err != nil {
 		return nil, err
+	}
+
+	// Remove the torrent if it was added
+	if torrentInfo.ID != nil {
+		go func() {
+			_ = provider.DeleteTorrent(*torrentInfo.ID)
+		}()
 	}
 
 	return torrentInfo, nil

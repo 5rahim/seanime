@@ -32,6 +32,16 @@ func TestBaseAnime_FetchMediaTree_BaseAnime(t *testing.T) {
 				163263, // BSD5
 			},
 		},
+		{
+			name:    "Re:Zero",
+			mediaId: 21355,
+			edgeIds: []int{
+				21355,  // Re:Zero 1
+				108632, // Re:Zero 2
+				119661, // Re:Zero 2 Part 2
+				163134, // Re:Zero 3
+			},
+		},
 	}
 
 	for _, tt := range tests {

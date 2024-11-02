@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/events"
@@ -107,6 +108,14 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	var b body
 	if err := c.Fiber.BodyParser(&b); err != nil {
 		return c.RespondWithError(err)
+	}
+
+	if b.Destination == "" {
+		return c.RespondWithError(errors.New("destination not found"))
+	}
+
+	if !filepath.IsAbs(b.Destination) {
+		return c.RespondWithError(errors.New("destination path must be absolute"))
 	}
 
 	// try to start torrent client if it's not running

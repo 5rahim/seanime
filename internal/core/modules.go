@@ -96,12 +96,13 @@ func (a *App) initModulesOnce() {
 	// +---------------------+
 
 	a.DebridClientRepository = debrid_client.NewRepository(&debrid_client.NewRepositoryOptions{
-		Logger:           a.Logger,
-		WSEventManager:   a.WSEventManager,
-		Database:         a.Database,
-		MetadataProvider: a.MetadataProvider,
-		Platform:         a.AnilistPlatform,
-		PlaybackManager:  a.PlaybackManager,
+		Logger:            a.Logger,
+		WSEventManager:    a.WSEventManager,
+		Database:          a.Database,
+		MetadataProvider:  a.MetadataProvider,
+		Platform:          a.AnilistPlatform,
+		PlaybackManager:   a.PlaybackManager,
+		TorrentRepository: a.TorrentRepository,
 	})
 
 	// +---------------------+
@@ -439,13 +440,17 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			Enabled:                        false,
-			AutoSelect:                     true,
-			AddToLibrary:                   false,
-			StreamingServerHost:            "0.0.0.0",
-			StreamingServerPort:            43214,
-			TorrentClientPort:              43213,
-			FallbackToTorrentStreamingView: false,
+			Enabled:             false,
+			AutoSelect:          true,
+			PreferredResolution: "",
+			DisableIPV6:         false,
+			DownloadDir:         "",
+			AddToLibrary:        false,
+			TorrentClientHost:   "",
+			TorrentClientPort:   43213,
+			StreamingServerHost: "0.0.0.0",
+			StreamingServerPort: 43214,
+			IncludeInLibrary:    false,
 		})
 		if err != nil {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")
@@ -477,7 +482,12 @@ func (a *App) InitOrRefreshDebridSettings() {
 			BaseModel: models.BaseModel{
 				ID: 1,
 			},
-			Enabled: false,
+			Enabled:                      false,
+			Provider:                     "",
+			ApiKey:                       "",
+			IncludeDebridStreamInLibrary: false,
+			StreamAutoSelect:             false,
+			StreamPreferredResolution:    "",
 		})
 		if err != nil {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize debrid module")

@@ -1,15 +1,15 @@
+use crate::constants::{CRASH_SCREEN_WINDOW_LABEL, MAIN_WINDOW_LABEL, SPLASHSCREEN_WINDOW_LABEL};
 use std::sync::{Arc, Mutex};
 use strip_ansi_escapes;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_shell::process::CommandEvent;
 use tauri_plugin_shell::ShellExt;
 use tokio::time::{sleep, Duration};
-use crate::constants::{CRASH_SCREEN_WINDOW_LABEL, MAIN_WINDOW_LABEL, SPLASHSCREEN_WINDOW_LABEL};
 
 pub fn launch_seanime_server(
     app: AppHandle,
     child_process: Arc<Mutex<Option<tauri_plugin_shell::process::CommandChild>>>,
-    mut is_shutdown: Arc<Mutex<bool>>,
+    is_shutdown: Arc<Mutex<bool>>,
 ) {
     tauri::async_runtime::spawn(async move {
         let main_window = app.get_webview_window(MAIN_WINDOW_LABEL).unwrap();

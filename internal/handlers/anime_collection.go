@@ -44,6 +44,7 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 	}
 
 	if (c.App.SecondarySettings.Torrentstream != nil && c.App.SecondarySettings.Torrentstream.Enabled && c.App.SecondarySettings.Torrentstream.IncludeInLibrary) ||
+		(c.App.Settings.Library != nil && c.App.Settings.Library.EnableOnlinestream && c.App.Settings.Library.IncludeOnlineStreamingInLibrary) ||
 		(c.App.SecondarySettings.Debrid != nil && c.App.SecondarySettings.Debrid.Enabled && c.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary) {
 		c.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
 			AnimeCollection:   animeCollection,

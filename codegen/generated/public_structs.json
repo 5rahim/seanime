@@ -26589,6 +26589,15 @@
         "comments": []
       },
       {
+        "name": "IncludeOnlineStreamingInLibrary",
+        "jsonName": "includeOnlineStreamingInLibrary",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "DisableAnimeCardTrailers",
         "jsonName": "disableAnimeCardTrailers",
         "goType": "bool",
@@ -27844,15 +27853,6 @@
         "comments": []
       },
       {
-        "name": "FallbackToTorrentStreamingView",
-        "jsonName": "fallbackToTorrentStreamingView",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "IncludeInLibrary",
         "jsonName": "includeInLibrary",
         "goType": "bool",
@@ -28125,8 +28125,8 @@
         "comments": []
       },
       {
-        "name": "FallbackToDebridStreamingView",
-        "jsonName": "fallbackToDebridStreamingView",
+        "name": "IncludeDebridStreamInLibrary",
+        "jsonName": "includeDebridStreamInLibrary",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -28134,10 +28134,19 @@
         "comments": []
       },
       {
-        "name": "IncludeDebridStreamInLibrary",
-        "jsonName": "includeDebridStreamInLibrary",
+        "name": "StreamAutoSelect",
+        "jsonName": "streamAutoSelect",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamPreferredResolution",
+        "jsonName": "streamPreferredResolution",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -28273,6 +28282,16 @@
         "comments": []
       },
       {
+        "name": "torrentRepository",
+        "jsonName": "torrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playbackManager",
         "jsonName": "playbackManager",
         "goType": "playbackmanager.PlaybackManager",
@@ -28358,6 +28377,16 @@
         "goType": "db.Database",
         "typescriptType": "DB_Database",
         "usedStructName": "db.Database",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentRepository",
+        "jsonName": "TorrentRepository",
+        "goType": "torrent.Repository",
+        "typescriptType": "Torrent_Repository",
+        "usedStructName": "torrent.Repository",
         "required": false,
         "public": true,
         "comments": []
@@ -28593,6 +28622,15 @@
         "goType": "StreamPlaybackType",
         "typescriptType": "DebridClient_StreamPlaybackType",
         "usedStructName": "debrid_client.StreamPlaybackType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AutoSelect",
+        "jsonName": "AutoSelect",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -28996,6 +29034,17 @@
     "formattedName": "Debrid_TorrentInfo",
     "package": "debrid",
     "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": [
+          " ID of the torrent if added to the debrid service"
+        ]
+      },
       {
         "name": "Name",
         "jsonName": "name",
@@ -33246,6 +33295,281 @@
         "goType": "[]DirectoryInfo",
         "typescriptType": "Array\u003cDirectoryInfo\u003e",
         "usedStructName": "handlers.DirectoryInfo",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/handlers/docs.go",
+    "filename": "docs.go",
+    "name": "ApiDocsGroup",
+    "formattedName": "ApiDocsGroup",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Handlers",
+        "jsonName": "handlers",
+        "goType": "[]RouteHandler",
+        "typescriptType": "Array\u003cRouteHandler\u003e",
+        "usedStructName": "handlers.RouteHandler",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/handlers/docs.go",
+    "filename": "docs.go",
+    "name": "RouteHandler",
+    "formattedName": "RouteHandler",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TrimmedName",
+        "jsonName": "trimmedName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Comments",
+        "jsonName": "comments",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filepath",
+        "jsonName": "filepath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Api",
+        "jsonName": "api",
+        "goType": "RouteHandlerApi",
+        "typescriptType": "RouteHandlerApi",
+        "usedStructName": "handlers.RouteHandlerApi",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/handlers/docs.go",
+    "filename": "docs.go",
+    "name": "RouteHandlerApi",
+    "formattedName": "RouteHandlerApi",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Summary",
+        "jsonName": "summary",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Descriptions",
+        "jsonName": "descriptions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Endpoint",
+        "jsonName": "endpoint",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Methods",
+        "jsonName": "methods",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Params",
+        "jsonName": "params",
+        "goType": "[]RouteHandlerParam",
+        "typescriptType": "Array\u003cRouteHandlerParam\u003e",
+        "usedStructName": "handlers.RouteHandlerParam",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BodyFields",
+        "jsonName": "bodyFields",
+        "goType": "[]RouteHandlerParam",
+        "typescriptType": "Array\u003cRouteHandlerParam\u003e",
+        "usedStructName": "handlers.RouteHandlerParam",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Returns",
+        "jsonName": "returns",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReturnGoType",
+        "jsonName": "returnGoType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReturnTypescriptType",
+        "jsonName": "returnTypescriptType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/handlers/docs.go",
+    "filename": "docs.go",
+    "name": "RouteHandlerParam",
+    "formattedName": "RouteHandlerParam",
+    "package": "handlers",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "JsonName",
+        "jsonName": "jsonName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "GoType",
+        "jsonName": "goType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g., []models.User"
+        ]
+      },
+      {
+        "name": "UsedStructType",
+        "jsonName": "usedStructType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g., models.User"
+        ]
+      },
+      {
+        "name": "TypescriptType",
+        "jsonName": "typescriptType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g., Array\u003cUser\u003e"
+        ]
+      },
+      {
+        "name": "Required",
+        "jsonName": "required",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Descriptions",
+        "jsonName": "descriptions",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -37740,6 +38064,15 @@
         "jsonName": "totalEpisodeCount",
         "goType": "int",
         "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "noAbsoluteEpisodesFound",
+        "jsonName": "noAbsoluteEpisodesFound",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": false,
         "comments": []
@@ -45479,6 +45812,15 @@
         "jsonName": "description",
         "goType": "string",
         "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsFiller",
+        "jsonName": "isFiller",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": false,
         "public": true,
         "comments": []

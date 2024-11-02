@@ -14,6 +14,11 @@ type DebridStreamSelectionProps = {
     aniDBEpisode: string
     chosenFileId: string
 }
+type DebridStreamAutoSelectProps = {
+    entry: Anime_Entry
+    episodeNumber: number
+    aniDBEpisode: string
+}
 
 export function useHandleStartDebridStream() {
 
@@ -44,6 +49,26 @@ export function useHandleStartDebridStream() {
             fileId: params.chosenFileId,
             playbackType: playbackType,
             clientId: clientId || "",
+            autoSelect: false,
+        }, {
+            onSuccess: () => {
+            },
+            onError: () => {
+                setState(null)
+            },
+        })
+    }, [playbackType, clientId])
+
+    const handleAutoSelectStream = React.useCallback((params: DebridStreamAutoSelectProps) => {
+        mutate({
+            mediaId: params.entry.mediaId,
+            episodeNumber: params.episodeNumber,
+            torrent: undefined,
+            aniDBEpisode: params.aniDBEpisode,
+            fileId: "",
+            playbackType: playbackType,
+            clientId: clientId || "",
+            autoSelect: true,
         }, {
             onSuccess: () => {
             },
@@ -55,6 +80,7 @@ export function useHandleStartDebridStream() {
 
     return {
         handleStreamSelection,
+        handleAutoSelectStream,
         isPending,
     }
 }

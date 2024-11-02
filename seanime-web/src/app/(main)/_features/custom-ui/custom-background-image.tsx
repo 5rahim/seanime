@@ -24,7 +24,7 @@ export function CustomBackgroundImage(props: CustomBackgroundImageProps) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1, delay: 0.1 }}
-                    className="fixed"
+                    className="fixed w-full h-full inset-0"
                 >
 
                     {ts.libraryScreenCustomBackgroundBlur !== "" && <div

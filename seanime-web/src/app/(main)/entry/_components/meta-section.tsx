@@ -16,9 +16,9 @@ import {
 } from "@/app/(main)/_features/media/_components/media-page-header-components"
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
 import { useHasDebridService, useHasTorrentProvider, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { EntryOnlinestreamButton } from "@/app/(main)/entry/_components/entry-onlinestream-button"
+import { AnimeOnlinestreamButton } from "@/app/(main)/entry/_components/anime-onlinestream-button"
 import { NextAiringEpisode } from "@/app/(main)/entry/_components/next-airing-episode"
-import { __anime_debridStreamingViewActiveAtom, __anime_torrentStreamingViewActiveAtom } from "@/app/(main)/entry/_containers/anime-entry-page"
+import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
 import { DebridStreamButton } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-button"
 import { AnimeEntryDropdownMenu } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-dropdown-menu"
 import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-actions/anime-entry-silence-toggle"
@@ -26,7 +26,7 @@ import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-sear
 import { TorrentStreamButton } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-button"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
-import { useAtomValue } from "jotai"
+import { TORRENT_CLIENT } from "@/lib/server/settings"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
 
@@ -39,8 +39,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
     const { hasTorrentProvider } = useHasTorrentProvider()
     const { hasDebridService } = useHasDebridService()
-    const isTorrentStreamingView = useAtomValue(__anime_torrentStreamingViewActiveAtom)
-    const isDebridStreamingView = useAtomValue(__anime_debridStreamingViewActiveAtom)
+    const { currentView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
 
     return (
         <MediaPageHeader
@@ -78,41 +77,43 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
 
                 <div className="flex flex-col lg:flex-row w-full gap-3">
+
                     {(
                         entry.media.status !== "NOT_YET_RELEASED"
-                        && !isTorrentStreamingView
-                        && !isDebridStreamingView
+                        && currentView === "library"
                         && hasTorrentProvider
+                        && (
+                            serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE
+                            || hasDebridService
+                        )
                     ) && (
                         <TorrentSearchButton
                             entry={entry}
                         />
                     )}
 
-                    {(entry.media.status !== "NOT_YET_RELEASED"
-                        && !isDebridStreamingView
-                    ) && (
-                        <TorrentStreamButton
-                            entry={entry}
-                        />
-                    )}
+                    <TorrentStreamButton
+                        entry={entry}
+                    />
 
-                    {(entry.media.status !== "NOT_YET_RELEASED"
-                        && !isTorrentStreamingView
-                        && hasDebridService
-                    ) && (
-                        <DebridStreamButton
-                            entry={entry}
-                        />
-                    )}
+                    <DebridStreamButton
+                        entry={entry}
+                    />
+
+
+                    <AnimeOnlinestreamButton entry={entry} />
                 </div>
 
                 <NextAiringEpisode media={entry.media} />
 
+                {entry.downloadInfo?.hasInaccurateSchedule && <p className="text-[--muted] text-sm text-center mb-3">
+                    <span className="block">Could not retrieve accurate scheduling information for this show.</span>
+                    <span className="block text-[--muted]">Please check the schedule online for more information.</span>
+                </p>}
+
                 <div className="w-full flex flex-wrap gap-4 items-center">
 
                     <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
-                        <EntryOnlinestreamButton entry={entry} />
 
                         <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                             <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />

@@ -2094,6 +2094,15 @@
           "descriptions": []
         },
         {
+          "name": "AutoSelect",
+          "jsonName": "autoSelect",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
           "name": "Torrent",
           "jsonName": "torrent",
           "goType": "hibiketorrent.AnimeTorrent",
@@ -2318,7 +2327,7 @@
       "",
       "\t@summary returns the API documentation",
       "\t@route /api/v1/internal/docs [GET]",
-      "\t@returns docs.Docs",
+      "\t@returns []handlers.ApiDocsGroup",
       ""
     ],
     "filepath": "internal/handlers/docs.go",
@@ -2332,9 +2341,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "docs.Docs",
-      "returnGoType": "docs.Docs",
-      "returnTypescriptType": "INTERNAL_Docs"
+      "returns": "[]handlers.ApiDocsGroup",
+      "returnGoType": "handlers.ApiDocsGroup",
+      "returnTypescriptType": "Array\u003cApiDocsGroup\u003e"
     }
   },
   {
@@ -2947,7 +2956,7 @@
       "\t@summary returns the total size of cache files.",
       "\t@desc The total size of the cache files is returned in human-readable format.",
       "\t@route /api/v1/filecache/total-size [GET]",
-      "\t@returns bool",
+      "\t@returns string",
       ""
     ],
     "filepath": "internal/handlers/filecache.go",
@@ -2963,9 +2972,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
     }
   },
   {
@@ -3019,7 +3028,7 @@
       "\t@summary returns the total size of cached video file data.",
       "\t@desc The total size of the cache video file data is returned in human-readable format.",
       "\t@route /api/v1/filecache/mediastream/videofiles/total-size [GET]",
-      "\t@returns bool",
+      "\t@returns string",
       ""
     ],
     "filepath": "internal/handlers/filecache.go",
@@ -3035,9 +3044,9 @@
       ],
       "params": [],
       "bodyFields": [],
-      "returns": "bool",
-      "returnGoType": "bool",
-      "returnTypescriptType": "boolean"
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
     }
   },
   {

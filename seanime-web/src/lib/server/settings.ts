@@ -8,6 +8,12 @@ export const DEFAULT_DOH_PROVIDER = ""
 
 export const DEFAULT_MPV_TYPE = "socket"
 
+export const enum TORRENT_CLIENT {
+    QBITTORRENT = "qbittorrent",
+    TRANSMISSION = "transmission",
+    NONE = "none",
+}
+
 export const enum TORRENT_PROVIDER {
     ANIMETOSHO = "animetosho",
     NYAA = "nyaa",
@@ -22,7 +28,7 @@ export const _gettingStartedSchema = z.object({
 })
 
 export const settingsSchema = z.object({
-    libraryPath: z.string().min(1),
+    libraryPath: z.string().optional().default(""),
     defaultPlayer: z.string(),
     torrentProvider: z.string().default(DEFAULT_TORRENT_PROVIDER),
     autoScan: z.boolean().optional().default(false),
@@ -51,6 +57,7 @@ export const settingsSchema = z.object({
     autoUpdateProgress: z.boolean().optional().default(false),
     disableUpdateCheck: z.boolean().optional().default(false),
     enableOnlinestream: z.boolean().optional().default(false),
+    includeOnlineStreamingInLibrary: z.boolean().optional().default(false),
     disableAnimeCardTrailers: z.boolean().optional().default(false),
     enableManga: z.boolean().optional().default(true),
     enableRichPresence: z.boolean().optional().default(false),

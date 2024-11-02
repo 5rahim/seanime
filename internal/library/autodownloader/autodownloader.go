@@ -645,46 +645,14 @@ func (ad *AutoDownloader) isTitleMatch(torrentParsedData *seanime_parser.Metadat
 		// +---------------------+
 
 		// Check if the torrent name contains the comparison title exactly
-		// This will fail for torrent titles that don't contain a season number
+		// This will fail for torrent titles that don't contain a season number if the comparison title has a season number
+		if strings.Contains(strings.ToLower(torrentParsedData.Title), strings.ToLower(rule.ComparisonTitle)) {
+			return true
+		}
 		if strings.Contains(strings.ToLower(torrentName), strings.ToLower(rule.ComparisonTitle)) {
 			return true
 		}
 
-		parsedComparisonTitle := seanime_parser.Parse(rule.ComparisonTitle)
-
-		// Compare the parsed torrent title with the parsed comparison title (without season number)
-		// If the torrent title contains the parsed comparison title, check that the season numbers match
-		if strings.Contains(strings.ToLower(torrentParsedData.Title), strings.ToLower(parsedComparisonTitle.Title)) {
-			// Make sure the distance is not too great
-			lev := metrics.NewLevenshtein()
-			lev.CaseSensitive = false
-			res := lev.Distance(strings.ToLower(torrentParsedData.Title), strings.ToLower(parsedComparisonTitle.Title))
-			if res > 20 {
-				return false
-			}
-			if ad.settings.EnableSeasonCheck {
-				// Check if the season numbers match
-				if len(parsedComparisonTitle.SeasonNumber) > 0 {
-					if len(torrentParsedData.SeasonNumber) == 0 {
-						return false
-					}
-					comparisonSeason, ok := util.StringToInt(parsedComparisonTitle.SeasonNumber[0])
-					if !ok {
-						return false
-					}
-					if comparisonSeason > 1 {
-						torrentSeason, ok := util.StringToInt(torrentParsedData.SeasonNumber[0])
-						if !ok {
-							return false
-						}
-						if comparisonSeason != torrentSeason {
-							return false
-						}
-					}
-				}
-			}
-			return true
-		}
 	case anime.AutoDownloaderRuleTitleComparisonLikely:
 		// +---------------------+
 		// |   Title "Likely"    |

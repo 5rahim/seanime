@@ -82,6 +82,7 @@ type (
 	//------------------------------------------------------------------
 
 	TorrentInfo struct {
+		ID    *string            `json:"id"` // ID of the torrent if added to the debrid service
 		Name  string             `json:"name"`
 		Hash  string             `json:"hash"`
 		Size  int64              `json:"size"`

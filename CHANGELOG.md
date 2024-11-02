@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.2.2
+
+- ✨ Debrid Streaming: Auto select
+- ⚡️ Debrid Streaming: Added retry mechanism for un-streamable URLs 
+- ⚡️ Scanner: Improved episode normalization logic as a fallback
+- ⚡️ Online streaming: New "Include in library" setting
+- ⚡️ Online streaming: Show fetched filler metadata on episode cards
+- 🦺 Fixed custom background images not showing up #148
+- 🦺 Fixed external player link for downloaded Specials/NC files #139
+- 🏗️ Merged "Default to X view" and "Include in library" settings for torrent & debrid streaming
+- 🏗️ Made library path optional for onboarding and removable in settings
+
 ## v2.2.1
 
 - ⚡️ New getting started page

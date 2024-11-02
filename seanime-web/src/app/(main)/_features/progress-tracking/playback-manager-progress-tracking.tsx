@@ -10,7 +10,7 @@ import {
 import { PlaybackManager_PlaybackState, PlaybackManager_PlaylistState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { useDebridStreamAutoplay, useTorrentStreamAutoplay } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { Button, IconButton } from "@/components/ui/button"
@@ -150,6 +150,7 @@ export function PlaybackManagerProgressTracking() {
 
     // TORRENT STREAMING Autoplay
     const { hasNextTorrentstreamEpisode, autoplayNextTorrentstreamEpisode, resetTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
+    const { hasNextDebridstreamEpisode, autoplayNextDebridstreamEpisode, resetDebridstreamAutoplayInfo } = useDebridStreamAutoplay()
 
     // Tracking stopped completely
     useWebsocketMessageListener<string>({
@@ -213,7 +214,7 @@ export function PlaybackManagerProgressTracking() {
     // LOCAL MEDIA Autoplay
     React.useEffect(() => {
         // If the next episode is available and autoplay is enabled
-        if (willAutoPlay && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode)) {
+        if (willAutoPlay && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode || hasNextDebridstreamEpisode)) {
 
             // Start the countdown
             setShowAutoPlayCountdownModal(true)
@@ -228,6 +229,8 @@ export function PlaybackManagerProgressTracking() {
                     autoPlayNextEpisode()
                 } else if (hasNextTorrentstreamEpisode) {
                     autoplayNextTorrentstreamEpisode()
+                } else if (hasNextDebridstreamEpisode) {
+                    autoplayNextDebridstreamEpisode()
                 }
 
                 setWillAutoPlay(false)
@@ -239,7 +242,7 @@ export function PlaybackManagerProgressTracking() {
                 clearTimers()
             }
         }
-    }, [nextEpisodeForAutoplay, hasNextTorrentstreamEpisode, willAutoPlay, isFetchingNextEpisode])
+    }, [nextEpisodeForAutoplay, hasNextTorrentstreamEpisode, hasNextDebridstreamEpisode, willAutoPlay, isFetchingNextEpisode])
 
 
     // Playback state
@@ -341,6 +344,7 @@ export function PlaybackManagerProgressTracking() {
         setShowAutoPlayCountdownModal(false)
         setWillAutoPlay(false)
         resetTorrentstreamAutoplayInfo()
+        resetDebridstreamAutoplayInfo()
         clearTimers()
     }
 

@@ -468,6 +468,7 @@ export type DebridStartStream_Variables = {
     mediaId: number
     episodeNumber: number
     aniDBEpisode: string
+    autoSelect: boolean
     torrent?: HibikeTorrent_AnimeTorrent
     fileId: string
     playbackType: DebridClient_StreamPlaybackType
