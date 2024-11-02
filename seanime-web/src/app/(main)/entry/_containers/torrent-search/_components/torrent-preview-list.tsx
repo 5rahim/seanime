@@ -39,10 +39,14 @@ export const TorrentPreviewList = React.memo((
         <Skeleton className="h-[96px]" />
     </div>
 
+    // const mediaReleaseDate = new Date(entry?.media?.startDate?.year || 0, entry?.media?.startDate?.month! - 1, entry?.media?.startDate?.day)
+
+
     return (
         <div className="space-y-2">
             {previews.filter(Boolean).map(item => {
                 if (!item.torrent) return null
+                // const isReleasedBeforeMedia = differenceInCalendarYears(mediaReleaseDate, item.torrent.date) > 2
                 return (
                     <TorrentPreviewItem
                         confirmed={item.torrent?.confirmed}

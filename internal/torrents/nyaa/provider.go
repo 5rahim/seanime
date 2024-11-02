@@ -355,6 +355,10 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) ([]str
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//func sanitizeTitle(t string) string {
+//	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(t, "!", ""), ":", ""), "[", ""), "]", ""), ".", "")
+//}
+
 // (title)
 // ("jjk"|"jujutsu kaisen")
 func buildTitleString(titles []string) string {

@@ -186,7 +186,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
             React.startTransition(() => {
                 const element = document.getElementById(`episode-${currentEpisodeNumber}`)
                 if (element) {
-                    element.scrollIntoView()
+                    element.scrollIntoView({ behavior: "smooth" })
                     // React.startTransition(() => {
                     //     window.scrollTo({ top: 0 })
                     // })
