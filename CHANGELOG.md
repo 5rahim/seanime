@@ -4,15 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## v2.2.2
 
-- ✨ Debrid Streaming: Auto select
-- ⚡️ Debrid Streaming: Added retry mechanism for un-streamable URLs 
-- ⚡️ Scanner: Improved episode normalization logic as a fallback
+- ✨ Debrid Streaming: Auto select (Experimental)
+- ⚡️ Scanner: Improved episode normalization logic
+- ⚡️ Debrid Streaming: Retry mechanism for stream URL checks
 - ⚡️ Online streaming: New "Include in library" setting
-- ⚡️ Online streaming: Show fetched filler metadata on episode cards
+- ⚡️ Online streaming: Show fetched image & filler metadata on episode cards
+- ⚡️ Settings: Torrent client "None" option
+- 💄 UI: Integrated online streaming view in anime page
 - 🦺 Fixed custom background images not showing up #148
 - 🦺 Fixed external player link for downloaded Specials/NC files #139
 - 🏗️ Merged "Default to X view" and "Include in library" settings for torrent & debrid streaming
 - 🏗️ Made library path optional for onboarding and removable in settings
+- 🏗️ Updated empty library screen
 
 ## v2.2.1
 
