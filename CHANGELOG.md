@@ -13,9 +13,11 @@ All notable changes to this project will be documented in this file.
 - 💄 UI: Integrated online streaming view in anime page
 - 🦺 Fixed custom background images not showing up #148
 - 🦺 Fixed external player link for downloaded Specials/NC files #139
+- 🦺 Fixed "contains" filter for Auto Downloader #149
 - 🏗️ Merged "Default to X view" and "Include in library" settings for torrent & debrid streaming
 - 🏗️ Made library path optional for onboarding and removable in settings
 - 🏗️ Updated empty library screen
+- 🏗️ Fix Go toolchain issue #150
 
 ## v2.2.1
 
