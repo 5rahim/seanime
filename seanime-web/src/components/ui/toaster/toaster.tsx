@@ -13,6 +13,7 @@ export const ToasterAnatomy = defineStyleAnatomy({
     toaster: cva(["group toaster z-[150]"]),
     toast: cva([
         "group/toast",
+        "select-none cursor-default",
         "group-[.toaster]:py-3 group-[.toaster]:gap-3",
         "group-[.toaster]:text-base group-[.toaster]:bg-[--paper] group-[.toaster]:text-[--foreground] group-[.toaster]: group-[.toaster]:shadow-lg",
         // Success
@@ -30,6 +31,7 @@ export const ToasterAnatomy = defineStyleAnatomy({
         "group-data-[type=warning]/toast:text-yellow-100",
         "group-data-[type=error]/toast:text-red-100",
         "group-data-[type=info]/toast:text-blue-100",
+        "cursor-default",
     ]),
     actionButton: cva(["group/toast:bg-[--subtle] group/toast:text-[--foreground]"]),
     cancelButton: cva(["group/toast:bg-[--subtle] group/toast:text-[--muted]"]),

@@ -2,10 +2,10 @@ package seadex
 
 import (
 	"context"
+	"github.com/5rahim/habari"
 	"github.com/rs/zerolog"
 	"net/http"
 	"seanime/internal/torrents/nyaa"
-	"seanime/seanime-parser"
 	"sync"
 	"time"
 
@@ -87,7 +87,7 @@ func (n *Provider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (st
 }
 
 func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorrent {
-	metadata := seanime_parser.Parse(t.Name)
+	metadata := habari.Parse(t.Name)
 
 	ret := &hibiketorrent.AnimeTorrent{
 		Name:          t.Name,

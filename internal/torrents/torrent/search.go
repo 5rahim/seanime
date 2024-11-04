@@ -3,6 +3,7 @@ package torrent
 import (
 	"cmp"
 	"fmt"
+	"github.com/5rahim/habari"
 	"github.com/dustin/go-humanize"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
@@ -13,7 +14,6 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
-	"seanime/seanime-parser"
 	"slices"
 	"strconv"
 	"sync"
@@ -243,7 +243,7 @@ type createAnimeTorrentPreviewOptions struct {
 
 func (r *Repository) createAnimeTorrentPreview(opts createAnimeTorrentPreviewOptions) *Preview {
 
-	parsedData := seanime_parser.Parse(opts.torrent.Name)
+	parsedData := habari.Parse(opts.torrent.Name)
 
 	isBatch := opts.torrent.IsBestRelease ||
 		opts.torrent.IsBatch ||

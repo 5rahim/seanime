@@ -3,13 +3,13 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
+	"github.com/5rahim/habari"
 	"github.com/mmcdole/gofeed"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
-	"seanime/seanime-parser"
 	"strconv"
 	"strings"
 	"sync"
@@ -500,7 +500,7 @@ func torrentSliceToAnimeTorrentSlice(torrents []Torrent, providerName string) []
 }
 
 func (t *Torrent) toAnimeTorrent(providerName string) *hibiketorrent.AnimeTorrent {
-	metadata := seanime_parser.Parse(t.Name)
+	metadata := habari.Parse(t.Name)
 
 	seeders, _ := strconv.Atoi(t.Seeders)
 	leechers, _ := strconv.Atoi(t.Leechers)

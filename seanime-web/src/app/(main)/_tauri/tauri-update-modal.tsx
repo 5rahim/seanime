@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
+import { logger } from "@/lib/helpers/debug"
 import { emit } from "@tauri-apps/api/event"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { check, Update } from "@tauri-apps/plugin-updater"
@@ -47,16 +48,15 @@ export function TauriUpdateModal(props: UpdateModalProps) {
                     setUpdateLoading(false)
                 }
                 catch (error) {
-                    console.error(error)
+                    logger("TAURI").error("Failed to check for updates", error)
                     setTauriError(JSON.stringify(error))
                     setUpdateLoading(false)
                 }
             })()
         }
         catch (e) {
-            console.error(e)
+            logger("TAURI").error("Failed to check for updates", e)
             setIsUpdating(false)
-            toast.error(`Failed to check for updates: ${JSON.stringify(e)}`)
         }
     }, [])
 
@@ -68,18 +68,19 @@ export function TauriUpdateModal(props: UpdateModalProps) {
         try {
             setIsUpdating(true)
 
+            // Wait for the update be downloaded
             await tauriUpdate.download()
-
+            // Kill the currently running server
             await emit("kill-server")
-
+            // Wait 1 second before installing the update
             setTimeout(async () => {
                 await tauriUpdate.install()
-
+                // Relaunch the app once the update is installed
                 await relaunch()
             }, 1000)
         }
         catch (e) {
-            console.error(e)
+            logger("TAURI").error("Failed to download update", e)
             toast.error(`Failed to download update: ${JSON.stringify(e)}`)
             setIsUpdating(false)
         }
