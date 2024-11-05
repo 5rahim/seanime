@@ -201,6 +201,11 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			close(itemCh)
 		}()
 
+		if ctx.Err() != nil {
+			s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+			return
+		}
+
 		if err != nil {
 			s.repository.logger.Err(err).Msg("debridstream: Failed to get stream URL")
 			if !errors.Is(err, context.Canceled) {
@@ -224,29 +229,35 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 
 	streamUrlCheckLoop:
 		for { // Retry loop for a total of 4 times (32 seconds)
-			// Check if we can stream the URL
-			if canStream, reason := CanStream(streamUrl); !canStream {
-				if retries >= 4 {
-					s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
+			select {
+			case <-ctx.Done():
+				s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+				return
+			default:
+				// Check if we can stream the URL
+				if canStream, reason := CanStream(streamUrl); !canStream {
+					if retries >= 4 {
+						s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
 
+						s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+							Status:      StreamStatusFailed,
+							TorrentName: selectedTorrent.Name,
+							Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
+						})
+						return
+					}
+					s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
 					s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-						Status:      StreamStatusFailed,
+						Status:      StreamStatusDownloading,
 						TorrentName: selectedTorrent.Name,
-						Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
+						Message:     "Checking stream file...",
 					})
-					return
+					retries++
+					time.Sleep(8 * time.Second)
+					continue
 				}
-				s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
-				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-					Status:      StreamStatusDownloading,
-					TorrentName: selectedTorrent.Name,
-					Message:     "Checking stream file...",
-				})
-				retries++
-				time.Sleep(8 * time.Second)
-				continue
+				break streamUrlCheckLoop
 			}
-			break streamUrlCheckLoop
 		}
 
 		s.repository.logger.Debug().Msg("debridstream: Stream is ready")
@@ -257,6 +268,11 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			TorrentName: selectedTorrent.Name,
 			Message:     "Ready to stream the file",
 		})
+
+		if ctx.Err() != nil {
+			s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+			return
+		}
 
 		switch opts.PlaybackType {
 		case PlaybackTypeDefault:
