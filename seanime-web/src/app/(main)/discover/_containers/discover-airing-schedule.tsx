@@ -88,8 +88,8 @@ export function DiscoverAiringSchedule() {
                 {days.map((day, index) => {
                     if (day.events.length === 0) return null
                     return (
-                        <>
-                            <div key={index} className="flex flex-col gap-2">
+                        <React.Fragment key={index}>
+                            <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-2">
                                     <h3 className="font-semibold">{format(new Date(day.date), "EEEE, PP")}</h3>
                                     {day.isToday && <span className="text-[--muted]">Today</span>}
@@ -97,7 +97,7 @@ export function DiscoverAiringSchedule() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                                     {day.events?.toSorted((a, b) => a.datetime.localeCompare(b.datetime))?.map((event, index) => {
                                         return (
-                                            <div key={event.id} className="flex gap-3 bg-[--background] rounded-md p-2">
+                                            <div key={String(`${event.id}${index}`)} className="flex gap-3 bg-[--background] rounded-md p-2">
                                                 <div
                                                     className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
                                                 >
@@ -130,7 +130,7 @@ export function DiscoverAiringSchedule() {
                             </div>
 
                             <Separator />
-                        </>
+                        </React.Fragment>
                     )
                 })}
             </div>
