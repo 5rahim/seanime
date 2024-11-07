@@ -138,7 +138,7 @@ func DownloadAnimeEpisodeImages(logger *zerolog.Logger, assetsDir string, mId in
 //
 //	DownloadAnimeImages(logger, "path/to/datadir/local/assets", entry, animeMetadata)
 //	-> "banner.jpg", "cover.jpg", map[string]string{"1": "filename1.jpg", "2": "filename2.jpg"}
-func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilist.AnimeListEntry, animeMetadata *metadata.AnimeMetadata) (string, string, map[string]string, bool) {
+func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilist.AnimeListEntry, animeMetadata *metadata.AnimeMetadata, metadataWrapper metadata.AnimeMetadataWrapper) (string, string, map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeImages", func() {})
 
 	logger.Trace().Msgf("sync: Downloading images for anime %d", entry.Media.ID)
@@ -153,6 +153,9 @@ func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilis
 
 	ogEpisodeImages := make(map[string]string)
 	for episodeNum, episode := range animeMetadata.Episodes {
+		epMetadata := metadataWrapper.GetEpisodeMetadata(util.StringToIntMust(episodeNum))
+		episode = &epMetadata
+
 		if episode.Image == "" {
 			continue
 		}

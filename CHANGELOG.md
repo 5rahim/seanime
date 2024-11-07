@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.2.3
+
+- ⚡️ Media streaming: Added 'custom' field for FFmpeg hardware acceleration transcoding settings
+- 🦺 Offline: Fixed some episode images not being downloaded
+  - If you encounter this issue, you will have to remove and re-add the media
+- 🦺 Debrid streaming: Fixed MPV command
+- 🦺 Debrid streaming: Fixed stream cancellation
+- 🏗️ Moved filename parser to separate package
+
 ## v2.2.2
 
 - ✨ Debrid Streaming: Auto select (Experimental)

@@ -7,7 +7,6 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
-	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"sort"
 	"time"
@@ -181,7 +180,6 @@ func (o *MediaTreeAnalysis) getRelativeEpisodeNumber(abs int) (relativeEp int, m
 		}
 
 		for _, b := range branches {
-			util.SpewMany(b.minAbsoluteEpisode, b.maxAbsoluteEpisode, abs)
 			if b.minAbsoluteEpisode <= abs && b.maxAbsoluteEpisode >= abs {
 				b.branch.minAbsoluteEpisode = b.minAbsoluteEpisode
 				b.branch.maxAbsoluteEpisode = b.maxAbsoluteEpisode

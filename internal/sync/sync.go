@@ -559,6 +559,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	}
 
 	var animeMetadata *metadata.AnimeMetadata
+	var metadataWrapper metadata.AnimeMetadataWrapper
 	if diff.DiffType == DiffTypeMissing || diff.DiffType == DiffTypeMetadata {
 		// Get the anime metadata
 		var err error
@@ -568,13 +569,15 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 			q.manager.logger.Error().Err(err).Msgf("sync: Failed to get metadata for anime %d", entry.Media.ID)
 			return
 		}
+
+		metadataWrapper = q.manager.metadataProvider.GetAnimeMetadataWrapper(diff.AnimeEntry.Media, animeMetadata)
 	}
 
 	//
 	// The snapshot is missing
 	//
 	if diff.DiffType == DiffTypeMissing {
-		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata)
+		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata, metadataWrapper)
 		if !ok {
 			q.sendAnimeToFailedQueue(entry)
 			return
