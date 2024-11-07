@@ -297,6 +297,8 @@ type MediastreamSettings struct {
 	PreTranscodeLibraryDir        string `gorm:"column:pre_transcode_library_dir" json:"preTranscodeLibraryDir"`
 	FfmpegPath                    string `gorm:"column:ffmpeg_path" json:"ffmpegPath"`
 	FfprobePath                   string `gorm:"column:ffprobe_path" json:"ffprobePath"`
+	// v2.2+
+	TranscodeHwAccelCustomSettings string `gorm:"column:transcode_hw_accel_custom_settings" json:"transcodeHwAccelCustomSettings"`
 
 	//TranscodeTempDir              string `gorm:"column:transcode_temp_dir" json:"transcodeTempDir"` // DEPRECATED
 }

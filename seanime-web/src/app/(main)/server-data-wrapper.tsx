@@ -78,7 +78,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         return <LuffyError title="Transcoding not enabled" />
     }
 
-    if (!serverStatus?.user && host === "127.0.0.1:43211") {
+    if (!serverStatus?.user && host === "127.0.0.1:43211" && process.env.NEXT_PUBLIC_PLATFORM !== "desktop") {
         return <div className="container max-w-3xl py-10">
             <Card className="md:py-10">
                 <AppLayoutStack>

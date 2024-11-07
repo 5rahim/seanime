@@ -4,12 +4,16 @@
 
 package transcoder
 
-import "runtime"
+import (
+	"github.com/goccy/go-json"
+	"runtime"
+)
 
 type (
 	HwAccelOptions struct {
-		Kind   string
-		Preset string
+		Kind           string
+		Preset         string
+		CustomSettings string
 	}
 )
 
@@ -19,6 +23,18 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 		name = "disabled"
 	}
 	streamLogger.Debug().Msgf("transcoder: Hardware acceleration: %s", name)
+
+	var customHwAccelSettings HwAccelSettings
+	if opts.CustomSettings != "" && name == "custom" {
+		err := json.Unmarshal([]byte(opts.CustomSettings), &customHwAccelSettings)
+		if err != nil {
+			streamLogger.Error().Err(err).Msg("transcoder: Failed to parse custom hardware acceleration settings, falling back to CPU")
+			name = "disabled"
+		}
+		customHwAccelSettings.Name = "custom"
+	} else if opts.CustomSettings != "" {
+		name = "disabled"
+	}
 
 	defaultOSDevice := "/dev/dri/renderD128"
 	switch runtime.GOOS {
@@ -110,6 +126,8 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			// see note on ScaleFilter of the vaapi HwAccel, this is the same filter but adapted to cuda
 			ScaleFilter: "format=nv12|cuda,hwupload,scale_cuda=%d:%d:format=nv12",
 		}
+	case "custom":
+		return customHwAccelSettings
 	default:
 		streamLogger.Fatal().Msgf("No hardware accelerator named: %s", name)
 		panic("unreachable")
