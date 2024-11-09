@@ -13,25 +13,31 @@ type ToggleLockFilesButtonProps = {
 
 export const ToggleLockFilesButton = memo((props: ToggleLockFilesButtonProps) => {
     const { mediaId, allFilesLocked, size = "sm" } = props
+    const [isLocked, setIsLocked] = React.useState(allFilesLocked)
     const { mutate: performBulkAction, isPending } = useAnimeEntryBulkAction(mediaId)
+
+    const handleToggle = React.useCallback(() => {
+        performBulkAction({
+            mediaId,
+            action: "toggle-lock",
+        })
+        setIsLocked(p => !p)
+    }, [mediaId])
 
     return (
         <Tooltip
             trigger={
                 <IconButton
-                    icon={allFilesLocked ? <VscVerified /> : <BiLockOpenAlt />}
-                    intent={allFilesLocked ? "success-subtle" : "warning-subtle"}
+                    icon={isLocked ? <VscVerified /> : <BiLockOpenAlt />}
+                    intent={isLocked ? "success-subtle" : "warning-subtle"}
                     size={size}
                     className="hover:opacity-60"
                     loading={isPending}
-                    onClick={() => performBulkAction({
-                        mediaId,
-                        action: "toggle-lock",
-                    })}
+                    onClick={handleToggle}
                 />
             }
         >
-            {allFilesLocked ? "Unlock all files" : "Lock all files"}
+            {isLocked ? "Unlock all files" : "Lock all files"}
         </Tooltip>
     )
 })

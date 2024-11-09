@@ -6,14 +6,6 @@
 
 <h1 align="center"><b>Seanime</b></h1>
 
-<h4 align="center">
-Self-hosted anime and manga server for sea rovers.
-</h4>
-
-<p align="center">
-Scan, watch, automate, stream your anime collection, read manga, track your progress and more - all in one place.
-</p>
-
 <p align="center">
 <img src="docs/images/github-banner.png" alt="preview" width="100%"/>
 </p>
@@ -30,7 +22,11 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 Leave a star if you like the project! ⭐️
 </h5>
 
-# Features
+## About
+
+Seanime is a **media server** with an interface for watching anime, reading manga, and managing your local library.
+
+## Features
 
 
 - Cross-platform server with no data collection
@@ -39,6 +35,7 @@ Leave a star if you like the project! ⭐️
 - Scan your local library in seconds, no renaming needed
 - Torrent search engine with support for Nyaa, Anime Tosho, SeaDex & extensions
 - Support for qBittorrent, Transmission, and Torbox for downloading
+- Auto-downloading for new episodes with custom filters
 - MPV, VLC, MPC-HC, and mobile player app support for watching
 - Transcoding and direct play for streaming to any device web browser
 - Stream torrents directly to your media player without downloading using Bittorrent or Torbox
@@ -47,7 +44,7 @@ Leave a star if you like the project! ⭐️
 - Extension system for adding new sources
 - More...
 
-# Get started
+## Get started
 
 Read the installation guide to set up Seanime on your device.
 
