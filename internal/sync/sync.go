@@ -547,12 +547,12 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 
 	q.manager.logger.Trace().Msgf("sync: Starting synchronization of anime %d, diff type: %+v", entry.Media.ID, diff.DiffType)
 
-	_, foundLocalFiles := lo.Find(q.manager.localFiles, func(f *anime.LocalFile) bool {
+	lfs := lo.Filter(q.manager.localFiles, func(f *anime.LocalFile, _ int) bool {
 		return f.MediaId == entry.Media.ID
 	})
 
 	// If the anime (which is tracked) has no local files, remove it entirely from the local database
-	if !foundLocalFiles {
+	if len(lfs) == 0 {
 		q.manager.logger.Warn().Msgf("sync: No local files found for anime %d, removing from the local database", entry.Media.ID)
 		_ = q.manager.removeAnime(entry.Media.ID)
 		return
@@ -577,7 +577,7 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 	// The snapshot is missing
 	//
 	if diff.DiffType == DiffTypeMissing {
-		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata, metadataWrapper)
+		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata, metadataWrapper, lfs)
 		if !ok {
 			q.sendAnimeToFailedQueue(entry)
 			return

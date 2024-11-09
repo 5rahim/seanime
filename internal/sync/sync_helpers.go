@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/image_downloader"
 )
@@ -138,7 +140,14 @@ func DownloadAnimeEpisodeImages(logger *zerolog.Logger, assetsDir string, mId in
 //
 //	DownloadAnimeImages(logger, "path/to/datadir/local/assets", entry, animeMetadata)
 //	-> "banner.jpg", "cover.jpg", map[string]string{"1": "filename1.jpg", "2": "filename2.jpg"}
-func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilist.AnimeListEntry, animeMetadata *metadata.AnimeMetadata, metadataWrapper metadata.AnimeMetadataWrapper) (string, string, map[string]string, bool) {
+func DownloadAnimeImages(
+	logger *zerolog.Logger,
+	assetsDir string,
+	entry *anilist.AnimeListEntry,
+	animeMetadata *metadata.AnimeMetadata,
+	metadataWrapper metadata.AnimeMetadataWrapper,
+	lfs []*anime.LocalFile,
+) (string, string, map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeImages", func() {})
 
 	logger.Trace().Msgf("sync: Downloading images for anime %d", entry.Media.ID)
@@ -153,12 +162,20 @@ func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilis
 
 	ogEpisodeImages := make(map[string]string)
 	for episodeNum, episode := range animeMetadata.Episodes {
+		// Check if the episode is in the local files
+		if _, found := lo.Find(lfs, func(lf *anime.LocalFile) bool {
+			return lf.Metadata.AniDBEpisode == episode.Episode
+		}); !found {
+			continue
+		}
+
 		epMetadata := metadataWrapper.GetEpisodeMetadata(util.StringToIntMust(episodeNum))
 		episode = &epMetadata
 
 		if episode.Image == "" {
 			continue
 		}
+
 		ogEpisodeImages[episodeNum] = episode.Image
 		imgUrls = append(imgUrls, episode.Image)
 	}
