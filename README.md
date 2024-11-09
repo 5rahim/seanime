@@ -15,12 +15,7 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
 </p>
 
 <p align="center">
-<img src="docs/images/v2/devices_02.png" alt="preview" width="100%"/>
-</p>
-
-<p align="center">
-<img src="docs/images/v2/rec_anime.gif" alt="preview" width="48.5%"/>
-<img src="docs/images/v2/rec_manga.gif" alt="preview" width="49%"/>
+<img src="docs/images/github-banner.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -54,77 +49,27 @@ Leave a star if you like the project! ⭐️
 
 # Features
 
-### All-in-one
 
-- 🪶 Lightweight, cross-platform and performant server
-- 🔥 Simple, modern and customizable web interface
-- 🌐 Automatic progress tracking and full integration with AniList
-- 🔒 No data collection
-- ✈️ **Offline mode**
-  - Use the main features as if you were online, with cached metadata and images
-  - Track your progress and manage your lists offline and sync when you’re back online
+- Cross-platform server with no data collection
+- Complete AniList integration (browse, manage, score, trailers, etc.)
+- Offline mode with caching for metadata, images
+- Scan your local library in seconds, no renaming needed
+- Torrent search engine with support for Nyaa, Anime Tosho, SeaDex & extensions
+- Support for qBittorrent, Transmission, and Torbox for downloading
+- Read and download manga chapters with support for multiple sources & extensions
+- MPV, VLC, MPC-HC, and mobile player app support for watching
+- Transcoding and direct play for streaming to any device web browser
+- Stream torrents directly to your media player without downloading
+- Online streaming with support for multiple sources & extensions
+- Extension system for adding new sources
+- And more
 
-### 🗂️ Scan your anime library
-- Scan and browse your local anime collection with ease, **no mandatory folder structure** and **no naming conventions** required
-- Powerful parser for anime filenames, automatic metadata handling for episodes, movies, OVAs, specials, etc.
-- Multiple metadata sources (AniList, AniDB, TheTVDB)
-
-### ⬇️ Download new episodes & movies
-
-- Integrated **search engine** for public trackers (AnimeTosho, Nyaa, Nyaa Sukebei, SeaDex)
-- Support for **qBittorrent** & **Transmission** for a seamless downloading experience
-- Support for Torbox's debrid service for downloading torrents without the need for a VPN
-- View upcoming and missing episodes to never miss a release
-- Let Seanime **automatically download** new episodes or movies for you by creating custom rules
-- Support for extensions to add more sources
-
-
-### 🎞️ Watch, anytime, anywhere
-- **MPV**, **VLC**, and **MPC-HC** support for local media playback and progress tracking
-- Create **playlists** to binge-watch seamlessly
-- Support for **mobile app players** (Outplayer, MX Player, etc.) using custom scheme links
-
-### 📱 Media streaming / Transcoding
-- Watch your downloaded episodes on any device
-- Built-in player with **on-the-fly transcoding** powered by **FFmpeg** & **Direct Play**
-- Support for hardware acceleration (NVIDIA NVENC, Intel QSV, VAAPI)
-
-### 📽️ Torrent & Debrid streaming
-- Stream torrents directly to your media player (desktop or mobile) without waiting for the download to complete
-- Automatic torrent selection with no input required - click and play
-- Auto-selection or manual selection of files from batches
-- Support for [Torbox](https://torbox.app)'s debrid service for streaming torrents directly to your media player (desktop or mobile)
-without the need for a VPN.
-
-### 📽️ Debrid streaming
-
-### 📺 Online streaming
-- Watch episodes from online sources using the built-in player
-- Support for multiple sources & extensions
-
-### 📕 Browse and manage your manga collection
-- Browse your AniList manga collection, search for new manga, get recommendations
-- **Read chapters** from various sources with the built-in, customizable manga reader
-- **Download chapters** for offline reading
-- Support for extensions to add more sources
-
-### Other features
-- **Extension system**
-- **Advanced anime/manga search**
-- **Discord Rich Presence**
-- **Logs and scan summaries**
 
 ## Philosophy
 
+Seanime's main goal is to provide a more streamlined alternative to traditional servers like Plex and Jellyfin for anime, while also offering more features for different experiences around anime and manga consumption.
 
-The main goal of Seanime is to provide an all-in-one, easy-to-use alternative to traditional media servers like Plex and Jellyfin, designed specifically for anime and manga.
-Seanime eliminates the need for setting up and maintaining multiple tools and services (no need for organizing, renaming, setting up plugins, etc.).
-As someone who is new to the self-hosting world, I recognize the need for something that is user-friendly, feature-rich, and just works out of the box.
-Note that unlike other media servers, Seanime does not _natively_ run on all clients that seasoned self-hosting enjoyers might be used to (dedicated apps etc.), and it
-might have some rough edges in some use cases. 
-
-🚨 **Important note**: Remember that this is a one-man project. Seanime is not meant to fulfill all the needs of every user, as such, your specific use case or scenarios might not be supported, and that's okay.
-Feel free to turn to other tools or services that better suit your needs.
+🚨 **Important note**: This is a one-person project and may not meet every use case. If it doesn’t fully fit your needs, other tools might be a better match.
 
 ### Not planned
 
@@ -150,9 +95,9 @@ Development and testing might require additional configuration.
 
 <img src="docs/images/v2/rec_scanning.gif" alt="preview" width="100%"/>
 
-### Progress tracking
+### Watching
 
-<img src="docs/images/v2/anime-desktop-media-player_02--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_anime.gif" alt="preview" width="100%"/>
 
 ### Downloading
 
@@ -160,8 +105,7 @@ Development and testing might require additional configuration.
 
 ### Manga
 
-<img src="docs/images/v2/manga_01--squashed.jpg" alt="preview" width="100%"/>
-<img src="docs/images/v2/manga-reader_01.png" alt="preview" width="100%"/>
+<img src="docs/images/v2/rec_manga.gif" alt="preview" width="100%"/>
 
 ### Torrent streaming
 
