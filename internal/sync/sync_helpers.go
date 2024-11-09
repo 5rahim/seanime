@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -12,16 +11,6 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/image_downloader"
 )
-
-// FormatAssetUrl formats the asset URL for the given mediaId and filename.
-//
-//	FormatAssetUrl(123, "cover.jpg") -> "{{LOCAL_ASSETS}}/123/cover.jpg"
-func FormatAssetUrl(mediaId int, filename string) *string {
-	// {{LOCAL_ASSETS}} should be replaced in the client with the actual URL
-	// e.g. http://<hostname>/local_assets/123/cover.jpg
-	a := fmt.Sprintf("{{LOCAL_ASSETS}}/%d/%s", mediaId, filename)
-	return &a
-}
 
 // BaseAnimeDeepCopy creates a deep copy of the given base anime struct.
 func BaseAnimeDeepCopy(animeCollection *anilist.BaseAnime) *anilist.BaseAnime {
@@ -144,7 +133,7 @@ func DownloadAnimeImages(
 	logger *zerolog.Logger,
 	assetsDir string,
 	entry *anilist.AnimeListEntry,
-	animeMetadata *metadata.AnimeMetadata,
+	animeMetadata *metadata.AnimeMetadata, // This is updated
 	metadataWrapper metadata.AnimeMetadataWrapper,
 	lfs []*anime.LocalFile,
 ) (string, string, map[string]string, bool) {
@@ -160,21 +149,27 @@ func DownloadAnimeImages(
 
 	imgUrls := []string{ogBannerImage, ogCoverImage}
 
+	lfMap := make(map[string]*anime.LocalFile)
+	for _, lf := range lfs {
+		lfMap[lf.Metadata.AniDBEpisode] = lf
+	}
+
 	ogEpisodeImages := make(map[string]string)
 	for episodeNum, episode := range animeMetadata.Episodes {
 		// Check if the episode is in the local files
-		if _, found := lo.Find(lfs, func(lf *anime.LocalFile) bool {
-			return lf.Metadata.AniDBEpisode == episode.Episode
-		}); !found {
+		if _, ok := lfMap[episodeNum]; !ok {
 			continue
 		}
 
-		epMetadata := metadataWrapper.GetEpisodeMetadata(util.StringToIntMust(episodeNum))
+		episodeInt, ok := util.StringToInt(episodeNum)
+		if !ok {
+			ogEpisodeImages[episodeNum] = episode.Image
+			imgUrls = append(imgUrls, episode.Image)
+			continue
+		}
+
+		epMetadata := metadataWrapper.GetEpisodeMetadata(episodeInt)
 		episode = &epMetadata
-
-		if episode.Image == "" {
-			continue
-		}
 
 		ogEpisodeImages[episodeNum] = episode.Image
 		imgUrls = append(imgUrls, episode.Image)

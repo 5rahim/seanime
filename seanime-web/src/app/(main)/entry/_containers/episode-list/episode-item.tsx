@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/compone
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
+import { getImageUrl } from "@/lib/server/assets"
 import { atom } from "jotai"
 import { createIsolation } from "jotai-scope"
 import Image from "next/image"
@@ -209,7 +210,7 @@ function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
             className="h-[8rem] w-full flex-none object-cover object-center overflow-hidden absolute left-0 top-0 z-[-1]"
         >
             <Image
-                src={episode.episodeMetadata?.image}
+                src={getImageUrl(episode.episodeMetadata?.image)}
                 alt="banner"
                 fill
                 quality={80}

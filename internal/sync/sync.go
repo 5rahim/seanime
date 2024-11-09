@@ -7,6 +7,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
+	sync_util "seanime/internal/sync/util"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
@@ -275,12 +276,12 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					editedAnime := BaseAnimeDeepCopy(_animeEntry.GetMedia())
-					editedAnime.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
+					editedAnime.BannerImage = sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedAnime.CoverImage = &anilist.BaseAnime_CoverImage{
-						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Large:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Medium:     FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Color:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						ExtraLarge: sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Large:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Medium:     sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Color:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
 					}
 
 					var startedAt *anilist.AnimeCollection_MediaListCollection_Lists_Entries_StartedAt
@@ -350,12 +351,12 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					editedManga := BaseMangaDeepCopy(_mangaEntry.GetMedia())
-					editedManga.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
+					editedManga.BannerImage = sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedManga.CoverImage = &anilist.BaseManga_CoverImage{
-						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Large:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Medium:     FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Color:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						ExtraLarge: sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Large:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Medium:     sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Color:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
 					}
 
 					var startedAt *anilist.MangaCollection_MediaListCollection_Lists_Entries_StartedAt

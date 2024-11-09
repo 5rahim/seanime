@@ -7,7 +7,7 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="docs/images/github-banner.png" alt="preview" width="100%"/>
+<img src="docs/images/seanime-banner.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -94,6 +94,9 @@ Development and testing might require additional configuration.
 
 <img src="docs/images/v2/rec_manga.gif" alt="preview" width="100%"/>
 
+<details>
+<summary><b>View more</b></summary>
+
 ### Torrent streaming
 
 <img src="docs/images/v2/rec_torrent-streaming.gif" alt="preview" width="100%"/>
@@ -108,9 +111,6 @@ Development and testing might require additional configuration.
 ### Schedule
 
 <img src="docs/images/v2/schedule_01--squashed.jpg" alt="preview" width="100%"/>
-
-<details>
-<summary><b>View more</b></summary>
 
 ### Online streaming
 
