@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://seanime.rahim.app/">
-<img src="docs/images/logo_2.png" alt="preview" width="150px"/>
+<img src="docs/images/logo_2.png" alt="preview" width="100px"/>
 </a>
 </p>
 
@@ -25,23 +25,6 @@ Scan, watch, automate, stream your anime collection, read manga, track your prog
   <a href="https://discord.gg/Sbr7Phzt6m">Discord</a>
 </p>
 
-## About
-
-Seanime is a free and open-source media server built around APIs to provide a seamless experience for anime and manga enthusiasts. 
-It combines a lightweight server and a user-friendly web interface to manage and consume your local anime library, download new episodes, find new shows, read and download manga chapters, and more.
-
-
-Feel free to open issues if you notice any bugs, open discussions if you have questions, or contribute to the project if you want to help make it better.
-
-# Get started
-
-Read the installation guide to set up Seanime on your device.
-
-<p align="center">
-<a href="https://seanime.rahim.app/docs" style="font-size:18px;" align="center">
-How to install Seanime
-</a>
-</p>
 
 <h5 align="center">
 Leave a star if you like the project! ⭐️
@@ -56,16 +39,25 @@ Leave a star if you like the project! ⭐️
 - Scan your local library in seconds, no renaming needed
 - Torrent search engine with support for Nyaa, Anime Tosho, SeaDex & extensions
 - Support for qBittorrent, Transmission, and Torbox for downloading
-- Read and download manga chapters with support for multiple sources & extensions
 - MPV, VLC, MPC-HC, and mobile player app support for watching
 - Transcoding and direct play for streaming to any device web browser
-- Stream torrents directly to your media player without downloading
+- Stream torrents directly to your media player without downloading using Bittorrent or Torbox
 - Online streaming with support for multiple sources & extensions
+- Read and download manga chapters with support for multiple sources & extensions
 - Extension system for adding new sources
-- And more
+- More...
 
+# Get started
 
-## Philosophy
+Read the installation guide to set up Seanime on your device.
+
+<p align="center">
+<a href="https://seanime.rahim.app/docs" style="font-size:18px;" align="center">
+How to install Seanime
+</a>
+</p>
+
+## Goal
 
 Seanime's main goal is to provide a more streamlined alternative to traditional servers like Plex and Jellyfin for anime, while also offering more features for different experiences around anime and manga consumption.
 
@@ -76,11 +68,9 @@ Seanime's main goal is to provide a more streamlined alternative to traditional 
 - Support for other providers such as Trakt, SIMKL, etc.
 - Support for other media players
 - Dedicated clients (TV, mobile, etc.)
-- Support for Usenet, private trackers
-- Support for other languages (internationalization)
+- Support for other languages
 
-These features will not be implemented, mainly due to the scope of the project, time required or lack of resources.
-
+Consider sponsoring the project if you want to see more features implemented.
 
 ## Development and Build
 
@@ -150,10 +140,5 @@ Development and testing might require additional configuration.
 
 ## Disclaimer
 
-- Seanime relies exclusively on the content stored by individual users on their personal devices. 
-The acquisition and legitimacy of this content are external to the developer's control.
-- Seanime and its developer do not host, store, or distribute any content found within the application. All anime
-  information, as well as images, are sourced from publicly available APIs such as AniList and MyAnimeList.
-- Seanime may, at its discretion, provide links or an interface to external websites or applications. These external websites are independently maintained by third parties, and Seanime has no control
-  over the legitimacy of their content or operations. Please contact the website's owners for any concerns.
-- Seanime does not collect any kind of personal data or information from its users. You are responsible for maintaining the privacy and security of the third-party authentication tokens stored within your device.
+Seanime and its developer do not host, store, or distribute any content found within the application. All content metadata, including images, are sourced from publicly available APIs such as AniList, AniDB and TheTVDB.
+Furthermore, Seanime does not endorse or promote piracy in any form. It is the user's responsibility to ensure that they are in compliance with their local laws and regulations.
