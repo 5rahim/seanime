@@ -7,19 +7,10 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/image_downloader"
 )
-
-// FormatAssetUrl formats the asset URL for the given mediaId and filename.
-//
-//	FormatAssetUrl(123, "cover.jpg") -> "{{LOCAL_ASSETS}}/123/cover.jpg"
-func FormatAssetUrl(mediaId int, filename string) *string {
-	// {{LOCAL_ASSETS}} should be replaced in the client with the actual URL
-	// e.g. http://<hostname>/local_assets/123/cover.jpg
-	a := fmt.Sprintf("{{LOCAL_ASSETS}}/%d/%s", mediaId, filename)
-	return &a
-}
 
 // BaseAnimeDeepCopy creates a deep copy of the given base anime struct.
 func BaseAnimeDeepCopy(animeCollection *anilist.BaseAnime) *anilist.BaseAnime {
@@ -138,7 +129,14 @@ func DownloadAnimeEpisodeImages(logger *zerolog.Logger, assetsDir string, mId in
 //
 //	DownloadAnimeImages(logger, "path/to/datadir/local/assets", entry, animeMetadata)
 //	-> "banner.jpg", "cover.jpg", map[string]string{"1": "filename1.jpg", "2": "filename2.jpg"}
-func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilist.AnimeListEntry, animeMetadata *metadata.AnimeMetadata) (string, string, map[string]string, bool) {
+func DownloadAnimeImages(
+	logger *zerolog.Logger,
+	assetsDir string,
+	entry *anilist.AnimeListEntry,
+	animeMetadata *metadata.AnimeMetadata, // This is updated
+	metadataWrapper metadata.AnimeMetadataWrapper,
+	lfs []*anime.LocalFile,
+) (string, string, map[string]string, bool) {
 	defer util.HandlePanicInModuleThen("sync/DownloadAnimeImages", func() {})
 
 	logger.Trace().Msgf("sync: Downloading images for anime %d", entry.Media.ID)
@@ -151,11 +149,28 @@ func DownloadAnimeImages(logger *zerolog.Logger, assetsDir string, entry *anilis
 
 	imgUrls := []string{ogBannerImage, ogCoverImage}
 
+	lfMap := make(map[string]*anime.LocalFile)
+	for _, lf := range lfs {
+		lfMap[lf.Metadata.AniDBEpisode] = lf
+	}
+
 	ogEpisodeImages := make(map[string]string)
 	for episodeNum, episode := range animeMetadata.Episodes {
-		if episode.Image == "" {
+		// Check if the episode is in the local files
+		if _, ok := lfMap[episodeNum]; !ok {
 			continue
 		}
+
+		episodeInt, ok := util.StringToInt(episodeNum)
+		if !ok {
+			ogEpisodeImages[episodeNum] = episode.Image
+			imgUrls = append(imgUrls, episode.Image)
+			continue
+		}
+
+		epMetadata := metadataWrapper.GetEpisodeMetadata(episodeInt)
+		episode = &epMetadata
+
 		ogEpisodeImages[episodeNum] = episode.Image
 		imgUrls = append(imgUrls, episode.Image)
 	}

@@ -21,7 +21,7 @@ export function useGetAnimeEntry(id: Nullish<string | number>) {
     })
 }
 
-export function useAnimeEntryBulkAction(id?: Nullish<number>) {
+export function useAnimeEntryBulkAction(id?: Nullish<number>, onSuccess?: () => void) {
     const queryClient = useQueryClient()
 
     return useServerMutation<Array<Anime_LocalFile>, AnimeEntryBulkAction_Variables>({
@@ -30,7 +30,8 @@ export function useAnimeEntryBulkAction(id?: Nullish<number>) {
         mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.AnimeEntryBulkAction.key, String(id)],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
-            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
+            onSuccess?.()
         },
     })
 }

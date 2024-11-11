@@ -1,13 +1,13 @@
 package autodownloader
 
 import (
+	"github.com/5rahim/habari"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
-	"seanime/seanime-parser"
 	"testing"
 )
 
@@ -115,7 +115,7 @@ func TestComparison(t *testing.T) {
 
 			ad.settings.EnableSeasonCheck = tt.enableSeasonCheck
 
-			p := seanime_parser.Parse(tt.torrentName)
+			p := habari.Parse(tt.torrentName)
 			if tt.succeedTitleComparison {
 				require.True(t, ad.isTitleMatch(p, tt.torrentName, rule, aniListEntry))
 			} else {

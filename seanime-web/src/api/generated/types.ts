@@ -2713,6 +2713,7 @@ export type Models_MediastreamSettings = {
     preTranscodeLibraryDir: string
     ffmpegPath: string
     ffprobePath: string
+    transcodeHwAccelCustomSettings: string
     id: number
     createdAt?: string
     updatedAt?: string

@@ -5,6 +5,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/api/tvdb"
+	sync_util "seanime/internal/sync/util"
 	"seanime/internal/util/result"
 	"strconv"
 )
@@ -53,6 +54,12 @@ func (mp *LocalMetadataProvider) GetAnimeMetadata(platform metadata.Platform, mI
 
 	if snapshot, ok := mp.animeSnapshots[mId]; ok {
 		localAnimeMetadata := snapshot.AnimeMetadata
+		for _, episode := range localAnimeMetadata.Episodes {
+			if imgUrl, ok := snapshot.EpisodeImagePaths[episode.Episode]; ok {
+				episode.Image = *sync_util.FormatAssetUrl(mId, imgUrl)
+			}
+		}
+
 		return &metadata.AnimeMetadata{
 			Titles:       localAnimeMetadata.Titles,
 			Episodes:     localAnimeMetadata.Episodes,

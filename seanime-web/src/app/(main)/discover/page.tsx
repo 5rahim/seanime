@@ -38,17 +38,21 @@ export default function Page() {
                 className="p-4 sm:p-8 space-y-10 pb-10 relative z-[4]"
             >
                 <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap">
-                    {serverStatus?.settings?.library?.enableManga && <div className="max-w-fit border rounded-full">
+                    <div className="max-w-fit border rounded-full">
                         <StaticTabs
                             className="h-10"
                             triggerClass="px-4 py-1"
                             items={[
                                 { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
                                 { name: "Schedule", isCurrent: pageType === "schedule", onClick: () => setPageType("schedule") },
-                                { name: "Manga", isCurrent: pageType === "manga", onClick: () => setPageType("manga") },
+                                ...(serverStatus?.settings?.library?.enableManga ? [{
+                                    name: "Manga",
+                                    isCurrent: pageType === "manga",
+                                    onClick: () => setPageType("manga"),
+                                }] : []),
                             ]}
                         />
-                    </div>}
+                    </div>
                     <div>
                         <Button
                             leftIcon={<FaSearch />}

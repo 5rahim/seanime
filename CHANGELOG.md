@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.2.3
+
+- 🦺 Offline: Fixed episode images not showing up without an internet connection
+  - Remove and add saved series again to fix the issue
+- 🦺 Offline: Download only used images
+- 🦺 Debrid streaming: Fixed MPV --title flag
+- 🦺 Debrid streaming: Fixed stream cancellation
+- 🏗️ Moved filename parser to separate package
+
 ## v2.2.2
 
 - ✨ Debrid Streaming: Auto select (Experimental)

@@ -253,7 +253,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	case "mpv":
 		args := []string{"--force-window"}
 		if windowTitle != "" {
-			args = append(args, fmt.Sprintf("--title=%s", windowTitle))
+			args = append(args, fmt.Sprintf("--title=%q", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {

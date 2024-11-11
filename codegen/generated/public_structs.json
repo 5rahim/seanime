@@ -27748,6 +27748,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "TranscodeHwAccelCustomSettings",
+        "jsonName": "transcodeHwAccelCustomSettings",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -36324,9 +36333,9 @@
       {
         "name": "ParsedData",
         "jsonName": "ParsedData",
-        "goType": "seanime_parser.Metadata",
+        "goType": "habari.Metadata",
         "typescriptType": "Metadata",
-        "usedStructName": "seanime_parser.Metadata",
+        "usedStructName": "habari.Metadata",
         "required": false,
         "public": true,
         "comments": []
@@ -44284,6 +44293,15 @@
       {
         "name": "Preset",
         "jsonName": "Preset",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CustomSettings",
+        "jsonName": "CustomSettings",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -54563,20 +54581,6 @@
         "comments": []
       }
     ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/tracker/tracker.go",
-    "filename": "tracker.go",
-    "name": "Kind",
-    "formattedName": "Kind",
-    "package": "tracker",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": []
-    },
     "comments": []
   },
   {

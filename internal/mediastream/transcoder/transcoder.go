@@ -33,12 +33,13 @@ type (
 	}
 
 	NewTranscoderOptions struct {
-		Logger      *zerolog.Logger
-		HwAccelKind string
-		Preset      string
-		TempOutDir  string
-		FfmpegPath  string
-		FfprobePath string
+		Logger                *zerolog.Logger
+		HwAccelKind           string
+		Preset                string
+		TempOutDir            string
+		FfmpegPath            string
+		FfprobePath           string
+		HwAccelCustomSettings string
 	}
 )
 
@@ -64,8 +65,9 @@ func NewTranscoder(opts *NewTranscoderOptions) (*Transcoder, error) {
 		settings: Settings{
 			StreamDir: streamDir,
 			HwAccel: GetHardwareAccelSettings(HwAccelOptions{
-				Kind:   opts.HwAccelKind,
-				Preset: opts.Preset,
+				Kind:           opts.HwAccelKind,
+				Preset:         opts.Preset,
+				CustomSettings: opts.HwAccelCustomSettings,
 			}),
 			FfmpegPath:  opts.FfmpegPath,
 			FfprobePath: opts.FfprobePath,

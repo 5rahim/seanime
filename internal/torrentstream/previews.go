@@ -2,12 +2,12 @@ package torrentstream
 
 import (
 	"fmt"
+	"github.com/5rahim/habari"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/anacrolix/torrent"
 	"seanime/internal/api/anilist"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
-	"seanime/seanime-parser"
 	"sync"
 )
 
@@ -55,7 +55,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 			defer wg.Done()
 			defer util.HandlePanicInModuleThen("torrentstream/GetTorrentFilePreviewsFromManualSelection", func() {})
 
-			metadata := seanime_parser.Parse(file.DisplayPath())
+			metadata := habari.Parse(file.DisplayPath())
 
 			displayTitle := file.DisplayPath()
 

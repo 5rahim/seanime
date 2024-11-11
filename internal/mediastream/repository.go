@@ -280,12 +280,13 @@ func (r *Repository) initializeTranscoder(settings mo.Option[*models.Mediastream
 	}
 
 	opts := &transcoder.NewTranscoderOptions{
-		Logger:      r.logger,
-		HwAccelKind: settings.MustGet().TranscodeHwAccel,
-		Preset:      settings.MustGet().TranscodePreset,
-		FfmpegPath:  settings.MustGet().FfmpegPath,
-		FfprobePath: settings.MustGet().FfprobePath,
-		TempOutDir:  r.transcodeDir,
+		Logger:                r.logger,
+		HwAccelKind:           settings.MustGet().TranscodeHwAccel,
+		Preset:                settings.MustGet().TranscodePreset,
+		FfmpegPath:            settings.MustGet().FfmpegPath,
+		FfprobePath:           settings.MustGet().FfprobePath,
+		HwAccelCustomSettings: settings.MustGet().TranscodeHwAccelCustomSettings,
+		TempOutDir:            r.transcodeDir,
 	}
 
 	tc, err := transcoder.NewTranscoder(opts)

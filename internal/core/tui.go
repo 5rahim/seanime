@@ -34,14 +34,14 @@ func PrintHeader() {
 	fmt.Println()
 	//col.Printf("\n        .-----.    \n       /    _ /  \n       \\_..`--.  \n       .-._)   \\ \n       \\ ")
 	//col.Printf("      / \n        `-----'  \n")
-	fmt.Fprint(&logo, lipgloss.NewStyle().Foreground(lipgloss.Color("#9f92ff")).SetString("\n      .-----.    \n     /    _ /  \n     \\_..`--.  \n     .-._)   \\ \n     \\       / \n      `-----'  \n"))
+	fmt.Fprint(&logo, lipgloss.NewStyle().Foreground(lipgloss.Color("#5243cb")).SetString("\n      .-----.    \n     /    _ /  \n     \\_..`--.  \n     .-._)   \\ \n     \\       / \n      `-----'  \n"))
 	doc.WriteString(logo.String() + "\n")
 
 	{
 		var (
 			title  strings.Builder
 			titles = []string{"Seanime", constants.Version, constants.VersionName}
-			//colors = []string{"#5243cb", "#5243cb", "#312887", "#14F9D5"}
+			//colors = []string{"#5243cb", "#5243cb", "#2b6ec7", "#14F9D5"}
 			colors = []string{"#5243cb", "#5243cb", "#c76b44", "#14F9D5"}
 		)
 

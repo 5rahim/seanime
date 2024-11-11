@@ -3,6 +3,7 @@ package animetosho
 import (
 	"bytes"
 	"fmt"
+	"github.com/5rahim/habari"
 	"github.com/dustin/go-humanize"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
@@ -12,7 +13,6 @@ import (
 	"net/url"
 	"seanime/internal/api/anilist"
 	"seanime/internal/util"
-	"seanime/seanime-parser"
 	"strings"
 	"sync"
 	"time"
@@ -375,7 +375,7 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) (ret [
 			// If we can also search for absolute episodes (there is an offset)
 			if opts.Media.AbsoluteSeasonOffset > 0 {
 				// Parse a good title
-				metadata := seanime_parser.Parse(opts.Media.RomajiTitle)
+				metadata := habari.Parse(opts.Media.RomajiTitle)
 				// 1. Start building a new query string
 				absoluteQueryStr := metadata.Title
 				// 2. Add episodes
@@ -681,7 +681,7 @@ func (at *Provider) torrentSliceToAnimeTorrentSlice(torrents []*Torrent, confirm
 }
 
 func (t *Torrent) toAnimeTorrent(media *hibiketorrent.Media) *hibiketorrent.AnimeTorrent {
-	metadata := seanime_parser.Parse(t.Title)
+	metadata := habari.Parse(t.Title)
 
 	formattedDate := ""
 	parsedDate := time.Unix(int64(t.Timestamp), 0)

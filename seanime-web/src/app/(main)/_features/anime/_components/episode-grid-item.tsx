@@ -4,6 +4,7 @@ import { imageShimmer } from "@/components/shared/image-helpers"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
+import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import React from "react"
@@ -121,7 +122,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         {actionIcon && actionIcon}
                     </div>}
                     {(image || media.coverImage?.medium) && <Image
-                        src={image || media.coverImage?.medium || ""}
+                        src={getImageUrl(image || media.coverImage?.medium || "")}
                         alt="episode image"
                         fill
                         quality={60}

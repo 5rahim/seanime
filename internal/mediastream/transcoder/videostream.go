@@ -71,13 +71,19 @@ func (vs *VideoStream) getTranscodeArgs(segments string) []string {
 		"-bufsize", fmt.Sprint(vs.quality.MaxBitrate()*5),
 		"-b:v", fmt.Sprint(vs.quality.AverageBitrate()),
 		"-maxrate", fmt.Sprint(vs.quality.MaxBitrate()),
+	)
+	if vs.settings.HwAccel.Name != "custom" {
 		// Force segments to be split exactly on keyframes (only works when transcoding)
 		// forced-idr is needed to force keyframes to be an idr-frame (by default it can be any i frames)
 		// without this option, some hardware encoders uses others i-frames and the -f segment can't cut at them.
-		"-forced-idr", "1",
+		args = append(args, "-forced-idr", "1")
+	}
+
+	args = append(args,
 		"-force_key_frames", segments,
 		// make ffmpeg globally less buggy
 		"-strict", "-2",
 	)
+
 	return args
 }

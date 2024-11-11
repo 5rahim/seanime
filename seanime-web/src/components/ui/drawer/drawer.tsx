@@ -1,6 +1,7 @@
 "use client"
 
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { cva, VariantProps } from "class-variance-authority"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
@@ -205,9 +206,13 @@ export function Drawer(props: DrawerProps) {
                 >
 
                     {(title || description) && <div className={cn(DrawerAnatomy.header(), headerClass)}>
-                        {title && <DialogPrimitive.Title className={cn(DrawerAnatomy.title(), titleClass)}>
+                        {title ? <DialogPrimitive.Title className={cn(DrawerAnatomy.title(), titleClass)}>
                             {title}
-                        </DialogPrimitive.Title>}
+                        </DialogPrimitive.Title> : <VisuallyHidden>
+                            <DialogPrimitive.Title>
+                                N/A
+                            </DialogPrimitive.Title>
+                        </VisuallyHidden>}
                         {description && <DialogPrimitive.Description className={cn(DrawerAnatomy.description(), descriptionClass)}>
                             {description}
                         </DialogPrimitive.Description>}

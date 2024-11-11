@@ -7,6 +7,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
+	sync_util "seanime/internal/sync/util"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"sync"
@@ -275,12 +276,12 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					editedAnime := BaseAnimeDeepCopy(_animeEntry.GetMedia())
-					editedAnime.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
+					editedAnime.BannerImage = sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedAnime.CoverImage = &anilist.BaseAnime_CoverImage{
-						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Large:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Medium:     FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Color:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						ExtraLarge: sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Large:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Medium:     sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Color:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
 					}
 
 					var startedAt *anilist.AnimeCollection_MediaListCollection_Lists_Entries_StartedAt
@@ -350,12 +351,12 @@ func (q *Syncer) synchronizeCollections() (err error) {
 					}
 
 					editedManga := BaseMangaDeepCopy(_mangaEntry.GetMedia())
-					editedManga.BannerImage = FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
+					editedManga.BannerImage = sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.BannerImagePath)
 					editedManga.CoverImage = &anilist.BaseManga_CoverImage{
-						ExtraLarge: FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Large:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Medium:     FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
-						Color:      FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						ExtraLarge: sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Large:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Medium:     sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
+						Color:      sync_util.FormatAssetUrl(snapshot.MediaId, snapshot.CoverImagePath),
 					}
 
 					var startedAt *anilist.MangaCollection_MediaListCollection_Lists_Entries_StartedAt
@@ -547,18 +548,19 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 
 	q.manager.logger.Trace().Msgf("sync: Starting synchronization of anime %d, diff type: %+v", entry.Media.ID, diff.DiffType)
 
-	_, foundLocalFiles := lo.Find(q.manager.localFiles, func(f *anime.LocalFile) bool {
+	lfs := lo.Filter(q.manager.localFiles, func(f *anime.LocalFile, _ int) bool {
 		return f.MediaId == entry.Media.ID
 	})
 
 	// If the anime (which is tracked) has no local files, remove it entirely from the local database
-	if !foundLocalFiles {
+	if len(lfs) == 0 {
 		q.manager.logger.Warn().Msgf("sync: No local files found for anime %d, removing from the local database", entry.Media.ID)
 		_ = q.manager.removeAnime(entry.Media.ID)
 		return
 	}
 
 	var animeMetadata *metadata.AnimeMetadata
+	var metadataWrapper metadata.AnimeMetadataWrapper
 	if diff.DiffType == DiffTypeMissing || diff.DiffType == DiffTypeMetadata {
 		// Get the anime metadata
 		var err error
@@ -568,13 +570,15 @@ func (q *Syncer) synchronizeAnime(diff *AnimeDiffResult) {
 			q.manager.logger.Error().Err(err).Msgf("sync: Failed to get metadata for anime %d", entry.Media.ID)
 			return
 		}
+
+		metadataWrapper = q.manager.metadataProvider.GetAnimeMetadataWrapper(diff.AnimeEntry.Media, animeMetadata)
 	}
 
 	//
 	// The snapshot is missing
 	//
 	if diff.DiffType == DiffTypeMissing {
-		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata)
+		bannerImage, coverImage, episodeImagePaths, ok := DownloadAnimeImages(q.manager.logger, q.manager.localAssetsDir, entry, animeMetadata, metadataWrapper, lfs)
 		if !ok {
 			q.sendAnimeToFailedQueue(entry)
 			return

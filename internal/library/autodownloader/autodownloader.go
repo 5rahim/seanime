@@ -2,6 +2,7 @@ package autodownloader
 
 import (
 	"fmt"
+	"github.com/5rahim/habari"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
@@ -22,7 +23,6 @@ import (
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
-	"seanime/seanime-parser"
 	"sort"
 	"strings"
 	"sync"
@@ -633,7 +633,7 @@ func (ad *AutoDownloader) isResolutionMatch(quality string, rule *anime.AutoDown
 	return false
 }
 
-func (ad *AutoDownloader) isTitleMatch(torrentParsedData *seanime_parser.Metadata, torrentName string, rule *anime.AutoDownloaderRule, listEntry *anilist.AnimeListEntry) (ok bool) {
+func (ad *AutoDownloader) isTitleMatch(torrentParsedData *habari.Metadata, torrentName string, rule *anime.AutoDownloaderRule, listEntry *anilist.AnimeListEntry) (ok bool) {
 	defer util.HandlePanicInModuleThen("autodownloader/isTitleMatch", func() {
 		ok = false
 	})
@@ -662,7 +662,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentParsedData *seanime_parser.Metadat
 
 		torrentTitle := torrentParsedData.Title
 
-		parsedComparisonTitle := seanime_parser.Parse(rule.ComparisonTitle)
+		parsedComparisonTitle := habari.Parse(rule.ComparisonTitle)
 		_comparisonTitle := parsedComparisonTitle.Title
 		if len(parsedComparisonTitle.ReleaseGroup) > 0 {
 			_comparisonTitle = fmt.Sprintf("%s %s", parsedComparisonTitle.ReleaseGroup, _comparisonTitle)
@@ -733,7 +733,7 @@ func (ad *AutoDownloader) isTitleMatch(torrentParsedData *seanime_parser.Metadat
 }
 
 func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
-	parsedData *seanime_parser.Metadata,
+	parsedData *habari.Metadata,
 	rule *anime.AutoDownloaderRule,
 	listEntry *anilist.AnimeListEntry,
 	localEntry *anime.LocalFileWrapperEntry,
@@ -833,7 +833,7 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 				if len(parsedData.SeasonNumber) > 0 {
 					season, ok := util.StringToInt(parsedData.SeasonNumber[0])
 					if ok && season > 1 {
-						parsedComparisonTitle := seanime_parser.Parse(rule.ComparisonTitle)
+						parsedComparisonTitle := habari.Parse(rule.ComparisonTitle)
 						if len(parsedComparisonTitle.SeasonNumber) == 0 {
 							return -1, false
 						}

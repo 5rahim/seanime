@@ -44,7 +44,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { FaSearch } from "react-icons/fa"
-import { useUpdateEffect } from "react-use"
+import { useUpdateEffect, useWindowSize } from "react-use"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 
@@ -179,10 +179,12 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         }
     }
 
+    const { width } = useWindowSize()
+
     /** Scroll to selected episode element when the episode list changes (on mount) **/
     const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
     React.useEffect(() => {
-        if (episodeListContainerRef.current) {
+        if (episodeListContainerRef.current && width > 1024) {
             React.startTransition(() => {
                 const element = document.getElementById(`episode-${currentEpisodeNumber}`)
                 if (element) {

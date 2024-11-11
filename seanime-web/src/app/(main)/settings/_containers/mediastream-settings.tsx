@@ -21,6 +21,7 @@ const mediastreamSchema = defineSchema(({ z }) => z.object({
     directPlayOnly: z.boolean(),
     ffmpegPath: z.string().min(0),
     ffprobePath: z.string().min(0),
+    transcodeHwAccelCustomSettings: z.string().min(0),
 }))
 
 const MEDIASTREAM_HW_ACCEL_OPTIONS = [
@@ -28,6 +29,7 @@ const MEDIASTREAM_HW_ACCEL_OPTIONS = [
     { label: "NVIDIA (NVENC)", value: "nvidia" },
     { label: "Intel (QSV)", value: "qsv" },
     { label: "VAAPI", value: "vaapi" },
+    { label: "Custom", value: "custom" },
 ]
 
 const MEDIASTREAM_PRESET_OPTIONS = [
@@ -87,6 +89,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     directPlayOnly: settings?.directPlayOnly ?? false,
                     ffmpegPath: settings?.ffmpegPath || "",
                     ffprobePath: settings?.ffprobePath || "",
+                    transcodeHwAccelCustomSettings: settings?.transcodeHwAccelCustomSettings || "{\n	\"name\": \"\",\n	\"decodeFlags\": [\n		\"-hwaccel\", \"\",\n		\"-hwaccel_output_format\", \"\",\n	],\n	\"encodeFlags\": [\n		\"-c:v\", \"\",\n		\"-preset\", \"\",\n		\"-pix_fmt\", \"yuv420p\",\n	],\n	\"scaleFilter\": \"scale=%d:%d\"\n}",
                 }}
                 stackClass="space-y-6"
             >
@@ -140,6 +143,15 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             label="Hardware acceleration"
                             help="Hardware acceleration is highly recommended for a smoother transcoding experience."
                         />
+
+                        {f.watch("transcodeHwAccel") === "custom" && (
+                            <Field.Textarea
+                                name="transcodeHwAccelCustomSettings"
+                                label="Custom settings (JSON)"
+                                className="min-h-[400px]"
+                                help="Video stream only, scaleFilter = -vf, -map,-bufsize,-b:v,-maxrate automatically applied."
+                            />
+                        )}
 
                         <Field.Select
                             options={MEDIASTREAM_PRESET_OPTIONS}

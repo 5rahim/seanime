@@ -2,10 +2,10 @@ package autodownloader
 
 import (
 	"errors"
+	"github.com/5rahim/habari"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/samber/lo"
 	"seanime/internal/library/anime"
-	"seanime/seanime-parser"
 	"sync"
 )
 
@@ -14,7 +14,7 @@ type (
 	// It is used to normalize the data from different providers so that it can be used by the AutoDownloader.
 	NormalizedTorrent struct {
 		hibiketorrent.AnimeTorrent
-		ParsedData *seanime_parser.Metadata
+		ParsedData *habari.Metadata
 		magnet     string // Access using GetMagnet()
 	}
 )
@@ -68,7 +68,7 @@ func (ad *AutoDownloader) getLatestTorrents(rules []*anime.AutoDownloaderRule) (
 	// Normalize the torrents
 	ret = make([]*NormalizedTorrent, 0, len(torrents))
 	for _, t := range torrents {
-		parsedData := seanime_parser.Parse(t.Name)
+		parsedData := habari.Parse(t.Name)
 		ret = append(ret, &NormalizedTorrent{
 			AnimeTorrent: *t,
 			ParsedData:   parsedData,
