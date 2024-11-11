@@ -4,9 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## v2.2.3
 
-- ⚡️ Media streaming: Added 'custom' field for FFmpeg hardware acceleration transcoding settings
-- 🦺 Offline: Fixed episode images
-- 🦺 Debrid streaming: Fixed MPV command
+- 🦺 Offline: Fixed episode images not showing up without an internet connection
+  - Remove and add saved series again to fix the issue
+- 🦺 Offline: Download only used images
+- 🦺 Debrid streaming: Fixed MPV --title flag
 - 🦺 Debrid streaming: Fixed stream cancellation
 - 🏗️ Moved filename parser to separate package
 
