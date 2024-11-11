@@ -4,7 +4,6 @@ import { useDebridCancelDownload, useDebridDeleteTorrent, useDebridDownloadTorre
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -108,7 +107,7 @@ function Content() {
         <>
             <div className="flex items-center w-full">
                 <div>
-                    <h2>{getServiceName(serverStatus?.debridSettings?.provider!)} <BetaBadge /></h2>
+                    <h2>{getServiceName(serverStatus?.debridSettings?.provider!)}</h2>
                     <p className="text-[--muted]">
                         See your debrid service torrents
                     </p>

@@ -17,7 +17,6 @@ import { MediastreamSettings } from "@/app/(main)/settings/_containers/mediastre
 import { ServerSettings } from "@/app/(main)/settings/_containers/server-settings"
 import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrentstream-settings"
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
-import { BetaBadge } from "@/components/shared/beta-badge"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
@@ -562,7 +561,7 @@ export default function Page() {
 
                         <TabsContent value="debrid" className="space-y-6">
 
-                            <h3>Debrid Service <BetaBadge /></h3>
+                            <h3>Debrid Service</h3>
 
                             <DebridSettings />
 

@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Offline: Download only used images
 - 🦺 Debrid streaming: Fixed MPV --title flag
 - 🦺 Debrid streaming: Fixed stream cancellation
+- ⚡️ Media streaming: Custom FFmpeg hardware acceleration options
 - 🏗️ Moved filename parser to separate package
 
 ## v2.2.2
