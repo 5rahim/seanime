@@ -138,6 +138,10 @@ func ValueContainsBatchKeywords(val string) bool {
 }
 
 func ValueContainsNC(val string) bool {
+	re, err := regexp.Compile(`(?i)opus`)
+	if err == nil {
+		val = re.ReplaceAllString(val, "")
+	}
 	regexes := []*regexp.Regexp{
 		regexp.MustCompile(`(?i)(^|(?P<show>.*?)[ _.\-(]+)(OP|NCOP|OPED) ?(?P<ep>\d{1,2}[a-z]?)? ?([ _.\-)]+(?P<title>.*))?`),
 		regexp.MustCompile(`(?i)(^|(?P<show>.*?)[ _.\-(]+)(ED|NCED) ?(?P<ep>\d{1,2}[a-z]?)? ?([ _.\-)]+(?P<title>.*))?`),

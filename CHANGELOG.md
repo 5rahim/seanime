@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.2.4
+
+- 🦺 Scanner: Fixed NC false-positive edge case
+
+
 ## v2.2.3
 
 - 🦺 Offline: Fixed episode images not showing up without an internet connection
