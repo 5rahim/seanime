@@ -87,6 +87,15 @@ export function useEmptyMangaEntryCache() {
     })
 }
 
+export function useGetMangaChapterCountMap() {
+    return useServerQuery<Record<number, number>>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.endpoint,
+        method: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaChapterCountMap.key],
+        enabled: true,
+    })
+}
+
 export function useGetMangaEntryChapters(variables: Partial<GetMangaEntryChapters_Variables>) {
     return useServerQuery<Manga_ChapterContainer, GetMangaEntryChapters_Variables>({
         endpoint: API_ENDPOINTS.MANGA.GetMangaEntryChapters.endpoint,

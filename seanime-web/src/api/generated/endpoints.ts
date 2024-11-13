@@ -811,6 +811,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/manga/entry/{id}/details",
         },
+        GetMangaChapterCountMap: {
+            key: "MANGA-get-manga-chapter-count-map",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/chapter-counts",
+        },
         /**
          *  @description
          *  Route empties the cache for a manga entry.

@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## v2.2.4
 
+- ✨ Real-Debrid support for streaming and downloading
+- ⚡️ Manga: Unread chapter count badge
 - 🦺 Scanner: Fixed NC false-positive edge case
 
 

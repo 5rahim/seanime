@@ -24,7 +24,8 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 	}
 
 	logger := util.NewLogger()
-	fileCacher, err := filecache.NewCacher(filepath.Join(test_utils.ConfigData.Path.DataDir, "cache"))
+	cacheDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "cache")
+	fileCacher, err := filecache.NewCacher(cacheDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,6 +33,7 @@ func TestGetDownloadedChapterContainers(t *testing.T) {
 	repository := NewRepository(&NewRepositoryOptions{
 		Logger:         logger,
 		FileCacher:     fileCacher,
+		CacheDir:       cacheDir,
 		ServerURI:      "",
 		WsEventManager: events.NewMockWSEventManager(logger),
 		DownloadDir:    filepath.Join(test_utils.ConfigData.Path.DataDir, "manga"),

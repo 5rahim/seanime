@@ -93,9 +93,8 @@ type (
 	}
 
 	CachedFile struct {
-		FileId string `json:"fileId"`
-		Size   int64  `json:"size"`
-		Name   string `json:"name"`
+		Size int64  `json:"size"`
+		Name string `json:"name"`
 	}
 	////////////////////////////////////////////////////////////////////
 

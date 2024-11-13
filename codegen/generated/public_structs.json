@@ -28690,6 +28690,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SelectFileId",
+        "jsonName": "selectFileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Real-Debrid only, ID, IDs, or \"all\""
+        ]
       }
     ],
     "comments": []
@@ -29144,6 +29155,455 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "RealDebrid",
+    "formattedName": "RealDebrid",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "apiKey",
+        "jsonName": "apiKey",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "ErrorResponse",
+    "formattedName": "ErrorResponse",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ErrorDetails",
+        "jsonName": "error_details",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ErrorCode",
+        "jsonName": "error_code",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "Torrent",
+    "formattedName": "Torrent",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Bytes",
+        "jsonName": "bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Host",
+        "jsonName": "host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Split",
+        "jsonName": "split",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Added",
+        "jsonName": "added",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Links",
+        "jsonName": "links",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ended",
+        "jsonName": "ended",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "TorrentInfo",
+    "formattedName": "TorrentInfo",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OriginalFilename",
+        "jsonName": "original_filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Bytes",
+        "jsonName": "bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of selected files"
+        ]
+      },
+      {
+        "name": "OriginalBytes",
+        "jsonName": "original_bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of the torrent"
+        ]
+      },
+      {
+        "name": "Host",
+        "jsonName": "host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Split",
+        "jsonName": "split",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Added",
+        "jsonName": "added",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentInfoFile",
+        "typescriptType": "Array\u003cTorrentInfoFile\u003e",
+        "usedStructName": "realdebrid.TorrentInfoFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Links",
+        "jsonName": "links",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ended",
+        "jsonName": "ended",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "TorrentInfoFile",
+    "formattedName": "TorrentInfoFile",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g. \"/Big Buck Bunny/Big Buck Bunny.mp4\""
+        ]
+      },
+      {
+        "name": "Bytes",
+        "jsonName": "bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Selected",
+        "jsonName": "selected",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " 1 if selected, 0 if not"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "InstantAvailabilityItem",
+    "formattedName": "InstantAvailabilityItem",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ filename: string; filesize: number; }\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -41653,6 +42113,15 @@
         "comments": []
       },
       {
+        "name": "cacheDir",
+        "jsonName": "cacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "providerExtensionBank",
         "jsonName": "providerExtensionBank",
         "goType": "extension.UnifiedBank",
@@ -41727,6 +42196,15 @@
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CacheDir",
+        "jsonName": "CacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -44439,7 +44917,7 @@
     "fields": [
       {
         "name": "Name",
-        "jsonName": "Name",
+        "jsonName": "name",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -44448,7 +44926,7 @@
       },
       {
         "name": "DecodeFlags",
-        "jsonName": "DecodeFlags",
+        "jsonName": "decodeFlags",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -44457,7 +44935,7 @@
       },
       {
         "name": "EncodeFlags",
-        "jsonName": "EncodeFlags",
+        "jsonName": "encodeFlags",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -44466,7 +44944,7 @@
       },
       {
         "name": "ScaleFilter",
-        "jsonName": "ScaleFilter",
+        "jsonName": "scaleFilter",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -44991,6 +45469,15 @@
       {
         "name": "FfprobePath",
         "jsonName": "FfprobePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HwAccelCustomSettings",
+        "jsonName": "HwAccelCustomSettings",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -47854,6 +48341,15 @@
       {
         "name": "TorBoxApiKey",
         "jsonName": "TorBoxApiKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RealDebridApiKey",
+        "jsonName": "RealDebridApiKey",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

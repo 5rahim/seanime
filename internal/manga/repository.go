@@ -33,6 +33,7 @@ type (
 	Repository struct {
 		logger                *zerolog.Logger
 		fileCacher            *filecache.Cacher
+		cacheDir              string
 		providerExtensionBank *extension.UnifiedBank
 		serverUri             string
 		wsEventManager        events.WSEventManagerInterface
@@ -43,6 +44,7 @@ type (
 
 	NewRepositoryOptions struct {
 		Logger         *zerolog.Logger
+		CacheDir       string
 		FileCacher     *filecache.Cacher
 		ServerURI      string
 		WsEventManager events.WSEventManagerInterface
@@ -55,6 +57,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	r := &Repository{
 		logger:                opts.Logger,
 		fileCacher:            opts.FileCacher,
+		cacheDir:              opts.CacheDir,
 		serverUri:             opts.ServerURI,
 		wsEventManager:        opts.WsEventManager,
 		downloadDir:           opts.DownloadDir,
