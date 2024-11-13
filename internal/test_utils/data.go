@@ -65,6 +65,7 @@ type (
 		MpvPath              string `mapstructure:"mpv_path"`
 		MpvSocket            string `mapstructure:"mpv_socket"`
 		TorBoxApiKey         string `mapstructure:"torbox_api_key"`
+		RealDebridApiKey     string `mapstructure:"realdebrid_api_key"`
 	}
 	PathConfig struct {
 		DataDir string `mapstructure:"dataDir"`

@@ -3,6 +3,8 @@ package debrid
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"seanime/internal/util"
 )
 
 var (
@@ -29,8 +31,9 @@ type (
 	}
 
 	AddTorrentOptions struct {
-		MagnetLink string `json:"magnetLink"`
-		InfoHash   string `json:"infoHash"`
+		MagnetLink   string `json:"magnetLink"`
+		InfoHash     string `json:"infoHash"`
+		SelectFileId string `json:"selectFileId"` // Real-Debrid only, ID, IDs, or "all"
 	}
 
 	StreamTorrentOptions struct {
@@ -90,8 +93,9 @@ type (
 	}
 
 	CachedFile struct {
-		Size int64  `json:"size"`
-		Name string `json:"name"`
+		FileId string `json:"fileId"`
+		Size   int64  `json:"size"`
+		Name   string `json:"name"`
 	}
 	////////////////////////////////////////////////////////////////////
 
@@ -110,3 +114,14 @@ const (
 	TorrentItemStatusPaused      TorrentItemStatus = "paused"
 	TorrentItemStatusOther       TorrentItemStatus = "other"
 )
+
+func FilterVideoFiles(files []*TorrentItemFile) []*TorrentItemFile {
+	var filtered []*TorrentItemFile
+	for _, file := range files {
+		ext := filepath.Ext(file.Name)
+		if util.IsValidVideoExtension(ext) {
+			filtered = append(filtered, file)
+		}
+	}
+	return filtered
+}

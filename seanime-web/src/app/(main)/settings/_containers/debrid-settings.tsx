@@ -85,6 +85,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                             options={[
                                 { label: "None", value: "-" },
                                 { label: "TorBox", value: "torbox" },
+                                { label: "Real-Debrid", value: "realdebrid" },
                             ]}
                             name="provider"
                             label="Provider"

@@ -136,11 +136,10 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 	})
 
 	// Add the torrent to the debrid service
-	// For Torbox, this will automatically start downloading the torrent
-	// For Real Debrid, this will just add the torrent to the user's account
 	torrentItemId, err := provider.AddTorrent(debrid.AddTorrentOptions{
-		MagnetLink: selectedTorrent.MagnetLink,
-		InfoHash:   selectedTorrent.InfoHash,
+		MagnetLink:   selectedTorrent.MagnetLink,
+		InfoHash:     selectedTorrent.InfoHash,
+		SelectFileId: fileId, // RD-only, download only the selected file
 	})
 	if err != nil {
 		s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{

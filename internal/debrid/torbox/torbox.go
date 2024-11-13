@@ -157,6 +157,10 @@ func (t *TorBox) GetInstantAvailability(hashes []string) map[string]debrid.Torre
 
 	availability := make(map[string]debrid.TorrentItemInstantAvailability)
 
+	if len(hashes) == 0 {
+		return availability
+	}
+
 	var hashBatches [][]string
 
 	for i := 0; i < len(hashes); i += 100 {
@@ -425,13 +429,13 @@ func (t *TorBox) GetTorrents() (ret []*debrid.TorrentItem, err error) {
 		return nil, fmt.Errorf("torbox: Failed to get torrents: %w", err)
 	}
 
-	for _, t := range torrents {
-		ret = append(ret, toDebridTorrent(t))
+	// Limit the number of torrents to 500
+	if len(torrents) > 500 {
+		torrents = torrents[:500]
 	}
 
-	// Limit the number of torrents to 500
-	if len(ret) > 500 {
-		ret = ret[:500]
+	for _, t := range torrents {
+		ret = append(ret, toDebridTorrent(t))
 	}
 
 	slices.SortFunc(ret, func(i, j *debrid.TorrentItem) int {

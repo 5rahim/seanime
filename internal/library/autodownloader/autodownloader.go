@@ -484,7 +484,8 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 		if ad.settings.DownloadAutomatically {
 			// Add the torrent to the debrid provider and queue it
 			_, err := ad.debridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
-				MagnetLink: magnet,
+				MagnetLink:   magnet,
+				SelectFileId: "all", // RD-only, select all files
 			}, rule.Destination, rule.MediaId)
 			if err != nil {
 				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to debrid")
@@ -499,7 +500,8 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 
 			// Add the torrent to the debrid provider
 			_, err = debridProvider.AddTorrent(debrid.AddTorrentOptions{
-				MagnetLink: magnet,
+				MagnetLink:   magnet,
+				SelectFileId: "all", // RD-only, select all files
 			})
 			if err != nil {
 				ad.logger.Error().Err(err).Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to add torrent to debrid")

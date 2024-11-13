@@ -99,7 +99,8 @@ func HandleDebridAddTorrents(c *RouteCtx) error {
 
 		// Add the torrent to the debrid service
 		_, err = c.App.DebridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
-			MagnetLink: magnet,
+			MagnetLink:   magnet,
+			SelectFileId: "all",
 		}, b.Destination, b.Media.ID)
 		if err != nil {
 			// If there is only one torrent, return the error
@@ -223,6 +224,7 @@ func HandleDebridGetTorrents(c *RouteCtx) error {
 
 	torrents, err := provider.GetTorrents()
 	if err != nil {
+		c.App.Logger.Err(err).Msg("debrid: Failed to get torrents")
 		return c.RespondWithError(err)
 	}
 
@@ -269,6 +271,13 @@ func HandleDebridGetTorrentInfo(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+
+	//go func() {
+	//	// Remove the torrent if it was added
+	//	if torrentInfo.ID != nil {
+	//		_ = provider.DeleteTorrent(*torrentInfo.ID)
+	//	}
+	//}()
 
 	return c.RespondWithData(torrentInfo)
 }

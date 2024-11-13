@@ -1,7 +1,11 @@
-import { Anime_Entry, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
 import { DebridStreamFileSelectionModal } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-file-selection-modal"
-import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import {
+    TorrentDebridInstantAvailabilityBadge,
+    TorrentResolutionBadge,
+    TorrentSeedersBadge,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
@@ -200,7 +204,11 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     return (
         <>
             {(type === "select" || type === "select-file" || type === "debrid-stream") &&
-                <TorrentSearchTorrentStreamBatchHistory type={type} entry={entry} />}
+                <TorrentSearchTorrentStreamBatchHistory
+                    type={type}
+                    entry={entry}
+                    debridInstantAvailability={debridInstantAvailability}
+                />}
 
             <div className="py-4 space-y-4">
                 <div className="max-w-[400px]">
@@ -352,6 +360,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                     isFetching={isFetching}
                                     selectedTorrents={selectedTorrents}
                                     onToggleTorrent={handleToggleTorrent}
+                                    debridInstantAvailability={debridInstantAvailability}
                                 />
                             </>
                         )}
@@ -378,9 +387,10 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
 }
 
-function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
+function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvailability }: {
     entry: Anime_Entry | undefined,
     type: TorrentSelectionType,
+    debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
 }) {
 
     const { data: batchHistory } = useGetTorrentstreamBatchHistory(entry?.mediaId, true)
@@ -447,6 +457,9 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type }: {
                     )}
                     <TorrentResolutionBadge resolution={batchHistory?.torrent.resolution} />
                     <TorrentSeedersBadge seeders={batchHistory?.torrent.seeders} />
+                    {(!!batchHistory?.torrent.infoHash && debridInstantAvailability[batchHistory?.torrent.infoHash]) && (
+                        <TorrentDebridInstantAvailabilityBadge />
+                    )}
                     {!!batchHistory?.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
                         <BiFile /> {batchHistory?.torrent.formattedSize}</p>}
                     <p className="text-[--muted] text-sm flex items-center gap-1">
