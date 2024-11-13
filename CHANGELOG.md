@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 - ✨ Real-Debrid support for streaming and downloading
 - ⚡️ Manga: Unread chapter count badge
+- ⚡️ HTTPS support for qBittorrent and Transmission
 - 🦺 Scanner: Fixed NC false-positive edge case
 
 
