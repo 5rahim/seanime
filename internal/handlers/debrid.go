@@ -247,11 +247,6 @@ func HandleDebridGetTorrentInfo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	provider, err := c.App.DebridClientRepository.GetProvider()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
 	animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
 	if !ok {
 		return c.RespondWithError(errors.New("provider extension not found for torrent"))
@@ -264,20 +259,13 @@ func HandleDebridGetTorrentInfo(c *RouteCtx) error {
 
 	b.Torrent.MagnetLink = magnet
 
-	torrentInfo, err := provider.GetTorrentInfo(debrid.GetTorrentInfoOptions{
+	torrentInfo, err := c.App.DebridClientRepository.GetTorrentInfo(debrid.GetTorrentInfoOptions{
 		MagnetLink: b.Torrent.MagnetLink,
 		InfoHash:   b.Torrent.InfoHash,
 	})
 	if err != nil {
 		return c.RespondWithError(err)
 	}
-
-	//go func() {
-	//	// Remove the torrent if it was added
-	//	if torrentInfo.ID != nil {
-	//		_ = provider.DeleteTorrent(*torrentInfo.ID)
-	//	}
-	//}()
 
 	return c.RespondWithData(torrentInfo)
 }

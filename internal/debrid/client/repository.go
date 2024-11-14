@@ -191,13 +191,6 @@ func (r *Repository) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.
 		return nil, err
 	}
 
-	//// Remove the torrent if it was added
-	//if torrentInfo.ID != nil {
-	//	go func() {
-	//		_ = provider.DeleteTorrent(*torrentInfo.ID)
-	//	}()
-	//}
-
 	// Remove non-video files
 	torrentInfo.Files = debrid.FilterVideoFiles(torrentInfo.Files)
 

@@ -37,13 +37,13 @@ export function MangaEntryCardProgressBadge(props: MangaEntryCardProgressBadgePr
     if (unread <= 0) return null
 
     return (
-        <div className="flex justify-center absolute text-sm left-0 bottom-0 w-full z-[5]">
+        <div className="flex absolute text-sm left-0 top-0 w-full z-[5]">
             <Badge
                 intent="unstyled"
                 size="lg"
-                className="text-base tracking-wide rounded-md rounded-b-none border-0 bg-zinc-950/80 px-1.5 gap-0"
+                className="text-base tracking-wide rounded-md rounded-tr-none rounded-bl-none border-0 bg-zinc-950/80 px-1.5 gap-0"
             >
-                <span className="text-blue-100 font-normal">{unread}</span>&nbsp;&nbsp;<IoBookOutline className="text-[--muted]" />
+                <span className="text-blue-100 font-normal">{unread}</span>&nbsp;&nbsp;<IoBookOutline className="" />
             </Badge>
         </div>
     )
