@@ -14,6 +14,7 @@ import {
 import {
     __mediastream_autoPlayAtom,
     __mediastream_autoSkipIntroOutroAtom,
+    __mediastream_volumeAtom,
     useMediastreamCurrentFile,
     useMediastreamJassubOffscreenRender,
 } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
@@ -93,6 +94,7 @@ export default function Page() {
     const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
     const autoSkipIntroOutro = useAtomValue(__mediastream_autoSkipIntroOutroAtom)
+    const [volume, setVolume] = useAtom(__mediastream_volumeAtom)
     const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
 
     /**
@@ -325,6 +327,10 @@ export default function Page() {
                                     // animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge || ""}
                                     onProviderChange={onProviderChange}
                                     onProviderSetup={onProviderSetup}
+                                    volume={volume}
+                                    onVolumeChange={(e, n) => {
+                                        setVolume(n.detail.volume)
+                                    }}
                                     onTimeUpdate={e => {
                                         if (watchHistoryRef.current > 2000) {
                                             watchHistoryRef.current = 0

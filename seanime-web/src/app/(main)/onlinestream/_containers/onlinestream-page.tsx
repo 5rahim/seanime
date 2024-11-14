@@ -17,6 +17,7 @@ import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
     __onlinestream_autoSkipIntroOutroAtom,
+    __onlinestream_volumeAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -75,6 +76,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const ref = React.useRef<MediaPlayerInstance>(null)
 
     const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
+    const [volume, setVolume] = useAtom(__onlinestream_volumeAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
@@ -353,6 +355,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
                             className={cn(discreteControls && "discrete-controls")}
+                            volume={volume}
+                            onVolumeChange={(e, n) => {
+                                setVolume(n.detail.volume)
+                            }}
                             onTimeUpdate={(e) => {
                                 if (watchHistoryRef.current > 2000) {
                                     watchHistoryRef.current = 0
