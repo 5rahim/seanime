@@ -83,7 +83,8 @@ const (
 	// Torrent is being seeded and data is being transferred
 	StateUploading TorrentState = "uploading"
 	// Torrent is paused and has finished downloading
-	StatePausedUP TorrentState = "pausedUP"
+	StatePausedUP  TorrentState = "pausedUP"
+	StateStoppedUP TorrentState = "stoppedUP"
 	// Queuing is enabled and torrent is queued for upload
 	StateQueuedUP TorrentState = "queuedUP"
 	// Torrent is being seeded, but no connection were made
@@ -99,7 +100,8 @@ const (
 	// Torrent has just started downloading and is fetching metadata
 	StateMetaDL TorrentState = "metaDL"
 	// Torrent is paused and has NOT finished downloading
-	StatePausedDL TorrentState = "pausedDL"
+	StatePausedDL  TorrentState = "pausedDL"
+	StateStoppedDL TorrentState = "stoppedDL"
 	// Queuing is enabled and torrent is queued for download
 	StateQueuedDL TorrentState = "queuedDL"
 	// Torrent is being downloaded, but no connection were made

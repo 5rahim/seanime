@@ -112,7 +112,7 @@ func (c Client) StopTorrents(hashes []string) error {
 	params := url.Values{}
 	params.Add("hashes", value)
 	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/pause", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
-		return err
+		return qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/stop", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded")
 	}
 	return nil
 }
@@ -121,9 +121,8 @@ func (c Client) ResumeTorrents(hashes []string) error {
 	value := strings.Join(hashes, "|")
 	params := url.Values{}
 	params.Add("hashes", value)
-	//endpoint := c.BaseUrl + "/resume?" + params.Encode()
 	if err := qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/resume", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded"); err != nil {
-		return err
+		return qbittorrent_util.PostWithContentType(c.Client, c.BaseUrl+"/start", strings.NewReader(params.Encode()), "application/x-www-form-urlencoded")
 	}
 	return nil
 }
