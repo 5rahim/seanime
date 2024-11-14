@@ -106,7 +106,7 @@ func HandleGetTorrentstreamTorrentFilePreviews(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	// Get the media
+	// Get the media metadata
 	animeMetadata, _ := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
 	absoluteOffset := 0
 	if animeMetadata != nil {

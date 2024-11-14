@@ -438,6 +438,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Delete("/debrid/torrent", makeHandler(app, HandleDebridDeleteTorrent))
 	v1.Get("/debrid/torrents", makeHandler(app, HandleDebridGetTorrents))
 	v1.Post("/debrid/torrents/info", makeHandler(app, HandleDebridGetTorrentInfo))
+	v1.Post("/debrid/torrents/file-previews", makeHandler(app, HandleDebridGetTorrentFilePreviews))
 	v1.Post("/debrid/stream/start", makeHandler(app, HandleDebridStartStream))
 	v1.Post("/debrid/stream/cancel", makeHandler(app, HandleDebridCancelStream))
 

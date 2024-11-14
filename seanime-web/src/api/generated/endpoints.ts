@@ -469,6 +469,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/debrid/torrents/info",
         },
+        DebridGetTorrentFilePreviews: {
+            key: "DEBRID-debrid-get-torrent-file-previews",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/file-previews",
+        },
         /**
          *  @description
          *  Route start stream from debrid.

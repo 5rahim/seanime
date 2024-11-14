@@ -144,7 +144,13 @@ func (t *RealDebrid) doQuery(method, uri string, body io.Reader, contentType str
 			return nil, fmt.Errorf("failed to decode response: %w", err)
 		}
 
-		return nil, fmt.Errorf("failed to query API: %s", errResp.ErrorDetails)
+		// If the error details are empty, we'll just return the response body
+		if errResp.ErrorDetails == "" && errResp.ErrorCode == 0 {
+			content, _ := io.ReadAll(resp.Body)
+			return content, nil
+		}
+
+		return nil, fmt.Errorf("failed to query API: %s, %s", resp.Status, errResp.ErrorDetails)
 	}
 
 	content, _ := io.ReadAll(resp.Body)

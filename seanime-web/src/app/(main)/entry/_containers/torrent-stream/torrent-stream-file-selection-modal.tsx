@@ -52,13 +52,20 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         setter(undefined)
     }
 
+    const hasLikelyMatch = filePreviews?.some(f => f.isLikely)
+
     const FileSelection = React.useCallback(() => {
         return <RadioGroup
             value={String(selectedFileIdx)}
             onValueChange={v => setSelectedFileIdx(Number(v))}
             options={(filePreviews?.toSorted((a, b) => a.path.localeCompare(b.path))?.map((f, i) => {
                 return {
-                    label: <div className="w-full">
+                    label: <div
+                        className={cn(
+                            "w-full",
+                            (hasLikelyMatch && !f.isLikely) && "opacity-60",
+                        )}
+                    >
                         <p className="mb-1 line-clamp-1">
                             {f.displayTitle}
                         </p>
@@ -69,15 +76,13 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
                         <Tooltip trigger={<p className="font-normal line-clamp-1 text-sm text-[--muted]">{f.displayPath}</p>}>
                             {f.path}
                         </Tooltip>
-                        {(f.relativeEpisodeNumber > -1 && f.relativeEpisodeNumber != f.episodeNumber) &&
-                            <p className="font-normal line-clamp-1 text-sm text-[--muted]">Relative episode number: {f.relativeEpisodeNumber}</p>}
                     </div>,
                     value: String(f.index),
                 }
             }) || [])}
             itemContainerClass={cn(
                 "items-start cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
-                "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                "hover:bg-[--subtle] bg-gray-900 hover:bg-gray-950",
                 "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                 "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                 "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",

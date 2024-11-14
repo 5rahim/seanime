@@ -460,6 +460,19 @@ export type DebridGetTorrentInfo_Variables = {
 /**
  * - Filepath: internal/handlers/debrid.go
  * - Filename: debrid.go
+ * - Endpoint: /api/v1/debrid/torrents/file-previews
+ * @description
+ * Route get list of torrent files
+ */
+export type DebridGetTorrentFilePreviews_Variables = {
+    torrent?: HibikeTorrent_AnimeTorrent
+    episodeNumber: number
+    media?: AL_BaseAnime
+}
+
+/**
+ * - Filepath: internal/handlers/debrid.go
+ * - Filename: debrid.go
  * - Endpoint: /api/v1/debrid/stream/start
  * @description
  * Route start stream from debrid.

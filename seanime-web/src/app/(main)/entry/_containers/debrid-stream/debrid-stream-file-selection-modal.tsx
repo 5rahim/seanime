@@ -1,5 +1,5 @@
 import { Anime_Entry } from "@/api/generated/types"
-import { useDebridGetTorrentInfo } from "@/api/hooks/debrid.hooks"
+import { useDebridGetTorrentFilePreviews } from "@/api/hooks/debrid.hooks"
 import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { __torrentSearch_torrentstreamSelectedTorrentAtom } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-file-selection-modal"
@@ -15,6 +15,7 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { IoPlayCircle } from "react-icons/io5"
+import { MdVerified } from "react-icons/md"
 
 type DebridStreamFileSelectionModalProps = {
     entry: Anime_Entry
@@ -34,13 +35,15 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
 
     const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
 
-    const { data: torrentInfo, isLoading } = useDebridGetTorrentInfo({
+    const { data: previews, isLoading } = useDebridGetTorrentFilePreviews({
         torrent: selectedTorrent!,
+        media: entry.media,
+        episodeNumber: torrentStreamingSelectedEpisode?.episodeNumber,
     }, !!selectedTorrent)
 
     const { handleStreamSelection } = useHandleStartDebridStream()
 
-    function onStream() {
+    function onStream(selectedFileId: string) {
         if (selectedFileId == "" || !selectedTorrent || !torrentStreamingSelectedEpisode || !torrentStreamingSelectedEpisode.aniDBEpisode) return
 
         handleStreamSelection({
@@ -56,26 +59,46 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
         setter(undefined)
     }
 
+    React.useEffect(() => {
+        if (previews && previews.length === 1) {
+            setSelectedFileIdx(String(previews[0].fileId))
+            React.startTransition(() => {
+                onStream(String(previews[0].fileId))
+            })
+        }
+    }, [previews])
+
+    const hasLikelyMatch = previews?.some(f => f.isLikely)
+
     const FileSelection = React.useCallback(() => {
         return <RadioGroup
             value={selectedFileId}
             onValueChange={v => setSelectedFileIdx(v)}
-            options={(torrentInfo?.files?.toSorted((a, b) => a.path.localeCompare(b.path))?.map((f, i) => {
+            options={(previews?.toSorted((a, b) => a.path.localeCompare(b.path))?.map((f, i) => {
                 return {
-                    label: <div className="w-full">
+                    label: <div
+                        className={cn(
+                            "w-full",
+                            (hasLikelyMatch && !f.isLikely) && "opacity-60",
+                        )}
+                    >
                         <p className="mb-1 line-clamp-1">
-                            {f.name}
+                            {f.displayTitle}
                         </p>
-                        <Tooltip trigger={<p className="font-normal line-clamp-1 text-sm text-[--muted]">{f.path}</p>}>
+                        {f.isLikely && <p className="flex items-center">
+                            <MdVerified className="text-[--green] mr-1" />
+                            <span className="text-white">Likely match</span>
+                        </p>}
+                        <Tooltip trigger={<p className="font-normal line-clamp-1 text-sm text-[--muted]">{f.displayPath}</p>}>
                             {f.path}
                         </Tooltip>
                     </div>,
-                    value: String(f.id),
+                    value: String(f.fileId),
                 }
             }) || [])}
             itemContainerClass={cn(
                 "items-start cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
-                "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
+                "hover:bg-[--subtle] bg-gray-900 hover:bg-gray-950",
                 "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                 "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                 "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
@@ -89,7 +112,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
             itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
             stackClass="flex flex-col gap-2 space-y-0"
         />
-    }, [torrentInfo, selectedFileId])
+    }, [previews, selectedFileId, hasLikelyMatch])
 
     return (
         <Modal
@@ -102,9 +125,11 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
             }}
             // size="xl"
             contentClass="max-w-5xl"
-            title="Choose a file to stream"
+            title={previews?.length !== 1 ? "Choose a file to stream" : "Launching stream..."}
         >
-            {isLoading ? <LoadingSpinner title="Fetching torrent info..." /> : (
+            {(isLoading || previews?.length === 1) ? <LoadingSpinner
+                title={previews?.length === 1 ? "Launching stream..." : "Fetching torrent info..."}
+            /> : (
                 <AppLayoutStack className="mt-4">
 
                     <div className="flex">
@@ -114,7 +139,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                             className=""
                             rightIcon={<IoPlayCircle className="text-xl" />}
                             disabled={selectedFileId === "" || isLoading}
-                            onClick={onStream}
+                            onClick={() => onStream(selectedFileId)}
                         >
                             Stream
                         </Button>

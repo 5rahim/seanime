@@ -496,6 +496,17 @@
 //     })
 // }
 
+// export function useDebridGetTorrentFilePreviews() {
+//     return useServerMutation<Array<DebridClient_FilePreview>, DebridGetTorrentFilePreviews_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useDebridStartStream() {
 //     return useServerMutation<boolean, DebridStartStream_Variables>({
 //         endpoint: API_ENDPOINTS.DEBRID.DebridStartStream.endpoint,
