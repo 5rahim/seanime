@@ -178,7 +178,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
             <div className="flex-none flex gap-2 items-center">
                 {torrent.status !== "seeding" ? (
                     <>
-                        <Tooltip
+                        {torrent.status !== "paused" && <Tooltip
                             trigger={<IconButton
                                 icon={<BiPause />}
                                 size="sm"
@@ -193,7 +193,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                                 }}
                                 disabled={isPending}
                             />}
-                        >Pause</Tooltip>
+                        >Pause</Tooltip>}
                         {torrent.status !== "downloading" && <Tooltip
                             trigger={<IconButton
                                 icon={<BiPlay />}
