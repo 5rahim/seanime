@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/events"
+	"strings"
 )
 
 // Watcher is a custom file system event watcher
@@ -80,7 +81,10 @@ func (w *Watcher) StartWatching(
 				if !ok {
 					return
 				}
-				if event.Op&fsnotify.Write == fsnotify.Write {
+				//if event.Op&fsnotify.Write == fsnotify.Write {
+				//}
+				if strings.Contains(event.Name, ".part") || strings.Contains(event.Name, ".tmp") {
+					continue
 				}
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					w.Logger.Debug().Msgf("watcher: File created: %s", event.Name)

@@ -16,6 +16,7 @@ import (
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
 	"seanime/internal/notifier"
+	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
 	"sync"
@@ -162,13 +163,18 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 	}
 
 	// Download the files to a temporary folder
-	tmpDirPath, err := os.MkdirTemp("", "torrent-")
+	tmpDirPath, err := os.MkdirTemp(destination, ".tmp-")
 	if err != nil {
 		r.logger.Err(err).Msg("debrid: Failed to create temp folder")
 		r.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("debrid: Failed to create temp folder: %v", err))
 		return false
 	}
 	defer os.RemoveAll(tmpDirPath) // Clean up temp folder on exit
+
+	if runtime.GOOS == "windows" {
+		util.HideFile(tmpDirPath)
+		time.Sleep(time.Millisecond * 500)
+	}
 
 	// Execute the request
 	client := &http.Client{}
