@@ -2,14 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## v2.2.4
+## v2.3.0
 
 - ✨ Real-Debrid support for streaming and downloading
 - ⚡️ Manga: Unread chapter count badge
 - ⚡️ HTTPS support for qBittorrent and Transmission
 - ⚡️ Online streaming: Theater mode
 - 🦺 Scanner: Fixed NC false-positive edge case
-- 🦺 qBittorrent: Fixed pause/resume on version 5
+- 🦺 Fixed pause/resume action for qBittorrent v5 #157
+- 🏗️ Added fallback update endpoint & security check
+- 🏗️ Fixed update notification reliability
+- 🏗️ Fixed cron concurrency issue
 
 
 ## v2.2.3

@@ -3,6 +3,7 @@ import { Updater_Release } from "@/api/generated/types"
 import { useDownloadRelease } from "@/api/hooks/download.hooks"
 import { useGetLatestUpdate, useInstallLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DirectorySelector } from "@/components/shared/directory-selector"
 import { SeaLink } from "@/components/shared/sea-link"
@@ -11,11 +12,13 @@ import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
+import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiDownload, BiLinkExternal } from "react-icons/bi"
+import { FiArrowRight } from "react-icons/fi"
 import { GrInstall } from "react-icons/gr"
 import { toast } from "sonner"
 
@@ -32,7 +35,14 @@ export function UpdateModal(props: UpdateModalProps) {
     const [updateModalOpen, setUpdateModalOpen] = useAtom(updateModalOpenAtom)
     const [downloaderOpen, setDownloaderOpen] = useAtom(downloaderOpenAtom)
 
-    const { data: updateData, isLoading } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
+    const { data: updateData, isLoading, refetch } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
+
+    useWebsocketMessageListener({
+        type: WSEvents.CHECK_FOR_UPDATES,
+        onMessage: () => {
+            refetch()
+        },
+    })
 
     // Install update
     const { mutate: installUpdate, isPending } = useInstallLatestUpdate()
@@ -74,7 +84,7 @@ export function UpdateModal(props: UpdateModalProps) {
                         onClick: () => setUpdateModalOpen(true),
                     },
                 ]}
-                itemContentClass="text-brand-300"
+                itemIconClass="text-brand-300"
             />
             <Modal
                 open={updateModalOpen}
@@ -82,16 +92,18 @@ export function UpdateModal(props: UpdateModalProps) {
                 contentClass="max-w-2xl"
             >
                 <Downloader release={updateData.release} />
-                <div
-                    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-60 left-0 bg-no-repeat bg-right bg-cover"
-                >
-                    <div
-                        className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                    />
-                </div>
+                {/*<div*/}
+                {/*    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-60 left-0 bg-no-repeat bg-right bg-cover"*/}
+                {/*>*/}
+                {/*    <div*/}
+                {/*        className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"*/}
+                {/*    />*/}
+                {/*</div>*/}
                 <div className="space-y-2">
-                    <h3>Seanime {updateData.release.version} is out!</h3>
-                    <p className="text-[--muted]">A new version of Seanime has been released.</p>
+                    <h3 className="text-center">A new version is available!</h3>
+                    <h4 className="font-bold flex gap-2 text-center items-center justify-center">
+                        <span className="text-[--muted]">{updateData.current_version}</span> <FiArrowRight />
+                        <span className="text-indigo-200">{updateData.release.version}</span></h4>
 
                     <UpdateChangelogBody updateData={updateData} />
 

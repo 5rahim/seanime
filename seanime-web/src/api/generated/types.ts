@@ -3189,8 +3189,8 @@ export type TVDB_Episode = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/updater/updater.go
- * - Filename: updater.go
+ * - Filepath: internal/updater/check.go
+ * - Filename: check.go
  * - Package: updater
  */
 export type Updater_Release = {
@@ -3207,8 +3207,8 @@ export type Updater_Release = {
 }
 
 /**
- * - Filepath: internal/updater/updater.go
- * - Filename: updater.go
+ * - Filepath: internal/updater/check.go
+ * - Filename: check.go
  * - Package: updater
  */
 export type Updater_ReleaseAsset = {
@@ -3229,6 +3229,7 @@ export type Updater_ReleaseAsset = {
  */
 export type Updater_Update = {
     release?: Updater_Release
+    current_version?: string
     type: string
 }
 

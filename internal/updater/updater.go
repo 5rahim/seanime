@@ -2,8 +2,12 @@ package updater
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
+	"net/http"
+	"seanime/internal/events"
 	"seanime/internal/util"
 	"strings"
+	"time"
 )
 
 const (
@@ -19,47 +23,34 @@ type (
 		LatestRelease       *Release
 		checkForUpdate      bool
 		logger              *zerolog.Logger
+		client              *http.Client
+		wsEventManager      mo.Option[events.WSEventManagerInterface]
 	}
 
 	Update struct {
-		Release *Release `json:"release,omitempty"`
-		Type    string   `json:"type"`
-	}
-
-	LatestReleaseResponse struct {
-		Release Release `json:"release"`
-	}
-	Release struct {
-		Url         string         `json:"url"`
-		HtmlUrl     string         `json:"html_url"`
-		NodeId      string         `json:"node_id"`
-		TagName     string         `json:"tag_name"`
-		Name        string         `json:"name"`
-		Body        string         `json:"body"`
-		PublishedAt string         `json:"published_at"`
-		Released    bool           `json:"released"`
-		Version     string         `json:"version"`
-		Assets      []ReleaseAsset `json:"assets"`
-	}
-	ReleaseAsset struct {
-		Url                string `json:"url"`
-		Id                 int    `json:"id"`
-		NodeId             string `json:"node_id"`
-		Name               string `json:"name"`
-		ContentType        string `json:"content_type"`
-		Uploaded           bool   `json:"uploaded"`
-		Size               int    `json:"size"`
-		BrowserDownloadUrl string `json:"browser_download_url"`
+		Release        *Release `json:"release,omitempty"`
+		CurrentVersion string   `json:"current_version,omitempty"`
+		Type           string   `json:"type"`
 	}
 )
 
-func New(currVersion string, logger *zerolog.Logger) *Updater {
-	return &Updater{
+func New(currVersion string, logger *zerolog.Logger, wsEventManager events.WSEventManagerInterface) *Updater {
+	ret := &Updater{
 		CurrentVersion:      currVersion,
 		hasCheckedForUpdate: false,
 		checkForUpdate:      true,
 		logger:              logger,
+		client: &http.Client{
+			Timeout: time.Second * 10,
+		},
+		wsEventManager: mo.None[events.WSEventManagerInterface](),
 	}
+
+	if wsEventManager != nil {
+		ret.wsEventManager = mo.Some[events.WSEventManagerInterface](wsEventManager)
+	}
+
+	return ret
 }
 
 func (u *Updater) GetLatestUpdate() (*Update, error) {
@@ -70,6 +61,14 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 	rl, err := u.GetLatestRelease()
 	if err != nil {
 		return nil, err
+	}
+
+	if rl == nil || rl.TagName == "" {
+		return nil, nil
+	}
+
+	if !rl.Released {
+		return nil, nil
 	}
 
 	newV := strings.TrimPrefix(rl.TagName, "v")
@@ -88,13 +87,18 @@ func (u *Updater) GetLatestUpdate() (*Update, error) {
 	}
 
 	return &Update{
-		Release: rl,
-		Type:    updateType,
+		Release:        rl,
+		CurrentVersion: u.CurrentVersion,
+		Type:           updateType,
 	}, nil
 }
 
 func (u *Updater) ShouldRefetchReleases() {
 	u.hasCheckedForUpdate = false
+
+	if u.wsEventManager.IsPresent() {
+		u.wsEventManager.MustGet().SendEvent(events.CheckForUpdates, nil)
+	}
 }
 
 func (u *Updater) SetEnabled(checkForUpdate bool) {

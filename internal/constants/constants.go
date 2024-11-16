@@ -3,7 +3,7 @@ package constants
 import "time"
 
 const (
-	Version     = "2.2.4-prerelease"
+	Version     = "2.3.0"
 	VersionName = "Sangatsu"
 	//VersionName          = "Aoi" // 2.3.0
 	GcTime               = time.Minute * 30

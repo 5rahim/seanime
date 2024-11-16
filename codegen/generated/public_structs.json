@@ -51465,6 +51465,7 @@
         "\"missingFiles\"",
         "\"uploading\"",
         "\"pausedUP\"",
+        "\"stoppedUP\"",
         "\"queuedUP\"",
         "\"stalledUP\"",
         "\"checkingUP\"",
@@ -51473,6 +51474,7 @@
         "\"downloading\"",
         "\"metaDL\"",
         "\"pausedDL\"",
+        "\"stoppedDL\"",
         "\"queuedDL\"",
         "\"stalledDL\"",
         "\"checkingDL\"",
@@ -55219,6 +55221,372 @@
     "comments": []
   },
   {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "GitHubResponse",
+    "formattedName": "Updater_GitHubResponse",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AssetsUrl",
+        "jsonName": "assets_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadUrl",
+        "jsonName": "upload_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HtmlUrl",
+        "jsonName": "html_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NodeID",
+        "jsonName": "node_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TagName",
+        "jsonName": "tag_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TargetCommitish",
+        "jsonName": "target_commitish",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Draft",
+        "jsonName": "draft",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Prerelease",
+        "jsonName": "prerelease",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "created_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PublishedAt",
+        "jsonName": "published_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Assets",
+        "jsonName": "assets",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ url: string; id: number; node_id: string; name: string; label: string; content_type: string; state: string; size: number; download_count: number; created_at: string; updated_at: string; browser_download_url: string; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TarballURL",
+        "jsonName": "tarball_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ZipballURL",
+        "jsonName": "zipball_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Body",
+        "jsonName": "body",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "DocsResponse",
+    "formattedName": "Updater_DocsResponse",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Release",
+        "jsonName": "release",
+        "goType": "Release",
+        "typescriptType": "Updater_Release",
+        "usedStructName": "updater.Release",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "Release",
+    "formattedName": "Updater_Release",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HtmlUrl",
+        "jsonName": "html_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NodeId",
+        "jsonName": "node_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TagName",
+        "jsonName": "tag_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Body",
+        "jsonName": "body",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PublishedAt",
+        "jsonName": "published_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Released",
+        "jsonName": "released",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Assets",
+        "jsonName": "assets",
+        "goType": "[]ReleaseAsset",
+        "typescriptType": "Array\u003cUpdater_ReleaseAsset\u003e",
+        "usedStructName": "updater.ReleaseAsset",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "ReleaseAsset",
+    "formattedName": "Updater_ReleaseAsset",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Id",
+        "jsonName": "id",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NodeId",
+        "jsonName": "node_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentType",
+        "jsonName": "content_type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Uploaded",
+        "jsonName": "uploaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BrowserDownloadUrl",
+        "jsonName": "browser_download_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/updater/selfupdate.go",
     "filename": "selfupdate.go",
     "name": "SelfUpdater",
@@ -55337,6 +55705,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -55359,211 +55737,17 @@
         "comments": []
       },
       {
-        "name": "Type",
-        "jsonName": "type",
+        "name": "CurrentVersion",
+        "jsonName": "current_version",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/updater/updater.go",
-    "filename": "updater.go",
-    "name": "LatestReleaseResponse",
-    "formattedName": "Updater_LatestReleaseResponse",
-    "package": "updater",
-    "fields": [
-      {
-        "name": "Release",
-        "jsonName": "release",
-        "goType": "Release",
-        "typescriptType": "Updater_Release",
-        "usedStructName": "updater.Release",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/updater/updater.go",
-    "filename": "updater.go",
-    "name": "Release",
-    "formattedName": "Updater_Release",
-    "package": "updater",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "HtmlUrl",
-        "jsonName": "html_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NodeId",
-        "jsonName": "node_id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagName",
-        "jsonName": "tag_name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Body",
-        "jsonName": "body",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PublishedAt",
-        "jsonName": "published_at",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Released",
-        "jsonName": "released",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Version",
-        "jsonName": "version",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Assets",
-        "jsonName": "assets",
-        "goType": "[]ReleaseAsset",
-        "typescriptType": "Array\u003cUpdater_ReleaseAsset\u003e",
-        "usedStructName": "updater.ReleaseAsset",
         "required": false,
         "public": true,
         "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/updater/updater.go",
-    "filename": "updater.go",
-    "name": "ReleaseAsset",
-    "formattedName": "Updater_ReleaseAsset",
-    "package": "updater",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
       },
       {
-        "name": "Id",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NodeId",
-        "jsonName": "node_id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentType",
-        "jsonName": "content_type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Uploaded",
-        "jsonName": "uploaded",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "size",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BrowserDownloadUrl",
-        "jsonName": "browser_download_url",
+        "name": "Type",
+        "jsonName": "type",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

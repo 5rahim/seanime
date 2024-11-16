@@ -5,13 +5,75 @@ import (
 	"fmt"
 	"github.com/goccy/go-json"
 	"io"
-	"net/http"
 	"runtime"
 	"strings"
 )
 
-const (
-	latestReleaseUrl = "https://seanime.rahim.app/api/release" // GitHub API host
+var (
+	docsUrl   = "https://seanime.rahim.app/api/release"
+	githubUrl = "https://api.github.com/repos/5rahim/seanime/releases/latest"
+)
+
+type (
+	GitHubResponse struct {
+		Url             string `json:"url"`
+		AssetsUrl       string `json:"assets_url"`
+		UploadUrl       string `json:"upload_url"`
+		HtmlUrl         string `json:"html_url"`
+		ID              int64  `json:"id"`
+		NodeID          string `json:"node_id"`
+		TagName         string `json:"tag_name"`
+		TargetCommitish string `json:"target_commitish"`
+		Name            string `json:"name"`
+		Draft           bool   `json:"draft"`
+		Prerelease      bool   `json:"prerelease"`
+		CreatedAt       string `json:"created_at"`
+		PublishedAt     string `json:"published_at"`
+		Assets          []struct {
+			Url                string `json:"url"`
+			ID                 int64  `json:"id"`
+			NodeID             string `json:"node_id"`
+			Name               string `json:"name"`
+			Label              string `json:"label"`
+			ContentType        string `json:"content_type"`
+			State              string `json:"state"`
+			Size               int64  `json:"size"`
+			DownloadCount      int64  `json:"download_count"`
+			CreatedAt          string `json:"created_at"`
+			UpdatedAt          string `json:"updated_at"`
+			BrowserDownloadURL string `json:"browser_download_url"`
+		} `json:"assets"`
+		TarballURL string `json:"tarball_url"`
+		ZipballURL string `json:"zipball_url"`
+		Body       string `json:"body"`
+	}
+
+	DocsResponse struct {
+		Release Release `json:"release"`
+	}
+
+	Release struct {
+		Url         string         `json:"url"`
+		HtmlUrl     string         `json:"html_url"`
+		NodeId      string         `json:"node_id"`
+		TagName     string         `json:"tag_name"`
+		Name        string         `json:"name"`
+		Body        string         `json:"body"`
+		PublishedAt string         `json:"published_at"`
+		Released    bool           `json:"released"`
+		Version     string         `json:"version"`
+		Assets      []ReleaseAsset `json:"assets"`
+	}
+	ReleaseAsset struct {
+		Url                string `json:"url"`
+		Id                 int64  `json:"id"`
+		NodeId             string `json:"node_id"`
+		Name               string `json:"name"`
+		ContentType        string `json:"content_type"`
+		Uploaded           bool   `json:"uploaded"`
+		Size               int64  `json:"size"`
+		BrowserDownloadUrl string `json:"browser_download_url"`
+	}
 )
 
 func (u *Updater) GetReleaseName(version string) string {
@@ -44,14 +106,77 @@ func (u *Updater) GetReleaseName(version string) string {
 }
 
 func (u *Updater) fetchLatestRelease() (*Release, error) {
+	var release *Release
+	docsRelease, err := u.fetchLatestReleaseFromDocs()
+	if err != nil {
+		ghRelease, err := u.fetchLatestReleaseFromGitHub()
+		if err != nil {
+			return nil, err
+		}
+		release = ghRelease
+	} else {
+		release = docsRelease
+	}
 
-	response, err := http.Get(latestReleaseUrl)
+	return release, nil
+}
+
+func (u *Updater) fetchLatestReleaseFromGitHub() (*Release, error) {
+
+	response, err := u.client.Get(githubUrl)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
 
-	// Check HTTP status code and errors
+	byteArr, readErr := io.ReadAll(response.Body)
+	if readErr != nil {
+		return nil, fmt.Errorf("error reading response: %w\n", readErr)
+	}
+
+	var res GitHubResponse
+	err = json.Unmarshal(byteArr, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	release := &Release{
+		Url:         res.Url,
+		HtmlUrl:     res.HtmlUrl,
+		NodeId:      res.NodeID,
+		TagName:     res.TagName,
+		Name:        res.Name,
+		Body:        res.Body,
+		PublishedAt: res.PublishedAt,
+		Released:    !res.Prerelease && !res.Draft,
+		Version:     strings.TrimPrefix(res.TagName, "v"),
+		Assets:      make([]ReleaseAsset, len(res.Assets)),
+	}
+
+	for i, asset := range res.Assets {
+		release.Assets[i] = ReleaseAsset{
+			Url:                asset.Url,
+			Id:                 asset.ID,
+			NodeId:             asset.NodeID,
+			Name:               asset.Name,
+			ContentType:        asset.ContentType,
+			Uploaded:           asset.State == "uploaded",
+			Size:               asset.Size,
+			BrowserDownloadUrl: asset.BrowserDownloadURL,
+		}
+	}
+
+	return release, nil
+}
+
+func (u *Updater) fetchLatestReleaseFromDocs() (*Release, error) {
+
+	response, err := u.client.Get(docsUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
 	statusCode := response.StatusCode
 
 	if statusCode == 429 {
@@ -59,22 +184,26 @@ func (u *Updater) fetchLatestRelease() (*Release, error) {
 	}
 
 	if !((statusCode >= 200) && (statusCode <= 299)) {
-		err = fmt.Errorf("http error code: %d\n", statusCode)
-		return nil, err
+		return nil, fmt.Errorf("http error code: %d\n", statusCode)
 	}
 
-	// Get byte response and http status code
 	byteArr, readErr := io.ReadAll(response.Body)
 	if readErr != nil {
-		err = fmt.Errorf("error reading response: %s\n", readErr)
-		return nil, err
+		return nil, fmt.Errorf("error reading response: %w", readErr)
 	}
 
-	// Unmarshal the byte response into a Release struct
-	var res LatestReleaseResponse
+	var res DocsResponse
 	err = json.Unmarshal(byteArr, &res)
 	if err != nil {
 		return nil, err
+	}
+
+	// Additional security check
+	// Make sure the download url is from the GitHub release
+	for _, asset := range res.Release.Assets {
+		if !strings.HasPrefix(asset.BrowserDownloadUrl, "https://github.com") {
+			return nil, errors.New("invalid download url")
+		}
 	}
 
 	res.Release.Version = strings.TrimPrefix(res.Release.TagName, "v")

@@ -1,6 +1,7 @@
 "use client"
 import { useGetLatestUpdate } from "@/api/hooks/releases.hooks"
 import { UpdateChangelogBody } from "@/app/(main)/_features/update/update-helper"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { logger } from "@/lib/helpers/debug"
+import { WSEvents } from "@/lib/server/ws-events"
 import { emit } from "@tauri-apps/api/event"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { check, Update } from "@tauri-apps/plugin-updater"
@@ -33,13 +35,20 @@ export function TauriUpdateModal(props: UpdateModalProps) {
 
     const [isUpdating, setIsUpdating] = React.useState(false)
 
-    const { data: updateData, isLoading } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
+    const { data: updateData, isLoading, refetch } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
+
+    useWebsocketMessageListener({
+        type: WSEvents.CHECK_FOR_UPDATES,
+        onMessage: () => {
+            refetch().then(() => checkTauriUpdate())
+        },
+    })
 
     const [updateLoading, setUpdateLoading] = React.useState(true)
     const [tauriUpdate, setUpdate] = React.useState<Update | null>(null)
     const [tauriError, setTauriError] = React.useState("")
 
-    React.useEffect(() => {
+    const checkTauriUpdate = React.useCallback(() => {
         try {
             (async () => {
                 try {
@@ -60,7 +69,10 @@ export function TauriUpdateModal(props: UpdateModalProps) {
         }
     }, [])
 
-    const isPending = false
+    React.useEffect(() => {
+        checkTauriUpdate()
+    }, [])
+
 
     async function handleInstallUpdate() {
         if (!tauriUpdate?.available || isUpdating) return
@@ -138,8 +150,8 @@ export function TauriUpdateModal(props: UpdateModalProps) {
                         {tauriUpdate?.available && <Button
                             leftIcon={<GrInstall className="text-2xl" />}
                             onClick={handleInstallUpdate}
-                            disabled={isPending}
                             loading={isUpdating}
+                            disabled={isLoading}
                         >
                             Update now
                         </Button>}
