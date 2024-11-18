@@ -469,6 +469,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/debrid/torrents/info",
         },
+        DebridGetTorrentFilePreviews: {
+            key: "DEBRID-debrid-get-torrent-file-previews",
+            methods: ["POST"],
+            endpoint: "/api/v1/debrid/torrents/file-previews",
+        },
         /**
          *  @description
          *  Route start stream from debrid.
@@ -810,6 +815,11 @@ export const API_ENDPOINTS = {
             key: "MANGA-get-manga-entry-details",
             methods: ["GET"],
             endpoint: "/api/v1/manga/entry/{id}/details",
+        },
+        GetMangaChapterCountMap: {
+            key: "MANGA-get-manga-chapter-count-map",
+            methods: ["GET"],
+            endpoint: "/api/v1/manga/chapter-counts",
         },
         /**
          *  @description

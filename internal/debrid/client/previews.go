@@ -1,11 +1,11 @@
-package torrentstream
+package debrid_client
 
 import (
 	"fmt"
 	"github.com/5rahim/habari"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/anacrolix/torrent"
 	"seanime/internal/api/anilist"
+	"seanime/internal/debrid/debrid"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"sync"
@@ -20,6 +20,7 @@ type (
 		RelativeEpisodeNumber int    `json:"relativeEpisodeNumber"`
 		IsLikely              bool   `json:"isLikely"`
 		Index                 int    `json:"index"`
+		FileId                string `json:"fileId"`
 	}
 
 	GetTorrentFilePreviewsOptions struct {
@@ -32,32 +33,35 @@ type (
 )
 
 func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentFilePreviewsOptions) (ret []*FilePreview, err error) {
-	defer util.HandlePanicInModuleWithError("torrentstream/GetTorrentFilePreviewsFromManualSelection", &err)
+	defer util.HandlePanicInModuleWithError("debrid_client/GetTorrentFilePreviewsFromManualSelection", &err)
 
 	if opts.Torrent == nil || opts.Magnet == "" || opts.Media == nil {
 		return nil, fmt.Errorf("torrentstream: Invalid options")
 	}
 
-	r.logger.Trace().Str("hash", opts.Torrent.InfoHash).Msg("torrentstream: Getting file previews for torrent selection")
+	r.logger.Trace().Str("hash", opts.Torrent.InfoHash).Msg("debridstream: Getting file previews for torrent selection")
 
-	selectedTorrent, err := r.client.AddTorrent(opts.Magnet)
+	torrentInfo, err := r.GetTorrentInfo(debrid.GetTorrentInfoOptions{
+		MagnetLink: opts.Magnet,
+		InfoHash:   opts.Torrent.InfoHash,
+	})
 	if err != nil {
-		r.logger.Error().Err(err).Msgf("torrentstream: Error adding torrent %s", opts.Magnet)
+		r.logger.Error().Err(err).Msgf("debridstream: Error adding torrent %s", opts.Magnet)
 		return nil, err
 	}
 
 	fileMetadataMap := make(map[string]*habari.Metadata)
 	wg := sync.WaitGroup{}
 	mu := sync.RWMutex{}
-	wg.Add(len(selectedTorrent.Files()))
-	for _, file := range selectedTorrent.Files() {
-		go func(file *torrent.File) {
+	wg.Add(len(torrentInfo.Files))
+	for _, file := range torrentInfo.Files {
+		go func(file *debrid.TorrentItemFile) {
 			defer wg.Done()
 			defer util.HandlePanicInModuleThen("debridstream/GetTorrentFilePreviewsFromManualSelection", func() {})
 
-			metadata := habari.Parse(file.Path())
+			metadata := habari.Parse(file.Path)
 			mu.Lock()
-			fileMetadataMap[file.Path()] = metadata
+			fileMetadataMap[file.Path] = metadata
 			mu.Unlock()
 		}(file)
 	}
@@ -77,22 +81,22 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 	wg = sync.WaitGroup{}
 	mu2 := sync.Mutex{}
 
-	for i, file := range selectedTorrent.Files() {
+	for i, file := range torrentInfo.Files {
 		wg.Add(1)
-		go func(i int, file *torrent.File) {
+		go func(i int, file *debrid.TorrentItemFile) {
 			defer wg.Done()
-			defer util.HandlePanicInModuleThen("torrentstream/GetTorrentFilePreviewsFromManualSelection", func() {})
+			defer util.HandlePanicInModuleThen("debridstream/GetTorrentFilePreviewsFromManualSelection", func() {})
 
 			mu.RLock()
-			metadata := fileMetadataMap[file.Path()]
+			metadata, found := fileMetadataMap[file.Path]
 			mu.RUnlock()
 
-			displayTitle := file.DisplayPath()
+			displayTitle := file.Path
 
 			isLikely := false
 			parsedEpisodeNumber := -1
 
-			if metadata != nil && !comparison.ValueContainsSpecial(displayTitle) && !comparison.ValueContainsNC(displayTitle) {
+			if found && !comparison.ValueContainsSpecial(file.Name) && !comparison.ValueContainsNC(file.Name) {
 				if len(metadata.EpisodeNumber) == 1 {
 					ep := util.StringToIntMust(metadata.EpisodeNumber[0])
 					parsedEpisodeNumber = ep
@@ -110,11 +114,12 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 			mu2.Lock()
 			// Get the file preview
 			ret = append(ret, &FilePreview{
-				Path:          file.Path(),
-				DisplayPath:   file.DisplayPath(),
+				Path:          file.Path,
+				DisplayPath:   file.Path,
 				DisplayTitle:  displayTitle,
 				EpisodeNumber: parsedEpisodeNumber,
 				IsLikely:      isLikely,
+				FileId:        file.ID,
 				Index:         i,
 			})
 			mu2.Unlock()
@@ -122,9 +127,6 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 	}
 
 	wg.Wait()
-
-	r.logger.Debug().Str("hash", opts.Torrent.InfoHash).Msg("torrentstream: Got file previews for torrent selection, dropping torrent")
-	go selectedTorrent.Drop()
 
 	return
 }

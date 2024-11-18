@@ -30,8 +30,8 @@ export const dynamic = "force-static"
 
 function getServiceName(provider: string) {
     switch (provider) {
-        case "real_debrid":
-            return "Real Debrid"
+        case "realdebrid":
+            return "Real-Debrid"
         case "torbox":
             return "TorBox"
         default:
@@ -43,6 +43,8 @@ function getDashboardLink(provider: string) {
     switch (provider) {
         case "torbox":
             return "https://torbox.app/dashboard"
+        case "realdebrid":
+            return "https://real-debrid.com/torrents"
         default:
             return ""
     }

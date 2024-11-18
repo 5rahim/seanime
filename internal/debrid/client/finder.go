@@ -195,11 +195,11 @@ searchLoop:
 		if err != nil {
 			r.logger.Warn().Err(err).Msg("debridstream: Error analyzing torrent files")
 			// Remove torrent on failure (if it was added)
-			if info.ID != nil {
-				go func() {
-					_ = provider.DeleteTorrent(*info.ID)
-				}()
-			}
+			//if info.ID != nil {
+			//	go func() {
+			//		_ = provider.DeleteTorrent(*info.ID)
+			//	}()
+			//}
 			tries++
 			continue
 		}
@@ -209,11 +209,11 @@ searchLoop:
 		if !found {
 			r.logger.Error().Msgf("debridstream: Failed to auto-select episode from torrent %s", searchT.Link)
 			// Remove torrent on failure
-			if info.ID != nil {
-				go func() {
-					_ = provider.DeleteTorrent(*info.ID)
-				}()
-			}
+			//if info.ID != nil {
+			//	go func() {
+			//		_ = provider.DeleteTorrent(*info.ID)
+			//	}()
+			//}
 			tries++
 			continue
 		}
@@ -221,9 +221,14 @@ searchLoop:
 		r.logger.Debug().Msgf("debridstream: Found corresponding file for episode %s: %s", strconv.Itoa(episodeNumber), analysisFile.GetLocalFile().Name)
 
 		tFile := info.Files[analysisFile.GetIndex()]
+		r.logger.Debug().Str("file", util.SpewT(tFile)).Msgf("debridstream: Selected file %s", tFile.Name)
 		r.logger.Debug().Msgf("debridstream: Selected torrent %s", searchT.Name)
 		selectedTorrent = searchT
 		fileId = tFile.ID
+
+		//go func() {
+		//	_ = provider.DeleteTorrent(*info.ID)
+		//}()
 		break
 	}
 

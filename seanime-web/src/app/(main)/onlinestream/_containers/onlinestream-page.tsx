@@ -17,6 +17,7 @@ import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
     __onlinestream_autoSkipIntroOutroAtom,
+    __onlinestream_volumeAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
@@ -40,10 +41,12 @@ import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/l
 import HLS from "hls.js"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { FaSearch } from "react-icons/fa"
+import { TbLayoutSidebarRightCollapse, TbLayoutSidebarRightExpand } from "react-icons/tb"
 import { useUpdateEffect, useWindowSize } from "react-use"
 import "@vidstack/react/player/styles/default/theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
@@ -59,6 +62,8 @@ type ProgressItem = {
 }
 const progressItemAtom = atom<ProgressItem | undefined>(undefined)
 
+const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
+
 
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
 
@@ -69,6 +74,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const urlEpNumber = searchParams.get("episode")
 
     const ref = React.useRef<MediaPlayerInstance>(null)
+
+    const [theaterMode, setTheaterMode] = useAtom(theaterModeAtom)
+    const [volume, setVolume] = useAtom(__onlinestream_volumeAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const autoNext = useAtomValue(__onlinestream_autoNextAtom)
@@ -184,7 +192,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     /** Scroll to selected episode element when the episode list changes (on mount) **/
     const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
     React.useEffect(() => {
-        if (episodeListContainerRef.current && width > 1024) {
+        if (episodeListContainerRef.current && width > 1024 && !theaterMode) {
             React.startTransition(() => {
                 const element = document.getElementById(`episode-${currentEpisodeNumber}`)
                 if (element) {
@@ -195,7 +203,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                 }
             })
         }
-    }, [episodeListContainerRef.current, episodes, currentEpisodeNumber])
+    }, [episodeListContainerRef.current, episodes, currentEpisodeNumber, theaterMode])
 
     const cues = React.useMemo(() => {
         const introStart = aniSkipData?.op?.interval?.startTime ?? 0
@@ -272,7 +280,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{media.title?.userPreferred}</h3>
                     </div>}
 
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center w-full">
                         {(!!progressItem && progressItem.episodeNumber > currentProgress) && <Button
                             className="animate-pulse"
                             loading={isUpdatingProgress}
@@ -303,17 +311,27 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                         <SwitchSubOrDubButton />
 
                         {!!mediaId && <OnlinestreamParametersButton mediaId={Number(mediaId)} />}
+
+                        <div className="flex flex-1"></div>
+
+                        <IconButton
+                            onClick={() => setTheaterMode(p => !p)}
+                            intent="gray-basic"
+                            icon={theaterMode ? <TbLayoutSidebarRightExpand /> : <TbLayoutSidebarRightCollapse />}
+                        />
                     </div>
                 </div>
 
                 <div
                     className={cn(
                         "flex gap-4 w-full flex-col 2xl:flex-row",
+                        theaterMode && "2xl:flex-col",
                     )}
                 >
                     <div
                         className={cn(
                             "aspect-video relative w-full self-start mx-auto",
+                            theaterMode && "max-h-[90vh] !w-auto aspect-video mx-auto",
                         )}
                     >
                         {!provider ? (
@@ -337,6 +355,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
                             className={cn(discreteControls && "discrete-controls")}
+                            volume={volume}
+                            onVolumeChange={(e, n) => {
+                                setVolume(n.detail.volume)
+                            }}
                             onTimeUpdate={(e) => {
                                 if (watchHistoryRef.current > 2000) {
                                     watchHistoryRef.current = 0
@@ -494,7 +516,10 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
                     <ScrollArea
                         ref={episodeListContainerRef}
-                        className="2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0"
+                        className={cn(
+                            "2xl:max-w-[450px] w-full relative 2xl:sticky h-[75dvh] overflow-y-auto pr-4 pt-0",
+                            theaterMode && "2xl:max-w-full",
+                        )}
                     >
                         <div className="space-y-4">
                             {(!episodes?.length && !loadPage) && <p>

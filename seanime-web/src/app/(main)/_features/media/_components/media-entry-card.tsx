@@ -22,6 +22,7 @@ import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { MangaEntryCardProgressBadge } from "@/app/(main)/manga/_containers/manga-entry-card-progress-badge"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -253,6 +254,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
+                        forceShowTotal={type === "manga"}
                     />
                 </div>
                 <div className="absolute z-[10] right-1 bottom-1">
@@ -269,6 +271,9 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         ><RiCalendarLine /></Badge>
                     </div>
                 )}
+
+                {type === "manga" && <MangaEntryCardProgressBadge mediaId={media.id} progress={listData?.progress} progressTotal={progressTotal} />}
+
             </MediaEntryCardBody>
 
             <MediaEntryCardTitleSection

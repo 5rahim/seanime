@@ -1,12 +1,19 @@
 package manga
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
+	"math"
+	"os"
 	"seanime/internal/extension"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
+	"seanime/internal/util/result"
+	"slices"
+	"strconv"
+	"strings"
 	"sync"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
@@ -63,6 +70,9 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 		r.logger.Info().Str("bucket", containerBucket.Name()).Msg("manga: Chapter Container Cache HIT")
 		return container, nil
 	}
+
+	// Delete the map cache
+	mangaChapterCountMap.Delete(ChapterCountMapCacheKey)
 
 	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
 	if !ok {
@@ -164,6 +174,81 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 
 	return container, nil
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const ChapterCountMapCacheKey = 1
+
+var mangaChapterCountMap = result.NewResultMap[int, map[int]int]()
+
+func (r *Repository) GetMangaChapterCountMap() (ret map[int]int, err error) {
+	defer util.HandlePanicInModuleThen("manga/GetMangaCurrentChapterCountMap", func() {})
+	ret = make(map[int]int)
+
+	if m, ok := mangaChapterCountMap.Get(ChapterCountMapCacheKey); ok {
+		ret = m
+		return
+	}
+
+	// Go through all chapter container caches
+	entries, err := os.ReadDir(r.cacheDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		provider, mediaId, ok := parseChapterFileName(entry.Name())
+		if !ok {
+			continue
+		}
+
+		var container *ChapterContainer
+		containerBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
+
+		// Check if the container is in the cache
+		chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
+		if found, _ := r.fileCacher.Get(containerBucket, chapterContainerKey, &container); !found {
+			continue
+		}
+
+		lastChapter := slices.MaxFunc(container.Chapters, func(a *hibikemanga.ChapterDetails, b *hibikemanga.ChapterDetails) int {
+			return cmp.Compare(a.Index, b.Index)
+		})
+		chapterNumFloat, _ := strconv.ParseFloat(lastChapter.Chapter, 32)
+		chapterCount := int(math.Floor(chapterNumFloat))
+
+		ret[mediaId] = chapterCount
+	}
+
+	mangaChapterCountMap.Set(ChapterCountMapCacheKey, ret)
+
+	return
+}
+
+func parseChapterFileName(dirName string) (provider string, mId int, ok bool) {
+	if !strings.HasPrefix(dirName, "manga_") {
+		return "", 0, false
+	}
+	dirName = strings.TrimSuffix(dirName, ".cache")
+	parts := strings.Split(dirName, "_")
+	if len(parts) != 4 {
+		return "", 0, false
+	}
+
+	provider = parts[1]
+	mId, err := strconv.Atoi(parts[3])
+	if err != nil {
+		return "", 0, false
+	}
+
+	return provider, mId, true
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func GetBestSearchResult(searchRes []*hibikemanga.SearchResult) *hibikemanga.SearchResult {
 	bestRes := searchRes[0]

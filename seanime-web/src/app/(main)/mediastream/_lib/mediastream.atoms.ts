@@ -36,6 +36,8 @@ export const __mediastream_autoNextAtom = atomWithStorage("sea-mediastream-auton
 
 export const __mediastream_autoSkipIntroOutroAtom = atomWithStorage("sea-mediastream-autoskip-intro-outro", false)
 
+export const __mediastream_volumeAtom = atomWithStorage("sea-mediastream-volume", 1)
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**

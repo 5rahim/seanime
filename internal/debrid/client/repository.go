@@ -11,6 +11,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/debrid"
+	"seanime/internal/debrid/realdebrid"
 	"seanime/internal/debrid/torbox"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
@@ -105,6 +106,8 @@ func (r *Repository) InitializeProvider(settings *models.DebridSettings) error {
 	switch settings.Provider {
 	case "torbox":
 		r.provider = mo.Some(torbox.NewTorBox(r.logger))
+	case "realdebrid":
+		r.provider = mo.Some(realdebrid.NewRealDebrid(r.logger))
 	default:
 		r.provider = mo.None[debrid.Provider]()
 	}
@@ -188,12 +191,8 @@ func (r *Repository) GetTorrentInfo(opts debrid.GetTorrentInfoOptions) (*debrid.
 		return nil, err
 	}
 
-	// Remove the torrent if it was added
-	if torrentInfo.ID != nil {
-		go func() {
-			_ = provider.DeleteTorrent(*torrentInfo.ID)
-		}()
-	}
+	// Remove non-video files
+	torrentInfo.Files = debrid.FilterVideoFiles(torrentInfo.Files)
 
 	return torrentInfo, nil
 }

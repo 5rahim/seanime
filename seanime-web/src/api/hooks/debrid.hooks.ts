@@ -5,12 +5,13 @@ import {
     DebridCancelStream_Variables,
     DebridDeleteTorrent_Variables,
     DebridDownloadTorrent_Variables,
+    DebridGetTorrentFilePreviews_Variables,
     DebridGetTorrentInfo_Variables,
     DebridStartStream_Variables,
     SaveDebridSettings_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { Debrid_TorrentInfo, Debrid_TorrentItem, Models_DebridSettings } from "@/api/generated/types"
+import { Debrid_TorrentInfo, Debrid_TorrentItem, DebridClient_FilePreview, Models_DebridSettings } from "@/api/generated/types"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -103,6 +104,17 @@ export function useDebridGetTorrentInfo(variables: Partial<DebridGetTorrentInfo_
         method: API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.methods[0],
         queryKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentInfo.key, variables?.torrent?.infoHash],
         data: variables as DebridGetTorrentInfo_Variables,
+        enabled: enabled,
+        gcTime: 0,
+    })
+}
+
+export function useDebridGetTorrentFilePreviews(variables: Partial<DebridGetTorrentFilePreviews_Variables>, enabled: boolean) {
+    return useServerQuery<Array<DebridClient_FilePreview>, DebridGetTorrentFilePreviews_Variables>({
+        endpoint: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.endpoint,
+        method: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.methods[0],
+        queryKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.key, variables?.torrent?.infoHash],
+        data: variables as DebridGetTorrentFilePreviews_Variables,
         enabled: enabled,
         gcTime: 0,
     })

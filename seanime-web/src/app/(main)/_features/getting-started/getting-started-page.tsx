@@ -450,6 +450,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                             options={[
                                                 { label: "None", value: "none" },
                                                 { label: "TorBox", value: "torbox" },
+                                                { label: "Real-Debrid", value: "realdebrid" },
                                             ]}
                                         />
 

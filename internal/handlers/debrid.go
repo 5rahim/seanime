@@ -5,6 +5,7 @@ import (
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"path/filepath"
 	"seanime/internal/api/anilist"
+	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
 	"seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
@@ -99,7 +100,8 @@ func HandleDebridAddTorrents(c *RouteCtx) error {
 
 		// Add the torrent to the debrid service
 		_, err = c.App.DebridClientRepository.AddAndQueueTorrent(debrid.AddTorrentOptions{
-			MagnetLink: magnet,
+			MagnetLink:   magnet,
+			SelectFileId: "all",
 		}, b.Destination, b.Media.ID)
 		if err != nil {
 			// If there is only one torrent, return the error
@@ -223,6 +225,7 @@ func HandleDebridGetTorrents(c *RouteCtx) error {
 
 	torrents, err := provider.GetTorrents()
 	if err != nil {
+		c.App.Logger.Err(err).Msg("debrid: Failed to get torrents")
 		return c.RespondWithError(err)
 	}
 
@@ -245,11 +248,6 @@ func HandleDebridGetTorrentInfo(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	provider, err := c.App.DebridClientRepository.GetProvider()
-	if err != nil {
-		return c.RespondWithError(err)
-	}
-
 	animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
 	if !ok {
 		return c.RespondWithError(errors.New("provider extension not found for torrent"))
@@ -262,9 +260,59 @@ func HandleDebridGetTorrentInfo(c *RouteCtx) error {
 
 	b.Torrent.MagnetLink = magnet
 
-	torrentInfo, err := provider.GetTorrentInfo(debrid.GetTorrentInfoOptions{
+	torrentInfo, err := c.App.DebridClientRepository.GetTorrentInfo(debrid.GetTorrentInfoOptions{
 		MagnetLink: b.Torrent.MagnetLink,
 		InfoHash:   b.Torrent.InfoHash,
+	})
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(torrentInfo)
+}
+
+// HandleDebridGetTorrentFilePreviews
+//
+//	@summary get list of torrent files
+//	@returns []debrid_client.FilePreview
+//	@route /api/v1/debrid/torrents/file-previews [POST]
+func HandleDebridGetTorrentFilePreviews(c *RouteCtx) error {
+	type body struct {
+		Torrent       *hibiketorrent.AnimeTorrent `json:"torrent"`
+		EpisodeNumber int                         `json:"episodeNumber"`
+		Media         *anilist.BaseAnime          `json:"media"`
+	}
+
+	var b body
+	if err := c.Fiber.BodyParser(&b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	animeTorrentProviderExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(b.Torrent.Provider)
+	if !ok {
+		return c.RespondWithError(errors.New("provider extension not found for torrent"))
+	}
+
+	magnet, err := animeTorrentProviderExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	b.Torrent.MagnetLink = magnet
+
+	// Get the media
+	animeMetadata, _ := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
+	absoluteOffset := 0
+	if animeMetadata != nil {
+		absoluteOffset = animeMetadata.GetOffset()
+	}
+
+	torrentInfo, err := c.App.DebridClientRepository.GetTorrentFilePreviewsFromManualSelection(&debrid_client.GetTorrentFilePreviewsOptions{
+		Torrent:        b.Torrent,
+		Magnet:         magnet,
+		EpisodeNumber:  b.EpisodeNumber,
+		Media:          b.Media,
+		AbsoluteOffset: absoluteOffset,
 	})
 	if err != nil {
 		return c.RespondWithError(err)

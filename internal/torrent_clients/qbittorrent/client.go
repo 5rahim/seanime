@@ -49,6 +49,12 @@ type NewClientOptions struct {
 
 func NewClient(opts *NewClientOptions) *Client {
 	baseURL := fmt.Sprintf("http://%s:%d/api/v2", opts.Host, opts.Port)
+
+	if strings.HasPrefix(opts.Host, "https://") {
+		opts.Host = strings.TrimPrefix(opts.Host, "https://")
+		baseURL = fmt.Sprintf("https://%s:%d/api/v2", opts.Host, opts.Port)
+	}
+
 	client := &http.Client{}
 	return &Client{
 		baseURL:          baseURL,

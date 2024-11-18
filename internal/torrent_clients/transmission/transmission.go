@@ -5,6 +5,7 @@ import (
 	"github.com/hekmon/transmissionrpc/v3"
 	"github.com/rs/zerolog"
 	"net/url"
+	"strings"
 )
 
 type (
@@ -29,12 +30,25 @@ func New(options *NewTransmissionOptions) (*Transmission, error) {
 	if options.Host == "" {
 		options.Host = "127.0.0.1"
 	}
-	_url, err := url.Parse(fmt.Sprintf("http://%s:%s@%s:%d/transmission/rpc",
+
+	baseUrl := fmt.Sprintf("http://%s:%s@%s:%d/transmission/rpc",
 		options.Username,
 		url.QueryEscape(options.Password),
 		options.Host,
 		options.Port,
-	))
+	)
+
+	if strings.HasPrefix(options.Host, "https://") {
+		options.Host = strings.TrimPrefix(options.Host, "https://")
+		baseUrl = fmt.Sprintf("https://%s:%s@%s:%d/transmission/rpc",
+			options.Username,
+			url.QueryEscape(options.Password),
+			options.Host,
+			options.Port,
+		)
+	}
+
+	_url, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, err
 	}

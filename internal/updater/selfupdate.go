@@ -41,7 +41,7 @@ func NewSelfUpdater() *SelfUpdater {
 		logger:          logger,
 		breakLoopCh:     make(chan struct{}),
 		originalExePath: mo.None[string](),
-		updater:         New(constants.Version, logger),
+		updater:         New(constants.Version, logger, nil),
 	}
 
 	ret.tmpExecutableName = "seanime.exe.old"

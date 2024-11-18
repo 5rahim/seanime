@@ -496,6 +496,17 @@
 //     })
 // }
 
+// export function useDebridGetTorrentFilePreviews() {
+//     return useServerMutation<Array<DebridClient_FilePreview>, DebridGetTorrentFilePreviews_Variables>({
+//         endpoint: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.endpoint,
+//         method: API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.methods[0],
+//         mutationKey: [API_ENDPOINTS.DEBRID.DebridGetTorrentFilePreviews.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useDebridStartStream() {
 //     return useServerMutation<boolean, DebridStartStream_Variables>({
 //         endpoint: API_ENDPOINTS.DEBRID.DebridStartStream.endpoint,
@@ -966,6 +977,15 @@
 //         endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDetails.endpoint.replace("{id}", String(id)),
 //         method: API_ENDPOINTS.MANGA.GetMangaEntryDetails.methods[0],
 //         queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryDetails.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useGetMangaChapterCountMap() {
+//     return useServerQuery<Record<number, number>>({
+//         endpoint: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.methods[0],
+//         queryKey: [API_ENDPOINTS.MANGA.GetMangaChapterCountMap.key],
 //         enabled: true,
 //     })
 // }

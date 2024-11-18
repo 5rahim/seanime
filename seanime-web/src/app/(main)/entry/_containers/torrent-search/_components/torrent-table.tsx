@@ -1,5 +1,9 @@
-import { HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
-import { TorrentResolutionBadge, TorrentSeedersBadge } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
+import { Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
+import {
+    TorrentDebridInstantAvailabilityBadge,
+    TorrentResolutionBadge,
+    TorrentSeedersBadge,
+} from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -17,6 +21,7 @@ type TorrentTable = {
     isLoading: boolean
     isFetching: boolean
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
+    debridInstantAvailability: Record<string, Debrid_TorrentItemInstantAvailability>
 }
 
 export const TorrentTable = memo((
@@ -29,6 +34,7 @@ export const TorrentTable = memo((
         isFetching,
         isLoading,
         onToggleTorrent,
+        debridInstantAvailability,
     }: TorrentTable) => {
 
     const columns = useMemo(() => defineDataGridColumns<HibikeTorrent_AnimeTorrent>(() => [
@@ -61,27 +67,34 @@ export const TorrentTable = memo((
                     {info.getValue<string>()}
                 </Tooltip>
             </div>,
-            size: 80,
+            size: 350,
         },
         {
             accessorKey: "resolution",
             header: "Resolution",
             cell: info => <TorrentResolutionBadge resolution={info.getValue<string>()} />,
-            size: 2,
+            size: 70,
         },
         {
             accessorKey: "seeders",
             header: "Seeders",
-            cell: info => <TorrentSeedersBadge seeders={info.getValue<number>()} />,
-            size: 20,
+            cell: info => (
+                <div className="flex items-center gap-2 ">
+                    <TorrentSeedersBadge seeders={info.getValue<number>()} />
+                    {(!!info.row.original.infoHash && debridInstantAvailability[info.row.original.infoHash]) && (
+                        <TorrentDebridInstantAvailabilityBadge />
+                    )}
+                </div>
+            ),
+            // size: 20,
         },
         {
             accessorKey: "date",
             header: "Date",
             cell: info => formatDistanceToNowSafe(info.getValue<string>()),
-            size: 10,
+            size: 80,
         },
-    ]), [torrents, selectedTorrents])
+    ]), [torrents, selectedTorrents, debridInstantAvailability])
 
     return (
         <DataGrid<HibikeTorrent_AnimeTorrent>

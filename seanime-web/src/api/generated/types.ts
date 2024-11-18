@@ -1905,6 +1905,22 @@ export type DebridClient_CancelStreamOptions = {
 }
 
 /**
+ * - Filepath: internal/debrid/client/previews.go
+ * - Filename: previews.go
+ * - Package: debrid_client
+ */
+export type DebridClient_FilePreview = {
+    path: string
+    displayPath: string
+    displayTitle: string
+    episodeNumber: number
+    relativeEpisodeNumber: number
+    isLikely: boolean
+    index: number
+    fileId: string
+}
+
+/**
  * - Filepath: internal/debrid/client/stream.go
  * - Filename: stream.go
  * - Package: debrid_client
@@ -3173,8 +3189,8 @@ export type TVDB_Episode = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/updater/updater.go
- * - Filename: updater.go
+ * - Filepath: internal/updater/check.go
+ * - Filename: check.go
  * - Package: updater
  */
 export type Updater_Release = {
@@ -3191,8 +3207,8 @@ export type Updater_Release = {
 }
 
 /**
- * - Filepath: internal/updater/updater.go
- * - Filename: updater.go
+ * - Filepath: internal/updater/check.go
+ * - Filename: check.go
  * - Package: updater
  */
 export type Updater_ReleaseAsset = {
@@ -3213,6 +3229,7 @@ export type Updater_ReleaseAsset = {
  */
 export type Updater_Update = {
     release?: Updater_Release
+    current_version?: string
     type: string
 }
 

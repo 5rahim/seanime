@@ -28,6 +28,8 @@ const (
 	WarningToast = "warning-toast"
 	SuccessToast = "success-toast"
 
+	CheckForUpdates = "check-for-updates"
+
 	RefreshedMangaDownloadData  = "refreshed-manga-download-data"
 	ChapterDownloadQueueUpdated = "chapter-download-queue-updated"
 	OfflineSnapshotCreated      = "offline-snapshot-created"

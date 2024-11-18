@@ -1,5 +1,5 @@
 import { Manga_Collection } from "@/api/generated/types"
-import { useGetMangaCollection } from "@/api/hooks/manga.hooks"
+import { useGetMangaChapterCountMap, useGetMangaCollection } from "@/api/hooks/manga.hooks"
 import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries } from "@/lib/helpers/filtering"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
@@ -15,6 +15,8 @@ export const __mangaLibrary_paramsAtom = atomWithImmer<CollectionParams>(MANGA_L
 
 export const __mangaLibrary_paramsInputAtom = atomWithImmer<CollectionParams>(MANGA_LIBRARY_DEFAULT_PARAMS)
 
+export const __mangaLibrary_chapterCountsAtom = atomWithImmer<Record<number, number>>({})
+
 /**
  * Get the manga collection
  */
@@ -22,11 +24,20 @@ export function useHandleMangaCollection() {
     const router = useRouter()
     const { data, isLoading, isError } = useGetMangaCollection()
 
+    const { data: chapterCounts } = useGetMangaChapterCountMap()
+
     React.useEffect(() => {
         if (isError) {
             router.push("/")
         }
     }, [isError])
+
+    const [, setChapterCounts] = useAtom(__mangaLibrary_chapterCountsAtom)
+    React.useEffect(() => {
+        if (chapterCounts) {
+            setChapterCounts(chapterCounts)
+        }
+    }, [chapterCounts])
 
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
 

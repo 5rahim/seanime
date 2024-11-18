@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"seanime/internal/constants"
+	"seanime/internal/events"
 	"seanime/internal/util"
 	"strings"
 	"testing"
@@ -19,7 +20,10 @@ func TestUpdater_getReleaseName(t *testing.T) {
 
 func TestUpdater_FetchLatestRelease(t *testing.T) {
 
-	updater := Updater{}
+	docsUrl = "https://seanime.rahim.app/api/releases" // simulate dead endpoint
+	//githubUrl = "https://api.github.com/repos/zbonfo/seanime-desktop/releases/latest"
+
+	updater := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
 	release, err := updater.fetchLatestRelease()
 	if err != nil {
 		t.Fatal(err)
@@ -28,7 +32,32 @@ func TestUpdater_FetchLatestRelease(t *testing.T) {
 	if assert.NotNil(t, release) {
 		spew.Dump(release)
 	}
+}
 
+func TestUpdater_FetchLatestReleaseFromDocs(t *testing.T) {
+
+	updater := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
+	release, err := updater.fetchLatestReleaseFromDocs()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if assert.NotNil(t, release) {
+		spew.Dump(release)
+	}
+}
+
+func TestUpdater_FetchLatestReleaseFromGitHub(t *testing.T) {
+
+	updater := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
+	release, err := updater.fetchLatestReleaseFromGitHub()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if assert.NotNil(t, release) {
+		spew.Dump(release)
+	}
 }
 
 func TestUpdater_CompareVersion(t *testing.T) {
@@ -92,7 +121,7 @@ func TestUpdater_CompareVersion(t *testing.T) {
 
 func TestUpdater(t *testing.T) {
 
-	u := New(constants.Version, util.NewLogger())
+	u := New(constants.Version, util.NewLogger(), events.NewMockWSEventManager(util.NewLogger()))
 
 	rl, err := u.GetLatestRelease()
 	require.NoError(t, err)

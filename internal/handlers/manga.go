@@ -149,6 +149,20 @@ func HandleGetMangaEntryDetails(c *RouteCtx) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// HandleGetMangaChapterCountMap
+//
+//	@summary returns the chapter count map for all manga entries.
+//	@route /api/v1/manga/chapter-counts [GET]
+//	@returns map[int]int
+func HandleGetMangaChapterCountMap(c *RouteCtx) error {
+	ret, err := c.App.MangaRepository.GetMangaChapterCountMap()
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	return c.RespondWithData(ret)
+}
+
 // HandleEmptyMangaEntryCache
 //
 //	@summary empties the cache for a manga entry.

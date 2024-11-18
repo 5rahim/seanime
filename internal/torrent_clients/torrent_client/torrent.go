@@ -146,7 +146,7 @@ func fromQbitTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 		st == qbittorrent_model.StateCheckingUP ||
 		st == qbittorrent_model.StateUploading {
 		return TorrentStatusSeeding
-	} else if st == qbittorrent_model.StatePausedDL {
+	} else if st == qbittorrent_model.StatePausedDL || st == qbittorrent_model.StateStoppedDL {
 		return TorrentStatusPaused
 	} else if st == qbittorrent_model.StateDownloading ||
 		st == qbittorrent_model.StateCheckingDL ||
@@ -156,7 +156,7 @@ func fromQbitTorrentStatus(st qbittorrent_model.TorrentState) TorrentStatus {
 		st == qbittorrent_model.StateAllocating ||
 		st == qbittorrent_model.StateForceDL {
 		return TorrentStatusDownloading
-	} else if st == qbittorrent_model.StatePausedUP {
+	} else if st == qbittorrent_model.StatePausedUP || st == qbittorrent_model.StateStoppedUP {
 		return TorrentStatusStopped
 	} else {
 		return TorrentStatusOther

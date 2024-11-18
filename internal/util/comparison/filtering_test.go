@@ -1,6 +1,8 @@
 package comparison
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestValueContainsSeason(t *testing.T) {
 	tests := []struct {
@@ -256,6 +258,16 @@ func TestValueContainsNC(t *testing.T) {
 			input:    "This is a test",
 			expected: false,
 		},
+		{
+			name:     "Does not contain NC keywords 2",
+			input:    "Himouto.Umaru.chan.S01E02.1080p.BluRay.Opus2.0.x265-smol",
+			expected: false,
+		},
+		{
+			name:     "Does not contain NC keywords 2",
+			input:    "Himouto.Umaru.chan.S01E02.1080p.BluRay.x265-smol",
+			expected: false,
+		},
 	}
 
 	for _, test := range tests {
@@ -267,3 +279,57 @@ func TestValueContainsNC(t *testing.T) {
 		})
 	}
 }
+
+//func TestLikelyNC(t *testing.T) {
+//	tests := []struct {
+//		name     string
+//		input    string
+//		expected bool
+//	}{
+//		{
+//			name:     "Does not contain NC keywords 1",
+//			input:    "Himouto.Umaru.chan.S01E02.1080p.BluRay.Opus2.0.x265-smol",
+//			expected: false,
+//		},
+//		{
+//			name:     "Does not contain NC keywords 2",
+//			input:    "Himouto.Umaru.chan.S01E02.1080p.BluRay.x265-smol",
+//			expected: false,
+//		},
+//		{
+//			name:     "Contains NC keywords 1",
+//			input:    "Himouto.Umaru.chan.S00E02.1080p.BluRay.x265-smol",
+//			expected: true,
+//		},
+//		{
+//			name:     "Contains NC keywords 2",
+//			input:    "Himouto.Umaru.chan.OP02.1080p.BluRay.x265-smol",
+//			expected: true,
+//		},
+//	}
+//
+//	for _, test := range tests {
+//		t.Run(test.name, func(t *testing.T) {
+//			metadata := habari.Parse(test.input)
+//			var episode string
+//			var season string
+//
+//			if len(metadata.SeasonNumber) > 0 {
+//				if len(metadata.SeasonNumber) == 1 {
+//					season = metadata.SeasonNumber[0]
+//				}
+//			}
+//
+//			if len(metadata.EpisodeNumber) > 0 {
+//				if len(metadata.EpisodeNumber) == 1 {
+//					episode = metadata.EpisodeNumber[0]
+//				}
+//			}
+//
+//			result := LikelyNC(test.input, season, episode)
+//			if result != test.expected {
+//				t.Errorf("ValueContainsNC() with args %v, expected %v, but got %v.", test.input, test.expected, result)
+//			}
+//		})
+//	}
+//}

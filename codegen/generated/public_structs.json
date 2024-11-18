@@ -28216,6 +28216,145 @@
     ]
   },
   {
+    "filepath": "../internal/debrid/client/previews.go",
+    "filename": "previews.go",
+    "name": "FilePreview",
+    "formattedName": "DebridClient_FilePreview",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisplayPath",
+        "jsonName": "displayPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DisplayTitle",
+        "jsonName": "displayTitle",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RelativeEpisodeNumber",
+        "jsonName": "relativeEpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsLikely",
+        "jsonName": "isLikely",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FileId",
+        "jsonName": "fileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/client/previews.go",
+    "filename": "previews.go",
+    "name": "GetTorrentFilePreviewsOptions",
+    "formattedName": "DebridClient_GetTorrentFilePreviewsOptions",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "Torrent",
+        "goType": "hibiketorrent.AnimeTorrent",
+        "typescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Magnet",
+        "jsonName": "Magnet",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "EpisodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AbsoluteOffset",
+        "jsonName": "AbsoluteOffset",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Media",
+        "jsonName": "Media",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/debrid/client/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -28690,6 +28829,17 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SelectFileId",
+        "jsonName": "selectFileId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Real-Debrid only, ID, IDs, or \"all\""
+        ]
       }
     ],
     "comments": []
@@ -29144,6 +29294,455 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "RealDebrid",
+    "formattedName": "RealDebrid",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "baseUrl",
+        "jsonName": "baseUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "apiKey",
+        "jsonName": "apiKey",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "ErrorResponse",
+    "formattedName": "ErrorResponse",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ErrorDetails",
+        "jsonName": "error_details",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ErrorCode",
+        "jsonName": "error_code",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "Torrent",
+    "formattedName": "Torrent",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Bytes",
+        "jsonName": "bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Host",
+        "jsonName": "host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Split",
+        "jsonName": "split",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Added",
+        "jsonName": "added",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Links",
+        "jsonName": "links",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ended",
+        "jsonName": "ended",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "TorrentInfo",
+    "formattedName": "TorrentInfo",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Filename",
+        "jsonName": "filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OriginalFilename",
+        "jsonName": "original_filename",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Bytes",
+        "jsonName": "bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of selected files"
+        ]
+      },
+      {
+        "name": "OriginalBytes",
+        "jsonName": "original_bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Size of the torrent"
+        ]
+      },
+      {
+        "name": "Host",
+        "jsonName": "host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Split",
+        "jsonName": "split",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Added",
+        "jsonName": "added",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]TorrentInfoFile",
+        "typescriptType": "Array\u003cTorrentInfoFile\u003e",
+        "usedStructName": "realdebrid.TorrentInfoFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Links",
+        "jsonName": "links",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Ended",
+        "jsonName": "ended",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Seeders",
+        "jsonName": "seeders",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "TorrentInfoFile",
+    "formattedName": "TorrentInfoFile",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g. \"/Big Buck Bunny/Big Buck Bunny.mp4\""
+        ]
+      },
+      {
+        "name": "Bytes",
+        "jsonName": "bytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Selected",
+        "jsonName": "selected",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " 1 if selected, 0 if not"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/debrid/realdebrid/realdebrid.go",
+    "filename": "realdebrid.go",
+    "name": "InstantAvailabilityItem",
+    "formattedName": "InstantAvailabilityItem",
+    "package": "realdebrid",
+    "fields": [
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Files",
+        "jsonName": "files",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ filename: string; filesize: number; }\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -41653,6 +42252,15 @@
         "comments": []
       },
       {
+        "name": "cacheDir",
+        "jsonName": "cacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "providerExtensionBank",
         "jsonName": "providerExtensionBank",
         "goType": "extension.UnifiedBank",
@@ -41727,6 +42335,15 @@
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CacheDir",
+        "jsonName": "CacheDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },
@@ -44439,7 +45056,7 @@
     "fields": [
       {
         "name": "Name",
-        "jsonName": "Name",
+        "jsonName": "name",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -44448,7 +45065,7 @@
       },
       {
         "name": "DecodeFlags",
-        "jsonName": "DecodeFlags",
+        "jsonName": "decodeFlags",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -44457,7 +45074,7 @@
       },
       {
         "name": "EncodeFlags",
-        "jsonName": "EncodeFlags",
+        "jsonName": "encodeFlags",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -44466,7 +45083,7 @@
       },
       {
         "name": "ScaleFilter",
-        "jsonName": "ScaleFilter",
+        "jsonName": "scaleFilter",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -44991,6 +45608,15 @@
       {
         "name": "FfprobePath",
         "jsonName": "FfprobePath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HwAccelCustomSettings",
+        "jsonName": "HwAccelCustomSettings",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -47854,6 +48480,15 @@
       {
         "name": "TorBoxApiKey",
         "jsonName": "TorBoxApiKey",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RealDebridApiKey",
+        "jsonName": "RealDebridApiKey",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -50830,6 +51465,7 @@
         "\"missingFiles\"",
         "\"uploading\"",
         "\"pausedUP\"",
+        "\"stoppedUP\"",
         "\"queuedUP\"",
         "\"stalledUP\"",
         "\"checkingUP\"",
@@ -50838,6 +51474,7 @@
         "\"downloading\"",
         "\"metaDL\"",
         "\"pausedDL\"",
+        "\"stoppedDL\"",
         "\"queuedDL\"",
         "\"stalledDL\"",
         "\"checkingDL\"",
@@ -54584,6 +55221,372 @@
     "comments": []
   },
   {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "GitHubResponse",
+    "formattedName": "Updater_GitHubResponse",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AssetsUrl",
+        "jsonName": "assets_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UploadUrl",
+        "jsonName": "upload_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HtmlUrl",
+        "jsonName": "html_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NodeID",
+        "jsonName": "node_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TagName",
+        "jsonName": "tag_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TargetCommitish",
+        "jsonName": "target_commitish",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Draft",
+        "jsonName": "draft",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Prerelease",
+        "jsonName": "prerelease",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CreatedAt",
+        "jsonName": "created_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PublishedAt",
+        "jsonName": "published_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Assets",
+        "jsonName": "assets",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ url: string; id: number; node_id: string; name: string; label: string; content_type: string; state: string; size: number; download_count: number; created_at: string; updated_at: string; browser_download_url: string; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TarballURL",
+        "jsonName": "tarball_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ZipballURL",
+        "jsonName": "zipball_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Body",
+        "jsonName": "body",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "DocsResponse",
+    "formattedName": "Updater_DocsResponse",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Release",
+        "jsonName": "release",
+        "goType": "Release",
+        "typescriptType": "Updater_Release",
+        "usedStructName": "updater.Release",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "Release",
+    "formattedName": "Updater_Release",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HtmlUrl",
+        "jsonName": "html_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NodeId",
+        "jsonName": "node_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TagName",
+        "jsonName": "tag_name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Body",
+        "jsonName": "body",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PublishedAt",
+        "jsonName": "published_at",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Released",
+        "jsonName": "released",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Assets",
+        "jsonName": "assets",
+        "goType": "[]ReleaseAsset",
+        "typescriptType": "Array\u003cUpdater_ReleaseAsset\u003e",
+        "usedStructName": "updater.ReleaseAsset",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/updater/check.go",
+    "filename": "check.go",
+    "name": "ReleaseAsset",
+    "formattedName": "Updater_ReleaseAsset",
+    "package": "updater",
+    "fields": [
+      {
+        "name": "Url",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Id",
+        "jsonName": "id",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NodeId",
+        "jsonName": "node_id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContentType",
+        "jsonName": "content_type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Uploaded",
+        "jsonName": "uploaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Size",
+        "jsonName": "size",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BrowserDownloadUrl",
+        "jsonName": "browser_download_url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/updater/selfupdate.go",
     "filename": "selfupdate.go",
     "name": "SelfUpdater",
@@ -54702,6 +55705,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "client",
+        "jsonName": "client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -54724,211 +55737,17 @@
         "comments": []
       },
       {
-        "name": "Type",
-        "jsonName": "type",
+        "name": "CurrentVersion",
+        "jsonName": "current_version",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/updater/updater.go",
-    "filename": "updater.go",
-    "name": "LatestReleaseResponse",
-    "formattedName": "Updater_LatestReleaseResponse",
-    "package": "updater",
-    "fields": [
-      {
-        "name": "Release",
-        "jsonName": "release",
-        "goType": "Release",
-        "typescriptType": "Updater_Release",
-        "usedStructName": "updater.Release",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/updater/updater.go",
-    "filename": "updater.go",
-    "name": "Release",
-    "formattedName": "Updater_Release",
-    "package": "updater",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "HtmlUrl",
-        "jsonName": "html_url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NodeId",
-        "jsonName": "node_id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "TagName",
-        "jsonName": "tag_name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Body",
-        "jsonName": "body",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "PublishedAt",
-        "jsonName": "published_at",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Released",
-        "jsonName": "released",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Version",
-        "jsonName": "version",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Assets",
-        "jsonName": "assets",
-        "goType": "[]ReleaseAsset",
-        "typescriptType": "Array\u003cUpdater_ReleaseAsset\u003e",
-        "usedStructName": "updater.ReleaseAsset",
         "required": false,
         "public": true,
         "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/updater/updater.go",
-    "filename": "updater.go",
-    "name": "ReleaseAsset",
-    "formattedName": "Updater_ReleaseAsset",
-    "package": "updater",
-    "fields": [
-      {
-        "name": "Url",
-        "jsonName": "url",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
       },
       {
-        "name": "Id",
-        "jsonName": "id",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "NodeId",
-        "jsonName": "node_id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "ContentType",
-        "jsonName": "content_type",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Uploaded",
-        "jsonName": "uploaded",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "size",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "BrowserDownloadUrl",
-        "jsonName": "browser_download_url",
+        "name": "Type",
+        "jsonName": "type",
         "goType": "string",
         "typescriptType": "string",
         "required": true,

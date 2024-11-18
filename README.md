@@ -34,11 +34,11 @@ Seanime is a **media server** with a web interface for watching anime, reading m
 - Offline mode with caching for metadata, images
 - Scan your local library in seconds, no renaming needed
 - Torrent search engine with support for Nyaa, Anime Tosho, SeaDex & extensions
-- Support for qBittorrent, Transmission, and Torbox for downloading
+- Support for qBittorrent, Transmission, Torbox, Real-Debrid for downloading
 - Auto-downloading for new episodes with custom filters
 - MPV, VLC, MPC-HC, and mobile player app support for watching
 - Transcoding and direct play for streaming to any device web browser
-- Stream torrents directly to your media player without downloading using Bittorrent or Torbox
+- Stream torrents directly to your media player without downloading using Bittorrent, Torbox or Real-Debrid
 - Online streaming with support for multiple sources & extensions
 - Read and download manga chapters with support for multiple sources & extensions
 - Extension system for adding new sources
@@ -76,7 +76,7 @@ Development and testing might require additional configuration.
 
 [Read more here](https://github.com/5rahim/seanime/blob/main/DEVELOPMENT_AND_BUILD.md)
 
-# Screenshots
+## Screenshots
 
 ### Scanning
 

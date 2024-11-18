@@ -17,3 +17,5 @@ export const __onlinestream_autoSkipIntroOutroAtom = atomWithStorage("sea-online
 export const __onlinestream_selectedServerAtom = atomWithStorage<string | undefined>("sea-onlinestream-server", undefined)
 
 export const __onlinestream_qualityAtom = atomWithStorage<string | undefined>("sea-onlinestream-quality", undefined)
+
+export const __onlinestream_volumeAtom = atomWithStorage<number>("sea-onlinestream-volume", 1)
