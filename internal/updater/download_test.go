@@ -10,7 +10,7 @@ import (
 
 func TestUpdater_DownloadLatestRelease(t *testing.T) {
 
-	updater := New("0.2.0", util.NewLogger())
+	updater := New("0.2.0", util.NewLogger(), nil)
 
 	//tempDir := "E:\\SEANIME-REPO-TEST"
 	tempDir := t.TempDir()
