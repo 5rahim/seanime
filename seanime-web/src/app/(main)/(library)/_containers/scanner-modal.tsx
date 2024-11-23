@@ -10,7 +10,6 @@ import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React from "react"
 import { FiSearch } from "react-icons/fi"
-import { HiOutlineSparkles } from "react-icons/hi"
 
 export const __scanner_modalIsOpen = atom(false)
 export const __scanner_isScanningAtom = atom(false)
@@ -65,22 +64,6 @@ export function ScannerModal() {
                 <div className="space-y-4 mt-6">
 
                     <AppLayoutStack className="space-y-2">
-                        <h5>Matching</h5>
-                        <Checkbox
-                            label={<span className="flex items-center">Enhanced scanning
-                                <HiOutlineSparkles className="ml-2 text-amber-500" /></span>}
-                            // label="Enhanced scanning"
-                            value={enhanced.active}
-                            onValueChange={v => enhanced.set(v as boolean)}
-                            className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
-                            // size="lg"
-                            help={enhanced.active ? "On: Use API requests, accurate but slower" : "Off: Use AniList account data only, faster"}
-                        />
-                    </AppLayoutStack>
-
-                    <Separator />
-
-                    <AppLayoutStack className="space-y-2">
                         <h5>Local files</h5>
                         <Checkbox
                             label="Skip locked files"
@@ -94,6 +77,23 @@ export function ScannerModal() {
                             onValueChange={v => skipIgnoredFiles.set(v as boolean)}
                             // size="lg"
                         />
+                        <Separator />
+
+                        <AppLayoutStack className="space-y-2">
+                            <h5>Matching data</h5>
+                            <Checkbox
+                                label={<span className="flex items-center">
+                                    Do not use my anime lists
+                                </span>}
+                                // label="Enhanced scanning"
+                                value={enhanced.active}
+                                onValueChange={v => enhanced.set(v as boolean)}
+                                className="data-[state=checked]:bg-amber-700 dark:data-[state=checked]:bg-amber-700"
+                                // size="lg"
+                                help={enhanced.active ? "Caution: Slower for large libraries" : ""}
+                            />
+                        </AppLayoutStack>
+
                     </AppLayoutStack>
                 </div>
                 <Button
