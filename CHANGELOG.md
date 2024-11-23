@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.4.0
+
+- 🎉 Desktop app: Initial release
+- 🦺 Anime library: Fixed toggle lock button
+
 ## v2.3.0
 
 - ✨ Real-Debrid support for streaming and downloading

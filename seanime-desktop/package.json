@@ -9,8 +9,8 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.0.3",
-    "@tauri-apps/cli": "^2.0.4"
+    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/cli": "^2.1.0"
   },
   "private": true
 }

@@ -3,12 +3,12 @@ mod tray;
 mod constants;
 mod server;
 
+use constants::MAIN_WINDOW_LABEL;
 use std::sync::{Arc, Mutex};
 #[cfg(target_os = "macos")]
 use tauri::utils::TitleBarStyle;
 use tauri::{Listener, Manager};
 use tauri_plugin_os;
-use constants::{MAIN_WINDOW_LABEL};
 
 pub fn run() {
     let server_process = Arc::new(Mutex::new(
@@ -79,11 +79,21 @@ pub fn run() {
                     } => {
                         let is_shutdown_guard = is_shutdown_for_exit.lock().unwrap();
                         if label.as_str() == MAIN_WINDOW_LABEL && !*is_shutdown_guard {
-                            // Hide the window when user clicks 'X'
-                            let win = app.get_webview_window(label.as_str()).unwrap();
-                            win.hide().unwrap();
-                            // Prevent the window from being closed
-                            api.prevent_close();
+                            // // Hide the window when user clicks 'X'
+                            // let win = app.get_webview_window(label.as_str()).unwrap();
+                            // win.hide().unwrap();
+                            // // Prevent the window from being closed
+                            // api.prevent_close();
+
+                            let mut child_guard = server_process_for_exit.lock().unwrap();
+                            if let Some(child) = child_guard.take() {
+                                // Kill server process
+                                if let Err(e) = child.kill() {
+                                    eprintln!("Failed to kill server process: {}", e);
+                                }
+                            }
+                            // Close the app
+                            app.exit(0);
                         }
                     }
 

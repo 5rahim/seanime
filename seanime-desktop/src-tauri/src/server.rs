@@ -16,8 +16,6 @@ pub fn launch_seanime_server(
         let splashscreen = app.get_webview_window(SPLASHSCREEN_WINDOW_LABEL).unwrap();
         let crash_screen = app.get_webview_window(CRASH_SCREEN_WINDOW_LABEL).unwrap();
 
-        println!("Starting Seanime, {}", env!("TEST_DATADIR"));
-
         let mut sidecar_command = app.shell().sidecar("seanime").unwrap();
 
         // Use test data dir during development
