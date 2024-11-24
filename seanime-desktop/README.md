@@ -10,10 +10,6 @@ Desktop app for Seanime. Embeds server and web interface.
 
 <img src="../docs/images/v2/desktop_02.png" alt="preview" width="100%"/>
 
-## Roadmap
-
-- [ ] Test local network serving
-
 ---
 
 ## Prerequisites

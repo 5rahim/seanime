@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## v2.4.0
 
-- 🚀 Desktop app: Initial release
-  - You can now download the desktop app for Windows, macOS, and Linux.
+- 🚀 Desktop app
+  - You can now download the new desktop app for Windows, macOS, and Linux
+  - The desktop app is a standalone GUI that embeds its own server
 - 🦺 Anime library: Fixed toggle lock button
 - 🦺 Torrent streaming: Fixed file previews
 - 🏗️ Rename 'enhanced scanning'

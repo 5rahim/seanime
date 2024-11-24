@@ -24,7 +24,7 @@ Leave a star if you like the project! ⭐️
 
 ## About
 
-Seanime is a **media server** with a web interface and desktop app for watching anime, reading manga, and managing your local library.
+Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, reading manga, and managing your local library.
 
 ## Features
 
