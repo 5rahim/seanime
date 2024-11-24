@@ -49,6 +49,7 @@ body:
         - Offline mode
         - AniList
         - UI / Web Interface
+        - Desktop app
     validations:
       required: true
   - type: textarea
