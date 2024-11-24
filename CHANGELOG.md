@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.4.0
+
+- 🚀 Desktop app: Initial release
+  - You can now download the desktop app for Windows, macOS, and Linux.
+- 🦺 Anime library: Fixed toggle lock button
+- 🦺 Torrent streaming: Fixed file previews
+- 🏗️ Rename 'enhanced scanning'
+- 🔨 Updated release workflow
+
 ## v2.3.0
 
 - ✨ Real-Debrid support for streaming and downloading

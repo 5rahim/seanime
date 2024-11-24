@@ -11,6 +11,7 @@ import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { emit } from "@tauri-apps/api/event"
+import { platform } from "@tauri-apps/plugin-os"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { check, Update } from "@tauri-apps/plugin-updater"
 import { atom } from "jotai"
@@ -18,6 +19,7 @@ import { useAtom } from "jotai/react"
 import React from "react"
 import { AiFillExclamationCircle } from "react-icons/ai"
 import { BiLinkExternal } from "react-icons/bi"
+import { FiArrowRight } from "react-icons/fi"
 import { GrInstall } from "react-icons/gr"
 import { toast } from "sonner"
 
@@ -47,6 +49,7 @@ export function TauriUpdateModal(props: UpdateModalProps) {
     const [updateLoading, setUpdateLoading] = React.useState(true)
     const [tauriUpdate, setUpdate] = React.useState<Update | null>(null)
     const [tauriError, setTauriError] = React.useState("")
+    const [isInstalled, setIsInstalled] = React.useState(false)
 
     const checkTauriUpdate = React.useCallback(() => {
         try {
@@ -73,6 +76,14 @@ export function TauriUpdateModal(props: UpdateModalProps) {
         checkTauriUpdate()
     }, [])
 
+    const [currentPlatform, setCurrentPlatform] = React.useState("")
+
+    React.useEffect(() => {
+        (async () => {
+            setCurrentPlatform(platform())
+        })()
+    }, [])
+
 
     async function handleInstallUpdate() {
         if (!tauriUpdate?.available || isUpdating) return
@@ -81,13 +92,24 @@ export function TauriUpdateModal(props: UpdateModalProps) {
             setIsUpdating(true)
 
             // Wait for the update be downloaded
+            toast.info("Downloading update...")
             await tauriUpdate.download()
             // Kill the currently running server
+            toast.info("Shutting down server...")
             await emit("kill-server")
             // Wait 1 second before installing the update
+            toast.info("Installing update...")
             setTimeout(async () => {
                 await tauriUpdate.install()
+                setIsInstalled(true)
                 // Relaunch the app once the update is installed
+                // on macOS, the app will be closed and the user will have to reopen it
+                if (currentPlatform === "macos") {
+                    toast.info("Update installed. Please reopen the app.")
+                } else {
+                    toast.info("Relaunching app...")
+                }
+
                 await relaunch()
             }, 1000)
         }
@@ -108,6 +130,19 @@ export function TauriUpdateModal(props: UpdateModalProps) {
 
     if (isLoading || updateLoading || !updateData || !updateData.release) return null
 
+    if (isInstalled) return (
+        <div className="fixed top-0 left-0 w-full h-full bg-[--background] flex items-center">
+            <div className="container max-w-4xl py-10">
+                <div className="mb-4 flex justify-center w-full">
+                    <img src="/logo_2.png" alt="logo" className="w-36 h-auto" />
+                </div>
+                <p className="text-center text-lg">
+                    Update installed. Please reopen the app if it doesn't restart automatically.
+                </p>
+            </div>
+        </div>
+    )
+
     return (
         <>
             <VerticalMenu
@@ -119,23 +154,18 @@ export function TauriUpdateModal(props: UpdateModalProps) {
                         onClick: () => setUpdateModalOpen(true),
                     },
                 ]}
-                itemContentClass="text-brand-300"
+                itemIconClass="text-brand-300"
             />
             <Modal
                 open={updateModalOpen}
                 onOpenChange={v => !isUpdating && setUpdateModalOpen(v)}
                 contentClass="max-w-2xl"
             >
-                <div
-                    className="bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-60 left-0 bg-no-repeat bg-right bg-cover"
-                >
-                    <div
-                        className="w-full absolute bottom-0 h-[4rem] bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                    />
-                </div>
                 <div className="space-y-2">
-                    <h3>Seanime {updateData.release.version} is out!</h3>
-                    <p className="text-[--muted]">A new version of Seanime has been released.</p>
+                    <h3 className="text-center">A new version is available!</h3>
+                    <h4 className="font-bold flex gap-2 text-center items-center justify-center">
+                        <span className="text-[--muted]">{updateData.current_version}</span> <FiArrowRight />
+                        <span className="text-indigo-200">{updateData.release.version}</span></h4>
 
                     {!tauriUpdate?.available && (
                         <Alert intent="alert">

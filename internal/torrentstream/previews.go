@@ -55,7 +55,7 @@ func (r *Repository) GetTorrentFilePreviewsFromManualSelection(opts *GetTorrentF
 			defer wg.Done()
 			defer util.HandlePanicInModuleThen("debridstream/GetTorrentFilePreviewsFromManualSelection", func() {})
 
-			metadata := habari.Parse(file.Path())
+			metadata := habari.Parse(file.DisplayPath())
 			mu.Lock()
 			fileMetadataMap[file.Path()] = metadata
 			mu.Unlock()

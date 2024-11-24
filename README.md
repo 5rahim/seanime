@@ -24,21 +24,21 @@ Leave a star if you like the project! ⭐️
 
 ## About
 
-Seanime is a **media server** with a web interface for watching anime, reading manga, and managing your local library.
+Seanime is a **media server** with a web interface and desktop app for watching anime, reading manga, and managing your local library.
 
 ## Features
 
 
-- Cross-platform server with no data collection
-- Complete AniList integration (browse, manage, score, trailers, etc.)
-- Offline mode with caching for metadata, images
+- Cross-platform web interface and desktop app
+- Complete AniList integration (browse, manage, score, discover, etc.)
+- Offline mode for both anime and manga
 - Scan your local library in seconds, no renaming needed
 - Torrent search engine with support for Nyaa, Anime Tosho, SeaDex & extensions
+- Stream torrents directly to your media player without downloading using Bittorrent, Torbox or Real-Debrid
 - Support for qBittorrent, Transmission, Torbox or Real-Debrid for downloading
 - Auto-downloading for new episodes with custom filters
 - MPV, VLC, MPC-HC, and mobile player app support for watching
 - Transcoding and direct play for streaming to any device web browser
-- Stream torrents directly to your media player without downloading using Bittorrent, Torbox or Real-Debrid
 - Online streaming with support for multiple sources & extensions
 - Read and download manga chapters with support for multiple sources & extensions
 - Extension system for adding new sources

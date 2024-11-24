@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -134,6 +135,8 @@ func HandleGetLogContent(c *RouteCtx) error {
 	return c.RespondWithData(fileContent)
 }
 
+var newestLogFilename = ""
+
 // HandleGetLogFilenames
 //
 //	@summary returns the log filenames.
@@ -159,14 +162,14 @@ func HandleGetLogFilenames(c *RouteCtx) error {
 		return nil
 	})
 
-	// Sort from newest to oldest & remove the newest `seanime-` log file
+	// Sort from newest to oldest & store the newest log filename
 	if len(filenames) > 0 {
 		slices.SortStableFunc(filenames, func(i, j string) int {
 			return strings.Compare(j, i)
 		})
-		for i, filename := range filenames {
+		for _, filename := range filenames {
 			if strings.HasPrefix(strings.ToLower(filename), "seanime-") {
-				filenames = append(filenames[:i], filenames[i+1:]...)
+				newestLogFilename = filename
 				break
 			}
 		}
@@ -206,6 +209,9 @@ func HandleDeleteLogs(c *RouteCtx) error {
 
 		for _, filename := range b.Filenames {
 			if strings.ToLower(filepath.Base(path)) == strings.ToLower(filename) {
+				if strings.ToLower(newestLogFilename) == strings.ToLower(filename) {
+					return fmt.Errorf("cannot delete the newest log file")
+				}
 				if err := os.Remove(path); err != nil {
 					return err
 				}
