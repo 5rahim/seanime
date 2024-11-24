@@ -11,19 +11,33 @@
   - `listsync`
   - `mal`: MyAnimeList API
   - `mappings`: Mapping API
+  - `metadata`: **Metadata module** for anime
   - `tvdb`: TheTVDB API
-  - `metadata`: **Metadata module**
-- `constants`: Self-explanatory
-- `core`: App struct and instantiation of modules
-- `cron`: Cron jobs
+- `constants`: Version, keys
+- `core`
+  - `app.go`: **Shared app struct**
+  - `config.go`: Configuration
+  - `extensions.go`: Load built-in extensions
+  - `fiber.go`: HTTP server
+  - `watcher.go`: Library watcher
+- `cron`: Background tasks
 - `database`
   - `db`: **Database module**
+  - `db_bridge`: Helper methods to avoid circular dependencies
   - `models`: Database models
+- `debrid`: **Debrid module**
+  - `debrid`: Structs and interfaces
+  - `client`: **Debrid repository** for streaming, download
+  - `torbox`
+  - `realdebrid`
 - `discordrpc`: Discord RPC
   - `client`
   - `ipc`
   - `presence`: **Discord Rich Presence module**
 - `events`: **Websocket Event Manager module** and constants
+- `extensions`: Structs and interfaces
+- `extension_playground`: **Extension Playground module**
+- `extension_repo`: **Extension Repository module**
 - `handlers`: API handlers
 - `library`
   - `anime`: Library structs and methods
@@ -45,18 +59,25 @@
 - `mediastream`: **Media Stream Repository** module
   - `transcoder`: Transcoder
   - `videofile`: Media metadata
-- `offline`: **Offline hub module**
+- `notifier`
 - `onlinestream`: **Onlinestream module**
   - `providers`: Stream providers
   - `sources`: Video server sources
+- `platforms`
+  - `platform`: Platform structs and methods
+  - `anilist_platform`
+  - `local_platform`
 - `test_utils`: Test methods
 - `torrentstream`: **Torrent Stream Repository** module
+- `sync`: **Sync/Offline module**
+- `test_utils`: Test methods
+- `torrent_clients`
+  - `torrent_client`: **Torrent Client Repository** module
+  - `qbittorrent`
+  - `transmission`
 - `torrents`
   - `analyzer`: Scan and identify torrent files
   - `animetosho`
   - `nyaa`
-  - `qbittorrent`
   - `seadex`
-  - `torrent`: Torrent search structs and methods
-  - `torrent_client`: **Torrent client repository module**
-  - `transmission`
+  - `torrent`: Torrent structs and methods

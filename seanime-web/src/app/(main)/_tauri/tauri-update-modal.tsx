@@ -154,7 +154,7 @@ export function TauriUpdateModal(props: UpdateModalProps) {
                         onClick: () => setUpdateModalOpen(true),
                     },
                 ]}
-                itemContentClass="text-brand-300"
+                itemIconClass="text-brand-300"
             />
             <Modal
                 open={updateModalOpen}
