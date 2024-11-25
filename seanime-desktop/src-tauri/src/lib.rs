@@ -84,6 +84,8 @@ pub fn run() {
                             win.hide().unwrap();
                             // Prevent the window from being closed
                             api.prevent_close();
+                            #[cfg(target_os = "macos")]
+                            app.set_activation_policy(tauri::ActivationPolicy::Accessory).unwrap();
                         }
                     }
 

@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## v2.4.1
 
-- ⚡️ Desktop: Close button to minimize to tray
+- ⚡️ Desktop: Close to minimize to tray
   - The close button no longer exits the app, but minimizes it to the system tray
   - You can still exit the app by right-clicking the tray icon and selecting 'Quit Seanime'
+- ⚡️ Qbittorrent: Custom tag settings #140
+- 🦺 Fixed Linux server requiring libc
+- 🦺 Desktop: Fixed 'toggle visibility'
 
 ## v2.4.0
 
