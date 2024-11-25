@@ -26,7 +26,7 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
                         let _ = window.show();
                         let _ = window.set_focus();
                     } else {
-                        let _ = window.minimize();
+                        let _ = window.hide();
                     }
                 }
             }
