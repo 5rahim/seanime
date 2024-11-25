@@ -296,6 +296,7 @@ func (a *App) InitOrRefreshModules() {
 			Port:     settings.Torrent.QBittorrentPort,
 			Host:     settings.Torrent.QBittorrentHost,
 			Path:     settings.Torrent.QBittorrentPath,
+			Tags:     settings.Torrent.QBittorrentTags,
 		})
 		go func() {
 			if settings.Torrent.Default == "qbittorrent" {

@@ -28,6 +28,7 @@ type Client struct {
 	Host             string
 	Path             string
 	DisableBinaryUse bool
+	Tags             string
 	Application      qbittorrent_application.Client
 	Log              qbittorrent_log.Client
 	RSS              qbittorrent_rss.Client
@@ -45,6 +46,7 @@ type NewClientOptions struct {
 	Host             string
 	Path             string
 	DisableBinaryUse bool
+	Tags             string
 }
 
 func NewClient(opts *NewClientOptions) *Client {
@@ -66,6 +68,7 @@ func NewClient(opts *NewClientOptions) *Client {
 		Path:             opts.Path,
 		DisableBinaryUse: opts.DisableBinaryUse,
 		Host:             opts.Host,
+		Tags:             opts.Tags,
 		Application: qbittorrent_application.Client{
 			BaseUrl: baseURL + "/app",
 			Client:  client,
