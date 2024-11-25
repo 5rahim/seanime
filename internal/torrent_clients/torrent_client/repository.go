@@ -228,6 +228,7 @@ func (r *Repository) AddMagnets(magnets []string, dest string) error {
 	case QbittorrentClient:
 		err = r.qBittorrentClient.Torrent.AddURLs(magnets, &qbittorrent_model.AddTorrentsOptions{
 			Savepath: dest,
+			Tags:     "Anime,Seanime",
 		})
 	case TransmissionClient:
 		for _, magnet := range magnets {

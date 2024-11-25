@@ -178,6 +178,7 @@ export default function Page() {
                                         qbittorrentPort: data.qbittorrentPort,
                                         qbittorrentPassword: data.qbittorrentPassword,
                                         qbittorrentUsername: data.qbittorrentUsername,
+                                        qbittorrentTags: data.qbittorrentTags,
                                         transmissionPath: data.transmissionPath,
                                         transmissionHost: data.transmissionHost,
                                         transmissionPort: data.transmissionPort,
@@ -228,6 +229,7 @@ export default function Page() {
                                 qbittorrentPort: status?.settings?.torrent?.qbittorrentPort,
                                 qbittorrentPassword: status?.settings?.torrent?.qbittorrentPassword,
                                 qbittorrentUsername: status?.settings?.torrent?.qbittorrentUsername,
+                                qbittorrentTags: status?.settings?.torrent?.qbittorrentTags,
                                 transmissionPath: status?.settings?.torrent?.transmissionPath,
                                 transmissionHost: status?.settings?.torrent?.transmissionHost,
                                 transmissionPort: status?.settings?.torrent?.transmissionPort,
@@ -469,6 +471,11 @@ export default function Page() {
                                             <Field.Text
                                                 name="qbittorrentPath"
                                                 label="Executable"
+                                            />
+                                            <Field.Text
+                                                name="qbittorrentTags"
+                                                label="Tags"
+                                                help="Comma separated tags to apply to downloaded torrents. e.g. Seanime,Anime"
                                             />
                                         </AccordionContent>
                                     </AccordionItem>

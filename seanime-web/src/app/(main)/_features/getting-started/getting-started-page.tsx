@@ -117,6 +117,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         qbittorrentPort: data.qbittorrentPort,
                                         qbittorrentPassword: data.qbittorrentPassword,
                                         qbittorrentUsername: data.qbittorrentUsername,
+                                        qbittorrentTags: "",
                                         transmissionPath: data.transmissionPath,
                                         transmissionHost: data.transmissionHost,
                                         transmissionPort: data.transmissionPort,

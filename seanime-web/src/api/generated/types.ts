@@ -2827,6 +2827,7 @@ export type Models_TorrentSettings = {
     qbittorrentPort: number
     qbittorrentUsername: string
     qbittorrentPassword: string
+    qbittorrentTags: string
     transmissionPath: string
     transmissionHost: string
     transmissionPort: number
