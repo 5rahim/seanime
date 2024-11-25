@@ -26888,6 +26888,15 @@
         "comments": []
       },
       {
+        "name": "QBittorrentTags",
+        "jsonName": "qbittorrentTags",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "TransmissionPath",
         "jsonName": "transmissionPath",
         "goType": "string",
@@ -48965,6 +48974,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Tags",
+        "jsonName": "tags",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -55713,6 +55731,15 @@
         "typescriptType": "Client",
         "usedStructName": "http.Client",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": []
       }

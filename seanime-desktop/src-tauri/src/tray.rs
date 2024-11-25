@@ -12,6 +12,7 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
 
     let menu = Menu::with_items(app, &[&toggle_visibility_i, &quit_i])?;
 
+
     let _ = TrayIconBuilder::with_id("tray")
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
@@ -25,8 +26,12 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
                     if window.is_minimized().unwrap() {
                         let _ = window.show();
                         let _ = window.set_focus();
+                        #[cfg(target_os = "macos")]
+                        app.set_activation_policy(tauri::ActivationPolicy::Regular).unwrap();
                     } else {
-                        let _ = window.minimize();
+                        let _ = window.hide();
+                        #[cfg(target_os = "macos")]
+                        app.set_activation_policy(tauri::ActivationPolicy::Accessory).unwrap();
                     }
                 }
             }
@@ -44,6 +49,8 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
                 if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
                     let _ = window.show();
                     let _ = window.set_focus();
+                    #[cfg(target_os = "macos")]
+                    app.set_activation_policy(tauri::ActivationPolicy::Regular).unwrap();
                 }
             }
         })

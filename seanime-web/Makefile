@@ -1,3 +1,7 @@
+build-web:
+	npm run build
+	npm run build:desktop
+
 move-web-dist:
 	rm -rf ../web
 	cp -r out ../web

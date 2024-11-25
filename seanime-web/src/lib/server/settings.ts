@@ -48,6 +48,7 @@ export const settingsSchema = z.object({
     qbittorrentPort: z.number(),
     qbittorrentUsername: z.string().optional().default(""),
     qbittorrentPassword: z.string().optional().default(""),
+    qbittorrentTags: z.string().optional().default(""),
     transmissionPath: z.string().optional().default(""),
     transmissionHost: z.string().optional().default(""),
     transmissionPort: z.number().optional().default(9091),

@@ -79,21 +79,13 @@ pub fn run() {
                     } => {
                         let is_shutdown_guard = is_shutdown_for_exit.lock().unwrap();
                         if label.as_str() == MAIN_WINDOW_LABEL && !*is_shutdown_guard {
-                            // // Hide the window when user clicks 'X'
-                            // let win = app.get_webview_window(label.as_str()).unwrap();
-                            // win.hide().unwrap();
-                            // // Prevent the window from being closed
-                            // api.prevent_close();
-
-                            let mut child_guard = server_process_for_exit.lock().unwrap();
-                            if let Some(child) = child_guard.take() {
-                                // Kill server process
-                                if let Err(e) = child.kill() {
-                                    eprintln!("Failed to kill server process: {}", e);
-                                }
-                            }
-                            // Close the app
-                            app.exit(0);
+                            // Hide the window when user clicks 'X'
+                            let win = app.get_webview_window(label.as_str()).unwrap();
+                            win.hide().unwrap();
+                            // Prevent the window from being closed
+                            api.prevent_close();
+                            #[cfg(target_os = "macos")]
+                            app.set_activation_policy(tauri::ActivationPolicy::Accessory).unwrap();
                         }
                     }
 
