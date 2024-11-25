@@ -153,8 +153,8 @@ jobs:
       - name: Build Linux 📦️
         if: matrix.id == 'seanime-server-linux'
         run: |
-          GOARCH=amd64 go build -o seanime-server-linux-amd64 ${{ matrix.go_flags }} .
-          GOARCH=arm64 go build -o seanime-server-linux-arm64 ${{ matrix.go_flags }} .
+          CGO_ENABLED=0 GOARCH=amd64 go build -o seanime-server-linux-amd64 ${{ matrix.go_flags }} .
+          CGO_ENABLED=0 GOARCH=arm64 go build -o seanime-server-linux-arm64 ${{ matrix.go_flags }} .
 
       # Build the macOS binaries
       # ./seanime-server-darwin-amd64
@@ -162,8 +162,8 @@ jobs:
       - name: Build macOS 📦️
         if: matrix.id == 'seanime-server-darwin'
         run: |
-          GOARCH=amd64 go build -o seanime-server-darwin-amd64 ${{ matrix.go_flags }} .
-          GOARCH=arm64 go build -o seanime-server-darwin-arm64 ${{ matrix.go_flags }} .
+          CGO_ENABLED=0 GOARCH=amd64 go build -o seanime-server-darwin-amd64 ${{ matrix.go_flags }} .
+          CGO_ENABLED=0 GOARCH=arm64 go build -o seanime-server-darwin-arm64 ${{ matrix.go_flags }} .
 
       # Tar the binaries
       - name: Tar the binaries (UNIX) 🗃️

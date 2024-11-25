@@ -475,7 +475,7 @@ export default function Page() {
                                             <Field.Text
                                                 name="qbittorrentTags"
                                                 label="Tags"
-                                                help="Comma separated tags to apply to downloaded torrents. e.g. Seanime,Anime"
+                                                help="Comma separated tags to apply to downloaded torrents. e.g. seanime,anime"
                                             />
                                         </AccordionContent>
                                     </AccordionItem>
