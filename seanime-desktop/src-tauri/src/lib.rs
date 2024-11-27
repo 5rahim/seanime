@@ -1,7 +1,7 @@
-#[cfg(desktop)]
-mod tray;
 mod constants;
 mod server;
+#[cfg(desktop)]
+mod tray;
 
 use constants::MAIN_WINDOW_LABEL;
 use std::sync::{Arc, Mutex};
@@ -20,6 +20,12 @@ pub fn run() {
     let is_shutdown_for_setup = Arc::clone(&is_shutdown);
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app| {
+            if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
+                window.show().unwrap();
+                window.set_focus().unwrap();
+            }
+        }))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_os::init())
@@ -35,7 +41,9 @@ pub fn run() {
 
             // Set overlay title bar only when building for macOS
             #[cfg(target_os = "macos")]
-            main_window.set_title_bar_style(TitleBarStyle::Overlay).unwrap();
+            main_window
+                .set_title_bar_style(TitleBarStyle::Overlay)
+                .unwrap();
 
             // Hide the title bar on Windows
             #[cfg(any(target_os = "windows"))]
@@ -85,7 +93,8 @@ pub fn run() {
                             // Prevent the window from being closed
                             api.prevent_close();
                             #[cfg(target_os = "macos")]
-                            app.set_activation_policy(tauri::ActivationPolicy::Accessory).unwrap();
+                            app.set_activation_policy(tauri::ActivationPolicy::Accessory)
+                                .unwrap();
                         }
                     }
 

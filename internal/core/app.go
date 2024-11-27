@@ -163,6 +163,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	// Websocket Event Manager
 	wsEventManager := events.NewWSEventManager(logger)
 
+	if configOpts.IsDesktopSidecar {
+		wsEventManager.ExitIfNoConnsAsDesktopSidecar()
+	}
+
 	// File Cacher
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)
 	if err != nil {

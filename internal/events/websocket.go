@@ -4,7 +4,10 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/rs/zerolog"
+	"os"
+	"seanime/internal/util"
 	"sync"
+	"time"
 )
 
 type WSEventManagerInterface interface {
@@ -17,9 +20,10 @@ type (
 	// It is attached to the App instance, so it is available to other handlers.
 	WSEventManager struct {
 		//Conn   *websocket.Conn // DEPRECATED
-		Conns  []*WSConn
-		Logger *zerolog.Logger
-		mu     sync.Mutex
+		Conns            []*WSConn
+		Logger           *zerolog.Logger
+		hasHadConnection bool
+		mu               sync.Mutex
 	}
 
 	WSConn struct {
@@ -41,7 +45,48 @@ func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 	}
 }
 
+// ExitIfNoConnsAsDesktopSidecar monitors the websocket connection as a desktop sidecar.
+// It checks for a connection every 5 seconds. If a connection is lost, it starts a countdown a waits for 15 seconds.
+// If a connection is not established within 15 seconds, it will exit the app.
+func (m *WSEventManager) ExitIfNoConnsAsDesktopSidecar() {
+	go func() {
+		defer util.HandlePanicInModuleThen("events/ExitIfNoConnsAsDesktopSidecar", func() {})
+
+		m.Logger.Info().Msg("ws: Monitoring connection as desktop sidecar")
+		// Create a ticker to check connection every 5 seconds
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+
+		// Track connection loss time
+		var connectionLostTime time.Time
+		exitTimeout := 15 * time.Second
+
+		for {
+			select {
+			case <-ticker.C:
+				// Check WebSocket connection status
+				if len(m.Conns) == 0 && m.hasHadConnection {
+					// If not connected and first detection of connection loss
+					if connectionLostTime.IsZero() {
+						connectionLostTime = time.Now()
+					}
+
+					// Check if connection has been lost for more than 15 seconds
+					if time.Since(connectionLostTime) > exitTimeout {
+						m.Logger.Warn().Msg("ws: No connection detected for 15 seconds. Exiting...")
+						os.Exit(1)
+					}
+				} else {
+					// Connection is active, reset connection lost time
+					connectionLostTime = time.Time{}
+				}
+			}
+		}
+	}()
+}
+
 func (m *WSEventManager) AddConn(id string, conn *websocket.Conn) {
+	m.hasHadConnection = true
 	m.Conns = append(m.Conns, &WSConn{
 		ID:   id,
 		Conn: conn,

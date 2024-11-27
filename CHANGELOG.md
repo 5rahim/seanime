@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.4.2
+
+- ⚡️ Desktop: Force single instance
+- ⚡️ Desktop: Added 'Restart' tray option
+- ⚡️ Desktop: Try to shut down server on force exit
+- ⚡️ Desktop: Disallow update from Web UI
+- 🦺 Desktop: Fixed 'toggle visibility'
+
 ## v2.4.1
 
 - ⚡️ Desktop: Close to minimize to tray

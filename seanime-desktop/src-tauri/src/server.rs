@@ -32,7 +32,11 @@ pub fn launch_seanime_server(
                 // Seanime server failed to open -> close splashscreen and display crash screen
                 splashscreen.close().unwrap();
                 crash_screen.show().unwrap();
-                app.emit("crash", format!("The server failed to start: {}. Closing in 10 seconds.", e)).expect("failed to emit event");
+                app.emit(
+                    "crash",
+                    format!("The server failed to start: {}. Closing in 10 seconds.", e),
+                )
+                    .expect("failed to emit event");
                 sleep(Duration::from_secs(10)).await;
                 std::process::exit(1);
             }
@@ -71,8 +75,7 @@ pub fn launch_seanime_server(
                 CommandEvent::Terminated(status) => {
                     eprintln!(
                         "Seanime server process terminated with status: {:?} {:?}",
-                        status,
-                        server_started
+                        status, server_started
                     );
                     *is_shutdown.lock().unwrap() = true;
                     // Only terminate the app if the desktop app hadn't launched
