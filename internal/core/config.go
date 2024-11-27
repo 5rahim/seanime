@@ -54,9 +54,10 @@ type Config struct {
 }
 
 type ConfigOptions struct {
-	DataDir         string // The path to the Seanime data directory, if any
-	OnVersionChange []func(oldVersion string, newVersion string)
-	EmbeddedLogo    []byte // The embedded logo
+	DataDir          string // The path to the Seanime data directory, if any
+	OnVersionChange  []func(oldVersion string, newVersion string)
+	EmbeddedLogo     []byte // The embedded logo
+	IsDesktopSidecar bool   // Run as the desktop sidecar
 }
 
 // NewConfig initializes the config

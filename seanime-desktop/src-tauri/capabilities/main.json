@@ -70,6 +70,7 @@
         {
           "args": [
             "-datadir",
+            "-desktop-sidecar",
             {
               "validator": "[\\S+ ]"
             }

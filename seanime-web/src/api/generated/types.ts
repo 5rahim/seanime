@@ -2344,6 +2344,10 @@ export type Status = {
      * If true, a new screen will be displayed
      */
     updating: boolean
+    /**
+     * The server is running as a desktop sidecar
+     */
+    isDesktopSidecar: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -7,10 +7,10 @@ use tauri::{
 
 pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit Seanime", true, None::<&str>)?;
-    let toggle_visibility_i = MenuItem::with_id(app, "toggle_visibility", "Toggle visibility", true, None::<&str>)?;
+    // let toggle_visibility_i = MenuItem::with_id(app, "hide", "Hide", true, None::<&str>)?;
 
 
-    let menu = Menu::with_items(app, &[&toggle_visibility_i, &quit_i])?;
+    let menu = Menu::with_items(app, &[&quit_i])?;
 
 
     let _ = TrayIconBuilder::with_id("tray")
@@ -21,20 +21,20 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
             "quit" => {
                 app.exit(0);
             }
-            "toggle_visibility" => {
-                if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
-                    if window.is_minimized().unwrap() {
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                        #[cfg(target_os = "macos")]
-                        app.set_activation_policy(tauri::ActivationPolicy::Regular).unwrap();
-                    } else {
-                        let _ = window.hide();
-                        #[cfg(target_os = "macos")]
-                        app.set_activation_policy(tauri::ActivationPolicy::Accessory).unwrap();
-                    }
-                }
-            }
+            // "hide" => {
+            //     if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
+            //         if window.is_minimized().unwrap() {
+            //             let _ = window.show();
+            //             let _ = window.set_focus();
+            //             #[cfg(target_os = "macos")]
+            //             app.set_activation_policy(tauri::ActivationPolicy::Regular).unwrap();
+            //         } else {
+            //             let _ = window.hide();
+            //             #[cfg(target_os = "macos")]
+            //             app.set_activation_policy(tauri::ActivationPolicy::Accessory).unwrap();
+            //         }
+            //     }
+            // }
             // Add more events here
             _ => {}
         })

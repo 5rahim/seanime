@@ -90,6 +90,7 @@ type (
 		SelfUpdater        *updater.SelfUpdater
 		TotalLibrarySize   uint64 // Initialized in modules.go
 		LibraryDir         string
+		IsDesktopSidecar   bool
 		animeCollection    *anilist.AnimeCollection
 		rawAnimeCollection *anilist.AnimeCollection // (retains custom lists)
 		mangaCollection    *anilist.MangaCollection
@@ -130,6 +131,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	// Print working directory
 	logger.Info().Msgf("app: Working directory: %s", cfg.Data.WorkingDir)
+
+	if configOpts.IsDesktopSidecar {
+		logger.Info().Msg("app: Desktop sidecar mode enabled")
+	}
 
 	// Initialize the database
 	database, err := db.NewDatabase(cfg.Data.AppDataDir, cfg.Database.Name, logger)
@@ -267,6 +272,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		DiscordPresence:               nil, // Initialized in App.InitOrRefreshModules
 		previousVersion:               previousVersion,
 		FeatureFlags:                  NewFeatureFlags(cfg, logger),
+		IsDesktopSidecar:              configOpts.IsDesktopSidecar,
 		SecondarySettings: struct {
 			Mediastream   *models.MediastreamSettings
 			Torrentstream *models.TorrentstreamSettings

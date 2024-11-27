@@ -27,8 +27,9 @@ func startApp(embeddedLogo []byte) (*core.App, core.SeanimeFlags, *updater.SelfU
 
 	// Create the app instance
 	app := core.NewApp(&core.ConfigOptions{
-		DataDir:      flags.DataDir,
-		EmbeddedLogo: embeddedLogo,
+		DataDir:          flags.DataDir,
+		EmbeddedLogo:     embeddedLogo,
+		IsDesktopSidecar: flags.IsDesktopSidecar,
 	}, selfupdater)
 
 	// Create log file

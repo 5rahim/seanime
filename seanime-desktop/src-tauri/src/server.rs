@@ -18,6 +18,8 @@ pub fn launch_seanime_server(
 
         let mut sidecar_command = app.shell().sidecar("seanime").unwrap();
 
+        sidecar_command = sidecar_command.args(["-desktop-sidecar", "true"]);
+
         // Use test data dir during development
         #[cfg(debug_assertions)]
         {

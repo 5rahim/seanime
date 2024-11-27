@@ -3,7 +3,7 @@ package constants
 import "time"
 
 const (
-	Version              = "2.4.1"
+	Version              = "2.4.2"
 	VersionName          = "Aka"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"

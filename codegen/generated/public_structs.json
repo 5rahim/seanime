@@ -26060,6 +26060,17 @@
         "comments": [
           " The embedded logo"
         ]
+      },
+      {
+        "name": "IsDesktopSidecar",
+        "jsonName": "IsDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Run as the desktop sidecar"
+        ]
       }
     ],
     "comments": []
@@ -26101,6 +26112,15 @@
       {
         "name": "Update",
         "jsonName": "Update",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDesktopSidecar",
+        "jsonName": "IsDesktopSidecar",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -34510,6 +34530,17 @@
         "public": true,
         "comments": [
           " If true, a new screen will be displayed"
+        ]
+      },
+      {
+        "name": "IsDesktopSidecar",
+        "jsonName": "isDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The server is running as a desktop sidecar"
         ]
       }
     ],
@@ -48675,6 +48706,15 @@
         "comments": []
       },
       {
+        "name": "Tags",
+        "jsonName": "Tags",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Application",
         "jsonName": "Application",
         "goType": "qbittorrent_application.Client",
@@ -48814,6 +48854,15 @@
         "jsonName": "DisableBinaryUse",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Tags",
+        "jsonName": "Tags",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
