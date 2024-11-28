@@ -18,13 +18,14 @@ pub fn launch_seanime_server(
 
         let mut sidecar_command = app.shell().sidecar("seanime").unwrap();
 
-        sidecar_command = sidecar_command.args(["-desktop-sidecar", "true"]);
-
         // Use test data dir during development
-        #[cfg(debug_assertions)]
+        #[cfg(dev)]
         {
             sidecar_command = sidecar_command.args(["-datadir", env!("TEST_DATADIR")]);
         }
+
+        sidecar_command = sidecar_command.args(["-desktop-sidecar", "true"]);
+
 
         let (mut rx, child) = match sidecar_command.spawn() {
             Ok(result) => result,
@@ -68,6 +69,8 @@ pub fn launch_seanime_server(
                             main_window
                                 .emit("message", Some(format!("{}", line_str)))
                                 .expect("failed to emit event");
+
+                            println!("{}", line_str);
                         }
                         Err(_) => {}
                     }

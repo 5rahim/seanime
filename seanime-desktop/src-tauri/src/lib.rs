@@ -20,7 +20,7 @@ pub fn run() {
     let is_shutdown_for_setup = Arc::clone(&is_shutdown);
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app| {
+        .plugin(tauri_plugin_single_instance::init(|app, _cmd, _args| {
             if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
                 window.show().unwrap();
                 window.set_focus().unwrap();

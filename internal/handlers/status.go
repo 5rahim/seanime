@@ -21,6 +21,7 @@ type Status struct {
 	ClientDevice    string           `json:"clientDevice"`
 	ClientPlatform  string           `json:"clientPlatform"`
 	ClientUserAgent string           `json:"clientUserAgent"`
+	DataDir         string           `json:"dataDir"`
 	User            *anime.User      `json:"user"`
 	Settings        *models.Settings `json:"settings"`
 	Mal             *models.Mal      `json:"mal"`
@@ -72,6 +73,7 @@ func NewStatus(c *RouteCtx) *Status {
 		OS:                    runtime.GOOS,
 		ClientDevice:          clientInfo.Device,
 		ClientPlatform:        clientInfo.Platform,
+		DataDir:               c.App.Config.Data.AppDataDir,
 		ClientUserAgent:       c.Fiber.Get("User-Agent"),
 		User:                  user,
 		Settings:              settings,

@@ -69,13 +69,13 @@
       "allow": [
         {
           "args": [
-            "-datadir",
             "-desktop-sidecar",
+            "true",
+            "-datadir",
             {
               "validator": "[\\S+ ]"
             }
           ],
-          "cmd": "",
           "name": "binaries/seanime",
           "sidecar": true
         }

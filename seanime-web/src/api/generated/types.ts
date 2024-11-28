@@ -2330,6 +2330,7 @@ export type Status = {
     clientDevice: string
     clientPlatform: string
     clientUserAgent: string
+    dataDir: string
     user?: Anime_User
     settings?: Models_Settings
     mal?: Models_Mal

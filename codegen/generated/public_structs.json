@@ -25494,6 +25494,15 @@
         "comments": []
       },
       {
+        "name": "IsDesktopSidecar",
+        "jsonName": "IsDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "animeCollection",
         "jsonName": "animeCollection",
         "goType": "anilist.AnimeCollection",
@@ -31040,6 +31049,15 @@
         "comments": []
       },
       {
+        "name": "hasHadConnection",
+        "jsonName": "hasHadConnection",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
@@ -34418,6 +34436,15 @@
       {
         "name": "ClientUserAgent",
         "jsonName": "clientUserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DataDir",
+        "jsonName": "dataDir",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
