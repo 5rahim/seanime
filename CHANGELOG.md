@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## v2.4.2
 
-- ⚡️ 'Include in library' doesn't depend on next episode
+- ⚡️ 'Include in library' will keep showing shows when caught up
 - ⚡️ Settings: Open data directory button
 - 🦺 Desktop: Fixed authentication issue on macOS
 - ⚡️ Desktop: Force single instance
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Desktop: Try to shut down server on force exit
 - ⚡️ Desktop: Disallow update from Web UI
 - 🦺 Desktop: Fixed 'toggle visibility'
-- 🦺 Desktop: Fixed ghost process issue
+- 🦺 Desktop: Fixed 'server process terminated' issue
 
 ## v2.4.1
 
