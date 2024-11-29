@@ -7,7 +7,7 @@ use tauri::{
 
 pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit Seanime", true, None::<&str>)?;
-    let restart_i = MenuItem::with_id(app, "restart", "Restart Seanime", true, None::<&str>)?;
+    // let restart_i = MenuItem::with_id(app, "restart", "Restart Seanime", true, None::<&str>)?;
     // let open_web_i = MenuItem::with_id(app, "open_web", "Open Web UI", true, None::<&str>)?;
     let toggle_visibility_i = MenuItem::with_id(
         app,
@@ -17,7 +17,7 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
         None::<&str>,
     )?;
 
-    let menu = Menu::with_items(app, &[&toggle_visibility_i, &restart_i, &quit_i])?;
+    let menu = Menu::with_items(app, &[&toggle_visibility_i, &quit_i])?;
 
     let _ = TrayIconBuilder::with_id("tray")
         .icon(app.default_window_icon().unwrap().clone())
@@ -27,7 +27,7 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
             "quit" => {
                 app.exit(0);
             }
-            "restart" => app.restart(),
+            // "restart" => app.restart(),
             "toggle_visibility" => {
                 if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
                     if !window.is_visible().unwrap() {

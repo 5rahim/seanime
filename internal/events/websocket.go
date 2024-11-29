@@ -59,7 +59,7 @@ func (m *WSEventManager) ExitIfNoConnsAsDesktopSidecar() {
 
 		// Track connection loss time
 		var connectionLostTime time.Time
-		exitTimeout := 15 * time.Second
+		exitTimeout := 10 * time.Second
 
 		for {
 			select {
@@ -68,12 +68,13 @@ func (m *WSEventManager) ExitIfNoConnsAsDesktopSidecar() {
 				if len(m.Conns) == 0 && m.hasHadConnection {
 					// If not connected and first detection of connection loss
 					if connectionLostTime.IsZero() {
+						m.Logger.Warn().Msg("ws: No connection detected. Starting countdown...")
 						connectionLostTime = time.Now()
 					}
 
 					// Check if connection has been lost for more than 15 seconds
 					if time.Since(connectionLostTime) > exitTimeout {
-						m.Logger.Warn().Msg("ws: No connection detected for 15 seconds. Exiting...")
+						m.Logger.Warn().Msg("ws: No connection detected for 10 seconds. Exiting...")
 						os.Exit(1)
 					}
 				} else {

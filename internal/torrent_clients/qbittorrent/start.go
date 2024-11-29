@@ -28,7 +28,7 @@ func (c *Client) getExecutablePath() string {
 	case "linux":
 		return "/usr/bin/qbittorrent" // Default path for Client on most Linux distributions
 	case "darwin":
-		return "/Applications/Client.app/Contents/MacOS/qBittorrent" // Default path for Client on macOS
+		return "/Applications/qbittorrent.app/Contents/MacOS/qbittorrent" // Default path for Client on macOS
 	default:
 		return "C:/Program Files/qBittorrent/qbittorrent.exe"
 	}

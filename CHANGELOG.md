@@ -6,13 +6,13 @@ All notable changes to this project will be documented in this file.
 
 - ⚡️ 'Include in library' doesn't depend on next episode
 - ⚡️ Settings: Open data directory button
+- 🦺 Desktop: Fixed authentication issue on macOS
 - ⚡️ Desktop: Force single instance
 - ⚡️ Desktop: Added 'Restart' tray option
 - ⚡️ Desktop: Try to shut down server on force exit
 - ⚡️ Desktop: Disallow update from Web UI
 - 🦺 Desktop: Fixed 'toggle visibility'
 - 🦺 Desktop: Fixed ghost process issue
-- 🦺 Desktop: Fixed authentication issue on macOS
 
 ## v2.4.1
 
