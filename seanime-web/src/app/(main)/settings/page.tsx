@@ -1,4 +1,5 @@
 "use client"
+import { useOpenInExplorer } from "@/api/hooks/explorer.hooks"
 import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.hooks"
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
@@ -19,6 +20,7 @@ import { TorrentstreamSettings } from "@/app/(main)/settings/_containers/torrent
 import { UISettings } from "@/app/(main)/settings/_containers/ui-settings"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
@@ -69,6 +71,8 @@ export default function Page() {
     const { data: torrentProviderExtensions } = useAnimeListTorrentProviderExtensions()
 
     const { data: torrentstreamSettings } = useGetTorrentstreamSettings()
+
+    const { mutate: openInExplorer, isPending: isOpening } = useOpenInExplorer()
 
     React.useEffect(() => {
         if (!isPending && !!data?.settings) {
@@ -269,6 +273,18 @@ export default function Page() {
                             <TabsContent value="seanime" className="space-y-6">
 
                                 <h3>Server</h3>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {!!status?.dataDir && <Button
+                                        size="sm"
+                                        intent="white-subtle"
+                                        onClick={() => openInExplorer({
+                                            path: status?.dataDir,
+                                        })}
+                                    >
+                                        Open Data directory
+                                    </Button>}
+                                </div>
 
                                 <ServerSettings isPending={isPending} />
 

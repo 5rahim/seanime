@@ -21,6 +21,7 @@ type Status struct {
 	ClientDevice    string           `json:"clientDevice"`
 	ClientPlatform  string           `json:"clientPlatform"`
 	ClientUserAgent string           `json:"clientUserAgent"`
+	DataDir         string           `json:"dataDir"`
 	User            *anime.User      `json:"user"`
 	Settings        *models.Settings `json:"settings"`
 	Mal             *models.Mal      `json:"mal"`
@@ -32,7 +33,8 @@ type Status struct {
 	TorrentstreamSettings *models.TorrentstreamSettings `json:"torrentstreamSettings"`
 	DebridSettings        *models.DebridSettings        `json:"debridSettings"`
 	AnilistClientID       string                        `json:"anilistClientId"`
-	Updating              bool                          `json:"updating"` // If true, a new screen will be displayed
+	Updating              bool                          `json:"updating"`         // If true, a new screen will be displayed
+	IsDesktopSidecar      bool                          `json:"isDesktopSidecar"` // The server is running as a desktop sidecar
 }
 
 var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
@@ -66,15 +68,15 @@ func NewStatus(c *RouteCtx) *Status {
 	}
 
 	theme, _ = c.App.Database.GetTheme()
-	//mal, _ = c.App.Database.GetMalInfo()
+
 	return &Status{
-		OS:              runtime.GOOS,
-		ClientDevice:    clientInfo.Device,
-		ClientPlatform:  clientInfo.Platform,
-		ClientUserAgent: c.Fiber.Get("User-Agent"),
-		User:            user,
-		Settings:        settings,
-		//Mal:                   mal,
+		OS:                    runtime.GOOS,
+		ClientDevice:          clientInfo.Device,
+		ClientPlatform:        clientInfo.Platform,
+		DataDir:               c.App.Config.Data.AppDataDir,
+		ClientUserAgent:       c.Fiber.Get("User-Agent"),
+		User:                  user,
+		Settings:              settings,
 		Version:               c.App.Version,
 		ThemeSettings:         theme,
 		IsOffline:             c.App.Config.Server.Offline,
@@ -83,6 +85,7 @@ func NewStatus(c *RouteCtx) *Status {
 		DebridSettings:        c.App.SecondarySettings.Debrid,
 		AnilistClientID:       c.App.Config.Anilist.ClientID,
 		Updating:              false,
+		IsDesktopSidecar:      c.App.IsDesktopSidecar,
 		//FeatureFlags:          c.App.FeatureFlags,
 	}
 }

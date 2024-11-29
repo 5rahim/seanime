@@ -144,15 +144,28 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 	}
 	wg.Wait()
 
+	libraryAnimeMap := make(map[int]struct{})
+
 	// Remove anime that are already in the library collection
 	for _, list := range opts.LibraryCollection.Lists {
 		if list.Status == anilist.MediaListStatusCurrent {
 			for _, entry := range list.Entries {
+				libraryAnimeMap[entry.MediaId] = struct{}{}
 				if _, found := animeAdded[entry.MediaId]; found {
 					delete(animeAdded, entry.MediaId)
 				}
 			}
 		}
+	}
+
+	for _, entry := range currentlyWatching.Entries {
+		if _, found := libraryAnimeMap[entry.GetMedia().GetID()]; found {
+			continue
+		}
+		if *entry.GetMedia().GetStatus() == anilist.MediaStatusNotYetReleased {
+			continue
+		}
+		animeAdded[entry.GetMedia().GetID()] = entry
 	}
 
 	for _, a := range animeAdded {
@@ -164,10 +177,9 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			StartedAt:   anilist.FuzzyDateToString(a.StartedAt),
 			CompletedAt: anilist.FuzzyDateToString(a.CompletedAt),
 		}
-
 	}
 
-	if len(ret.ContinueWatchingList) == 0 {
+	if len(ret.ContinueWatchingList) == 0 && len(ret.Anime) == 0 {
 		return
 	}
 

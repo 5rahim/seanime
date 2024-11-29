@@ -43,8 +43,7 @@ type MediaFetcherOptions struct {
 // When enhancing is false, MediaFetcher.AllMedia will be all anilist.BaseAnime from the user's AniList collection.
 // When enhancing is true, MediaFetcher.AllMedia will be anilist.BaseAnime for each unique, parsed anime title and their relations.
 func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error) {
-
-	defer util.HandlePanicWithError(&retErr)
+	defer util.HandlePanicInModuleWithError("library/scanner/NewMediaFetcher", &retErr)
 
 	if opts.Platform == nil ||
 		opts.LocalFiles == nil ||
@@ -177,7 +176,10 @@ func FetchMediaFromLocalFiles(
 	metadataProvider metadata.Provider,
 	anilistRateLimiter *limiter.Limiter,
 	scanLogger *ScanLogger,
-) ([]*anilist.CompleteAnime, bool) {
+) (ret []*anilist.CompleteAnime, ok bool) {
+	defer util.HandlePanicInModuleThen("library/scanner/FetchMediaFromLocalFiles", func() {
+		ok = false
+	})
 
 	if scanLogger != nil {
 		scanLogger.LogMediaFetcher(zerolog.DebugLevel).

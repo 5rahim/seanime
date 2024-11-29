@@ -25494,6 +25494,15 @@
         "comments": []
       },
       {
+        "name": "IsDesktopSidecar",
+        "jsonName": "IsDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "animeCollection",
         "jsonName": "animeCollection",
         "goType": "anilist.AnimeCollection",
@@ -26060,6 +26069,17 @@
         "comments": [
           " The embedded logo"
         ]
+      },
+      {
+        "name": "IsDesktopSidecar",
+        "jsonName": "IsDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Run as the desktop sidecar"
+        ]
       }
     ],
     "comments": []
@@ -26101,6 +26121,15 @@
       {
         "name": "Update",
         "jsonName": "Update",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsDesktopSidecar",
+        "jsonName": "IsDesktopSidecar",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -31020,6 +31049,15 @@
         "comments": []
       },
       {
+        "name": "hasHadConnection",
+        "jsonName": "hasHadConnection",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "mu",
         "jsonName": "mu",
         "goType": "sync.Mutex",
@@ -34405,6 +34443,15 @@
         "comments": []
       },
       {
+        "name": "DataDir",
+        "jsonName": "dataDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "User",
         "jsonName": "user",
         "goType": "anime.User",
@@ -34510,6 +34557,17 @@
         "public": true,
         "comments": [
           " If true, a new screen will be displayed"
+        ]
+      },
+      {
+        "name": "IsDesktopSidecar",
+        "jsonName": "isDesktopSidecar",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The server is running as a desktop sidecar"
         ]
       }
     ],
@@ -48675,6 +48733,15 @@
         "comments": []
       },
       {
+        "name": "Tags",
+        "jsonName": "Tags",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Application",
         "jsonName": "Application",
         "goType": "qbittorrent_application.Client",
@@ -48814,6 +48881,15 @@
         "jsonName": "DisableBinaryUse",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Tags",
+        "jsonName": "Tags",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []

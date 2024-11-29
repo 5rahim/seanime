@@ -2330,6 +2330,7 @@ export type Status = {
     clientDevice: string
     clientPlatform: string
     clientUserAgent: string
+    dataDir: string
     user?: Anime_User
     settings?: Models_Settings
     mal?: Models_Mal
@@ -2344,6 +2345,10 @@ export type Status = {
      * If true, a new screen will be displayed
      */
     updating: boolean
+    /**
+     * The server is running as a desktop sidecar
+     */
+    isDesktopSidecar: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

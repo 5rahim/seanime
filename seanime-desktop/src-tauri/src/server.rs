@@ -19,10 +19,13 @@ pub fn launch_seanime_server(
         let mut sidecar_command = app.shell().sidecar("seanime").unwrap();
 
         // Use test data dir during development
-        #[cfg(debug_assertions)]
+        #[cfg(dev)]
         {
             sidecar_command = sidecar_command.args(["-datadir", env!("TEST_DATADIR")]);
         }
+
+        sidecar_command = sidecar_command.args(["-desktop-sidecar", "true"]);
+
 
         let (mut rx, child) = match sidecar_command.spawn() {
             Ok(result) => result,
@@ -30,7 +33,11 @@ pub fn launch_seanime_server(
                 // Seanime server failed to open -> close splashscreen and display crash screen
                 splashscreen.close().unwrap();
                 crash_screen.show().unwrap();
-                app.emit("crash", format!("The server failed to start: {}. Closing in 10 seconds.", e)).expect("failed to emit event");
+                app.emit(
+                    "crash",
+                    format!("The server failed to start: {}. Closing in 10 seconds.", e),
+                )
+                    .expect("failed to emit event");
                 sleep(Duration::from_secs(10)).await;
                 std::process::exit(1);
             }
@@ -62,6 +69,8 @@ pub fn launch_seanime_server(
                             main_window
                                 .emit("message", Some(format!("{}", line_str)))
                                 .expect("failed to emit event");
+
+                            println!("{}", line_str);
                         }
                         Err(_) => {}
                     }
@@ -69,8 +78,7 @@ pub fn launch_seanime_server(
                 CommandEvent::Terminated(status) => {
                     eprintln!(
                         "Seanime server process terminated with status: {:?} {:?}",
-                        status,
-                        server_started
+                        status, server_started
                     );
                     *is_shutdown.lock().unwrap() = true;
                     // Only terminate the app if the desktop app hadn't launched
