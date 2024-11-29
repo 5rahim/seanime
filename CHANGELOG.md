@@ -4,11 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## v2.4.2
 
-- ⚡️ 'Include in library' will keep showing shows when caught up
+- ⚡️ 'Include in library' will keep displaying shows when caught up
 - ⚡️ Settings: Open data directory button
 - 🦺 Desktop: Fixed authentication issue on macOS
 - ⚡️ Desktop: Force single instance
-- ⚡️ Desktop: Added 'Restart' tray option
 - ⚡️ Desktop: Try to shut down server on force exit
 - ⚡️ Desktop: Disallow update from Web UI
 - 🦺 Desktop: Fixed 'toggle visibility'
