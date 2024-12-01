@@ -314,6 +314,7 @@ func (a *App) InitOrRefreshModules() {
 			Username: settings.Torrent.TransmissionUsername,
 			Password: settings.Torrent.TransmissionPassword,
 			Port:     settings.Torrent.TransmissionPort,
+			Host:     settings.Torrent.TransmissionHost,
 			Path:     settings.Torrent.TransmissionPath,
 		})
 		if err != nil && settings.Torrent.TransmissionUsername != "" && settings.Torrent.TransmissionPassword != "" { // Only log error if username and password are set
