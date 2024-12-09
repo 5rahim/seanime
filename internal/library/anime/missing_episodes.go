@@ -41,6 +41,11 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 				return nil
 			}
 
+			// Skip if the status is nil or dropped
+			if entry.Status == nil || *entry.Status == anilist.MediaListStatusDropped {
+				return nil
+			}
+
 			latestLf, found := FindLatestLocalFileFromGroup(lfs)
 			if !found {
 				return nil
