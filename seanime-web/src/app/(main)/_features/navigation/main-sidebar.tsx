@@ -13,9 +13,10 @@ import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/c
 import { AppSidebar, useAppSidebarContext } from "@/components/ui/app-layout"
 import { Avatar } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useDisclosure } from "@/hooks/use-disclosure"
@@ -24,8 +25,9 @@ import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React from "react"
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
@@ -51,6 +53,7 @@ export function MainSidebar() {
     // const isCollapsed = !ctx.isBelowBreakpoint && !expandedSidebar
     const isCollapsed = ts.expandSidebarOnHover ? (!ctx.isBelowBreakpoint && !expandedSidebar) : !ctx.isBelowBreakpoint
 
+    const router = useRouter()
     const pathname = usePathname()
     const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
@@ -122,7 +125,28 @@ export function MainSidebar() {
 
                 <div>
                     <div className="mb-4 p-4 pb-0 flex justify-center w-full">
-                        <img src="/logo.png" alt="logo" className="w-15 h-10" />
+                        {process.env.NEXT_PUBLIC_PLATFORM === "desktop" ? <div className="w-15 h-10 block w-fit">
+                            <HoverCard
+                                side="right"
+                                className="w-fit rounded-full flex gap-2 bg-gray-950 bg-opacity-50 p-2"
+                                trigger={<div className="">
+                                    <img src="/logo.png" alt="logo" className="w-15 h-10 block" />
+                                </div>}
+                            >
+                                <IconButton
+                                    icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm"
+                                    onClick={() => {
+                                        router.back()
+                                    }}
+                                />
+                                <IconButton
+                                    icon={<AiOutlineArrowRight />} rounded intent="white-outline" size="sm"
+                                    onClick={() => {
+                                        router.forward()
+                                    }}
+                                />
+                            </HoverCard>
+                        </div> : <img src="/logo.png" alt="logo" className="w-15 h-10" />}
                     </div>
                     <VerticalMenu
                         className="px-4"
@@ -130,6 +154,13 @@ export function MainSidebar() {
                         itemClass="relative"
 
                         items={[
+                            // ...[process.env.NEXT_PUBLIC_PLATFORM === "desktop" && {
+                            //     iconType: AiOutlineArrowLeft,
+                            //     name: "Back",
+                            //     onClick: () => {
+                            //         router.back()
+                            //     },
+                            // }],
                             {
                                 iconType: IoLibrary,
                                 name: "Library",
