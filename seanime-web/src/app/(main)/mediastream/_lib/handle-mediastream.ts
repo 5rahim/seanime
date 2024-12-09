@@ -558,6 +558,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         mediaContainer: _mediaContainer,
         onPlayFile,
         filePath,
+        episode,
+        duration,
         disabledAutoSwitchToDirectPlay: mediastreamSettings?.disableAutoSwitchToDirectPlay,
         setStreamType: (type: Mediastream_StreamType) => {
             logger("MEDIASTREAM").info("[setStreamType] Setting stream type", type)

@@ -1,6 +1,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
@@ -66,7 +67,7 @@ const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
 
 
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -400,9 +401,24 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     duration > 0 && (e.currentTime / duration) >= 0.8 &&
                                     currentEpisodeNumber > currentProgress
                                 ) {
-                                    setProgressItem({
-                                        episodeNumber: currentEpisodeNumber,
-                                    })
+                                    if (serverStatus?.settings?.library?.autoUpdateProgress) {
+                                        if (!isUpdatingProgress) {
+                                            updateProgress({
+                                                episodeNumber: currentEpisodeNumber,
+                                                mediaId: media.id,
+                                                totalEpisodes: media.episodes || 0,
+                                                malId: media.idMal || undefined,
+                                            }, {
+                                                onSuccess: () => {
+                                                    setCurrentProgress(currentEpisodeNumber)
+                                                },
+                                            })
+                                        }
+                                    } else {
+                                        setProgressItem({
+                                            episodeNumber: currentEpisodeNumber,
+                                        })
+                                    }
                                 }
                             }}
                             onEnded={(e) => {
