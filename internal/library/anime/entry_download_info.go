@@ -123,23 +123,23 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 	// Inaccurate schedule (hacky fix)
 	hasInaccurateSchedule := false
 	if opts.Media.NextAiringEpisode == nil && *opts.Media.Status == anilist.MediaStatusReleasing {
-		if !hasDiscrepancy {
-			if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
-				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
-				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
-			} else {
-				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-			}
-		} else {
-			if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
-				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
-			} else {
-				unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress-1 })
-				unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress-1 })
-			}
-		}
+		//if !hasDiscrepancy {
+		//	if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
+		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
+		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress+1 })
+		//	} else {
+		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
+		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
+		//	}
+		//} else {
+		//	if progress+1 < opts.AnimeMetadata.GetMainEpisodeCount() {
+		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
+		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress })
+		//	} else {
+		//		unwatchedEpSlice = lo.Filter(unwatchedEpSlice, func(i int, _ int) bool { return i > progress && i <= progress-1 })
+		//		unwatchedAnizipEpSlice = lo.Filter(unwatchedAnizipEpSlice, func(i int, _ int) bool { return i > progress && i <= progress-1 })
+		//	}
+		//}
 		hasInaccurateSchedule = true
 	}
 
