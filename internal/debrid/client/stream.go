@@ -291,7 +291,7 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
 					Status:      StreamStatusFailed,
 					TorrentName: selectedTorrent.Name,
-					Message:     "Failed to send the stream to the media player",
+					Message:     fmt.Sprintf("Failed to send the stream to the media player, %v", err),
 				})
 			}
 

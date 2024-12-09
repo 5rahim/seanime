@@ -289,6 +289,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 
 	err = pm.MediaPlayerRepository.Stream(opts.Payload, episodeNumber, media.ID, windowTitle)
 	if err != nil {
+		pm.Logger.Error().Err(err).Msg("playback manager: Failed to start streaming")
 		return err
 	}
 
