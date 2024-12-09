@@ -263,6 +263,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 		nil,
 		nil,
 		c.App.Logger,
+		c.App.GetAccountToken(),
 	)
 	if err != nil {
 		return c.RespondWithError(err)

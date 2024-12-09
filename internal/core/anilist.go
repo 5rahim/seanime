@@ -23,6 +23,14 @@ func (a *App) GetAccount() (*models.Account, error) {
 	return a.account, nil
 }
 
+func (a *App) GetAccountToken() string {
+	if a.account == nil {
+		return ""
+	}
+
+	return a.account.Token
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // UpdateAnilistClientToken will update the Anilist Client Wrapper token.
