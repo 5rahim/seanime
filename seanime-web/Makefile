@@ -8,4 +8,4 @@ move-web-dist:
 	rm -rf ../web-desktop
 	cp -r out-desktop ../web-desktop
 
-.PHONY: move-web-dist
+.PHONY: build-web move-web-dist

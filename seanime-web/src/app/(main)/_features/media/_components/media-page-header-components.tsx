@@ -6,6 +6,7 @@ import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
@@ -287,9 +288,25 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
-                        <p className="text-base text-white md:text-lg">{capitalize(listData?.status === "CURRENT"
+                        <p className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
                             ? type === "anime" ? "watching" : "reading"
-                            : listData?.status)}</p>
+                            : listData?.status)}
+                            {listData?.repeat && <Tooltip
+                                trigger={<Badge
+                                    size="md"
+                                    intent="gray"
+                                    className="ml-3"
+                                >
+                                    {listData?.repeat}
+
+                                </Badge>}
+                            >
+                                {listData?.repeat} {type === "anime" ? "rewatch" : "reread"}{listData?.repeat > 1
+                                ? type === "anime" ? "es" : "s"
+                                : ""}
+                            </Tooltip>}
+                        </p>
+
                     </div>
 
                     <ScrollArea

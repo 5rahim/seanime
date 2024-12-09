@@ -112,6 +112,15 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalE
 	return nil
 }
 
+func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
+	ap.logger.Trace().Msg("anilist platform: Updating entry repeat")
+	_, err := ap.anilistClient.UpdateMediaListEntryRepeat(context.Background(), &mediaID, &repeat)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (ap *AnilistPlatform) DeleteEntry(mediaID int) error {
 	ap.logger.Trace().Msg("anilist platform: Deleting entry")
 	_, err := ap.anilistClient.DeleteEntry(context.Background(), &mediaID)

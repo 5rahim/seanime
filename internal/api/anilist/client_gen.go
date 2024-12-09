@@ -22,6 +22,7 @@ type GithubGraphQLClient interface {
 	UpdateMediaListEntry(ctx context.Context, mediaID *int, status *MediaListStatus, scoreRaw *int, progress *int, startedAt *FuzzyDateInput, completedAt *FuzzyDateInput, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntry, error)
 	UpdateMediaListEntryProgress(ctx context.Context, mediaID *int, progress *int, status *MediaListStatus, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryProgress, error)
 	DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error)
+	UpdateMediaListEntryRepeat(ctx context.Context, mediaID *int, repeat *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryRepeat, error)
 	MangaCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*MangaCollection, error)
 	SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error)
 	BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error)
@@ -4762,6 +4763,17 @@ func (t *DeleteEntry_DeleteMediaListEntry) GetDeleted() *bool {
 	return t.Deleted
 }
 
+type UpdateMediaListEntryRepeat_SaveMediaListEntry struct {
+	ID int "json:\"id\" graphql:\"id\""
+}
+
+func (t *UpdateMediaListEntryRepeat_SaveMediaListEntry) GetID() int {
+	if t == nil {
+		t = &UpdateMediaListEntryRepeat_SaveMediaListEntry{}
+	}
+	return t.ID
+}
+
 type MangaCollection_MediaListCollection_Lists_Entries_StartedAt struct {
 	Year  *int "json:\"year,omitempty\" graphql:\"year\""
 	Month *int "json:\"month,omitempty\" graphql:\"month\""
@@ -6770,6 +6782,17 @@ func (t *DeleteEntry) GetDeleteMediaListEntry() *DeleteEntry_DeleteMediaListEntr
 	return t.DeleteMediaListEntry
 }
 
+type UpdateMediaListEntryRepeat struct {
+	SaveMediaListEntry *UpdateMediaListEntryRepeat_SaveMediaListEntry "json:\"SaveMediaListEntry,omitempty\" graphql:\"SaveMediaListEntry\""
+}
+
+func (t *UpdateMediaListEntryRepeat) GetSaveMediaListEntry() *UpdateMediaListEntryRepeat_SaveMediaListEntry {
+	if t == nil {
+		t = &UpdateMediaListEntryRepeat{}
+	}
+	return t.SaveMediaListEntry
+}
+
 type MangaCollection struct {
 	MediaListCollection *MangaCollection_MediaListCollection "json:\"MediaListCollection,omitempty\" graphql:\"MediaListCollection\""
 }
@@ -7952,6 +7975,31 @@ func (c *Client) DeleteEntry(ctx context.Context, mediaListEntryID *int, interce
 	return &res, nil
 }
 
+const UpdateMediaListEntryRepeatDocument = `mutation UpdateMediaListEntryRepeat ($mediaId: Int, $repeat: Int) {
+	SaveMediaListEntry(mediaId: $mediaId, repeat: $repeat) {
+		id
+	}
+}
+`
+
+func (c *Client) UpdateMediaListEntryRepeat(ctx context.Context, mediaID *int, repeat *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryRepeat, error) {
+	vars := map[string]any{
+		"mediaId": mediaID,
+		"repeat":  repeat,
+	}
+
+	var res UpdateMediaListEntryRepeat
+	if err := c.Client.Post(ctx, "UpdateMediaListEntryRepeat", UpdateMediaListEntryRepeatDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const MangaCollectionDocument = `query MangaCollection ($userName: String) {
 	MediaListCollection(userName: $userName, forceSingleCompletedList: true, type: MANGA) {
 		lists {
@@ -8685,6 +8733,7 @@ var DocumentOperationNames = map[string]string{
 	UpdateMediaListEntryDocument:         "UpdateMediaListEntry",
 	UpdateMediaListEntryProgressDocument: "UpdateMediaListEntryProgress",
 	DeleteEntryDocument:                  "DeleteEntry",
+	UpdateMediaListEntryRepeatDocument:   "UpdateMediaListEntryRepeat",
 	MangaCollectionDocument:              "MangaCollection",
 	SearchBaseMangaDocument:              "SearchBaseManga",
 	BaseMangaByIDDocument:                "BaseMangaById",

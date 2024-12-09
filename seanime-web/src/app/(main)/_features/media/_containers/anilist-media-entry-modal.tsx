@@ -1,12 +1,14 @@
 "use client"
 import { AL_BaseAnime, AL_BaseManga, AL_MediaListStatus, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { useDeleteAnilistListEntry, useEditAnilistListEntry } from "@/api/hooks/anilist.hooks"
+import { useUpdateAnimeEntryRepeat } from "@/api/hooks/anime_entries.hooks"
 import { useCurrentUser } from "@/app/(main)/_hooks/use-server-status"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
+import { NumberInput } from "@/components/ui/number-input"
 import { normalizeDate } from "@/lib/helpers/date"
 import { getImageUrl } from "@/lib/server/assets"
 import Image from "next/image"
@@ -39,11 +41,18 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const user = useCurrentUser()
 
-    const { mutate, isPending, isSuccess } = useEditAnilistListEntry(media?.id, type)
-
+    const { mutate, isPending: _isPending1, isSuccess } = useEditAnilistListEntry(media?.id, type)
+    const { mutate: mutateRepeat, isPending: _isPending2 } = useUpdateAnimeEntryRepeat(media?.id)
+    const isPending = _isPending1 || _isPending2
     const { mutate: deleteEntry, isPending: isDeleting } = useDeleteAnilistListEntry(media?.id, type, () => {
         toggle(false)
     })
+
+    const [repeat, setRepeat] = React.useState(0)
+
+    React.useEffect(() => {
+        setRepeat(listData?.repeat || 0)
+    }, [listData])
 
     if (!user) return null
 
@@ -83,7 +92,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 onOpenChange={o => toggle(o)}
                 title={media?.title?.userPreferred ?? undefined}
                 titleClass="text-xl"
-                contentClass="max-w-2xl overflow-hidden"
+                contentClass="max-w-3xl overflow-hidden"
             >
 
                 {media?.bannerImage && <div
@@ -106,6 +115,13 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 {(!!listData) && <Form
                     schema={mediaListDataSchema}
                     onSubmit={data => {
+                        if (repeat !== listData?.repeat) {
+                            // Update repeat count
+                            mutateRepeat({
+                                mediaId: media?.id || 0,
+                                repeat: repeat,
+                            })
+                        }
                         mutate({
                             mediaId: media?.id || 0,
                             status: data.status || "PLANNING",
@@ -211,6 +227,20 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                             name="completedAt"
                             // defaultValue={(state.completedAt && state.completedAt.year) ? parseAbsoluteToLocal(new Date(state.completedAt.year,
                             // (state.completedAt.month || 1)-1, state.completedAt.day || 1).toISOString()) : undefined}
+                        />
+
+                        <NumberInput
+                            name="repeat"
+                            label={type === "anime" ? "Total rewatches" : "Total rereads"}
+                            min={0}
+                            max={1000}
+                            value={repeat}
+                            onValueChange={setRepeat}
+                            formatOptions={{
+                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 0,
+                                useGrouping: false,
+                            }}
                         />
                     </div>}
 

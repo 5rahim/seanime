@@ -9,6 +9,7 @@ type Platform interface {
 	SetAnilistClient(client anilist.AnilistClient)
 	UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error
 	UpdateEntryProgress(mediaID int, progress int, totalEpisodes *int) error
+	UpdateEntryRepeat(mediaID int, repeat int) error
 	DeleteEntry(mediaID int) error
 	GetAnime(mediaID int) (*anilist.BaseAnime, error)
 	GetAnimeByMalID(malID int) (*anilist.BaseAnime, error)

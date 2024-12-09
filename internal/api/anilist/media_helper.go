@@ -531,6 +531,13 @@ func (m *AnimeListEntry) GetScoreSafe() float64 {
 	return *m.Score
 }
 
+func (m *AnimeListEntry) GetRepeatSafe() int {
+	if m.Repeat == nil {
+		return 0
+	}
+	return *m.Repeat
+}
+
 func (m *AnimeListEntry) GetStatusSafe() MediaListStatus {
 	if m.Status == nil {
 		return ""

@@ -227,7 +227,7 @@ export const API_ENDPOINTS = {
         /**
          *  @description
          *  Route update the progress of the given anime media entry.
-         *  This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked).
+         *  This is used to update the progress of the given anime media entry on AniList.
          *  The response is not used in the frontend, the client should just refetch the entire media entry data.
          *  NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
          */
@@ -235,6 +235,17 @@ export const API_ENDPOINTS = {
             key: "ANIME-ENTRIES-update-anime-entry-progress",
             methods: ["POST"],
             endpoint: "/api/v1/library/anime-entry/update-progress",
+        },
+        /**
+         *  @description
+         *  Route update the repeat value of the given anime media entry.
+         *  This is used to update the repeat value of the given anime media entry on AniList.
+         *  The response is not used in the frontend, the client should just refetch the entire media entry data.
+         */
+        UpdateAnimeEntryRepeat: {
+            key: "ANIME-ENTRIES-update-anime-entry-repeat",
+            methods: ["POST"],
+            endpoint: "/api/v1/library/anime-entry/update-repeat",
         },
     },
     AUTH: {

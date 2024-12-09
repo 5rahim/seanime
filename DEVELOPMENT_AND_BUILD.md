@@ -108,7 +108,7 @@ Anilist queries are defined in `internal/anilist/queries/*.graphql` and generate
 Run this when you make changes to the GraphQL schema.
 
 ```bash
-go get github.com/Yamashou/gqlgenc
+go get github.com/Yamashou/gqlgenc@v0.25.4
 ```
 ```bash
 cd internal/api/anilist

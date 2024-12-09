@@ -219,6 +219,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Patch("/anime-entry/bulk-action", makeHandler(app, HandleAnimeEntryBulkAction))
 	v1Library.Post("/anime-entry/open-in-explorer", makeHandler(app, HandleOpenAnimeEntryInExplorer))
 	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
+	v1Library.Post("/anime-entry/update-repeat", makeHandler(app, HandleUpdateAnimeEntryRepeat))
 	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
 	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
 

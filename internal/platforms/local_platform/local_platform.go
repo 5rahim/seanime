@@ -260,6 +260,50 @@ func (lp *LocalPlatform) UpdateEntryProgress(mediaID int, progress int, totalEpi
 	return ErrMediaNotFound
 }
 
+func (lp *LocalPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
+	if lp.syncManager.GetLocalAnimeCollection().IsPresent() {
+		animeCollection := lp.syncManager.GetLocalAnimeCollection().MustGet()
+
+		// Find the entry
+		for _, list := range animeCollection.MediaListCollection.Lists {
+			for _, entry := range list.GetEntries() {
+				if entry.GetMedia().GetID() == mediaID {
+					// Update the entry
+					entry.Repeat = &repeat
+
+					// Save the collection
+					rearrangeAnimeCollectionLists(animeCollection)
+					lp.syncManager.SaveLocalAnimeCollection(animeCollection)
+					lp.syncManager.SetHasLocalChanges(true)
+					return nil
+				}
+			}
+		}
+	}
+
+	if lp.syncManager.GetLocalMangaCollection().IsPresent() {
+		mangaCollection := lp.syncManager.GetLocalMangaCollection().MustGet()
+
+		// Find the entry
+		for _, list := range mangaCollection.MediaListCollection.Lists {
+			for _, entry := range list.Entries {
+				if entry.GetMedia().GetID() == mediaID {
+					// Update the entry
+					entry.Repeat = &repeat
+
+					// Save the collection
+					rearrangeMangaCollectionLists(mangaCollection)
+					lp.syncManager.SaveLocalMangaCollection(mangaCollection)
+					lp.syncManager.SetHasLocalChanges(true)
+					return nil
+				}
+			}
+		}
+	}
+
+	return ErrMediaNotFound
+}
+
 // DeleteEntry isn't supported for the local platform, always returns an error.
 func (lp *LocalPlatform) DeleteEntry(mediaID int) error {
 	return ErrActionNotSupported

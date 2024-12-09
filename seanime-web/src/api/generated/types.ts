@@ -1417,6 +1417,7 @@ export type Anime_EntryListData = {
     progress?: number
     score?: number
     status?: AL_MediaListStatus
+    repeat?: number
     startedAt?: string
     completedAt?: string
 }
@@ -2431,6 +2432,7 @@ export type Manga_EntryListData = {
     progress?: number
     score?: number
     status?: AL_MediaListStatus
+    repeat?: number
     startedAt?: string
     completedAt?: string
 }

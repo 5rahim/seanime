@@ -188,6 +188,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 								Progress:    *entry.Progress,
 								Score:       *entry.Score,
 								Status:      entry.Status,
+								Repeat:      entry.GetRepeatSafe(),
 								StartedAt:   anilist.ToEntryStartDate(entry.StartedAt),
 								CompletedAt: anilist.ToEntryCompletionDate(entry.CompletedAt),
 							},

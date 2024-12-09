@@ -1017,7 +1017,7 @@
       "HandleUpdateAnimeEntryProgress",
       "",
       "\t@summary update the progress of the given anime media entry.",
-      "\t@desc This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked).",
+      "\t@desc This is used to update the progress of the given anime media entry on AniList.",
       "\t@desc The response is not used in the frontend, the client should just refetch the entire media entry data.",
       "\t@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.",
       "\t@route /api/v1/library/anime-entry/update-progress [POST]",
@@ -1029,7 +1029,7 @@
     "api": {
       "summary": "update the progress of the given anime media entry.",
       "descriptions": [
-        "This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked).",
+        "This is used to update the progress of the given anime media entry on AniList.",
         "The response is not used in the frontend, the client should just refetch the entire media entry data.",
         "NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager."
       ],
@@ -1069,6 +1069,57 @@
         {
           "name": "TotalEpisodes",
           "jsonName": "totalEpisodes",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleUpdateAnimeEntryRepeat",
+    "trimmedName": "UpdateAnimeEntryRepeat",
+    "comments": [
+      "HandleUpdateAnimeEntryRepeat",
+      "",
+      "\t@summary update the repeat value of the given anime media entry.",
+      "\t@desc This is used to update the repeat value of the given anime media entry on AniList.",
+      "\t@desc The response is not used in the frontend, the client should just refetch the entire media entry data.",
+      "\t@route /api/v1/library/anime-entry/update-repeat [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/anime_entries.go",
+    "filename": "anime_entries.go",
+    "api": {
+      "summary": "update the repeat value of the given anime media entry.",
+      "descriptions": [
+        "This is used to update the repeat value of the given anime media entry on AniList.",
+        "The response is not used in the frontend, the client should just refetch the entire media entry data."
+      ],
+      "endpoint": "/api/v1/library/anime-entry/update-repeat",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Repeat",
+          "jsonName": "repeat",
           "goType": "int",
           "usedStructType": "",
           "typescriptType": "number",
