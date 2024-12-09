@@ -18,6 +18,7 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
 
     const [showTrafficLights, setShowTrafficLights] = React.useState(false)
     const [displayDragRegion, setDisplayDragRegion] = React.useState(true)
+    const dragRegionRef = React.useRef<HTMLDivElement>(null)
 
 
     function handleMinimize() {
@@ -34,6 +35,30 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
         getCurrentWebviewWindow().close().then()
     }
 
+    // Check if the window is in fullscreen mode, and hide the traffic lights & drag region if it is
+    function onFullscreenChange(ev?: Event) {
+        if (getCurrentWebviewWindow().label !== "main") return
+
+
+        if (platform() === "macos") {
+            ev?.preventDefault()
+            if (!document.fullscreenElement) {
+                getCurrentWebviewWindow().setTitleBarStyle("overlay").then()
+                setDisplayDragRegion(true)
+                setShowTrafficLights(true)
+            } else {
+                setDisplayDragRegion(false)
+                setShowTrafficLights(false)
+            }
+        } else {
+            getCurrentWebviewWindow().isFullscreen().then((fullscreen) => {
+                console.log("setting displayDragRegion to", !fullscreen)
+                setShowTrafficLights(!fullscreen)
+                setDisplayDragRegion(!fullscreen)
+            })
+        }
+    }
+
     React.useEffect(() => {
 
         const listener = getCurrentWebviewWindow().onResized(() => {
@@ -44,16 +69,6 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
             })
         })
 
-        // Check if the window is in fullscreen mode, and hide the traffic lights & drag region if it is
-        function onFullscreenChange() {
-            if (getCurrentWebviewWindow().label !== "main") return
-
-            getCurrentWebviewWindow().isFullscreen().then((fullscreen) => {
-                setShowTrafficLights(!fullscreen)
-                setDisplayDragRegion(!fullscreen)
-            })
-        }
-
         document.addEventListener("fullscreenchange", onFullscreenChange)
 
         return () => {
@@ -61,6 +76,60 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
             document.removeEventListener("fullscreenchange", onFullscreenChange)
         }
     }, [])
+
+    /**
+     *
+     *     const policyRef = React.useRef("regular")
+     *
+     *     // Check if the window is in fullscreen mode, and hide the traffic lights & drag region if it is
+     *     function onFullscreenChange(ev?: Event) {
+     *         if (getCurrentWebviewWindow().label !== "main") return
+     *
+     *         if (platform() === "macos") {
+     *             // Bug fix for macOS where fullscreen doesn't work if the activation policy is set to Regular
+     *             if (document.fullscreenElement && policyRef.current !== "accessory") { // entering fullscreen
+     *                 getCurrentWebviewWindow().setFullscreen(true).then(() => {
+     *                     setShowTrafficLights(false)
+     *                     setDisplayDragRegion(false)
+     *                 })
+     *                 getCurrentWebviewWindow().emit("macos-activation-policy-accessory").then(() => {
+     *                     policyRef.current = "accessory"
+     *                 })
+     *             } else if (policyRef.current !== "regular") { // exiting fullscreen
+     *                 getCurrentWebviewWindow().setFullscreen(false).then(() => {
+     *                     setShowTrafficLights(true)
+     *                     setDisplayDragRegion(true)
+     *                 })
+     *                 getCurrentWebviewWindow().emit("macos-activation-policy-regular").then(() => {
+     *                     getCurrentWebviewWindow().setTitleBarStyle("overlay").then()
+     *                 })
+     *                 policyRef.current = "regular"
+     *             }
+     *         } else {
+     *             getCurrentWebviewWindow().isFullscreen().then((fullscreen) => {
+     *                 setShowTrafficLights(!fullscreen)
+     *                 setDisplayDragRegion(!fullscreen)
+     *             })
+     *         }
+     *     }
+     *
+     *     React.useEffect(() => {
+     *         const listener = getCurrentWebviewWindow().onResized(() => {
+     *             onFullscreenChange()
+     *             // Get the current window maximized state
+     *             getCurrentWebviewWindow().isMaximized().then((maximized) => {
+     *                 setMaximized(maximized)
+     *             })
+     *         })
+     *
+     *         document.addEventListener("fullscreenchange", onFullscreenChange)
+     *
+     *         return () => {
+     *             listener.then((f) => f()) // remove the listener
+     *             document.removeEventListener("fullscreenchange", onFullscreenChange)
+     *         }
+     *     }, [])
+     */
 
     const [currentPlatform, setCurrentPlatform] = React.useState("")
 
@@ -100,25 +169,25 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
                 {displayDragRegion && <div className="flex flex-1 cursor-grab active:cursor-grabbing" data-tauri-drag-region></div>}
                 {(currentPlatform === "windows" && showTrafficLights) &&
                     <div className="flex h-10 items-center justify-center gap-1 mr-2 !cursor-default">
-                    <IconButton
-                        className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"
-                        icon={<VscChromeMinimize className="text-[0.95rem]" />}
-                        onClick={handleMinimize}
-                        tabIndex={-1}
-                    />
-                    <IconButton
-                        className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"
-                        icon={maximized ? <VscChromeRestore className="text-[0.95rem]" /> : <VscChromeMaximize className="text-[0.95rem]" />}
-                        onClick={toggleMaximized}
-                        tabIndex={-1}
-                    />
-                    <IconButton
-                        className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-red-500 active:bg-red-600 active:text-white"
-                        icon={<VscChromeClose className="text-[0.95rem]" />}
-                        onClick={handleClose}
-                        tabIndex={-1}
-                    />
-                </div>}
+                        <IconButton
+                            className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"
+                            icon={<VscChromeMinimize className="text-[0.95rem]" />}
+                            onClick={handleMinimize}
+                            tabIndex={-1}
+                        />
+                        <IconButton
+                            className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-[rgba(255,255,255,0.05)] active:text-white active:bg-[rgba(255,255,255,0.1)]"
+                            icon={maximized ? <VscChromeRestore className="text-[0.95rem]" /> : <VscChromeMaximize className="text-[0.95rem]" />}
+                            onClick={toggleMaximized}
+                            tabIndex={-1}
+                        />
+                        <IconButton
+                            className="outline-none w-11 size-8 rounded-lg duration-0 shadow-none text-white hover:text-white bg-transparent hover:bg-red-500 active:bg-red-600 active:text-white"
+                            icon={<VscChromeClose className="text-[0.95rem]" />}
+                            onClick={handleClose}
+                            tabIndex={-1}
+                        />
+                    </div>}
             </div>
         </>
     )

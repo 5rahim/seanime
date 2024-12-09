@@ -60,6 +60,27 @@ pub fn run() {
                 server_process_for_setup,
                 is_shutdown_for_setup,
             );
+
+            let app_handle_1 = app.handle().clone();
+            main_window.listen("macos-activation-policy-accessory", move |_| {
+                println!("EVENT macos-activation-policy-accessory");
+                #[cfg(target_os = "macos")]
+                app_handle_1
+                    .set_activation_policy(tauri::ActivationPolicy::Accessory)
+                    .unwrap();
+            });
+
+            // main_window.on_window_event()
+
+            let app_handle_2 = app.handle().clone();
+            main_window.listen("macos-activation-policy-regular", move |_| {
+                println!("EVENT macos-activation-policy-regular");
+                #[cfg(target_os = "macos")]
+                app_handle_2
+                    .set_activation_policy(tauri::ActivationPolicy::Regular)
+                    .unwrap();
+            });
+
             Ok(())
         })
         .build(tauri::generate_context!())
@@ -87,6 +108,7 @@ pub fn run() {
                     } => {
                         let is_shutdown_guard = is_shutdown_for_exit.lock().unwrap();
                         if label.as_str() == MAIN_WINDOW_LABEL && !*is_shutdown_guard {
+                            println!("Main window close request");
                             // Hide the window when user clicks 'X'
                             let win = app.get_webview_window(label.as_str()).unwrap();
                             win.hide().unwrap();
@@ -110,6 +132,7 @@ pub fn run() {
 
                     // The app is about to exit
                     tauri::RunEvent::ExitRequested { .. } => {
+                        println!("Main window exit request");
                         let mut child_guard = server_process_for_exit.lock().unwrap();
                         if let Some(child) = child_guard.take() {
                             // Kill server process
