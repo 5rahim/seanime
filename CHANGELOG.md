@@ -2,11 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## v2.4.3
-
-- 🦺 Fixed scanner runtime error
-- 🦺 Fixed Transmission host settings
-
 ## v2.4.2
 
 - ⚡️ 'Include in library' will keep displaying shows when caught up
