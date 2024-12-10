@@ -85,7 +85,7 @@ func (g *GojaOnlinestreamProvider) GetEpisodeServers() (ret []string) {
 }
 
 func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions) (ret []*hibikeonlinestream.SearchResult, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
 	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
 
@@ -103,7 +103,7 @@ func (g *GojaOnlinestreamProvider) Search(opts hibikeonlinestream.SearchOptions)
 }
 
 func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlinestream.EpisodeDetails, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindEpisodes", &err)
 
 	method, err := g.callClassMethod("findEpisodes", g.vm.ToValue(id))
 
@@ -121,7 +121,7 @@ func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlines
 }
 
 func (g *GojaOnlinestreamProvider) FindEpisodeServer(episode *hibikeonlinestream.EpisodeDetails, server string) (ret *hibikeonlinestream.EpisodeServer, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindEpisodeServer", &err)
 
 	method, err := g.callClassMethod("findEpisodeServer", g.vm.ToValue(structToMap(episode)), g.vm.ToValue(server))
 
@@ -139,7 +139,7 @@ func (g *GojaOnlinestreamProvider) FindEpisodeServer(episode *hibikeonlinestream
 }
 
 func (g *GojaOnlinestreamProvider) GetSettings() (ret hibikeonlinestream.Settings) {
-	defer util.HandlePanicInModuleThen(g.ext.ID, func() {
+	defer util.HandlePanicInModuleThen(g.ext.ID+".GetSettings", func() {
 		ret = hibikeonlinestream.Settings{}
 	})
 

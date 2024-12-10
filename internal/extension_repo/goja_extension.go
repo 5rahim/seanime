@@ -96,7 +96,7 @@ func (g *gojaExtensionImpl) unmarshalValue(value goja.Value, ret interface{}) (e
 
 	err = json.Unmarshal(jsonData, &ret)
 	if err != nil {
-		return g.error(err, "failed to unmarshal result")
+		return g.error(err, fmt.Sprintf("failed to unmarshal result: %s", string(jsonData)))
 	}
 
 	return nil

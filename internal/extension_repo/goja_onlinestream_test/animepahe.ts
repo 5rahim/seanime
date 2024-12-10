@@ -213,7 +213,35 @@ class Provider {
         }
     }
 
+    format(p: any, a: any, c: any, k: any, e: any, d: any) {
+        k = k.split("|")
+        e = (c: any) => {
+            return (c < a ? "" : e(parseInt((c / a).toString()))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36))
+        }
+        if (!"".replace(/^/, String)) {
+            while (c--) {
+                d[e(c)] = k[c] || e(c)
+            }
+            k = [
+                (e: any) => {
+                    return d[e]
+                },
+            ]
+            e = () => {
+                return "\\w+"
+            }
+            c = 1
+        }
+        while (c--) {
+            if (k[c]) {
+                p = p.replace(new RegExp("\\b" + e(c) + "\\b", "g"), k[c])
+            }
+        }
+        return p
+    }
+
     async extractKwik(url: string, result: EpisodeServer): Promise<EpisodeServer> {
+
         const host = "https://animepahe.ru"
         const req = await fetch(url, {
             headers: {
@@ -235,7 +263,7 @@ class Provider {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [p, a, c, k, e, d] = arr.map((x) => x.split(".sp")[0])
 
-        const formatted = format(p, a, c, k, e, {})
+        const formatted = this.format(p, a, c, k, e, {})
 
         console.log(formatted)
 
@@ -254,32 +282,6 @@ class Provider {
 
         return result
 
-        function format(p: any, a: any, c: any, k: any, e: any, d: any) {
-            k = k.split("|")
-            e = (c: any) => {
-                return (c < a ? "" : e(parseInt((c / a).toString()))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36))
-            }
-            if (!"".replace(/^/, String)) {
-                while (c--) {
-                    d[e(c)] = k[c] || e(c)
-                }
-                k = [
-                    (e: any) => {
-                        return d[e]
-                    },
-                ]
-                e = () => {
-                    return "\\w+"
-                }
-                c = 1
-            }
-            while (c--) {
-                if (k[c]) {
-                    p = p.replace(new RegExp("\\b" + e(c) + "\\b", "g"), k[c])
-                }
-            }
-            return p
-        }
     }
 
 
