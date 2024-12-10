@@ -8,23 +8,23 @@ import { __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-s
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutGrid } from "@/components/ui/app-layout"
-import { IconButton } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { useSetAtom } from "jotai/react"
-import { useParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { useMount } from "react-use"
 
 export default function Page() {
 
-    const urlParams = useParams<{
-        sorting?: AL_MediaSort,
-        genre?: string,
-        format?: AL_MediaFormat,
-        season?: AL_MediaSeason,
-        status?: AL_MediaStatus,
-        year?: string
-    }>()
+    const urlParams = useSearchParams()
+    const sortingUrlParam = urlParams.get("sorting")
+    const genreUrlParam = urlParams.get("genre")
+    const statusUrlParam = urlParams.get("status")
+    const formatUrlParam = urlParams.get("format")
+    const seasonUrlParam = urlParams.get("season")
+    const yearUrlParam = urlParams.get("year")
+    const typeUrlParam = urlParams.get("type")
 
     const setParams = useSetAtom(__advancedSearch_paramsAtom)
 
@@ -32,15 +32,15 @@ export default function Page() {
         setParams({
             active: true,
             title: null,
-            sorting: urlParams.sorting ? [urlParams.sorting] : null,
-            status: urlParams.status ? [urlParams.status] : null,
-            genre: urlParams.genre ? [urlParams.genre] : null,
-            format: urlParams.format || null,
-            season: urlParams.season || null,
-            year: urlParams.year || null,
+            sorting: sortingUrlParam ? [sortingUrlParam as AL_MediaSort] : null,
+            status: statusUrlParam ? [statusUrlParam as AL_MediaStatus] : null,
+            genre: genreUrlParam ? [genreUrlParam] : null,
+            format: (formatUrlParam as AL_MediaFormat) === "MANGA" ? null : (formatUrlParam as AL_MediaFormat),
+            season: (seasonUrlParam as AL_MediaSeason) || null,
+            year: yearUrlParam || null,
             minScore: null,
             isAdult: false,
-            type: "anime",
+            type: (formatUrlParam as AL_MediaFormat) === "MANGA" ? "manga" : (typeUrlParam as "anime" | "manga") || "anime",
         })
     })
 
@@ -50,9 +50,11 @@ export default function Page() {
             <PageWrapper className="space-y-6 px-4 md:p-8 pt-0 pb-10">
                 <div className="flex items-center gap-4">
                     <SeaLink href={`/discover`}>
-                        <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm" />
+                        <Button leftIcon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md">
+                            Discover
+                        </Button>
                     </SeaLink>
-                    <h3>Discover</h3>
+                    {/*<h3>Discover</h3>*/}
                 </div>
                 <div className="text-center xl:text-left">
                     <AdvancedSearchPageTitle />
