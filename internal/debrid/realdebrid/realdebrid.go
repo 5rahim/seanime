@@ -538,40 +538,43 @@ func (t *RealDebrid) GetTorrents() (ret []*debrid.TorrentItem, err error) {
 // To avoid this, we'll select all *cached* files in the torrent if the file we want to download is cached.
 func (t *RealDebrid) selectCachedFiles(id string, idStr string) (err error) {
 
-	t.logger.Trace().Str("torrentId", id).Str("fileId", idStr).Msg("realdebrid: Selecting cached files")
+	t.logger.Trace().Str("torrentId", id).Str("fileId", "all").Msg("realdebrid: Selecting all files")
 
-	// If the file ID is "all" or a list of IDs, just call selectFiles
-	if idStr == "all" || strings.Contains(idStr, ",") {
-		return t._selectFiles(id, idStr)
-	}
+	return t._selectFiles(id, "all")
 
-	// Get the torrent info
-	torrent, err := t.getTorrent(id)
-	if err != nil {
-		return err
-	}
-
-	// Get the instant availability
-	avail := t.GetInstantAvailability([]string{torrent.Hash})
-	if _, ok := avail[torrent.Hash]; !ok {
-		return t._selectFiles(id, idStr)
-	}
-
-	// Get all cached file IDs
-	ids := make([]string, 0)
-	for fileIdStr := range avail[torrent.Hash].CachedFiles {
-		if fileIdStr != "" {
-			ids = append(ids, fileIdStr)
-		}
-	}
-
-	// If the selected file isn't cached, we'll just download it alone
-	if !slices.Contains(ids, idStr) {
-		return t._selectFiles(id, idStr)
-	}
-
-	// Download all cached files
-	return t._selectFiles(id, strings.Join(ids, ","))
+	//t.logger.Trace().Str("torrentId", id).Str("fileId", idStr).Msg("realdebrid: Selecting cached files")
+	//// If the file ID is "all" or a list of IDs, just call selectFiles
+	//if idStr == "all" || strings.Contains(idStr, ",") {
+	//	return t._selectFiles(id, idStr)
+	//}
+	//
+	//// Get the torrent info
+	//torrent, err := t.getTorrent(id)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//// Get the instant availability
+	//avail := t.GetInstantAvailability([]string{torrent.Hash})
+	//if _, ok := avail[torrent.Hash]; !ok {
+	//	return t._selectFiles(id, idStr)
+	//}
+	//
+	//// Get all cached file IDs
+	//ids := make([]string, 0)
+	//for fileIdStr := range avail[torrent.Hash].CachedFiles {
+	//	if fileIdStr != "" {
+	//		ids = append(ids, fileIdStr)
+	//	}
+	//}
+	//
+	//// If the selected file isn't cached, we'll just download it alone
+	//if !slices.Contains(ids, idStr) {
+	//	return t._selectFiles(id, idStr)
+	//}
+	//
+	//// Download all cached files
+	//return t._selectFiles(id, strings.Join(ids, ","))
 }
 
 func (t *RealDebrid) _selectFiles(id string, idStr string) (err error) {
