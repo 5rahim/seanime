@@ -1,7 +1,6 @@
 import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_EntryListData, Nullish } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
@@ -150,7 +149,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative z-[4]"
             >
-                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[60rem] relative">
+                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[65rem] 5xl:max-w-[80rem] relative">
                     <motion.div
                         {...{
                             initial: { opacity: 0 },
@@ -220,8 +219,6 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
         offlineAnilistAnimeEntryModal,
         ...rest
     } = props
-
-    const serverStatus = useServerStatus()
 
     return (
         <>
