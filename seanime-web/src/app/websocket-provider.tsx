@@ -1,8 +1,9 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
+import { TauriRestartServerPrompt } from "@/app/(main)/_tauri/tauri-restart-server-prompt"
 import { __openDrawersAtom } from "@/components/ui/drawer"
 import { atom, useAtomValue } from "jotai"
-import { useAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
 import { useCookies } from "react-cookie"
 import { LuLoader } from "react-icons/lu"
@@ -18,12 +19,14 @@ function uuidv4(): string {
 }
 
 export const websocketConnectedAtom = atom(false)
+export const websocketConnectionErrorCountAtom = atom(0)
 
 export const clientIdAtom = atom<string | null>(null)
 
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useAtom(websocketAtom)
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
+    const setConnectionErrorCount = useSetAtom(websocketConnectionErrorCountAtom)
     const openDrawers = useAtomValue(__openDrawersAtom)
 
     const [cookies, setCookie, removeCookie] = useCookies(["Seanime-Client-Id"])
@@ -45,13 +48,15 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             newSocket.addEventListener("open", () => {
                 console.log("WebSocket connection opened")
                 setIsConnected(true)
+                setConnectionErrorCount(0)
             })
 
             newSocket.addEventListener("close", () => {
                 console.log("WebSocket connection closed")
                 setIsConnected(false)
                 // Reconnect after a delay
-                setTimeout(connectWebSocket, 3000)
+                setConnectionErrorCount(count => count + 1)
+                setTimeout(connectWebSocket, 1000)
             })
 
             setSocket(newSocket)
@@ -75,6 +80,9 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     return (
         <>
             {openDrawers.length > 0 && <RemoveScrollBar />}
+            {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && (
+                <TauriRestartServerPrompt />
+            )}
             <WebSocketContext.Provider value={socket}>
                 {!isConnected && <div
                     className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center"

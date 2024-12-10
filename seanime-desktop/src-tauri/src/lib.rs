@@ -15,9 +15,15 @@ pub fn run() {
         None::<tauri_plugin_shell::process::CommandChild>,
     ));
     let server_process_for_setup = Arc::clone(&server_process);
+    let server_process_for_restart = Arc::clone(&server_process);
     //
     let is_shutdown = Arc::new(Mutex::new(false));
     let is_shutdown_for_setup = Arc::clone(&is_shutdown);
+    let is_shutdown_for_restart = Arc::clone(&is_shutdown);
+
+    let server_started = Arc::new(Mutex::new(false));
+    let server_started_for_setup = Arc::clone(&server_started);
+    let server_started_for_restart = Arc::clone(&server_started);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _cmd, _args| {
@@ -59,7 +65,27 @@ pub fn run() {
                 app.handle().clone(),
                 server_process_for_setup,
                 is_shutdown_for_setup,
+                server_started_for_setup,
             );
+
+            let app_handle = app.handle().clone();
+            app.listen("restart-server", move |_| {
+                println!("EVENT restart-server");
+                let mut child_guard = server_process_for_restart.lock().unwrap();
+                if let Some(child) = child_guard.take() {
+                    println!("Killing existing server process");
+                    // Kill the existing server process
+                    if let Err(e) = child.kill() {
+                        eprintln!("Failed to kill server process: {}", e);
+                    }
+                }
+                server::launch_seanime_server(
+                    app_handle.clone(),
+                    Arc::clone(&server_process_for_restart),
+                    Arc::clone(&is_shutdown_for_restart),
+                    Arc::clone(&server_started_for_restart),
+                );
+            });
 
             let app_handle_1 = app.handle().clone();
             main_window.listen("macos-activation-policy-accessory", move |_| {
