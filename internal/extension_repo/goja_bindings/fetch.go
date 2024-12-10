@@ -119,6 +119,7 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 		responseObj.Set("status", resp.StatusCode)
 		responseObj.Set("statusText", resp.Status)
 		responseObj.Set("ok", resp.StatusCode >= 200 && resp.StatusCode < 300)
+		responseObj.Set("url", resp.Request.URL.String())
 
 		// Set the response headers
 		respHeadersObj := vm.NewObject()

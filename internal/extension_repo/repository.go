@@ -262,4 +262,13 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtension(info extension.Ext
 	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
 }
 
+func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.Extension) {
+	err := r.loadExternalOnlinestreamExtensionJS(&info, info.Language)
+	if err != nil {
+		r.logger.Error().Err(err).Str("id", info.ID).Msg("extensions: Failed to load built-in JS onlinestream provider extension")
+		return
+	}
+	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

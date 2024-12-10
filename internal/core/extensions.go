@@ -127,6 +127,19 @@ func (a *App) LoadBuiltInExtensions() {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
 	}, onlinestream_providers.NewZoro(a.Logger))
 
+	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtensionJS(extension.Extension{
+		ID:          "animepahe",
+		Name:        "Animepahe",
+		Version:     "",
+		ManifestURI: "builtin",
+		Language:    extension.LanguageTypescript,
+		Type:        extension.TypeOnlinestreamProvider,
+		Author:      "Seanime",
+		Lang:        "en",
+		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/animepahe.png",
+		Payload:     onlinestream_providers.AnimepahePayload,
+	})
+
 	//
 	// Built-in torrent providers
 	//

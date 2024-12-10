@@ -16,6 +16,7 @@ const (
 	StreamSBServer     = "streamsb"
 	VidcloudServer     = "vidcloud"
 	StreamtapeServer   = "streamtape"
+	KwikServer         = "kwik"
 )
 
 var (

@@ -112,7 +112,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	imageProxy := &util2.ImageProxy{}
 	v1.Get("/image-proxy", imageProxy.ProxyImage)
 
-	v1.Get("/proxy", util2.Proxy)
+	v1.Get("/proxy", util2.M3U8Proxy)
 
 	//
 	// General

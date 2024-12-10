@@ -34,6 +34,7 @@ require (
 	github.com/gonutz/w32/v2 v2.11.1
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
+	github.com/grafov/m3u8 v0.12.1
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
 	github.com/kr/pretty v0.3.1
 	github.com/likexian/doh-go v0.6.4

@@ -1,3 +1,4 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
@@ -199,8 +200,16 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         setUrl(undefined)
         if (videoSource?.url) {
             setServer(videoSource.server)
+            let _url = videoSource.url
+            if (videoSource.headers && Object.keys(videoSource.headers).length > 0) {
+                _url = `${getServerBaseUrl()}/api/v1/proxy?url=${encodeURIComponent(videoSource?.url)}&headers=${encodeURIComponent(JSON.stringify(
+                    videoSource?.headers))}`
+            } else {
+                _url = videoSource.url
+            }
             React.startTransition(() => {
-                setUrl(videoSource?.url)
+                logger("ONLINESTREAM").info("Setting stream URL", { url: _url })
+                setUrl(_url)
             })
         }
     }, [videoSource?.url])

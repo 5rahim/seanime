@@ -2,7 +2,7 @@
 /// <reference path="../goja_bindings/doc.d.ts" />
 /// <reference path="../goja_bindings/crypto.d.ts" />
 
-class Provider {
+class ProviderN {
 
     api = "https://anitaku.to"
     ajaxURL = "https://ajax.gogocdn.net"
