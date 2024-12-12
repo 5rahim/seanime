@@ -62,6 +62,10 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	promise, resolve, reject := vm.NewPromise()
 
 	go func() {
+		defer util.HandlePanicInModuleThen("extension_repo/goja_bindings/gojaFetch", func() {
+			reject(vm.ToValue(fmt.Sprintf("JS VM: Panic from fetch")))
+		})
+
 		method := "GET"
 		if m := options.Get("method"); m != nil && gojaValueIsDefined(m) {
 			method = strings.ToUpper(m.String())
@@ -116,25 +120,27 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 		}
 
 		responseObj := vm.NewObject()
-		responseObj.Set("status", resp.StatusCode)
-		responseObj.Set("statusText", resp.Status)
-		responseObj.Set("ok", resp.StatusCode >= 200 && resp.StatusCode < 300)
-		responseObj.Set("url", resp.Request.URL.String())
+		_ = responseObj.Set("status", resp.StatusCode)
+		_ = responseObj.Set("statusText", resp.Status)
+		_ = responseObj.Set("ok", resp.StatusCode >= 200 && resp.StatusCode < 300)
+		_ = responseObj.Set("url", resp.Request.URL.String())
 
 		// Set the response headers
-		respHeadersObj := vm.NewObject()
+		headersObj := vm.NewObject()
 		for key, values := range resp.Header {
-			respHeadersObj.Set(key, values[0])
+			if len(values) > 0 {
+				_ = headersObj.Set(key, values[0])
+			}
 		}
-		responseObj.Set("headers", respHeadersObj)
+		_ = responseObj.Set("headers", headersObj)
 
 		// Set the response body
-		responseObj.Set("text", func(call goja.FunctionCall) goja.Value {
+		_ = responseObj.Set("text", func(call goja.FunctionCall) goja.Value {
 			return vm.ToValue(string(bodyBytes))
 		})
 
 		// Set the response JSON
-		responseObj.Set("json", func(call goja.FunctionCall) goja.Value {
+		_ = responseObj.Set("json", func(call goja.FunctionCall) goja.Value {
 			if !canUnmarshal {
 				return goja.Undefined()
 			}

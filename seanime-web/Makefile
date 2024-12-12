@@ -1,11 +1,9 @@
 build-web:
-	npm run build
-	npm run build:desktop
-
-move-web-dist:
 	rm -rf ../web
-	cp -r out ../web
 	rm -rf ../web-desktop
+	npm run build
+	cp -r out ../web
+	npm run build:desktop
 	cp -r out-desktop ../web-desktop
 
-.PHONY: build-web move-web-dist
+.PHONY: build-web

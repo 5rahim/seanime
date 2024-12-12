@@ -1,3 +1,4 @@
+import { isUpdateInstalledAtom, isUpdatingAtom } from "@/app/(main)/_tauri/tauri-update-modal"
 import { websocketConnectedAtom, websocketConnectionErrorCountAtom } from "@/app/websocket-provider"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Button } from "@/components/ui/button"
@@ -9,19 +10,15 @@ import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
 import { toast } from "sonner"
 
-type TauriRestartServerPromptProps = {}
-
-export function TauriRestartServerPrompt(props: TauriRestartServerPromptProps) {
-
-    const {
-        ...rest
-    } = props
+export function TauriRestartServerPrompt() {
 
     const [hasRendered, setHasRendered] = React.useState(false)
 
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
     const connectionErrorCount = useAtomValue(websocketConnectionErrorCountAtom)
     const [hasClickedRestarted, setHasClickedRestarted] = React.useState(false)
+    const isUpdatedInstalled = useAtomValue(isUpdateInstalledAtom)
+    const isUpdating = useAtomValue(isUpdatingAtom)
 
     React.useEffect(() => {
         if (getCurrentWebviewWindow().label === "main") {
@@ -47,7 +44,7 @@ export function TauriRestartServerPrompt(props: TauriRestartServerPromptProps) {
     // Try to reconnect automatically
     const tryAutoReconnectRef = React.useRef(true)
     React.useEffect(() => {
-        if (!isConnected && connectionErrorCount >= 10 && tryAutoReconnectRef.current) {
+        if (!isConnected && connectionErrorCount >= 10 && tryAutoReconnectRef.current && !isUpdatedInstalled) {
             tryAutoReconnectRef.current = false
             console.log("Connection error count reached 10, restarting server automatically")
             handleRestart()
@@ -66,7 +63,7 @@ export function TauriRestartServerPrompt(props: TauriRestartServerPromptProps) {
     // Not connected for 10 seconds
     return (
         <>
-            {(!isConnected && connectionErrorCount < 10) && (
+            {(!isConnected && connectionErrorCount < 10 && !isUpdating && !isUpdatedInstalled) && (
                 <LoadingOverlay className="fixed left-0 top-0 z-[9999]">
                     <p>
                         The server connection has been lost. Please wait while we attempt to reconnect.
@@ -75,7 +72,7 @@ export function TauriRestartServerPrompt(props: TauriRestartServerPromptProps) {
             )}
 
             <Modal
-                open={!isConnected && connectionErrorCount >= 10}
+                open={!isConnected && connectionErrorCount >= 10 && !isUpdatedInstalled}
                 onOpenChange={() => {}}
                 hideCloseButton
                 contentClass="max-w-2xl"
