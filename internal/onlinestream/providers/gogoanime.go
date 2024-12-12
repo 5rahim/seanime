@@ -24,7 +24,7 @@ type Gogoanime struct {
 
 func NewGogoanime(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	return &Gogoanime{
-		BaseURL:   "https://anitaku.to",
+		BaseURL:   "https://anitaku.io",
 		AjaxURL:   "https://ajax.gogocdn.net",
 		Client:    http.Client{},
 		UserAgent: browser.Firefox(),

@@ -137,6 +137,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         }
     }, [])
 
+    const onPopupMouseEnter = React.useCallback(() => {
+        setActionPopupHover(media.id)
+    }, [media.id])
+
+    const onPopupMouseLeave = React.useCallback(() => {
+        setActionPopupHover(undefined)
+    }, [media.id])
+
     if (!media) return null
 
     return (
@@ -146,8 +154,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
             {/*ACTION POPUP*/}
             <MediaEntryCardHoverPopup
-                onMouseEnter={() => setActionPopupHover(media.id)}
-                onMouseLeave={() => setActionPopupHover(undefined)}
+                onMouseEnter={onPopupMouseEnter}
+                onMouseLeave={onPopupMouseLeave}
                 coverImage={media.bannerImage || media.coverImage?.extraLarge || ""}
             >
 

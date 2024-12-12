@@ -68,7 +68,7 @@ func (g *GojaMangaProvider) GetVM() *goja.Runtime {
 }
 
 func (g *GojaMangaProvider) GetSettings() (ret hibikemanga.Settings) {
-	defer util.HandlePanicInModuleThen(g.ext.ID, func() {
+	defer util.HandlePanicInModuleThen(g.ext.ID+".GetSettings", func() {
 		ret = hibikemanga.Settings{}
 	})
 
@@ -86,7 +86,7 @@ func (g *GojaMangaProvider) GetSettings() (ret hibikemanga.Settings) {
 }
 
 func (g *GojaMangaProvider) Search(opts hibikemanga.SearchOptions) (ret []*hibikemanga.SearchResult, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
 	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
 
@@ -124,7 +124,7 @@ func (g *GojaMangaProvider) Search(opts hibikemanga.SearchOptions) (ret []*hibik
 }
 
 func (g *GojaMangaProvider) FindChapters(id string) (ret []*hibikemanga.ChapterDetails, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindChapters", &err)
 
 	method, err := g.callClassMethod("findChapters", g.vm.ToValue(id))
 
@@ -147,7 +147,7 @@ func (g *GojaMangaProvider) FindChapters(id string) (ret []*hibikemanga.ChapterD
 }
 
 func (g *GojaMangaProvider) FindChapterPages(id string) (ret []*hibikemanga.ChapterPage, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".FindChapterPages", &err)
 
 	method, err := g.callClassMethod("findChapterPages", g.vm.ToValue(id))
 

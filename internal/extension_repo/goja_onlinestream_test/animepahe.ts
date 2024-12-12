@@ -32,8 +32,6 @@ class Provider {
         }
 
         data.data.map((item: { id: number; title: string; year: number; poster: string; type: string; session: string }) => {
-            const formatString: string = item.type.toUpperCase()
-
             results.push({
                 subOrDub: "sub",
                 id: String(item.id) ?? item.session,
@@ -110,6 +108,18 @@ class Provider {
             }
         });
         (data as any[]).sort((a, b) => a.number - b.number)
+
+        if (episodes.length === 0) {
+            throw new Error("No episodes found.")
+        }
+
+        const lowest = episodes[0].number
+        if (lowest > 1) {
+            for (let i = 0; i < episodes.length; i++) {
+                episodes[i].number = episodes[i].number - lowest + 1
+            }
+        }
+
         return episodes
     }
 
