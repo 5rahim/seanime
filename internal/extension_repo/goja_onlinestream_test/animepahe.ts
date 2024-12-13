@@ -2,6 +2,14 @@
 /// <reference path="../goja_bindings/doc.d.ts" />
 /// <reference path="../goja_bindings/crypto.d.ts" />
 
+type EpisodeData = {
+    id: number; episode: number; title: string; snapshot: string; filler: number; created_at?: string
+}
+
+type AnimeData = {
+    id: number; title: string; type: string; year: number; poster: string; session: string
+}
+
 class Provider {
 
     api = "https://animepahe.ru"
@@ -15,23 +23,25 @@ class Provider {
     }
 
     async search(opts: SearchOptions): Promise<SearchResult[]> {
-        const request = await fetch(`${this.api}/api?m=search&q=${encodeURIComponent(opts.query)}`, {
+        const req = await fetch(`${this.api}/api?m=search&q=${encodeURIComponent(opts.query)}`, {
             headers: {
                 Cookie: "__ddg1_=;__ddg2_=;",
             },
         })
 
-        if (!request.ok) {
+        if (!req.ok) {
             return []
         }
-        const data = (await request.json()) as { data: { id: number; title: string; year: number; poster: string; type: string; session: string }[] }
+        const data = (await req.json()) as { data: AnimeData[] }
         const results: SearchResult[] = []
 
         if (!data?.data) {
             return []
         }
 
-        data.data.map((item: { id: number; title: string; year: number; poster: string; type: string; session: string }) => {
+        console.log(data)
+
+        data.data.map((item: AnimeData) => {
             results.push({
                 subOrDub: "sub",
                 id: String(item.id) ?? item.session,
@@ -46,7 +56,7 @@ class Provider {
     async findEpisodes(id: string): Promise<EpisodeDetails[]> {
         const episodes: EpisodeDetails[] = []
 
-        const req = await (
+        const req =
             await fetch(
                 `${this.api}${id.includes("-") ? `/anime/${id}` : `/a/${id}`}`,
                 {
@@ -55,9 +65,23 @@ class Provider {
                     },
                 },
             )
-        ).text()
 
-        const $ = LoadDoc(req)
+        const html = await req.text()
+
+
+        function pushData(data: EpisodeData[]) {
+            for (const item of data) {
+                console.log(item)
+                episodes.push({
+                    id: item.id + "$" + id,
+                    number: item.episode,
+                    title: item.title && item.title.length > 0 ? item.title : "Episode " + item.episode,
+                    url: req.url,
+                })
+            }
+        }
+
+        const $ = LoadDoc(html)
 
         const tempId = $("head > meta[property='og:url']").attr("content")!.split("/").pop()!
 
@@ -69,17 +93,10 @@ class Provider {
             })
         ).json()) as {
             last_page: number;
-            data: { id: number; episode: number; title: string; snapshot: string; filler: number; created_at?: string }[]
+            data: EpisodeData[]
         }
 
-        data.map((item: { id: number; episode: number; title: string; snapshot: string; filler: number; created_at?: string }) => {
-            episodes.push({
-                id: item.id + "$" + id,
-                number: item.episode,
-                title: item.title && item.title.length > 0 ? item.title : "Episode " + item.episode,
-                url: "",
-            })
-        })
+        pushData(data)
 
         const pageNumbers = Array.from({ length: last_page - 1 }, (_, i) => i + 2)
 
@@ -91,19 +108,13 @@ class Provider {
             }).then((res) => res.json()),
         )
         const results = (await Promise.all(promises)) as {
-            data: { id: number; episode: number; title: string; snapshot: string; filler: number; created_at?: string }[];
+            data: EpisodeData[]
         }[]
 
         results.forEach((showData) => {
             for (const data of showData.data) {
                 if (data) {
-
-                    episodes.push({
-                        id: data.id + "$" + id,
-                        number: data.episode,
-                        title: data.title && data.title.length > 0 ? data.title : "Episode " + data.episode,
-                        url: "",
-                    })
+                    pushData([data])
                 }
             }
         });

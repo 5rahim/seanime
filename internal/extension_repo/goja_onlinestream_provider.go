@@ -117,6 +117,10 @@ func (g *GojaOnlinestreamProvider) FindEpisodes(id string) (ret []*hibikeonlines
 		return nil, err
 	}
 
+	for _, episode := range ret {
+		episode.Provider = g.ext.ID
+	}
+
 	return
 }
 
@@ -134,6 +138,8 @@ func (g *GojaOnlinestreamProvider) FindEpisodeServer(episode *hibikeonlinestream
 	if err != nil {
 		return nil, err
 	}
+
+	ret.Provider = g.ext.ID
 
 	return
 }

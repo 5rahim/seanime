@@ -1,7 +1,7 @@
 package vlc
 
 import (
-	"errors"
+	"fmt"
 	"runtime"
 	"seanime/internal/util"
 	"time"
@@ -56,7 +56,8 @@ func (vlc *VLC) Start() error {
 	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {
-		return errors.New("failed to start VLC")
+		vlc.Logger.Error().Err(err).Msg("vlc: Error starting VLC")
+		return fmt.Errorf("error starting VLC: %w", err)
 	}
 
 	time.Sleep(1 * time.Second)

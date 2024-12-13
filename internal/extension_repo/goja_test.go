@@ -116,15 +116,8 @@ func TestGojaOnlinestreamExtension(t *testing.T) {
 	episodes, err := provider.FindEpisodes(dandadanRes.ID)
 	require.NoError(t, err)
 
-	for _, episode := range episodes {
-		t.Logf("Episode Number: %d, ID: %s\n", episode.Number, episode.ID)
-	}
+	util.Spew(episodes)
 
-	// Find first episode server
-	server, err := provider.FindEpisodeServer(episodes[0], "kwik")
-	require.NoError(t, err)
-
-	spew.Dump(server)
 }
 
 func TestGojaOnlinestreamExtension2(t *testing.T) {
