@@ -135,7 +135,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         } else {
             router.push(ANIME_LINK)
         }
-    }, [])
+    }, [listData?.progress, listData?.status, media.id])
 
     const onPopupMouseEnter = React.useCallback(() => {
         setActionPopupHover(media.id)

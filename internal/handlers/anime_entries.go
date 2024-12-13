@@ -250,6 +250,8 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	title := selectedLfs[0].GetParsedTitle()
 
+	c.App.Logger.Info().Str("title", title).Msg("handlers: Fetching anime suggestions")
+
 	res, err := anilist.ListAnimeM(
 		lo.ToPtr(1),
 		&title,
