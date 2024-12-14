@@ -29,6 +29,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Online streaming: Fixed selecting highest/default quality by default
 - 🦺 Fixed UI inconsistencies
 - 🏗️ Removed 'Hianime' online streaming extension
+- 🏗️ Real Debrid: Select all files by default
 - 🏗️ UI: Improved media card virtualized grid performance
 - 🏗️ Javascript VM: Added 'url' property to fetch binding
 - 🏗️ Reduced online streaming cache duration
