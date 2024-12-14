@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Desktop: Automatically restart server process when it crashes/exits
 - ⚡️ Desktop: Added 'Restart server' button when server process is terminated
 - ⚡️ Auto progress update now works for built-in media player
-- ⚡️ Desktop: Back/Forward navigation buttons when hovering logo #171
+- ⚡️ Desktop: Back/Forward navigation buttons #171
 - ⚡️ Open search page by clicking on media genres and ranks #172
 - ⚡️ Support for AniList 'repeat' field #169
 - ⚡️ Ignore dropped anime in missing episodes #170

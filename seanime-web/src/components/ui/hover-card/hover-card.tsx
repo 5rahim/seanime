@@ -37,7 +37,7 @@ export const HoverCard = React.forwardRef<HTMLDivElement, HoverCardProps>((props
     } = props
 
     return (
-        <HoverCardPrimitive.Root openDelay={0}>
+        <HoverCardPrimitive.Root openDelay={1} closeDelay={0}>
             <HoverCardPrimitive.Trigger asChild>
                 {props.trigger}
             </HoverCardPrimitive.Trigger>

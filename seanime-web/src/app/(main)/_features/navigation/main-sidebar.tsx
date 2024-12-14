@@ -27,13 +27,12 @@ import { useThemeSettings } from "@/lib/theme/hooks"
 import { useSetAtom } from "jotai"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai"
 import { BiCalendarAlt, BiDownload, BiExtension, BiLogOut, BiNews } from "react-icons/bi"
 import { FaBookReader } from "react-icons/fa"
 import { FiLogIn, FiSearch, FiSettings } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
-import { PiClockCounterClockwiseFill } from "react-icons/pi"
+import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
 
@@ -125,28 +124,7 @@ export function MainSidebar() {
 
                 <div>
                     <div className="mb-4 p-4 pb-0 flex justify-center w-full">
-                        {process.env.NEXT_PUBLIC_PLATFORM === "desktop" ? <div className="w-15 h-10 block w-fit">
-                            <HoverCard
-                                side="right"
-                                className="w-fit rounded-full flex gap-2 bg-gray-950 bg-opacity-50 p-2"
-                                trigger={<div className="">
-                                    <img src="/logo.png" alt="logo" className="w-15 h-10 block" />
-                                </div>}
-                            >
-                                <IconButton
-                                    icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="sm"
-                                    onClick={() => {
-                                        router.back()
-                                    }}
-                                />
-                                <IconButton
-                                    icon={<AiOutlineArrowRight />} rounded intent="white-outline" size="sm"
-                                    onClick={() => {
-                                        router.forward()
-                                    }}
-                                />
-                            </HoverCard>
-                        </div> : <img src="/logo.png" alt="logo" className="w-15 h-10" />}
+                        <img src="/logo.png" alt="logo" className="w-15 h-10" />
                     </div>
                     <VerticalMenu
                         className="px-4"
@@ -252,6 +230,32 @@ export function MainSidebar() {
                         handleExpandSidebar={() => {}}
                         handleUnexpandedSidebar={() => {}}
                     />
+
+                    {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <div className="block w-fit px-4">
+                        <HoverCard
+                            side="right"
+                            sideOffset={-8}
+                            // className="w-fit rounded-full flex gap-2 bg-gray-950 bg-opacity-50 p-2"
+                            className="bg-transparent border-none"
+                            trigger={<IconButton
+                                intent="gray-basic"
+                                className="px-6 opacity-50 hover:opacity-100"
+                                icon={<PiArrowCircleLeftDuotone />}
+                                onClick={() => {
+                                    router.back()
+                                }}
+                            />}
+                        >
+                            <IconButton
+                                icon={<PiArrowCircleRightDuotone />}
+                                intent="gray-subtle"
+                                className="px-6 opacity-50 hover:opacity-100"
+                                onClick={() => {
+                                    router.forward()
+                                }}
+                            />
+                        </HoverCard>
+                    </div>}
 
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
