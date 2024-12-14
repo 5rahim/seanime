@@ -35,7 +35,8 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                 </p>
             </div>
 
-            <Separator />
+            <Separator className="!mt-10" />
+            <br />
 
             <div>
                 <h3>Desktop Media Player</h3>
@@ -57,15 +58,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                 help="Player that will be used to open files and track your progress automatically."
             />
 
-            <br />
-
-            <h4>Progress tracking</h4>
-
-            <Field.Switch
-                name="autoUpdateProgress"
-                label="Automatically update progress"
-                help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
-            />
+            <Separator />
 
             <h4>Playback</h4>
 
@@ -75,7 +68,8 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                 help="If enabled, Seanime will play the next episode after a delay when the current episode is completed."
             />
 
-            <br />
+            <Separator />
+
 
             <h4>
                 Configuration

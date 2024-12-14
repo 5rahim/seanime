@@ -250,6 +250,8 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	title := selectedLfs[0].GetParsedTitle()
 
+	c.App.Logger.Info().Str("title", title).Msg("handlers: Fetching anime suggestions")
+
 	res, err := anilist.ListAnimeM(
 		lo.ToPtr(1),
 		&title,
@@ -263,6 +265,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 		nil,
 		nil,
 		c.App.Logger,
+		c.App.GetAccountToken(),
 	)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -500,7 +503,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 // HandleUpdateAnimeEntryProgress
 //
 //	@summary update the progress of the given anime media entry.
-//	@desc This is used to update the progress of the given anime media entry on AniList and MyAnimeList (if an account is linked).
+//	@desc This is used to update the progress of the given anime media entry on AniList.
 //	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
 //	@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
 //	@route /api/v1/library/anime-entry/update-progress [POST]
@@ -524,6 +527,40 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 		b.MediaId,
 		b.EpisodeNumber,
 		&b.TotalEpisodes,
+	)
+	if err != nil {
+		return c.RespondWithError(err)
+	}
+
+	_, _ = c.App.RefreshAnimeCollection() // Refresh the AniList collection
+
+	return c.RespondWithData(true)
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+// HandleUpdateAnimeEntryRepeat
+//
+//	@summary update the repeat value of the given anime media entry.
+//	@desc This is used to update the repeat value of the given anime media entry on AniList.
+//	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
+//	@route /api/v1/library/anime-entry/update-repeat [POST]
+//	@returns bool
+func HandleUpdateAnimeEntryRepeat(c *RouteCtx) error {
+
+	type body struct {
+		MediaId int `json:"mediaId"`
+		Repeat  int `json:"repeat"`
+	}
+
+	b := new(body)
+	if err := c.Fiber.BodyParser(b); err != nil {
+		return c.RespondWithError(err)
+	}
+
+	err := c.App.AnilistPlatform.UpdateEntryRepeat(
+		b.MediaId,
+		b.Repeat,
 	)
 	if err != nil {
 		return c.RespondWithError(err)

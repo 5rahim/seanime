@@ -2,6 +2,7 @@ package extension_repo_test
 
 import (
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
 	"os"
@@ -74,4 +75,83 @@ func TestGojaWithExtension(t *testing.T) {
 	for _, page := range pages {
 		t.Logf("Page: %s, Index: %d\n", page.URL, page.Index)
 	}
+}
+
+func TestGojaOnlinestreamExtension(t *testing.T) {
+	// Get the script
+	filepath := "./goja_onlinestream_test/animepahe.ts"
+	fileB, err := os.ReadFile(filepath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ext := &extension.Extension{
+		ID:          "animepahe",
+		Name:        "Animepahe",
+		Version:     "0.1.0",
+		ManifestURI: "",
+		Language:    extension.LanguageTypescript,
+		Type:        extension.TypeOnlinestreamProvider,
+		Description: "",
+		Author:      "",
+		Payload:     string(fileB),
+	}
+
+	// Create the provider
+	provider, _, err := extension_repo.NewGojaOnlinestreamProvider(ext, ext.Language, util.NewLogger())
+	require.NoError(t, err)
+
+	// Test the search function
+	searchResult, err := provider.Search(hibikeonlinestream.SearchOptions{Query: "dandadan"})
+	require.NoError(t, err)
+
+	spew.Dump(searchResult)
+
+	// Should have a result with rating of 1
+	var dandadanRes *hibikeonlinestream.SearchResult
+	dandadanRes = searchResult[0]
+	require.NotNil(t, dandadanRes)
+
+	// Test find episodes
+	episodes, err := provider.FindEpisodes(dandadanRes.ID)
+	require.NoError(t, err)
+
+	util.Spew(episodes)
+
+}
+
+func TestGojaOnlinestreamExtension2(t *testing.T) {
+	// Get the script
+	filepath := "./goja_onlinestream_test/animepahe.ts"
+	fileB, err := os.ReadFile(filepath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ext := &extension.Extension{
+		ID:          "animepahe",
+		Name:        "Animepahe",
+		Version:     "0.1.0",
+		ManifestURI: "",
+		Language:    extension.LanguageTypescript,
+		Type:        extension.TypeOnlinestreamProvider,
+		Description: "",
+		Author:      "",
+		Payload:     string(fileB),
+	}
+
+	// Create the provider
+	provider, _, err := extension_repo.NewGojaOnlinestreamProvider(ext, ext.Language, util.NewLogger())
+	require.NoError(t, err)
+	// Find first episode server
+	server, err := provider.FindEpisodeServer(&hibikeonlinestream.EpisodeDetails{
+		Provider: "animepahe",
+		ID:       "0ba8e30b98b1be6d19c8ac73ae11372911e62424ef454f05052ef6af8f01f13b$269b021d-a893-4471-04e7-b8933d81bda1",
+		Number:   1,
+		URL:      "",
+		Title:    "",
+	}, "kwik")
+	require.NoError(t, err)
+
+	spew.Dump(server)
 }

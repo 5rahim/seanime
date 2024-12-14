@@ -5,6 +5,7 @@ import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MediastreamPlaybackSubmenu } from "@/app/(main)/mediastream/_components/mediastream-video-addons"
 import {
     __mediastream_currentProgressAtom,
@@ -48,7 +49,7 @@ import { BiInfoCircle } from "react-icons/bi"
 
 
 export default function Page() {
-
+    const serverStatus = useServerStatus()
     const router = useRouter()
     const searchParams = useSearchParams()
     const mediaId = searchParams.get("id")
@@ -89,6 +90,8 @@ export default function Page() {
         setStreamType,
         disabledAutoSwitchToDirectPlay,
         handleUpdateWatchHistory,
+        episode,
+        duration,
     } = useHandleMediastream({ playerRef, episodes, mediaId })
 
     const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
@@ -366,7 +369,32 @@ export default function Page() {
                                         } else {
                                             setShowSkipEndingButton(false)
                                         }
-                                        onTimeUpdate(e)
+
+                                        if (
+                                            (!progressItem || (!!episode?.progressNumber && episode?.progressNumber > progressItem.episodeNumber)) &&
+                                            duration > 0 && (e.currentTime / duration) > 0.8 &&
+                                            (episode?.progressNumber || 0) > currentProgress
+                                        ) {
+                                            if (episode && mediaId) {
+                                                if (serverStatus?.settings?.library?.autoUpdateProgress) {
+                                                    if (!isUpdatingProgress) {
+                                                        updateProgress({
+                                                            episodeNumber: episode?.progressNumber,
+                                                            mediaId: Number(mediaId),
+                                                            totalEpisodes: animeEntry?.media?.episodes || 0,
+                                                        }, {
+                                                            onSuccess: () => {
+                                                                setCurrentProgress(episode?.progressNumber)
+                                                            },
+                                                        })
+                                                    }
+                                                } else {
+                                                    setProgressItem({
+                                                        episodeNumber: episode?.progressNumber,
+                                                    })
+                                                }
+                                            }
+                                        }
                                     }}
                                     onCanPlay={onCanPlay}
                                     onEnded={onEnded}

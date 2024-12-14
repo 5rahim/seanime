@@ -131,15 +131,17 @@ func (m *Repository) Play(path string) error {
 	case "vlc":
 		err := m.VLC.Start()
 		if err != nil {
-			return errors.New("could not start media player")
+			m.Logger.Error().Err(err).Msg("media player: Could not start media player using VLC")
+			return fmt.Errorf("could not start VLC, %w", err)
 		}
+
 		err = m.VLC.AddAndPlay(path)
 		if err != nil {
-			m.Logger.Error().Err(err).Msg("media player: Could not open and play video")
+			m.Logger.Error().Err(err).Msg("media player: Could not open and play video using VLC")
 			if m.VLC.Path != "" {
-				return errors.New("could not open and play video, verify your settings")
+				return fmt.Errorf("could not open and play video, %w", err)
 			} else {
-				return errors.New("could not open and play video, make sure VLC is running or specify the application path in your settings")
+				return fmt.Errorf("could not open and play video, %w", err)
 			}
 		}
 
@@ -158,11 +160,13 @@ func (m *Repository) Play(path string) error {
 	case "mpc-hc":
 		err := m.MpcHc.Start()
 		if err != nil {
-			return errors.New("could not start media player")
+			m.Logger.Error().Err(err).Msg("media player: Could not start media player using MPC-HC")
+			return fmt.Errorf("could not start MPC-HC, %w", err)
 		}
 		_, err = m.MpcHc.OpenAndPlay(path)
 		if err != nil {
-			return errors.New("could not open and play video, verify your settings")
+			m.Logger.Error().Err(err).Msg("media player: Could not open and play video using MPC-HC")
+			return fmt.Errorf("could not open and play video, %w", err)
 		}
 
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
@@ -185,12 +189,14 @@ func (m *Repository) Play(path string) error {
 			}
 			err := m.Mpv.OpenAndPlay(path, args...)
 			if err != nil {
-				return fmt.Errorf("could not open and play video, %s", err.Error())
+				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using MPV")
+				return fmt.Errorf("could not open and play video, %w", err)
 			}
 		} else {
 			err := m.Mpv.OpenAndPlay(path)
 			if err != nil {
-				return fmt.Errorf("could not open and play video, %s", err.Error())
+				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using MPV")
+				return fmt.Errorf("could not open and play video, %w", err)
 			}
 		}
 
@@ -219,7 +225,8 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	}
 
 	if err != nil {
-		return fmt.Errorf("could not open media player, %s", err.Error())
+		m.Logger.Error().Err(err).Msg("media player: Could not start media player for stream")
+		return fmt.Errorf("could not open media player, %w", err)
 	}
 
 	switch m.Default {
@@ -268,7 +275,8 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 	}
 
 	if err != nil {
-		return fmt.Errorf("could not open and play video, %s", err.Error())
+		m.Logger.Error().Err(err).Msg("media player: Could not open and play stream")
+		return fmt.Errorf("could not open and play stream, %w", err)
 	}
 
 	return nil

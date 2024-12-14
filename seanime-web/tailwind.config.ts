@@ -47,6 +47,11 @@ const config: Config = {
             },
             screens: {
                 "2xl": "1400px",
+                "3xl": "1600px",
+                "4xl": "1800px",
+                "5xl": "2000px",
+                "6xl": "2200px",
+                "7xl": "2400px",
             },
         },
         data: {
@@ -56,6 +61,13 @@ const config: Config = {
             highlighted: "highlighted",
         },
         extend: {
+            screens: {
+                "3xl": "1600px",
+                "4xl": "1800px",
+                "5xl": "2000px",
+                "6xl": "2200px",
+                "7xl": "2400px",
+            },
             animationDuration: {
                 DEFAULT: "0.25s",
             },

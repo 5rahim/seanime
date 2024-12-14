@@ -174,6 +174,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 			Progress:    a.GetProgressSafe(),
 			Score:       a.GetScoreSafe(),
 			Status:      a.GetStatus(),
+			Repeat:      a.GetRepeatSafe(),
 			StartedAt:   anilist.FuzzyDateToString(a.StartedAt),
 			CompletedAt: anilist.FuzzyDateToString(a.CompletedAt),
 		}

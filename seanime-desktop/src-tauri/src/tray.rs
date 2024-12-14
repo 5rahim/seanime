@@ -16,8 +16,21 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
         true,
         None::<&str>,
     )?;
+    let accessory_mode_i = MenuItem::with_id(
+        app,
+        "accessory_mode",
+        "Remove from dock",
+        true,
+        None::<&str>,
+    )?;
+    let mut items: Vec<&dyn tauri::menu::IsMenuItem<R>> = vec![&toggle_visibility_i, &quit_i];
 
-    let menu = Menu::with_items(app, &[&toggle_visibility_i, &quit_i])?;
+    #[cfg(target_os = "macos")]
+    {
+        items = vec![&toggle_visibility_i, &accessory_mode_i, &quit_i];
+    }
+
+    let menu = Menu::with_items(app, &items)?;
 
     let _ = TrayIconBuilder::with_id("tray")
         .icon(app.default_window_icon().unwrap().clone())
@@ -43,6 +56,11 @@ pub fn create_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
                             .unwrap();
                     }
                 }
+            }
+            "accessory_mode" => {
+                #[cfg(target_os = "macos")]
+                app.set_activation_policy(tauri::ActivationPolicy::Accessory)
+                    .unwrap();
             }
             // "hide" => {
             //     if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {

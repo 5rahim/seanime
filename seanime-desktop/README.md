@@ -2,7 +2,7 @@
 <img src="../seanime-web/public/logo_2.png" alt="preview" width="150px"/>
 </p>
 
-<h2 align="center"><b>Seanime Desktop (Work in Progress)</b></h2>
+<h2 align="center"><b>Seanime Desktop</b></h2>
 
 <p align="center">
 Desktop app for Seanime. Embeds server and web interface.

@@ -28,14 +28,15 @@ type UpdateModalProps = {
     collapsed?: boolean
 }
 
-
 const updateModalOpenAtom = atom<boolean>(false)
+export const isUpdateInstalledAtom = atom<boolean>(false)
+export const isUpdatingAtom = atom<boolean>(false)
 
 export function TauriUpdateModal(props: UpdateModalProps) {
     const serverStatus = useServerStatus()
     const [updateModalOpen, setUpdateModalOpen] = useAtom(updateModalOpenAtom)
 
-    const [isUpdating, setIsUpdating] = React.useState(false)
+    const [isUpdating, setIsUpdating] = useAtom(isUpdatingAtom)
 
     const { data: updateData, isLoading, refetch } = useGetLatestUpdate(!!serverStatus && !serverStatus?.settings?.library?.disableUpdateCheck)
 
@@ -49,7 +50,7 @@ export function TauriUpdateModal(props: UpdateModalProps) {
     const [updateLoading, setUpdateLoading] = React.useState(true)
     const [tauriUpdate, setUpdate] = React.useState<Update | null>(null)
     const [tauriError, setTauriError] = React.useState("")
-    const [isInstalled, setIsInstalled] = React.useState(false)
+    const [isInstalled, setIsInstalled] = useAtom(isUpdateInstalledAtom)
 
     const checkTauriUpdate = React.useCallback(() => {
         try {
@@ -131,7 +132,7 @@ export function TauriUpdateModal(props: UpdateModalProps) {
     if (isLoading || updateLoading || !updateData || !updateData.release) return null
 
     if (isInstalled) return (
-        <div className="fixed top-0 left-0 w-full h-full bg-[--background] flex items-center">
+        <div className="fixed top-0 left-0 w-full h-full bg-[--background] flex items-center z-[9999]">
             <div className="container max-w-4xl py-10">
                 <div className="mb-4 flex justify-center w-full">
                     <img src="/logo_2.png" alt="logo" className="w-36 h-auto" />

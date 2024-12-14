@@ -1,11 +1,11 @@
 import { AL_BaseAnime, AL_BaseManga, AL_MediaStatus, Anime_EntryListData, Manga_EntryListData, Nullish } from "@/api/generated/types"
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
@@ -149,7 +149,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative z-[4]"
             >
-                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[60rem] relative">
+                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[65rem] 5xl:max-w-[80rem] relative">
                     <motion.div
                         {...{
                             initial: { opacity: 0 },
@@ -220,8 +220,6 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
         ...rest
     } = props
 
-    const serverStatus = useServerStatus()
-
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-8">
@@ -287,9 +285,25 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
-                        <p className="text-base text-white md:text-lg">{capitalize(listData?.status === "CURRENT"
+                        <p className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
                             ? type === "anime" ? "watching" : "reading"
-                            : listData?.status)}</p>
+                            : listData?.status)}
+                            {listData?.repeat && <Tooltip
+                                trigger={<Badge
+                                    size="md"
+                                    intent="gray"
+                                    className="ml-3"
+                                >
+                                    {listData?.repeat}
+
+                                </Badge>}
+                            >
+                                {listData?.repeat} {type === "anime" ? "rewatch" : "reread"}{listData?.repeat > 1
+                                ? type === "anime" ? "es" : "s"
+                                : ""}
+                            </Tooltip>}
+                        </p>
+
                     </div>
 
                     <ScrollArea

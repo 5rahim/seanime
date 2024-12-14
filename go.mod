@@ -9,8 +9,8 @@ require (
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/Microsoft/go-winio v0.6.1
-	github.com/PuerkitoBio/goquery v1.9.2
-	github.com/Yamashou/gqlgenc v0.24.0
+	github.com/PuerkitoBio/goquery v1.9.3
+	github.com/Yamashou/gqlgenc v0.25.4
 	github.com/adrg/strutil v0.3.1
 	github.com/anacrolix/log v0.15.2
 	github.com/anacrolix/sync v0.5.1
@@ -34,6 +34,7 @@ require (
 	github.com/gonutz/w32/v2 v2.11.1
 	github.com/google/go-querystring v1.1.0
 	github.com/google/uuid v1.6.0
+	github.com/grafov/m3u8 v0.12.1
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
 	github.com/kr/pretty v0.3.1
 	github.com/likexian/doh-go v0.6.4
@@ -49,17 +50,17 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/traefik/yaegi v0.16.1
 	github.com/xfrr/goffmpeg v1.0.0
-	golang.org/x/crypto v0.26.0
+	golang.org/x/crypto v0.27.0
 	golang.org/x/image v0.18.0
-	golang.org/x/net v0.28.0
-	golang.org/x/term v0.23.0
+	golang.org/x/net v0.29.0
+	golang.org/x/term v0.24.0
 	golang.org/x/text v0.19.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.0
 	gorm.io/gorm v1.25.10
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.44 // indirect
+	github.com/99designs/gqlgen v0.17.54 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
@@ -162,7 +163,7 @@ require (
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/savsgio/gotils v0.0.0-20240303185622-093b76447511 // indirect
-	github.com/sosodev/duration v1.2.0 // indirect
+	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
@@ -174,7 +175,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.52.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.11 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.16 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
@@ -182,11 +183,11 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
-	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+	golang.org/x/tools v0.24.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

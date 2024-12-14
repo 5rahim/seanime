@@ -41,3 +41,16 @@ mutation DeleteEntry (
         deleted
     }
 }
+
+
+mutation UpdateMediaListEntryRepeat (
+  $mediaId: Int
+  $repeat: Int
+) {
+  SaveMediaListEntry(
+    mediaId: $mediaId
+    repeat: $repeat
+  ) {
+    id
+  }
+}

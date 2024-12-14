@@ -73,6 +73,7 @@ func NewCollection(opts *NewCollectionOptions) (collection *Collection, err erro
 							Progress:    *entry.Progress,
 							Score:       *entry.Score,
 							Status:      entry.Status,
+							Repeat:      entry.GetRepeatSafe(),
 							StartedAt:   anilist.FuzzyDateToString(entry.StartedAt),
 							CompletedAt: anilist.FuzzyDateToString(entry.CompletedAt),
 						},

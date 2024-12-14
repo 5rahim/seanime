@@ -41,7 +41,7 @@ func PrintHeader() {
 		var (
 			title  strings.Builder
 			titles = []string{"Seanime", constants.Version, constants.VersionName}
-			colors = []string{"#5243cb", "#5243cb", "#C74747", "#14F9D5"}
+			colors = []string{"#5243cb", "#5243cb", "#793dc7", "#14F9D5"}
 		)
 
 		for i, v := range titles {

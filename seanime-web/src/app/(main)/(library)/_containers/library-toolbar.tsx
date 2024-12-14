@@ -104,7 +104,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 {(unmatchedLocalFiles.length > 0) && <Button
                     intent="alert"
                     leftIcon={<IoLibrarySharp />}
-                    className=""
+                    className="animate-bounce"
                     onClick={() => setUnmatchedFileManagerOpen(true)}
                 >
                     Resolve unmatched ({unmatchedLocalFiles.length})
@@ -112,7 +112,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                 {(unknownGroups.length > 0) && <Button
                     intent="warning"
                     leftIcon={<IoLibrarySharp />}
-                    className=""
+                    className="animate-bounce"
                     onClick={() => setUnknownMediaManagerOpen(true)}
                 >
                     Resolve hidden media ({unknownGroups.length})

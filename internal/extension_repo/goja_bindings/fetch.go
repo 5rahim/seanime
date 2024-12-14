@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/dop251/goja"
 	"github.com/goccy/go-json"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"seanime/internal/util"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,6 +28,10 @@ func BindFetch(vm *goja.Runtime) error {
 
 	return nil
 }
+
+var fetchSemaphore = make(chan struct{}, 10)
+var promiseResMu sync.Mutex
+var objMu sync.Mutex
 
 func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	defer func() {
@@ -62,6 +68,15 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	promise, resolve, reject := vm.NewPromise()
 
 	go func() {
+		fetchSemaphore <- struct{}{}
+		defer func() {
+			<-fetchSemaphore
+		}()
+
+		defer util.HandlePanicInModuleThen("extension_repo/goja_bindings/gojaFetch", func() {
+			reject(vm.ToValue(fmt.Sprintf("JS VM: Panic from fetch")))
+		})
+
 		method := "GET"
 		if m := options.Get("method"); m != nil && gojaValueIsDefined(m) {
 			method = strings.ToUpper(m.String())
@@ -69,16 +84,20 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 
 		headers := make(map[string]string)
 		if h := options.Get("headers"); h != nil && gojaValueIsDefined(h) {
+			objMu.Lock()
 			headerObj := h.ToObject(vm)
 			for _, key := range headerObj.Keys() {
 				headers[key] = headerObj.Get(key).String()
 			}
+			objMu.Unlock()
 		}
 
 		var body io.Reader
 		if b := options.Get("body"); b != nil && !goja.IsUndefined(b) {
 			body = bytes.NewBufferString(b.String())
 		}
+
+		log.Trace().Str("url", urlArg).Str("method", method).Msgf("extension: Fetching using JS VM")
 
 		req, err := http.NewRequest(method, urlArg, body)
 		if err != nil {
@@ -115,32 +134,39 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 			canUnmarshal = false
 		}
 
+		objMu.Lock()
 		responseObj := vm.NewObject()
-		responseObj.Set("status", resp.StatusCode)
-		responseObj.Set("statusText", resp.Status)
-		responseObj.Set("ok", resp.StatusCode >= 200 && resp.StatusCode < 300)
+		_ = responseObj.Set("status", resp.StatusCode)
+		_ = responseObj.Set("statusText", resp.Status)
+		_ = responseObj.Set("ok", resp.StatusCode >= 200 && resp.StatusCode < 300)
+		_ = responseObj.Set("url", resp.Request.URL.String())
 
 		// Set the response headers
-		respHeadersObj := vm.NewObject()
+		headersObj := vm.NewObject()
 		for key, values := range resp.Header {
-			respHeadersObj.Set(key, values[0])
+			if len(values) > 0 {
+				_ = headersObj.Set(key, values[0])
+			}
 		}
-		responseObj.Set("headers", respHeadersObj)
+		_ = responseObj.Set("headers", headersObj)
 
 		// Set the response body
-		responseObj.Set("text", func(call goja.FunctionCall) goja.Value {
+		_ = responseObj.Set("text", func(call goja.FunctionCall) goja.Value {
 			return vm.ToValue(string(bodyBytes))
 		})
 
 		// Set the response JSON
-		responseObj.Set("json", func(call goja.FunctionCall) goja.Value {
+		_ = responseObj.Set("json", func(call goja.FunctionCall) goja.Value {
 			if !canUnmarshal {
 				return goja.Undefined()
 			}
 			return vm.ToValue(jsonInterface)
 		})
+		objMu.Unlock()
 
+		promiseResMu.Lock()
 		resolve(responseObj)
+		promiseResMu.Unlock()
 	}()
 
 	return promise

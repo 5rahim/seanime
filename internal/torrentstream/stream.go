@@ -9,6 +9,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/util"
 	"strconv"
 	"time"
 )
@@ -33,7 +34,8 @@ type StartStreamOptions struct {
 }
 
 // StartStream is called by the client to start streaming a torrent
-func (r *Repository) StartStream(opts *StartStreamOptions) error {
+func (r *Repository) StartStream(opts *StartStreamOptions) (err error) {
+	defer util.HandlePanicInModuleWithError("torrentstream/stream/StartStream", &err)
 	// DEVNOTE: Do not
 	//r.Shutdown()
 
@@ -75,6 +77,11 @@ func (r *Repository) StartStream(opts *StartStreamOptions) error {
 			r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
 			return err
 		}
+	}
+
+	if torrentToStream == nil {
+		r.wsEventManager.SendEvent(eventTorrentLoadingFailed, nil)
+		return fmt.Errorf("torrentstream: No torrent selected")
 	}
 
 	//

@@ -119,3 +119,10 @@ func (m *BaseManga) GetStartYearSafe() int {
 	}
 	return 0
 }
+
+func (m *MangaListEntry) GetRepeatSafe() int {
+	if m.Repeat == nil {
+		return 0
+	}
+	return *m.Repeat
+}

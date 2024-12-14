@@ -8,7 +8,7 @@ import { Drawer } from "@/components/ui/drawer"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { useCallback } from "react"
-import { BiLinkExternal } from "react-icons/bi"
+import { BiLinkExternal, BiPlus } from "react-icons/bi"
 import { TbDatabasePlus } from "react-icons/tb"
 import { toast } from "sonner"
 
@@ -53,7 +53,6 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
         }, {
             onSuccess: () => {
                 toast.success("Media unmatched")
-                setIsOpen(false)
             },
         })
     }, [])
@@ -107,14 +106,23 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                             {group.mediaId} <BiLinkExternal />
                                         </SeaLink>
                                     </h4>
-                                    <div>
+                                    <div className="flex gap-2 items-center">
                                         <Button
                                             size="sm"
-                                            intent="alert-subtle"
+                                            intent="primary-subtle"
+                                            disabled={isAdding}
+                                            onClick={() => addUnknownMedia({ mediaIds: [group.mediaId] })}
+                                            leftIcon={<BiPlus />}
+                                        >
+                                            Add to AniList
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            intent="warning-subtle"
                                             disabled={isUnmatching}
                                             onClick={() => handleUnmatchMedia(group.mediaId)}
                                         >
-                                            Unmatch media
+                                            Unmatch
                                         </Button>
                                     </div>
                                 </div>

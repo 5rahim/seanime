@@ -1,6 +1,7 @@
 "use client"
 
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { cva } from "class-variance-authority"
 import * as React from "react"
 import { CloseButton } from "../button"
@@ -137,9 +138,14 @@ export function Modal(props: ModalProps) {
                 >
 
                     {(title || description) && <div className={cn(ModalAnatomy.header(), headerClass)}>
-                        {title && <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
-                            {title}
-                        </DialogPrimitive.Title>}
+                        {title ? <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
+                                {title}
+                            </DialogPrimitive.Title> :
+                            <DialogPrimitive.Title>
+                                <VisuallyHidden>
+                                    N/A
+                                </VisuallyHidden>
+                            </DialogPrimitive.Title>}
                         {description && <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
                             {description}
                         </DialogPrimitive.Description>}

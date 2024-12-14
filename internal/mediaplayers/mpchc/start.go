@@ -1,7 +1,7 @@
 package mpchc
 
 import (
-	"errors"
+	"fmt"
 	"seanime/internal/util"
 	"strings"
 	"time"
@@ -47,7 +47,8 @@ func (api *MpcHc) Start() error {
 	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {
-		return errors.New("failed to start MPC-HC")
+		api.Logger.Error().Err(err).Msg("mpc-hc: Error starting MPC-HC")
+		return fmt.Errorf("error starting MPC-HC: %w", err)
 	}
 
 	time.Sleep(1 * time.Second)

@@ -35,6 +35,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/api/v1/image-proxy",
 			"/api/v1/mediastream/transcode/",
 			"/api/v1/torrent-client/list",
+			"/api/v1/proxy",
 		},
 		Fields:   []string{"method", "error", "url", "latency"},
 		Messages: []string{"api: Error", "api: Client error", "api: Success"},
@@ -112,7 +113,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	imageProxy := &util2.ImageProxy{}
 	v1.Get("/image-proxy", imageProxy.ProxyImage)
 
-	v1.Get("/proxy", util2.Proxy)
+	v1.Get("/proxy", util2.M3U8Proxy)
 
 	//
 	// General
@@ -219,6 +220,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1Library.Patch("/anime-entry/bulk-action", makeHandler(app, HandleAnimeEntryBulkAction))
 	v1Library.Post("/anime-entry/open-in-explorer", makeHandler(app, HandleOpenAnimeEntryInExplorer))
 	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
+	v1Library.Post("/anime-entry/update-repeat", makeHandler(app, HandleUpdateAnimeEntryRepeat))
 	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
 	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
 

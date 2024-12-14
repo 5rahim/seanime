@@ -281,7 +281,7 @@ func (c *Client) addTorrentMagnet(magnet string) (*torrent.Torrent, error) {
 	case <-t.GotInfo():
 		break
 	case <-t.Closed():
-		t.Drop()
+		//t.Drop()
 		return nil, errors.New("torrent closed")
 	case <-time.After(1 * time.Minute):
 		t.Drop()

@@ -1,5 +1,6 @@
 import { AL_AnimeDetailsById_Media_Rankings, AL_MangaDetailsById_Media_Rankings } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -22,16 +23,33 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
+
     if (!genres) return null
-    return (
-        <>
-            <div className="items-center flex flex-wrap gap-2">
-                {genres?.map(genre => {
-                    return <Badge key={genre!} className="border-transparent" size="lg">{genre}</Badge>
-                })}
-            </div>
-        </>
-    )
+
+    if (serverStatus?.isOffline) {
+        return (
+            <>
+                <div className="items-center flex flex-wrap gap-2">
+                    {genres?.map(genre => {
+                        return <Badge key={genre!} className="border-transparent" size="lg">{genre}</Badge>
+                    })}
+                </div>
+            </>
+        )
+    } else {
+        return (
+            <>
+                <div className="items-center flex flex-wrap gap-2">
+                    {genres?.map(genre => {
+                        return <SeaLink href={`/search?genre=${genre}&sorting=TRENDING_DESC`} key={genre!}>
+                            <Badge className="border-transparent" size="lg">{genre}</Badge>
+                        </SeaLink>
+                    })}
+                </div>
+            </>
+        )
+    }
 }
 
 type MediaEntryAudienceScoreProps = {
@@ -98,51 +116,80 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
         ...rest
     } = props
 
+    const serverStatus = useServerStatus()
+
     const seasonMostPopular = rankings?.find(r => (!!r?.season || !!r?.year) && r?.type === "POPULAR" && r.rank <= 10)
     const allTimeHighestRated = rankings?.find(r => !!r?.allTime && r?.type === "RATED" && r.rank <= 100)
     const seasonHighestRated = rankings?.find(r => (!!r?.season || !!r?.year) && r?.type === "RATED" && r.rank <= 5)
     const allTimeMostPopular = rankings?.find(r => !!r?.allTime && r?.type === "POPULAR" && r.rank <= 100)
 
     const formatFormat = React.useCallback((format: string) => {
+        if (format === "MANGA") return ""
         return (format === "TV" ? "" : format).replace("_", " ")
     }, [])
+
+    const Link = React.useCallback((props: { children: React.ReactNode, href: string }) => {
+        if (serverStatus?.isOffline) {
+            return <>{props.children}</>
+        }
+
+        return <SeaLink href={props.href}>{props.children}</SeaLink>
+    }, [serverStatus])
 
     if (!rankings) return null
 
     return (
         <>
             {(!!allTimeHighestRated || !!seasonMostPopular) && <div className="flex-wrap gap-2 hidden md:flex">
-                {allTimeHighestRated && <Badge
-                    size="lg"
-                    intent="gray"
-                    leftIcon={<AiFillStar />}
-                    iconClass="text-yellow-500"
-                    className="rounded-full border-transparent px-2"
+                {allTimeHighestRated && <Link
+                    href={`/search?sorting=SCORE_DESC${allTimeHighestRated.format ? `&format=${allTimeHighestRated.format}` : ""}`}
                 >
-                    #{String(allTimeHighestRated.rank)} Highest
-                    Rated {formatFormat(allTimeHighestRated.format)} of All
-                    Time
-                </Badge>}
-                {seasonHighestRated && <Badge
-                    size="lg"
-                    intent="gray"
-                    leftIcon={<AiOutlineStar />}
-                    iconClass="text-yellow-500"
-                    className="rounded-full border-transparent px-2"
+                    <Badge
+                        size="lg"
+                        intent="gray"
+                        leftIcon={<AiFillStar />}
+                        iconClass="text-yellow-500"
+                        className="rounded-full border-transparent px-2"
+                    >
+                        #{String(allTimeHighestRated.rank)} Highest
+                        Rated {formatFormat(allTimeHighestRated.format)} of All
+                        Time
+                    </Badge>
+                </Link>}
+                {seasonHighestRated && <Link
+                    href={`/search?sorting=SCORE_DESC${seasonHighestRated.format
+                        ? `&format=${seasonHighestRated.format}`
+                        : ""}${seasonHighestRated.season ? `&season=${seasonHighestRated.season}` : ""}&year=${seasonHighestRated.year}`}
                 >
-                    #{String(seasonHighestRated.rank)} Highest
-                    Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
-                </Badge>}
-                {seasonMostPopular && <Badge
-                    size="lg"
-                    intent="gray"
-                    leftIcon={<AiOutlineHeart />}
-                    iconClass="text-pink-500"
-                    className="rounded-full border-transparent px-2"
+                    <Badge
+                        size="lg"
+                        intent="gray"
+                        leftIcon={<AiOutlineStar />}
+                        iconClass="text-yellow-500"
+                        className="rounded-full border-transparent px-2"
+                    >
+                        #{String(seasonHighestRated.rank)} Highest
+                        Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
+                    </Badge>
+                </Link>}
+                {seasonMostPopular && <Link
+                    href={`/search?sorting=POPULARITY_DESC${seasonMostPopular.format
+                        ? `&format=${seasonMostPopular.format}`
+                        : ""}${seasonMostPopular.year ? `&year=${seasonMostPopular.year}` : ""}${seasonMostPopular.season
+                        ? `&season=${seasonMostPopular.season}`
+                        : ""}`}
                 >
-                    #{(String(seasonMostPopular.rank))} Most
-                    Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
-                </Badge>}
+                    <Badge
+                        size="lg"
+                        intent="gray"
+                        leftIcon={<AiOutlineHeart />}
+                        iconClass="text-pink-500"
+                        className="rounded-full border-transparent px-2"
+                    >
+                        #{(String(seasonMostPopular.rank))} Most
+                        Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}
+                    </Badge>
+                </Link>}
             </div>}
         </>
     )

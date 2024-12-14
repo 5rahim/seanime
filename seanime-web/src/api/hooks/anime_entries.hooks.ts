@@ -6,6 +6,7 @@ import {
     OpenAnimeEntryInExplorer_Variables,
     ToggleAnimeEntrySilenceStatus_Variables,
     UpdateAnimeEntryProgress_Variables,
+    UpdateAnimeEntryRepeat_Variables,
 } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { AL_BaseAnime, Anime_Entry, Anime_LocalFile, Anime_MissingEpisodes, Nullish } from "@/api/generated/types"
@@ -113,7 +114,7 @@ export function useUpdateAnimeEntryProgress(id: Nullish<string | number>, episod
     return useServerMutation<boolean, UpdateAnimeEntryProgress_Variables>({
         endpoint: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.endpoint,
         method: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.methods[0],
-        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.key, episodeNumber],
+        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryProgress.key, id, episodeNumber],
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANILIST.GetAnimeCollection.key] })
             await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_COLLECTION.GetLibraryCollection.key] })
@@ -125,3 +126,18 @@ export function useUpdateAnimeEntryProgress(id: Nullish<string | number>, episod
     })
 }
 
+export function useUpdateAnimeEntryRepeat(id: Nullish<string | number>) {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<boolean, UpdateAnimeEntryRepeat_Variables>({
+        endpoint: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryRepeat.endpoint,
+        method: API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryRepeat.methods[0],
+        mutationKey: [API_ENDPOINTS.ANIME_ENTRIES.UpdateAnimeEntryRepeat.key, id],
+        onSuccess: async () => {
+            // if (id) {
+            //     await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ANIME_ENTRIES.GetAnimeEntry.key, String(id)] })
+            // }
+            // toast.success("Updated successfully")
+        },
+    })
+}

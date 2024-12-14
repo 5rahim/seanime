@@ -113,6 +113,23 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             <Separator />
 
+            <div>
+                <h3>
+                    Anime progress tracking
+                </h3>
+                <p className="text-[--muted]">
+                    Only applies to desktop and built-in players.
+                </p>
+            </div>
+
+            <Field.Switch
+                name="autoUpdateProgress"
+                label="Automatically update progress"
+                help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
+            />
+
+            <Separator />
+
             <h3>Notifications</h3>
 
             <Field.Switch

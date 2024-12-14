@@ -1,3 +1,4 @@
+import { getServerBaseUrl } from "@/api/client/server-url"
 import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
@@ -89,21 +90,25 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
         // Only filter by quality if the quality is present in the sources
         if (quality && hasQuality) {
             videoSources = videoSources.filter(s => s.quality === quality)
-        } else if (quality && !hasAuto) {
-            if (videoSources.some(n => n.quality === "1080p")) {
-                videoSources = videoSources.filter(s => s.quality === "1080p")
-            } else if (videoSources.some(n => n.quality === "default")) {
-                videoSources = videoSources.filter(s => s.quality === "default")
-            } else if (videoSources.some(n => n.quality === "720p")) {
-                videoSources = videoSources.filter(s => s.quality === "720p")
-            } else if (videoSources.some(n => n.quality === "480p")) {
-                videoSources = videoSources.filter(s => s.quality === "480p")
-            } else if (videoSources.some(n => n.quality === "360p")) {
-                videoSources = videoSources.filter(s => s.quality === "360p")
+        } else if (!quality && !hasAuto) {
+            if (videoSources.some(n => n.quality.includes("1080p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("1080p"))
+            } else if (videoSources.some(n => n.quality.includes("720p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("720p"))
+            } else if (videoSources.some(n => n.quality.includes("480p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("480p"))
+            } else if (videoSources.some(n => n.quality.includes("360p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("360p"))
+            }
+
+            if (videoSources.some(n => n.quality.includes("default"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("default"))
             }
         } else if (quality && hasAuto) {
             videoSources = videoSources.filter(s => s.quality === "auto")
         }
+
+        console.log("videoSources", videoSources)
 
         return videoSources[0]
     }, [episodeSource, selectedServer, quality])
@@ -199,8 +204,16 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         setUrl(undefined)
         if (videoSource?.url) {
             setServer(videoSource.server)
+            let _url = videoSource.url
+            if (videoSource.headers && Object.keys(videoSource.headers).length > 0) {
+                _url = `${getServerBaseUrl()}/api/v1/proxy?url=${encodeURIComponent(videoSource?.url)}&headers=${encodeURIComponent(JSON.stringify(
+                    videoSource?.headers))}`
+            } else {
+                _url = videoSource.url
+            }
             React.startTransition(() => {
-                setUrl(videoSource?.url)
+                logger("ONLINESTREAM").info("Setting stream URL", { url: _url })
+                setUrl(_url)
             })
         }
     }, [videoSource?.url])

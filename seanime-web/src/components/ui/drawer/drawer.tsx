@@ -207,12 +207,13 @@ export function Drawer(props: DrawerProps) {
 
                     {(title || description) && <div className={cn(DrawerAnatomy.header(), headerClass)}>
                         {title ? <DialogPrimitive.Title className={cn(DrawerAnatomy.title(), titleClass)}>
-                            {title}
-                        </DialogPrimitive.Title> : <VisuallyHidden>
+                                {title}
+                            </DialogPrimitive.Title> :
                             <DialogPrimitive.Title>
-                                N/A
-                            </DialogPrimitive.Title>
-                        </VisuallyHidden>}
+                                <VisuallyHidden>
+                                    N/A
+                                </VisuallyHidden>
+                            </DialogPrimitive.Title>}
                         {description && <DialogPrimitive.Description className={cn(DrawerAnatomy.description(), descriptionClass)}>
                             {description}
                         </DialogPrimitive.Description>}

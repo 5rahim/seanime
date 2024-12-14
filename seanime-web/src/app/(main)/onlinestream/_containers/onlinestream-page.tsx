@@ -1,6 +1,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
+import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import {
@@ -27,6 +28,7 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { logger } from "@/lib/helpers/debug"
 import {
     isHLSProvider,
     MediaPlayer,
@@ -66,7 +68,7 @@ const theaterModeAtom = atomWithStorage("sea-onlinestream-theater-mode", false)
 
 
 export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton }: OnlinestreamPageProps) {
-
+    const serverStatus = useAtomValue(serverStatusAtom)
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -133,15 +135,19 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
      */
     const firstRenderRef = React.useRef(true)
     useUpdateEffect(() => {
-        if (!!media && firstRenderRef.current) {
+        if (!!media && firstRenderRef.current && !!episodes) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = animeEntry?.listData?.progress ?? 0
-            const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
+            let nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : progress + 1
+            if (!episodes.find(e => e.number === nextProgressNumber)) {
+                nextProgressNumber = 1
+            }
             handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
+            logger("ONLINESTREAM").info("Setting episode number to", _urlEpNumber || nextProgressNumber || 1)
             firstRenderRef.current = false
         }
-    }, [media])
+    }, [episodes])
 
     React.useEffect(() => {
         const t = setTimeout(() => {
@@ -400,9 +406,24 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     duration > 0 && (e.currentTime / duration) >= 0.8 &&
                                     currentEpisodeNumber > currentProgress
                                 ) {
-                                    setProgressItem({
-                                        episodeNumber: currentEpisodeNumber,
-                                    })
+                                    if (serverStatus?.settings?.library?.autoUpdateProgress) {
+                                        if (!isUpdatingProgress) {
+                                            updateProgress({
+                                                episodeNumber: currentEpisodeNumber,
+                                                mediaId: media.id,
+                                                totalEpisodes: media.episodes || 0,
+                                                malId: media.idMal || undefined,
+                                            }, {
+                                                onSuccess: () => {
+                                                    setCurrentProgress(currentEpisodeNumber)
+                                                },
+                                            })
+                                        }
+                                    } else {
+                                        setProgressItem({
+                                            episodeNumber: currentEpisodeNumber,
+                                        })
+                                    }
                                 }
                             }}
                             onEnded={(e) => {

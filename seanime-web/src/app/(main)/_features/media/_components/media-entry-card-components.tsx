@@ -13,7 +13,7 @@ import { atom, useAtom } from "jotai/index"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import Image from "next/image"
-import React from "react"
+import React, { memo } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { RiSignalTowerLine } from "react-icons/ri"
@@ -103,7 +103,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             {(ts.enableMediaCardBlurredBackground && !!coverImage) && <div className="absolute top-0 left-0 w-full h-full rounded-md overflow-hidden">
                 <Image
                     src={getImageUrl(coverImage || "")}
-                    alt={""}
+                    alt={"cover image"}
                     fill
                     placeholder={imageShimmer(700, 475)}
                     quality={100}
@@ -401,7 +401,7 @@ export function MediaEntryCardTitleSection(props: MediaEntryCardTitleSectionProp
 
 export const __mediaEntryCard_hoveredPopupId = atom<number | undefined>(undefined)
 
-export const MediaEntryCardHoverPopupBanner = ({
+export const MediaEntryCardHoverPopupBanner = memo(({
     trailerId,
     showProgressBar,
     mediaId,
@@ -442,7 +442,7 @@ export const MediaEntryCardHoverPopupBanner = ({
         setTrailerEnabled(!!trailerId && !disableAnimeCardTrailers && showTrailer)
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
-    const Content = (
+    return <SeaLink tabIndex={-1} href={link}>
         <div className="aspect-[4/2] relative rounded-md mb-2 cursor-pointer">
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
                 <div className="absolute rounded-md overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0">
@@ -518,7 +518,5 @@ export const MediaEntryCardHoverPopupBanner = ({
                 )}
             />}
         </div>
-    )
-
-    return <SeaLink tabIndex={-1} href={link}>{Content}</SeaLink>
-}
+    </SeaLink>
+})

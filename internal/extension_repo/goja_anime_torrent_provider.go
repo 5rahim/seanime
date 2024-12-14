@@ -67,7 +67,7 @@ func (g *GojaAnimeTorrentProvider) GetVM() *goja.Runtime {
 }
 
 func (g *GojaAnimeTorrentProvider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".Search", &err)
 
 	method, err := g.callClassMethod("search", g.vm.ToValue(structToMap(opts)))
 
@@ -88,7 +88,7 @@ func (g *GojaAnimeTorrentProvider) Search(opts hibiketorrent.AnimeSearchOptions)
 	return
 }
 func (g *GojaAnimeTorrentProvider) SmartSearch(opts hibiketorrent.AnimeSmartSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".SmartSearch", &err)
 
 	method, err := g.callClassMethod("smartSearch", g.vm.ToValue(structToMap(opts)))
 
@@ -109,7 +109,7 @@ func (g *GojaAnimeTorrentProvider) SmartSearch(opts hibiketorrent.AnimeSmartSear
 	return
 }
 func (g *GojaAnimeTorrentProvider) GetTorrentInfoHash(torrent *hibiketorrent.AnimeTorrent) (ret string, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetTorrentInfoHash", &err)
 
 	res, err := g.callClassMethod("getTorrentInfoHash", g.vm.ToValue(structToMap(torrent)))
 	if err != nil {
@@ -129,7 +129,7 @@ func (g *GojaAnimeTorrentProvider) GetTorrentInfoHash(torrent *hibiketorrent.Ani
 	return
 }
 func (g *GojaAnimeTorrentProvider) GetTorrentMagnetLink(torrent *hibiketorrent.AnimeTorrent) (ret string, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetTorrentMagnetLink", &err)
 
 	res, err := g.callClassMethod("getTorrentMagnetLink", g.vm.ToValue(structToMap(torrent)))
 	if err != nil {
@@ -150,7 +150,7 @@ func (g *GojaAnimeTorrentProvider) GetTorrentMagnetLink(torrent *hibiketorrent.A
 
 }
 func (g *GojaAnimeTorrentProvider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
-	defer util.HandlePanicInModuleWithError(g.ext.ID, &err)
+	defer util.HandlePanicInModuleWithError(g.ext.ID+".GetLatest", &err)
 
 	method, err := g.callClassMethod("getLatest")
 	if err != nil {
@@ -171,7 +171,7 @@ func (g *GojaAnimeTorrentProvider) GetLatest() (ret []*hibiketorrent.AnimeTorren
 }
 
 func (g *GojaAnimeTorrentProvider) GetSettings() (ret hibiketorrent.AnimeProviderSettings) {
-	defer util.HandlePanicInModuleThen(g.ext.ID, func() {
+	defer util.HandlePanicInModuleThen(g.ext.ID+".GetSettings", func() {
 		ret = hibiketorrent.AnimeProviderSettings{}
 	})
 

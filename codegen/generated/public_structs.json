@@ -6974,6 +6974,25 @@
   {
     "filepath": "../internal/api/anilist/client_gen.go",
     "filename": "client_gen.go",
+    "name": "UpdateMediaListEntryRepeat_SaveMediaListEntry",
+    "formattedName": "AL_UpdateMediaListEntryRepeat_SaveMediaListEntry",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
     "name": "MangaCollection_MediaListCollection_Lists_Entries_StartedAt",
     "formattedName": "AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt",
     "package": "anilist",
@@ -9978,6 +9997,26 @@
         "goType": "DeleteEntry_DeleteMediaListEntry",
         "typescriptType": "AL_DeleteEntry_DeleteMediaListEntry",
         "usedStructName": "anilist.DeleteEntry_DeleteMediaListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/api/anilist/client_gen.go",
+    "filename": "client_gen.go",
+    "name": "UpdateMediaListEntryRepeat",
+    "formattedName": "AL_UpdateMediaListEntryRepeat",
+    "package": "anilist",
+    "fields": [
+      {
+        "name": "SaveMediaListEntry",
+        "jsonName": "SaveMediaListEntry",
+        "goType": "UpdateMediaListEntryRepeat_SaveMediaListEntry",
+        "typescriptType": "AL_UpdateMediaListEntryRepeat_SaveMediaListEntry",
+        "usedStructName": "anilist.UpdateMediaListEntryRepeat_SaveMediaListEntry",
         "required": false,
         "public": true,
         "comments": []
@@ -35287,6 +35326,15 @@
         "comments": []
       },
       {
+        "name": "Repeat",
+        "jsonName": "repeat",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "StartedAt",
         "jsonName": "startedAt",
         "goType": "string",
@@ -40521,6 +40569,15 @@
         "goType": "anilist.MediaListStatus",
         "typescriptType": "AL_MediaListStatus",
         "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Repeat",
+        "jsonName": "repeat",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []

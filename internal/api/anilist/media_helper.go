@@ -173,7 +173,7 @@ func (m *BaseAnime) GetCurrentEpisodeCount() int {
 
 	// FIXME This is a temporary fix for One Piece since it's in hiatus and AniList doesn't return any information about the episode count
 	if m.ID == 21 && ceil == -1 {
-		ceil = 1120
+		ceil = 1122
 	}
 
 	return ceil
@@ -529,6 +529,13 @@ func (m *AnimeListEntry) GetScoreSafe() float64 {
 		return 0
 	}
 	return *m.Score
+}
+
+func (m *AnimeListEntry) GetRepeatSafe() int {
+	if m.Repeat == nil {
+		return 0
+	}
+	return *m.Repeat
 }
 
 func (m *AnimeListEntry) GetStatusSafe() MediaListStatus {

@@ -10,6 +10,7 @@ import (
 func ListMissedSequels(
 	animeCollectionWithRelations *AnimeCollectionWithRelations,
 	logger *zerolog.Logger,
+	token string,
 ) (ret []*BaseAnime, err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -80,7 +81,7 @@ func ListMissedSequels(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger)
+	data, err := customQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +115,7 @@ func ListAnimeM(
 	Format *MediaFormat,
 	IsAdult *bool,
 	logger *zerolog.Logger,
+	token string,
 ) (*ListAnime, error) {
 
 	variables := map[string]interface{}{}
@@ -159,7 +161,7 @@ func ListAnimeM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger)
+	data, err := customQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +190,7 @@ func ListMangaM(
 	Format *MediaFormat,
 	IsAdult *bool,
 	logger *zerolog.Logger,
+	token string,
 ) (*ListManga, error) {
 
 	variables := map[string]interface{}{}
@@ -231,7 +234,7 @@ func ListMangaM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger)
+	data, err := customQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}
@@ -257,6 +260,7 @@ func ListRecentAiringAnimeM(
 	NotYetAired *bool,
 	Sort []*AiringSort,
 	logger *zerolog.Logger,
+	token string,
 ) (*ListRecentAnime, error) {
 
 	variables := map[string]interface{}{}
@@ -292,7 +296,7 @@ func ListRecentAiringAnimeM(
 		return nil, err
 	}
 
-	data, err := customQuery(requestBody, logger)
+	data, err := customQuery(requestBody, logger, token)
 	if err != nil {
 		return nil, err
 	}

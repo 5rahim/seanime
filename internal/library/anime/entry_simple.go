@@ -92,6 +92,7 @@ func NewSimpleEntry(opts *NewSimpleAnimeEntryOptions) (*SimpleEntry, error) {
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
 			Status:      anilistEntry.Status,
+			Repeat:      anilistEntry.GetRepeatSafe(),
 			StartedAt:   anilist.ToEntryStartDate(anilistEntry.StartedAt),
 			CompletedAt: anilist.ToEntryCompletionDate(anilistEntry.CompletedAt),
 		}

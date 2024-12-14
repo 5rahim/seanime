@@ -227,7 +227,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
                             "bg-gray-500": torrent.status === "paused",
                             "bg-blue-500": torrent.status === "seeding",
                             "bg-gray-600": torrent.status === "completed",
-                            "bg-orange-600": torrent.status === "other",
+                            "bg-orange-800": torrent.status === "other",
                         },
                     )}
                     style={{ width: `${String(Math.floor(torrent.completionPercentage))}%` }}
@@ -259,7 +259,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
                             torrent.status === "seeding" && "text-blue-300",
                             torrent.status === "completed" && "text-green-300",
                         )}
-                    >{(torrent.status === "other" || !torrent.isReady) ? "Processing" : capitalize(torrent.status)}</strong>
+                    >{(torrent.status === "other" || !torrent.isReady) ? "" : capitalize(torrent.status)}</strong>
                 </div>
             </div>
             <div className="flex-none flex gap-2 items-center">

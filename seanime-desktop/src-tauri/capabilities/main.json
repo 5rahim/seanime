@@ -21,6 +21,7 @@
     "core:tray:default",
     "shell:allow-open",
     "shell:default",
+    "core:window:allow-set-title-bar-style",
     "core:window:allow-center",
     "core:window:allow-request-user-attention",
     "core:window:allow-set-resizable",

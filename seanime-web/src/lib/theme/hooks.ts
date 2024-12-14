@@ -1,6 +1,11 @@
 import { Models_Theme } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 
+export const enum ThemeLibraryScreenBannerType {
+    Dynamic = "dynamic",
+    Custom = "custom",
+}
+
 export type ThemeSettings = Omit<Models_Theme, "id">
 export const THEME_DEFAULT_VALUES: ThemeSettings = {
     enableColorSettings: false,
@@ -26,10 +31,6 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     disableCarouselAutoScroll: false,
 }
 
-export const enum ThemeLibraryScreenBannerType {
-    Dynamic = "dynamic",
-    Custom = "custom",
-}
 
 export type ThemeSettingsHook = {
     hasCustomBackgroundColor: boolean

@@ -323,6 +323,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		p.Format,
 		&isAdult,
 		c.App.Logger,
+		c.App.GetAccountToken(),
 	)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -379,6 +380,7 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 		p.NotYetAired,
 		p.Sort,
 		c.App.Logger,
+		c.App.GetAccountToken(),
 	)
 	if err != nil {
 		return c.RespondWithError(err)
@@ -417,6 +419,7 @@ func HandleAnilistListMissedSequels(c *RouteCtx) error {
 	ret, err := anilist.ListMissedSequels(
 		animeCollection,
 		c.App.Logger,
+		c.App.GetAccountToken(),
 	)
 	if err != nil {
 		return c.RespondWithData([]*anilist.BaseAnime{})

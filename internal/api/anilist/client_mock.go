@@ -386,6 +386,11 @@ func (ac *MockAnilistClientImpl) UpdateMediaListEntryProgress(ctx context.Contex
 	return &UpdateMediaListEntryProgress{}, nil
 }
 
+func (ac *MockAnilistClientImpl) UpdateMediaListEntryRepeat(ctx context.Context, mediaID *int, repeat *int, interceptors ...clientv2.RequestInterceptor) (*UpdateMediaListEntryRepeat, error) {
+	ac.logger.Debug().Int("mediaId", *mediaID).Msg("anilist: Updating media list entry repeat")
+	return &UpdateMediaListEntryRepeat{}, nil
+}
+
 func (ac *MockAnilistClientImpl) DeleteEntry(ctx context.Context, mediaListEntryID *int, interceptors ...clientv2.RequestInterceptor) (*DeleteEntry, error) {
 	ac.logger.Debug().Int("entryId", *mediaListEntryID).Msg("anilist: Deleting media list entry")
 	return &DeleteEntry{}, nil

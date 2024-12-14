@@ -463,6 +463,12 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host)
 	if err != nil && settings.Enabled {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
+		//_, _ = a.Database.UpsertTorrentstreamSettings(&models.TorrentstreamSettings{
+		//	BaseModel: models.BaseModel{
+		//		ID: 1,
+		//	},
+		//	Enabled: false,
+		//})
 	}
 
 	a.Cleanups = append(a.Cleanups, func() {

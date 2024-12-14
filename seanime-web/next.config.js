@@ -16,6 +16,9 @@ const nextConfig = {
     transpilePackages: ["@uiw/react-textarea-code-editor", "@replit/codemirror-vscode-keymap"],
     // Configure assetPrefix or else the server won't properly resolve your assets.
     assetPrefix: isProd ? undefined : (isDesktop ? `http://${internalHost}:43210` : undefined),
+    experimental: {
+        reactCompiler: true,
+    }
 }
 
 module.exports = nextConfig
