@@ -231,7 +231,7 @@ export function MainSidebar() {
                         handleUnexpandedSidebar={() => {}}
                     />
 
-                    {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <div className="block w-fit px-4">
+                    {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <div className="w-full flex justify-center px-4">
                         <HoverCard
                             side="right"
                             sideOffset={-8}
@@ -239,7 +239,7 @@ export function MainSidebar() {
                             className="bg-transparent border-none"
                             trigger={<IconButton
                                 intent="gray-basic"
-                                className="px-6 opacity-50 hover:opacity-100"
+                                className="!text-[--muted] hover:!text-[--foreground]"
                                 icon={<PiArrowCircleLeftDuotone />}
                                 onClick={() => {
                                     router.back()
@@ -249,7 +249,7 @@ export function MainSidebar() {
                             <IconButton
                                 icon={<PiArrowCircleRightDuotone />}
                                 intent="gray-subtle"
-                                className="px-6 opacity-50 hover:opacity-100"
+                                className="opacity-50 hover:opacity-100"
                                 onClick={() => {
                                     router.forward()
                                 }}
