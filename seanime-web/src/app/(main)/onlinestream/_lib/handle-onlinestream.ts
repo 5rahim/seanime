@@ -90,21 +90,25 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
         // Only filter by quality if the quality is present in the sources
         if (quality && hasQuality) {
             videoSources = videoSources.filter(s => s.quality === quality)
-        } else if (quality && !hasAuto) {
-            if (videoSources.some(n => n.quality === "1080p")) {
-                videoSources = videoSources.filter(s => s.quality === "1080p")
-            } else if (videoSources.some(n => n.quality === "default")) {
-                videoSources = videoSources.filter(s => s.quality === "default")
-            } else if (videoSources.some(n => n.quality === "720p")) {
-                videoSources = videoSources.filter(s => s.quality === "720p")
-            } else if (videoSources.some(n => n.quality === "480p")) {
-                videoSources = videoSources.filter(s => s.quality === "480p")
-            } else if (videoSources.some(n => n.quality === "360p")) {
-                videoSources = videoSources.filter(s => s.quality === "360p")
+        } else if (!quality && !hasAuto) {
+            if (videoSources.some(n => n.quality.includes("1080p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("1080p"))
+            } else if (videoSources.some(n => n.quality.includes("720p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("720p"))
+            } else if (videoSources.some(n => n.quality.includes("480p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("480p"))
+            } else if (videoSources.some(n => n.quality.includes("360p"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("360p"))
+            }
+
+            if (videoSources.some(n => n.quality.includes("default"))) {
+                videoSources = videoSources.filter(s => s.quality.includes("default"))
             }
         } else if (quality && hasAuto) {
             videoSources = videoSources.filter(s => s.quality === "auto")
         }
+
+        console.log("videoSources", videoSources)
 
         return videoSources[0]
     }, [episodeSource, selectedServer, quality])

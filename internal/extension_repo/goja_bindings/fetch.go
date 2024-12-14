@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/dop251/goja"
 	"github.com/goccy/go-json"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"seanime/internal/util"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,6 +28,9 @@ func BindFetch(vm *goja.Runtime) error {
 
 	return nil
 }
+
+var fetchSemaphore = make(chan struct{}, 10)
+var promiseResMu sync.Mutex
 
 func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	defer func() {
@@ -62,6 +67,11 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	promise, resolve, reject := vm.NewPromise()
 
 	go func() {
+		fetchSemaphore <- struct{}{}
+		defer func() {
+			<-fetchSemaphore
+		}()
+
 		defer util.HandlePanicInModuleThen("extension_repo/goja_bindings/gojaFetch", func() {
 			reject(vm.ToValue(fmt.Sprintf("JS VM: Panic from fetch")))
 		})
@@ -83,6 +93,8 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 		if b := options.Get("body"); b != nil && !goja.IsUndefined(b) {
 			body = bytes.NewBufferString(b.String())
 		}
+
+		log.Trace().Str("url", urlArg).Str("method", method).Msgf("extension: Fetching using JS VM")
 
 		req, err := http.NewRequest(method, urlArg, body)
 		if err != nil {
@@ -147,7 +159,9 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 			return vm.ToValue(jsonInterface)
 		})
 
+		promiseResMu.Lock()
 		resolve(responseObj)
+		promiseResMu.Unlock()
 	}()
 
 	return promise

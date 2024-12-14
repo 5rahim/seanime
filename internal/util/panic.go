@@ -2,24 +2,26 @@ package util
 
 import (
 	"errors"
-	"github.com/fatih/color"
-	"log"
+	"github.com/rs/zerolog/log"
 	"runtime/debug"
+	"sync"
 )
 
+var printLock = sync.Mutex{}
+
 func printRuntimeError(r any, module string) string {
+	printLock.Lock()
 	debugStr := string(debug.Stack())
 	logger := NewLogger()
-	red := color.New(color.FgRed, color.Bold)
-	log.Println()
-	red.Print("PANIC")
+	log.Error().Msgf("go: PANIC RECOVERY")
 	if module != "" {
-		log.Printf(" \"%s\"", module)
+		log.Error().Msgf("go: Runtime error in \"%s\"", module)
 	}
-	log.Printf(" Please report this issue on the GitHub repository\n")
-	log.Println("========================================= Stack Trace =========================================")
+	log.Error().Msgf("go: A runtime error occurred, please report the entire logs to the developer\n")
+	log.Printf("go: ========================================= Stack Trace =========================================\n")
 	logger.Error().Msgf("%+v\n\n%+v", r, debugStr)
-	log.Println("===================================== End of Stack Trace ======================================")
+	log.Printf("go: ===================================== End of Stack Trace ======================================\n")
+	printLock.Unlock()
 	return debugStr
 }
 

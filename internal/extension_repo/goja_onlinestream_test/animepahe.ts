@@ -3,7 +3,7 @@
 /// <reference path="../goja_bindings/crypto.d.ts" />
 
 type EpisodeData = {
-    id: number; episode: number; title: string; snapshot: string; filler: number; created_at?: string
+    id: number; episode: number; title: string; snapshot: string; filler: number; session: string; created_at?: string
 }
 
 type AnimeData = {
@@ -39,12 +39,10 @@ class Provider {
             return []
         }
 
-        console.log(data)
-
         data.data.map((item: AnimeData) => {
             results.push({
                 subOrDub: "sub",
-                id: String(item.id) ?? item.session,
+                id: item.session,
                 title: item.title,
                 url: "",
             })
@@ -71,9 +69,8 @@ class Provider {
 
         function pushData(data: EpisodeData[]) {
             for (const item of data) {
-                console.log(item)
                 episodes.push({
-                    id: item.id + "$" + id,
+                    id: item.session + "$" + id,
                     number: item.episode,
                     title: item.title && item.title.length > 0 ? item.title : "Episode " + item.episode,
                     url: req.url,
@@ -138,10 +135,10 @@ class Provider {
         const episodeId = episode.id.split("$")[0]
         const animeId = episode.id.split("$")[1]
 
-        console.log(episodeId, animeId)
+        console.log(`${this.api}/play/${animeId}/${episodeId}`)
 
         const req = await fetch(
-            `${this.api}${animeId.includes("-") ? `/anime/${animeId}` : `/a/${animeId}`}`,
+            `${this.api}/play/${animeId}/${episodeId}`,
             {
                 headers: {
                     Cookie: "__ddg1_=;__ddg2_=;",
@@ -149,162 +146,98 @@ class Provider {
             },
         )
 
-        try {
-            const url = req.url
-            // Need session id to fetch the watch page
-            const sessionId = url.split("/anime/").pop()?.split("?")[0] ?? ""
+        const html = await req.text()
 
-            const $ = LoadDoc(await req.text())
-            const tempId = $("head > meta[property='og:url']").attr("content")!.split("/").pop()!
-            const { last_page, data } = (await (
-                await fetch(
-                    `${this.api}/api?m=release&id=${tempId}&sort=episode_asc&page=1`,
-                    {
-                        headers: {
-                            Cookie: "__ddg1_=;__ddg2_=;",
-                        },
-                    },
-                )
-            ).json()) as { last_page: number; data: { id: number; session: string }[] }
+        const regex = /https:\/\/kwik\.si\/e\/\w+/g
+        const matches = html.match(regex)
 
-
-            let episodeSession = ""
-
-            for (let i = 0; i < data.length; i++) {
-                if (String(data[i].id) === episodeId) {
-                    episodeSession = data[i].session
-                    break
-                }
-            }
-
-            if (episodeSession === "") {
-                for (let i = 1; i < last_page; i++) {
-                    const data = (await (
-                        await fetch(`${this.api}/api?m=release&id=${tempId}&sort=episode_asc&page=${i + 1}`, {
-                            headers: {
-                                Cookie: "__ddg1_=;__ddg2_=;",
-                            },
-                        })
-                    ).json()) as { last_page: number; data: { id: number; session: string }[] }["data"]
-
-                    for (let j = 0; j < data.length; j++) {
-                        if (String(data[j].id) === episodeId) {
-                            episodeSession = data[j].session
-                            break
-                        }
-                    }
-
-                    if (episodeSession !== "") break
-                }
-            }
-
-            if (episodeSession === "") {
-                throw new Error("Episode not found.")
-            }
-
-            const watchReq = await (
-                await fetch(
-                    `${this.api}/play/${sessionId}/${episodeSession}`,
-                    {
-                        headers: {
-                            Cookie: "__ddg1_=;__ddg2_=;",
-                        },
-                    },
-                )
-            ).text()
-
-            const regex = /https:\/\/kwik\.si\/e\/\w+/g
-            const matches = watchReq.match(regex)
-
-            if (matches === null) {
-                throw new Error("Failed to fetch episode server.")
-            }
-
-            const result: EpisodeServer = {
-                videoSources: [],
-                headers: this.headers ?? {},
-                server: "kwik",
-            }
-
-            return this.extractKwik(matches[0], result)
-        }
-        catch (e) {
-            console.error(e)
+        if (matches === null) {
             throw new Error("Failed to fetch episode server.")
         }
-    }
 
-    format(p: any, a: any, c: any, k: any, e: any, d: any) {
-        k = k.split("|")
-        e = (c: any) => {
-            return (c < a ? "" : e(parseInt((c / a).toString()))) + ((c = c % a) > 35 ? String.fromCharCode(c + 29) : c.toString(36))
-        }
-        if (!"".replace(/^/, String)) {
-            while (c--) {
-                d[e(c)] = k[c] || e(c)
-            }
-            k = [
-                (e: any) => {
-                    return d[e]
-                },
-            ]
-            e = () => {
-                return "\\w+"
-            }
-            c = 1
-        }
-        while (c--) {
-            if (k[c]) {
-                p = p.replace(new RegExp("\\b" + e(c) + "\\b", "g"), k[c])
-            }
-        }
-        return p
-    }
+        const $ = LoadDoc(html)
 
-    async extractKwik(url: string, result: EpisodeServer): Promise<EpisodeServer> {
+        const result: EpisodeServer = {
+            videoSources: [],
+            headers: this.headers ?? {},
+            server: "kwik",
+        }
 
-        const host = "https://animepahe.ru"
-        const req = await fetch(url, {
-            headers: {
-                Referer: host,
-            },
+        $("button[data-src]").each(async (_, el) => {
+            let videoSource: VideoSource = {
+                url: "",
+                type: "m3u8",
+                quality: "",
+                subtitles: [],
+            }
+
+            videoSource.url = el.data("src")!
+            if (!videoSource.url) {
+                return
+            }
+
+            const fansub = el.data("fansub")!
+            const quality = el.data("resolution")!
+
+            videoSource.quality = `${quality}p - ${fansub}`
+
+            if (el.data("audio") === "eng") {
+                videoSource.quality += " (Eng)"
+            }
+
+            if (videoSource.url === matches[0]) {
+                videoSource.quality += " (default)"
+            }
+
+            result.videoSources.push(videoSource)
         })
-        const $ = LoadDoc(await req.text())
-        // console.log($("html").html())
-        const match = $("html").html()?.match(/p\}.*kwik.*/g)
-        if (!match) {
-            throw new Error("Video not found.")
-        }
-        let arr: string[] = match[0].split("return p}(")[1].split(",")
 
-        const l = arr.slice(0, arr.length - 5).join("")
-        arr = arr.slice(arr.length - 5, -1)
-        arr.unshift(l)
+        await Promise.all(result.videoSources.map(async (videoSource) => {
+            try {
+                const src_req = await fetch(videoSource.url, {
+                    headers: {
+                        Referer: this.headers.Referer,
+                        "user-agent":
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.56",
+                    },
+                })
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [p, a, c, k, e, d] = arr.map((x) => x.split(".sp")[0])
+                const src_html = await src_req.text()
 
-        const formatted = this.format(p, a, c, k, e, {})
+                const scripts = src_html.match(/eval\(f.+?\}\)\)/g)
+                if (!scripts) {
+                    return
+                }
 
-        console.log(formatted)
+                for (const _script of scripts) {
+                    const scriptMatch = _script.match(/eval(.+)/)
+                    if (!scriptMatch || !scriptMatch[1]) {
+                        continue
+                    }
 
-        const source = formatted
-            .match(/source=\\(.*?)\\'/g)[0]
-            .replace(/\'/g, "")
-            .replace(/source=/g, "")
-            .replace(/\\/g, "")
+                    try {
+                        const decoded = eval(scriptMatch[1])
+                        const link = decoded.match(/source='(.+?)'/)
+                        if (!link || !link[1]) {
+                            continue
+                        }
 
-        result.videoSources.push({
-            type: "m3u8",
-            url: source,
-            quality: "auto",
-            subtitles: [],
-        })
+                        videoSource.url = link[1]
+
+                    }
+                    catch (e) {
+                        console.error("Failed to extract kwik link", e)
+                    }
+
+                }
+
+            }
+            catch (e) {
+                console.error("Failed to fetch kwik link", e)
+            }
+        }))
 
         return result
-
     }
-
-
 }
 

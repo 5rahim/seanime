@@ -35,6 +35,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 			"/api/v1/image-proxy",
 			"/api/v1/mediastream/transcode/",
 			"/api/v1/torrent-client/list",
+			"/api/v1/proxy",
 		},
 		Fields:   []string{"method", "error", "url", "latency"},
 		Messages: []string{"api: Error", "api: Client error", "api: Success"},

@@ -146,7 +146,7 @@ func TestGojaOnlinestreamExtension2(t *testing.T) {
 	// Find first episode server
 	server, err := provider.FindEpisodeServer(&hibikeonlinestream.EpisodeDetails{
 		Provider: "animepahe",
-		ID:       "63997$5649",
+		ID:       "0ba8e30b98b1be6d19c8ac73ae11372911e62424ef454f05052ef6af8f01f13b$269b021d-a893-4471-04e7-b8933d81bda1",
 		Number:   1,
 		URL:      "",
 		Title:    "",

@@ -107,7 +107,7 @@ func (r *Repository) getFcEpisodeDataBucket(provider string, mediaId int) fileca
 //
 //	e.g., onlinestream_zoro_episode-list_123
 func (r *Repository) getFcEpisodeListBucket(provider string, mediaId int) filecache.Bucket {
-	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*7)
+	return filecache.NewBucket("onlinestream_"+provider+"_episode-data_"+strconv.Itoa(mediaId), time.Hour*24*1)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
