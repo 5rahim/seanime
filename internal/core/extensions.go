@@ -115,17 +115,17 @@ func (a *App) LoadBuiltInExtensions() {
 		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
 	}, onlinestream_providers.NewGogoanime(a.Logger))
 
-	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
-		ID:          "zoro",
-		Name:        "Hianime",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeOnlinestreamProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
-	}, onlinestream_providers.NewZoro(a.Logger))
+	//a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+	//	ID:          "zoro",
+	//	Name:        "Hianime",
+	//	Version:     "",
+	//	ManifestURI: "builtin",
+	//	Language:    extension.LanguageGo,
+	//	Type:        extension.TypeOnlinestreamProvider,
+	//	Author:      "Seanime",
+	//	Lang:        "en",
+	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/hianime.png",
+	//}, onlinestream_providers.NewZoro(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtensionJS(extension.Extension{
 		ID:          "animepahe",

@@ -155,11 +155,11 @@ func TestZoro_FetchSources(t *testing.T) {
 		{
 			name: "Apothecary Diaries",
 			episode: &hibikeonlinestream.EpisodeDetails{
-				ID:     "the-apothecary-diaries-18578$episode$122954$dub",
+				ID:     "the-apothecary-diaries-18578$episode$122954$sub",
 				Number: 24,
 				URL:    "https://hianime.to/watch/the-apothecary-diaries-18578?ep=122954",
 			},
-			server: VidcloudServer,
+			server: StreamSBServer,
 		},
 	}
 	zoro := NewZoro(logger)

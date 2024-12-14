@@ -230,13 +230,13 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDetails,
 
 		switch server {
 		case VidcloudServer:
-			serverId = z.findServerId(doc, 1, subOrDub)
+			serverId = z.findServerId(doc, 4, subOrDub)
 		case VidstreamingServer:
 			serverId = z.findServerId(doc, 4, subOrDub)
 		case StreamSBServer:
-			serverId = z.findServerId(doc, 5, subOrDub)
+			serverId = z.findServerId(doc, 4, subOrDub)
 		case StreamtapeServer:
-			serverId = z.findServerId(doc, 3, subOrDub)
+			serverId = z.findServerId(doc, 4, subOrDub)
 		}
 	})
 
@@ -330,7 +330,7 @@ func (z *Zoro) FindEpisodeServer(episodeInfo *hibikeonlinestream.EpisodeDetails,
 
 func (z *Zoro) findServerId(doc *goquery.Document, idx int, subOrDub hibikeonlinestream.SubOrDub) string {
 	var serverId string
-	doc.Find(fmt.Sprintf(".ps_-block.ps_-block-sub.servers-%s > .ps__-list > div", subOrDub)).Each(func(i int, s *goquery.Selection) {
+	doc.Find(fmt.Sprintf("div.ps_-block.ps_-block-sub.servers-%s > div.ps__-list > div", subOrDub)).Each(func(i int, s *goquery.Selection) {
 		_serverId := s.AttrOr("data-server-id", "")
 		if serverId == "" {
 			if _serverId == strconv.Itoa(idx) {

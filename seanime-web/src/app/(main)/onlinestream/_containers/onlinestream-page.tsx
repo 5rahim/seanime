@@ -28,6 +28,7 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { logger } from "@/lib/helpers/debug"
 import {
     isHLSProvider,
     MediaPlayer,
@@ -134,15 +135,19 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
      */
     const firstRenderRef = React.useRef(true)
     useUpdateEffect(() => {
-        if (!!media && firstRenderRef.current) {
+        if (!!media && firstRenderRef.current && !!episodes) {
             const maxEp = media?.nextAiringEpisode?.episode ? (media?.nextAiringEpisode?.episode - 1) : media?.episodes || 0
             const _urlEpNumber = urlEpNumber ? Number(urlEpNumber) : undefined
             const progress = animeEntry?.listData?.progress ?? 0
-            const nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : 1
+            let nextProgressNumber = maxEp ? (progress + 1 < maxEp ? progress + 1 : maxEp) : progress + 1
+            if (!episodes.find(e => e.number === nextProgressNumber)) {
+                nextProgressNumber = 1
+            }
             handleChangeEpisodeNumber(_urlEpNumber || nextProgressNumber || 1)
+            logger("ONLINESTREAM").info("Setting episode number to", _urlEpNumber || nextProgressNumber || 1)
             firstRenderRef.current = false
         }
-    }, [media])
+    }, [episodes])
 
     React.useEffect(() => {
         const t = setTimeout(() => {

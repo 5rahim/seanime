@@ -31,6 +31,7 @@ func BindFetch(vm *goja.Runtime) error {
 
 var fetchSemaphore = make(chan struct{}, 10)
 var promiseResMu sync.Mutex
+var objMu sync.Mutex
 
 func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 	defer func() {
@@ -83,10 +84,12 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 
 		headers := make(map[string]string)
 		if h := options.Get("headers"); h != nil && gojaValueIsDefined(h) {
+			objMu.Lock()
 			headerObj := h.ToObject(vm)
 			for _, key := range headerObj.Keys() {
 				headers[key] = headerObj.Get(key).String()
 			}
+			objMu.Unlock()
 		}
 
 		var body io.Reader
@@ -131,6 +134,7 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 			canUnmarshal = false
 		}
 
+		objMu.Lock()
 		responseObj := vm.NewObject()
 		_ = responseObj.Set("status", resp.StatusCode)
 		_ = responseObj.Set("statusText", resp.Status)
@@ -158,6 +162,7 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 			}
 			return vm.ToValue(jsonInterface)
 		})
+		objMu.Unlock()
 
 		promiseResMu.Lock()
 		resolve(responseObj)
