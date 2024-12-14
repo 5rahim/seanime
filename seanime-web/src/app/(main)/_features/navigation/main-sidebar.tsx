@@ -230,12 +230,10 @@ export function MainSidebar() {
                         handleExpandSidebar={() => {}}
                         handleUnexpandedSidebar={() => {}}
                     />
-
                     {process.env.NEXT_PUBLIC_PLATFORM === "desktop" && <div className="w-full flex justify-center px-4">
                         <HoverCard
                             side="right"
                             sideOffset={-8}
-                            // className="w-fit rounded-full flex gap-2 bg-gray-950 bg-opacity-50 p-2"
                             className="bg-transparent border-none"
                             trigger={<IconButton
                                 intent="gray-basic"
