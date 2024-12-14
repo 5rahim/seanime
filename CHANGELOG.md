@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.5.0
+
+- ⚡️ UI: Improved rendering performance
+- ⚡️ Online streaming: Built-in Animepahe extension (Experimental)
+- ⚡️ Desktop: Automatically restart server process when it crashes/exits
+- ⚡️ Desktop: Added 'Restart server' button when server process is terminated
+- ⚡️ Auto progress update now works for built-in media player
+- ⚡️ Desktop: Back/Forward navigation buttons when hovering logo #171
+- ⚡️ Open search page by clicking on media genres and ranks #172
+- ⚡️ Support for AniList 'repeat' field #169
+- ⚡️ Ignore dropped anime in missing episodes #170
+- ⚡️ Improved media player error logging
+- ⚡️ Online streaming: m3u8 video proxy support
+- ⚡️ Ability to add to AniList individually in 'Resolve unknown media'
+- 🦺 Fixed TorBox failed archive extraction
+- 🦺 Fixed incorrect 'user-preferred' title languages
+- 🦺 Fixed One Piece streaming episode list
+- 🦺 Added workaround for macOS video player fullscreen issue #168
+  - Clicking 'Hide from Dock' from the tray will solve the issue
+- 🦺 Fixed torrent streaming runtime error edge case
+- 🦺 Fixed scanner 'Do not use AniList data' runtime error
+- 🦺 Fixed Transmission host setting not being applied
+- 🦺 Javascript VM: Fixed runtime panics caused by 'fetch' data races
+- 🦺 Online streaming: Fixed scroll to current episode
+- 🦺 Online streaming: Fixed selecting highest/default quality by default
+- 🦺 Fixed UI inconsistencies
+- 🏗️ Removed 'Hianime' online streaming extension
+- 🏗️ UI: Improved media card virtualized grid performance
+- 🏗️ Javascript VM: Added 'url' property to fetch binding
+- 🏗️ Reduced online streaming cache duration
+- 🏗️ Core: Do not print stack traces concurrently
+- 🏗️ UI: Use React Compiler (Experimental)
+- ⬆️ Updated dependencies
+
 ## v2.4.2
 
 - ⚡️ 'Include in library' will keep displaying shows when caught up
