@@ -102,14 +102,14 @@ export function OnlinestreamPlaybackSubmenu() {
             </Menu.Root>
             <Menu.Root>
                 <VdsSubmenuButton
-                    label={`Play Next`}
+                    label={`Auto Play Next Episode`}
                     hint={autoNext ? "On" : "Off"}
                     disabled={false}
                     icon={MdPlaylistPlay}
                 />
                 <Menu.Content className={submenuClass}>
                     <Switch
-                        label="Auto play next"
+                        label="Auto play next episode"
                         fieldClass="py-2 px-2"
                         value={autoNext}
                         onValueChange={setAutoNext}
@@ -134,7 +134,7 @@ export function OnlinestreamPlaybackSubmenu() {
             </Menu.Root>
             <Menu.Root>
                 <VdsSubmenuButton
-                    label={`Discrete controls`}
+                    label={`Discrete Controls`}
                     hint={discreteControls ? "On" : "Off"}
                     disabled={false}
                     icon={RxSlider}
@@ -286,20 +286,12 @@ export interface VdsSubmenuButtonProps {
 
 export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubmenuButtonProps) {
     return (
-        <Menu.Button
-            className="ring-media-focus group/parent left-0 z-10 flex w-full cursor-pointer select-none items-center justify-start rounded-sm bg-black/60 p-2.5 outline-none ring-inset data-[open]:sticky data-[open]:-top-2.5 data-[hocus]:bg-white/10 data-[focus]:ring-[3px] aria-disabled:hidden"
-            disabled={disabled}
-        >
-            <ChevronLeftIcon className="group-data-[open]/parent:block -ml-0.5 mr-1.5 hidden h-[18px] w-[18px]" />
-            <div className="contents group-data-[open]/parent:hidden">
-                <Icon className="text-xl" />
-            </div>
-            <div className="flex gap-1 items-center w-full">
-                <p className="ml-1.5 group-data-[open]/parent:ml-0">{label}</p>
-                <p className="flex flex-1"></p>
-                <p className="ml-auto text-sm text-white/50">{hint}</p>
-            </div>
-            <ChevronRightIcon className="group-data-[open]/parent:hidden ml-0.5 h-[18px] w-[18px] text-sm text-white/50" />
+        <Menu.Button className="vds-menu-button" disabled={disabled}>
+            <ChevronLeftIcon className="vds-menu-button-close-icon" />
+            <Icon className="vds-menu-button-icon" />
+            <span className="vds-menu-button-label">{label}</span>
+            <span className="vds-menu-button-hint">{hint}</span>
+            <ChevronRightIcon className="vds-menu-button-open-icon" />
         </Menu.Button>
     )
 }
