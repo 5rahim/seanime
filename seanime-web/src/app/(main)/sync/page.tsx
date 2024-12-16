@@ -25,7 +25,7 @@ import { Separator } from "@/components/ui/separator"
 import { anilist_getListDataFromEntry } from "@/lib/helpers/media"
 import { WSEvents } from "@/lib/server/ws-events"
 import React from "react"
-import { LuDownloadCloud, LuFolderSync, LuUploadCloud } from "react-icons/lu"
+import { LuCloudDownload, LuCloudUpload, LuFolderSync } from "react-icons/lu"
 import { VscSyncIgnored } from "react-icons/vsc"
 import { toast } from "sonner"
 
@@ -130,7 +130,7 @@ export default function Page() {
                                 intent="white"
                                 rounded
                                 className="w-full"
-                                leftIcon={<LuDownloadCloud className="text-2xl" />}
+                                leftIcon={<LuCloudDownload className="text-2xl" />}
                                 loading={isSyncingLocal}
                                 disabled={isSyncingAnilist}
                                 onClick={handleSyncLocal}
@@ -146,7 +146,7 @@ export default function Page() {
                                 intent="primary-subtle"
                                 rounded
                                 className="w-full"
-                                leftIcon={<LuUploadCloud className="text-2xl" />}
+                                leftIcon={<LuCloudUpload className="text-2xl" />}
                                 disabled={isSyncingLocal}
                                 loading={isSyncingAnilist}
                                 onClick={handleSyncAnilist}
@@ -188,7 +188,7 @@ export default function Page() {
                         <div className="flex items-center gap-2 flex-wrap">
                             <Button
                                 intent="white"
-                                leftIcon={<LuUploadCloud className="text-2xl" />}
+                                leftIcon={<LuCloudUpload className="text-2xl" />}
                                 onClick={() => {
                                     handleSyncAnilist()
                                     syncHasLocalChanges({
