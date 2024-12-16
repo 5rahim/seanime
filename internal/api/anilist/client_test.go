@@ -10,6 +10,18 @@ import (
 	"testing"
 )
 
+func TestHiddenFromStatus(t *testing.T) {
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+
+	anilistClient := NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
+
+	res, err := anilistClient.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+	assert.NoError(t, err)
+
+	_, found := res.FindAnime(21)
+	assert.True(t, found)
+}
+
 func TestGetBaseAnimeById(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
@@ -99,6 +111,7 @@ func TestListAnime(t *testing.T) {
 				tt.Format,
 				tt.IsAdult,
 				util.NewLogger(),
+				"",
 			)
 			assert.NoError(t, err)
 
