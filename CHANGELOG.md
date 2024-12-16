@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.5.1
+
+- 💄 Updated built-in media player theme
+- 🦺 Fixed Auto Downloader form fields (regression)
+- 🦺 Fixed online streaming extension API url (regression)
+- ⬆️ Migrated to Go 1.23.4
+- ⬆️ Updated dependencies
+
 ## v2.5.0
 
 - ⚡️ UI: Improved rendering performance
