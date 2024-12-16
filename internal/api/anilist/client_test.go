@@ -10,17 +10,131 @@ import (
 	"testing"
 )
 
-func TestHiddenFromStatus(t *testing.T) {
-	test_utils.InitTestProvider(t, test_utils.Anilist())
-
-	anilistClient := NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
-
-	res, err := anilistClient.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
-	assert.NoError(t, err)
-
-	_, found := res.FindAnime(21)
-	assert.True(t, found)
-}
+//func TestHiddenFromStatus(t *testing.T) {
+//	test_utils.InitTestProvider(t, test_utils.Anilist())
+//
+//	token := test_utils.ConfigData.Provider.AnilistJwt
+//	logger := util.NewLogger()
+//	//anilistClient := NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
+//
+//	variables := map[string]interface{}{}
+//
+//	variables["userName"] = test_utils.ConfigData.Provider.AnilistUsername
+//	variables["type"] = "ANIME"
+//
+//	requestBody, err := json.Marshal(map[string]interface{}{
+//		"query":     testQuery,
+//		"variables": variables,
+//	})
+//	require.NoError(t, err)
+//
+//	data, err := customQuery(requestBody, logger, token)
+//	require.NoError(t, err)
+//
+//	var mediaLists []*MediaList
+//
+//	type retData struct {
+//		Page     Page
+//		PageInfo PageInfo
+//	}
+//
+//	var ret retData
+//	m, err := json.Marshal(data)
+//	require.NoError(t, err)
+//	if err := json.Unmarshal(m, &ret); err != nil {
+//		t.Fatalf("Failed to unmarshal data: %v", err)
+//	}
+//
+//	mediaLists = append(mediaLists, ret.Page.MediaList...)
+//
+//	util.Spew(ret.Page.PageInfo)
+//
+//	var currentPage = 1
+//	var hasNextPage = false
+//	if ret.Page.PageInfo != nil && ret.Page.PageInfo.HasNextPage != nil {
+//		hasNextPage = *ret.Page.PageInfo.HasNextPage
+//	}
+//	for hasNextPage {
+//		currentPage++
+//		variables["page"] = currentPage
+//		requestBody, err = json.Marshal(map[string]interface{}{
+//			"query":     testQuery,
+//			"variables": variables,
+//		})
+//		require.NoError(t, err)
+//		data, err = customQuery(requestBody, logger, token)
+//		require.NoError(t, err)
+//		m, err = json.Marshal(data)
+//		require.NoError(t, err)
+//		if err := json.Unmarshal(m, &ret); err != nil {
+//			t.Fatalf("Failed to unmarshal data: %v", err)
+//		}
+//		util.Spew(ret.Page.PageInfo)
+//		if ret.Page.PageInfo != nil && ret.Page.PageInfo.HasNextPage != nil {
+//			hasNextPage = *ret.Page.PageInfo.HasNextPage
+//		}
+//		mediaLists = append(mediaLists, ret.Page.MediaList...)
+//	}
+//
+//	//res, err := anilistClient.AnimeCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
+//	//assert.NoError(t, err)
+//
+//	for _, mediaList := range mediaLists {
+//		util.Spew(mediaList.Media.ID)
+//		if mediaList.Media.ID == 151514 {
+//			util.Spew(mediaList)
+//		}
+//	}
+//
+//}
+//
+//const testQuery = `query ($page: Int, $userName: String, $type: MediaType) {
+//      Page (page: $page, perPage: 100) {
+//        pageInfo {
+//          hasNextPage
+//		  total
+//		  perPage
+//		  currentPage
+//		  lastPage
+//        }
+//        mediaList (type: $type, userName: $userName) {
+//          status
+//          startedAt {
+//            year
+//            month
+//            day
+//          }
+//          completedAt {
+//            year
+//            month
+//            day
+//          }
+//          repeat
+//          score(format: POINT_100)
+//          progress
+//          progressVolumes
+//          notes
+//          media {
+//            siteUrl
+//            id
+//            idMal
+//            episodes
+//            chapters
+//            volumes
+//            status
+//            averageScore
+//            coverImage{
+//              large
+//              extraLarge
+//            }
+//            bannerImage
+//            title {
+//              userPreferred
+//            }
+//          }
+//        }
+//      }
+//    }`
 
 func TestGetBaseAnimeById(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())

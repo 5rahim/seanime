@@ -155,8 +155,10 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                             <Field.Text
                                 name="mpvPath"
                                 label="Application path"
-                                placeholder="Defaults to 'mpv' command"
-                                help="Leave empty to automatically use the 'mpv' command"
+                                placeholder={serverStatus?.os === "windows" ? "e.g. C:/Program Files/mpv/mpv.exe" : serverStatus?.os === "darwin"
+                                    ? "e.g. /Applications/mpv.app/Contents/MacOS/mpv"
+                                    : "Defaults to CLI"}
+                                help="Leave empty to use the CLI."
                             />
                         </div>
                     </AccordionContent>
