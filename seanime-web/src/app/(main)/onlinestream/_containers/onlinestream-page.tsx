@@ -23,6 +23,7 @@ import {
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { SeaLink } from "@/components/shared/sea-link"
+import { vidstackLayoutIcons } from "@/components/shared/vidstack"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -39,7 +40,7 @@ import {
     MediaProviderSetupEvent,
     Track,
 } from "@vidstack/react"
-import { defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
+import { DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import HLS from "hls.js"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
@@ -50,7 +51,7 @@ import { AiOutlineArrowLeft } from "react-icons/ai"
 import { FaSearch } from "react-icons/fa"
 import { TbLayoutSidebarRightCollapse, TbLayoutSidebarRightExpand } from "react-icons/tb"
 import { useUpdateEffect, useWindowSize } from "react-use"
-import "@vidstack/react/player/styles/default/theme.css"
+import "@/app/vidstack-theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
 
 type OnlinestreamPageProps = {
@@ -502,7 +503,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                 </div>
                             </div>
                             <DefaultVideoLayout
-                                icons={defaultLayoutIcons}
+                                icons={vidstackLayoutIcons}
                                 slots={{
                                     settingsMenuEndItems: (<>
                                         {opts.hasCustomQualities ? (

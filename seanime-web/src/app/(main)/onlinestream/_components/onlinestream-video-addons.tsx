@@ -9,7 +9,6 @@ import {
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
-import { Alert } from "@/components/ui/alert"
 import { Button, IconButton } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
@@ -21,9 +20,10 @@ import { Menu, Tooltip } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { AiFillPlayCircle, AiOutlineCloudServer } from "react-icons/ai"
+import { AiFillPlayCircle } from "react-icons/ai"
 import { MdHighQuality, MdPlaylistPlay, MdVideoSettings } from "react-icons/md"
 import { RxSlider } from "react-icons/rx"
+import { TbCloudSearch } from "react-icons/tb"
 
 type OnlinestreamServerButtonProps = {
     children?: React.ReactNode
@@ -49,7 +49,7 @@ export function OnlinestreamVideoQualitySubmenu() {
     return (
         <Menu.Root>
             <VdsSubmenuButton
-                label={`Quality`}
+                label={`Quality `}
                 hint={videoSource?.quality || ""}
                 disabled={false}
                 icon={MdHighQuality}
@@ -146,6 +146,7 @@ export function OnlinestreamPlaybackSubmenu() {
                         fieldClass="py-2 px-2"
                         value={discreteControls}
                         onValueChange={setDiscreteControls}
+                        fieldHelpTextClass="max-w-xs"
                     />
                 </Menu.Content>
             </Menu.Root>
@@ -166,13 +167,9 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
 
     return (
         <Modal
-            title="Stream Parameters"
+            title="Stream"
             trigger={<IconButton intent="gray-basic" icon={<MdVideoSettings />} />}
         >
-            <Alert
-                intent="info-basic"
-                description="Empty the cache if you are experiencing issues with the stream."
-            />
             <Select
                 label="Provider"
                 value={provider || ""}
@@ -192,6 +189,9 @@ export function OnlinestreamParametersButton({ mediaId }: { mediaId: number }) {
 
             <Separator />
 
+            <p className="text-sm text-[--muted]">
+                Empty the cache if you are experiencing issues with the stream.
+            </p>
             <Button
                 size="sm"
                 intent="alert-subtle"
@@ -223,7 +223,7 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
             <Tooltip.Root>
                 <Tooltip.Trigger asChild>
                     <Menu.Button className={buttonClass}>
-                        <AiOutlineCloudServer className="text-3xl" />
+                        <TbCloudSearch className="text-3xl" />
                     </Menu.Button>
                 </Tooltip.Trigger>
                 <Tooltip.Content className={tooltipClass} placement="top">
@@ -231,6 +231,9 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
                 </Tooltip.Content>
             </Tooltip.Root>
             <Menu.Content className={menuClass} placement="top">
+                <p className="text-white px-2 py-1">
+                    Provider
+                </p>
                 <RadioGroup
                     value={provider || ""}
                     options={providerExtensionOptions}
@@ -239,7 +242,10 @@ export function OnlinestreamProviderButton(props: OnlinestreamServerButtonProps)
                     }}
                     itemContainerClass={radioGroupItemContainerClass}
                 />
-                <Separator />
+                <Separator className="my-1" />
+                <p className="text-white px-2 py-1">
+                    Server
+                </p>
                 <RadioGroup
                     value={selectedServer}
                     options={servers.map((server) => ({ label: server, value: server }))}
@@ -288,8 +294,11 @@ export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubme
             <div className="contents group-data-[open]/parent:hidden">
                 <Icon className="text-xl" />
             </div>
-            <span className="ml-1.5 group-data-[open]/parent:ml-0">{label}</span>
-            <span className="ml-auto text-sm text-white/50">{hint}</span>
+            <div className="flex gap-1 items-center w-full">
+                <p className="ml-1.5 group-data-[open]/parent:ml-0">{label}</p>
+                <p className="flex flex-1"></p>
+                <p className="ml-auto text-sm text-white/50">{hint}</p>
+            </div>
             <ChevronRightIcon className="group-data-[open]/parent:hidden ml-0.5 h-[18px] w-[18px] text-sm text-white/50" />
         </Menu.Button>
     )
