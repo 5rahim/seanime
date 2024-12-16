@@ -180,6 +180,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 
     const selectedMedia = allMedia.find(media => media.id === Number(form.watch("mediaId")))
 
+    const [_, rerender] = React.useState(0)
+
     React.useEffect(() => {
         const id = Number(form.watch("mediaId"))
         const destination = libraryCollection?.lists?.flatMap(list => list.entries)?.find(entry => entry?.media?.id === id)?.libraryData?.sharedPath
@@ -198,6 +200,15 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
             form.setValue("destination", newDestination)
         }
     }, [form.watch("mediaId"), selectedMedia, libraryCollection])
+
+    React.useEffect(() => {
+        rerender(p => p + 1)
+    }, [form.watch("releaseGroups"), form.watch("resolutions"), form.watch("episodeNumbers"), form.watch("additionalTerms")])
+
+    const releaseGroups = React.useMemo(() => form.watch("releaseGroups") || [], [_])
+    const episodeNumbers = React.useMemo(() => form.watch("episodeNumbers") || [], [_])
+    const additionalTerms = React.useMemo(() => form.watch("additionalTerms") || [], [_])
+    const resolutions = React.useMemo(() => form.watch("resolutions") || [], [_])
 
     if (!selectedMedia) {
         return <div className="p-4 text-[--muted] text-center">Media is not in your library</div>
@@ -312,7 +323,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 
                     {form.watch("episodeType") === "selected" && <TextArrayField
                         label="Episode numbers"
-                        value={form.watch("episodeNumbers") || []}
+                        value={episodeNumbers}
                         onChange={(value) => form.setValue("episodeNumbers", value)}
                         type="number"
                     />}
@@ -325,8 +336,11 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     </p>
 
                     <TextArrayField
-                        value={form.watch("releaseGroups") || []}
-                        onChange={(value) => form.setValue("releaseGroups", value)}
+                        value={releaseGroups}
+                        onChange={(value) => {
+                            console.log("value", value)
+                            form.setValue("releaseGroups", value)
+                        }}
                         type="text"
                         placeholder="e.g. SubsPlease"
                         separatorText="OR"
@@ -340,7 +354,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     </p>
 
                     <TextArrayField
-                        value={form.watch("resolutions") || []}
+                        value={resolutions}
                         onChange={(value) => form.setValue("resolutions", value)}
                         type="text"
                         placeholder="e.g. 1080p"
@@ -375,7 +389,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                 </div>
 
                                 <TextArrayField
-                                    value={form.watch("additionalTerms") || []}
+                                    value={additionalTerms}
                                     onChange={(value) => form.setValue("additionalTerms", value)}
                                     type="text"
                                     placeholder="e.g. H265,H.265,H 265,x265"

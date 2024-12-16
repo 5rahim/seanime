@@ -53,7 +53,8 @@ func (ug *cloudFlareRoundTripper) RoundTrip(r *http.Request) (*http.Response, er
 	// in case we don't have an inner transport layer from the round tripper
 	if ug.inner == nil {
 		return (&http.Transport{
-			TLSClientConfig: getCloudFlareTLSConfiguration(),
+			TLSClientConfig:   getCloudFlareTLSConfiguration(),
+			ForceAttemptHTTP2: false,
 		}).RoundTrip(r)
 	}
 

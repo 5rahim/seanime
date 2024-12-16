@@ -22,6 +22,7 @@ import {
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { SeaLink } from "@/components/shared/sea-link"
+import { vidstackLayoutIcons } from "@/components/shared/vidstack"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
@@ -33,9 +34,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { MediaPlayer, MediaPlayerInstance, MediaProvider, Track } from "@vidstack/react"
-import "@vidstack/react/player/styles/default/theme.css"
+import "@/app/vidstack-theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
-import { DefaultAudioLayout, defaultLayoutIcons, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
+import { DefaultAudioLayout, DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import { uniq } from "lodash"
@@ -192,7 +193,9 @@ export default function Page() {
                     </div>
 
                     <div className="flex gap-2 items-center">
+                        <div className="flex flex-1">
 
+                        </div>
                         {!!mediaContainer?.mediaInfo?.mimeCodec && (
                             <div className="">
                                 <Modal
@@ -437,7 +440,7 @@ export default function Page() {
                                         </div>
                                     </div>
                                     <DefaultVideoLayout
-                                        icons={defaultLayoutIcons}
+                                        icons={vidstackLayoutIcons}
                                         slots={{
                                             settingsMenuEndItems: <>
                                                 <MediastreamPlaybackSubmenu />
@@ -445,7 +448,7 @@ export default function Page() {
                                         }}
                                     />
                                     <DefaultAudioLayout
-                                        icons={defaultLayoutIcons}
+                                        icons={vidstackLayoutIcons}
                                     />
                                 </MediaPlayer> : (
                                     <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">

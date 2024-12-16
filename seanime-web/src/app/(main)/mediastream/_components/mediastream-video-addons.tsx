@@ -35,14 +35,14 @@ export function MediastreamPlaybackSubmenu() {
             </Menu.Root>
             <Menu.Root>
                 <VdsSubmenuButton
-                    label={`Play Next`}
+                    label={`Auto Play Next Episode`}
                     hint={autoNext ? "On" : "Off"}
                     disabled={false}
                     icon={MdPlaylistPlay}
                 />
                 <Menu.Content className={submenuClass}>
                     <Switch
-                        label="Auto play next"
+                        label="Auto play next episode"
                         fieldClass="py-2 px-2"
                         value={autoNext}
                         onValueChange={setAutoNext}
@@ -51,7 +51,7 @@ export function MediastreamPlaybackSubmenu() {
             </Menu.Root>
             <Menu.Root>
                 <VdsSubmenuButton
-                    label={`Discrete controls`}
+                    label={`Discrete Controls`}
                     hint={discreteControls ? "On" : "Off"}
                     disabled={false}
                     icon={RxSlider}
