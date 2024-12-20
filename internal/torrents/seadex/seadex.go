@@ -27,7 +27,7 @@ type (
 func New(logger *zerolog.Logger) *SeaDex {
 	return &SeaDex{
 		logger: logger,
-		uri:    "https://beta.releases.moe/api/collections/entries/records",
+		uri:    "https://releases.moe/api/collections/entries/records",
 	}
 }
 
