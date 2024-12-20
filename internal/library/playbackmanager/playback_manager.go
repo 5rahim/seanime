@@ -163,8 +163,10 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 
 func (pm *PlaybackManager) SetStreamEpisodeCollection(ec []*anime.Episode) {
 	// DEVNOTE: This is called from the torrentstream repository instance
-	pm.mu.Lock()
-	defer pm.mu.Unlock()
+
+	// Commented to fix potential deadlock
+	//pm.mu.Lock()
+	//defer pm.mu.Unlock()
 
 	pm.Logger.Trace().Msg("playback manager: Setting stream episode collection")
 
