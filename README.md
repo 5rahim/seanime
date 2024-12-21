@@ -7,7 +7,7 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="docs/images/github-banner-3.png" alt="preview" width="100%"/>
+<img src="docs/images/github-banner-6.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -74,14 +74,12 @@ How to install Seanime
 The maintenance of this project is made possible by all the sponsors.
 
 <p align="center">
-<!-- real-sponsors --><a href="https://github.com/sin3point14"><img src="https:&#x2F;&#x2F;github.com&#x2F;sin3point14.png" width="70px" alt="User avatar: sin3point14" /></a>&nbsp;&nbsp;<a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="70px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
+<!-- real-sponsors --><a href="https://github.com/sin3point14"><img src="https:&#x2F;&#x2F;github.com&#x2F;sin3point14.png" width="60px" alt="User avatar: sin3point14" /></a>&nbsp;&nbsp;<a href="https://github.com/TorBox-App"><img src="https:&#x2F;&#x2F;github.com&#x2F;TorBox-App.png" width="60px" alt="User avatar: TorBox-App" /></a><!-- real-sponsors -->
 </p>
 
 ## Goal
 
-Seanime's main goal is to provide a more streamlined alternative to traditional servers like Plex and Jellyfin for anime, while also offering more features for different experiences around anime and manga consumption.
-
-🚨 **Important note**: This is a one-person project and may not meet every use case. If it doesn’t fully fit your needs, other tools might be a better match.
+This is a one-person project and may not meet every use case. If it doesn’t fully fit your needs, other tools might be a better match.
 
 ### Not planned
 
