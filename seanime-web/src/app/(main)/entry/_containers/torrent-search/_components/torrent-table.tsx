@@ -73,7 +73,9 @@ export const TorrentTable = memo((
         {
             accessorKey: "resolution",
             header: "Resolution",
-            cell: info => <TorrentResolutionBadge resolution={info.getValue<string>()} />,
+            cell: info => <div className="text-center">
+                <TorrentResolutionBadge resolution={info.getValue<string>()} />
+            </div>,
             size: 70,
         },
         {
@@ -87,13 +89,13 @@ export const TorrentTable = memo((
                     )}
                 </div>
             ),
-            // size: 20,
+            size: 80,
         },
         {
             accessorKey: "date",
             header: "Date",
             cell: info => formatDistanceToNowSafe(info.getValue<string>()),
-            size: 80,
+            // size: 80,
         },
     ]), [torrents, selectedTorrents, debridInstantAvailability])
 

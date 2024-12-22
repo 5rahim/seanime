@@ -81,9 +81,9 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 ></div>
             </div>
 
-            <div
-                className="absolute w-full h-full bg-[--background] top-0 left-[179px]"
-            ></div>
+            {/*<div*/}
+            {/*    className="absolute w-[calc(100%_-_179px)] h-full bg-[--background] top-0 left-[179px]"*/}
+            {/*></div>*/}
 
             <div
                 className={cn(
