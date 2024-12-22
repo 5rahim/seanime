@@ -30,7 +30,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
     const router = useRouter()
     const serverStatus = useServerStatus()
     const setServerStatus = useSetServerStatus()
-    const { data: _serverStatus, isLoading } = useGetStatus()
+    const { data: _serverStatus, isLoading, refetch } = useGetStatus()
 
     React.useEffect(() => {
         if (_serverStatus) {

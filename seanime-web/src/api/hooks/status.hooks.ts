@@ -13,7 +13,7 @@ export function useGetStatus() {
         enabled: true,
         retryDelay: 1000,
         // Fixes macOS desktop app startup issue
-        retry: 3,
+        retry: 6,
         // Mute error if the platform is desktop
         muteError: process.env.NEXT_PUBLIC_PLATFORM === "desktop",
     })
