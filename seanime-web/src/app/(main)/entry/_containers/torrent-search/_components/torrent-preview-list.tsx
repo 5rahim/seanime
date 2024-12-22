@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip } from "@/components/ui/tooltip"
+import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React from "react"
 import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
@@ -67,7 +68,7 @@ export const TorrentPreviewList = React.memo((
                                 icon={<BiLinkExternal />}
                                 intent="primary-basic"
                                 size="sm"
-                                onClick={() => window.open(item.torrent!.link, "_blank")}
+                                onClick={() => openTab(item.torrent!.link)}
                             />}
                         >Open in browser</Tooltip>}
                     >

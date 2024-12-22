@@ -4,6 +4,7 @@ import { FilepathSelector } from "@/app/(main)/_features/media/_components/filep
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/modal"
 import { Separator } from "@/components/ui/separator"
+import { openTab } from "@/lib/helpers/browser"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
@@ -42,8 +43,10 @@ function Content({ entry }: { entry: Anime_Entry }) {
 
     function handleDownload() {
         for (const filepath of filepaths) {
-            window.open(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filepath), "_blank")
+            const url = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filepath)
+            openTab(url)
         }
+        setOpen(false)
     }
 
     if (!entry.media) return null

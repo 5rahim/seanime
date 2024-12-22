@@ -8,6 +8,7 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { Tooltip } from "@/components/ui/tooltip"
+import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React, { memo, useMemo } from "react"
 import { BiLinkExternal } from "react-icons/bi"
@@ -47,7 +48,7 @@ export const TorrentTable = memo((
                         icon={<BiLinkExternal />}
                         intent="primary-basic"
                         size="sm"
-                        onClick={() => window.open(info.row.original.link, "_blank")}
+                        onClick={() => openTab(info.row.original.link)}
                     />}
                 >Open in browser</Tooltip>
                 <Tooltip

@@ -335,12 +335,13 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                             year: "numeric",
                                         }).format(new Date(media.startDate?.year || 0, media.startDate?.month || 0)) : "-"}</p>
                                         <p>Status: {media.status}</p>
-                                        <Button
-                                            intent="primary-link"
-                                            size="sm"
-                                            className="px-0"
-                                            onClick={() => window.open(`https://anilist.co/anime/${media.id}`, "_target")}
-                                        >Open on AniList</Button>
+                                        <SeaLink href={`https://anilist.co/anime/${media.id}`} target="_blank">
+                                            <Button
+                                                intent="primary-link"
+                                                size="sm"
+                                                className="px-0"
+                                            >Open on AniList</Button>
+                                        </SeaLink>
                                     </div>
                                 </div>
                             </div>,

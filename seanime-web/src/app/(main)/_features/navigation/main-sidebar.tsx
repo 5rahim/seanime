@@ -20,6 +20,7 @@ import { HoverCard } from "@/components/ui/hover-card"
 import { Modal } from "@/components/ui/modal"
 import { VerticalMenu } from "@/components/ui/vertical-menu"
 import { useDisclosure } from "@/hooks/use-disclosure"
+import { openTab } from "@/lib/helpers/browser"
 import { ANILIST_OAUTH_URL } from "@/lib/server/config"
 import { TORRENT_CLIENT, TORRENT_PROVIDER } from "@/lib/server/settings"
 import { WSEvents } from "@/lib/server/ws-events"
@@ -315,7 +316,7 @@ export function MainSidebar() {
                                     {
                                         iconType: FiLogIn,
                                         name: "Login",
-                                        onClick: () => window.open(ANILIST_OAUTH_URL, "_self"),
+                                        onClick: () => openTab(ANILIST_OAUTH_URL),
                                     },
                                 ]}
                             />
@@ -351,7 +352,7 @@ export function MainSidebar() {
                 <div className="mt-5 text-center space-y-4">
                     <Button
                         onClick={() => {
-                            window.open(ANILIST_OAUTH_URL)
+                            openTab(ANILIST_OAUTH_URL)
                         }} intent="primary-outline"
                     >Login with AniList</Button>
                 </div>

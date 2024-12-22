@@ -51,6 +51,7 @@
     "@tauri-apps/api": "v2.1.1",
     "@tauri-apps/plugin-os": "^2.2.0",
     "@tauri-apps/plugin-process": "^2.2.0",
+    "@tauri-apps/plugin-shell": "^2.2.0",
     "@tauri-apps/plugin-updater": "^2.3.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/node": "^22",

@@ -91,6 +91,7 @@ type (
 		manualTrackingCtxCancel     context.CancelFunc
 		manualTrackingPlaybackState PlaybackState
 		currentManualTrackingState  mo.Option[*ManualTrackingState]
+		manualTrackingWg            sync.WaitGroup
 
 		// \/ Playlist
 		playlistHub *playlistHub // The playlist hub

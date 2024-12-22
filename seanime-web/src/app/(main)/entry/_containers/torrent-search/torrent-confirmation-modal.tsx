@@ -11,6 +11,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Modal } from "@/components/ui/modal"
 import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
+import { openTab } from "@/lib/helpers/browser"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { atom } from "jotai"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
@@ -181,7 +182,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                     >
                         <div
                             className="flex flex-none items-center gap-2 w-[90%] cursor-pointer"
-                            onClick={() => window.open(torrent.link, "_blank")}
+                            onClick={() => openTab(torrent.link)}
                         >
                             <span className="text-lg">
                                 {(!torrent.isBatch || media.format === "MOVIE") ? <FcFilmReel /> :

@@ -142,7 +142,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                     <DropdownMenuItem
                         onClick={() => setIgnoredFileManagerOpen(true)}
-                        disabled={!hasScanned}
+                        // disabled={!hasScanned}
                         className={cn({ "!text-[--muted]": !hasScanned })}
                     >
                         <TbFileSad />
@@ -151,8 +151,7 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
 
                     <SeaLink href="/scan-summaries">
                         <DropdownMenuItem
-
-                            className={cn({ "!text-[--muted]": !hasScanned })}
+                            // className={cn({ "!text-[--muted]": !hasScanned })}
                         >
                             <PiClockCounterClockwiseFill />
                             <span>Scan summaries</span>
