@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/habari v0.1.0
+	github.com/5rahim/habari v0.1.2
 	github.com/5rahim/hibike v0.5.1
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Masterminds/semver/v3 v3.3.1
@@ -12,8 +12,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/Yamashou/gqlgenc v0.25.4
 	github.com/adrg/strutil v0.3.1
-	github.com/anacrolix/log v0.15.3-0.20240627045001-cd912c641d83
-	github.com/anacrolix/sync v0.5.1
+	github.com/anacrolix/log v0.16.0
 	github.com/anacrolix/torrent v1.58.0
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/cli/browser v1.3.0
@@ -21,8 +20,8 @@ require (
 	github.com/dop251/goja v0.0.0-20241024094426-79f3a7efcdbd
 	github.com/dop251/goja_nodejs v0.0.0-20240728170619-29b559befffc
 	github.com/dustin/go-humanize v1.0.1
-	github.com/evanw/esbuild v0.24.0
-	github.com/fsnotify/fsnotify v1.7.0
+	github.com/evanw/esbuild v0.24.2
+	github.com/fsnotify/fsnotify v1.8.0
 	github.com/gen2brain/beeep v0.0.0-20240516210008-9c006672e7f4
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
@@ -50,7 +49,7 @@ require (
 	github.com/xfrr/goffmpeg v1.0.0
 	golang.org/x/crypto v0.31.0
 	golang.org/x/image v0.23.0
-	golang.org/x/net v0.32.0
+	golang.org/x/net v0.33.0
 	golang.org/x/term v0.27.0
 	golang.org/x/text v0.21.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
@@ -73,6 +72,7 @@ require (
 	github.com/anacrolix/mmsg v1.0.0 // indirect
 	github.com/anacrolix/multiless v0.4.0 // indirect
 	github.com/anacrolix/stm v0.4.0 // indirect
+	github.com/anacrolix/sync v0.5.1 // indirect
 	github.com/anacrolix/upnp v0.1.4 // indirect
 	github.com/anacrolix/utp v0.1.0 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
@@ -134,30 +134,20 @@ require (
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pion/datachannel v1.5.9 // indirect
-	github.com/pion/dtls/v2 v2.2.4 // indirect
 	github.com/pion/dtls/v3 v3.0.3 // indirect
-	github.com/pion/ice/v2 v2.2.6 // indirect
 	github.com/pion/ice/v4 v4.0.2 // indirect
 	github.com/pion/interceptor v0.1.37 // indirect
 	github.com/pion/logging v0.2.2 // indirect
-	github.com/pion/mdns v0.0.5 // indirect
 	github.com/pion/mdns/v2 v2.0.7 // indirect
 	github.com/pion/randutil v0.1.0 // indirect
 	github.com/pion/rtcp v1.2.14 // indirect
 	github.com/pion/rtp v1.8.9 // indirect
 	github.com/pion/sctp v1.8.33 // indirect
 	github.com/pion/sdp/v3 v3.0.9 // indirect
-	github.com/pion/srtp/v2 v2.0.9 // indirect
 	github.com/pion/srtp/v3 v3.0.4 // indirect
-	github.com/pion/stun v0.3.5 // indirect
 	github.com/pion/stun/v3 v3.0.0 // indirect
-	github.com/pion/transport v0.13.1 // indirect
-	github.com/pion/transport/v2 v2.0.0 // indirect
 	github.com/pion/transport/v3 v3.0.7 // indirect
-	github.com/pion/turn/v2 v2.0.8 // indirect
 	github.com/pion/turn/v4 v4.0.0 // indirect
-	github.com/pion/udp v0.1.4 // indirect
-	github.com/pion/webrtc/v3 v3.1.42 // indirect
 	github.com/pion/webrtc/v4 v4.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/protolambda/ctxlock v0.1.0 // indirect
