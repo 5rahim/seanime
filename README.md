@@ -10,25 +10,25 @@
 <img src="docs/images/github-banner-6.png" alt="preview" width="100%"/>
 </p>
 
-<div align="center">
+<p align="center">
   <a href="https://seanime.rahim.app/docs">Documentation</a> |
   <a href="https://github.com/5rahim/seanime/releases">Latest release</a> |
   <a href="#screenshots">Screenshots</a> |
   <a href="https://www.youtube.com/playlist?list=PLgQO-Ih6JClhFFdEVuNQJejyX_8iH82gl">Tutorials</a> |
   <a href="https://discord.gg/Sbr7Phzt6m">Discord</a>
-</div>
+</p>
 
-<p align="center">
+<div align="center">
   <a href="https://github.com/5rahim/seanime/releases">
-    <img src="https://img.shields.io/github/v/release/5rahim/seanime?style=flat-square&color=blue" />
+    <img src="https://img.shields.io/github/v/release/5rahim/seanime?style=flat-square&color=blue" alt="" />
   </a>
   <a href="https://github.com/5rahim/seanime/releases">
-    <img src="https://img.shields.io/github/downloads/5rahim/seanime/total?style=flat-square&color=blue" />
+    <img src="https://img.shields.io/github/downloads/5rahim/seanime/total?style=flat-square&color=blue" alt="" />
   </a>
   <a href="https://github.com/sponsors/5rahim">
-    <img src="https://img.shields.io/static/v1?label=Sponsor&style=flat-square&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" />
+    <img src="https://img.shields.io/static/v1?label=Sponsor&style=flat-square&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" alt="" />
   </a>
-</p>
+</div>
 
 
 <h5 align="center">
