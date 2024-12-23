@@ -124,9 +124,6 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
                             target="_blank"
                         >
                             <Button
-                                // onClick={() => {
-                                //     window.open(ANILIST_PIN_URL, "_blank")
-                                // }}
                                 leftIcon={<svg
                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
                                     viewBox="0 0 24 24" role="img"

@@ -191,15 +191,18 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                 form.setValue("comparisonTitle", media.title?.romaji || "")
             }
         }
-        if (destination) {
-            form.setValue("destination", destination)
-        } else if (type === "create") {
-            // form.setValue("destination", "")
-            const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""),
-                sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || ""))
-            form.setValue("destination", newDestination)
+        // If no rule is passed, set the comparison title to the media title
+        if (!rule) {
+            if (destination) {
+                form.setValue("destination", destination)
+            } else if (type === "create") {
+                // form.setValue("destination", "")
+                const newDestination = upath.join(upath.normalizeSafe(serverStatus?.settings?.library?.libraryPath || ""),
+                    sanitizeDirectoryName(selectedMedia?.title?.romaji || selectedMedia?.title?.english || ""))
+                form.setValue("destination", newDestination)
+            }
         }
-    }, [form.watch("mediaId"), selectedMedia, libraryCollection])
+    }, [form.watch("mediaId"), selectedMedia, libraryCollection, rule])
 
     React.useEffect(() => {
         rerender(p => p + 1)
