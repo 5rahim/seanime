@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.5.2
+
+- 🦺 Fixed SeaDex extension #179
+- 🦺 Fixed Auto Downloader title comparison
+- 🦺 Fixed m3u8 proxy HTTP/2 runtime error on Linux
+- 🦺 Fixed Auto Downloader array fields
+- 🦺 Fixed online streaming error caused by decimals
+- 🦺 Fixed manual progress tracking cancellation
+- 🦺 Fixed playback manager deadlock
+- 🦺 Desktop: Fixed external player links
+- 🦺 Desktop: Fixed local file downloading (macOS)
+- 🦺 Desktop: Fixed 'open in browser' links (macOS)
+- 🦺 Desktop: Fixed torrent list UI glitches (macOS)
+- 🏗️ Desktop: Added 'reload' button to loading screen
+- ⬆️ Updated filename parser
+  - Fixes aggressive episode number parsing in rare cases
+- ⬆️ Updated dependencies
+- 🔑 Updated license to GPL-3.0
+
 ## v2.5.1
 
 - 💄 Updated built-in media player theme
