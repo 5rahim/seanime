@@ -7,7 +7,7 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="docs/images/github-banner-6.png" alt="preview" width="100%"/>
+<img src="docs/images/github-banner-10.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@ Leave a star if you like the project! ⭐️
 
 ## About
 
-Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, reading manga, and managing your local library.
+Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, managing your local library, and reading manga.
 
 ## Features
 
