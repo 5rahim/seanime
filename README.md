@@ -7,7 +7,7 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="docs/images/github-banner-6.png" alt="preview" width="100%"/>
+<img src="docs/images/github-banner-10.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -18,17 +18,17 @@
   <a href="https://discord.gg/Sbr7Phzt6m">Discord</a>
 </p>
 
-<p align="center">
+<div align="center">
   <a href="https://github.com/5rahim/seanime/releases">
-    <img src="https://img.shields.io/github/v/release/5rahim/seanime?style=flat-square&color=blue">
+    <img src="https://img.shields.io/github/v/release/5rahim/seanime?style=flat-square&color=blue" alt="" />
   </a>
   <a href="https://github.com/5rahim/seanime/releases">
-    <img src="https://img.shields.io/github/downloads/5rahim/seanime/total?style=flat-square&color=blue" />
+    <img src="https://img.shields.io/github/downloads/5rahim/seanime/total?style=flat-square&color=blue" alt="" />
   </a>
   <a href="https://github.com/sponsors/5rahim">
-    <img src="https://img.shields.io/static/v1?label=Sponsor&style=flat-square&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86">
+    <img src="https://img.shields.io/static/v1?label=Sponsor&style=flat-square&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86" alt="" />
   </a>
-</p>
+</div>
 
 
 <h5 align="center">
@@ -37,7 +37,7 @@ Leave a star if you like the project! ⭐️
 
 ## About
 
-Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, reading manga, and managing your local library.
+Seanime is a **media server** with a **web interface** and **desktop app** for watching anime, managing your local library, and reading manga.
 
 ## Features
 

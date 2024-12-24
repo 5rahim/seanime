@@ -86,7 +86,7 @@ body:
             I have included error messages
           required: false
         - label: >-
-            I have included terminal output
+            I have included server logs
           required: false
         - label: >-
             I have included browser console logs

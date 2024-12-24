@@ -77,7 +77,6 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                 <div className="relative">
                     <TextInput
                         leftIcon={<FaFolder />}
-                        {...rest}
                         value={input}
                         rightIcon={<div className="flex">
                             {isLoading ? null : (data?.exists ?
@@ -89,6 +88,7 @@ export const DirectorySelector = React.memo(React.forwardRef<HTMLInputElement, D
                         }}
                         ref={ref}
                         onBlur={checkDirectoryExists}
+                        {...rest}
                     />
                     <BiFolderOpen
                         className="text-2xl cursor-pointer absolute z-[1] top-0 right-0"

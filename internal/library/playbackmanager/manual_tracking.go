@@ -6,6 +6,7 @@ import (
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/events"
+	"seanime/internal/util"
 	"time"
 )
 
@@ -36,7 +37,9 @@ func (pm *PlaybackManager) CancelManualProgressTracking() {
 	}
 }
 
-func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgressTrackingOptions) error {
+func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgressTrackingOptions) (err error) {
+	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartManualProgressTracking", &err)
+
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 
@@ -46,6 +49,7 @@ func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgress
 	if pm.manualTrackingCtxCancel != nil {
 		pm.Logger.Trace().Msg("playback manager: Cancelling previous manual tracking context")
 		pm.manualTrackingCtxCancel()
+		pm.manualTrackingWg.Wait()
 	}
 
 	// Get the media
@@ -97,7 +101,9 @@ func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgress
 		Msg("playback manager: Starting manual progress tracking")
 
 	// Start sending the manual tracking events
+	pm.manualTrackingWg.Add(1)
 	go func() {
+		defer pm.manualTrackingWg.Done()
 		// Create a new context
 		pm.manualTrackingCtx, pm.manualTrackingCtxCancel = context.WithCancel(context.Background())
 		defer func() {
@@ -109,7 +115,7 @@ func (pm *PlaybackManager) StartManualProgressTracking(opts *StartManualProgress
 		for {
 			select {
 			case <-pm.manualTrackingCtx.Done():
-				pm.Logger.Debug().Msg("playback manager: Manual progress tracking cancelled")
+				pm.Logger.Debug().Msg("playback manager: Manual progress tracking canceled")
 				pm.wsEventManager.SendEvent(events.PlaybackManagerManualTrackingStopped, nil)
 				return
 			default:

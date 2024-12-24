@@ -1,5 +1,6 @@
 import { LuffyError } from "@/components/shared/luffy-error"
 import { cn } from "@/components/ui/core/styling"
+import { Skeleton } from "@/components/ui/skeleton"
 import React from "react"
 
 const gridClass = cn(
@@ -186,12 +187,12 @@ export function MediaCardLazyGridRenderer({
                                     {child}
                                 </div>
                             ) : (
-                                <div
-                                    className="w-full bg-gray-100"
+                                <Skeleton
+                                    className="w-full"
                                     style={{
                                         height: storedHeight || "300px",
                                     }}
-                                ></div>
+                                ></Skeleton>
                             )}
                         </div>
                     )

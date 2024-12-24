@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	alog "github.com/anacrolix/log"
-	"github.com/anacrolix/sync"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/dustin/go-humanize"
@@ -17,6 +16,7 @@ import (
 	"path"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"strings"
+	"sync"
 	"time"
 )
 

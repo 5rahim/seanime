@@ -251,6 +251,21 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		return
 	}
 
+	// Filter out disabled rules
+	_filteredRules := make([]*anime.AutoDownloaderRule, 0)
+	for _, rule := range rules {
+		if rule.Enabled {
+			_filteredRules = append(_filteredRules, rule)
+		}
+	}
+	rules = _filteredRules
+
+	// If there are no rules, return
+	if len(rules) == 0 {
+		ad.logger.Debug().Msg("autodownloader: No rules found")
+		return
+	}
+
 	// Get local files from the database
 	lfs, _, err := db_bridge.GetLocalFiles(ad.database)
 	if err != nil {
@@ -660,42 +675,50 @@ func (ad *AutoDownloader) isTitleMatch(torrentParsedData *habari.Metadata, torre
 		// |   Title "Likely"    |
 		// +---------------------+
 
-		// 1. Use comparison title
-
 		torrentTitle := torrentParsedData.Title
+		comparisonTitle := strings.ReplaceAll(strings.ReplaceAll(rule.ComparisonTitle, "[", ""), "]", "")
 
-		parsedComparisonTitle := habari.Parse(rule.ComparisonTitle)
-		_comparisonTitle := parsedComparisonTitle.Title
-		if len(parsedComparisonTitle.ReleaseGroup) > 0 {
-			_comparisonTitle = fmt.Sprintf("%s %s", parsedComparisonTitle.ReleaseGroup, _comparisonTitle)
-			_comparisonTitle = strings.TrimSpace(_comparisonTitle)
-		}
+		// 1. Use comparison title (without season number - if it exists)
+		// Remove season number from the torrent title if it exists
+		parsedComparisonTitle := habari.Parse(comparisonTitle)
+		if parsedComparisonTitle.Title != "" && len(parsedComparisonTitle.SeasonNumber) > 0 {
+			_comparisonTitle := parsedComparisonTitle.Title
+			if len(parsedComparisonTitle.ReleaseGroup) > 0 {
+				_comparisonTitle = fmt.Sprintf("%s %s", parsedComparisonTitle.ReleaseGroup, _comparisonTitle)
+				_comparisonTitle = strings.TrimSpace(_comparisonTitle)
+			}
 
-		// First, use comparison title, compare without season number
-		// e.g. Torrent: "[Seanime] Jujutsu Kaisen 2nd Season - 20 [...].mkv" -> "Jujutsu Kaisen"
-		// e.g. Comparison Title: "Jujutsu Kaisen 2nd Season" -> "Jujutsu Kaisen"
+			// First, use comparison title, compare without season number
+			// e.g. Torrent: "[Seanime] Jujutsu Kaisen 2nd Season - 20 [...].mkv" -> "Jujutsu Kaisen"
+			// e.g. Comparison Title: "Jujutsu Kaisen 2nd Season" -> "Jujutsu Kaisen"
 
-		// DEVNOTE: isSeasonAndEpisodeMatch will handle the case where the torrent has a season number
+			// DEVNOTE: isSeasonAndEpisodeMatch will handle the case where the torrent has a season number
 
-		// Make sure the distance is not too great
-		lev := metrics.NewLevenshtein()
-		lev.CaseSensitive = false
-		res := lev.Distance(torrentTitle, _comparisonTitle)
-		if res < 4 {
-			return true
+			// Make sure the distance is not too great
+			lev := metrics.NewLevenshtein()
+			lev.CaseSensitive = false
+			res := lev.Distance(torrentTitle, _comparisonTitle)
+			if res < 4 {
+				return true
+			}
 		}
 
 		// 2. Use media titles
-		// If we failed to match the torrent against the comparison title, try to match the torrent title with the media titles
+		// If we're here, it means that either
+		// - the comparison title doesn't have a season number
+		// - the comparison title (w/o season number) is not similar to the torrent title
 
 		torrentTitleVariations := []*string{&torrentTitle}
 
 		if len(torrentParsedData.SeasonNumber) > 0 {
-			// If the torrent has a season number, add it to the variations
-			torrentTitleVariations = []*string{
-				lo.ToPtr(fmt.Sprintf("%s Season %s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
-				lo.ToPtr(fmt.Sprintf("%s S%s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
-				lo.ToPtr(fmt.Sprintf("%s %s Season", torrentParsedData.Title, util.IntegerToOrdinal(util.StringToIntMust(torrentParsedData.SeasonNumber[0])))),
+			season := util.StringToIntMust(torrentParsedData.SeasonNumber[0])
+			if season > 1 {
+				// If the torrent has a season number, add it to the variations
+				torrentTitleVariations = []*string{
+					lo.ToPtr(fmt.Sprintf("%s Season %s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
+					lo.ToPtr(fmt.Sprintf("%s S%s", torrentParsedData.Title, torrentParsedData.SeasonNumber[0])),
+					lo.ToPtr(fmt.Sprintf("%s %s Season", torrentParsedData.Title, util.IntegerToOrdinal(util.StringToIntMust(torrentParsedData.SeasonNumber[0])))),
+				}
 			}
 		}
 
@@ -712,11 +735,12 @@ func (ad *AutoDownloader) isTitleMatch(torrentParsedData *habari.Metadata, torre
 		}
 
 		// If the best match is not found
+		// /!\ This shouldn't happen since the media titles are always present
 		if compRes == nil {
 			// Compare using rule comparison title
 			sd := metrics.NewSorensenDice()
 			sd.CaseSensitive = false
-			res := sd.Compare(torrentTitle, rule.ComparisonTitle)
+			res := sd.Compare(torrentTitle, comparisonTitle)
 
 			if res > ComparisonThreshold {
 				return true
@@ -823,6 +847,11 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 		if _, found := localEntry.FindLocalFileWithEpisodeNumber(episode); found {
 			return -1, false
 		}
+	}
+
+	// If there's no absolute episode number, check that the episode number is not greater than the current episode count
+	if !hasAbsoluteEpisode && episode > listEntry.GetMedia().GetCurrentEpisodeCount() {
+		return -1, false
 	}
 
 	// As a last check, make sure the seasons match ONLY if the episode number is not absolute

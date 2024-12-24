@@ -15,6 +15,7 @@ import { SeaLink } from "@/components/shared/sea-link"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { IconButton } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { openTab } from "@/lib/helpers/browser"
 import { logger } from "@/lib/helpers/debug"
 import { useAtomValue } from "jotai"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -62,7 +63,7 @@ export default function Page() {
             const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filePath)
             logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
 
-            window.open(getExternalPlayerURL(externalPlayerLink, urlToSend), "_blank")
+            openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))
 
             if (episode?.progressNumber && episode.type === "main") {
                 logger("MEDIALINKS").error("Starting manual tracking")

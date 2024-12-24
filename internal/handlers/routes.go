@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"runtime"
@@ -42,6 +43,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
 	})
 	fiberApp.Use(fiberLogger)
+	fiberApp.Use(recover.New())
 
 	fiberApp.Use(func(c *fiber.Ctx) error {
 		// Check if the client has a UUID cookie

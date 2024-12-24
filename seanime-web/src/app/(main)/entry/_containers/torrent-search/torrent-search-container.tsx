@@ -33,6 +33,7 @@ import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { Tooltip } from "@/components/ui/tooltip"
+import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { atom, useSetAtom } from "jotai"
@@ -442,7 +443,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                         icon={<BiLinkExternal />}
                         intent="primary-basic"
                         size="sm"
-                        onClick={() => window.open(batchHistory?.torrent?.link, "_blank")}
+                        onClick={() => openTab(batchHistory?.torrent?.link ?? "")}
                     />}
                 >Open in browser</Tooltip>}
             >

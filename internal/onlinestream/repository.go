@@ -2,6 +2,7 @@ package onlinestream
 
 import (
 	"errors"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
@@ -167,23 +168,45 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 	}
 
 	for _, episodeDetails := range ec.ProviderEpisodeList {
-		if foundAnimeMetadata {
-			episodeMetadata, found := animeMetadata.Episodes[strconv.Itoa(episodeDetails.Number)]
-			if found {
-				img := episodeMetadata.Image
-				if img == "" {
-					epMetadata := aw.GetEpisodeMetadata(episodeDetails.Number)
-					img = epMetadata.Image
+
+		// If the title contains "[{", it means it's an episode part (e.g. "Episode 6 [{6.5}]", the episode number should be 6)
+		if strings.Contains(episodeDetails.Title, "[{") {
+			ep := strings.Split(episodeDetails.Title, "[{")[1]
+			ep = strings.Split(ep, "}]")[0]
+			episodes = append(episodes, &Episode{
+				Number:      episodeDetails.Number,
+				Title:       fmt.Sprintf("Episode %s", ep),
+				Image:       media.GetBannerImageSafe(),
+				Description: "",
+				IsFiller:    false,
+			})
+
+		} else {
+
+			if foundAnimeMetadata {
+				episodeMetadata, found := animeMetadata.Episodes[strconv.Itoa(episodeDetails.Number)]
+				if found {
+					img := episodeMetadata.Image
 					if img == "" {
-						img = media.GetCoverImageSafe()
+						epMetadata := aw.GetEpisodeMetadata(episodeDetails.Number)
+						img = epMetadata.Image
+						if img == "" {
+							img = media.GetCoverImageSafe()
+						}
 					}
+					episodes = append(episodes, &Episode{
+						Number:      episodeDetails.Number,
+						Title:       episodeMetadata.GetTitle(),
+						Image:       img,
+						Description: episodeMetadata.Summary,
+					})
+				} else {
+					episodes = append(episodes, &Episode{
+						Number: episodeDetails.Number,
+						Title:  episodeDetails.Title,
+						Image:  media.GetCoverImageSafe(),
+					})
 				}
-				episodes = append(episodes, &Episode{
-					Number:      episodeDetails.Number,
-					Title:       episodeMetadata.GetTitle(),
-					Image:       img,
-					Description: episodeMetadata.Summary,
-				})
 			} else {
 				episodes = append(episodes, &Episode{
 					Number: episodeDetails.Number,
@@ -191,12 +214,7 @@ func (r *Repository) GetMediaEpisodes(provider string, media *anilist.BaseAnime,
 					Image:  media.GetCoverImageSafe(),
 				})
 			}
-		} else {
-			episodes = append(episodes, &Episode{
-				Number: episodeDetails.Number,
-				Title:  episodeDetails.Title,
-				Image:  media.GetCoverImageSafe(),
-			})
+
 		}
 	}
 

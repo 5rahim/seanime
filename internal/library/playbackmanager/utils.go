@@ -58,7 +58,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	}
 
 	if pm.animeCollection.IsAbsent() {
-		return nil, nil, nil, fmt.Errorf("error getting anime collection: %s", err.Error())
+		return nil, nil, nil, fmt.Errorf("error getting anime collection: %w", err)
 	}
 
 	ret, ok := pm.animeCollection.MustGet().GetListEntryFromAnimeId(lf.MediaId)

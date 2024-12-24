@@ -8,16 +8,23 @@ import (
 	"io"
 	"net/http"
 	url2 "net/url"
+	"seanime/internal/util"
 	"strings"
 
 	"github.com/grafov/m3u8"
 )
 
-func M3U8Proxy(c *fiber.Ctx) error {
+func M3U8Proxy(c *fiber.Ctx) (err error) {
+	defer util.HandlePanicInModuleWithError("util/M3U8Proxy", &err)
+
 	url := c.Query("url")
 	headers := c.Query("headers")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http.Transport{
+			ForceAttemptHTTP2: false,
+		},
+	}
 
 	req, err := http.NewRequest(c.Method(), url, nil)
 	if err != nil {

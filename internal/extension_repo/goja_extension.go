@@ -1,9 +1,9 @@
 package extension_repo
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/dop251/goja"
-	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	"seanime/internal/extension"
 	"time"
