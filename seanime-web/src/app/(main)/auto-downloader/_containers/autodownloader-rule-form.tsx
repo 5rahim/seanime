@@ -19,7 +19,7 @@ import { TextInput } from "@/components/ui/text-input"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
-import { UseFormReturn } from "react-hook-form"
+import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
 import { FcFolder } from "react-icons/fc"
 import { LuTextCursorInput } from "react-icons/lu"
@@ -180,8 +180,6 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 
     const selectedMedia = allMedia.find(media => media.id === Number(form.watch("mediaId")))
 
-    const [_, rerender] = React.useState(0)
-
     React.useEffect(() => {
         const id = Number(form.watch("mediaId"))
         const destination = libraryCollection?.lists?.flatMap(list => list.entries)?.find(entry => entry?.media?.id === id)?.libraryData?.sharedPath
@@ -203,15 +201,6 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
             }
         }
     }, [form.watch("mediaId"), selectedMedia, libraryCollection, rule])
-
-    React.useEffect(() => {
-        rerender(p => p + 1)
-    }, [form.watch("releaseGroups"), form.watch("resolutions"), form.watch("episodeNumbers"), form.watch("additionalTerms")])
-
-    const releaseGroups = React.useMemo(() => form.watch("releaseGroups") || [], [_])
-    const episodeNumbers = React.useMemo(() => form.watch("episodeNumbers") || [], [_])
-    const additionalTerms = React.useMemo(() => form.watch("additionalTerms") || [], [_])
-    const resolutions = React.useMemo(() => form.watch("resolutions") || [], [_])
 
     if (!selectedMedia) {
         return <div className="p-4 text-[--muted] text-center">Media is not in your library</div>
@@ -326,8 +315,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 
                     {form.watch("episodeType") === "selected" && <TextArrayField
                         label="Episode numbers"
-                        value={episodeNumbers}
-                        onChange={(value) => form.setValue("episodeNumbers", value)}
+                        name="episodeNumbers"
+                        control={form.control}
                         type="number"
                     />}
                 </div>
@@ -339,11 +328,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     </p>
 
                     <TextArrayField
-                        value={releaseGroups}
-                        onChange={(value) => {
-                            console.log("value", value)
-                            form.setValue("releaseGroups", value)
-                        }}
+                        name="releaseGroups"
+                        control={form.control}
                         type="text"
                         placeholder="e.g. SubsPlease"
                         separatorText="OR"
@@ -357,8 +343,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                     </p>
 
                     <TextArrayField
-                        value={resolutions}
-                        onChange={(value) => form.setValue("resolutions", value)}
+                        name="resolutions"
+                        control={form.control}
                         type="text"
                         placeholder="e.g. 1080p"
                         separatorText="OR"
@@ -392,8 +378,10 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                                 </div>
 
                                 <TextArrayField
-                                    value={additionalTerms}
-                                    onChange={(value) => form.setValue("additionalTerms", value)}
+                                    name="additionalTerms"
+                                    control={form.control}
+                                    // value={additionalTerms}
+                                    // onChange={(value) => form.setValue("additionalTerms", value)}
                                     type="text"
                                     placeholder="e.g. H265,H.265,H 265,x265"
                                     separatorText="AND"
@@ -412,8 +400,8 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
 }
 
 type TextArrayFieldProps<T extends string | number> = {
-    value: T[]
-    onChange: (value: T[]) => void
+    name: string
+    control: any
     type?: "text" | "number"
     label?: string
     placeholder?: string
@@ -421,58 +409,56 @@ type TextArrayFieldProps<T extends string | number> = {
 }
 
 export function TextArrayField<T extends string | number>(props: TextArrayFieldProps<T>) {
+    const { fields, append, remove } = useFieldArray({
+        control: props.control,
+        name: props.name,
+    })
 
     return (
         <div className="space-y-2">
             {props.label && <div className="flex items-center">
                 <div className="text-base font-semibold">{props.label}</div>
             </div>}
-            {props.value.map((value, index) => (
-                <React.Fragment key={index}>
-                    <div key={index} className="flex gap-2 items-center">
-                        {props.type === "text" && <TextInput
-                            value={value}
-                            onChange={(e) => {
-                                const newValue = [...props.value]
-                                newValue[index] = e.target.value as any
-                                props.onChange(newValue)
-                            }}
-                            placeholder={props.placeholder}
-                        />}
-                        {props.type === "number" && <TextInput
-                            type="number"
-                            value={value as number}
-                            onChange={(e) => {
-                                const newValue = [...props.value]
-                                const intVal = parseInt(e.target.value) as number
-                                newValue[index] = (isNaN(parseInt(e.target.value)) ? 1 : (intVal < 1 ? 1 : intVal)) as any
-                                props.onChange(newValue)
-                            }}
-                        />}
+            {fields.map((field, index) => (
+                <React.Fragment key={field.id}>
+                    <div className="flex gap-2 items-center">
+                        {props.type === "text" && (
+                            <TextInput
+                                {...props.control.register(`${props.name}.${index}`)}
+                                placeholder={props.placeholder}
+                            />
+                        )}
+                        {props.type === "number" && (
+                            <TextInput
+                                type="number"
+                                {...props.control.register(`${props.name}.${index}`, {
+                                    valueAsNumber: true,
+                                    min: 1,
+                                    validate: (value: number) => !isNaN(value),
+                                })}
+                            />
+                        )}
                         <CloseButton
                             size="sm"
                             intent="alert-subtle"
-                            onClick={() => {
-                                const newValue = [...props.value]
-                                newValue.splice(index, 1)
-                                props.onChange(newValue)
-                            }}
+                            onClick={() => remove(index)}
                         />
                     </div>
-                    {(!!props.separatorText && index < props.value.length - 1) && <p className="text-center text-[--muted]">{props.separatorText}</p>}
+                    {(!!props.separatorText && index < fields.length - 1) && (
+                        <p className="text-center text-[--muted]">{props.separatorText}</p>
+                    )}
                 </React.Fragment>
             ))}
             <IconButton
                 intent="success"
                 className="rounded-full"
-                onClick={() => {
-                    props.onChange([...props.value as any, props.type === "number" ? 1 : ""])
-                }}
+                onClick={() => append(props.type === "number" ? 1 : "")}
                 icon={<BiPlus />}
             />
         </div>
     )
 }
+
 
 function sanitizeDirectoryName(input: string): string {
     const disallowedChars = /[<>:"/\\|?*\x00-\x1F.!`]/g // Pattern for disallowed characters

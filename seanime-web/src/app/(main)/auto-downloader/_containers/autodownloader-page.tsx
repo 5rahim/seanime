@@ -35,6 +35,7 @@ export function AutoDownloaderPage() {
     const userMedia = useAtomValue(__anilist_userMediaAtom)
 
     const createRuleModal = useBoolean(false)
+    const createBatchRuleModal = useBoolean(false)
 
     const { mutate: runAutoDownloader, isPending: isRunning } = useRunAutoDownloader()
 
@@ -69,7 +70,7 @@ export function AutoDownloaderPage() {
                         {isLoading && <LoadingSpinner />}
                         {!isLoading && (
                             <div className="space-y-4">
-                                <div className="w-full flex justify-between items-center gap-2">
+                                <div className="w-full flex items-center gap-2">
                                     <Button
                                         className="rounded-full"
                                         intent="primary-subtle"
@@ -82,6 +83,7 @@ export function AutoDownloaderPage() {
                                     >
                                         Check RSS feed
                                     </Button>
+                                    <div className="flex flex-1"></div>
                                     <Button
                                         className="rounded-full"
                                         intent="success-subtle"
@@ -92,6 +94,16 @@ export function AutoDownloaderPage() {
                                     >
                                         New Rule
                                     </Button>
+                                    {/*<Button*/}
+                                    {/*    className="rounded-full"*/}
+                                    {/*    intent="gray-subtle"*/}
+                                    {/*    leftIcon={<BiPlus />}*/}
+                                    {/*    onClick={() => {*/}
+                                    {/*        createBatchRuleModal.on()*/}
+                                    {/*    }}*/}
+                                    {/*>*/}
+                                    {/*    New Rules*/}
+                                    {/*</Button>*/}
                                 </div>
 
                                 <ul className="text-base text-[--muted]">
@@ -211,10 +223,23 @@ export function AutoDownloaderPage() {
                 onOpenChange={createRuleModal.off}
                 title="Create a new rule"
                 contentClass="max-w-3xl"
-
             >
                 <AutoDownloaderRuleForm type="create" onRuleCreatedOrDeleted={() => createRuleModal.off()} />
             </Modal>
+
+
+            {/*<Drawer*/}
+            {/*    open={createBatchRuleModal.active}*/}
+            {/*    onOpenChange={createBatchRuleModal.off}*/}
+            {/*    title="Create new rules"*/}
+            {/*    size="xl"*/}
+            {/*>*/}
+            {/*    <p className="text-[--muted] py-4">*/}
+            {/*        Create multiple rules at once. Each rule will be created with the same parameters, except for the destination folder.*/}
+            {/*        By default, the episode type will be "Recent releases".*/}
+            {/*    </p>*/}
+            {/*    <AutoDownloaderBatchRuleForm onRuleCreated={() => createBatchRuleModal.off()} />*/}
+            {/*</Drawer>*/}
         </div>
     )
 

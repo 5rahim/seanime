@@ -52,7 +52,7 @@ class Provider {
     }
 
     async findEpisodes(id: string): Promise<EpisodeDetails[]> {
-        const episodes: EpisodeDetails[] = []
+        let episodes: EpisodeDetails[] = []
 
         const req =
             await fetch(
@@ -121,12 +121,26 @@ class Provider {
             throw new Error("No episodes found.")
         }
 
+
         const lowest = episodes[0].number
         if (lowest > 1) {
             for (let i = 0; i < episodes.length; i++) {
                 episodes[i].number = episodes[i].number - lowest + 1
             }
         }
+
+        // Remove decimal episode numbers
+        episodes = episodes.filter((episode) => Number.isInteger(episode.number))
+
+        // for (let i = 0; i < episodes.length; i++) {
+        //     // If an episode number is a decimal, round it up to the nearest whole number
+        //     if (Number.isInteger(episodes[i].number)) {
+        //         continue
+        //     }
+        //     const original = episodes[i].number
+        //     episodes[i].number = Math.floor(episodes[i].number)
+        //     episodes[i].title = `Episode ${episodes[i].number} [{${original}}]`
+        // }
 
         return episodes
     }
