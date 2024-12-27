@@ -4,7 +4,6 @@ import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-load
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
-import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -105,6 +104,7 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 }}
                 defaultValues={{
                     enabled: true,
+                    titleComparisonType: "likely",
                 }}
             >
                 {(f) => <RuleFormFields
@@ -295,9 +295,10 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
             update(index, {
                 ...field,
                 ...updatedValues,
-                destination: field.destination === props.libraryPath
-                    ? upath.join(props.libraryPath, sanitizedTitle)
-                    : field.destination,
+                destination: upath.join(props.libraryPath, sanitizedTitle),
+                // destination: field.destination === props.libraryPath
+                //     ? upath.join(props.libraryPath, sanitizedTitle)
+                //     : field.destination,
                 comparisonTitle: sanitizedTitle,
             })
         } else {
@@ -329,15 +330,13 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                                     value={String(field.mediaId)}
                                     onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}
                                 />
-                                <DirectorySelector
+                                <Field.DirectorySelector
+                                    name={`entries.${index}.destination`}
                                     label="Destination"
                                     help="Folder in your local library where the files will be saved"
                                     leftIcon={<FcFolder />}
                                     shouldExist={false}
-                                    value={field.destination}
                                     defaultValue={props.libraryPath}
-                                    onSelect={(v) => {}}
-                                    {...props.form.register(`entries.${index}.destination`)}
                                 />
                                 <TextInput
                                     // name="comparisonTitle"

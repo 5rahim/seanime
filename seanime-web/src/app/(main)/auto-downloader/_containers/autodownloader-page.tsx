@@ -3,6 +3,7 @@ import { useSaveAutoDownloaderSettings } from "@/api/hooks/settings.hooks"
 import { __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
+import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-batch-rule-form"
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
 import { tabsListClass, tabsTriggerClass } from "@/components/shared/classnames"
@@ -10,6 +11,7 @@ import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Drawer } from "@/components/ui/drawer"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
@@ -94,16 +96,16 @@ export function AutoDownloaderPage() {
                                     >
                                         New Rule
                                     </Button>
-                                    {/*<Button*/}
-                                    {/*    className="rounded-full"*/}
-                                    {/*    intent="gray-subtle"*/}
-                                    {/*    leftIcon={<BiPlus />}*/}
-                                    {/*    onClick={() => {*/}
-                                    {/*        createBatchRuleModal.on()*/}
-                                    {/*    }}*/}
-                                    {/*>*/}
-                                    {/*    New Rules*/}
-                                    {/*</Button>*/}
+                                    <Button
+                                        className="rounded-full"
+                                        intent="gray-subtle"
+                                        leftIcon={<BiPlus />}
+                                        onClick={() => {
+                                            createBatchRuleModal.on()
+                                        }}
+                                    >
+                                        New Rules
+                                    </Button>
                                 </div>
 
                                 <ul className="text-base text-[--muted]">
@@ -228,18 +230,18 @@ export function AutoDownloaderPage() {
             </Modal>
 
 
-            {/*<Drawer*/}
-            {/*    open={createBatchRuleModal.active}*/}
-            {/*    onOpenChange={createBatchRuleModal.off}*/}
-            {/*    title="Create new rules"*/}
-            {/*    size="xl"*/}
-            {/*>*/}
-            {/*    <p className="text-[--muted] py-4">*/}
-            {/*        Create multiple rules at once. Each rule will be created with the same parameters, except for the destination folder.*/}
-            {/*        By default, the episode type will be "Recent releases".*/}
-            {/*    </p>*/}
-            {/*    <AutoDownloaderBatchRuleForm onRuleCreated={() => createBatchRuleModal.off()} />*/}
-            {/*</Drawer>*/}
+            <Drawer
+                open={createBatchRuleModal.active}
+                onOpenChange={createBatchRuleModal.off}
+                title="Create new rules"
+                size="xl"
+            >
+                <p className="text-[--muted] py-4">
+                    Create multiple rules at once. Each rule will be created with the same parameters, except for the destination folder.
+                    By default, the episode type will be "Recent releases".
+                </p>
+                <AutoDownloaderBatchRuleForm onRuleCreated={() => createBatchRuleModal.off()} />
+            </Drawer>
         </div>
     )
 
