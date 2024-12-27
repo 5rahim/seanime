@@ -23,6 +23,7 @@ type (
 		platform         platform.Platform
 		logger           *zerolog.Logger
 		metadataProvider metadata.Provider
+		forceMatch       bool
 	}
 
 	// Analysis contains the results of the analysis.
@@ -47,6 +48,9 @@ type (
 		Media            *anilist.CompleteAnime // The media to compare the files with
 		Platform         platform.Platform
 		MetadataProvider metadata.Provider
+		// This basically skips the matching process and forces the media ID to be set.
+		// Used for the auto-select feature because the media is already known.
+		ForceMatch bool
 	}
 )
 
@@ -60,6 +64,7 @@ func NewAnalyzer(opts *NewAnalyzerOptions) *Analyzer {
 		platform:         opts.Platform,
 		logger:           opts.Logger,
 		metadataProvider: opts.MetadataProvider,
+		forceMatch:       opts.ForceMatch,
 	}
 }
 
@@ -210,6 +215,8 @@ func (a *Analyzer) scanFiles() error {
 		AllMedia: allMedia,
 	})
 
+	//scanLogger, _ := scanner.NewScanLogger("./logs")
+
 	// +---------------------+
 	// |      Matcher        |
 	// +---------------------+
@@ -219,11 +226,19 @@ func (a *Analyzer) scanFiles() error {
 		MediaContainer:     mc,
 		CompleteAnimeCache: completeAnimeCache,
 		Logger:             util.NewLogger(),
+		ScanLogger:         nil,
+		ScanSummaryLogger:  nil,
 	}
 
 	err := matcher.MatchLocalFilesWithMedia()
 	if err != nil {
 		return err
+	}
+
+	if a.forceMatch {
+		for _, lf := range lfs {
+			lf.MediaId = a.media.GetID()
+		}
 	}
 
 	// +---------------------+
@@ -240,7 +255,7 @@ func (a *Analyzer) scanFiles() error {
 		Logger:             a.logger,
 		ScanLogger:         nil,
 		ScanSummaryLogger:  nil,
-		ForceMediaId:       0,
+		ForceMediaId:       map[bool]int{true: 1, false: 0}[a.forceMatch],
 	}
 
 	fh.HydrateMetadata()
