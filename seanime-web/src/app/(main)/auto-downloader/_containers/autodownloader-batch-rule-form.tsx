@@ -1,4 +1,10 @@
-import { AL_BaseAnime, Anime_LibraryCollection } from "@/api/generated/types"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import {
+    AL_BaseAnime,
+    Anime_AutoDownloaderRuleEpisodeType,
+    Anime_AutoDownloaderRuleTitleComparisonType,
+    Anime_LibraryCollection,
+} from "@/api/generated/types"
 import { useCreateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
@@ -11,6 +17,7 @@ import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
+import { useQueryClient } from "@tanstack/react-query"
 import { uniq } from "lodash"
 import React from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
@@ -56,6 +63,7 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
         return allMedia.filter(media => media.status !== "FINISHED")
     }, [allMedia])
 
+    const queryClient = useQueryClient()
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
     const isPending = creatingRule
@@ -65,28 +73,21 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
             if (entry.destination === "" || entry.mediaId === 0) {
                 continue
             }
-            console.log(entry)
-            // createRule({
-            //     titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-            //     episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
-            //     enabled: data.enabled,
-            //     mediaId: entry.mediaId,
-            //     releaseGroups: data.releaseGroups,
-            //     resolutions: data.resolutions,
-            //     additionalTerms: data.additionalTerms,
-            //     comparisonTitle: "",
-            //     destination: entry.destination,
-            // }, {
-            //     onSuccess: () => onRuleCreated?.(),
-            // })
+            createRule({
+                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
+                enabled: data.enabled,
+                mediaId: entry.mediaId,
+                releaseGroups: data.releaseGroups,
+                resolutions: data.resolutions,
+                additionalTerms: data.additionalTerms,
+                comparisonTitle: entry.comparisonTitle,
+                destination: entry.destination,
+            })
         }
-        // createRule({
-        //     ...data,
-        //     titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-        //     episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
-        // }, {
-        //     onSuccess: () => onRuleCreatedOrDeleted?.(),
-        // })
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key] })
+        onRuleCreated?.()
     }
 
     if (allMedia.length === 0) {
