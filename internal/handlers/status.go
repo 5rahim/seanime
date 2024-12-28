@@ -113,7 +113,7 @@ func HandleGetLogContent(c *RouteCtx) error {
 	}
 
 	filename := c.Fiber.AllParams()["*1"]
-	fp := strings.ToLower(filepath.ToSlash(filepath.Join(c.App.Config.Logs.Dir, filename)))
+	fp := util.NormalizePath(filepath.Join(c.App.Config.Logs.Dir, filename))
 
 	fileContent := ""
 	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
@@ -125,7 +125,7 @@ func HandleGetLogContent(c *RouteCtx) error {
 			return nil
 		}
 
-		if strings.ToLower(filepath.ToSlash(path)) == fp {
+		if util.NormalizePath(path) == fp {
 			contentB, err := os.ReadFile(fp)
 			if err != nil {
 				return err
@@ -211,8 +211,8 @@ func HandleDeleteLogs(c *RouteCtx) error {
 		}
 
 		for _, filename := range b.Filenames {
-			if strings.ToLower(filepath.Base(path)) == strings.ToLower(filename) {
-				if strings.ToLower(newestLogFilename) == strings.ToLower(filename) {
+			if util.NormalizePath(filepath.Base(path)) == util.NormalizePath(filename) {
+				if util.NormalizePath(newestLogFilename) == util.NormalizePath(filename) {
 					return fmt.Errorf("cannot delete the newest log file")
 				}
 				if err := os.Remove(path); err != nil {

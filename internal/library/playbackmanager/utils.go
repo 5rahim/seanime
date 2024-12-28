@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/samber/mo"
-	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
+	"seanime/internal/util"
 	"strings"
 )
 
@@ -24,7 +24,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	// Normalize path
-	path = filepath.ToSlash(strings.ToLower(path))
+	path = util.NormalizePath(path)
 
 	// Find the local file from the path
 	lfs, _, err := db_bridge.GetLocalFiles(pm.Database)

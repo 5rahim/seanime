@@ -5,6 +5,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
@@ -57,34 +58,99 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	// |     Local Files     |
 	// +---------------------+
 
-	// Get local files
-	localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
+	paths, err := filesystem.GetMediaFilePathsFromDirS(scn.DirPath)
 	if err != nil {
 		return nil, err
 	}
 
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Info().
+			Any("count", len(paths)).
+			Msg("Retrieved file paths from main directory")
+	}
+
+	// Get local files
+	//localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
+	//if err != nil {
+	//	return nil, err
+	//}
+
 	localFilePathsMap := make(map[string]struct{})
-	for _, lf := range localFiles {
-		localFilePathsMap[strings.ToLower(lf.Path)] = struct{}{}
+	for _, path := range paths {
+		localFilePathsMap[util.NormalizePath(path)] = struct{}{}
 	}
 
 	// Get local files from other directories
 	for _, dirPath := range scn.OtherDirPaths {
-		otherLocalFiles, err := GetLocalFilesFromDir(dirPath, scn.Logger)
+		//otherLocalFiles, err := GetLocalFilesFromDir(dirPath, scn.Logger)
+		otherPaths, err := filesystem.GetMediaFilePathsFromDirS(dirPath)
+		if scn.ScanLogger != nil {
+			scn.ScanLogger.logger.Info().
+				Any("count", len(otherPaths)).
+				Msgf("Retrieved file paths from other directory: %s", dirPath)
+		}
 		if err != nil {
 			return nil, err
 		}
-		for _, lf := range otherLocalFiles {
-			if _, ok := localFilePathsMap[strings.ToLower(lf.Path)]; !ok {
-				localFiles = append(localFiles, lf)
+		for _, path := range otherPaths {
+			if _, ok := localFilePathsMap[util.NormalizePath(path)]; !ok {
+				paths = append(paths, path)
 			}
 		}
 	}
 
 	if scn.ScanLogger != nil {
 		scn.ScanLogger.logger.Info().
+			Any("count", len(paths)).
+			Msg("Retrieved file paths from all directories")
+		scn.ScanLogger.logger.Debug().
+			Msg("===========================================================================================================")
+	}
+
+	// +---------------------+
+	// | Filter local files  |
+	// +---------------------+
+
+	localFiles := make([]*anime.LocalFile, 0)
+
+	// Get skipped files depending on options
+	skippedLfs := make(map[string]*anime.LocalFile, 0)
+	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
+		// Retrieve skipped files from existing local files
+		for _, lf := range scn.ExistingLocalFiles {
+			if scn.SkipLockedFiles && lf.IsLocked() {
+				skippedLfs[lf.GetNormalizedPath()] = lf
+			} else if scn.SkipIgnoredFiles && lf.IsIgnored() {
+				skippedLfs[lf.GetNormalizedPath()] = lf
+			}
+		}
+
+		// Remove skipped files from local files that will be hydrated
+		localFiles = lop.Map(paths, func(path string, _ int) *anime.LocalFile {
+			if _, ok := skippedLfs[strings.ToLower(path)]; !ok {
+				// Create a new local file
+				return anime.NewLocalFile(path, scn.DirPath)
+			} else {
+				return nil
+			}
+		})
+
+		// Remove nil values
+		localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
+			return lf != nil
+		})
+
+	}
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Debug().
 			Any("count", len(localFiles)).
-			Msg("Retrieved and parsed local files")
+			Msg("Local files to be scanned")
+		scn.ScanLogger.logger.Debug().
+			Any("count", len(skippedLfs)).
+			Msg("Skipped files")
+
+		scn.ScanLogger.logger.Debug().
+			Msg("===========================================================================================================")
 	}
 
 	for _, lf := range localFiles {
@@ -97,36 +163,6 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		}
 	}
 
-	if scn.ScanLogger != nil {
-		scn.ScanLogger.logger.Debug().
-			Msg("===========================================================================================================")
-	}
-
-	// +---------------------+
-	// | Filter local files  |
-	// +---------------------+
-
-	// Get skipped files depending on options
-	skippedLfs := make([]*anime.LocalFile, 0)
-	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
-		// Retrieve skipped files from existing local files
-		for _, lf := range scn.ExistingLocalFiles {
-			if scn.SkipLockedFiles && lf.IsLocked() {
-				skippedLfs = append(skippedLfs, lf)
-			} else if scn.SkipIgnoredFiles && lf.IsIgnored() {
-				skippedLfs = append(skippedLfs, lf)
-			}
-		}
-
-		// Remove skipped files from local files that will be hydrated
-		localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
-			if lf.IsIncluded(skippedLfs) {
-				return false
-			}
-			return true
-		})
-	}
-
 	// Remove local files from both skipped and un-skipped files if they are not under any of the directories
 	allLibraries := []string{scn.DirPath}
 	allLibraries = append(allLibraries, scn.OtherDirPaths...)
@@ -136,12 +172,17 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		}
 		return true
 	})
-	skippedLfs = lo.Filter(skippedLfs, func(lf *anime.LocalFile, _ int) bool {
+	//skippedLfs = lo.Filter(skippedLfs, func(lf *anime.LocalFile, _ int) bool {
+	//	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
+	//		return false
+	//	}
+	//	return true
+	//})
+	for _, lf := range skippedLfs {
 		if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
-			return false
+			delete(skippedLfs, lf.GetNormalizedPath())
 		}
-		return true
-	})
+	}
 
 	// +---------------------+
 	// |  No files to scan   |
@@ -309,8 +350,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	if scn.ScanLogger != nil {
 		scn.ScanLogger.logger.Info().
-			Int("scannedFileCount", len(localFiles)).
-			Int("skippedFileCount", len(skippedLfs)).
+			Int("count", len(localFiles)).
 			Int("unknownMediaCount", len(mf.UnknownMediaIds)).
 			Msg("Scan completed")
 	}

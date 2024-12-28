@@ -2,7 +2,6 @@ package continuity
 
 import (
 	"fmt"
-	"path/filepath"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
@@ -163,7 +162,7 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 	}
 
 	// Normalize path
-	path = filepath.ToSlash(strings.ToLower(path))
+	path = util.NormalizePath(path)
 
 	switch isStream {
 	case true:

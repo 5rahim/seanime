@@ -313,7 +313,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	compPaths := make(map[string]struct{})
 	for _, p := range b.Paths {
-		compPaths[strings.ToLower(filepath.ToSlash(p))] = struct{}{}
+		compPaths[util.NormalizePath(p)] = struct{}{}
 	}
 
 	selectedLfs := lo.Filter(lfs, func(item *anime.LocalFile, _ int) bool {

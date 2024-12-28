@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"path/filepath"
 	"seanime/internal/library/anime"
+	"seanime/internal/util"
 	"strings"
 	"testing"
 )
@@ -125,7 +126,7 @@ func TestLocalFile_IsAtRootOf(t *testing.T) {
 
 				if !assert.Equal(t, tt.expectedResult, lf.IsAtRootOf(tt.dir)) {
 					t.Log(filepath.Dir(lf.GetNormalizedPath()))
-					t.Log(strings.TrimSuffix(strings.ToLower(filepath.ToSlash(tt.dir)), "/"))
+					t.Log(strings.TrimSuffix(util.NormalizePath(tt.dir), "/"))
 				}
 			}
 
