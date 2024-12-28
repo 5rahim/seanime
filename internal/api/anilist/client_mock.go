@@ -372,6 +372,98 @@ out:
 	return ac
 }
 
+func TestAddAnimeCollectionEntry(ac *AnimeCollection, mId int, input TestModifyAnimeCollectionEntryInput, realClient AnilistClient) *AnimeCollection {
+	if ac == nil {
+		panic("AnimeCollection is nil")
+	}
+
+	// Fetch the anime details
+	baseAnime, err := realClient.BaseAnimeByID(context.Background(), &mId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	anime := baseAnime.GetMedia()
+
+	if input.NextAiringEpisode != nil {
+		anime.NextAiringEpisode = input.NextAiringEpisode
+	}
+
+	if input.AiredEpisodes != nil {
+		anime.Episodes = input.AiredEpisodes
+	}
+
+	lists := ac.GetMediaListCollection().GetLists()
+
+	// Add the entry to the correct list
+	if input.Status != nil {
+		for _, list := range lists {
+			if list.Status == nil {
+				continue
+			}
+			if *list.Status == *input.Status {
+				if list.Entries == nil {
+					list.Entries = make([]*AnimeCollection_MediaListCollection_Lists_Entries, 0)
+				}
+				list.Entries = append(list.Entries, &AnimeCollection_MediaListCollection_Lists_Entries{
+					Media:    baseAnime.GetMedia(),
+					Status:   input.Status,
+					Progress: input.Progress,
+					Score:    input.Score,
+				})
+				break
+			}
+		}
+	}
+
+	return ac
+}
+
+func TestAddAnimeCollectionWithRelationsEntry(ac *AnimeCollectionWithRelations, mId int, input TestModifyAnimeCollectionEntryInput, realClient AnilistClient) *AnimeCollectionWithRelations {
+	if ac == nil {
+		panic("AnimeCollection is nil")
+	}
+
+	// Fetch the anime details
+	baseAnime, err := realClient.CompleteAnimeByID(context.Background(), &mId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	anime := baseAnime.GetMedia()
+
+	//if input.NextAiringEpisode != nil {
+	//	anime.NextAiringEpisode = input.NextAiringEpisode
+	//}
+
+	if input.AiredEpisodes != nil {
+		anime.Episodes = input.AiredEpisodes
+	}
+
+	lists := ac.GetMediaListCollection().GetLists()
+
+	// Add the entry to the correct list
+	if input.Status != nil {
+		for _, list := range lists {
+			if list.Status == nil {
+				continue
+			}
+			if *list.Status == *input.Status {
+				if list.Entries == nil {
+					list.Entries = make([]*AnimeCollectionWithRelations_MediaListCollection_Lists_Entries, 0)
+				}
+				list.Entries = append(list.Entries, &AnimeCollectionWithRelations_MediaListCollection_Lists_Entries{
+					Media:    baseAnime.GetMedia(),
+					Status:   input.Status,
+					Progress: input.Progress,
+					Score:    input.Score,
+				})
+				break
+			}
+		}
+	}
+
+	return ac
+}
+
 //
 // WILL NOT IMPLEMENT
 //

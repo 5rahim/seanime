@@ -12,8 +12,8 @@ type LevenshteinResult struct {
 	Distance      int
 }
 
-// CompareWithLevenstein compares a string to a slice of strings and returns a slice of LevenshteinResult containing the Levenshtein distance for each string.
-func CompareWithLevenstein(v *string, vals []*string) []*LevenshteinResult {
+// CompareWithLevenshtein compares a string to a slice of strings and returns a slice of LevenshteinResult containing the Levenshtein distance for each string.
+func CompareWithLevenshtein(v *string, vals []*string) []*LevenshteinResult {
 
 	lev := metrics.NewLevenshtein()
 	lev.CaseSensitive = false
@@ -34,7 +34,7 @@ func CompareWithLevenstein(v *string, vals []*string) []*LevenshteinResult {
 // FindBestMatchWithLevenstein returns the best match from a slice of strings as a reference to a LevenshteinResult.
 // It also returns a boolean indicating whether the best match was found.
 func FindBestMatchWithLevenstein(v *string, vals []*string) (*LevenshteinResult, bool) {
-	res := CompareWithLevenstein(v, vals)
+	res := CompareWithLevenshtein(v, vals)
 
 	if len(res) == 0 {
 		return nil, false

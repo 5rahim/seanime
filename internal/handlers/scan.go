@@ -58,6 +58,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+	defer scanLogger.Done()
 
 	// Create a new scanner
 	sc := scanner.Scanner{

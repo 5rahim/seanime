@@ -207,6 +207,7 @@ func (as *AutoScanner) scan() {
 			as.logger.Error().Err(err).Msg("autoscanner: Failed to create scan logger")
 			return
 		}
+		defer scanLogger.Done()
 	}
 
 	// Create a new scanner
