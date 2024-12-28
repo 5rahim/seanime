@@ -26755,6 +26755,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ScannerMatchingThreshold",
+        "jsonName": "scannerMatchingThreshold",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ScannerMatchingAlgorithm",
+        "jsonName": "scannerMatchingAlgorithm",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -37849,6 +37867,16 @@
         "comments": []
       },
       {
+        "name": "manualTrackingWg",
+        "jsonName": "manualTrackingWg",
+        "goType": "sync.WaitGroup",
+        "typescriptType": "Sync_WaitGroup",
+        "usedStructName": "sync.WaitGroup",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "playlistHub",
         "jsonName": "playlistHub",
         "goType": "playlistHub",
@@ -38951,6 +38979,16 @@
         "goType": "os.File",
         "typescriptType": "File",
         "usedStructName": "os.File",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "buffer",
+        "jsonName": "buffer",
+        "goType": "bytes.Buffer",
+        "typescriptType": "Buffer",
+        "usedStructName": "bytes.Buffer",
         "required": false,
         "public": false,
         "comments": []
@@ -46357,6 +46395,73 @@
     "comments": []
   },
   {
+    "filepath": "../internal/onlinestream/providers/_animepahe.go",
+    "filename": "_animepahe.go",
+    "name": "Animepahe",
+    "formattedName": "Onlinestream_Animepahe",
+    "package": "onlinestream_providers",
+    "fields": [
+      {
+        "name": "BaseURL",
+        "jsonName": "BaseURL",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Client",
+        "jsonName": "Client",
+        "goType": "http.Client",
+        "typescriptType": "Client",
+        "usedStructName": "http.Client",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "UserAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/onlinestream/providers/_animepahe.go",
+    "filename": "_animepahe.go",
+    "name": "AnimepaheSearchResult",
+    "formattedName": "Onlinestream_AnimepaheSearchResult",
+    "package": "onlinestream_providers",
+    "fields": [
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "[]__STRUCT__",
+        "typescriptType": "Array\u003c{ id: number; title: string; year: number; poster: string; type: string; session: string; }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/onlinestream/providers/gogoanime.go",
     "filename": "gogoanime.go",
     "name": "Gogoanime",
@@ -53018,6 +53123,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "forceMatch",
+        "jsonName": "forceMatch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -53161,6 +53275,15 @@
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ForceMatch",
+        "jsonName": "ForceMatch",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -55954,6 +56077,45 @@
     ],
     "comments": [
       " LevenshteinResult is a struct that holds a string and its Levenshtein distance compared to another string."
+    ]
+  },
+  {
+    "filepath": "../internal/util/comparison/matching.go",
+    "filename": "matching.go",
+    "name": "JaroWinklerResult",
+    "formattedName": "Comparison_JaroWinklerResult",
+    "package": "comparison",
+    "fields": [
+      {
+        "name": "OriginalValue",
+        "jsonName": "OriginalValue",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "Value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rating",
+        "jsonName": "Rating",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " JaroWinklerResult is a struct that holds a string and its JaroWinkler distance compared to another string."
     ]
   },
   {

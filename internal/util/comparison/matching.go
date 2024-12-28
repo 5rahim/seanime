@@ -17,6 +17,7 @@ func CompareWithLevenshtein(v *string, vals []*string) []*LevenshteinResult {
 
 	lev := metrics.NewLevenshtein()
 	lev.CaseSensitive = false
+	//lev.DeleteCost = 1
 
 	res := make([]*LevenshteinResult, len(vals))
 
@@ -31,9 +32,9 @@ func CompareWithLevenshtein(v *string, vals []*string) []*LevenshteinResult {
 	return res
 }
 
-// FindBestMatchWithLevenstein returns the best match from a slice of strings as a reference to a LevenshteinResult.
+// FindBestMatchWithLevenshtein returns the best match from a slice of strings as a reference to a LevenshteinResult.
 // It also returns a boolean indicating whether the best match was found.
-func FindBestMatchWithLevenstein(v *string, vals []*string) (*LevenshteinResult, bool) {
+func FindBestMatchWithLevenshtein(v *string, vals []*string) (*LevenshteinResult, bool) {
 	res := CompareWithLevenshtein(v, vals)
 
 	if len(res) == 0 {
@@ -43,6 +44,101 @@ func FindBestMatchWithLevenstein(v *string, vals []*string) (*LevenshteinResult,
 	var bestResult *LevenshteinResult
 	for _, result := range res {
 		if bestResult == nil || result.Distance < bestResult.Distance {
+			bestResult = result
+		}
+	}
+
+	return bestResult, true
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// JaroWinklerResult is a struct that holds a string and its JaroWinkler distance compared to another string.
+type JaroWinklerResult struct {
+	OriginalValue *string
+	Value         *string
+	Rating        float64
+}
+
+// CompareWithJaroWinkler compares a string to a slice of strings and returns a slice of JaroWinklerResult containing the JaroWinkler distance for each string.
+func CompareWithJaroWinkler(v *string, vals []*string) []*JaroWinklerResult {
+
+	jw := metrics.NewJaroWinkler()
+	jw.CaseSensitive = false
+
+	res := make([]*JaroWinklerResult, len(vals))
+
+	for _, val := range vals {
+		res = append(res, &JaroWinklerResult{
+			OriginalValue: v,
+			Value:         val,
+			Rating:        jw.Compare(*v, *val),
+		})
+	}
+
+	return res
+}
+
+// FindBestMatchWithJaroWinkler returns the best match from a slice of strings as a reference to a JaroWinklerResult.
+// It also returns a boolean indicating whether the best match was found.
+func FindBestMatchWithJaroWinkler(v *string, vals []*string) (*JaroWinklerResult, bool) {
+	res := CompareWithJaroWinkler(v, vals)
+
+	if len(res) == 0 {
+		return nil, false
+	}
+
+	var bestResult *JaroWinklerResult
+	for _, result := range res {
+		if bestResult == nil || result.Rating > bestResult.Rating {
+			bestResult = result
+		}
+	}
+
+	return bestResult, true
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// JaccardResult is a struct that holds a string and its Jaccard distance compared to another string.
+type JaccardResult struct {
+	OriginalValue *string
+	Value         *string
+	Rating        float64
+}
+
+// CompareWithJaccard compares a string to a slice of strings and returns a slice of JaccardResult containing the Jaccard distance for each string.
+func CompareWithJaccard(v *string, vals []*string) []*JaccardResult {
+
+	jw := metrics.NewJaccard()
+	jw.CaseSensitive = false
+	jw.NgramSize = 1
+
+	res := make([]*JaccardResult, len(vals))
+
+	for _, val := range vals {
+		res = append(res, &JaccardResult{
+			OriginalValue: v,
+			Value:         val,
+			Rating:        jw.Compare(*v, *val),
+		})
+	}
+
+	return res
+}
+
+// FindBestMatchWithJaccard returns the best match from a slice of strings as a reference to a JaccardResult.
+// It also returns a boolean indicating whether the best match was found.
+func FindBestMatchWithJaccard(v *string, vals []*string) (*JaccardResult, bool) {
+	res := CompareWithJaccard(v, vals)
+
+	if len(res) == 0 {
+		return nil, false
+	}
+
+	var bestResult *JaccardResult
+	for _, result := range res {
+		if bestResult == nil || result.Rating > bestResult.Rating {
 			bestResult = result
 		}
 	}

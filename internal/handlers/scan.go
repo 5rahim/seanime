@@ -74,6 +74,8 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		ScanSummaryLogger:  scanSummaryLogger,
 		ScanLogger:         scanLogger,
 		MetadataProvider:   c.App.MetadataProvider,
+		MatchingAlgorithm:  c.App.Settings.Library.ScannerMatchingAlgorithm,
+		MatchingThreshold:  c.App.Settings.Library.ScannerMatchingThreshold,
 	}
 
 	// Scan the library

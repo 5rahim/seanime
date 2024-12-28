@@ -32,6 +32,8 @@ type Scanner struct {
 	ScanSummaryLogger  *summary.ScanSummaryLogger
 	ScanLogger         *ScanLogger
 	MetadataProvider   metadata.Provider
+	MatchingThreshold  float64
+	MatchingAlgorithm  string
 }
 
 // Scan will scan the directory and return a list of anime.LocalFile.
@@ -266,6 +268,8 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		Logger:             scn.Logger,
 		ScanLogger:         scn.ScanLogger,
 		ScanSummaryLogger:  scn.ScanSummaryLogger,
+		Algorithm:          scn.MatchingAlgorithm,
+		Threshold:          scn.MatchingThreshold,
 	}
 
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 60)

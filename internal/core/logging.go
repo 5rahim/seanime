@@ -9,12 +9,7 @@ import (
 	"time"
 )
 
-func TrimLogEntries(dir string, maxSize int64, logger *zerolog.Logger) {
-	if maxSize == 0 {
-		// Default to 100MB
-		maxSize = 100 * 1024 * 1024
-	}
-
+func TrimLogEntries(dir string, logger *zerolog.Logger) {
 	// Get all log files in the directory
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -33,11 +28,6 @@ func TrimLogEntries(dir string, maxSize int64, logger *zerolog.Logger) {
 			continue
 		}
 		totalSize += info.Size()
-	}
-
-	// If the total size is less than the max size, return
-	if totalSize < maxSize {
-		return
 	}
 
 	var files []os.FileInfo
@@ -74,14 +64,19 @@ func TrimLogEntries(dir string, maxSize int64, logger *zerolog.Logger) {
 			return files[i].ModTime().After(files[j].ModTime())
 		})
 
-		// Delete all log files older than a week
+		// Delete all log files older than 14 days
+		deleted := 0
 		for i := 1; i < len(files); i++ {
-			if time.Since(files[i].ModTime()) > time.Hour*24*7 {
+			if time.Since(files[i].ModTime()) > 14*24*time.Hour {
 				err := os.Remove(filepath.Join(dir, files[i].Name()))
 				if err != nil {
 					continue
 				}
+				deleted++
 			}
+		}
+		if deleted > 0 {
+			logger.Info().Msgf("app: Deleted %d log files older than 14 days", deleted)
 		}
 	}
 

@@ -24,6 +24,7 @@ const (
 	LogMetadataMain
 	LogMetadataHydrated
 	LogPanic
+	LogDebug
 )
 
 type (
@@ -280,6 +281,13 @@ func (l *ScanSummaryLogger) LogMetadataHydrated(lf *anime.LocalFile, mediaId int
 	l.logType(LogMetadataHydrated, lf, msg)
 }
 
+func (l *ScanSummaryLogger) LogDebug(lf *anime.LocalFile, message string) {
+	if l == nil {
+		return
+	}
+	l.log(lf, "info", message)
+}
+
 func (l *ScanSummaryLogger) logType(logType LogType, lf *anime.LocalFile, message string) {
 	if l == nil {
 		return
@@ -317,6 +325,8 @@ func (l *ScanSummaryLogger) logType(logType LogType, lf *anime.LocalFile, messag
 		l.log(lf, "warning", message)
 	case LogPanic:
 		l.log(lf, "error", message)
+	case LogDebug:
+		l.log(lf, "info", message)
 	}
 }
 

@@ -238,7 +238,7 @@ func (a *App) InitOrRefreshModules() {
 	// Refresh auto scanner settings
 	if settings.Library != nil && a.AutoScanner != nil {
 
-		a.AutoScanner.SetEnabled(settings.Library.AutoScan)
+		a.AutoScanner.SetSettings(*settings.Library)
 
 		// Torrent Repository
 		a.TorrentRepository.SetSettings(&torrent.RepositorySettings{

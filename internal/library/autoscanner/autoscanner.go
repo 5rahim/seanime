@@ -6,6 +6,7 @@ import (
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/database/models"
 	"seanime/internal/events"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/scanner"
@@ -26,6 +27,7 @@ type (
 		scannedCh        chan struct{}
 		waitTime         time.Duration // Wait time to listen to additional changes before triggering a scan.
 		enabled          bool
+		settings         models.LibrarySettings
 		platform         platform.Platform
 		logger           *zerolog.Logger
 		wsEventManager   events.WSEventManagerInterface
@@ -109,12 +111,13 @@ func (as *AutoScanner) Start() {
 	}()
 }
 
-// SetEnabled should be called after the settings are fetched and updated from the database.
-func (as *AutoScanner) SetEnabled(enabled bool) {
+// SetSettings should be called after the settings are fetched and updated from the database.
+func (as *AutoScanner) SetSettings(settings models.LibrarySettings) {
 	as.mu.Lock()
 	defer as.mu.Unlock()
 
-	as.enabled = enabled
+	as.enabled = settings.AutoScan
+	as.settings = settings
 }
 
 // watch is used to watch for file actions and trigger a scan.
@@ -224,6 +227,8 @@ func (as *AutoScanner) scan() {
 		ScanSummaryLogger:  scanSummaryLogger,
 		ScanLogger:         scanLogger,
 		MetadataProvider:   as.metadataProvider,
+		MatchingThreshold:  as.settings.ScannerMatchingThreshold,
+		MatchingAlgorithm:  as.settings.ScannerMatchingAlgorithm,
 	}
 
 	allLfs, err := sc.Scan()

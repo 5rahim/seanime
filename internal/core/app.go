@@ -127,6 +127,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	_ = os.MkdirAll(cfg.Logs.Dir, 0755)
 
+	go TrimLogEntries(cfg.Logs.Dir, logger)
+
 	logger.Info().Msgf("app: Data directory: %s", cfg.Data.AppDataDir)
 
 	// Print working directory

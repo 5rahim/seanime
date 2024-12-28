@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/habari v0.1.2
+	github.com/5rahim/habari v0.1.3
 	github.com/5rahim/hibike v0.5.1
 	github.com/EDDYCJY/fake-useragent v0.2.0
 	github.com/Masterminds/semver/v3 v3.3.1

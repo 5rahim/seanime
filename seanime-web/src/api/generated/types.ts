@@ -2663,6 +2663,8 @@ export type Models_LibrarySettings = {
     enableWatchContinuity: boolean
     libraryPaths: Models_LibraryPaths
     autoSyncOfflineLocalData: boolean
+    scannerMatchingThreshold: number
+    scannerMatchingAlgorithm: string
 }
 
 /**

@@ -78,6 +78,9 @@ type LibrarySettings struct {
 	EnableWatchContinuity    bool         `gorm:"column:enable_watch_continuity" json:"enableWatchContinuity"`
 	LibraryPaths             LibraryPaths `gorm:"column:library_paths;type:text" json:"libraryPaths"`
 	AutoSyncOfflineLocalData bool         `gorm:"column:auto_sync_offline_local_data" json:"autoSyncOfflineLocalData"`
+	// v2.6+
+	ScannerMatchingThreshold float64 `gorm:"column:scanner_matching_threshold" json:"scannerMatchingThreshold"`
+	ScannerMatchingAlgorithm string  `gorm:"column:scanner_matching_algorithm" json:"scannerMatchingAlgorithm"`
 }
 
 func (o *LibrarySettings) GetLibraryPaths() (ret []string) {

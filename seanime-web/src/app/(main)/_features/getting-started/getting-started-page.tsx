@@ -86,6 +86,8 @@ export function GettingStartedPage({ status }: { status: Status }) {
                                         libraryPaths: [],
                                         autoSyncOfflineLocalData: false,
                                         includeOnlineStreamingInLibrary: false,
+                                        scannerMatchingThreshold: 0,
+                                        scannerMatchingAlgorithm: "",
                                     },
                                     manga: {
                                         defaultMangaProvider: "",

@@ -159,6 +159,8 @@ export default function Page() {
                                         enableWatchContinuity: data.enableWatchContinuity ?? false,
                                         libraryPaths: data.libraryPaths ?? [],
                                         autoSyncOfflineLocalData: data.autoSyncOfflineLocalData ?? false,
+                                        scannerMatchingThreshold: data.scannerMatchingThreshold,
+                                        scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -267,6 +269,8 @@ export default function Page() {
                                 enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,
                                 libraryPaths: status?.settings?.library?.libraryPaths ?? [],
                                 autoSyncOfflineLocalData: status?.settings?.library?.autoSyncOfflineLocalData ?? false,
+                                scannerMatchingThreshold: status?.settings?.library?.scannerMatchingThreshold ?? 0.5,
+                                scannerMatchingAlgorithm: status?.settings?.library?.scannerMatchingAlgorithm || "-",
                             }}
                             stackClass="space-y-4"
                         >
