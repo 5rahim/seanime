@@ -103,8 +103,6 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		scn.ScanLogger.logger.Info().
 			Any("count", len(paths)).
 			Msg("Retrieved file paths from all directories")
-		scn.ScanLogger.logger.Debug().
-			Msg("===========================================================================================================")
 	}
 
 	// +---------------------+
@@ -161,6 +159,11 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 				Any("parsedFolderData", spew.Sdump(lf.ParsedFolderData)).
 				Msg("Parsed local file")
 		}
+	}
+
+	if scn.ScanLogger != nil {
+		scn.ScanLogger.logger.Debug().
+			Msg("===========================================================================================================")
 	}
 
 	// Remove local files from both skipped and un-skipped files if they are not under any of the directories
