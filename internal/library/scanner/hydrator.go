@@ -68,7 +68,7 @@ func (fh *FileHydrator) HydrateMetadata() {
 
 	if fh.ScanLogger != nil {
 		fh.ScanLogger.LogFileHydrator(zerolog.InfoLevel).
-			Any("ms", time.Since(start).Milliseconds()).
+			Int64("ms", time.Since(start).Milliseconds()).
 			Msg("Finished metadata hydration")
 	}
 }
@@ -281,7 +281,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						if fh.ScanLogger != nil {
 							fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
 								Int("mediaId", mId).
-								Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+								Int64("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
 								Int("requests", len(mediaTreeAnalysis.branches)).
 								Any("branches", mediaTreeAnalysis.printBranches()).
 								Msg("Media tree fetched")
@@ -293,7 +293,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 						fh.ScanLogger.LogFileHydrator(zerolog.ErrorLevel).
 							Int("mediaId", mId).
 							Str("error", err.Error()).
-							Any("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
+							Int64("ms", time.Since(mediaTreeFetchStart).Milliseconds()).
 							Msg("Could not fetch media tree")
 					}
 					fh.ScanSummaryLogger.LogMetadataMediaTreeFetchFailed(lf, err, time.Since(mediaTreeFetchStart).Milliseconds())

@@ -32,6 +32,7 @@ import (
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/local_platform"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/report"
 	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrents/torrent"
@@ -88,6 +89,7 @@ type (
 			Debrid        *models.DebridSettings
 		} // Struct for other settings sent to client
 		SelfUpdater        *updater.SelfUpdater
+		ReportRepository   *report.Repository
 		TotalLibrarySize   uint64 // Initialized in modules.go
 		LibraryDir         string
 		IsDesktopSidecar   bool
@@ -263,6 +265,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MangaRepository:               mangaRepository,
 		ExtensionRepository:           extensionRepository,
 		ExtensionPlaygroundRepository: extensionPlaygroundRepository,
+		ReportRepository:              report.NewRepository(logger),
 		TorrentRepository:             nil, // Initialized in App.initModulesOnce
 		FillerManager:                 nil, // Initialized in App.initModulesOnce
 		MangaDownloader:               nil, // Initialized in App.initModulesOnce

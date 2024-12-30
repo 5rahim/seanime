@@ -92,12 +92,12 @@ func (ac *AnilistClientImpl) DeleteEntry(ctx context.Context, mediaListEntryID *
 }
 
 func (ac *AnilistClientImpl) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
-	ac.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection")
+	ac.logger.Debug().Msg("anilist: Fetching anime collection")
 	return ac.Client.AnimeCollection(ctx, userName, interceptors...)
 }
 
 func (ac *AnilistClientImpl) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
-	ac.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection with relations")
+	ac.logger.Debug().Msg("anilist: Fetching anime collection with relations")
 	return ac.Client.AnimeCollectionWithRelations(ctx, userName, interceptors...)
 }
 

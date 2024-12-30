@@ -3,6 +3,7 @@ import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/pla
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
+import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
@@ -57,6 +58,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <AnimePreviewModal />
             <PlaybackManagerProgressTracking />
             <ManualProgressTracking />
+            <IssueReport />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

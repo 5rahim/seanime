@@ -25513,6 +25513,16 @@
         "comments": []
       },
       {
+        "name": "ReportRepository",
+        "jsonName": "ReportRepository",
+        "goType": "report.Repository",
+        "typescriptType": "Report_Repository",
+        "usedStructName": "report.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "TotalLibrarySize",
         "jsonName": "TotalLibrarySize",
         "goType": "uint64",
@@ -37170,6 +37180,16 @@
         "comments": []
       },
       {
+        "name": "settings",
+        "jsonName": "settings",
+        "goType": "models.LibrarySettings",
+        "typescriptType": "Models_LibrarySettings",
+        "usedStructName": "models.LibrarySettings",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "platform",
         "jsonName": "platform",
         "goType": "platform.Platform",
@@ -38426,6 +38446,24 @@
         "comments": [
           " optional"
         ]
+      },
+      {
+        "name": "Algorithm",
+        "jsonName": "Algorithm",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Threshold",
+        "jsonName": "Threshold",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -38950,6 +38988,24 @@
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MatchingThreshold",
+        "jsonName": "MatchingThreshold",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MatchingAlgorithm",
+        "jsonName": "MatchingAlgorithm",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -47181,6 +47237,572 @@
       " LocalPlatform used when offline.",
       " It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op."
     ]
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "ClickLog",
+    "formattedName": "Report_ClickLog",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Element",
+        "jsonName": "element",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageURL",
+        "jsonName": "pageUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Text",
+        "jsonName": "text",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClassName",
+        "jsonName": "className",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "NetworkLog",
+    "formattedName": "Report_NetworkLog",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Method",
+        "jsonName": "method",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageURL",
+        "jsonName": "pageUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Duration",
+        "jsonName": "duration",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DataPreview",
+        "jsonName": "dataPreview",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Body",
+        "jsonName": "body",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "ReactQueryLog",
+    "formattedName": "Report_ReactQueryLog",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageURL",
+        "jsonName": "pageUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DataPreview",
+        "jsonName": "dataPreview",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DataType",
+        "jsonName": "dataType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "ConsoleLog",
+    "formattedName": "Report_ConsoleLog",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Content",
+        "jsonName": "content",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PageURL",
+        "jsonName": "pageUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Timestamp",
+        "jsonName": "timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "UnlockedLocalFile",
+    "formattedName": "Report_UnlockedLocalFile",
+    "package": "report",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/report.go",
+    "filename": "report.go",
+    "name": "IssueReport",
+    "formattedName": "Report_IssueReport",
+    "package": "report",
+    "fields": [
+      {
+        "name": "CreatedAt",
+        "jsonName": "createdAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "userAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AppVersion",
+        "jsonName": "appVersion",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OS",
+        "jsonName": "os",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Arch",
+        "jsonName": "arch",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClickLogs",
+        "jsonName": "clickLogs",
+        "goType": "[]ClickLog",
+        "typescriptType": "Array\u003cReport_ClickLog\u003e",
+        "usedStructName": "report.ClickLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NetworkLogs",
+        "jsonName": "networkLogs",
+        "goType": "[]NetworkLog",
+        "typescriptType": "Array\u003cReport_NetworkLog\u003e",
+        "usedStructName": "report.NetworkLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReactQueryLogs",
+        "jsonName": "reactQueryLogs",
+        "goType": "[]ReactQueryLog",
+        "typescriptType": "Array\u003cReport_ReactQueryLog\u003e",
+        "usedStructName": "report.ReactQueryLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ConsoleLogs",
+        "jsonName": "consoleLogs",
+        "goType": "[]ConsoleLog",
+        "typescriptType": "Array\u003cReport_ConsoleLog\u003e",
+        "usedStructName": "report.ConsoleLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UnlockedLocalFiles",
+        "jsonName": "unlockedLocalFiles",
+        "goType": "[]UnlockedLocalFile",
+        "typescriptType": "Array\u003cReport_UnlockedLocalFile\u003e",
+        "usedStructName": "report.UnlockedLocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ScanLogs",
+        "jsonName": "scanLogs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ServerLogs",
+        "jsonName": "serverLogs",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/repository.go",
+    "filename": "repository.go",
+    "name": "Repository",
+    "formattedName": "Report_Repository",
+    "package": "report",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "savedIssueReport",
+        "jsonName": "savedIssueReport",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/report/repository.go",
+    "filename": "repository.go",
+    "name": "SaveIssueReportOptions",
+    "formattedName": "Report_SaveIssueReportOptions",
+    "package": "report",
+    "fields": [
+      {
+        "name": "LogsDir",
+        "jsonName": "logsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "UserAgent",
+        "jsonName": "userAgent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClickLogs",
+        "jsonName": "clickLogs",
+        "goType": "[]ClickLog",
+        "typescriptType": "Array\u003cReport_ClickLog\u003e",
+        "usedStructName": "report.ClickLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "NetworkLogs",
+        "jsonName": "networkLogs",
+        "goType": "[]NetworkLog",
+        "typescriptType": "Array\u003cReport_NetworkLog\u003e",
+        "usedStructName": "report.NetworkLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ReactQueryLogs",
+        "jsonName": "reactQueryLogs",
+        "goType": "[]ReactQueryLog",
+        "typescriptType": "Array\u003cReport_ReactQueryLog\u003e",
+        "usedStructName": "report.ReactQueryLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ConsoleLogs",
+        "jsonName": "consoleLogs",
+        "goType": "[]ConsoleLog",
+        "typescriptType": "Array\u003cReport_ConsoleLog\u003e",
+        "usedStructName": "report.ConsoleLog",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Settings",
+        "jsonName": "settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridSettings",
+        "jsonName": "debridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsAnimeLibraryIssue",
+        "jsonName": "isAnimeLibraryIssue",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/sync/database.go",
@@ -56116,6 +56738,45 @@
     ],
     "comments": [
       " JaroWinklerResult is a struct that holds a string and its JaroWinkler distance compared to another string."
+    ]
+  },
+  {
+    "filepath": "../internal/util/comparison/matching.go",
+    "filename": "matching.go",
+    "name": "JaccardResult",
+    "formattedName": "Comparison_JaccardResult",
+    "package": "comparison",
+    "fields": [
+      {
+        "name": "OriginalValue",
+        "jsonName": "OriginalValue",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "Value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rating",
+        "jsonName": "Rating",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " JaccardResult is a struct that holds a string and its Jaccard distance compared to another string."
     ]
   },
   {

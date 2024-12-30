@@ -531,7 +531,7 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	// Set account
 	a.account = acc
-	a.Logger.Info().Msg("app: Authenticated to AniList as " + acc.Username)
+	a.Logger.Info().Msg("app: Authenticated to AniList")
 
 	_, err = a.RefreshAnimeCollection()
 	if err != nil {

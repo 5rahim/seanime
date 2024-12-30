@@ -447,6 +447,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/debrid/stream/cancel", makeHandler(app, HandleDebridCancelStream))
 
 	//
+	// Report
+	//
+
+	v1.Post("/report/issue", makeHandler(app, HandleSaveIssueReport))
+	v1.Get("/report/issue/download", makeHandler(app, HandleDownloadIssueReport))
+
+	//
 	// Websocket
 	//
 

@@ -2,7 +2,6 @@ package scanner
 
 import (
 	"errors"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
@@ -157,8 +156,9 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		if scn.ScanLogger != nil {
 			scn.ScanLogger.logger.Trace().
 				Str("path", lf.Path).
-				Any("parsedData", spew.Sdump(lf.ParsedData)).
-				Any("parsedFolderData", spew.Sdump(lf.ParsedFolderData)).
+				Str("filename", lf.Name).
+				Interface("parsedData", lf.ParsedData).
+				Interface("parsedFolderData", lf.ParsedFolderData).
 				Msg("Parsed local file")
 		}
 	}
