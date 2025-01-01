@@ -1,23 +1,20 @@
 package torrentstream
 
 import (
+	"bufio"
 	"context"
-	"errors"
 	"fmt"
-	"github.com/anacrolix/torrent"
-	"github.com/samber/mo"
+	"github.com/gofiber/fiber/v2"
+	"io"
 	"net"
-	"net/http"
-	"time"
+	"strconv"
+	"strings"
 )
 
 type (
 	// serverManager manages the streaming server
 	serverManager struct {
-		httpserver    mo.Option[*http.Server] // The server instance
-		repository    *Repository
-		lastUsed      time.Time // Used to track the last time the server was used
-		serverRunning bool      // Whether the server is running
+		repository *Repository
 	}
 )
 
@@ -47,168 +44,88 @@ func dnsResolve() {
 func newServerManager(repository *Repository) *serverManager {
 	ret := &serverManager{
 		repository: repository,
-		httpserver: mo.None[*http.Server](),
 	}
 
 	dnsResolve()
 
-	http.HandleFunc("/stream/", ret.serve)
-
-	http.HandleFunc("/ping", func(w http.ResponseWriter, _r *http.Request) {
-		w.Write([]byte("pong"))
-	})
-
-	// DEVNOTE: Not needed since the server is stopped when the stream is done
-	// This risks stopping the server while it's being used
-	// Find a way to get the playback manager to refresh the lastUsed time
-	//go func() {
-	//	for {
-	//		// Stop the server if it hasn't been used for 5 minutes
-	//		if time.Since(ret.lastUsed) > 5*time.Minute && ret.serverRunning {
-	//			ret.StopServer()
-	//		}
-	//		time.Sleep(10 * time.Minute)
-	//		ret.repository.logger.Debug().Msg("torrentstream: Stream server health check")
-	//	}
-	//}()
-
 	return ret
 }
 
-// initializeServer overrides the server with a new one, whether it exists or not.
-// Unlike CreateServer, this will close the existing server if it exists.
-// Useful when the settings are changed.
-func (s *serverManager) initializeServer() {
-	if s.repository.settings.IsAbsent() {
-		s.repository.logger.Error().Msg("torrentstream: No settings found, cannot initialize the streaming server")
-		return
-	}
-
-	existingServer, exists := s.httpserver.Get()
-	if exists {
-		err := existingServer.Close()
-		if err != nil {
-			s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to close existing streaming server")
-			return
-		}
-	}
-
-	s.httpserver = mo.None[*http.Server]()
-	s.serverRunning = false
-	s.createServer()
-}
-
-// createServer creates the streaming server.
-// If the server is already present, it won't create a new one.
-func (s *serverManager) createServer() {
-	if s.repository.settings.IsAbsent() {
-		s.repository.logger.Error().Msg("torrentstream: No settings found, cannot create the server")
-		return
-	}
-
-	if s.httpserver.IsPresent() {
-		return
-	}
-
-	host := s.repository.settings.MustGet().StreamingServerHost
-	port := s.repository.settings.MustGet().StreamingServerPort
-
-	s.repository.logger.Info().Msgf("torrentstream: Creating streaming server on %s:%d", host, port)
-
-	// Create the server
-	// Default address is "0.0.0.0:43214"
-	server := &http.Server{
-		Addr: fmt.Sprintf("%s:%d", host, port),
-	}
-
-	s.httpserver = mo.Some(server)
-}
-
-// startServer starts the streaming server.
-// If the server is already running, it won't start a new one.
-// This is safe to call
-func (s *serverManager) startServer() {
-	server, exists := s.httpserver.Get()
-	if !exists {
-		s.repository.logger.Error().Msg("torrentstream: No streaming server found, cannot start the server")
-		return
-	}
-
-	if s.serverRunning {
-		return
-	}
-
-	s.repository.logger.Debug().Msg("torrentstream: Starting the streaming server")
-
-	ln, err := net.Listen("tcp", server.Addr)
-	if err != nil {
-		s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to start the streaming server")
-		return
-	}
-
-	s.repository.logger.Info().Msgf("torrentstream: Streaming server started on %s", server.Addr)
-
-	go func() {
-		s.serverRunning = true
-		defer func() {
-			s.serverRunning = false
-		}()
-		if err := server.Serve(ln); err != nil {
-			if errors.Is(err, http.ErrServerClosed) {
-				return
-			}
-		}
-	}()
-}
-
-// stopServer stops the streaming server.
-func (s *serverManager) stopServer() {
-	server, exists := s.httpserver.Get()
-	if !exists {
-		return
-	}
-
-	if !s.serverRunning {
-		return
-	}
-
-	if err := server.Close(); err != nil {
-		s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to stop the streaming server")
-	}
-	s.serverRunning = false
-
-	s.repository.logger.Info().Msg("torrentstream: Streaming server stopped")
-
-	// Do not forget to reinitialize the server
-	s.initializeServer()
-}
-
-func (s *serverManager) serve(w http.ResponseWriter, r *http.Request) {
-	s.lastUsed = time.Now()
+func (s *serverManager) serve(c *fiber.Ctx) error {
 	s.repository.logger.Trace().Msg("torrentstream: Stream endpoint hit [server]")
 
 	if s.repository.client.currentFile.IsAbsent() || s.repository.client.currentTorrent.IsAbsent() {
 		s.repository.logger.Error().Msg("torrentstream: No torrent to stream [server]")
-		http.Error(w, "No torrent to stream", http.StatusNotFound)
-		return
+		return c.Status(fiber.StatusNotFound).SendString("No torrent to stream")
 	}
 
 	file := s.repository.client.currentFile.MustGet()
-	tr := file.NewReader()
-	defer func(tr torrent.Reader) {
-		_ = tr.Close()
-	}(tr)
-	tr.SetResponsive()
-	tr.SetReadahead(file.FileInfo().Length / 100)
+	fileSize := file.FileInfo().Length
 
-	s.repository.logger.Trace().Str("file", file.DisplayPath()).Msg("torrentstream: Serving file content")
-	w.Header().Set("Content-Type", "video/mp4")
-	http.ServeContent(
-		w,
-		r,
-		file.DisplayPath(),
-		time.Now(),
-		tr,
-	)
-	s.repository.logger.Trace().Msg("torrentstream: File content served")
+	// Parse range header
+	rangeHeader := c.Get("Range")
+	var start, end int64 = 0, fileSize - 1
+
+	if rangeHeader != "" {
+		// Parse the Range header value
+		segments := strings.Split(strings.TrimPrefix(rangeHeader, "bytes="), "-")
+		if len(segments) == 2 {
+			var err error
+			if segments[0] != "" {
+				start, err = strconv.ParseInt(segments[0], 10, 64)
+				if err != nil {
+					return c.Status(fiber.StatusBadRequest).SendString("Invalid range start")
+				}
+			}
+			if segments[1] != "" {
+				end, err = strconv.ParseInt(segments[1], 10, 64)
+				if err != nil {
+					return c.Status(fiber.StatusBadRequest).SendString("Invalid range end")
+				}
+			}
+
+			if start >= fileSize || end >= fileSize || start > end {
+				return c.Status(fiber.StatusRequestedRangeNotSatisfiable).SendString("Invalid range")
+			}
+
+			c.Status(fiber.StatusPartialContent)
+			c.Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
+		}
+	}
+
+	c.Set("Content-Length", fmt.Sprintf("%d", end-start+1))
+	c.Set("Content-Type", "video/mp4")
+	c.Set("Accept-Ranges", "bytes")
+
+	c.Context().SetBodyStreamWriter(func(w *bufio.Writer) {
+		reader := file.NewReader()
+		defer reader.Close()
+
+		reader.SetResponsive()
+		//reader.SetReadahead(file.FileInfo().Length / 50)
+
+		// Seek to start position if needed
+		if start > 0 {
+			_, err := reader.Seek(start, io.SeekStart)
+			if err != nil {
+				s.repository.logger.Error().Err(err).Msg("torrentstream: Failed to seek to position")
+				return
+			}
+		}
+
+		// Create a limited reader to handle the range
+		limitedReader := io.LimitReader(reader, end-start+1)
+		bufferedReader := bufio.NewReaderSize(limitedReader, 1024*1024) // 1MB buffer
+
+		// Copy the data
+		_, err := io.Copy(w, bufferedReader)
+		if err != nil {
+			//s.repository.logger.Error().Err(err).Msg("torrentstream: Error while streaming")
+			return
+		}
+
+		w.Flush()
+	})
+
+	return nil
 }

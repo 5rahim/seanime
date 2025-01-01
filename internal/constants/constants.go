@@ -3,8 +3,8 @@ package constants
 import "time"
 
 const (
-	Version              = "2.5.3-prerelease"
-	VersionName          = "Murasaki"
+	Version              = "2.6.0-prerelease"
+	VersionName          = "Umi"
 	GcTime               = time.Minute * 30
 	ConfigFileName       = "config.toml"
 	MalClientId          = "51cb4294feb400f3ddc66a30f9b9a00f"

@@ -223,3 +223,8 @@ func HandleGetTorrentstreamBatchHistory(c *RouteCtx) error {
 	ret := c.App.TorrentstreamRepository.GetBatchHistory(b.MediaID)
 	return c.RespondWithData(ret)
 }
+
+// route /api/v1/torrentstream/stream/*
+func HandleTorrentstreamServeStream(c *RouteCtx) error {
+	return c.App.TorrentstreamRepository.ServeStream(c.Fiber)
+}
