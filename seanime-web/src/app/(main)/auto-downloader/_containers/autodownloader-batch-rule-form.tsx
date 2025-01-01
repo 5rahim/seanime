@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { useQueryClient } from "@tanstack/react-query"
 import { uniq } from "lodash"
+import Image from "next/image"
 import React from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
@@ -319,18 +320,33 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                     <div className="flex gap-4 items-center w-full">
                         <div className="flex flex-col gap-2 w-full">
                             <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                                <Select
-                                    label="Library Entry"
-                                    options={props.allMedia
-                                        .map(media => ({
-                                            label: media.title?.userPreferred || "N/A",
-                                            value: String(media.id),
-                                        }))
-                                        .toSorted((a, b) => a.label.localeCompare(b.label))
-                                    }
-                                    value={String(field.mediaId)}
-                                    onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}
-                                />
+                                <div className="flex gap-4 items-center">
+                                    <div
+                                        className="size-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
+                                    >
+                                        {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <Image
+                                            src={props.allMedia.find(m => m.id === field?.mediaId)!.coverImage!.large!}
+                                            alt="banner"
+                                            fill
+                                            quality={80}
+                                            priority
+                                            sizes="20rem"
+                                            className="object-cover object-center"
+                                        />}
+                                    </div>
+                                    <Select
+                                        label="Library Entry"
+                                        options={props.allMedia
+                                            .map(media => ({
+                                                label: media.title?.userPreferred || "N/A",
+                                                value: String(media.id),
+                                            }))
+                                            .toSorted((a, b) => a.label.localeCompare(b.label))
+                                        }
+                                        value={String(field.mediaId)}
+                                        onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}
+                                    />
+                                </div>
                                 <Field.DirectorySelector
                                     name={`entries.${index}.destination`}
                                     label="Destination"

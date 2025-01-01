@@ -62,8 +62,8 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     downloadDir: settings.downloadDir || "",
                     disableIPv6: settings.disableIPV6,
                     addToLibrary: settings.addToLibrary,
-                    streamingServerPort: settings.streamingServerPort,
-                    streamingServerHost: settings.streamingServerHost,
+                    streamingServerPort: 43124,
+                    streamingServerHost: "0.0.0.0",
                     torrentClientHost: settings.torrentClientHost || "",
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
@@ -128,11 +128,13 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
                 <Separator />
 
-                <h3>Torrent client</h3>
+                <div>
+                    <h3>Torrent client</h3>
 
-                <p>
-                    Seanime uses a built-in torrent client to download torrents.
-                </p>
+                    <p>
+                        Seanime uses a built-in torrent client to download torrents.
+                    </p>
+                </div>
 
                 <div className="flex items-center gap-3">
 
@@ -148,7 +150,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                         formatOptions={{
                             useGrouping: false,
                         }}
-                        help="Default is 43213"
+                        help="Leave empty for default. Default is 43213."
                     />
 
                 </div>
@@ -157,34 +159,6 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     name="disableIPv6"
                     label="Disable IPv6"
                 />
-
-                <Separator />
-
-                <h3>
-                    Streaming server
-                </h3>
-
-                <p>
-                    Seanime will launch a separate server to stream torrents. You can configure the port and host it uses here.
-                </p>
-
-                <div className="flex items-center gap-3">
-
-                    <Field.Text
-                        name="streamingServerHost"
-                        label="Host"
-                        help="Default is 0.0.0.0"
-                    />
-                    <Field.Number
-                        name="streamingServerPort"
-                        label="Port"
-                        formatOptions={{
-                            useGrouping: false,
-                        }}
-                        help="Default is 43214"
-                    />
-
-                </div>
 
 
                 <div className="flex w-full items-center">

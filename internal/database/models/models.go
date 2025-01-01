@@ -321,9 +321,9 @@ type TorrentstreamSettings struct {
 	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`
 	TorrentClientHost   string `gorm:"column:torrent_client_host" json:"torrentClientHost"`
 	TorrentClientPort   int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
-	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
-	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
-	//FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"`
+	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"` // UNUSED, LEGACY
+	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"` // UNUSED, LEGACY
+	//FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"` // DEPRECATED
 	IncludeInLibrary bool `gorm:"column:include_in_library" json:"includeInLibrary"`
 }
 
@@ -385,7 +385,7 @@ type DebridSettings struct {
 	Enabled  bool   `gorm:"column:enabled" json:"enabled"`
 	Provider string `gorm:"column:provider" json:"provider"`
 	ApiKey   string `gorm:"column:api_key" json:"apiKey"`
-	//FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"`
+	//FallbackToDebridStreamingView bool   `gorm:"column:fallback_to_debrid_streaming_view" json:"fallbackToDebridStreamingView"` // DEPRECATED
 	IncludeDebridStreamInLibrary bool   `gorm:"column:include_debrid_stream_in_library" json:"includeDebridStreamInLibrary"`
 	StreamAutoSelect             bool   `gorm:"column:stream_auto_select" json:"streamAutoSelect"`
 	StreamPreferredResolution    string `gorm:"column:stream_preferred_resolution" json:"streamPreferredResolution"`
