@@ -7,7 +7,6 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
-import { logger } from "@/lib/helpers/debug"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -34,7 +33,7 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
 
     React.useEffect(() => {
         if (_serverStatus) {
-            logger("SERVER").info("Server status", _serverStatus)
+            // logger("SERVER").info("Server status", _serverStatus)
             setServerStatus(_serverStatus)
         }
     }, [_serverStatus])

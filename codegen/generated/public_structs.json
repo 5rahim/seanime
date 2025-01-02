@@ -27659,6 +27659,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MediaPageBannerSize",
+        "jsonName": "mediaPageBannerSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaPageBannerInfoBoxSize",
+        "jsonName": "mediaPageBannerInfoBoxSize",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],

@@ -1,10 +1,10 @@
-import { mergeRefs } from "../core/utils"
-import { hiddenInputStyles } from "../input"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
+import { mergeRefs } from "../core/utils"
+import { hiddenInputStyles } from "../input"
 
 /* -------------------------------------------------------------------------------------------------
  * Anatomy
@@ -117,7 +117,7 @@ export type RadioGroupProps = BasicFieldOptions &
 }
 
 export const RadioGroup = React.forwardRef<HTMLButtonElement, RadioGroupProps>((props, ref) => {
-
+    const id = React.useId()
     const [{
         size,
         className,
@@ -134,7 +134,7 @@ export const RadioGroup = React.forwardRef<HTMLButtonElement, RadioGroupProps>((
         itemContainerClass,
         itemCheckIcon,
         itemCheckIconClass,
-    }, basicFieldProps] = extractBasicFieldProps<RadioGroupProps>(props, React.useId())
+    }, basicFieldProps] = extractBasicFieldProps<RadioGroupProps>(props, id)
 
     const isFirst = React.useRef(true)
 
@@ -175,7 +175,7 @@ export const RadioGroup = React.forwardRef<HTMLButtonElement, RadioGroupProps>((
                             <label
                                 key={option.value}
                                 className={cn(RadioGroupAnatomy.itemContainer(), itemContainerClass)}
-                                htmlFor={option.value}
+                                htmlFor={id + option.value}
                                 data-error={!!basicFieldProps.error}
                                 data-disabled={basicFieldProps.disabled || option.disabled}
                                 data-readonly={basicFieldProps.readonly || option.readonly}
@@ -183,7 +183,7 @@ export const RadioGroup = React.forwardRef<HTMLButtonElement, RadioGroupProps>((
                             >
                                 <RadioGroupPrimitive.Item
                                     ref={mergeRefs([buttonRef, ref])}
-                                    id={option.value}
+                                    id={id + option.value}
                                     key={option.value}
                                     value={option.value}
                                     disabled={basicFieldProps.disabled || basicFieldProps.readonly || option.disabled || option.readonly}
@@ -216,7 +216,7 @@ export const RadioGroup = React.forwardRef<HTMLButtonElement, RadioGroupProps>((
                                 </RadioGroupPrimitive.Item>
                                 <label
                                     className={cn(RadioGroupAnatomy.itemLabel(), itemLabelClass)}
-                                    htmlFor={option.value}
+                                    htmlFor={id + option.value}
                                     aria-disabled={option.disabled}
                                     data-error={!!basicFieldProps.error}
                                     data-disabled={basicFieldProps.disabled || option.disabled || option.disabled}

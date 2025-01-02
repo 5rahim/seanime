@@ -21,7 +21,8 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
     return (
         <MediaPageHeader
-            backgroundImage={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge}
+            backgroundImage={entry.media?.bannerImage}
+            coverImage={entry.media?.coverImage?.extraLarge}
         >
 
             <MediaPageHeaderDetailsContainer>

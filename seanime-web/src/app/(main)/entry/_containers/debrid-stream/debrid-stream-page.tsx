@@ -127,7 +127,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Debrid streaming</h2>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4 pb-6 2xl:py-0">
                     <Switch
                         label="Auto-select"
                         value={autoSelect}

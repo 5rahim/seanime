@@ -4,6 +4,7 @@ import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { openTab } from "@/lib/helpers/browser"
+import { logger } from "@/lib/helpers/debug"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useAtomValue } from "jotai"
 import { toast } from "sonner"
@@ -31,7 +32,16 @@ export function useExternalPlayerLinkListener() {
 
             toast.info("Opening media file in external player.")
 
-            openTab(getExternalPlayerURL(externalPlayerLink, data.url))
+            logger("EXTERNAL_PLAYER_LINK").info("Opening external player", data)
+            const url = getExternalPlayerURL(externalPlayerLink, data.url)
+            logger("EXTERNAL_PLAYER_LINK").info("External player URL", url)
+            openTab(url)
+
+            logger("EXTERNAL_PLAYER_LINK").info("Starting manual tracking", {
+                mediaId: data.mediaId,
+                episodeNumber: data.episodeNumber,
+                clientId: clientId || "",
+            })
 
             // Get the server to start asking the progress
             startManualTracking({

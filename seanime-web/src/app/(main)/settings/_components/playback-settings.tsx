@@ -3,6 +3,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Alert } from "@/components/ui/alert"
 import { Select } from "@/components/ui/select"
 import React from "react"
+import { toast } from "sonner"
 
 type PlaybackSettingsProps = {
     children?: React.ReactNode
@@ -48,7 +49,10 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 label="Downloaded media"
                 help="Player to use for downloaded media."
                 value={downloadedMediaPlayback}
-                onValueChange={v => setDownloadedMediaPlayback(v)}
+                onValueChange={v => {
+                    setDownloadedMediaPlayback(v)
+                    toast.success("Playback settings updated")
+                }}
                 options={playbackDownloadedMediaOptions}
             />
 
@@ -57,7 +61,10 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 label="Torrent/Debrid streaming"
                 help="Player to use for torrent or debrid streaming."
                 value={torrentStreamingPlayback}
-                onValueChange={v => setTorrentStreamingPlayback(v)}
+                onValueChange={v => {
+                    setTorrentStreamingPlayback(v)
+                    toast.success("Playback settings updated")
+                }}
                 options={playbackTorrentStreamingOptions}
             />
 

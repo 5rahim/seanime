@@ -260,7 +260,9 @@ type Theme struct {
 	DisableCarouselAutoScroll         bool   `gorm:"column:disable_carousel_auto_scroll" json:"disableCarouselAutoScroll"`
 
 	// v2.6+
-	MediaPageBannerType string `gorm:"column:media_page_banner_type" json:"mediaPageBannerType"`
+	MediaPageBannerType        string `gorm:"column:media_page_banner_type" json:"mediaPageBannerType"`
+	MediaPageBannerSize        string `gorm:"column:media_page_banner_size" json:"mediaPageBannerSize"`
+	MediaPageBannerInfoBoxSize string `gorm:"column:media_page_banner_info_box_size" json:"mediaPageBannerInfoBoxSize"`
 }
 
 // +---------------------+

@@ -1,7 +1,7 @@
 import { Anime_Entry } from "@/api/generated/types"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { AnimeMetaActionButton } from "@/app/(main)/entry/_components/meta-section"
 import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
-import { Button } from "@/components/ui/button"
 import React from "react"
 import { AiOutlineArrowLeft } from "react-icons/ai"
 import { HiOutlineServerStack } from "react-icons/hi2"
@@ -33,15 +33,14 @@ export function DebridStreamButton(props: DebridStreamButtonProps) {
 
     return (
         <>
-            <Button
+            <AnimeMetaActionButton
                 intent={isDebridStreamingView ? "alert-subtle" : "white-subtle"}
-                className="w-full"
                 size="md"
                 leftIcon={isDebridStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <HiOutlineServerStack className="text-2xl" />}
                 onClick={() => toggleDebridStreamingView()}
             >
                 {isDebridStreamingView ? "Close Debrid streaming" : "Stream with Debrid"}
-            </Button>
+            </AnimeMetaActionButton>
         </>
     )
 }

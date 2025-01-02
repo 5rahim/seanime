@@ -9,7 +9,10 @@ export const enum ThemeLibraryScreenBannerType {
 export const enum ThemeMediaPageBannerType {
     Default = "default",
     BlurWhenUnavailable = "blur-when-unavailable",
+    DimWhenUnavailable = "dim-when-unavailable",
     HideWhenUnavailable = "hide-when-unavailable",
+    Blur = "blur",
+    Dim = "dim",
     Hide = "hide",
 }
 
@@ -18,17 +21,61 @@ export const ThemeMediaPageBannerTypeOptions = [
         value: ThemeMediaPageBannerType.Default as string, label: "Default",
         description: "Always show a banner image. If not available, the cover image will be used instead.",
     },
+    // {
+    //     value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
+    //     description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
+    // },
     {
-        value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
-        description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
+        value: ThemeMediaPageBannerType.DimWhenUnavailable as string, label: "Dim if unavailable",
+        description: "Show the banner image if available. If not available, the banner will be dimmed.",
     },
     {
-        value: ThemeMediaPageBannerType.HideWhenUnavailable as string, label: "Hide when unavailable",
+        value: ThemeMediaPageBannerType.HideWhenUnavailable as string, label: "Hide if unavailable",
         description: "Show the banner image if available. If not available, the banner will be hidden.",
+    },
+    {
+        value: ThemeMediaPageBannerType.Dim as string, label: "Dim",
+        description: "Always dim the banner image.",
+    },
+    {
+        value: ThemeMediaPageBannerType.Blur as string, label: "Blur",
+        description: "Always blur the banner image.",
     },
     {
         value: ThemeMediaPageBannerType.Hide as string, label: "Hide",
         description: "Always hide the banner image.",
+    },
+]
+
+export const enum ThemeMediaPageBannerSize {
+    Default = "default", // block height
+    Small = "small",
+}
+
+export const ThemeMediaPageBannerSizeOptions = [
+    {
+        value: ThemeMediaPageBannerSize.Default as string, label: "Default",
+        description: "Fill a large portion of the screen.",
+    },
+    {
+        value: ThemeMediaPageBannerSize.Small as string, label: "Smaller",
+        description: "Use a smaller banner size, displaying more of the image.",
+    },
+]
+
+export const enum ThemeMediaPageInfoBoxSize {
+    Default = "default",
+    FullWidth = "full-width",
+}
+
+export const ThemeMediaPageInfoBoxSizeOptions = [
+    {
+        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Default",
+        description: "Display the info box with a standard width.",
+    },
+    {
+        value: ThemeMediaPageInfoBoxSize.FullWidth as string, label: "Fluid",
+        description: "Display the info box with a full width.",
     },
 ]
 
@@ -56,6 +103,8 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     useLegacyEpisodeCard: false,
     disableCarouselAutoScroll: false,
     mediaPageBannerType: ThemeMediaPageBannerType.Default,
+    mediaPageBannerSize: ThemeMediaPageBannerSize.Default,
+    mediaPageBannerInfoBoxSize: ThemeMediaPageInfoBoxSize.Default,
 }
 
 
@@ -93,6 +142,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         disableCarouselAutoScroll: getThemeValue("disableCarouselAutoScroll", serverStatus?.themeSettings),
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
         mediaPageBannerType: getThemeValue("mediaPageBannerType", serverStatus?.themeSettings),
+        mediaPageBannerSize: getThemeValue("mediaPageBannerSize", serverStatus?.themeSettings),
+        mediaPageBannerInfoBoxSize: getThemeValue("mediaPageBannerInfoBoxSize", serverStatus?.themeSettings),
     }
 }
 

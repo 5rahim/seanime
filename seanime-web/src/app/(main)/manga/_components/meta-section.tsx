@@ -13,6 +13,7 @@ import {
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
 import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
+import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
 
@@ -20,12 +21,26 @@ import { SiAnilist } from "react-icons/si"
 export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL_MangaDetailsById_Media | undefined }) {
 
     const { entry, details } = props
+    const ts = useThemeSettings()
 
     if (!entry?.media) return null
 
+    const Details = () => (
+        <>
+            <div className="flex gap-2 items-center">
+                <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
+
+                <MediaEntryGenresList genres={details?.genres} />
+            </div>
+
+            <AnimeEntryRankings rankings={details?.rankings} />
+        </>
+    )
+
     return (
         <MediaPageHeader
-            backgroundImage={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge}
+            backgroundImage={entry.media?.bannerImage}
+            coverImage={entry.media?.coverImage?.extraLarge}
         >
 
             <MediaPageHeaderDetailsContainer>
@@ -44,16 +59,11 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                     listData={entry.listData}
                     media={entry.media}
                     type="manga"
-                />
+                >
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
+                </MediaPageHeaderEntryDetails>
 
-
-                <div className="flex gap-2 items-center">
-                    <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
-
-                    <MediaEntryGenresList genres={details?.genres} />
-                </div>
-
-                <AnimeEntryRankings rankings={details?.rankings} />
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
 
 
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">

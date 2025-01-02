@@ -25,15 +25,28 @@ import { AnimeEntrySilenceToggle } from "@/app/(main)/entry/_containers/entry-ac
 import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
 import { TorrentStreamButton } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-button"
 import { SeaLink } from "@/components/shared/sea-link"
-import { Button, IconButton } from "@/components/ui/button"
+import { Button, ButtonProps, IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
 import { TORRENT_CLIENT } from "@/lib/server/settings"
+import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
 
+export function AnimeMetaActionButton({ className, ...rest }: ButtonProps) {
+    const ts = useThemeSettings()
+    return <Button
+        className={cn(
+            "w-full",
+            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "lg:w-full lg:max-w-[280px]",
+            className,
+        )} {...rest}
+    />
+}
 
 export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetailsById_Media | undefined }) {
     const serverStatus = useServerStatus()
     const { entry, details } = props
+    const ts = useThemeSettings()
 
     if (!entry.media) return null
 
@@ -41,9 +54,68 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
     const { hasDebridService } = useHasDebridService()
     const { currentView, isTorrentStreamingView, isDebridStreamingView, isOnlineStreamingView } = useAnimeEntryPageView()
 
+    const ActionButtons = () => (
+        <div
+            className={cn(
+                "w-full flex flex-wrap gap-4 items-center",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "w-auto flex-nowrap",
+            )}
+        >
+
+            <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
+
+                <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
+                    <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
+                </SeaLink>
+
+                {!!entry?.media?.trailer?.id && <TrailerModal
+                    trailerId={entry?.media?.trailer?.id} trigger={
+                    <Button intent="gray-link" className="px-0">
+                        Trailer
+                    </Button>}
+                />}
+            </div>
+
+            {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <div className="flex-1 hidden lg:flex"></div>}
+
+            <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
+                <AnimeAutoDownloaderButton entry={entry} size="lg" />
+
+                {!!entry.libraryData && <>
+                    <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="lg" />
+                    <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
+                    <ToggleLockFilesButton
+                        allFilesLocked={entry.libraryData.allFilesLocked}
+                        mediaId={entry.mediaId}
+                        size="lg"
+                    />
+                </>}
+                <AnimeEntryDropdownMenu entry={entry} />
+            </div>
+        </div>
+    )
+
+    const Details = () => (
+        <div
+            className={cn(
+                "flex gap-2 flex-wrap items-center",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "justify-center lg:justify-start",
+            )}
+        >
+            <MediaEntryAudienceScore meanScore={details?.meanScore} />
+
+            <AnimeEntryStudio studios={details?.studios} />
+
+            <MediaEntryGenresList genres={details?.genres} />
+
+            <AnimeEntryRankings rankings={details?.rankings} />
+        </div>
+    )
+
     return (
         <MediaPageHeader
-            backgroundImage={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge}
+            backgroundImage={entry.media?.bannerImage}
+            coverImage={entry.media?.coverImage?.extraLarge}
         >
 
             <MediaPageHeaderDetailsContainer>
@@ -62,21 +134,20 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     listData={entry.listData}
                     media={entry.media}
                     type="anime"
-                />
+                >
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
+                </MediaPageHeaderEntryDetails>
 
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
 
-                <div className="flex gap-2 flex-wrap items-center">
-                    <MediaEntryAudienceScore meanScore={details?.meanScore} />
+                <div
+                    className={cn(
+                        "flex flex-col lg:flex-row w-full gap-3 items-center",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "flex-wrap",
+                    )}
+                >
 
-                    <AnimeEntryStudio studios={details?.studios} />
-
-                    <MediaEntryGenresList genres={details?.genres} />
-
-                    <AnimeEntryRankings rankings={details?.rankings} />
-                </div>
-
-
-                <div className="flex flex-col lg:flex-row w-full gap-3">
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && <ActionButtons />}
 
                     {(
                         entry.media.status !== "NOT_YET_RELEASED"
@@ -100,53 +171,31 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         entry={entry}
                     />
 
-
                     <AnimeOnlinestreamButton entry={entry} />
+
                 </div>
 
                 <NextAiringEpisode media={entry.media} />
 
-                {entry.downloadInfo?.hasInaccurateSchedule && <p className="text-[--muted] text-sm text-center mb-3">
+                {entry.downloadInfo?.hasInaccurateSchedule && <p
+                    className={cn(
+                        "text-[--muted] text-sm text-center mb-3",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "text-left",
+                    )}
+                >
                     <span className="block">Could not retrieve accurate scheduling information for this show.</span>
                     <span className="block text-[--muted]">Please check the schedule online for more information.</span>
                 </p>}
 
-                <div className="w-full flex flex-wrap gap-4 items-center">
-
-                    <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
-
-                        <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
-                            <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
-                        </SeaLink>
-
-                        {!!entry?.media?.trailer?.id && <TrailerModal
-                            trailerId={entry?.media?.trailer?.id} trigger={
-                            <Button intent="gray-link" className="px-0">
-                                Trailer
-                            </Button>}
-                        />}
-                    </div>
-
-                    <div className="flex-1 hidden lg:flex"></div>
-
-                    <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
-                        <AnimeAutoDownloaderButton entry={entry} size="lg" />
-
-                        {!!entry.libraryData && <>
-                            <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="lg" />
-                            <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
-                            <ToggleLockFilesButton
-                                allFilesLocked={entry.libraryData.allFilesLocked}
-                                mediaId={entry.mediaId}
-                                size="lg"
-                            />
-                        </>}
-                        <AnimeEntryDropdownMenu entry={entry} />
-                    </div>
-                </div>
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <ActionButtons />}
 
                 {(!entry.anidbId || entry.anidbId === 0) && (
-                    <p className="text-center text-red-300 opacity-50">
+                    <p
+                        className={cn(
+                            "text-center text-red-300 opacity-50",
+                            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "text-left",
+                        )}
+                    >
                         No metadata found on AniDB
                     </p>
                 )}

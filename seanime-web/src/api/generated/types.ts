@@ -2820,6 +2820,8 @@ export type Models_Theme = {
     useLegacyEpisodeCard: boolean
     disableCarouselAutoScroll: boolean
     mediaPageBannerType: string
+    mediaPageBannerSize: string
+    mediaPageBannerInfoBoxSize: string
     id: number
     createdAt?: string
     updatedAt?: string

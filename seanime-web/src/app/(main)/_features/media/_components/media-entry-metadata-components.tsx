@@ -14,12 +14,14 @@ import { BiHeart, BiHide } from "react-icons/bi"
 
 type MediaEntryGenresListProps = {
     genres?: Array<string | null> | null | undefined
+    className?: string
 }
 
 export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
 
     const {
         genres,
+        className,
         ...rest
     } = props
 
@@ -30,7 +32,7 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     if (serverStatus?.isOffline) {
         return (
             <>
-                <div className="items-center flex flex-wrap gap-2">
+                <div className={cn("items-center flex flex-wrap gap-2", className)}>
                     {genres?.map(genre => {
                         return <Badge key={genre!} className="border-transparent" size="lg">{genre}</Badge>
                     })}
@@ -40,7 +42,7 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     } else {
         return (
             <>
-                <div className="items-center flex flex-wrap gap-2">
+                <div className={cn("items-center flex flex-wrap gap-2", className)}>
                     {genres?.map(genre => {
                         return <SeaLink href={`/search?genre=${genre}&sorting=TRENDING_DESC`} key={genre!}>
                             <Badge className="border-transparent" size="lg">{genre}</Badge>

@@ -3,23 +3,27 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Badge } from "@/components/ui/badge"
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Popover } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { motion } from "framer-motion"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
 import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
+import { MdOutlineSegment } from "react-icons/md"
 import { useWindowScroll } from "react-use"
 
 
 type MediaPageHeaderProps = {
     children?: React.ReactNode
     backgroundImage?: string
+    coverImage?: string
 }
 
 export function MediaPageHeader(props: MediaPageHeaderProps) {
@@ -27,11 +31,29 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
     const {
         children,
         backgroundImage,
+        coverImage,
         ...rest
     } = props
 
     const ts = useThemeSettings()
     const { y } = useWindowScroll()
+
+    const bannerImage = backgroundImage || coverImage
+    const shouldHideBanner = (
+        (ts.mediaPageBannerType === ThemeMediaPageBannerType.HideWhenUnavailable && !backgroundImage)
+        || ts.mediaPageBannerType === ThemeMediaPageBannerType.Hide
+    )
+    const shouldBlurBanner = (ts.mediaPageBannerType === ThemeMediaPageBannerType.BlurWhenUnavailable && !backgroundImage) ||
+        ts.mediaPageBannerType === ThemeMediaPageBannerType.Blur
+
+    const shouldDimBanner = (ts.mediaPageBannerType === ThemeMediaPageBannerType.DimWhenUnavailable && !backgroundImage) ||
+        ts.mediaPageBannerType === ThemeMediaPageBannerType.Dim
+
+    const shouldShowBlurredBackground = ts.enableMediaPageBlurredBackground && (
+        y > 100
+        || (shouldHideBanner && !ts.libraryScreenCustomBackgroundImage)
+    )
+
 
     return (
         <motion.div
@@ -49,11 +71,11 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             {(ts.enableMediaPageBlurredBackground) && <div
                 className={cn(
                     "fixed opacity-0 transition-opacity duration-1000 top-0 left-0 w-full h-full z-[4] bg-[--background] rounded-xl",
-                    y > 100 && "opacity-100",
+                    shouldShowBlurredBackground && "opacity-100",
                 )}
             >
                 <Image
-                    src={getImageUrl(backgroundImage || "")}
+                    src={getImageUrl(bannerImage || "")}
                     alt={""}
                     fill
                     quality={100}
@@ -62,7 +84,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
-                    className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2] "
+                    className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2]"
                 ></div>
             </div>}
 
@@ -70,35 +92,54 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
             <div
                 className={cn(
-                    "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
+                    "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem]",
+                    ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : "opacity-5"),
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                    shouldHideBanner && "bg-transparent",
                 )}
             >
                 {/*TOP FADE*/}
                 <div
-                    className="w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via"
+                    className={cn(
+                        "w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via",
+                    )}
                 />
 
                 {/*BOTTOM OVERFLOW FADE*/}
                 <div
                     className={cn(
-                        "w-full z-[2] absolute scroll-locked-offset bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
+                        "w-full z-[2] absolute scroll-locked-offset bottom-[-5rem] h-[5em] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
                         !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
+                        shouldHideBanner && "hidden",
                     )}
                 />
 
-                <div className="absolute top-0 left-0 scroll-locked-offset w-full h-full">
-                    {(!!backgroundImage) && <Image
-                        src={getImageUrl(backgroundImage || "")}
+                <div
+                    className={cn(
+                        "absolute top-0 left-0 scroll-locked-offset w-full h-full",
+                        // shouldBlurBanner && "blur-xl",
+                        shouldHideBanner && "hidden",
+                    )}
+                >
+                    {(!!bannerImage) && <Image
+                        src={getImageUrl(bannerImage || "")}
                         alt="banner image"
                         fill
                         quality={100}
                         priority
                         sizes="100vw"
-                        className="object-cover object-center scroll-locked-offset z-[1]"
+                        className={cn(
+                            "object-cover object-center scroll-locked-offset z-[1]",
+                            shouldDimBanner && "opacity-30",
+                        )}
                     />}
+
+                    {shouldBlurBanner && <div
+                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[2] "
+                    ></div>}
+
                     {/*LEFT MASK*/}
                     <div
                         className={cn(
@@ -117,10 +158,18 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 {/*BOTTOM FADE*/}
                 <div
-                    className="w-full z-[3] absolute bottom-0 h-[50%] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent"
+                    className={cn(
+                        "w-full z-[3] absolute bottom-0 h-[50%] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent",
+                        shouldHideBanner && "hidden",
+                    )}
                 />
 
-                <div className="absolute h-full w-full block lg:hidden bg-[--background] opacity-70 z-[2]" />
+                <div
+                    className={cn(
+                        "absolute h-full w-full block lg:hidden bg-[--background] opacity-70 z-[2]",
+                        shouldHideBanner && "hidden",
+                    )}
+                />
 
             </div>
         </motion.div>
@@ -140,6 +189,8 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
         ...rest
     } = props
 
+    const ts = useThemeSettings()
+
     return (
         <>
             <motion.div
@@ -149,7 +200,15 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative z-[4]"
             >
-                <div className="space-y-8 p-6 sm:p-8 lg:max-w-[70%] 2xl:max-w-[65rem] 5xl:max-w-[80rem] relative">
+                <div
+                    className={cn(
+                        "space-y-8 p-6 sm:p-8 relative",
+                        ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "p-6 sm:py-4 sm:px-8",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth
+                            ? "w-full"
+                            : "lg:max-w-[100%] xl:max-w-[80%] 2xl:max-w-[65rem] 5xl:max-w-[80rem]",
+                    )}
+                >
                     <motion.div
                         {...{
                             initial: { opacity: 0 },
@@ -220,6 +279,8 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
         ...rest
     } = props
 
+    const ts = useThemeSettings()
+
     return (
         <>
             <div className="flex flex-col lg:flex-row gap-8">
@@ -227,6 +288,9 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                 {!!coverImage && <div
                     className={cn(
                         "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
+                        ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "max-w-[150px] lg:m-0 h-auto sm:max-w-[195px] lg:max-w-[210px] -top-1",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "lg:max-w-[270px]",
+                        (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth) && "lg:max-w-[220px]",
                     )}
                 >
                     <Image
@@ -243,13 +307,13 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <TextGenerateEffect
-                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl"
+                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl xl:max-w-[50vw]"
                             words={title || ""}
                         />
                         {(!!englishTitle && title?.toLowerCase() !== englishTitle?.toLowerCase()) &&
-                            <h4 className="text-gray-200 line-clamp-2 text-center lg:text-left">{englishTitle}</h4>}
+                            <h4 className="text-gray-200 line-clamp-1 text-center lg:text-left xl:max-w-[50vw]">{englishTitle}</h4>}
                         {(!!romajiTitle && title?.toLowerCase() !== romajiTitle?.toLowerCase()) &&
-                            <h4 className="text-gray-200 line-clamp-2 text-center lg:text-left">{romajiTitle}</h4>}
+                            <h4 className="text-gray-200 line-clamp-1 text-center lg:text-left xl:max-w-[50vw]">{romajiTitle}</h4>}
                     </div>
 
                     {/*DATE*/}
@@ -304,16 +368,30 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                             </Tooltip>}
                         </div>
 
+                        {ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && <Popover
+                            trigger={
+                                <IconButton
+                                    intent="gray-outline"
+                                    className="rounded-full"
+                                    size="sm"
+                                    icon={<MdOutlineSegment />}
+                                />
+                            }
+                            className="max-w-[40rem] w-full p-4 max-h-32 overflow-y-auto bg-[#0c0c0c]/85 hover:text-white"
+                        >
+                            <span className="transition-colors">{description?.replace(/(<([^>]+)>)/ig, "")}</span>
+                        </Popover>}
+
                     </div>
 
-                    <ScrollArea
+                    {ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small && <ScrollArea
                         className={cn(
-                            "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] hover:text-white transition-colors duration-500 text-sm pr-2",
+                            "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] 2xl:max-w-[50vw] hover:text-white transition-colors duration-500 text-sm pr-2",
                             "bg-transparent hover:bg-zinc-950/30 rounded-md text-center lg:text-left",
                         )}
                     >
                         {description?.replace(/(<([^>]+)>)/ig, "")}
-                    </ScrollArea>
+                    </ScrollArea>}
 
                     {children}
 
