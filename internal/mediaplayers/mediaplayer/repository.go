@@ -127,6 +127,8 @@ func (m *Repository) Play(path string) error {
 
 	m.Logger.Debug().Str("path", path).Msg("media player: Media requested")
 
+	lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0)
+
 	switch m.Default {
 	case "vlc":
 		err := m.VLC.Start()
@@ -146,7 +148,7 @@ func (m *Repository) Play(path string) error {
 		}
 
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
+			if lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
@@ -170,7 +172,7 @@ func (m *Repository) Play(path string) error {
 		}
 
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
+			if lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
@@ -184,19 +186,26 @@ func (m *Repository) Play(path string) error {
 	case "mpv":
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
 			var args []string
-			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem(path, false, 0, 0); lastWatched.Found {
-				args = append(args, "--no-resume-playback", fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
+			if lastWatched.Found {
+				//args = append(args, "--no-resume-playback", fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
+				args = append(args, "--no-resume-playback")
 			}
 			err := m.Mpv.OpenAndPlay(path, args...)
 			if err != nil {
 				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using MPV")
 				return fmt.Errorf("could not open and play video, %w", err)
 			}
+			if lastWatched.Found {
+				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
+			}
 		} else {
 			err := m.Mpv.OpenAndPlay(path)
 			if err != nil {
 				m.Logger.Error().Err(err).Msg("media player: Could not open and play video using MPV")
 				return fmt.Errorf("could not open and play video, %w", err)
+			}
+			if lastWatched.Found {
+				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
 			}
 		}
 
@@ -229,12 +238,14 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		return fmt.Errorf("could not open media player, %w", err)
 	}
 
+	lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId)
+
 	switch m.Default {
 	case "vlc":
 		err = m.VLC.AddAndPlay(streamUrl)
 
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
+			if lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.VLC.ForcePause()
 				time.Sleep(400 * time.Millisecond)
@@ -248,7 +259,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		_, err = m.MpcHc.OpenAndPlay(streamUrl)
 
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
+			if lastWatched.Found {
 				time.Sleep(400 * time.Millisecond)
 				_ = m.MpcHc.Pause()
 				time.Sleep(400 * time.Millisecond)
@@ -264,10 +275,13 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 			args = append(args, fmt.Sprintf("--title=%q", windowTitle))
 		}
 		if m.continuityManager.GetSettings().WatchContinuityEnabled {
-			if lastWatched := m.continuityManager.GetExternalPlayerEpisodeWatchHistoryItem("", true, episode, mediaId); lastWatched.Found {
-				args = append(args, fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
-			}
+			//if lastWatched.Found {
+			//	args = append(args, fmt.Sprintf("--start=+%d", int(lastWatched.Item.CurrentTime)))
+			//}
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
+			if lastWatched.Found {
+				_ = m.Mpv.SeekTo(lastWatched.Item.CurrentTime)
+			}
 		} else {
 			err = m.Mpv.OpenAndPlay(streamUrl, args...)
 		}

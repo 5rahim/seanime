@@ -164,16 +164,34 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 	// Normalize path
 	path = util.NormalizePath(path)
 
+	m.logger.Debug().
+		Str("path", path).
+		Bool("isStream", isStream).
+		Int("episode", episode).
+		Int("mediaId", mediaId).
+		Msg("continuity: Retrieving watch history item")
+
 	switch isStream {
 	case true:
 		if episode == 0 || mediaId == 0 {
+			m.logger.Debug().
+				Int("episode", episode).
+				Int("mediaId", mediaId).
+				Msg("continuity: No episode or media provided")
 			return
 		}
 
 		i, found := m.getWatchHistory(mediaId)
 		if !found || i.EpisodeNumber != episode {
+			m.logger.Trace().
+				Interface("item", i).
+				Msg("continuity: No watch history item found or episode number does not match")
 			return
 		}
+
+		m.logger.Debug().
+			Interface("item", i).
+			Msg("continuity: Watch history item found")
 
 		return &WatchHistoryItemResponse{
 			Item:  i,
@@ -192,6 +210,7 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 		for _, l := range lfs {
 			if l.GetNormalizedPath() == path {
 				lf = l
+				m.logger.Trace().Msg("continuity: Local file found from path")
 				break
 			}
 		}
@@ -200,19 +219,28 @@ func (m *Manager) GetExternalPlayerEpisodeWatchHistoryItem(path string, isStream
 			for _, l := range lfs {
 				if strings.ToLower(l.Name) == path {
 					lf = l
+					m.logger.Trace().Msg("continuity: Local file found from filename")
 					break
 				}
 			}
 		}
 
 		if lf == nil || lf.MediaId == 0 || !lf.IsMain() {
+			m.logger.Trace().Msg("continuity: Local file not found or not main")
 			return
 		}
 
 		i, found := m.getWatchHistory(lf.MediaId)
 		if !found || i.EpisodeNumber != lf.GetEpisodeNumber() {
+			m.logger.Trace().
+				Interface("item", i).
+				Msg("continuity: No watch history item found or episode number does not match")
 			return
 		}
+
+		m.logger.Debug().
+			Interface("item", i).
+			Msg("continuity: Watch history item found")
 
 		return &WatchHistoryItemResponse{
 			Item:  i,

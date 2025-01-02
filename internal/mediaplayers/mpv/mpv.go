@@ -218,6 +218,38 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (m *Mpv) SeekTo(position float64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	// pause the player
+	_, err := m.conn.Call("set_property", "pause", true)
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(100 * time.Millisecond)
+
+	_, err = m.conn.Call("set_property", "time-pos", position)
+	if err != nil {
+		return err
+	}
+
+	time.Sleep(100 * time.Millisecond)
+
+	// unpause the player
+	_, err = m.conn.Call("set_property", "pause", false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Mpv) establishConnection() error {
 	tries := 1
 	for {

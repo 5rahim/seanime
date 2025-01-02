@@ -64,12 +64,6 @@ export function LibrarySettings(props: LibrarySettingsProps) {
                 </div>}
             />
 
-            <Field.Switch
-                name="enableWatchContinuity"
-                label="Enable watch continuity"
-                help="If enabled, Seanime will remember your watch progress and resume from where you left off."
-            />
-
             <Separator />
 
             <Accordion type="single" collapsible>

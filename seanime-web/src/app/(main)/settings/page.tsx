@@ -292,7 +292,7 @@ export default function Page() {
                                 <div className="flex flex-wrap gap-2">
                                     {!!status?.dataDir && <Button
                                         size="sm"
-                                        intent="white-subtle"
+                                        intent="gray-outline"
                                         onClick={() => openInExplorer({
                                             path: status?.dataDir,
                                         })}
