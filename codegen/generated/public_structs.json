@@ -27650,6 +27650,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MediaPageBannerType",
+        "jsonName": "mediaPageBannerType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -27955,7 +27964,9 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " UNUSED, LEGACY"
+        ]
       },
       {
         "name": "StreamingServerPort",
@@ -27964,7 +27975,9 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " UNUSED, LEGACY"
+        ]
       },
       {
         "name": "IncludeInLibrary",
@@ -55890,7 +55903,26 @@
     "name": "Settings",
     "formattedName": "Torrentstream_Settings",
     "package": "torrentstream",
-    "fields": [],
+    "fields": [
+      {
+        "name": "Host",
+        "jsonName": "Host",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Port",
+        "jsonName": "Port",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
       "models.TorrentstreamSettings"

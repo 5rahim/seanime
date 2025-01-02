@@ -3,9 +3,12 @@ import { useUpdateTheme } from "@/api/hooks/theme.hooks"
 import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { THEME_DEFAULT_VALUES, ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { THEME_COLOR_BANK } from "@/lib/theme/theme-bank"
 import { colord } from "colord"
+import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import React from "react"
 import { toast } from "sonner"
 
@@ -34,13 +37,17 @@ const themeSchema = defineSchema(({ z }) => z.object({
     disableLibraryScreenGenreSelector: z.boolean().default(false),
     useLegacyEpisodeCard: z.boolean().default(THEME_DEFAULT_VALUES.useLegacyEpisodeCard),
     disableCarouselAutoScroll: z.boolean().default(THEME_DEFAULT_VALUES.disableCarouselAutoScroll),
+    mediaPageBannerType: z.string().default(THEME_DEFAULT_VALUES.mediaPageBannerType),
 }))
+
+export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
 
 
 export function UISettings() {
     const themeSettings = useThemeSettings()
 
     const { mutate, isPending } = useUpdateTheme()
+    const [fixBorderRenderingArtifacts, setFixBorerRenderingArtifacts] = useAtom(__ui_fixBorderRenderingArtifacts)
 
     return (
         <Form
@@ -92,6 +99,7 @@ export function UISettings() {
                 disableSidebarTransparency: themeSettings?.disableSidebarTransparency,
                 useLegacyEpisodeCard: themeSettings?.useLegacyEpisodeCard,
                 disableCarouselAutoScroll: themeSettings?.disableCarouselAutoScroll,
+                mediaPageBannerType: themeSettings?.mediaPageBannerType,
             }}
             stackClass="space-y-4"
         >
@@ -265,6 +273,24 @@ export function UISettings() {
                         name="smallerEpisodeCarouselSize"
                     />
 
+                    <br />
+
+                    <h3>Browser/Client</h3>
+
+                    <Switch
+                        label="Fix border rendering artifacts (client-specific)"
+                        name="enableMediaCardStyleFix"
+                        help="Seanime will try to fix border rendering artifacts. This setting is saved automatically and only affects this client/browser."
+                        value={fixBorderRenderingArtifacts}
+                        onValueChange={(v) => {
+                            setFixBorerRenderingArtifacts(v)
+                            if (v) {
+                                toast.success("Handling border rendering artifacts")
+                            } else {
+                                toast.success("Border rendering artifacts are no longer handled")
+                            }
+                        }}
+                    />
                     <Separator className="!mt-10" />
 
                     <br />

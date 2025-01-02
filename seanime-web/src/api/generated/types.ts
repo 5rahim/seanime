@@ -2819,6 +2819,7 @@ export type Models_Theme = {
     disableSidebarTransparency: boolean
     useLegacyEpisodeCard: boolean
     disableCarouselAutoScroll: boolean
+    mediaPageBannerType: string
     id: number
     createdAt?: string
     updatedAt?: string
@@ -2860,7 +2861,13 @@ export type Models_TorrentstreamSettings = {
     addToLibrary: boolean
     torrentClientHost: string
     torrentClientPort: number
+    /**
+     * UNUSED, LEGACY
+     */
     streamingServerHost: string
+    /**
+     * UNUSED, LEGACY
+     */
     streamingServerPort: number
     includeInLibrary: boolean
     id: number

@@ -258,6 +258,9 @@ type Theme struct {
 	DisableSidebarTransparency        bool   `gorm:"column:disable_sidebar_transparency" json:"disableSidebarTransparency"`
 	UseLegacyEpisodeCard              bool   `gorm:"column:use_legacy_episode_card" json:"useLegacyEpisodeCard"`
 	DisableCarouselAutoScroll         bool   `gorm:"column:disable_carousel_auto_scroll" json:"disableCarouselAutoScroll"`
+
+	// v2.6+
+	MediaPageBannerType string `gorm:"column:media_page_banner_type" json:"mediaPageBannerType"`
 }
 
 // +---------------------+

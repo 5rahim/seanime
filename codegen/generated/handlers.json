@@ -8177,6 +8177,27 @@
     }
   },
   {
+    "name": "HandleTorrentstreamServeStream",
+    "trimmedName": "TorrentstreamServeStream",
+    "comments": [
+      "route /api/v1/torrentstream/stream/*",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "newWebSocketEventHandler",
     "trimmedName": "newWebSocketEventHandler",
     "comments": [

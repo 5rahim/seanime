@@ -6,6 +6,32 @@ export const enum ThemeLibraryScreenBannerType {
     Custom = "custom",
 }
 
+export const enum ThemeMediaPageBannerType {
+    Default = "default",
+    BlurWhenUnavailable = "blur-when-unavailable",
+    HideWhenUnavailable = "hide-when-unavailable",
+    Hide = "hide",
+}
+
+export const ThemeMediaPageBannerTypeOptions = [
+    {
+        value: ThemeMediaPageBannerType.Default as string, label: "Default",
+        description: "Always show a banner image. If not available, the cover image will be used instead.",
+    },
+    {
+        value: ThemeMediaPageBannerType.BlurWhenUnavailable as string, label: "Blur when unavailable",
+        description: "Show the banner image if available. If not available, the cover image will be used and blurred.",
+    },
+    {
+        value: ThemeMediaPageBannerType.HideWhenUnavailable as string, label: "Hide when unavailable",
+        description: "Show the banner image if available. If not available, the banner will be hidden.",
+    },
+    {
+        value: ThemeMediaPageBannerType.Hide as string, label: "Hide",
+        description: "Always hide the banner image.",
+    },
+]
+
 export type ThemeSettings = Omit<Models_Theme, "id">
 export const THEME_DEFAULT_VALUES: ThemeSettings = {
     enableColorSettings: false,
@@ -29,6 +55,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     disableSidebarTransparency: false,
     useLegacyEpisodeCard: false,
     disableCarouselAutoScroll: false,
+    mediaPageBannerType: ThemeMediaPageBannerType.Default,
 }
 
 
@@ -64,8 +91,8 @@ export function useThemeSettings(): ThemeSettingsHook {
         disableSidebarTransparency: getThemeValue("disableSidebarTransparency", serverStatus?.themeSettings),
         useLegacyEpisodeCard: getThemeValue("useLegacyEpisodeCard", serverStatus?.themeSettings),
         disableCarouselAutoScroll: getThemeValue("disableCarouselAutoScroll", serverStatus?.themeSettings),
-
         hasCustomBackgroundColor: !!serverStatus?.themeSettings?.backgroundColor && serverStatus?.themeSettings?.backgroundColor !== THEME_DEFAULT_VALUES.backgroundColor,
+        mediaPageBannerType: getThemeValue("mediaPageBannerType", serverStatus?.themeSettings),
     }
 }
 
