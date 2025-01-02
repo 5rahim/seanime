@@ -285,7 +285,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
-                        <p className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
+                        <div className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
                             ? type === "anime" ? "watching" : "reading"
                             : listData?.status)}
                             {listData?.repeat && <Tooltip
@@ -302,7 +302,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                 ? type === "anime" ? "es" : "s"
                                 : ""}
                             </Tooltip>}
-                        </p>
+                        </div>
 
                     </div>
 
