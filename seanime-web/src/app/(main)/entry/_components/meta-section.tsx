@@ -37,7 +37,7 @@ export function AnimeMetaActionButton({ className, ...rest }: ButtonProps) {
     return <Button
         className={cn(
             "w-full",
-            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "lg:w-full lg:max-w-[280px]",
+            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "lg:w-full lg:max-w-[280px]",
             className,
         )} {...rest}
     />
@@ -58,7 +58,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
         <div
             className={cn(
                 "w-full flex flex-wrap gap-4 items-center",
-                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "w-auto flex-nowrap",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "w-auto flex-nowrap",
             )}
         >
 
@@ -76,7 +76,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 />}
             </div>
 
-            {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <div className="flex-1 hidden lg:flex"></div>}
+            {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
 
             <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
                 <AnimeAutoDownloaderButton entry={entry} size="lg" />
@@ -99,7 +99,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
         <div
             className={cn(
                 "flex gap-2 flex-wrap items-center",
-                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "justify-center lg:justify-start",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start",
             )}
         >
             <MediaEntryAudienceScore meanScore={details?.meanScore} />
@@ -135,19 +135,19 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                     media={entry.media}
                     type="anime"
                 >
-                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && <Details />}
                 </MediaPageHeaderEntryDetails>
 
-                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
                 <div
                     className={cn(
                         "flex flex-col lg:flex-row w-full gap-3 items-center",
-                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "flex-wrap",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "flex-wrap",
                     )}
                 >
 
-                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && <ActionButtons />}
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && <ActionButtons />}
 
                     {(
                         entry.media.status !== "NOT_YET_RELEASED"
@@ -180,20 +180,20 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 {entry.downloadInfo?.hasInaccurateSchedule && <p
                     className={cn(
                         "text-[--muted] text-sm text-center mb-3",
-                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "text-left",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "text-left",
                     )}
                 >
                     <span className="block">Could not retrieve accurate scheduling information for this show.</span>
                     <span className="block text-[--muted]">Please check the schedule online for more information.</span>
                 </p>}
 
-                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <ActionButtons />}
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <ActionButtons />}
 
                 {(!entry.anidbId || entry.anidbId === 0) && (
                     <p
                         className={cn(
                             "text-center text-red-300 opacity-50",
-                            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "text-left",
+                            ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "text-left",
                         )}
                     >
                         No metadata found on AniDB

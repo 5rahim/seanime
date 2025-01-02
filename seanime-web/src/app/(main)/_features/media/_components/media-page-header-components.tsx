@@ -204,7 +204,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                     className={cn(
                         "space-y-8 p-6 sm:p-8 relative",
                         ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "p-6 sm:py-4 sm:px-8",
-                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid
                             ? "w-full"
                             : "lg:max-w-[100%] xl:max-w-[80%] 2xl:max-w-[65rem] 5xl:max-w-[80rem]",
                     )}
@@ -289,8 +289,8 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     className={cn(
                         "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-md overflow-hidden bg-[--background] shadow-md block",
                         ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "max-w-[150px] lg:m-0 h-auto sm:max-w-[195px] lg:max-w-[210px] -top-1",
-                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "lg:max-w-[270px]",
-                        (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth) && "lg:max-w-[220px]",
+                        ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "lg:max-w-[270px]",
+                        (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && "lg:max-w-[220px]",
                     )}
                 >
                     <Image

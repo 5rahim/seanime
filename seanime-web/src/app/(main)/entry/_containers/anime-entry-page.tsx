@@ -126,7 +126,7 @@ export function AnimeEntryPage() {
                     }}
                 >
                     <AnimatePresence mode="wait" initial={false}>
-                        {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth) && (
+                        {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
                             <div className="h-10 lg:h-10"></div>
                         )}
 

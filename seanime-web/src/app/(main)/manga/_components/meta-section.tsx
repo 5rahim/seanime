@@ -60,10 +60,10 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                     media={entry.media}
                     type="manga"
                 >
-                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && <Details />}
                 </MediaPageHeaderEntryDetails>
 
-                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.FullWidth && <Details />}
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
 
                 <div className="w-full flex justify-between flex-wrap gap-4 items-center">

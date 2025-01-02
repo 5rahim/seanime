@@ -65,7 +65,7 @@ export const ThemeMediaPageBannerSizeOptions = [
 
 export const enum ThemeMediaPageInfoBoxSize {
     Default = "default",
-    FullWidth = "full-width",
+    Fluid = "fluid",
 }
 
 export const ThemeMediaPageInfoBoxSizeOptions = [
@@ -74,8 +74,8 @@ export const ThemeMediaPageInfoBoxSizeOptions = [
         description: "Display the info box with a standard width.",
     },
     {
-        value: ThemeMediaPageInfoBoxSize.FullWidth as string, label: "Fluid",
-        description: "Display the info box with a full width.",
+        value: ThemeMediaPageInfoBoxSize.Fluid as string, label: "Fluid",
+        description: "Full-width info box with rearrangement of elements.",
     },
 ]
 

@@ -14,7 +14,7 @@ export function NextAiringEpisode(props: { media: AL_BaseAnime }) {
             <div
                 className={cn(
                     "flex gap-2 items-center justify-center",
-                    ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.FullWidth && "justify-start",
+                    ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-start",
                 )}
             >
                 <p className="text-xl min-[2000px]:text-xl">Episode <Badge
