@@ -45,7 +45,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
 
     return (
         <>
-            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="lg" />}>
+            <DropdownMenu trigger={<IconButton icon={<BiDotsVerticalRounded />} intent="gray-basic" size="md" />}>
 
                 {inLibrary && <>
                     <DropdownMenuItem

@@ -79,15 +79,15 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
             {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
 
             <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
-                <AnimeAutoDownloaderButton entry={entry} size="lg" />
+                <AnimeAutoDownloaderButton entry={entry} size="md" />
 
                 {!!entry.libraryData && <>
-                    <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="lg" />
-                    <AnimeEntrySilenceToggle mediaId={entry.mediaId} />
+                    <MediaSyncTrackButton mediaId={entry.mediaId} type="anime" size="md" />
+                    <AnimeEntrySilenceToggle mediaId={entry.mediaId} size="md" />
                     <ToggleLockFilesButton
                         allFilesLocked={entry.libraryData.allFilesLocked}
                         mediaId={entry.mediaId}
-                        size="lg"
+                        size="md"
                     />
                 </>}
                 <AnimeEntryDropdownMenu entry={entry} />

@@ -366,6 +366,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             onVolumeChange={(e, n) => {
                                 setVolume(n.detail.volume)
                             }}
+                            onFullscreenChange={detail => {
+                                console.log(detail)
+                            }}
                             onTimeUpdate={(e) => {
                                 if (watchHistoryRef.current > 2000) {
                                     watchHistoryRef.current = 0
