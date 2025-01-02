@@ -40,6 +40,8 @@ func HandleSaveIssueReport(c *RouteCtx) error {
 		}
 	}
 
+	status := NewStatus(c)
+
 	if err := c.App.ReportRepository.SaveIssueReport(report.SaveIssueReportOptions{
 		LogsDir:             c.App.Config.Logs.Dir,
 		UserAgent:           c.Fiber.Get("User-Agent"),
@@ -51,6 +53,7 @@ func HandleSaveIssueReport(c *RouteCtx) error {
 		DebridSettings:      c.App.SecondarySettings.Debrid,
 		IsAnimeLibraryIssue: b.IsAnimeLibraryIssue,
 		LocalFiles:          localFiles,
+		ServerStatus:        status,
 	}); err != nil {
 		return c.RespondWithError(err)
 	}

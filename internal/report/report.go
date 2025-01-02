@@ -2,6 +2,7 @@ package report
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -67,9 +68,10 @@ type IssueReport struct {
 	UnlockedLocalFiles []*UnlockedLocalFile `json:"unlockedLocalFiles,omitempty"`
 	ScanLogs           []string             `json:"scanLogs,omitempty"`
 	ServerLogs         string               `json:"serverLogs,omitempty"`
+	ServerStatus       string               `json:"status,omitempty"`
 }
 
-func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isAnimeLibraryIssue bool, toRedact []string) (ret *IssueReport, err error) {
+func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isAnimeLibraryIssue bool, serverStatus interface{}, toRedact []string) (ret *IssueReport, err error) {
 	ret = &IssueReport{
 		CreatedAt:          time.Now(),
 		UserAgent:          userAgent,
@@ -83,6 +85,7 @@ func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isA
 		UnlockedLocalFiles: make([]*UnlockedLocalFile, 0),
 		ScanLogs:           make([]string, 0),
 		ServerLogs:         "",
+		ServerStatus:       "",
 	}
 
 	// Get all log files in the directory
@@ -114,6 +117,24 @@ func NewIssueReport(userAgent, appVersion, _os, arch string, logsDir string, isA
 	}
 
 	userPathPattern := regexp.MustCompile(`(?i)(/home/|/Users/|C:\\Users\\)([^/\\]+)`)
+
+	if serverStatus != nil {
+		serverStatusMarshaled, err := json.Marshal(serverStatus)
+		if err == nil {
+			// pretty print the json
+			var prettyJSON bytes.Buffer
+			err = json.Indent(&prettyJSON, serverStatusMarshaled, "", "  ")
+			if err == nil {
+				ret.ServerStatus = prettyJSON.String()
+
+				for _, redact := range toRedact {
+					ret.ServerStatus = strings.ReplaceAll(ret.ServerStatus, redact, "[REDACTED]")
+				}
+
+				ret.ServerStatus = userPathPattern.ReplaceAllString(ret.ServerStatus, "${1}[REDACTED]")
+			}
+		}
+	}
 
 	if len(serverLogFiles) > 0 {
 		sort.Slice(serverLogFiles, func(i, j int) bool {

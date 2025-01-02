@@ -35,6 +35,7 @@ type SaveIssueReportOptions struct {
 	Settings            *models.Settings       `json:"settings"`
 	DebridSettings      *models.DebridSettings `json:"debridSettings"`
 	IsAnimeLibraryIssue bool                   `json:"isAnimeLibraryIssue"`
+	ServerStatus        interface{}            `json:"serverStatus"`
 }
 
 func (r *Repository) SaveIssueReport(opts SaveIssueReportOptions) error {
@@ -57,6 +58,7 @@ func (r *Repository) SaveIssueReport(opts SaveIssueReportOptions) error {
 		runtime.GOARCH,
 		opts.LogsDir,
 		opts.IsAnimeLibraryIssue,
+		opts.ServerStatus,
 		toRedact,
 	)
 	if err != nil {
