@@ -19,3 +19,5 @@ export const __onlinestream_selectedServerAtom = atomWithStorage<string | undefi
 export const __onlinestream_qualityAtom = atomWithStorage<string | undefined>("sea-onlinestream-quality", undefined)
 
 export const __onlinestream_volumeAtom = atomWithStorage<number>("sea-onlinestream-volume", 1)
+
+export const __onlinestream_fullscreenAtom = atom(false)

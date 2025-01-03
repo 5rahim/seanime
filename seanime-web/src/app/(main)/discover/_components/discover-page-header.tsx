@@ -5,7 +5,6 @@ import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } f
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
 import { SeaLink } from "@/components/shared/sea-link"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
@@ -147,88 +146,101 @@ export function DiscoverPageHeader() {
                             onMouseEnter={() => setHoveringHeader(true)}
                             onMouseLeave={() => setHoveringHeader(false)}
                         >
-                            <motion.div
-                                className="flex-none"
-                                initial={{ opacity: 0, scale: 0.7, skew: 5 }}
-                                animate={{ opacity: 1, scale: 1, skew: 0 }}
-                                exit={{ opacity: 1, scale: 1, skew: 1 }}
-                                transition={{ duration: 0.5 }}
+                            <SeaLink
+                                href={pageType === "anime"
+                                    ? `/entry?id=${randomTrending.id}`
+                                    : `/manga/entry?id=${randomTrending.id}`}
+                                className="contents"
                             >
-                                {randomTrending.coverImage?.large && <div
-                                    className="w-[200px] h-[300px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
+                                <motion.div
+                                    className="flex-none"
+                                    initial={{ opacity: 0, scale: 0.7, skew: 5 }}
+                                    animate={{ opacity: 1, scale: 1, skew: 0 }}
+                                    exit={{ opacity: 1, scale: 1, skew: 1 }}
+                                    transition={{ duration: 0.5 }}
                                 >
-                                    <Image
-                                        src={randomTrending.coverImage.large}
-                                        alt="cover image"
-                                        fill
-                                        priority
-                                        className={cn(
-                                            "object-cover object-center transition-opacity duration-1000",
-                                            isTransitioning && "opacity-30",
-                                            !isTransitioning && "opacity-100",
-                                        )}
-                                    />
-                                </div>}
-                            </motion.div>
-                            <motion.div
-                                className="flex-auto space-y-2 z-[1] text-center"
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.5, delay: 0.6 }}
-                            >
-                                <TextGenerateEffect
-                                    className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white leading-8 line-clamp-2 pb-1 text-center max-w-md text-pretty text-3xl overflow-ellipsis"
-                                    words={randomTrending.title?.userPreferred || ""}
-                                />
-                                {/*<h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>*/}
-                                <div className="flex justify-center items-center max-w-md gap-4">
-                                    {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
-                                        <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
-                                            <RiSignalTowerLine /> Releasing now
-                                        </p>}
-                                    {((!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (randomTrending as AL_BaseAnime)?.format !== "MOVIE") && (
-                                        <p className="text-lg font-semibold">
-                                            {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
-                                                <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episode{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1 === 1
-                                                    ? ""
-                                                    : "s"} released</span> :
-                                                <span>{(randomTrending as AL_BaseAnime).episodes} total
-                                                                                                  episode{(randomTrending as AL_BaseAnime).episodes
-                                                        ? ""
-                                                        : "s"}</span>}
-                                        </p>
-                                    )}
-                                    {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
-                                        <MediaEntryAudienceScore
-                                            meanScore={randomTrending.meanScore}
+                                    {randomTrending.coverImage?.large && <div
+                                        className="w-[190px] h-[290px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
+                                    >
+                                        <Image
+                                            src={randomTrending.coverImage.large}
+                                            alt="cover image"
+                                            fill
+                                            priority
+                                            className={cn(
+                                                "object-cover object-center transition-opacity duration-1000",
+                                                isTransitioning && "opacity-30",
+                                                !isTransitioning && "opacity-100",
+                                            )}
                                         />
                                     </div>}
-                                </div>
-                                <motion.div
-                                    className="pt-2"
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 10 }}
-                                    transition={{ duration: 0.5, delay: 0.7 }}
-                                >
-                                    <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
-                                        /(<([^>]+)>)/ig,
-                                        "")}</ScrollArea>
-                                    <SeaLink
-                                        href={pageType === "anime"
-                                            ? `/entry?id=${randomTrending.id}`
-                                            : `/manga/entry?id=${randomTrending.id}`}
-                                    >
-                                        <Button
-                                            intent="white-basic"
-                                            size="md"
-                                            className="text-md w-[14rem] border-opacity-50 text-sm"
-                                        >
-                                            {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" :
-                                                pageType === "anime" ? "Watch now" : "Read now"}
-                                        </Button>
-                                    </SeaLink>
                                 </motion.div>
-                            </motion.div>
+                                <motion.div
+                                    className="flex-auto space-y-2 z-[1] text-center"
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.6 }}
+                                >
+                                    {/*<SeaLink*/}
+                                    {/*    href={pageType === "anime"*/}
+                                    {/*        ? `/entry?id=${randomTrending.id}`*/}
+                                    {/*        : `/manga/entry?id=${randomTrending.id}`}*/}
+                                    {/*>*/}
+                                    <TextGenerateEffect
+                                        className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white leading-8 line-clamp-2 pb-1 text-center max-w-md text-pretty text-3xl overflow-ellipsis"
+                                        words={randomTrending.title?.userPreferred || ""}
+                                    />
+                                    {/*</SeaLink>*/}
+                                    {/*<h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>*/}
+                                    <div className="flex justify-center items-center max-w-md gap-4">
+                                        {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
+                                            <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
+                                                <RiSignalTowerLine /> Releasing now
+                                            </p>}
+                                        {((!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (randomTrending as AL_BaseAnime)?.format !== "MOVIE") && (
+                                            <p className="text-lg font-semibold">
+                                                {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
+                                                    <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episode{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1 === 1
+                                                        ? ""
+                                                        : "s"} released</span> :
+                                                    <span>{(randomTrending as AL_BaseAnime).episodes} total
+                                                                                                      episode{(randomTrending as AL_BaseAnime).episodes === 1
+                                                            ? ""
+                                                            : "s"}</span>}
+                                            </p>
+                                        )}
+                                        {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
+                                            <MediaEntryAudienceScore
+                                                meanScore={randomTrending.meanScore}
+                                            />
+                                        </div>}
+                                    </div>
+                                    <motion.div
+                                        className="pt-2"
+                                        initial={{ opacity: 0, x: 10 }}
+                                        animate={{ opacity: 1, x: 10 }}
+                                        transition={{ duration: 0.5, delay: 0.7 }}
+                                    >
+                                        <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
+                                            /(<([^>]+)>)/ig,
+                                            "")}</ScrollArea>
+                                        {/*<SeaLink*/}
+                                        {/*    href={pageType === "anime"*/}
+                                        {/*        ? `/entry?id=${randomTrending.id}`*/}
+                                        {/*        : `/manga/entry?id=${randomTrending.id}`}*/}
+                                        {/*>*/}
+                                        {/*    <Button*/}
+                                        {/*        intent="white-basic"*/}
+                                        {/*        size="md"*/}
+                                        {/*        className="text-md w-[14rem] border-opacity-50 text-sm"*/}
+                                        {/*    >*/}
+                                        {/*        {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" :*/}
+                                        {/*            pageType === "anime" ? "Watch now" : "Read now"}*/}
+                                        {/*    </Button>*/}
+                                        {/*</SeaLink>*/}
+                                    </motion.div>
+                                </motion.div>
+                            </SeaLink>
                         </div>
                     </motion.div>
                 )}

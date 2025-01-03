@@ -3,7 +3,6 @@ import { useAnilistListAnime } from "@/api/hooks/anilist.hooks"
 import { useInView } from "framer-motion"
 import { atom } from "jotai"
 import { useAtomValue } from "jotai/react"
-import React from "react"
 
 export const __discover_trendingGenresAtom = atom<string[]>([])
 
@@ -20,12 +19,7 @@ export function useDiscoverTrendingAnime() {
 }
 
 export function useDiscoverPastSeasonAnime(ref: any) {
-    const _isInView = useInView(ref)
-    const [isInView, setIsInView] = React.useState(false)
-    React.useEffect(() => {
-        if (isInView) return
-        setIsInView(_isInView)
-    }, [_isInView])
+    const isInView = useInView(ref, { once: true })
     const currentMonth = new Date().getMonth() + 1
     const currentYear = new Date().getFullYear()
     let season: AL_MediaSeason = "SUMMER"

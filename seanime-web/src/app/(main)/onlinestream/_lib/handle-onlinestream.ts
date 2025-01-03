@@ -6,6 +6,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_autoPlayAtom,
+    __onlinestream_fullscreenAtom,
     __onlinestream_qualityAtom,
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedEpisodeNumberAtom,
@@ -16,6 +17,7 @@ import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
+import mousetrap from "mousetrap"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -159,6 +161,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
     const setDubbed = useSetAtom(__onlinestream_selectedDubbedAtom)
+    const isFullscreen = useAtomValue(__onlinestream_fullscreenAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
@@ -287,11 +290,12 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     /**
      * Handle the onCanPlay event
      */
-    const onCanPlay = React.useCallback(() => {
+    const onCanPlay = () => {
         logger("ONLINESTREAM").info("Can play event", {
             previousCurrentTime: previousCurrentTimeRef.current,
             previousIsPlayingRef: previousIsPlayingRef.current,
         })
+
         // When the onCanPlay event is received
         // Restore the previous time if set
         if (previousCurrentTimeRef.current > 0) {
@@ -315,8 +319,27 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             if (previousIsPlayingRef.current) {
                 playerRef.current?.play()
             }
+            if (isFullscreen) {
+                try {
+                    playerRef.current?.enterFullscreen()
+                }
+                catch {
+
+                }
+            }
         }, 500)
-    }, [watchHistory, episodeSource?.number, serverStatus?.settings?.library?.enableWatchContinuity])
+    }
+
+    React.useEffect(() => {
+        mousetrap.bind("f", () => {
+            playerRef.current?.enterFullscreen()
+            playerRef.current?.el?.focus()
+        })
+
+        return () => {
+            mousetrap.unbind("f")
+        }
+    }, [])
 
 
     // Quality

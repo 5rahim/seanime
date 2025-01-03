@@ -3,7 +3,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { DiscoverPageHeader } from "@/app/(main)/discover/_components/discover-page-header"
 import { DiscoverAiringSchedule } from "@/app/(main)/discover/_containers/discover-airing-schedule"
 import { DiscoverMissedSequelsSection } from "@/app/(main)/discover/_containers/discover-missed-sequels"
-import { DiscoverPastSeason, DiscoverPopular } from "@/app/(main)/discover/_containers/discover-popular"
+import { DiscoverPastSeason } from "@/app/(main)/discover/_containers/discover-popular"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
 import { DiscoverMangaSearchBar, DiscoverTrendingManga } from "@/app/(main)/discover/_containers/discover-trending-manga"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-trending-movies"
@@ -96,10 +96,10 @@ export default function Page() {
                             <h2>Trending movies</h2>
                             <DiscoverTrendingMovies />
                         </div>
-                        <div className="space-y-2 z-[5] relative">
-                            <h2>Popular shows</h2>
-                            <DiscoverPopular />
-                        </div>
+                        {/*<div className="space-y-2 z-[5] relative">*/}
+                        {/*    <h2>Popular shows</h2>*/}
+                        {/*    <DiscoverPopular />*/}
+                        {/*</div>*/}
                     </PageWrapper>}
                     {pageType === "schedule" && <PageWrapper
                         key="schedule"
