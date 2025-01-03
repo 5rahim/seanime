@@ -96,7 +96,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
                     ts.libraryScreenCustomBackgroundImage ? "absolute -top-[5rem]" : "fixed transition-opacity top-0 duration-1000",
                     !ts.libraryScreenCustomBackgroundImage && y > 100 && (ts.enableMediaPageBlurredBackground ? "opacity-0" : shouldDimBanner
-                        ? "opacity-20"
+                        ? "opacity-15"
                         : "opacity-5"),
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     shouldHideBanner && "bg-transparent",
