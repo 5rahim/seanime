@@ -22,9 +22,16 @@ import { useAtomValue } from "jotai/react"
 import React from "react"
 import { BiPlus } from "react-icons/bi"
 import { FaSquareRss } from "react-icons/fa6"
+import { toast } from "sonner"
 
 const settingsSchema = defineSchema(({ z }) => z.object({
-    interval: z.number().min(2),
+    interval: z.number().transform(n => {
+        if (n < 15) {
+            toast.info("Interval changed to be at least 15 minutes")
+            return 15
+        }
+        return n
+    }),
     enabled: z.boolean(),
     downloadAutomatically: z.boolean(),
     enableEnhancedQueries: z.boolean(),
@@ -147,7 +154,7 @@ export function AutoDownloaderPage() {
                             }}
                             defaultValues={{
                                 enabled: serverStatus?.settings?.autoDownloader?.enabled ?? false,
-                                interval: serverStatus?.settings?.autoDownloader?.interval || 10,
+                                interval: serverStatus?.settings?.autoDownloader?.interval || 15,
                                 downloadAutomatically: serverStatus?.settings?.autoDownloader?.downloadAutomatically ?? false,
                                 enableEnhancedQueries: serverStatus?.settings?.autoDownloader?.enableEnhancedQueries ?? false,
                                 enableSeasonCheck: serverStatus?.settings?.autoDownloader?.enableSeasonCheck ?? false,
@@ -206,7 +213,7 @@ export function AutoDownloaderPage() {
                                             rightAddon="minutes"
                                             size="sm"
                                             className="text-center w-20"
-                                            min={2}
+                                            min={15}
                                         />
                                     </div>
 

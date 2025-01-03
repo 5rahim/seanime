@@ -78,7 +78,7 @@ func HandleGettingStarted(c *RouteCtx) error {
 		Notifications: &b.Notifications,
 		AutoDownloader: &models.AutoDownloaderSettings{
 			Provider:              b.Library.TorrentProvider,
-			Interval:              5,
+			Interval:              20,
 			Enabled:               false,
 			DownloadAutomatically: true,
 			EnableEnhancedQueries: true,
@@ -263,8 +263,8 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 	}
 
 	// Validation
-	if b.Interval < 2 {
-		return c.RespondWithError(errors.New("interval must be at least 2 minutes"))
+	if b.Interval < 15 {
+		return c.RespondWithError(errors.New("interval must be at least 15 minutes"))
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
