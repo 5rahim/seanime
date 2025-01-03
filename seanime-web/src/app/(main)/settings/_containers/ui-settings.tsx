@@ -141,9 +141,9 @@ export function UISettings() {
                         listClass={tabsListClass}
                     >
                         <TabsList className="flex-wrap max-w-full">
-                            <TabsTrigger value="main">Main</TabsTrigger>
-                            <TabsTrigger value="navigation">Navigation</TabsTrigger>
+                            <TabsTrigger value="main">Theme</TabsTrigger>
                             <TabsTrigger value="media">Media</TabsTrigger>
+                            <TabsTrigger value="navigation">Navigation</TabsTrigger>
                             <TabsTrigger value="browser-client">Rendering</TabsTrigger>
                         </TabsList>
 
@@ -327,6 +327,7 @@ export function UISettings() {
                                     "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                                     "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                                     "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                                    "py-2",
                                 )}
                                 help={f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && "Use the banner image on all library screens."}
                             />
@@ -352,6 +353,7 @@ export function UISettings() {
                                     "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                                     "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                                     "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                                    "py-2",
                                 )}
                                 help={ThemeMediaPageBannerTypeOptions.find(n => n.value === f.watch("mediaPageBannerType"))?.description}
                             />
@@ -366,12 +368,13 @@ export function UISettings() {
                                     "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                                     "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                                     "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                                    "py-2",
                                 )}
                                 help={ThemeMediaPageBannerSizeOptions.find(n => n.value === f.watch("mediaPageBannerSize"))?.description}
                             />
 
                             <Field.RadioCards
-                                label="Info box size"
+                                label="Banner info layout"
                                 name="mediaPageBannerInfoBoxSize"
                                 options={ThemeMediaPageInfoBoxSizeOptions.map(n => ({ value: n.value, label: n.label }))}
                                 itemContainerClass={cn(
@@ -380,8 +383,9 @@ export function UISettings() {
                                     "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                                     "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
                                     "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
+                                    "py-2",
                                 )}
-                                help={ThemeMediaPageInfoBoxSizeOptions.find(n => n.value === f.watch("mediaPageBannerInfoBoxSize"))?.description}
+                                // help={ThemeMediaPageInfoBoxSizeOptions.find(n => n.value === f.watch("mediaPageBannerInfoBoxSize"))?.description}
                             />
 
                             <Field.Switch

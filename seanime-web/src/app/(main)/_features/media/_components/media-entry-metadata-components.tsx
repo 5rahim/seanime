@@ -34,7 +34,13 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
             <>
                 <div className={cn("items-center flex flex-wrap gap-2", className)}>
                     {genres?.map(genre => {
-                        return <Badge key={genre!} className="border-transparent" size="lg">{genre}</Badge>
+                        return <Badge
+                            key={genre!}
+                            className={cn("border-transparent transition-colors hover:bg-black/30 hover:text-white")}
+                            size="lg"
+                        >
+                            {genre}
+                        </Badge>
                     })}
                 </div>
             </>
@@ -45,7 +51,12 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
                 <div className={cn("items-center flex flex-wrap gap-2", className)}>
                     {genres?.map(genre => {
                         return <SeaLink href={`/search?genre=${genre}&sorting=TRENDING_DESC`} key={genre!}>
-                            <Badge className="border-transparent" size="lg">{genre}</Badge>
+                            <Badge
+                                className={cn("border-transparent transition-colors hover:bg-black/30 hover:text-white")}
+                                size="lg"
+                            >
+                                {genre}
+                            </Badge>
                         </SeaLink>
                     })}
                 </div>
@@ -151,7 +162,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                         intent="gray"
                         leftIcon={<AiFillStar />}
                         iconClass="text-yellow-500"
-                        className="rounded-full border-transparent px-2"
+                        className="rounded-full border-transparent px-2 transition-colors hover:bg-black/30 hover:text-white"
                     >
                         #{String(allTimeHighestRated.rank)} Highest
                         Rated {formatFormat(allTimeHighestRated.format)} of All
@@ -168,7 +179,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                         intent="gray"
                         leftIcon={<AiOutlineStar />}
                         iconClass="text-yellow-500"
-                        className="rounded-full border-transparent px-2"
+                        className="rounded-full border-transparent px-2 transition-colors hover:bg-black/30 hover:text-white"
                     >
                         #{String(seasonHighestRated.rank)} Highest
                         Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
@@ -186,7 +197,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                         intent="gray"
                         leftIcon={<AiOutlineHeart />}
                         iconClass="text-pink-500"
-                        className="rounded-full border-transparent px-2"
+                        className="rounded-full border-transparent px-2 transition-colors hover:bg-black/30 hover:text-white"
                     >
                         #{(String(seasonMostPopular.rank))} Most
                         Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}

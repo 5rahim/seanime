@@ -305,7 +305,12 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                 </div>}
 
 
-                <div className="space-y-2 lg:space-y-4">
+                <div
+                    className={cn(
+                        "space-y-2 lg:space-y-4",
+                        (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small || ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && "lg:space-y-3",
+                    )}
+                >
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <TextGenerateEffect

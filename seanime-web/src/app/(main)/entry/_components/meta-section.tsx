@@ -99,7 +99,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
         <div
             className={cn(
                 "flex gap-2 flex-wrap items-center",
-                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[75vw]",
             )}
         >
             <MediaEntryAudienceScore meanScore={details?.meanScore} />

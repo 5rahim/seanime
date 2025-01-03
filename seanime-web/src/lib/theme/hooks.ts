@@ -70,12 +70,12 @@ export const enum ThemeMediaPageInfoBoxSize {
 
 export const ThemeMediaPageInfoBoxSizeOptions = [
     {
-        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Default",
-        description: "Display the info box with a standard width.",
+        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Layout 1",
+        // description: "Display the media banner as a box",
     },
     {
-        value: ThemeMediaPageInfoBoxSize.Fluid as string, label: "Fluid",
-        description: "Full-width info box with rearrangement of elements.",
+        value: ThemeMediaPageInfoBoxSize.Fluid as string, label: "Layout 2",
+        // description: "Full-width info box with rearrangement of elements.",
     },
 ]
 

@@ -166,6 +166,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         if (isPending) {
             logger("MEDIASTREAM").info("Loading media container")
             changeUrl(undefined)
+            logger("MEDIASTREAM").info("Setting URL to undefined")
         }
     }, [isPending])
 
@@ -193,19 +194,24 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      * - Set URL and stream type when media container is available
      */
     React.useEffect(() => {
+        logger("MEDIASTREAM").info("Media container changed, running effect", mediaContainer)
 
         /**
          * Check if codec is supported, if it is, switch to direct play
          */
         const codecSupported = isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec ?? "")
+        logger("MEDIASTREAM").info("Is codec supported", codecSupported)
+
         // If the codec is supported, switch to direct play
         if (mediaContainer?.streamType === "transcode") {
+            logger("MEDIASTREAM").info("Stream type is transcode")
 
             if (!codecSupported && mediastreamSettings?.directPlayOnly) {
                 logger("MEDIASTREAM").warning("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
                 logger("MEDIASTREAM").warning("Stopping playback")
                 toast.warning("Codec not supported for direct play")
                 changeUrl(undefined)
+                logger("MEDIASTREAM").info("Setting URL to undefined")
                 return
             }
 
@@ -214,6 +220,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 logger("MEDIASTREAM").warning("Switching to direct play")
                 setStreamType("direct")
                 changeUrl(undefined)
+                logger("MEDIASTREAM").info("Setting URL to undefined")
                 return
             } else {
                 logger("MEDIASTREAM").info("Codec not supported for direct play", mediaContainer?.mediaInfo?.mimeCodec)
@@ -226,20 +233,22 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
                 logger("MEDIASTREAM").warning("Switching to transcode")
                 setStreamType("transcode")
                 changeUrl(undefined)
+                logger("MEDIASTREAM").info("Setting URL to undefined")
                 return
             }
         }
 
         if (mediaContainer?.streamUrl) {
-            logger("MEDIASTREAM").info("Media container", mediaContainer)
+            logger("MEDIASTREAM").info("Stream URL available", mediaContainer.streamUrl)
 
             const _newUrl = `${getServerBaseUrl()}${mediaContainer.streamUrl}`
 
-            logger("MEDIASTREAM").info("Received new stream URL", _newUrl, "streamType:", mediaContainer.streamType)
+            logger("MEDIASTREAM").info("Changing URL", _newUrl, "streamType:", mediaContainer.streamType)
 
             changeUrl(_newUrl)
         } else {
             changeUrl(undefined)
+            logger("MEDIASTREAM").info("Setting URL to undefined")
         }
 
     }, [mediaContainer?.streamUrl, mediastreamSettings?.disableAutoSwitchToDirectPlay])
@@ -256,6 +265,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
      */
     React.useEffect(() => {
         if (playerRef.current && !!mediaContainer?.mediaInfo?.fonts?.length) {
+            logger("MEDIASTREAM").info("Adding JASSUB renderer to player", mediaContainer?.mediaInfo?.fonts?.length, "fonts")
             const legacyWasmUrl = process.env.NODE_ENV === "development"
                 ? "/jassub/jassub-worker.wasm.js" : legacy_getAssetUrl("/jassub/jassub-worker.wasm.js")
 
