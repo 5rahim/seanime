@@ -1,6 +1,6 @@
 import { buildSeaQuery } from "@/api/client/requests"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
-import { AL_ListAnime } from "@/api/generated/types"
+import { AL_ListAnime, AL_ListManga } from "@/api/generated/types"
 import { __advancedSearch_getValue, __advancedSearch_paramsAtom } from "@/app/(main)/search/_lib/advanced-search.atoms"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai/react"
@@ -59,6 +59,7 @@ export function useAnilistAdvancedSearch() {
                 search: (params.title === null || params.title === "") ? undefined : params.title,
                 genres: __advancedSearch_getValue(params.genre),
                 year: __advancedSearch_getValue(params.year),
+                format: __advancedSearch_getValue(params.format)?.toUpperCase(),
                 averageScore_greater: __advancedSearch_getValue(params.minScore) !== undefined
                     ? __advancedSearch_getValue(params.minScore)
                     : undefined,
@@ -66,10 +67,11 @@ export function useAnilistAdvancedSearch() {
                     ...(__advancedSearch_getValue(params.sorting) || ["SCORE_DESC"])] : (__advancedSearch_getValue(params.sorting) || ["SCORE_DESC"]),
                 status: params.sorting?.includes("START_DATE_DESC") ? (__advancedSearch_getValue(params.status)
                     ?.filter((n: string) => n !== "NOT_YET_RELEASED") || ["FINISHED", "RELEASING"]) : __advancedSearch_getValue(params.status),
+                countryOfOrigin: __advancedSearch_getValue(params.countryOfOrigin),
                 isAdult: params.isAdult,
             }
 
-            return buildSeaQuery<AL_ListAnime>({
+            return buildSeaQuery<AL_ListManga>({
                 endpoint: API_ENDPOINTS.MANGA.AnilistListManga.endpoint,
                 method: "POST",
                 data: variables,

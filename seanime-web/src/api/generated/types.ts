@@ -2993,6 +2993,7 @@ export type Report_IssueReport = {
     unlockedLocalFiles?: Array<Report_UnlockedLocalFile>
     scanLogs?: Array<string>
     serverLogs?: string
+    status?: string
 }
 
 /**

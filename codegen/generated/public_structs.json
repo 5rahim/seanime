@@ -47695,6 +47695,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "ServerStatus",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -47828,6 +47837,15 @@
         "jsonName": "isAnimeLibraryIssue",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ServerStatus",
+        "jsonName": "serverStatus",
+        "goType": "",
+        "typescriptType": "any",
         "required": true,
         "public": true,
         "comments": []

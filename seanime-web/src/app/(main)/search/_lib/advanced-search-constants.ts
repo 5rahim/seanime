@@ -37,6 +37,19 @@ export const ADVANCED_SEARCH_FORMATS: { value: AL_MediaFormat, label: string }[]
     { value: "SPECIAL", label: "Special" },
 ]
 
+export const ADVANCED_SEARCH_FORMATS_MANGA: { value: AL_MediaFormat, label: string }[] = [
+    { value: "MANGA", label: "Manga" },
+    { value: "ONE_SHOT", label: "One Shot" },
+]
+
+
+export const ADVANCED_SEARCH_COUNTRIES_MANGA: { value: string, label: string }[] = [
+    { value: "JP", label: "Japan" },
+    { value: "KR", label: "South Korea" },
+    { value: "CN", label: "China" },
+    { value: "TW", label: "Taiwan" },
+]
+
 export const ADVANCED_SEARCH_STATUS = [
     { value: "FINISHED", label: "Finished" },
     { value: "RELEASING", label: "Releasing" },

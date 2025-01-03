@@ -5,7 +5,7 @@ import { DiscoverAiringSchedule } from "@/app/(main)/discover/_containers/discov
 import { DiscoverMissedSequelsSection } from "@/app/(main)/discover/_containers/discover-missed-sequels"
 import { DiscoverPastSeason } from "@/app/(main)/discover/_containers/discover-popular"
 import { DiscoverTrending } from "@/app/(main)/discover/_containers/discover-trending"
-import { DiscoverMangaSearchBar, DiscoverTrendingManga } from "@/app/(main)/discover/_containers/discover-trending-manga"
+import { DiscoverTrendingCountry } from "@/app/(main)/discover/_containers/discover-trending-country"
 import { DiscoverTrendingMovies } from "@/app/(main)/discover/_containers/discover-trending-movies"
 import { DiscoverUpcoming } from "@/app/(main)/discover/_containers/discover-upcoming"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { StaticTabs } from "@/components/ui/tabs"
 import { AnimatePresence, motion } from "framer-motion"
 import { useAtom } from "jotai/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { FaSearch } from "react-icons/fa"
 
@@ -27,6 +27,14 @@ export default function Page() {
     const serverStatus = useServerStatus()
     const router = useRouter()
     const [pageType, setPageType] = useAtom(__discord_pageTypeAtom)
+    const searchParams = useSearchParams()
+    const searchType = searchParams.get("type")
+
+    React.useEffect(() => {
+        if (searchType) {
+            setPageType(searchType as any)
+        }
+    }, [searchParams])
 
     return (
         <>
@@ -127,13 +135,25 @@ export default function Page() {
                             },
                         }}
                     >
+                        {/*<div className="space-y-2 z-[5] relative">*/}
+                        {/*    <h2>Trending right now</h2>*/}
+                        {/*    <DiscoverTrendingMangaAll />*/}
+                        {/*</div>*/}
                         <div className="space-y-2 z-[5] relative">
-                            <h2>Trending right now</h2>
-                            <DiscoverTrendingManga />
+                            <h2>Trending Manga</h2>
+                            <DiscoverTrendingCountry country="JP" />
                         </div>
                         <div className="space-y-2 z-[5] relative">
-                            <DiscoverMangaSearchBar />
+                            <h2>Trending Manhwa</h2>
+                            <DiscoverTrendingCountry country="KR" />
                         </div>
+                        <div className="space-y-2 z-[5] relative">
+                            <h2>Trending Manhua</h2>
+                            <DiscoverTrendingCountry country="CN" />
+                        </div>
+                        {/*<div className="space-y-2 z-[5] relative">*/}
+                        {/*    <DiscoverMangaSearchBar />*/}
+                        {/*</div>*/}
                     </PageWrapper>}
                 </AnimatePresence>
 

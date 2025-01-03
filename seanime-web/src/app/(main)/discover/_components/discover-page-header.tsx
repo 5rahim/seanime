@@ -3,6 +3,7 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaLink } from "@/components/shared/sea-link"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { cn } from "@/components/ui/core/styling"
@@ -167,6 +168,7 @@ export function DiscoverPageHeader() {
                                             alt="cover image"
                                             fill
                                             priority
+                                            placeholder={imageShimmer(700, 475)}
                                             className={cn(
                                                 "object-cover object-center transition-opacity duration-1000",
                                                 isTransitioning && "opacity-30",

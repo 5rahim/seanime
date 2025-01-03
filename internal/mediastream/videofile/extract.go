@@ -74,7 +74,7 @@ func ExtractAttachment(ffmpegPath string, path string, hash string, mediaInfo *M
 	cmd.Stderr = crashLogger.Stdout()
 	err = cmd.Run()
 	if err != nil {
-		logger.Error().Err(err).Msgf("videofile: Error starting FFmepg")
+		logger.Error().Err(err).Msgf("videofile: Error starting FFmpeg")
 		crashlog.GlobalCrashLogger.WriteAreaLogToFile(crashLogger)
 	}
 

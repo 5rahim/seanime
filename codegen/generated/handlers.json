@@ -4152,6 +4152,15 @@
           "descriptions": []
         },
         {
+          "name": "CountryOfOrigin",
+          "jsonName": "countryOfOrigin",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
+        },
+        {
           "name": "IsAdult",
           "jsonName": "isAdult",
           "goType": "bool",

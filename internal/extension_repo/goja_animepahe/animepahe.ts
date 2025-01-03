@@ -1,4 +1,4 @@
-/// <reference path="./onlinestream-provider.d.ts" />
+/// <reference path="../goja_onlinestream_test/onlinestream-provider.d.ts" />
 /// <reference path="../goja_bindings/doc.d.ts" />
 /// <reference path="../goja_bindings/crypto.d.ts" />
 

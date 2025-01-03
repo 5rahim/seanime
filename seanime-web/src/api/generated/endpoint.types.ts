@@ -899,6 +899,7 @@ export type AnilistListManga_Variables = {
     genres?: Array<string>
     averageScore_greater?: number
     year?: number
+    countryOfOrigin?: string
     isAdult?: boolean
     format?: AL_MediaFormat
 }

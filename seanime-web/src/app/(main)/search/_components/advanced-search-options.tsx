@@ -1,7 +1,9 @@
 "use client"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
+    ADVANCED_SEARCH_COUNTRIES_MANGA,
     ADVANCED_SEARCH_FORMATS,
+    ADVANCED_SEARCH_FORMATS_MANGA,
     ADVANCED_SEARCH_MEDIA_GENRES,
     ADVANCED_SEARCH_SEASONS,
     ADVANCED_SEARCH_SORTING,
@@ -21,11 +23,11 @@ import { getYear } from "date-fns"
 import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { useState } from "react"
-import { BiTrash } from "react-icons/bi"
+import { BiTrash, BiWorld } from "react-icons/bi"
 import { FaRegStar, FaSortAmountDown } from "react-icons/fa"
 import { FiSearch } from "react-icons/fi"
 import { LuCalendar, LuLeaf } from "react-icons/lu"
-import { MdPersonalVideo } from "react-icons/md"
+import { MdOutlineBook, MdPersonalVideo } from "react-icons/md"
 import { RiSignalTowerLine } from "react-icons/ri"
 import { TbSwords } from "react-icons/tb"
 import { useUpdateEffect } from "react-use"
@@ -79,6 +81,28 @@ export function AdvancedSearchOptions() {
                     leftAddon={<MdPersonalVideo />}
                     label="Format" placeholder="All formats" className="w-full"
                     options={ADVANCED_SEARCH_FORMATS}
+                    value={params.format || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.format = v as any
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />}
+                {params.type === "manga" && <Select
+                    leftAddon={<BiWorld />}
+                    label="Format" placeholder="All countries" className="w-full"
+                    options={ADVANCED_SEARCH_COUNTRIES_MANGA}
+                    value={params.countryOfOrigin || ""}
+                    onValueChange={v => setParams(draft => {
+                        draft.countryOfOrigin = v as any
+                        return
+                    })}
+                    fieldLabelClass="hidden"
+                />}
+                {params.type === "manga" && <Select
+                    leftAddon={<MdOutlineBook />}
+                    label="Format" placeholder="All formats" className="w-full"
+                    options={ADVANCED_SEARCH_FORMATS_MANGA}
                     value={params.format || ""}
                     onValueChange={v => setParams(draft => {
                         draft.format = v as any

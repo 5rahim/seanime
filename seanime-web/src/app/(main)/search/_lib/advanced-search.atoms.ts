@@ -12,6 +12,7 @@ type Params = {
     year: string | null
     minScore: string | null
     isAdult: boolean
+    countryOfOrigin: string | null
     type: "anime" | "manga"
 }
 
@@ -26,6 +27,7 @@ export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
     year: null,
     minScore: null,
     isAdult: false,
+    countryOfOrigin: null,
     type: "anime",
 })
 
