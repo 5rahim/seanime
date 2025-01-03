@@ -48,7 +48,7 @@ export default function Page() {
                 <div className="lg:absolute w-full lg:-top-10 left-0 flex gap-4 p-4 items-center justify-center flex-wrap">
                     <div className="max-w-fit border rounded-full">
                         <StaticTabs
-                            className="h-10"
+                            className="h-10 overflow-hidden"
                             triggerClass="px-4 py-1"
                             items={[
                                 { name: "Anime", isCurrent: pageType === "anime", onClick: () => setPageType("anime") },
