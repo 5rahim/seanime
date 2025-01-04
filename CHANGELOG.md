@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.6.0
+
+- ✨ In-app issue log recorder
+  - Record browser, network and server logs from an issue you encounter in the app and generate an anonymized file to send for bug reports
+- ⚡️ Auto Downloader: Added support for batch creation of rules #180
+- ⚡️ Scanner: Improved default matching algorithm
+- ⚡️ Scanner: Option to choose different matching algorithms
+- ⚡️ Scanner: Improved filename parser, support for SxPx format
+- ⚡️ Scanner: Reduced log file sizes and forced logging to single file per scan
+- ⚡️ Media page banner image customization #185
+- ⚡️ Online streaming: Added 'f' keybinding to restore fullscreen #186
+- ⚡️ Improved Discover manga page
+- ⚡️ Improved manga filters #191
+- ⚡️ Torrent streaming: Serve streams from main server (BREAKING)
+       - Lower memory usage, removes need for separate server
+- ⚡️ Auto deletion of log files older than 14 days #184
+- 💄 UI: Media banner layout customization
+- 💄 Added 'Fix border rendering artifacts' option to UI settings
+- 💄 Updated some styles
+- 💄 UI: New User interface settings page
+- 🦺 Fixed Auto Downloader form #187
+- 🦺 Streaming: Fixed auto-select for media with very long titles
+- 🦺 Fixed torrent streaming on VLC
+- 🦺 Fixed MPV resumed playback with watch continuity enabled
+- 🦺 Desktop: Fixed sidebar menu item selection
+- 🏗️ Auto Downloader: Set minimum refresh interval to 15 minutes (BREAKING)
+  - 🏗️ Auto Downloader: Added 'Downloaded' status to rules
+- 🏗️ Moved 'watch continuity' setting to 'Seanime' tab
+
 ## v2.5.2
 
 - 🦺 Fixed SeaDex extension #179
