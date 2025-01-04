@@ -94,6 +94,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                                 if (episode.localFile) {
                                     updateLocalFile(episode.localFile, {
                                         mediaId: 0,
+                                        locked: false,
+                                        ignored: false,
                                     })
                                 }
                             }}

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.6.1
+
+- 🦺 Scanner: Fixed duplicated files 
+
 ## v2.6.0
 
 - ✨ In-app issue log recorder

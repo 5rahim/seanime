@@ -14,7 +14,6 @@ import (
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
-	"strings"
 	"sync"
 )
 
@@ -113,7 +112,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	localFiles := make([]*anime.LocalFile, 0)
 
 	// Get skipped files depending on options
-	skippedLfs := make(map[string]*anime.LocalFile, 0)
+	skippedLfs := make(map[string]*anime.LocalFile)
 	if (scn.SkipLockedFiles || scn.SkipIgnoredFiles) && scn.ExistingLocalFiles != nil {
 		// Retrieve skipped files from existing local files
 		for _, lf := range scn.ExistingLocalFiles {
@@ -126,7 +125,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 		// Remove skipped files from local files that will be hydrated
 		localFiles = lop.Map(paths, func(path string, _ int) *anime.LocalFile {
-			if _, ok := skippedLfs[strings.ToLower(path)]; !ok {
+			if _, ok := skippedLfs[util.NormalizePath(path)]; !ok {
 				// Create a new local file
 				return anime.NewLocalFile(path, scn.DirPath)
 			} else {

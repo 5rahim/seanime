@@ -143,7 +143,7 @@ function Line({ line, index, onFileSelect }: LineProps) {
 
                                         {data.hasOwnProperty("rating") ? (
                                             <p className="text-sm tracking-wide flex gap-1 items-center ">
-                                                <BiSolidStar className="text-[--yellow]" /> {data.rating.toFixed(2)}{data.highestRating && "/"}{data.highestRating?.toFixed(
+                                                <BiSolidStar className="text-[--yellow]" /> {data.rating?.toFixed(2)}{data.highestRating && "/"}{data.highestRating?.toFixed(
                                                 2)}, {data.message}
                                             </p>
                                         ) : data.hasOwnProperty("id") ? (
@@ -161,7 +161,7 @@ function Line({ line, index, onFileSelect }: LineProps) {
                                                 {data.message} <BiCheck className="text-[--green]" />
                                                 <span className="text-[--muted]">{data.match.Value}</span>
                                                 <span className="flex items-center">
-                                                    (<BiSolidStar className="text-[--yellow]" /> {data.match.Rating.toFixed(2)}{data.match.Distance})
+                                                    (<BiSolidStar className="text-[--yellow]" /> {data.match.Rating?.toFixed(2)}{data.match.Distance})
                                                 </span>
                                             </p>
                                         )}

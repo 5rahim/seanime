@@ -129,7 +129,7 @@ export function IssueReport() {
                 error: listener.query.state.error,
                 timestamp: new Date().toISOString(),
                 dataPreview: typeof listener.query.state.data === "object"
-                    ? JSON.stringify(listener.query.state.data).slice(0, 100)
+                    ? JSON.stringify(listener.query.state.data).slice(0, 200)
                     : "",
                 dataType: typeof listener.query.state.data,
             }])
@@ -147,7 +147,7 @@ export function IssueReport() {
                     error: listener.mutation!.state.error,
                     timestamp: new Date().toISOString(),
                     dataPreview: typeof listener.mutation!.state.data === "object" ? JSON.stringify(listener.mutation!.state.data)
-                        .slice(0, 100) : "",
+                        .slice(0, 200) : "",
                     dataType: typeof listener.mutation!.state.data,
                 }])
             })
@@ -190,7 +190,7 @@ export function IssueReport() {
                     pageUrl: window.location.href.replace(window.location.host, "{client}"),
                     status: this.status,
                     duration,
-                    dataPreview: this.responseText.slice(0, 100),
+                    dataPreview: this.responseText.slice(0, 200),
                     timestamp: new Date().toISOString(),
                     body: JSON.stringify(body),
                 }])
