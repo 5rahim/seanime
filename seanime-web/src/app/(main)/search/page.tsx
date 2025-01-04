@@ -40,6 +40,7 @@ export default function Page() {
             year: yearUrlParam || null,
             minScore: null,
             isAdult: false,
+            countryOfOrigin: null,
             type: (formatUrlParam as AL_MediaFormat) === "MANGA" ? "manga" : (typeUrlParam as "anime" | "manga") || "anime",
         })
     })
@@ -50,7 +51,7 @@ export default function Page() {
             <PageWrapper className="space-y-6 px-4 md:p-8 pt-0 pb-10">
                 <div className="flex items-center gap-4">
                     <SeaLink href={`/discover`}>
-                        <Button leftIcon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md">
+                        <Button leftIcon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="md">
                             Discover
                         </Button>
                     </SeaLink>

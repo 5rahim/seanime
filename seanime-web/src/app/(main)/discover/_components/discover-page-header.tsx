@@ -215,7 +215,7 @@ export function DiscoverPageHeader() {
                                                         : "s"}</span>}
                                         </p>
                                     )}
-                                    {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
+                                    {randomTrending.meanScore && <div className="rounded-full w-fit inline-block">
                                         <MediaEntryAudienceScore
                                             meanScore={randomTrending.meanScore}
                                         />

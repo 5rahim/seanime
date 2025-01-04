@@ -48,13 +48,13 @@ export function AnimeOnlinestreamButton(props: AnimeOnlinestreamButtonProps) {
 
     return (
         <AnimeMetaActionButton
-            intent={isOnlineStreamingView ? "alert-subtle" : "white-subtle"}
+            intent={isOnlineStreamingView ? "gray-subtle" : "white-subtle"}
             // className={cn((status?.settings?.library?.includeOnlineStreamingInLibrary || isOnlineStreamingView) && "w-full")}
             size="md"
             leftIcon={isOnlineStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <FiPlayCircle className="text-2xl" />}
             onClick={() => toggleOnlineStreamingView()}
         >
-            {isOnlineStreamingView ? "Close Online streaming" : "Stream online"}
+            {isOnlineStreamingView ? "Close Online streaming" : "Online streaming"}
         </AnimeMetaActionButton>
     )
 }

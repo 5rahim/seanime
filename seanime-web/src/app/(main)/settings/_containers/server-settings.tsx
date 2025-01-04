@@ -118,7 +118,7 @@ export function ServerSettings(props: ServerSettingsProps) {
                     Anime tracking
                 </h3>
                 <p className="text-[--muted]">
-                    Only applies to desktop and built-in players.
+                    Only applies to desktop and integrated players.
                 </p>
             </div>
 

@@ -34,12 +34,12 @@ export function DebridStreamButton(props: DebridStreamButtonProps) {
     return (
         <>
             <AnimeMetaActionButton
-                intent={isDebridStreamingView ? "alert-subtle" : "white-subtle"}
+                intent={isDebridStreamingView ? "gray-subtle" : "white-subtle"}
                 size="md"
                 leftIcon={isDebridStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <HiOutlineServerStack className="text-2xl" />}
                 onClick={() => toggleDebridStreamingView()}
             >
-                {isDebridStreamingView ? "Close Debrid streaming" : "Stream with Debrid"}
+                {isDebridStreamingView ? "Close Debrid streaming" : "Debrid streaming"}
             </AnimeMetaActionButton>
         </>
     )

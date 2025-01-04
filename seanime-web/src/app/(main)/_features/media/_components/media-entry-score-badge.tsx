@@ -18,7 +18,7 @@ export const MediaEntryScoreBadge = (props: MediaEntryScoreBadgeProps) => {
                 getScoreColor(score, "user"),
             )}
         >
-            {score >= 90 ? <BiSolidStar className="text-xs" /> : <BiStar className="text-xs" />} {(score === 0) ? "-" : score / 10}
+            {score >= 90 ? <BiSolidStar className="text-sm" /> : <BiStar className="text-sm" />} {(score === 0) ? "-" : score / 10}
         </div>
     )
 }

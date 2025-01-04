@@ -126,7 +126,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                         {(f.watch("transcodeEnabled") && activeOnDevice) && (
                             <Alert
                                 intent="info" description={<>
-                                Your downloaded media files will be played using the built-in player on this device.
+                                Your downloaded media files will be played using the integrated player on this device.
                             </>}
                             />
                         )}

@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getScoreColor } from "@/lib/helpers/score"
 import { getImageUrl } from "@/lib/server/assets"
@@ -17,6 +16,7 @@ import Image from "next/image"
 import React from "react"
 import { BiCalendarAlt, BiSolidStar, BiStar } from "react-icons/bi"
 import { MdOutlineSegment } from "react-icons/md"
+import { RiSignalTowerFill } from "react-icons/ri"
 import { useWindowScroll } from "react-use"
 
 
@@ -80,7 +80,10 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     fill
                     quality={100}
                     sizes="20rem"
-                    className="object-cover object-center transition opacity-10"
+                    className={cn(
+                        "object-cover object-bottom transition opacity-10",
+                        ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "object-left",
+                    )}
                 />
 
                 <div
@@ -337,10 +340,26 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                             {((status !== "FINISHED" && type === "anime") || type === "manga") && <Badge
                                 size="lg"
-                                intent={status === "RELEASING" ? "success" : "gray"}
+                                intent={status === "RELEASING" ? "primary" : "gray"}
+                                className="bg-transparent border-transparent dark:text-brand-200 px-0 rounded-none"
+                                leftIcon={<RiSignalTowerFill />}
                             >
                                 {capitalize(status || "")?.replaceAll("_", " ")}
                             </Badge>}
+
+                            {ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && <Popover
+                                trigger={
+                                    <IconButton
+                                        intent="white-subtle"
+                                        className="rounded-full"
+                                        size="sm"
+                                        icon={<MdOutlineSegment />}
+                                    />
+                                }
+                                className="max-w-[40rem] bg-[--background] p-4 w-[20rem] lg:w-[40rem] text-md"
+                            >
+                                <span className="transition-colors">{description?.replace(/(<([^>]+)>)/ig, "")}</span>
+                            </Popover>}
                         </div>
                     )}
 
@@ -356,49 +375,41 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
-                        <div className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
-                            ? type === "anime" ? "watching" : "reading"
-                            : listData?.status)}
-                            {listData?.repeat && <Tooltip
-                                trigger={<Badge
-                                    size="md"
-                                    intent="gray"
-                                    className="ml-3"
+                        {(listData?.status || listData?.repeat) &&
+                            <div className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
+                                ? type === "anime" ? "watching" : "reading"
+                                : listData?.status)}
+                                {listData?.repeat && <Tooltip
+                                    trigger={<Badge
+                                        size="md"
+                                        intent="gray"
+                                        className="ml-3"
+                                    >
+                                        {listData?.repeat}
+
+                                    </Badge>}
                                 >
-                                    {listData?.repeat}
-
-                                </Badge>}
-                            >
-                                {listData?.repeat} {type === "anime" ? "rewatch" : "reread"}{listData?.repeat > 1
-                                ? type === "anime" ? "es" : "s"
-                                : ""}
-                            </Tooltip>}
-                        </div>
-
-                        {ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && <Popover
-                            trigger={
-                                <IconButton
-                                    intent="gray-outline"
-                                    className="rounded-full"
-                                    size="sm"
-                                    icon={<MdOutlineSegment />}
-                                />
-                            }
-                            className="max-w-[40rem] w-full p-4 max-h-32 overflow-y-auto bg-[#0c0c0c]/85 hover:text-white"
-                        >
-                            <span className="transition-colors">{description?.replace(/(<([^>]+)>)/ig, "")}</span>
-                        </Popover>}
+                                    {listData?.repeat} {type === "anime" ? "rewatch" : "reread"}{listData?.repeat > 1
+                                    ? type === "anime" ? "es" : "s"
+                                    : ""}
+                                </Tooltip>}
+                            </div>}
 
                     </div>
 
-                    {ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small && <ScrollArea
-                        className={cn(
-                            "h-20 col-span-2 p-2 left-[-.5rem] text-[--muted] 2xl:max-w-[50vw] hover:text-white transition-colors duration-500 text-sm pr-2",
-                            "bg-transparent hover:bg-zinc-950/30 rounded-md text-center lg:text-left",
-                        )}
+                    {ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small && <Popover
+                        trigger={<div
+                            className={cn(
+                                "cursor-pointer max-h-16 line-clamp-3 col-span-2 left-[-.5rem] text-[--muted] 2xl:max-w-[50vw] hover:text-white transition-colors duration-500 text-sm pr-2",
+                                "bg-transparent rounded-md text-center lg:text-left",
+                            )}
+                        >
+                            {description?.replace(/(<([^>]+)>)/ig, "")}
+                        </div>}
+                        className="max-w-[40rem] bg-[--background] p-4 w-[20rem] lg:w-[40rem] text-md"
                     >
-                        {description?.replace(/(<([^>]+)>)/ig, "")}
-                    </ScrollArea>}
+                        <span className="transition-colors">{description?.replace(/(<([^>]+)>)/ig, "")}</span>
+                    </Popover>}
 
                     {children}
 
@@ -431,9 +442,14 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
             </Badge>}
             <Badge
                 size="xl"
-                className="!text-lg font-bold !text-white"
+                intent="basic"
+                className="!text-xl font-bold !text-white px-0 gap-0 rounded-none"
             >
-                {`${progress ?? 0}/${episodes || "-"}`}
+                {`${progress ?? 0}`}<span
+                className={cn(
+                    (!progress || progress !== episodes) && "opacity-60",
+                )}
+            >/{episodes || "-"}</span>
             </Badge>
         </>
     )

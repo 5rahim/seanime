@@ -70,7 +70,7 @@ export const enum ThemeMediaPageInfoBoxSize {
 
 export const ThemeMediaPageInfoBoxSizeOptions = [
     {
-        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Layout 1",
+        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Default",
         // description: "Display the media banner as a box",
     },
     {

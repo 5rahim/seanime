@@ -34,12 +34,12 @@ export function TorrentStreamButton(props: TorrentStreamButtonProps) {
     return (
         <>
             <AnimeMetaActionButton
-                intent={isTorrentStreamingView ? "alert-subtle" : "white-subtle"}
+                intent={isTorrentStreamingView ? "gray-subtle" : "white-subtle"}
                 size="md"
                 leftIcon={isTorrentStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <PiMonitorPlayDuotone className="text-2xl" />}
                 onClick={() => toggleTorrentStreamingView()}
             >
-                {isTorrentStreamingView ? "Close torrent streaming" : "Stream"}
+                {isTorrentStreamingView ? "Close torrent streaming" : "Torrent streaming"}
             </AnimeMetaActionButton>
         </>
     )

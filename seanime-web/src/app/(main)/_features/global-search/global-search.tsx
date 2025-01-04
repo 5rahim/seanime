@@ -82,7 +82,11 @@ export function GlobalSearch() {
                                 className="mx-auto max-w-3xl transform space-y-4 transition-all"
                             >
                                 <div className="absolute right-2 -top-7 z-10">
-                                    <SeaLink href="/search" className="hover:text-[--brand] font-bold" onClick={() => setOpen(false)}>
+                                    <SeaLink
+                                        href="/search"
+                                        className="text-[--muted] hover:text-[--foreground] font-bold"
+                                        onClick={() => setOpen(false)}
+                                    >
                                         Advanced search &rarr;
                                     </SeaLink>
                                 </div>

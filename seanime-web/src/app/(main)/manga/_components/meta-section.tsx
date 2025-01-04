@@ -31,10 +31,10 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
             <div
                 className={cn(
                     "flex gap-2 flex-wrap items-center",
-                    ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[75vw]",
+                    ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[65vw]",
                 )}
             >
-                <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
+                <MediaEntryAudienceScore meanScore={entry.media?.meanScore} badgeClass="bg-transparent" />
 
                 <MediaEntryGenresList genres={details?.genres} />
             </div>

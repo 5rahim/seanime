@@ -39,7 +39,9 @@ export function AnimeMetaActionButton({ className, ...rest }: ButtonProps) {
             "w-full",
             ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "lg:w-full lg:max-w-[280px]",
             className,
-        )} {...rest}
+        )}
+        {...rest}
+        // intent="gray-outline"
     />
 }
 
@@ -99,16 +101,22 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
         <div
             className={cn(
                 "flex gap-2 flex-wrap items-center",
-                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[75vw]",
+                ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[65vw]",
             )}
         >
-            <MediaEntryAudienceScore meanScore={details?.meanScore} />
+            <MediaEntryAudienceScore meanScore={details?.meanScore} badgeClass="bg-transparent" />
 
             <AnimeEntryStudio studios={details?.studios} />
 
             <MediaEntryGenresList genres={details?.genres} />
 
-            <AnimeEntryRankings rankings={details?.rankings} />
+            <div
+                className={cn(
+                    ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid ? "w-full" : "contents",
+                )}
+            >
+                <AnimeEntryRankings rankings={details?.rankings} />
+            </div>
         </div>
     )
 
