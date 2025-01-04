@@ -11,17 +11,17 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Scanner: Option to choose different matching algorithms
 - ⚡️ Scanner: Improved filename parser, support for SxPx format
 - ⚡️ Scanner: Reduced log file sizes and forced logging to single file per scan
-- ⚡️ Media page banner image customization #185
-- ⚡️ Online streaming: Added 'f' keybinding to restore fullscreen #186
 - ⚡️ Improved Discover manga page
-- ⚡️ Improved manga filters #191
+- ⚡️ New manga filters for country and format #191
 - ⚡️ Torrent streaming: Serve streams from main server (BREAKING)
        - Lower memory usage, removes need for separate server
 - ⚡️ Auto deletion of log files older than 14 days #184
-- 💄 UI: Media banner layout customization
-- 💄 Added 'Fix border rendering artifacts' option to UI settings
+- ⚡️ Online streaming: Added 'f' keybinding to restore fullscreen #186
+- 💄 Media page banner image customization #185
+- 💄 Media banner layout customization
+- 💄 Updated user interface settings page
 - 💄 Updated some styles
-- 💄 UI: New User interface settings page
+- 💄 Added 'Fix border rendering artifacts' option to UI settings
 - 🦺 Fixed Auto Downloader form #187
 - 🦺 Streaming: Fixed auto-select for media with very long titles
 - 🦺 Fixed torrent streaming on VLC
