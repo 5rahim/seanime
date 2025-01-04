@@ -13,8 +13,8 @@ All notable changes to this project will be documented in this file.
 - ⚡️ Scanner: Reduced log file sizes and forced logging to single file per scan
 - ⚡️ Improved Discover manga page
 - ⚡️ New manga filters for country and format #191
-- ⚡️ Torrent streaming: Serve streams from main server (BREAKING)
-       - Lower memory usage, removes need for separate server
+- ⚡️ Torrent streaming: Serve streams from main server (Experimental)
+  - Lower memory usage, removes need for separate server
 - ⚡️ Auto deletion of log files older than 14 days #184
 - ⚡️ Online streaming: Added 'f' keybinding to restore fullscreen #186
 - 💄 Media page banner image customization #185
@@ -28,7 +28,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Fixed MPV resumed playback with watch continuity enabled
 - 🦺 Desktop: Fixed sidebar menu item selection
 - 🏗️ Auto Downloader: Set minimum refresh interval to 15 minutes (BREAKING)
-  - 🏗️ Auto Downloader: Added 'Downloaded' status to rules
+  - If your refresh interval less than 15 minutes, it will be force set to 20 minutes. Update the settings accordingly.
 - 🏗️ Moved 'watch continuity' setting to 'Seanime' tab
 
 ## v2.5.2
