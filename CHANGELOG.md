@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## v2.6.1
 
-- 🦺 Scanner: Fixed duplicated files 
+- 🦺 Scanner: Fixed duplicated files due to incorrect path comparison
+- 🏗️ Issue recorder: Increase data cap limit
 
 ## v2.6.0
 

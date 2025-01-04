@@ -93,6 +93,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			return nil, err
 		}
 		for _, path := range otherPaths {
+			//if _, ok := localFilePathsMap[strings.ToLower(path)]; !ok {
 			if _, ok := localFilePathsMap[util.NormalizePath(path)]; !ok {
 				paths = append(paths, path)
 			}
