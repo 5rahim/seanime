@@ -4,7 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## v2.6.1
 
+- ⚡️ Anime library: Filtering by year now takes into account the season year
+- ⚡️ Torrent streaming: Custom stream URL address setting #182
 - 🦺 Scanner: Fixed duplicated files due to incorrect path comparison
+- 🦺 Use AniList season year instead of start year for media cards #193
 - 🏗️ Issue recorder: Increase data cap limit
 
 ## v2.6.0

@@ -398,6 +398,7 @@ export type AL_BaseAnime = {
     season?: AL_MediaSeason
     type?: AL_MediaType
     format?: AL_MediaFormat
+    seasonYear?: number
     bannerImage?: string
     episodes?: number
     synonyms?: Array<string>
@@ -2872,6 +2873,7 @@ export type Models_TorrentstreamSettings = {
      */
     streamingServerPort: number
     includeInLibrary: boolean
+    streamUrlAddress: string
     id: number
     createdAt?: string
     updatedAt?: string

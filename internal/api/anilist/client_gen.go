@@ -49,6 +49,7 @@ type BaseAnime struct {
 	Season            *MediaSeason                 "json:\"season,omitempty\" graphql:\"season\""
 	Type              *MediaType                   "json:\"type,omitempty\" graphql:\"type\""
 	Format            *MediaFormat                 "json:\"format,omitempty\" graphql:\"format\""
+	SeasonYear        *int                         "json:\"seasonYear,omitempty\" graphql:\"seasonYear\""
 	BannerImage       *string                      "json:\"bannerImage,omitempty\" graphql:\"bannerImage\""
 	Episodes          *int                         "json:\"episodes,omitempty\" graphql:\"episodes\""
 	Synonyms          []*string                    "json:\"synonyms,omitempty\" graphql:\"synonyms\""
@@ -107,6 +108,12 @@ func (t *BaseAnime) GetFormat() *MediaFormat {
 		t = &BaseAnime{}
 	}
 	return t.Format
+}
+func (t *BaseAnime) GetSeasonYear() *int {
+	if t == nil {
+		t = &BaseAnime{}
+	}
+	return t.SeasonYear
 }
 func (t *BaseAnime) GetBannerImage() *string {
 	if t == nil {
@@ -205,6 +212,7 @@ type CompleteAnime struct {
 	SiteURL           *string                          "json:\"siteUrl,omitempty\" graphql:\"siteUrl\""
 	Status            *MediaStatus                     "json:\"status,omitempty\" graphql:\"status\""
 	Season            *MediaSeason                     "json:\"season,omitempty\" graphql:\"season\""
+	SeasonYear        *int                             "json:\"seasonYear,omitempty\" graphql:\"seasonYear\""
 	Type              *MediaType                       "json:\"type,omitempty\" graphql:\"type\""
 	Format            *MediaFormat                     "json:\"format,omitempty\" graphql:\"format\""
 	BannerImage       *string                          "json:\"bannerImage,omitempty\" graphql:\"bannerImage\""
@@ -254,6 +262,12 @@ func (t *CompleteAnime) GetSeason() *MediaSeason {
 		t = &CompleteAnime{}
 	}
 	return t.Season
+}
+func (t *CompleteAnime) GetSeasonYear() *int {
+	if t == nil {
+		t = &CompleteAnime{}
+	}
+	return t.SeasonYear
 }
 func (t *CompleteAnime) GetType() *MediaType {
 	if t == nil {
@@ -6920,6 +6934,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7018,6 +7033,7 @@ fragment completeAnime on Media {
 	siteUrl
 	status(version: 2)
 	season
+	seasonYear
 	type
 	format
 	bannerImage
@@ -7078,6 +7094,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7152,6 +7169,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7226,6 +7244,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7305,6 +7324,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7386,6 +7406,7 @@ fragment completeAnime on Media {
 	siteUrl
 	status(version: 2)
 	season
+	seasonYear
 	type
 	format
 	bannerImage
@@ -7446,6 +7467,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7649,6 +7671,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7732,6 +7755,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -7831,6 +7855,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms
@@ -8627,6 +8652,7 @@ fragment baseAnime on Media {
 	season
 	type
 	format
+	seasonYear
 	bannerImage
 	episodes
 	synonyms

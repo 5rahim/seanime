@@ -453,6 +453,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 			StreamingServerHost: "0.0.0.0",
 			StreamingServerPort: 43214,
 			IncludeInLibrary:    false,
+			StreamUrlAddress:    "",
 		})
 		if err != nil {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")

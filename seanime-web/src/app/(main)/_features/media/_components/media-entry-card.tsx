@@ -180,7 +180,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
                     <MediaEntryCardHoverPopupTitleSection
                         title={media.title?.userPreferred || ""}
-                        year={media.startDate?.year}
+                        year={(media as AL_BaseAnime).seasonYear ?? media.startDate?.year}
                         season={media.season}
                         format={media.format}
                         link={link}
@@ -286,7 +286,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
             <MediaEntryCardTitleSection
                 title={media.title?.userPreferred || ""}
-                year={media.startDate?.year}
+                year={(media as AL_BaseAnime).seasonYear ?? media.startDate?.year}
                 season={media.season}
                 format={media.format}
             />

@@ -240,7 +240,14 @@ func (c *Client) GetStreamingUrl() string {
 		return ""
 	}
 	address := fmt.Sprintf("%s:%d", c.repository.settings.MustGet().Host, c.repository.settings.MustGet().Port)
-	return fmt.Sprintf("http://%s/api/v1/torrentstream/stream/%s", address, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+	if c.repository.settings.MustGet().StreamUrlAddress != "" {
+		address = c.repository.settings.MustGet().StreamUrlAddress
+	}
+	_url := fmt.Sprintf("http://%s/api/v1/torrentstream/stream/%s", address, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+	if strings.HasPrefix(_url, "http://http") {
+		_url = strings.Replace(_url, "http://http", "http", 1)
+	}
+	return _url
 }
 
 func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {

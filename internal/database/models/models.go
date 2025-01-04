@@ -330,6 +330,8 @@ type TorrentstreamSettings struct {
 	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"` // UNUSED, LEGACY
 	//FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"` // DEPRECATED
 	IncludeInLibrary bool `gorm:"column:include_in_library" json:"includeInLibrary"`
+	// v2.6+
+	StreamUrlAddress string `gorm:"column:stream_url_address" json:"streamUrlAddress"`
 }
 
 type TorrentstreamHistory struct {

@@ -124,6 +124,15 @@
         "comments": []
       },
       {
+        "name": "SeasonYear",
+        "jsonName": "seasonYear",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "BannerImage",
         "jsonName": "bannerImage",
         "goType": "string",
@@ -317,6 +326,15 @@
         "goType": "MediaSeason",
         "typescriptType": "AL_MediaSeason",
         "usedStructName": "anilist.MediaSeason",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SeasonYear",
+        "jsonName": "seasonYear",
+        "goType": "int",
+        "typescriptType": "number",
         "required": false,
         "public": true,
         "comments": []
@@ -28002,6 +28020,15 @@
         "jsonName": "includeInLibrary",
         "goType": "bool",
         "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StreamUrlAddress",
+        "jsonName": "streamUrlAddress",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []

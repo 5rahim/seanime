@@ -213,10 +213,8 @@ export function GlobalSearch() {
                                                                 <p className="text-sm leading-6 text-[--muted]">
                                                                     {activeOption.format}{activeOption.season
                                                                     ? ` - ${capitalize(activeOption.season)} `
-                                                                    : " - "}{activeOption.startDate?.year
-                                                                    ? new Intl.DateTimeFormat("en-US", { year: "numeric" })
-                                                                        .format(new Date(activeOption.startDate?.year || 0,
-                                                                            activeOption.startDate?.month || 0))
+                                                                    : " - "}{activeOption.seasonYear
+                                                                    ? activeOption.seasonYear
                                                                     : "-"}
                                                                 </p>
                                                             </div>

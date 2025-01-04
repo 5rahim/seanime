@@ -19,6 +19,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
     includeInLibrary: z.boolean(),
+    streamUrlAddress: z.string().optional().default(""),
 }))
 
 
@@ -68,6 +69,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
                     includeInLibrary: settings.includeInLibrary,
+                    streamUrlAddress: settings.streamUrlAddress || "",
                 }}
                 stackClass="space-y-6"
             >
@@ -158,6 +160,15 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 <Field.Switch
                     name="disableIPv6"
                     label="Disable IPv6"
+                />
+
+                <Separator />
+
+                <Field.Text
+                    name="streamUrlAddress"
+                    label="Stream URL address"
+                    placeholder="e.g. {host}:{port}"
+                    help="Leave empty for default. The URL to use for streaming."
                 />
 
 

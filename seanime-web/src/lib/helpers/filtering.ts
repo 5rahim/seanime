@@ -109,7 +109,9 @@ export function filterListEntries<T extends AL_MangaCollection_MediaListCollecti
     if (!!arr && !!params.status) arr = arr.filter(n => n.media?.status === params.status)
 
     // Filter by year
-    if (!!arr && !!params.year) arr = arr.filter(n => n.media?.startDate?.year === Number(params.year))
+    if (!!arr && !!params.year) arr = arr.filter(n => (n.media as AL_BaseAnime)?.seasonYear ?
+        ((n.media as AL_BaseAnime)?.seasonYear === Number(params.year) || n.media?.startDate?.year === Number(params.year))
+        : n.media?.startDate?.year === Number(params.year))
 
     // Filter by genre
     if (!!arr && !!params.genre?.length) {
@@ -193,7 +195,7 @@ export function filterCollectionEntries<T extends Anime_LibraryCollectionEntry[]
     if (!!arr && !!params.status) arr = arr.filter(n => n.media?.status === params.status)
 
     // Filter by year
-    if (!!arr && !!params.year) arr = arr.filter(n => n.media?.startDate?.year === Number(params.year))
+    if (!!arr && !!params.year) arr = arr.filter(n => n.media?.seasonYear === Number(params.year) || n.media?.startDate?.year === Number(params.year))
 
     // Filter by genre
     if (!!arr && !!params.genre?.length) {

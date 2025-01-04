@@ -489,6 +489,7 @@ func (m *CompleteAnime) ToBaseAnime() *BaseAnime {
 		Synonyms:        m.GetSynonyms(),
 		BannerImage:     m.GetBannerImage(),
 		Season:          m.GetSeason(),
+		SeasonYear:      m.GetSeasonYear(),
 		Type:            m.GetType(),
 		IsAdult:         m.GetIsAdult(),
 		CountryOfOrigin: m.GetCountryOfOrigin(),

@@ -275,6 +275,7 @@ fragment baseAnime on Media {
   season
   type
   format
+  seasonYear
   bannerImage
   episodes
   synonyms
@@ -324,6 +325,7 @@ fragment completeAnime on Media {
   siteUrl
   status(version: 2)
   season
+  seasonYear
   type
   format
   bannerImage
