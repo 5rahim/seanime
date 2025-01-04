@@ -36,6 +36,7 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
+import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
@@ -48,12 +49,24 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
 
     const shouldLookForBatches = React.useMemo(() => {
+        const endedDate = entry.media?.endDate?.year ? new Date(entry.media?.endDate?.year,
+            entry.media?.endDate?.month ? entry.media?.endDate?.month - 1 : 0,
+            entry.media?.endDate?.day || 0) : null
+        const now = new Date()
+        let flag = true
+
         if (type === "download") {
-            return !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length
+            if (endedDate && subDays(now, 6) < endedDate) {
+                flag = false
+            }
+            return !!downloadInfo?.canBatch && !!downloadInfo?.episodesToDownload?.length && flag
         } else {
-            return !!downloadInfo?.canBatch
+            if (endedDate && subMonths(now, 1) < endedDate) {
+                flag = false
+            }
+            return !!downloadInfo?.canBatch && flag
         }
-    }, [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length, type])
+    }, [downloadInfo?.canBatch, downloadInfo?.episodesToDownload?.length, type, entry.media?.endDate])
 
     const hasEpisodesToDownload = React.useMemo(() => !!downloadInfo?.episodesToDownload?.length, [downloadInfo?.episodesToDownload?.length])
     const [isAdult, setIsAdult] = React.useState(entry.media?.isAdult === true)

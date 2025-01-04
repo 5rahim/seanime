@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 type ScanLogger struct {
 	logger  *zerolog.Logger
 	logFile *os.File
+	buffer  *bytes.Buffer
 }
 
 // NewScanLogger creates a new ScanLogger with a log file named based on the current datetime.
@@ -35,26 +37,26 @@ func NewScanLogger(outputDir string) (*ScanLogger, error) {
 		return nil, err
 	}
 
+	// Create a buffer for storing log entries
+	buffer := new(bytes.Buffer)
+
 	// Create an array writer to wrap the JSON encoder
+	logger := zerolog.New(buffer).With().Logger()
 
-	logger := zerolog.New(logFile).With().Logger()
-
-	return &ScanLogger{&logger, logFile}, nil
+	return &ScanLogger{&logger, logFile, buffer}, nil
 }
 
 // NewConsoleScanLogger creates a new mock ScanLogger
 func NewConsoleScanLogger() (*ScanLogger, error) {
-
 	output := zerolog.ConsoleWriter{
 		Out:        os.Stdout,
 		TimeFormat: time.DateTime,
 	}
 
 	// Create an array writer to wrap the JSON encoder
-
 	logger := zerolog.New(output).With().Logger()
 
-	return &ScanLogger{logger: &logger, logFile: nil}, nil
+	return &ScanLogger{logger: &logger, logFile: nil, buffer: nil}, nil
 }
 
 func (sl *ScanLogger) LogMediaContainer(level zerolog.Level) *zerolog.Event {
@@ -71,6 +73,27 @@ func (sl *ScanLogger) LogFileHydrator(level zerolog.Level) *zerolog.Event {
 
 func (sl *ScanLogger) LogMediaFetcher(level zerolog.Level) *zerolog.Event {
 	return sl.logger.WithLevel(level).Str("context", "MediaFetcher")
+}
+
+// Done flushes the buffer to the log file and closes the file.
+func (sl *ScanLogger) Done() error {
+	if sl.logFile == nil {
+		return nil
+	}
+
+	// Write buffer contents to the log file
+	_, err := sl.logFile.Write(sl.buffer.Bytes())
+	if err != nil {
+		return err
+	}
+
+	// Sync and close the log file
+	err = sl.logFile.Sync()
+	if err != nil {
+		return err
+	}
+
+	return sl.logFile.Close()
 }
 
 func (sl *ScanLogger) Close() {

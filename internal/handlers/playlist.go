@@ -2,10 +2,9 @@ package handlers
 
 import (
 	"errors"
-	"path/filepath"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
-	"strings"
+	"seanime/internal/util"
 )
 
 // HandleCreatePlaylist
@@ -37,7 +36,7 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	lfs := make([]*anime.LocalFile, 0)
 	for _, path := range b.Paths {
 		for _, lf := range dbLfs {
-			if lf.GetNormalizedPath() == strings.ToLower(filepath.ToSlash(path)) {
+			if lf.GetNormalizedPath() == util.NormalizePath(path) {
 				lfs = append(lfs, lf)
 				break
 			}
@@ -102,7 +101,7 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	lfs := make([]*anime.LocalFile, 0)
 	for _, path := range b.Paths {
 		for _, lf := range dbLfs {
-			if lf.GetNormalizedPath() == strings.ToLower(filepath.ToSlash(path)) {
+			if lf.GetNormalizedPath() == util.NormalizePath(path) {
 				lfs = append(lfs, lf)
 				break
 			}

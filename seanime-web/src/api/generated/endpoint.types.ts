@@ -31,6 +31,10 @@ import type {
     Models_Theme,
     Models_TorrentSettings,
     Models_TorrentstreamSettings,
+    Report_ClickLog,
+    Report_ConsoleLog,
+    Report_NetworkLog,
+    Report_ReactQueryLog,
     RunPlaygroundCodeParams,
     Torrentstream_PlaybackType,
 } from "@/api/generated/types.ts"
@@ -895,6 +899,7 @@ export type AnilistListManga_Variables = {
     genres?: Array<string>
     averageScore_greater?: number
     year?: number
+    countryOfOrigin?: string
     isAdult?: boolean
     format?: AL_MediaFormat
 }
@@ -1303,6 +1308,25 @@ export type GetPlaylistEpisodes_Variables = {
  */
 export type InstallLatestUpdate_Variables = {
     fallback_destination: string
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// report
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/handlers/report.go
+ * - Filename: report.go
+ * - Endpoint: /api/v1/report/issue
+ * @description
+ * Route saves the issue report in memory.
+ */
+export type SaveIssueReport_Variables = {
+    clickLogs: Array<Report_ClickLog>
+    networkLogs: Array<Report_NetworkLog>
+    reactQueryLogs: Array<Report_ReactQueryLog>
+    consoleLogs: Array<Report_ConsoleLog>
+    isAnimeLibraryIssue: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

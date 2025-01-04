@@ -29,7 +29,7 @@ func TestAutoScanner(t *testing.T) {
 		WaitTime:       5 * time.Second, // Set to 5 seconds for testing
 	})
 
-	go as.SetEnabled(true)
+	go as.SetSettings(true)
 
 	as.Start()
 

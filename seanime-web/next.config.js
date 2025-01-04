@@ -18,6 +18,9 @@ const nextConfig = {
     assetPrefix: isProd ? undefined : (isDesktop ? `http://${internalHost}:43210` : undefined),
     experimental: {
         reactCompiler: true,
+    },
+    devIndicators: {
+        appIsrStatus: false,
     }
 }
 

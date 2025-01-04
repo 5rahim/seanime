@@ -387,6 +387,7 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/torrentstream/drop", makeHandler(app, HandleTorrentstreamDropTorrent))
 	v1.Post("/torrentstream/torrent-file-previews", makeHandler(app, HandleGetTorrentstreamTorrentFilePreviews))
 	v1.Post("/torrentstream/batch-history", makeHandler(app, HandleGetTorrentstreamBatchHistory))
+	v1.Get("/torrentstream/stream/*", makeHandler(app, HandleTorrentstreamServeStream))
 
 	//
 	// Extensions
@@ -445,6 +446,13 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Post("/debrid/torrents/file-previews", makeHandler(app, HandleDebridGetTorrentFilePreviews))
 	v1.Post("/debrid/stream/start", makeHandler(app, HandleDebridStartStream))
 	v1.Post("/debrid/stream/cancel", makeHandler(app, HandleDebridCancelStream))
+
+	//
+	// Report
+	//
+
+	v1.Post("/report/issue", makeHandler(app, HandleSaveIssueReport))
+	v1.Get("/report/issue/download", makeHandler(app, HandleDownloadIssueReport))
 
 	//
 	// Websocket

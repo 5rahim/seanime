@@ -79,7 +79,7 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 		debridClientRepository:  opts.DebridClientRepository,
 		settings: &models.AutoDownloaderSettings{
 			Provider:              torrent.ProviderAnimeTosho, // Default provider, will be updated after the settings are fetched
-			Interval:              10,
+			Interval:              20,
 			Enabled:               false,
 			DownloadAutomatically: false,
 			EnableEnhancedQueries: false,
@@ -193,8 +193,9 @@ func (ad *AutoDownloader) start() {
 	}
 
 	for {
-		interval := 10
-		if ad.settings != nil && ad.settings.Interval > 0 {
+		interval := 20
+		// Use the user-defined interval if it's greater or equal to 15
+		if ad.settings != nil && ad.settings.Interval > 0 && ad.settings.Interval >= 15 {
 			interval = ad.settings.Interval
 		}
 		ticker := time.NewTicker(time.Duration(interval) * time.Minute)

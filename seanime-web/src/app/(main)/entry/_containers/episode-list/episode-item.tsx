@@ -31,10 +31,10 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
     isWatched?: boolean
     percentageComplete?: number
     minutesRemaining?: number
+    isOffline?: boolean
 }) => {
 
     const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
-
     const [_, copyToClipboard] = useCopyToClipboard()
 
     return (

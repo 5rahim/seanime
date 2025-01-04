@@ -115,10 +115,10 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             <div>
                 <h3>
-                    Anime progress tracking
+                    Anime tracking
                 </h3>
                 <p className="text-[--muted]">
-                    Only applies to desktop and built-in players.
+                    Only applies to desktop and integrated players.
                 </p>
             </div>
 
@@ -126,6 +126,12 @@ export function ServerSettings(props: ServerSettingsProps) {
                 name="autoUpdateProgress"
                 label="Automatically update progress"
                 help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
+            />
+
+            <Field.Switch
+                name="enableWatchContinuity"
+                label="Enable watch continuity"
+                help="If enabled, Seanime will remember your watch progress and resume from where you left off."
             />
 
             <Separator />

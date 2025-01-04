@@ -141,6 +141,7 @@ query ListManga(
   $startDate_greater: FuzzyDateInt
   $startDate_lesser: FuzzyDateInt
   $format: MediaFormat
+  $countryOfOrigin: CountryCode
   $isAdult: Boolean
 ) {
   Page(page: $page, perPage: $perPage){
@@ -151,7 +152,7 @@ query ListManga(
       currentPage
       lastPage
     },
-    media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
+    media(type: MANGA, isAdult: $isAdult, countryOfOrigin: $countryOfOrigin, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL){
       ...baseManga
     }
   }

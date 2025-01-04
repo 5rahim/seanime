@@ -25,7 +25,7 @@ func TestFindBestMatchWithLevenstein(t *testing.T) {
 	for _, test := range tests {
 
 		t.Run(test.title, func(t *testing.T) {
-			res, ok := FindBestMatchWithLevenstein(&test.title, lo.ToSlicePtr(test.comparisonTitles))
+			res, ok := FindBestMatchWithLevenshtein(&test.title, lo.ToSlicePtr(test.comparisonTitles))
 
 			if assert.True(t, ok) {
 				assert.Equal(t, test.expectedResult, *res.Value, "expected result does not match")

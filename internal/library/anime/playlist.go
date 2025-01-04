@@ -1,8 +1,7 @@
 package anime
 
 import (
-	"path/filepath"
-	"strings"
+	"seanime/internal/util"
 )
 
 type (
@@ -34,7 +33,7 @@ func (pd *Playlist) AddLocalFile(localFile *LocalFile) {
 // RemoveLocalFile removes a local file from the playlist
 func (pd *Playlist) RemoveLocalFile(path string) {
 	for i, lf := range pd.LocalFiles {
-		if lf.GetNormalizedPath() == filepath.ToSlash(strings.ToLower(path)) {
+		if lf.GetNormalizedPath() == util.NormalizePath(path) {
 			pd.LocalFiles = append(pd.LocalFiles[:i], pd.LocalFiles[i+1:]...)
 			return
 		}
@@ -43,7 +42,7 @@ func (pd *Playlist) RemoveLocalFile(path string) {
 
 func (pd *Playlist) LocalFileExists(path string, lfs []*LocalFile) bool {
 	for _, lf := range lfs {
-		if lf.GetNormalizedPath() == filepath.ToSlash(strings.ToLower(path)) {
+		if lf.GetNormalizedPath() == util.NormalizePath(path) {
 			return true
 		}
 	}

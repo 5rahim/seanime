@@ -82,6 +82,8 @@ export const settingsSchema = z.object({
     enableWatchContinuity: z.boolean().optional().default(false),
     libraryPaths: z.array(z.string()).optional().default([]),
     autoSyncOfflineLocalData: z.boolean().optional().default(false),
+    scannerMatchingThreshold: z.number().optional().default(0.5),
+    scannerMatchingAlgorithm: z.string().optional().default(""),
 })
 
 export const gettingStartedSchema = _gettingStartedSchema.extend(settingsSchema.shape)

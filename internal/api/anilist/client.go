@@ -34,7 +34,7 @@ type AnilistClient interface {
 	SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error)
 	BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error)
 	MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error)
-	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
+	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
 	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
@@ -92,12 +92,12 @@ func (ac *AnilistClientImpl) DeleteEntry(ctx context.Context, mediaListEntryID *
 }
 
 func (ac *AnilistClientImpl) AnimeCollection(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollection, error) {
-	ac.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection")
+	ac.logger.Debug().Msg("anilist: Fetching anime collection")
 	return ac.Client.AnimeCollection(ctx, userName, interceptors...)
 }
 
 func (ac *AnilistClientImpl) AnimeCollectionWithRelations(ctx context.Context, userName *string, interceptors ...clientv2.RequestInterceptor) (*AnimeCollectionWithRelations, error) {
-	ac.logger.Debug().Any("username", userName).Msg("anilist: Fetching anime collection with relations")
+	ac.logger.Debug().Msg("anilist: Fetching anime collection with relations")
 	return ac.Client.AnimeCollectionWithRelations(ctx, userName, interceptors...)
 }
 
@@ -155,9 +155,9 @@ func (ac *AnilistClientImpl) MangaDetailsByID(ctx context.Context, id *int, inte
 	return ac.Client.MangaDetailsByID(ctx, id, interceptors...)
 }
 
-func (ac *AnilistClientImpl) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+func (ac *AnilistClientImpl) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
 	ac.logger.Debug().Msg("anilist: Fetching manga list")
-	return ac.Client.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, isAdult, interceptors...)
+	return ac.Client.ListManga(ctx, page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult, interceptors...)
 }
 
 func (ac *AnilistClientImpl) StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error) {

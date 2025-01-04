@@ -4,6 +4,7 @@ import { useAnimeListTorrentProviderExtensions } from "@/api/hooks/extensions.ho
 import { useSaveSettings } from "@/api/hooks/settings.hooks"
 import { useGetTorrentstreamSettings } from "@/api/hooks/torrentstream.hooks"
 import { CustomLibraryBanner } from "@/app/(main)/(library)/_containers/custom-library-banner"
+import { __issueReport_overlayOpenAtom } from "@/app/(main)/_features/issue-report/issue-report"
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
@@ -26,9 +27,10 @@ import { Field, Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
-import { atom } from "jotai"
+import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
@@ -42,6 +44,7 @@ import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist, SiBittorrent } from "react-icons/si"
 import { TbDatabaseExclamation } from "react-icons/tb"
+import { VscDebugAlt } from "react-icons/vsc"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
 
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
@@ -63,6 +66,7 @@ const tabAtom = atom<string>("seanime")
 export default function Page() {
     const status = useServerStatus()
     const setServerStatus = useSetServerStatus()
+    const router = useRouter()
 
     const { mutate, data, isPending } = useSaveSettings()
 
@@ -79,6 +83,13 @@ export default function Page() {
             setServerStatus(data)
         }
     }, [data, isPending])
+
+    const setIssueRecorderOpen = useSetAtom(__issueReport_overlayOpenAtom)
+
+    function handleOpenIssueRecorder() {
+        setIssueRecorderOpen(true)
+        router.push("/")
+    }
 
     return (
         <>
@@ -159,6 +170,8 @@ export default function Page() {
                                         enableWatchContinuity: data.enableWatchContinuity ?? false,
                                         libraryPaths: data.libraryPaths ?? [],
                                         autoSyncOfflineLocalData: data.autoSyncOfflineLocalData ?? false,
+                                        scannerMatchingThreshold: data.scannerMatchingThreshold,
+                                        scannerMatchingAlgorithm: data.scannerMatchingAlgorithm === "-" ? "" : data.scannerMatchingAlgorithm,
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
@@ -267,6 +280,8 @@ export default function Page() {
                                 enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,
                                 libraryPaths: status?.settings?.library?.libraryPaths ?? [],
                                 autoSyncOfflineLocalData: status?.settings?.library?.autoSyncOfflineLocalData ?? false,
+                                scannerMatchingThreshold: status?.settings?.library?.scannerMatchingThreshold ?? 0.5,
+                                scannerMatchingAlgorithm: status?.settings?.library?.scannerMatchingAlgorithm || "-",
                             }}
                             stackClass="space-y-4"
                         >
@@ -277,13 +292,21 @@ export default function Page() {
                                 <div className="flex flex-wrap gap-2">
                                     {!!status?.dataDir && <Button
                                         size="sm"
-                                        intent="white-subtle"
+                                        intent="gray-outline"
                                         onClick={() => openInExplorer({
                                             path: status?.dataDir,
                                         })}
                                     >
                                         Open Data directory
                                     </Button>}
+                                    <Button
+                                        size="sm"
+                                        intent="gray-outline"
+                                        onClick={handleOpenIssueRecorder}
+                                        leftIcon={<VscDebugAlt />}
+                                    >
+                                        Record an issue
+                                    </Button>
                                 </div>
 
                                 <ServerSettings isPending={isPending} />

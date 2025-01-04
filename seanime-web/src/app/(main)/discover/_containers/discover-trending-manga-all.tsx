@@ -15,7 +15,7 @@ import { FiSearch } from "react-icons/fi"
 
 const trendingGenresAtom = atom<string[]>([])
 
-export function DiscoverTrendingManga() {
+export function DiscoverTrendingMangaAll() {
     const genres = useAtomValue(trendingGenresAtom)
     const { data, isLoading } = useAnilistListManga({
         page: 1,

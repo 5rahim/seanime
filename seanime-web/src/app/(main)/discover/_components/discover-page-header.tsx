@@ -3,12 +3,12 @@ import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/cus
 import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { __discover_headerIsTransitioningAtom, __discover_randomTrendingAtom } from "@/app/(main)/discover/_containers/discover-trending"
 import { __discord_pageTypeAtom } from "@/app/(main)/discover/_lib/discover.atoms"
+import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaLink } from "@/components/shared/sea-link"
-import { Button } from "@/components/ui/button"
+import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { cn } from "@/components/ui/core/styling"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeMediaPageBannerSize, ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence, motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
@@ -39,11 +39,18 @@ export function DiscoverPageHeader() {
         }
     }, [pathname])
 
+    const bannerImage = randomTrending?.bannerImage || randomTrending?.coverImage?.extraLarge
+
+    const shouldBlurBanner = (ts.mediaPageBannerType === ThemeMediaPageBannerType.BlurWhenUnavailable && !randomTrending?.bannerImage)
     return (
         <motion.div
             className={cn(
-                "__header lg:h-[26rem]",
+                "__header lg:h-[28rem]",
                 ts.hideTopNavbar && "lg:h-[32rem]",
+                ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[24rem]",
+                (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "lg:h-[28rem]",
+                // (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "lg:h-[32rem]",
+                // (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "lg:h-[33rem]",
             )}
             {...{
                 initial: { opacity: 0 },
@@ -54,11 +61,11 @@ export function DiscoverPageHeader() {
             }}
         >
             <div
-
                 className={cn(
-                    "lg:h-[35rem] w-full flex-none object-cover object-center absolute top-0",
+                    "lg:h-[35rem] w-full overflow-hidden flex-none object-cover object-center absolute top-0 bg-[--background]",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
                     process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "top-[-2rem]",
+                    ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "lg:h-[30rem]",
                 )}
             >
                 <div
@@ -77,27 +84,25 @@ export function DiscoverPageHeader() {
                     )}
                 />
                 <AnimatePresence>
-                    {(!!randomTrending?.bannerImage || !!randomTrending?.coverImage?.extraLarge) && (
+                    {(!!bannerImage) && (
                         <MotionImage
-                            src={randomTrending.bannerImage || randomTrending.coverImage?.extraLarge!}
+                            src={bannerImage}
                             alt="banner image"
                             fill
                             quality={100}
                             priority
-                            {...{
-                                initial: { opacity: 1 },
-                                animate: { opacity: 1 },
-                                exit: { opacity: 0 },
-                                transition: {
-                                    duration: 1.2,
-                                },
-                            }}
                             className={cn(
-                                "object-cover object-center z-[1] transition-opacity duration-1000",
+                                "object-cover object-center z-[1] transition-all duration-1000",
+                                isTransitioning && "scale-[1.01] -translate-x-0.5",
+                                !isTransitioning && "scale-100 translate-x-0",
+                                !randomTrending?.bannerImage && "opacity-35",
                             )}
                         />
                     )}
                 </AnimatePresence>
+                {shouldBlurBanner && <div
+                    className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2] "
+                ></div>}
 
                 {/*RIGHT FADE*/}
                 <div
@@ -114,37 +119,59 @@ export function DiscoverPageHeader() {
                         "opacity-70 duration-500",
                     )}
                 />}
-
-                {!randomTrending?.bannerImage && <Skeleton className="z-0 h-full absolute w-full" />}
-                <AnimatePresence>
-                    {(!!randomTrending && !isTransitioning && (pageType === "anime" || pageType === "manga")) && (
-                        <motion.div
-                            {...{
-                                initial: { opacity: 0, y: -40 },
-                                animate: { opacity: 1, y: 0 },
-                                exit: { opacity: 0, y: -40 },
-                                transition: {
-                                    type: "spring",
-                                    damping: 20,
-                                    stiffness: 100,
-                                },
-                            }}
-                            className="absolute bottom-[8rem] right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block"
+                <div
+                    className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
+                />
+            </div>
+            <AnimatePresence>
+                {(!!randomTrending && !isTransitioning && (pageType === "anime" || pageType === "manga")) && (
+                    <motion.div
+                        {...{
+                            initial: { opacity: 0, x: -40 },
+                            animate: { opacity: 1, x: 0 },
+                            exit: { opacity: 0, x: -20 },
+                            transition: {
+                                type: "spring",
+                                damping: 20,
+                                stiffness: 100,
+                            },
+                        }}
+                        className={cn(
+                            "absolute right-2 w-fit h-[20rem] bg-gradient-to-t z-[3] hidden lg:block",
+                            "top-[5rem]",
+                            ts.hideTopNavbar && "top-[4rem]",
+                            ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "top-[4rem]",
+                            (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && ts.hideTopNavbar) && "top-[2rem]",
+                            (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small) && "top-[0rem]",
+                            (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && ts.mediaPageBannerSize !== ThemeMediaPageBannerSize.Small) && "top-[2rem]",
+                        )}
+                    >
+                        <div
+                            className="flex flex-row-reverse items-center relative gap-6 p-6 pr-3 w-fit overflow-hidden"
+                            onMouseEnter={() => setHoveringHeader(true)}
+                            onMouseLeave={() => setHoveringHeader(false)}
                         >
-                            <div
-                                className="flex flex-row-reverse items-center relative gap-6 p-6 pr-3 w-fit overflow-hidden"
-                                onMouseEnter={() => setHoveringHeader(true)}
-                                onMouseLeave={() => setHoveringHeader(false)}
+                            <motion.div
+                                className="flex-none"
+                                initial={{ opacity: 0, scale: 0.7, skew: 5 }}
+                                animate={{ opacity: 1, scale: 1, skew: 0 }}
+                                exit={{ opacity: 1, scale: 1, skewY: 1 }}
+                                transition={{ duration: 0.5 }}
                             >
-                                <div className="flex-none">
+                                <SeaLink
+                                    href={pageType === "anime"
+                                        ? `/entry?id=${randomTrending.id}`
+                                        : `/manga/entry?id=${randomTrending.id}`}
+                                >
                                     {randomTrending.coverImage?.large && <div
-                                        className="w-[200px] h-[300px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
+                                        className="w-[190px] h-[290px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
                                     >
                                         <Image
                                             src={randomTrending.coverImage.large}
                                             alt="cover image"
                                             fill
                                             priority
+                                            placeholder={imageShimmer(700, 475)}
                                             className={cn(
                                                 "object-cover object-center transition-opacity duration-1000",
                                                 isTransitioning && "opacity-30",
@@ -152,55 +179,77 @@ export function DiscoverPageHeader() {
                                             )}
                                         />
                                     </div>}
+                                </SeaLink>
+                            </motion.div>
+                            <motion.div
+                                className="flex-auto space-y-2 z-[1] text-center"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.5, delay: 0.6 }}
+                            >
+                                <SeaLink
+                                    href={pageType === "anime"
+                                        ? `/entry?id=${randomTrending.id}`
+                                        : `/manga/entry?id=${randomTrending.id}`}
+                                >
+                                    <TextGenerateEffect
+                                        className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white leading-8 line-clamp-2 pb-1 text-center max-w-md text-pretty text-3xl overflow-ellipsis"
+                                        words={randomTrending.title?.userPreferred || ""}
+                                    />
+                                </SeaLink>
+                                {/*<h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>*/}
+                                <div className="flex justify-center items-center max-w-md gap-4">
+                                    {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
+                                        <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
+                                            <RiSignalTowerLine /> Releasing now
+                                        </p>}
+                                    {((!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (randomTrending as AL_BaseAnime)?.format !== "MOVIE") && (
+                                        <p className="text-lg font-semibold">
+                                            {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
+                                                <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episode{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1 === 1
+                                                    ? ""
+                                                    : "s"} released</span> :
+                                                <span>{(randomTrending as AL_BaseAnime).episodes} total
+                                                                                                  episode{(randomTrending as AL_BaseAnime).episodes === 1
+                                                        ? ""
+                                                        : "s"}</span>}
+                                        </p>
+                                    )}
+                                    {randomTrending.meanScore && <div className="rounded-full w-fit inline-block">
+                                        <MediaEntryAudienceScore
+                                            meanScore={randomTrending.meanScore}
+                                        />
+                                    </div>}
                                 </div>
-                                <div className="flex-auto space-y-2 z-[1] text-center">
-                                    <h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>
-                                    <div className="flex justify-center items-center max-w-md gap-4">
-                                        {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
-                                            <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
-                                                <RiSignalTowerLine /> Releasing now
-                                            </p>}
-                                        {(!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (
-                                            <p className="text-lg font-semibold">
-                                                {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
-                                                    <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episodes</span> :
-                                                    <span>{(randomTrending as AL_BaseAnime).episodes} episodes</span>}
-                                            </p>
-                                        )}
-                                        {randomTrending.meanScore && <div className="bg-zinc-900 rounded-full w-fit inline-block">
-                                            <MediaEntryAudienceScore
-                                                meanScore={randomTrending.meanScore}
-                                            />
-                                        </div>}
-                                    </div>
-                                    <div className="pt-2">
-                                        <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
-                                            /(<([^>]+)>)/ig,
-                                            "")}</ScrollArea>
-                                        <SeaLink
-                                            href={pageType === "anime"
-                                                ? `/entry?id=${randomTrending.id}`
-                                                : `/manga/entry?id=${randomTrending.id}`}
-                                        >
-                                            <Button
-                                                intent="white-outline"
-                                                size="md"
-                                                className="text-md w-[14rem] border-opacity-50 text-sm"
-                                            >
-                                                {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" :
-                                                    pageType === "anime" ? "Watch now" : "Read now"}
-                                            </Button>
-                                        </SeaLink>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-                <div
-                    className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
-                />
-            </div>
+                                <motion.div
+                                    className="pt-2"
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 10 }}
+                                    transition={{ duration: 0.5, delay: 0.7 }}
+                                >
+                                    <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
+                                        /(<([^>]+)>)/ig,
+                                        "")}</ScrollArea>
+                                    {/*<SeaLink*/}
+                                    {/*    href={pageType === "anime"*/}
+                                    {/*        ? `/entry?id=${randomTrending.id}`*/}
+                                    {/*        : `/manga/entry?id=${randomTrending.id}`}*/}
+                                    {/*>*/}
+                                    {/*    <Button*/}
+                                    {/*        intent="white-basic"*/}
+                                    {/*        size="md"*/}
+                                    {/*        className="text-md w-[14rem] border-opacity-50 text-sm"*/}
+                                    {/*    >*/}
+                                    {/*        {randomTrending.status === "NOT_YET_RELEASED" ? "Preview" :*/}
+                                    {/*            pageType === "anime" ? "Watch now" : "Read now"}*/}
+                                    {/*    </Button>*/}
+                                    {/*</SeaLink>*/}
+                                </motion.div>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     )
 

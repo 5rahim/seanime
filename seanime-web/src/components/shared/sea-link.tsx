@@ -26,6 +26,7 @@ export const SeaLink = React.forwardRef((props: SeaLinkProps, _) => {
                 onClick={() => {
                     router.push(href as string)
                 }}
+                data-current={(rest as any)["data-current"]}
             >
                 {children}
             </a>

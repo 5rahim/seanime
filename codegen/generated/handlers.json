@@ -4152,6 +4152,15 @@
           "descriptions": []
         },
         {
+          "name": "CountryOfOrigin",
+          "jsonName": "countryOfOrigin",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": false,
+          "descriptions": []
+        },
+        {
           "name": "IsAdult",
           "jsonName": "isAdult",
           "goType": "bool",
@@ -6334,6 +6343,106 @@
     }
   },
   {
+    "name": "HandleSaveIssueReport",
+    "trimmedName": "SaveIssueReport",
+    "comments": [
+      "HandleSaveIssueReport",
+      "",
+      "\t@summary saves the issue report in memory.",
+      "\t@route /api/v1/report/issue [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/report.go",
+    "filename": "report.go",
+    "api": {
+      "summary": "saves the issue report in memory.",
+      "descriptions": [],
+      "endpoint": "/api/v1/report/issue",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ClickLogs",
+          "jsonName": "clickLogs",
+          "goType": "[]report.ClickLog",
+          "usedStructType": "report.ClickLog",
+          "typescriptType": "Array\u003cReport_ClickLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "NetworkLogs",
+          "jsonName": "networkLogs",
+          "goType": "[]report.NetworkLog",
+          "usedStructType": "report.NetworkLog",
+          "typescriptType": "Array\u003cReport_NetworkLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ReactQueryLogs",
+          "jsonName": "reactQueryLogs",
+          "goType": "[]report.ReactQueryLog",
+          "usedStructType": "report.ReactQueryLog",
+          "typescriptType": "Array\u003cReport_ReactQueryLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "ConsoleLogs",
+          "jsonName": "consoleLogs",
+          "goType": "[]report.ConsoleLog",
+          "usedStructType": "report.ConsoleLog",
+          "typescriptType": "Array\u003cReport_ConsoleLog\u003e",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "IsAnimeLibraryIssue",
+          "jsonName": "isAnimeLibraryIssue",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleDownloadIssueReport",
+    "trimmedName": "DownloadIssueReport",
+    "comments": [
+      "HandleDownloadIssueReport",
+      "",
+      "\t@summary generates and downloads the issue report file.",
+      "\t@route /api/v1/report/issue/download [GET]",
+      "\t@returns report.IssueReport",
+      ""
+    ],
+    "filepath": "internal/handlers/report.go",
+    "filename": "report.go",
+    "api": {
+      "summary": "generates and downloads the issue report file.",
+      "descriptions": [],
+      "endpoint": "/api/v1/report/issue/download",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "report.IssueReport",
+      "returnGoType": "report.IssueReport",
+      "returnTypescriptType": "Report_IssueReport"
+    }
+  },
+  {
     "name": "makeHandler",
     "trimmedName": "makeHandler",
     "comments": [
@@ -8074,6 +8183,27 @@
       "returns": "torrentstream.BatchHistoryResponse",
       "returnGoType": "torrentstream.BatchHistoryResponse",
       "returnTypescriptType": "Torrentstream_BatchHistoryResponse"
+    }
+  },
+  {
+    "name": "HandleTorrentstreamServeStream",
+    "trimmedName": "TorrentstreamServeStream",
+    "comments": [
+      "route /api/v1/torrentstream/stream/*",
+      ""
+    ],
+    "filepath": "internal/handlers/torrentstream.go",
+    "filename": "torrentstream.go",
+    "api": {
+      "summary": "",
+      "descriptions": [],
+      "endpoint": "",
+      "methods": null,
+      "params": [],
+      "bodyFields": [],
+      "returns": "boolean",
+      "returnGoType": "boolean",
+      "returnTypescriptType": "boolean"
     }
   },
   {

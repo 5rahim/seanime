@@ -104,6 +104,7 @@ var typePrefixesByPackage = map[string]string{
 	"sync":                       "Sync_",
 	"debrid":                     "Debrid_",
 	"debrid_client":              "DebridClient_",
+	"report":                     "Report_",
 }
 
 func getTypePrefix(packageName string) string {

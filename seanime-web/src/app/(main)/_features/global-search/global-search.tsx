@@ -79,8 +79,17 @@ export function GlobalSearch() {
                             leaveTo="opacity-0 scale-95"
                         >
                             <Dialog.Panel
-                                className="mx-auto max-w-3xl transform overflow-hidden space-y-4 transition-all"
+                                className="mx-auto max-w-3xl transform space-y-4 transition-all"
                             >
+                                <div className="absolute right-2 -top-7 z-10">
+                                    <SeaLink
+                                        href="/search"
+                                        className="text-[--muted] hover:text-[--foreground] font-bold"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Advanced search &rarr;
+                                    </SeaLink>
+                                </div>
                                 <Combobox>
                                     {({ activeOption }: any) => (
                                         <>

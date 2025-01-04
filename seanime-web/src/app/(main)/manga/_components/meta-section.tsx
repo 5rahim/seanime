@@ -13,6 +13,8 @@ import {
 import { MediaSyncTrackButton } from "@/app/(main)/_features/media/_containers/media-sync-track-button"
 import { SeaLink } from "@/components/shared/sea-link"
 import { IconButton } from "@/components/ui/button"
+import { cn } from "@/components/ui/core/styling"
+import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
 
@@ -20,12 +22,31 @@ import { SiAnilist } from "react-icons/si"
 export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL_MangaDetailsById_Media | undefined }) {
 
     const { entry, details } = props
+    const ts = useThemeSettings()
 
     if (!entry?.media) return null
 
+    const Details = () => (
+        <>
+            <div
+                className={cn(
+                    "flex gap-2 flex-wrap items-center",
+                    ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[65vw]",
+                )}
+            >
+                <MediaEntryAudienceScore meanScore={entry.media?.meanScore} badgeClass="bg-transparent" />
+
+                <MediaEntryGenresList genres={details?.genres} />
+            </div>
+
+            <AnimeEntryRankings rankings={details?.rankings} />
+        </>
+    )
+
     return (
         <MediaPageHeader
-            backgroundImage={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge}
+            backgroundImage={entry.media?.bannerImage}
+            coverImage={entry.media?.coverImage?.extraLarge}
         >
 
             <MediaPageHeaderDetailsContainer>
@@ -44,27 +65,22 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                     listData={entry.listData}
                     media={entry.media}
                     type="manga"
-                />
+                >
+                    {ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && <Details />}
+                </MediaPageHeaderEntryDetails>
+
+                {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
 
-                <div className="flex gap-2 items-center">
-                    <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
-
-                    <MediaEntryGenresList genres={details?.genres} />
-                </div>
-
-                <AnimeEntryRankings rankings={details?.rankings} />
-
-
-                <div className="w-full flex justify-between flex-wrap gap-4 items-center">
+                <div className="w-full flex flex-wrap gap-4 items-center">
 
                     <SeaLink href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
                         <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
                     </SeaLink>
 
-                    <div className="flex flex-1"></div>
+                    {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
 
-                    <MediaSyncTrackButton mediaId={entry.mediaId} type="manga" size="lg" />
+                    <MediaSyncTrackButton mediaId={entry.mediaId} type="manga" size="md" />
                 </div>
 
             </MediaPageHeaderDetailsContainer>

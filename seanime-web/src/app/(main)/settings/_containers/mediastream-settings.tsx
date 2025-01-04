@@ -9,6 +9,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
 import { MdOutlineDevices } from "react-icons/md"
+import { toast } from "sonner"
 
 const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeEnabled: z.boolean(),
@@ -105,7 +106,14 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                             <div className="space-y-1">
                                 <Checkbox
                                     value={activeOnDevice ?? false}
-                                    onValueChange={v => setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)}
+                                    onValueChange={v => {
+                                        setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)
+                                        if (v) {
+                                            toast.success("Media streaming is now active on this device.")
+                                        } else {
+                                            toast.info("Media streaming is now inactive on this device.")
+                                        }
+                                    }}
                                     label="Use media streaming on this device"
                                     help="Enable this option if you want to use media streaming on this device."
                                 />
@@ -118,7 +126,7 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                         {(f.watch("transcodeEnabled") && activeOnDevice) && (
                             <Alert
                                 intent="info" description={<>
-                                Your downloaded media files will be played back using the built-in player on this device.
+                                Your downloaded media files will be played using the integrated player on this device.
                             </>}
                             />
                         )}

@@ -275,7 +275,7 @@ func GetBestSearchResult(searchResults []*hibikeonlinestream.SearchResult, title
 	compBestResults := make([]*comparison.LevenshteinResult, 0, len(searchResults))
 	for _, r := range searchResults {
 		// Compare search result title with all titles.
-		compBestResult, found := comparison.FindBestMatchWithLevenstein(&r.Title, titles)
+		compBestResult, found := comparison.FindBestMatchWithLevenshtein(&r.Title, titles)
 		if found {
 			compBestResults = append(compBestResults, compBestResult)
 		}

@@ -21,7 +21,8 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
     return (
         <MediaPageHeader
-            backgroundImage={entry.media?.bannerImage || entry.media?.coverImage?.extraLarge}
+            backgroundImage={entry.media?.bannerImage}
+            coverImage={entry.media?.coverImage?.extraLarge}
         >
 
             <MediaPageHeaderDetailsContainer>
@@ -44,7 +45,7 @@ export function OfflineMetaSection<T extends "anime" | "manga">(props: OfflineMe
 
 
                 <div className="flex gap-2 items-center">
-                    <MediaEntryAudienceScore meanScore={entry.media?.meanScore} />
+                    <MediaEntryAudienceScore meanScore={entry.media?.meanScore} badgeClass="bg-transparent" />
                 </div>
             </MediaPageHeaderDetailsContainer>
         </MediaPageHeader>

@@ -188,6 +188,7 @@ func ListMangaM(
 	AverageScoreGreater *int,
 	Year *int,
 	Format *MediaFormat,
+	CountryOfOrigin *string,
 	IsAdult *bool,
 	logger *zerolog.Logger,
 	token string,
@@ -221,6 +222,9 @@ func ListMangaM(
 	}
 	if Format != nil {
 		variables["format"] = *Format
+	}
+	if CountryOfOrigin != nil {
+		variables["countryOfOrigin"] = *CountryOfOrigin
 	}
 	if IsAdult != nil {
 		variables["isAdult"] = *IsAdult
@@ -359,6 +363,62 @@ func ListAnimeCacheKey(
 	}
 	if Format != nil {
 		key += fmt.Sprintf("_%s", *Format)
+	}
+	if IsAdult != nil {
+		key += fmt.Sprintf("_%t", *IsAdult)
+	}
+
+	return key
+
+}
+func ListMangaCacheKey(
+	Page *int,
+	Search *string,
+	PerPage *int,
+	Sort []*MediaSort,
+	Status []*MediaStatus,
+	Genres []*string,
+	AverageScoreGreater *int,
+	Season *MediaSeason,
+	SeasonYear *int,
+	Format *MediaFormat,
+	CountryOfOrigin *string,
+	IsAdult *bool,
+) string {
+
+	key := "ListAnime"
+	if Page != nil {
+		key += fmt.Sprintf("_%d", *Page)
+	}
+	if Search != nil {
+		key += fmt.Sprintf("_%s", *Search)
+	}
+	if PerPage != nil {
+		key += fmt.Sprintf("_%d", *PerPage)
+	}
+	if Sort != nil {
+		key += fmt.Sprintf("_%v", Sort)
+	}
+	if Status != nil {
+		key += fmt.Sprintf("_%v", Status)
+	}
+	if Genres != nil {
+		key += fmt.Sprintf("_%v", Genres)
+	}
+	if AverageScoreGreater != nil {
+		key += fmt.Sprintf("_%d", *AverageScoreGreater)
+	}
+	if Season != nil {
+		key += fmt.Sprintf("_%s", *Season)
+	}
+	if SeasonYear != nil {
+		key += fmt.Sprintf("_%d", *SeasonYear)
+	}
+	if Format != nil {
+		key += fmt.Sprintf("_%s", *Format)
+	}
+	if CountryOfOrigin != nil {
+		key += fmt.Sprintf("_%s", *CountryOfOrigin)
 	}
 	if IsAdult != nil {
 		key += fmt.Sprintf("_%t", *IsAdult)

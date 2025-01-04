@@ -14,12 +14,14 @@ import { BiHeart, BiHide } from "react-icons/bi"
 
 type MediaEntryGenresListProps = {
     genres?: Array<string | null> | null | undefined
+    className?: string
 }
 
 export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
 
     const {
         genres,
+        className,
         ...rest
     } = props
 
@@ -30,9 +32,16 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     if (serverStatus?.isOffline) {
         return (
             <>
-                <div className="items-center flex flex-wrap gap-2">
+                <div className={cn("items-center flex flex-wrap gap-0", className)}>
                     {genres?.map(genre => {
-                        return <Badge key={genre!} className="border-transparent" size="lg">{genre}</Badge>
+                        return <Badge
+                            key={genre!}
+                            className={cn(
+                                "opacity-75 hover:opacity-100 transition-all border-transparent bg-transparent hover:bg-black/30 hover:text-white")}
+                            size="lg"
+                        >
+                            {genre}
+                        </Badge>
                     })}
                 </div>
             </>
@@ -40,10 +49,16 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     } else {
         return (
             <>
-                <div className="items-center flex flex-wrap gap-2">
+                <div className={cn("items-center flex flex-wrap gap-0", className)}>
                     {genres?.map(genre => {
                         return <SeaLink href={`/search?genre=${genre}&sorting=TRENDING_DESC`} key={genre!}>
-                            <Badge className="border-transparent" size="lg">{genre}</Badge>
+                            <Badge
+                                className={cn(
+                                    "opacity-75 hover:opacity-100 transition-all border-transparent bg-transparent hover:bg-black/30 hover:text-white")}
+                                size="lg"
+                            >
+                                {genre}
+                            </Badge>
                         </SeaLink>
                     })}
                 </div>
@@ -74,7 +89,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
     return (
         <>
             {hideAudienceScore ? <Disclosure type="single" collapsible>
-                <DisclosureItem value="item-1" className="flex items-center gap-1">
+                <DisclosureItem value="item-1" className="flex items-center gap-0">
                     <Tooltip
                         side="right"
                         trigger={<DisclosureTrigger>
@@ -147,9 +162,9 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                     <Badge
                         size="lg"
                         intent="gray"
-                        leftIcon={<AiFillStar />}
+                        leftIcon={<AiFillStar className="text-lg" />}
                         iconClass="text-yellow-500"
-                        className="rounded-full border-transparent px-2"
+                        className="opacity-75 transition-all hover:opacity-100 rounded-full bg-transparent border-transparent px-2 hover:bg-black/30 hover:text-white"
                     >
                         #{String(allTimeHighestRated.rank)} Highest
                         Rated {formatFormat(allTimeHighestRated.format)} of All
@@ -166,7 +181,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                         intent="gray"
                         leftIcon={<AiOutlineStar />}
                         iconClass="text-yellow-500"
-                        className="rounded-full border-transparent px-2"
+                        className="opacity-75 transition-all hover:opacity-100 rounded-full border-transparent bg-transparent px-2 hover:bg-black/30 hover:text-white"
                     >
                         #{String(seasonHighestRated.rank)} Highest
                         Rated {formatFormat(seasonHighestRated.format)} of {capitalize(seasonHighestRated.season!)} {seasonHighestRated.year}
@@ -184,7 +199,7 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                         intent="gray"
                         leftIcon={<AiOutlineHeart />}
                         iconClass="text-pink-500"
-                        className="rounded-full border-transparent px-2"
+                        className="opacity-75 transition-all hover:opacity-100 rounded-full border-transparent bg-transparent px-2 hover:bg-black/30 hover:text-white"
                     >
                         #{(String(seasonMostPopular.rank))} Most
                         Popular {formatFormat(seasonMostPopular.format)} of {capitalize(seasonMostPopular.season!)} {seasonMostPopular.year}

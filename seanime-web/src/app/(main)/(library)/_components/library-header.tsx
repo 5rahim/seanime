@@ -4,7 +4,7 @@ import { __libraryHeaderEpisodeAtom } from "@/app/(main)/(library)/_containers/c
 import { TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE } from "@/app/(main)/_features/custom-ui/styles"
 import { cn } from "@/components/ui/core/styling"
 import { getImageUrl } from "@/lib/server/assets"
-import { useThemeSettings } from "@/lib/theme/hooks"
+import { ThemeMediaPageBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { Transition } from "@headlessui/react"
 import { motion } from "framer-motion"
 import { atom, useAtomValue } from "jotai"
@@ -13,7 +13,10 @@ import Image from "next/image"
 import React, { useEffect, useState } from "react"
 import { useWindowScroll } from "react-use"
 
-export const __libraryHeaderImageAtom = atom<string | null>(null)
+export const __libraryHeaderImageAtom = atom<{ bannerImage?: string | null, episodeImage?: string | null } | null>({
+    bannerImage: null,
+    episodeImage: null,
+})
 
 export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
 
@@ -26,10 +29,18 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
 
     const setHeaderEpisode = useSetAtom(__libraryHeaderEpisodeAtom)
 
+    const bannerImage = image?.bannerImage || image?.episodeImage || ""
+    const shouldHideBanner = (
+        (ts.mediaPageBannerType === ThemeMediaPageBannerType.HideWhenUnavailable && !image?.bannerImage)
+        || ts.mediaPageBannerType === ThemeMediaPageBannerType.Hide
+    )
+    const shouldBlurBanner = (ts.mediaPageBannerType === ThemeMediaPageBannerType.BlurWhenUnavailable && !image?.bannerImage) ||
+        ts.mediaPageBannerType === ThemeMediaPageBannerType.Blur
+
     useEffect(() => {
         if (image != actualImage) {
             if (actualImage === null) {
-                setActualImage(image)
+                setActualImage(bannerImage)
             } else {
                 setActualImage(null)
             }
@@ -39,8 +50,8 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
     React.useLayoutEffect(() => {
         const t = setTimeout(() => {
             if (image != actualImage) {
-                setActualImage(image)
-                setHeaderEpisode(list.find(ep => ep.baseAnime?.bannerImage === image || ep.episodeMetadata?.image === image) || null)
+                setActualImage(bannerImage)
+                setHeaderEpisode(list.find(ep => ep.baseAnime?.bannerImage === image?.episodeImage || ep.baseAnime?.coverImage?.extraLarge === image?.episodeImage || ep.episodeMetadata?.image === image?.episodeImage) || null)
             }
         }, 600)
 
@@ -52,7 +63,7 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
     useEffect(() => {
         if (actualImage) {
             setPrevImage(actualImage)
-            setHeaderEpisode(list.find(ep => ep.baseAnime?.bannerImage === actualImage || ep.episodeMetadata?.image === actualImage) || null)
+            setHeaderEpisode(list.find(ep => ep.baseAnime?.bannerImage === actualImage || ep.baseAnime?.coverImage?.extraLarge === actualImage || ep.episodeMetadata?.image === actualImage) || null)
         }
     }, [actualImage])
 
@@ -124,6 +135,7 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                             sizes="100vw"
                             className={cn(
                                 "object-cover object-center z-[1] opacity-100 transition-opacity duration-700 scroll-locked-offset",
+                                (shouldHideBanner || shouldBlurBanner) && "opacity-15",
                                 { "opacity-5": dimmed },
                             )}
                         />}
@@ -137,6 +149,7 @@ export function LibraryHeader({ list }: { list: Anime_Episode[] }) {
                         sizes="100vw"
                         className={cn(
                             "object-cover object-center z-[1] opacity-50 transition-opacity scroll-locked-offset",
+                            (shouldHideBanner || shouldBlurBanner) && "opacity-15",
                             { "opacity-5": dimmed },
                         )}
                     />}

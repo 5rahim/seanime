@@ -82,7 +82,10 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                 const randomIndex = inViewEpisodes[Math.floor(Math.random() * inViewEpisodes.length)]
                 const episode = episodes[randomIndex]
                 if (episode) {
-                    setHeaderImage(episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null)
+                    setHeaderImage({
+                        bannerImage: episode.baseAnime?.bannerImage || null,
+                        episodeImage: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge || null,
+                    })
                 }
             }
         }, 500)
@@ -145,8 +148,11 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
 
     React.useEffect(() => {
         setHeaderImage(prev => {
-            if (prev === null) {
-                return episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null
+            if (prev?.episodeImage === null) {
+                return {
+                    bannerImage: episode.baseAnime?.bannerImage || null,
+                    episodeImage: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge || null,
+                }
             }
             return prev
         })
@@ -177,7 +183,10 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
             onMouseEnter={() => {
                 React.startTransition(() => {
-                    setHeaderImage(episode.baseAnime?.bannerImage || episode.episodeMetadata?.image || null)
+                    setHeaderImage({
+                        bannerImage: episode.baseAnime?.bannerImage || null,
+                        episodeImage: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge || null,
+                    })
                 })
             }}
             mRef={mRef}

@@ -28,17 +28,6 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
     return (
         <>
             <div>
-                <h3>External Media Player</h3>
-
-                <p className="text-[--muted]">
-                    Manage your external media players.
-                </p>
-            </div>
-
-            <Separator className="!mt-10" />
-            <br />
-
-            <div>
                 <h3>Desktop Media Player</h3>
 
                 <p className="text-[--muted]">

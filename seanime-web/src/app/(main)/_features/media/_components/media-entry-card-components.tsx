@@ -1,6 +1,7 @@
 import { AL_BaseAnime_NextAiringEpisode, AL_MediaListStatus, AL_MediaStatus } from "@/api/generated/types"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
+import { __ui_fixBorderRenderingArtifacts } from "@/app/(main)/settings/_containers/ui-settings"
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +11,7 @@ import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { addSeconds, formatDistanceToNow } from "date-fns"
 import { atom, useAtom } from "jotai/index"
+import { useAtomValue } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import startCase from "lodash/startCase"
 import Image from "next/image"
@@ -85,6 +87,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
     } = props
 
     const ts = useThemeSettings()
+    const markBorderRenderingArtifacts = useAtomValue(__ui_fixBorderRenderingArtifacts)
 
     return (
         <div
@@ -97,6 +100,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
                 "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
                 "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
                 "hidden lg:block", // Hide on small screens
+                markBorderRenderingArtifacts && "w-[101%] -left-[0.5%]",
             )}
             {...rest}
         >
@@ -298,14 +302,17 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
         ...rest
     } = props
 
-
     return (
         <>
             <SeaLink
                 href={link}
                 className="w-full relative focus-visible:ring-2 ring-[--brand]"
             >
-                <div className="aspect-[6/8] flex-none rounded-md object-cover object-center relative overflow-hidden select-none">
+                <div
+                    className={cn(
+                        "media-entry-card__body aspect-[6/8] flex-none rounded-md object-cover object-center relative overflow-hidden select-none",
+                    )}
+                >
 
                     {/*[CUSTOM UI] BOTTOM GRADIENT*/}
                     <MediaCardBodyBottomGradient />
@@ -352,7 +359,10 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         placeholder={imageShimmer(700, 475)}
                         quality={100}
                         sizes="20rem"
-                        className="object-cover object-center group-hover/media-entry-card:scale-110 transition"
+                        className={cn(
+                            "object-cover object-center transition-transform",
+                            "group-hover/media-entry-card:scale-110",
+                        )}
                     />
 
                     {(blurAdultContent && isAdult) && <div

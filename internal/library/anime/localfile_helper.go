@@ -77,7 +77,7 @@ func (f *LocalFile) IsIgnored() bool {
 // GetNormalizedPath returns the lowercase path of the LocalFile.
 // Use this for comparison.
 func (f *LocalFile) GetNormalizedPath() string {
-	return filepath.ToSlash(strings.ToLower(f.Path))
+	return util.NormalizePath(f.Path)
 }
 
 func (f *LocalFile) GetPath() string {
@@ -85,12 +85,12 @@ func (f *LocalFile) GetPath() string {
 }
 
 func (f *LocalFile) HasSamePath(path string) bool {
-	return f.GetNormalizedPath() == filepath.ToSlash(strings.ToLower(path))
+	return f.GetNormalizedPath() == util.NormalizePath(path)
 }
 
 // IsInDir returns true if the LocalFile is in the given directory.
 func (f *LocalFile) IsInDir(dirPath string) bool {
-	dirPath = strings.ToLower(filepath.ToSlash(dirPath))
+	dirPath = util.NormalizePath(dirPath)
 	if !filepath.IsAbs(dirPath) {
 		return false
 	}
@@ -99,12 +99,12 @@ func (f *LocalFile) IsInDir(dirPath string) bool {
 
 // IsAtRootOf returns true if the LocalFile is at the root of the given directory.
 func (f *LocalFile) IsAtRootOf(dirPath string) bool {
-	dirPath = strings.TrimSuffix(strings.ToLower(filepath.ToSlash(dirPath)), "/")
+	dirPath = strings.TrimSuffix(util.NormalizePath(dirPath), "/")
 	return filepath.ToSlash(filepath.Dir(f.GetNormalizedPath())) == dirPath
 }
 
 func (f *LocalFile) Equals(lf *LocalFile) bool {
-	return filepath.ToSlash(strings.ToLower(f.Path)) == filepath.ToSlash(strings.ToLower(lf.Path))
+	return util.NormalizePath(f.Path) == util.NormalizePath(lf.Path)
 }
 
 func (f *LocalFile) IsIncluded(lfs []*LocalFile) bool {

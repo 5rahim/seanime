@@ -9,7 +9,7 @@ export const enum PlaybackDownloadedMedia {
 }
 
 export const playbackDownloadedMediaOptions = [
-    { label: "Desktop media player / Built-in player (media streaming)", value: PlaybackDownloadedMedia.Default },
+    { label: "Desktop media player / Integrated player (media streaming)", value: PlaybackDownloadedMedia.Default },
     { label: "External player link", value: PlaybackDownloadedMedia.ExternalPlayerLink },
 ]
 

@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -131,4 +132,8 @@ func Pluralize(count int, singular, plural string) string {
 		return singular
 	}
 	return plural
+}
+
+func NormalizePath(path string) (ret string) {
+	return strings.ToLower(filepath.ToSlash(path))
 }

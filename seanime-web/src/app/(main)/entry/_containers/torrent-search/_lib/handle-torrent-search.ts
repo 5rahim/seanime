@@ -123,7 +123,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         && !warnings.extensionDoesNotSupportAdult
         && !warnings.extensionDoesNotSupportSmartSearch
         && !warnings.extensionDoesNotSupportBestRelease
-        && !!providerExtensions // Provider extensions must be loaded
+        && !!providerExtensions, // Provider extensions must be loaded
     )
 
     React.useLayoutEffect(() => {
@@ -141,8 +141,22 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // const isFetching = React.useMemo(() => isAdult ? _nsfw_isFetching : _isFetching, [_isFetching, _nsfw_isFetching])
 
     React.useEffect(() => {
-        logger("Torrent Provider").info(warnings)
+        logger("TORRENT SEARCH").info({ warnings })
     }, [warnings])
+    React.useEffect(() => {
+        logger("TORRENT SEARCH").info({ selectedProviderExtension })
+    }, [warnings])
+    React.useEffect(() => {
+        logger("TORRENT SEARCH").info({
+            globalFilter,
+            searchType,
+            smartSearchBatch,
+            smartSearchEpisode,
+            smartSearchResolution,
+            smartSearchBest,
+            dSmartSearchEpisode,
+        })
+    }, [globalFilter, searchType, smartSearchBatch, smartSearchEpisode, smartSearchResolution, smartSearchBest, dSmartSearchEpisode])
 
     return {
         warnings,

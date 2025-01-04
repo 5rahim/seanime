@@ -1,10 +1,15 @@
-import { AL_BaseAnime, Anime_LibraryCollection } from "@/api/generated/types"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
+import {
+    AL_BaseAnime,
+    Anime_AutoDownloaderRuleEpisodeType,
+    Anime_AutoDownloaderRuleTitleComparisonType,
+    Anime_LibraryCollection,
+} from "@/api/generated/types"
 import { useCreateAutoDownloaderRule } from "@/api/hooks/auto_downloader.hooks"
 import { useAnilistUserAnime } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useLibraryCollection } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { TextArrayField } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
-import { DirectorySelector } from "@/components/shared/directory-selector"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { CloseButton, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -12,7 +17,9 @@ import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
+import { useQueryClient } from "@tanstack/react-query"
 import { uniq } from "lodash"
+import Image from "next/image"
 import React from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { BiPlus } from "react-icons/bi"
@@ -57,6 +64,7 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
         return allMedia.filter(media => media.status !== "FINISHED")
     }, [allMedia])
 
+    const queryClient = useQueryClient()
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
     const isPending = creatingRule
@@ -66,28 +74,21 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
             if (entry.destination === "" || entry.mediaId === 0) {
                 continue
             }
-            console.log(entry)
-            // createRule({
-            //     titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-            //     episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
-            //     enabled: data.enabled,
-            //     mediaId: entry.mediaId,
-            //     releaseGroups: data.releaseGroups,
-            //     resolutions: data.resolutions,
-            //     additionalTerms: data.additionalTerms,
-            //     comparisonTitle: "",
-            //     destination: entry.destination,
-            // }, {
-            //     onSuccess: () => onRuleCreated?.(),
-            // })
+            createRule({
+                titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
+                episodeType: "recent" as Anime_AutoDownloaderRuleEpisodeType,
+                enabled: data.enabled,
+                mediaId: entry.mediaId,
+                releaseGroups: data.releaseGroups,
+                resolutions: data.resolutions,
+                additionalTerms: data.additionalTerms,
+                comparisonTitle: entry.comparisonTitle,
+                destination: entry.destination,
+            })
         }
-        // createRule({
-        //     ...data,
-        //     titleComparisonType: data.titleComparisonType as Anime_AutoDownloaderRuleTitleComparisonType,
-        //     episodeType: data.episodeType as Anime_AutoDownloaderRuleEpisodeType,
-        // }, {
-        //     onSuccess: () => onRuleCreatedOrDeleted?.(),
-        // })
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key] })
+        onRuleCreated?.()
     }
 
     if (allMedia.length === 0) {
@@ -105,6 +106,7 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 }}
                 defaultValues={{
                     enabled: true,
+                    titleComparisonType: "likely",
                 }}
             >
                 {(f) => <RuleFormFields
@@ -295,9 +297,10 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
             update(index, {
                 ...field,
                 ...updatedValues,
-                destination: field.destination === props.libraryPath
-                    ? upath.join(props.libraryPath, sanitizedTitle)
-                    : field.destination,
+                destination: upath.join(props.libraryPath, sanitizedTitle),
+                // destination: field.destination === props.libraryPath
+                //     ? upath.join(props.libraryPath, sanitizedTitle)
+                //     : field.destination,
                 comparisonTitle: sanitizedTitle,
             })
         } else {
@@ -317,27 +320,40 @@ export function MediaArrayField(props: MediaArrayFieldProps) {
                     <div className="flex gap-4 items-center w-full">
                         <div className="flex flex-col gap-2 w-full">
                             <div className="border rounded-[--radius] p-4 relative !mt-8 space-y-3">
-                                <Select
-                                    label="Library Entry"
-                                    options={props.allMedia
-                                        .map(media => ({
-                                            label: media.title?.userPreferred || "N/A",
-                                            value: String(media.id),
-                                        }))
-                                        .toSorted((a, b) => a.label.localeCompare(b.label))
-                                    }
-                                    value={String(field.mediaId)}
-                                    onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}
-                                />
-                                <DirectorySelector
+                                <div className="flex gap-4 items-center">
+                                    <div
+                                        className="size-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative bg-gray-800"
+                                    >
+                                        {!!props.allMedia.find(m => m.id === field?.mediaId)?.coverImage?.large && <Image
+                                            src={props.allMedia.find(m => m.id === field?.mediaId)!.coverImage!.large!}
+                                            alt="banner"
+                                            fill
+                                            quality={80}
+                                            priority
+                                            sizes="20rem"
+                                            className="object-cover object-center"
+                                        />}
+                                    </div>
+                                    <Select
+                                        label="Library Entry"
+                                        options={props.allMedia
+                                            .map(media => ({
+                                                label: media.title?.userPreferred || "N/A",
+                                                value: String(media.id),
+                                            }))
+                                            .toSorted((a, b) => a.label.localeCompare(b.label))
+                                        }
+                                        value={String(field.mediaId)}
+                                        onValueChange={(v) => handleFieldChange(index, { mediaId: parseInt(v) }, field)}
+                                    />
+                                </div>
+                                <Field.DirectorySelector
+                                    name={`entries.${index}.destination`}
                                     label="Destination"
                                     help="Folder in your local library where the files will be saved"
                                     leftIcon={<FcFolder />}
                                     shouldExist={false}
-                                    value={field.destination}
                                     defaultValue={props.libraryPath}
-                                    onSelect={(v) => {}}
-                                    {...props.form.register(`entries.${index}.destination`)}
                                 />
                                 <TextInput
                                     // name="comparisonTitle"

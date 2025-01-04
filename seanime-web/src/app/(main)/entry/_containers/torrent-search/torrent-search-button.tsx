@@ -1,6 +1,6 @@
 import { Anime_Entry } from "@/api/generated/types"
+import { AnimeMetaActionButton } from "@/app/(main)/entry/_components/meta-section"
 import { __torrentSearch_drawerIsOpenAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { Button } from "@/components/ui/button"
 import { useSetAtom } from "jotai/react"
 import React, { useMemo } from "react"
 import { BiDownload } from "react-icons/bi"
@@ -13,9 +13,8 @@ export function TorrentSearchButton({ entry }: { entry: Anime_Entry }) {
     const isMovie = useMemo(() => entry.media?.format === "MOVIE", [entry.media?.format])
 
     return (
-        <div className="w-full">
-            <Button
-                className="w-full"
+        <div className="contents">
+            <AnimeMetaActionButton
                 intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "gray-subtle") : "white-subtle"}
                 size="md"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
@@ -28,7 +27,7 @@ export function TorrentSearchButton({ entry }: { entry: Anime_Entry }) {
                 </> : <>
                     Search torrents
                 </>}
-            </Button>
+            </AnimeMetaActionButton>
         </div>
     )
 }

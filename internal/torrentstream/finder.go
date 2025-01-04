@@ -177,6 +177,7 @@ searchLoop:
 			Media:            media,
 			Platform:         r.platform,
 			MetadataProvider: r.metadataProvider,
+			ForceMatch:       true,
 		})
 
 		r.logger.Debug().Msgf("torrentstream: Analyzing torrent %s", searchT.Link)

@@ -58,6 +58,7 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	if err != nil {
 		return c.RespondWithError(err)
 	}
+	defer scanLogger.Done()
 
 	// Create a new scanner
 	sc := scanner.Scanner{
@@ -73,6 +74,8 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		ScanSummaryLogger:  scanSummaryLogger,
 		ScanLogger:         scanLogger,
 		MetadataProvider:   c.App.MetadataProvider,
+		MatchingAlgorithm:  c.App.Settings.Library.ScannerMatchingAlgorithm,
+		MatchingThreshold:  c.App.Settings.Library.ScannerMatchingThreshold,
 	}
 
 	// Scan the library

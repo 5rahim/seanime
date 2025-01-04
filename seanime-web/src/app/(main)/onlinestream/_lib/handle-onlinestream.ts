@@ -6,6 +6,7 @@ import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_autoPlayAtom,
+    __onlinestream_fullscreenAtom,
     __onlinestream_qualityAtom,
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedEpisodeNumberAtom,
@@ -16,6 +17,7 @@ import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
+import mousetrap from "mousetrap"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -159,6 +161,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
     const setDubbed = useSetAtom(__onlinestream_selectedDubbedAtom)
+    const isFullscreen = useAtomValue(__onlinestream_fullscreenAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
 
     const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
@@ -176,8 +179,13 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
 
     // Get the list of servers
     const servers = React.useMemo(() => {
-        if (!episodeSource) return []
-        return uniq(episodeSource.videoSources?.map((source) => source.server))
+        if (!episodeSource) {
+            logger("ONLINESTREAM").info("Updating servers, no episode source", [])
+            return []
+        }
+        const servers = episodeSource.videoSources?.map((source) => source.server)
+        logger("ONLINESTREAM").info("Updating servers", servers)
+        return uniq(servers)
     }, [episodeSource])
 
     /**
@@ -202,6 +210,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     React.useEffect(() => {
         logger("ONLINESTREAM").info("Changing stream URL using videoSource", { videoSource })
         setUrl(undefined)
+        logger("ONLINESTREAM").info("Setting stream URL to undefined")
         if (videoSource?.url) {
             setServer(videoSource.server)
             let _url = videoSource.url
@@ -250,13 +259,15 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
      * - Change the server if the server is errored
      * - Change the provider if all servers are errored
      */
-    const onFatalError = React.useCallback(() => {
+    const onFatalError = () => {
         logger("ONLINESTREAM").error("onFatalError", {
             sameProvider: provider == currentProviderRef.current,
         })
         if (provider == currentProviderRef.current) {
             setUrl(undefined)
+            logger("ONLINESTREAM").error("Setting stream URL to undefined")
             toast.info("Playback error, changing server")
+            logger("ONLINESTREAM").error("Player encountered a fatal error")
             setTimeout(() => {
                 logger("ONLINESTREAM").error("erroredServers", erroredServers)
                 if (videoSource?.server) {
@@ -270,7 +281,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
                 }
             }, 500)
         }
-    }, [provider, videoSource, providerExtensionOptions])
+    }
 
     /**
      * Handle provider setup
@@ -287,11 +298,12 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     /**
      * Handle the onCanPlay event
      */
-    const onCanPlay = React.useCallback(() => {
+    const onCanPlay = () => {
         logger("ONLINESTREAM").info("Can play event", {
             previousCurrentTime: previousCurrentTimeRef.current,
             previousIsPlayingRef: previousIsPlayingRef.current,
         })
+
         // When the onCanPlay event is received
         // Restore the previous time if set
         if (previousCurrentTimeRef.current > 0) {
@@ -299,12 +311,13 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             Object.assign(playerRef.current ?? {}, { currentTime: previousCurrentTimeRef.current })
             // Reset the previous time ref
             previousCurrentTimeRef.current = 0
+            logger("ONLINESTREAM").info("Seeking to previous time", { previousCurrentTime: previousCurrentTimeRef.current })
         }
 
 
         if (watchHistory?.found) {
             const lastWatchedTime = getEpisodeContinuitySeekTo(episodeSource?.number, playerRef.current?.currentTime, playerRef.current?.duration)
-            logger("CONTINUITY").info("Seeking to last watched time", { lastWatchedTime })
+            logger("CONTINUITY").info("Seeking to last watched time if greater than 0", { lastWatchedTime })
             if (lastWatchedTime > 0) {
                 Object.assign(playerRef.current ?? {}, { currentTime: lastWatchedTime })
             }
@@ -314,9 +327,22 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         setTimeout(() => {
             if (previousIsPlayingRef.current) {
                 playerRef.current?.play()
+                logger("ONLINESTREAM").info("Resuming playback since past video was playing before the onCanPlay event")
             }
         }, 500)
-    }, [watchHistory, episodeSource?.number, serverStatus?.settings?.library?.enableWatchContinuity])
+    }
+
+    React.useEffect(() => {
+        mousetrap.bind("f", () => {
+            logger("ONLINESTREAM").info("Fullscreen key pressed")
+            playerRef.current?.enterFullscreen()
+            playerRef.current?.el?.focus()
+        })
+
+        return () => {
+            mousetrap.unbind("f")
+        }
+    }, [])
 
 
     // Quality
@@ -331,6 +357,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         try {
             previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
             previousIsPlayingRef.current = playerRef.current?.paused === false
+            logger("ONLINESTREAM").info("Changing quality", { quality })
         }
         catch {
         }
@@ -342,6 +369,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         try {
             previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
             previousIsPlayingRef.current = playerRef.current?.paused === false
+            logger("ONLINESTREAM").info("Changing provider", { provider })
         }
         catch {
         }
@@ -353,6 +381,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         try {
             previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
             previousIsPlayingRef.current = playerRef.current?.paused === false
+            logger("ONLINESTREAM").info("Changing server", { server })
         }
         catch {
         }
@@ -365,6 +394,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         try {
             previousCurrentTimeRef.current = playerRef.current?.currentTime ?? 0
             previousIsPlayingRef.current = playerRef.current?.paused === false
+            logger("ONLINESTREAM").info("Toggling dubbed")
         }
         catch {
         }

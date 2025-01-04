@@ -64,7 +64,7 @@ func HandleLogin(c *RouteCtx) error {
 		return c.RespondWithError(err)
 	}
 
-	c.App.Logger.Info().Msg("app: Authenticated to AniList as " + getViewer.Viewer.Name)
+	c.App.Logger.Info().Msg("app: Authenticated to AniList")
 
 	// Create a new status
 	status := NewStatus(c)

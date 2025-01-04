@@ -36,7 +36,11 @@ export function ComingUpNext() {
         }
     }, [animeCollection])
 
-    if (media.length === 0) return null
+    // if (media.length === 0) return (
+    //     <LuffyError title="No upcoming episodes">
+    //         <p>There are no upcoming episodes based on your anime list.</p>
+    //     </LuffyError>
+    // )
 
     return (
         <AppLayoutStack className="space-y-8">
@@ -50,45 +54,49 @@ export function ComingUpNext() {
                 missingEpisodes={missingEpisodes}
             />
 
-            <div>
-                <h2>Coming up next</h2>
-                <p className="text-[--muted]">Based on your anime list</p>
-            </div>
+            {media.length > 0 && (
+                <>
+                    <div>
+                        <h2>Coming up next</h2>
+                        <p className="text-[--muted]">Based on your anime list</p>
+                    </div>
 
-            <Carousel
-                className="w-full max-w-full"
-                gap="md"
-                opts={{
-                    align: "start",
-                }}
-                autoScroll
-            >
-                <CarouselDotButtons />
-                <CarouselContent>
-                    {media.map(item => {
-                        return (
-                            <CarouselItem
-                                key={item.id}
-                                className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
-                            >
-                                <EpisodeCard
-                                    key={item.id}
-                                    image={item.bannerImage || item.coverImage?.large}
-                                    topTitle={item.title?.userPreferred}
-                                    title={`Episode ${item.nextAiringEpisode?.episode}`}
-                                    meta={formatDistanceToNow(addSeconds(new Date(), item.nextAiringEpisode?.timeUntilAiring!),
-                                        { addSuffix: true })}
-                                    imageClass="opacity-50"
-                                    actionIcon={null}
-                                    onClick={() => {
-                                        router.push(`/entry?id=${item.id}`)
-                                    }}
-                                />
-                            </CarouselItem>
-                        )
-                    })}
-                </CarouselContent>
-            </Carousel>
+                    <Carousel
+                        className="w-full max-w-full"
+                        gap="md"
+                        opts={{
+                            align: "start",
+                        }}
+                        autoScroll
+                    >
+                        <CarouselDotButtons />
+                        <CarouselContent>
+                            {media.map(item => {
+                                return (
+                                    <CarouselItem
+                                        key={item.id}
+                                        className="md:basis-1/2 lg:basis-1/3 2xl:basis-1/4 min-[2000px]:basis-1/5"
+                                    >
+                                        <EpisodeCard
+                                            key={item.id}
+                                            image={item.bannerImage || item.coverImage?.large}
+                                            topTitle={item.title?.userPreferred}
+                                            title={`Episode ${item.nextAiringEpisode?.episode}`}
+                                            meta={formatDistanceToNow(addSeconds(new Date(), item.nextAiringEpisode?.timeUntilAiring!),
+                                                { addSuffix: true })}
+                                            imageClass="opacity-50"
+                                            actionIcon={null}
+                                            onClick={() => {
+                                                router.push(`/entry?id=${item.id}`)
+                                            }}
+                                        />
+                                    </CarouselItem>
+                                )
+                            })}
+                        </CarouselContent>
+                    </Carousel>
+                </>
+            )}
         </AppLayoutStack>
     )
 }

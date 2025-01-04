@@ -27,7 +27,7 @@ type GithubGraphQLClient interface {
 	SearchBaseManga(ctx context.Context, page *int, perPage *int, sort []*MediaSort, search *string, status []*MediaStatus, interceptors ...clientv2.RequestInterceptor) (*SearchBaseManga, error)
 	BaseMangaByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*BaseMangaByID, error)
 	MangaDetailsByID(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*MangaDetailsByID, error)
-	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
+	ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error)
 	ViewerStats(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*ViewerStats, error)
 	StudioDetails(ctx context.Context, id *int, interceptors ...clientv2.RequestInterceptor) (*StudioDetails, error)
 	GetViewer(ctx context.Context, interceptors ...clientv2.RequestInterceptor) (*GetViewer, error)
@@ -8387,7 +8387,7 @@ func (c *Client) MangaDetailsByID(ctx context.Context, id *int, interceptors ...
 	return &res, nil
 }
 
-const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $startDate_greater: FuzzyDateInt, $startDate_lesser: FuzzyDateInt, $format: MediaFormat, $isAdult: Boolean) {
+const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPage: Int, $sort: [MediaSort], $status: [MediaStatus], $genres: [String], $averageScore_greater: Int, $startDate_greater: FuzzyDateInt, $startDate_lesser: FuzzyDateInt, $format: MediaFormat, $countryOfOrigin: CountryCode, $isAdult: Boolean) {
 	Page(page: $page, perPage: $perPage) {
 		pageInfo {
 			hasNextPage
@@ -8396,7 +8396,7 @@ const ListMangaDocument = `query ListManga ($page: Int, $search: String, $perPag
 			currentPage
 			lastPage
 		}
-		media(type: MANGA, isAdult: $isAdult, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL) {
+		media(type: MANGA, isAdult: $isAdult, countryOfOrigin: $countryOfOrigin, search: $search, sort: $sort, status_in: $status, format: $format, genre_in: $genres, averageScore_greater: $averageScore_greater, startDate_greater: $startDate_greater, startDate_lesser: $startDate_lesser, format_not: NOVEL) {
 			... baseManga
 		}
 	}
@@ -8443,7 +8443,7 @@ fragment baseManga on Media {
 }
 `
 
-func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
+func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPage *int, sort []*MediaSort, status []*MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *MediaFormat, countryOfOrigin *string, isAdult *bool, interceptors ...clientv2.RequestInterceptor) (*ListManga, error) {
 	vars := map[string]any{
 		"page":                 page,
 		"search":               search,
@@ -8455,6 +8455,7 @@ func (c *Client) ListManga(ctx context.Context, page *int, search *string, perPa
 		"startDate_greater":    startDateGreater,
 		"startDate_lesser":     startDateLesser,
 		"format":               format,
+		"countryOfOrigin":      countryOfOrigin,
 		"isAdult":              isAdult,
 	}
 

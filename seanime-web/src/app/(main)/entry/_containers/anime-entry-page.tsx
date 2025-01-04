@@ -11,6 +11,7 @@ import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-sear
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
@@ -61,6 +62,7 @@ export function AnimeEntryPage() {
     const mediaId = searchParams.get("id")
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
     const { data: animeDetails, isLoading: animeDetailsLoading } = useGetAnilistAnimeDetails(mediaId)
+    const ts = useThemeSettings()
 
     const { currentView, isLibraryView, setView } = useAnimeEntryPageView()
 
@@ -124,6 +126,10 @@ export function AnimeEntryPage() {
                     }}
                 >
                     <AnimatePresence mode="wait" initial={false}>
+                        {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
+                            <div className="h-10 lg:h-10"></div>
+                        )}
+
                         {(currentView === "library") && <PageWrapper
                             key="episode-list"
                             className="relative 2xl:order-first pb-10"

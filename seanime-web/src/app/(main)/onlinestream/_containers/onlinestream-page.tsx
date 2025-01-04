@@ -18,6 +18,7 @@ import {
     __onlinestream_autoNextAtom,
     __onlinestream_autoPlayAtom,
     __onlinestream_autoSkipIntroOutroAtom,
+    __onlinestream_fullscreenAtom,
     __onlinestream_volumeAtom,
 } from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { useSkipData } from "@/app/(main)/onlinestream/_lib/skip"
@@ -42,6 +43,7 @@ import {
 } from "@vidstack/react"
 import { DefaultVideoLayout } from "@vidstack/react/player/layouts/default"
 import HLS from "hls.js"
+import { useSetAtom } from "jotai"
 import { atom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
@@ -258,6 +260,8 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
 
     const watchHistoryRef = React.useRef<number>(0)
 
+    const setFullscreen = useSetAtom(__onlinestream_fullscreenAtom)
+
     if (!loadPage || !media || animeEntryLoading) return <div className="space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
@@ -365,6 +369,9 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             volume={volume}
                             onVolumeChange={(e, n) => {
                                 setVolume(n.detail.volume)
+                            }}
+                            onFullscreenChange={isFullscreen => {
+                                setFullscreen(isFullscreen)
                             }}
                             onTimeUpdate={(e) => {
                                 if (watchHistoryRef.current > 2000) {

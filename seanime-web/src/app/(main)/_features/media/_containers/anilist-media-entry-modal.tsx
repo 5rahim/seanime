@@ -9,6 +9,7 @@ import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Modal } from "@/components/ui/modal"
 import { NumberInput } from "@/components/ui/number-input"
+import { Tooltip } from "@/components/ui/tooltip"
 import { normalizeDate } from "@/lib/helpers/date"
 import { getImageUrl } from "@/lib/server/assets"
 import Image from "next/image"
@@ -68,7 +69,8 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                     onClick={toggle}
                 />}
 
-                {(!listData) && <IconButton
+                {(!listData) && <Tooltip
+                    trigger={<IconButton
                     intent="primary-subtle"
                     icon={<BiPlus />}
                     rounded
@@ -84,7 +86,10 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         completedAt: undefined,
                         type: type,
                     })}
-                />}
+                    />}
+                >
+                    Add to list
+                </Tooltip>}
             </>}
 
             <Modal

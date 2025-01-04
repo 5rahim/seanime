@@ -233,16 +233,14 @@ func (c *Client) GetStreamingUrl() string {
 	if c.torrentClient.IsAbsent() {
 		return ""
 	}
-
 	if c.currentFile.IsAbsent() {
 		return ""
 	}
-
-	settings := c.repository.settings.MustGet()
-	if settings.StreamingServerHost == "0.0.0.0" {
-		return fmt.Sprintf("http://127.0.0.1:%d/stream/%s", settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+	if c.repository.settings.IsAbsent() {
+		return ""
 	}
-	return fmt.Sprintf("http://%s:%d/stream/%s", settings.StreamingServerHost, settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
+	address := fmt.Sprintf("%s:%d", c.repository.settings.MustGet().Host, c.repository.settings.MustGet().Port)
+	return fmt.Sprintf("http://%s/api/v1/torrentstream/stream/%s", address, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
 }
 
 func (c *Client) AddTorrent(id string) (*torrent.Torrent, error) {

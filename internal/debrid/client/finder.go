@@ -186,6 +186,7 @@ searchLoop:
 			Media:            media,
 			Platform:         r.platform,
 			MetadataProvider: r.metadataProvider,
+			ForceMatch:       true,
 		})
 
 		r.logger.Debug().Msgf("debridstream: Analyzing torrent %s", searchT.Link)
@@ -203,6 +204,10 @@ searchLoop:
 			tries++
 			continue
 		}
+
+		r.logger.Debug().Int("count", len(analysis.GetFiles())).Msgf("debridstream: Analyzed torrent %s", searchT.Link)
+
+		r.logger.Debug().Msgf("debridstream: Finding corresponding file for episode %s", strconv.Itoa(episodeNumber))
 
 		analysisFile, found := analysis.GetFileByAniDBEpisode(strconv.Itoa(episodeNumber))
 		// Check if analyzer found the episode

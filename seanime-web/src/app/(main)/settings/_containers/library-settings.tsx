@@ -1,4 +1,5 @@
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Field } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import React from "react"
@@ -63,11 +64,37 @@ export function LibrarySettings(props: LibrarySettingsProps) {
                 </div>}
             />
 
-            <Field.Switch
-                name="enableWatchContinuity"
-                label="Enable watch continuity"
-                help="If enabled, Seanime will remember your watch progress and resume from where you left off."
-            />
+            <Separator />
+
+            <Accordion type="single" collapsible>
+                <AccordionItem value="more">
+                    <AccordionTrigger className="bg-gray-900 rounded-md">
+                        Advanced
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">
+                        <Field.Select
+                            options={[
+                                { value: "-", label: "Levenshtein + Sorensen-Dice (Default)" },
+                                { value: "sorensen-dice", label: "Sorensen-Dice" },
+                                { value: "jaccard", label: "Jaccard" },
+                            ]}
+                            name="scannerMatchingAlgorithm"
+                            label="Matching algorithm"
+                            help="Choose the algorithm used to match files to AniList entries."
+                        />
+                        <Field.Number
+                            name="scannerMatchingThreshold"
+                            label="Matching threshold"
+                            help="The minimum score required for a file to be matched to an AniList entry."
+                            formatOptions={{
+                                minimumFractionDigits: 1,
+                                maximumFractionDigits: 1,
+                            }}
+                            step={0.1}
+                        />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
 
             <SettingsSubmitButton isPending={isPending} />
 

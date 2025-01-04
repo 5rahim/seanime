@@ -23,7 +23,7 @@ export function AnimeEntryStudio(props: AnimeEntryStudioProps) {
             <Badge
                 size="lg"
                 intent="gray"
-                className="rounded-full border-transparent cursor-pointer"
+                className="rounded-full border-transparent bg-transparent cursor-pointer transition-colors hover:bg-black/30 hover:text-white"
             >
                 {studios?.nodes?.[0]?.name}
             </Badge>

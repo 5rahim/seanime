@@ -1382,6 +1382,18 @@ export const API_ENDPOINTS = {
             endpoint: "/api/v1/latest-update",
         },
     },
+    REPORT: {
+        SaveIssueReport: {
+            key: "REPORT-save-issue-report",
+            methods: ["POST"],
+            endpoint: "/api/v1/report/issue",
+        },
+        DownloadIssueReport: {
+            key: "REPORT-download-issue-report",
+            methods: ["GET"],
+            endpoint: "/api/v1/report/issue/download",
+        },
+    },
     SCAN: {
         /**
          *  @description
