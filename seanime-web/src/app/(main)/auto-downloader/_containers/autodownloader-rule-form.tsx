@@ -179,6 +179,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
     const serverStatus = useServerStatus()
 
     const form_mediaId = useWatch({ name: "mediaId" }) as number
+    const form_episodeType = useWatch({ name: "episodeType" }) as Anime_AutoDownloaderRuleEpisodeType
 
     const selectedMedia = allMedia.find(media => media.id === Number(form_mediaId))
 
@@ -218,7 +219,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
             <div
                 className={cn(
                     "space-y-3",
-                    !form.watch("enabled") && "opacity-50 pointer-events-none",
+                    // !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
                 {!mediaId && <div className="flex gap-4 items-end">
@@ -315,7 +316,7 @@ export function RuleFormFields(props: RuleFormFieldsProps) {
                         ]}
                     />
 
-                    {form.watch("episodeType") === "selected" && <TextArrayField
+                    {form_episodeType === "selected" && <TextArrayField
                         label="Episode numbers"
                         name="episodeNumbers"
                         control={form.control}

@@ -11,9 +11,9 @@ var CurrAutoDownloaderRules []*anime.AutoDownloaderRule
 
 func GetAutoDownloaderRules(db *db.Database) ([]*anime.AutoDownloaderRule, error) {
 
-	if CurrAutoDownloaderRules != nil {
-		return CurrAutoDownloaderRules, nil
-	}
+	//if CurrAutoDownloaderRules != nil {
+	//	return CurrAutoDownloaderRules, nil
+	//}
 
 	var res []*models.AutoDownloaderRule
 	err := db.Gorm().Find(&res).Error
@@ -33,7 +33,7 @@ func GetAutoDownloaderRules(db *db.Database) ([]*anime.AutoDownloaderRule, error
 		rules = append(rules, &sm)
 	}
 
-	CurrAutoDownloaderRules = rules
+	//CurrAutoDownloaderRules = rules
 
 	return rules, nil
 }

@@ -86,9 +86,11 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
                 destination: entry.destination,
             })
         }
-        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
-        queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key] })
         onRuleCreated?.()
+        setTimeout(() => {
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key] })
+        }, 1000)
     }
 
     if (allMedia.length === 0) {
@@ -149,7 +151,7 @@ function RuleFormFields(props: RuleFormFieldsProps) {
             <div
                 className={cn(
                     "space-y-3",
-                    !form.watch("enabled") && "opacity-50 pointer-events-none",
+                    // !form.watch("enabled") && "opacity-50 pointer-events-none",
                 )}
             >
 
