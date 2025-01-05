@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## v2.6.2
 
+- ⚡️ Advanced search: Maintain search params during navigation #195
 - 🦺 Torrent streaming: Fixed playback issue
 - 🦺 Auto Downloader: Fixed list not updating correctly after batch creation
 - 🔧 Torrent streaming: Reverted to using separate streaming server

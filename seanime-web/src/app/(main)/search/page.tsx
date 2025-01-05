@@ -29,20 +29,22 @@ export default function Page() {
     const setParams = useSetAtom(__advancedSearch_paramsAtom)
 
     useMount(() => {
-        setParams({
-            active: true,
-            title: null,
-            sorting: sortingUrlParam ? [sortingUrlParam as AL_MediaSort] : null,
-            status: statusUrlParam ? [statusUrlParam as AL_MediaStatus] : null,
-            genre: genreUrlParam ? [genreUrlParam] : null,
-            format: (formatUrlParam as AL_MediaFormat) === "MANGA" ? null : (formatUrlParam as AL_MediaFormat),
-            season: (seasonUrlParam as AL_MediaSeason) || null,
-            year: yearUrlParam || null,
-            minScore: null,
-            isAdult: false,
-            countryOfOrigin: null,
-            type: (formatUrlParam as AL_MediaFormat) === "MANGA" ? "manga" : (typeUrlParam as "anime" | "manga") || "anime",
-        })
+        if (sortingUrlParam || genreUrlParam || statusUrlParam || formatUrlParam || seasonUrlParam || yearUrlParam || typeUrlParam) {
+            setParams({
+                active: true,
+                title: null,
+                sorting: sortingUrlParam ? [sortingUrlParam as AL_MediaSort] : null,
+                status: statusUrlParam ? [statusUrlParam as AL_MediaStatus] : null,
+                genre: genreUrlParam ? [genreUrlParam] : null,
+                format: (formatUrlParam as AL_MediaFormat) === "MANGA" ? null : (formatUrlParam as AL_MediaFormat),
+                season: (seasonUrlParam as AL_MediaSeason) || null,
+                year: yearUrlParam || null,
+                minScore: null,
+                isAdult: false,
+                countryOfOrigin: null,
+                type: (formatUrlParam as AL_MediaFormat) === "MANGA" ? "manga" : (typeUrlParam as "anime" | "manga") || "anime",
+            })
+        }
     })
 
     return (

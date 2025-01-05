@@ -17,7 +17,7 @@ type Params = {
 }
 
 export const __advancedSearch_paramsAtom = atomWithImmer<Params>({
-    active: false,
+    active: true,
     title: null,
     sorting: null,
     status: null,
