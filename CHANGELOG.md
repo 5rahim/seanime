@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.6.2
+
+- 🦺 Torrent streaming: Fixed playback issue
+- 🦺 Auto Downloader: Fixed list not updating correctly after batch creation
+- 🔧 Torrent streaming: Reverted to using separate streaming server
+
 ## v2.6.1
 
 - ⚡️ Anime library: Filtering by year now takes into account the season year
