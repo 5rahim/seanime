@@ -1,4 +1,3 @@
-import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import {
     AL_BaseAnime,
     Anime_AutoDownloaderRuleEpisodeType,
@@ -17,7 +16,6 @@ import { defineSchema, Field, Form, InferType } from "@/components/ui/form"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
-import { useQueryClient } from "@tanstack/react-query"
 import { uniq } from "lodash"
 import Image from "next/image"
 import React from "react"
@@ -64,7 +62,6 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
         return allMedia.filter(media => media.status !== "FINISHED")
     }, [allMedia])
 
-    const queryClient = useQueryClient()
     const { mutate: createRule, isPending: creatingRule } = useCreateAutoDownloaderRule()
 
     const isPending = creatingRule
@@ -87,10 +84,6 @@ export function AutoDownloaderBatchRuleForm(props: AutoDownloaderBatchRuleFormPr
             })
         }
         onRuleCreated?.()
-        setTimeout(() => {
-            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRules.key] })
-            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.AUTO_DOWNLOADER.GetAutoDownloaderRulesByAnime.key] })
-        }, 1000)
     }
 
     if (allMedia.length === 0) {
