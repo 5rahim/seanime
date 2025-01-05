@@ -326,8 +326,8 @@ type TorrentstreamSettings struct {
 	AddToLibrary        bool   `gorm:"column:add_to_library" json:"addToLibrary"`
 	TorrentClientHost   string `gorm:"column:torrent_client_host" json:"torrentClientHost"`
 	TorrentClientPort   int    `gorm:"column:torrent_client_port" json:"torrentClientPort"`
-	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"` // UNUSED, LEGACY
-	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"` // UNUSED, LEGACY
+	StreamingServerHost string `gorm:"column:streaming_server_host" json:"streamingServerHost"`
+	StreamingServerPort int    `gorm:"column:streaming_server_port" json:"streamingServerPort"`
 	//FallbackToTorrentStreamingView bool   `gorm:"column:fallback_to_torrent_streaming_view" json:"fallbackToTorrentStreamingView"` // DEPRECATED
 	IncludeInLibrary bool `gorm:"column:include_in_library" json:"includeInLibrary"`
 	// v2.6+

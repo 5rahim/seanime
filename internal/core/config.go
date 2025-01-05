@@ -51,6 +51,9 @@ type Config struct {
 	Anilist struct {
 		ClientID string
 	}
+	Experimental struct {
+		MainServerTorrentStreaming bool
+	}
 }
 
 type ConfigOptions struct {
@@ -287,6 +290,11 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	if err := checkIsValidPath(cfg.Extensions.Dir); err != nil {
 		return wrapInvalidConfigValue("extensions.dir", err)
 	}
+
+	// Uncomment if "MainServerTorrentStreaming" is no longer an experimental feature
+	//if cfg.Experimental.MainServerTorrentStreaming {
+	//	logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
+	//}
 
 	return nil
 }

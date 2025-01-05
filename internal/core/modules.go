@@ -461,7 +461,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 		}
 	}
 
-	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host, a.Config.Server.Port)
+	err := a.TorrentstreamRepository.InitModules(settings, a.Config.Server.Host, a.Config.Server.Port, a.FeatureFlags.IsMainServerTorrentStreamingEnabled())
 	if err != nil && settings.Enabled {
 		a.Logger.Error().Err(err).Msg("app: Failed to initialize Torrent streaming module")
 		//_, _ = a.Database.UpsertTorrentstreamSettings(&models.TorrentstreamSettings{

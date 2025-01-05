@@ -47,8 +47,9 @@ type (
 
 	Settings struct {
 		models.TorrentstreamSettings
-		Host string
-		Port int
+		Host              string
+		Port              int
+		UseSeparateServer bool
 	}
 
 	NewRepositoryOptions struct {
@@ -117,8 +118,9 @@ func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer
 
 // InitModules sets the settings for the torrentstream module.
 // It should be called before any other method, to ensure the module is active.
-func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string, port int) (err error) {
+func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string, port int, isMainServer bool) (err error) {
 	r.client.Shutdown()
+	useSeparateServer := !isMainServer
 
 	defer util.HandlePanicInModuleWithError("torrentstream/InitModules", &err)
 
@@ -162,12 +164,18 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		TorrentstreamSettings: s,
 		Host:                  host,
 		Port:                  port,
+		UseSeparateServer:     useSeparateServer,
 	})
 
 	// Initialize the torrent client
 	err = r.client.initializeClient()
 	if err != nil {
 		return err
+	}
+
+	if useSeparateServer {
+		// Initialize the streaming server
+		r.serverManager.initializeServer()
 	}
 
 	r.logger.Info().Msg("torrentstream: Module initialized")
@@ -188,11 +196,15 @@ func (r *Repository) FailIfNoSettings() error {
 // Shutdown closes the torrent client and streaming server
 // TEST-ONLY
 func (r *Repository) Shutdown() {
-	if r.settings.IsAbsent() {
+	settings, ok := r.settings.Get()
+	if !ok {
 		return
 	}
 	r.logger.Debug().Msg("torrentstream: Shutting down module")
 	r.client.Shutdown()
+	if settings.UseSeparateServer {
+		r.serverManager.stopServer()
+	}
 }
 
 //// Cleanup shuts down the module and removes the download directory
