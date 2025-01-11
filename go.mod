@@ -115,6 +115,8 @@ require (
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/labstack/echo/v4 v4.13.3 // indirect
+	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -170,6 +172,7 @@ require (
 	github.com/tidwall/btree v1.6.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.52.0 // indirect
+	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.16 // indirect
 	github.com/wlynxg/anet v0.0.3 // indirect
@@ -182,7 +185,7 @@ require (
 	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/time v0.5.0 // indirect
+	golang.org/x/time v0.8.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

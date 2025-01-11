@@ -1,7 +1,6 @@
 package playbackmanager_test
 
 import (
-	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
@@ -12,6 +11,8 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilist.AnimeCollection, error) {
@@ -48,7 +49,6 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 		},
 		DiscordPresence:   nil,
 		IsOffline:         false,
-		OfflineHub:        nil,
 		ContinuityManager: continuityManager,
 	}), animeCollection, nil
 }

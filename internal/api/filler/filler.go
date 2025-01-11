@@ -2,11 +2,12 @@ package filler
 
 import (
 	"fmt"
+	"seanime/internal/util"
+	"strings"
+
 	"github.com/adrg/strutil/metrics"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
-	"seanime/internal/util"
-	"strings"
 )
 
 type (
