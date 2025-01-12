@@ -15,7 +15,7 @@ func newWebSocketEventHandler(app *core.App) fiber.Handler {
 
 		id := c.Locals("id").(string)
 
-		app.WSEventManager.AddConn(id, c)
+		//app.WSEventManager.AddConn(id, c)
 		app.Logger.Debug().Str("id", id).Msg("ws: Client connected")
 
 		var (

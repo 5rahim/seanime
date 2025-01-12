@@ -3,13 +3,14 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/rs/zerolog"
 )
@@ -38,6 +39,8 @@ var logBufferMutex = &sync.Mutex{}
 func NewLogger() *zerolog.Logger {
 
 	timeFormat := fmt.Sprintf("%s", time.DateTime)
+	fieldsOrder := []string{"method", "status", "error", "uri", "latency_human"}
+	fieldsExclude := []string{"host", "latency", "referer", "remote_ip", "user_agent", "bytes_in", "bytes_out", "file"}
 
 	// Set up logger
 	consoleOutput := zerolog.ConsoleWriter{
@@ -45,6 +48,8 @@ func NewLogger() *zerolog.Logger {
 		TimeFormat:    timeFormat,
 		FormatLevel:   ZerologFormatLevelPretty,
 		FormatMessage: ZerologFormatMessagePretty,
+		FieldsExclude: fieldsExclude,
+		FieldsOrder:   fieldsOrder,
 	}
 
 	fileOutput := zerolog.ConsoleWriter{
@@ -53,6 +58,8 @@ func NewLogger() *zerolog.Logger {
 		FormatMessage: ZerologFormatMessageSimple,
 		FormatLevel:   ZerologFormatLevelSimple,
 		NoColor:       true, // Needed to prevent color codes from being written to the file
+		FieldsExclude: fieldsExclude,
+		FieldsOrder:   fieldsOrder,
 	}
 
 	multi := zerolog.MultiLevelWriter(consoleOutput, fileOutput)

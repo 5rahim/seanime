@@ -93,8 +93,8 @@ func NewFiberApp(app *App, webFS *embed.FS) *fiber.App {
 	return fiberApp
 }
 
-// RunServer starts the server
-func RunServer(app *App, fiberApp *fiber.App) {
+// RunFiberServer starts the server
+func RunFiberServer(app *App, fiberApp *fiber.App) {
 	app.Logger.Info().Msgf("app: Server Address: %s", app.Config.GetServerAddr())
 
 	// DEVNOTE: Crashes self-update loop
@@ -108,10 +108,4 @@ func RunServer(app *App, fiberApp *fiber.App) {
 	}()
 
 	app.Logger.Info().Msg("app: Seanime started at " + app.Config.GetServerURI())
-}
-
-func (a *App) Cleanup() {
-	for _, f := range a.Cleanups {
-		f()
-	}
 }

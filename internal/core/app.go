@@ -336,3 +336,9 @@ func (a *App) IsOffline() bool {
 func (a *App) AddCleanupFunction(f func()) {
 	a.Cleanups = append(a.Cleanups, f)
 }
+
+func (a *App) Cleanup() {
+	for _, f := range a.Cleanups {
+		f()
+	}
+}

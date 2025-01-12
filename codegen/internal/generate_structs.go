@@ -78,6 +78,7 @@ var typePrefixesByPackage = map[string]string{
 	"mappings":                   "Mappings_",
 	"mal":                        "MAL_",
 	"handlers":                   "",
+	"handlersv2":                 "HandlersV2_", // TODO
 	"animetosho":                 "AnimeTosho_",
 	"updater":                    "Updater_",
 	"anime":                      "Anime_",

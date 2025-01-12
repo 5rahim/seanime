@@ -1,13 +1,15 @@
 package events
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/gofiber/contrib/websocket"
-	"github.com/rs/zerolog"
 	"os"
 	"seanime/internal/util"
 	"sync"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/rs/zerolog"
+
+	"github.com/gorilla/websocket"
 )
 
 type WSEventManagerInterface interface {
@@ -19,7 +21,6 @@ type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
 	WSEventManager struct {
-		//Conn   *websocket.Conn // DEPRECATED
 		Conns            []*WSConn
 		Logger           *zerolog.Logger
 		hasHadConnection bool
