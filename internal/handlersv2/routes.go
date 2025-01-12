@@ -106,6 +106,335 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/log/*", h.HandleGetLogContent)
 	v1.GET("/logs/filenames", h.HandleGetLogFilenames)
 	v1.DELETE("/logs", h.HandleDeleteLogs)
+
+	// Auth
+	v1.POST("/auth/login", h.HandleLogin)
+	v1.POST("/auth/logout", h.HandleLogout)
+
+	// Settings
+	v1.GET("/settings", h.HandleGetSettings)
+	v1.PATCH("/settings", h.HandleSaveSettings)
+	v1.POST("/start", h.HandleGettingStarted)
+	v1.PATCH("/settings/auto-downloader", h.HandleSaveAutoDownloaderSettings)
+
+	// Auto Downloader
+	v1.POST("/auto-downloader/run", h.HandleRunAutoDownloader)
+	v1.GET("/auto-downloader/rule/:id", h.HandleGetAutoDownloaderRule)
+	v1.GET("/auto-downloader/rule/anime/:id", h.HandleGetAutoDownloaderRulesByAnime)
+	v1.GET("/auto-downloader/rules", h.HandleGetAutoDownloaderRules)
+	v1.POST("/auto-downloader/rule", h.HandleCreateAutoDownloaderRule)
+	v1.PATCH("/auto-downloader/rule", h.HandleUpdateAutoDownloaderRule)
+	v1.DELETE("/auto-downloader/rule/:id", h.HandleDeleteAutoDownloaderRule)
+
+	v1.GET("/auto-downloader/items", h.HandleGetAutoDownloaderItems)
+	v1.DELETE("/auto-downloader/item", h.HandleDeleteAutoDownloaderItem)
+
+	// Other
+	v1.POST("/test-dump", h.HandleTestDump)
+
+	v1.POST("/directory-selector", h.HandleDirectorySelector)
+
+	v1.POST("/open-in-explorer", h.HandleOpenInExplorer)
+
+	v1.POST("/media-player/start", h.HandleStartDefaultMediaPlayer)
+
+	//
+	// AniList
+	//
+
+	v1Anilist := v1.Group("/anilist")
+
+	v1Anilist.GET("/collection", h.HandleGetAnimeCollection)
+	v1Anilist.POST("/collection", h.HandleGetAnimeCollection)
+
+	v1Anilist.GET("/collection/raw", h.HandleGetRawAnimeCollection)
+	v1Anilist.POST("/collection/raw", h.HandleGetRawAnimeCollection)
+
+	v1Anilist.GET("/media-details/:id", h.HandleGetAnilistAnimeDetails)
+
+	v1Anilist.GET("/studio-details/:id", h.HandleGetAnilistStudioDetails)
+
+	v1Anilist.POST("/list-entry", h.HandleEditAnilistListEntry)
+
+	v1Anilist.DELETE("/list-entry", h.HandleDeleteAnilistListEntry)
+
+	v1Anilist.POST("/list-anime", h.HandleAnilistListAnime)
+
+	v1Anilist.POST("/list-recent-anime", h.HandleAnilistListRecentAiringAnime)
+
+	v1Anilist.GET("/list-missed-sequels", h.HandleAnilistListMissedSequels)
+
+	v1Anilist.GET("/stats", h.HandleGetAniListStats)
+
+	//
+	// MAL
+	//
+
+	v1.POST("/mal/auth", h.HandleMALAuth)
+
+	v1.POST("/mal/logout", h.HandleMALLogout)
+
+	//
+	// Library
+	//
+
+	v1Library := v1.Group("/library")
+
+	v1Library.POST("/scan", h.HandleScanLocalFiles)
+
+	v1Library.DELETE("/empty-directories", h.HandleRemoveEmptyDirectories)
+
+	v1Library.GET("/local-files", h.HandleGetLocalFiles)
+	v1Library.POST("/local-files", h.HandleLocalFileBulkAction)
+	v1Library.PATCH("/local-files", h.HandleUpdateLocalFiles)
+	v1Library.DELETE("/local-files", h.HandleDeleteLocalFiles)
+	v1Library.GET("/local-files/dump", h.HandleDumpLocalFilesToFile)
+	v1Library.POST("/local-files/import", h.HandleImportLocalFiles)
+	v1Library.PATCH("/local-file", h.HandleUpdateLocalFileData)
+
+	v1Library.GET("/collection", h.HandleGetLibraryCollection)
+
+	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
+
+	v1Library.GET("/missing-episodes", h.HandleGetMissingEpisodes)
+
+	v1Library.GET("/anime-entry/:id", h.HandleGetAnimeEntry)
+	v1Library.POST("/anime-entry/suggestions", h.HandleFetchAnimeEntrySuggestions)
+	v1Library.POST("/anime-entry/manual-match", h.HandleAnimeEntryManualMatch)
+	v1Library.PATCH("/anime-entry/bulk-action", h.HandleAnimeEntryBulkAction)
+	v1Library.POST("/anime-entry/open-in-explorer", h.HandleOpenAnimeEntryInExplorer)
+	v1Library.POST("/anime-entry/update-progress", h.HandleUpdateAnimeEntryProgress)
+	v1Library.POST("/anime-entry/update-repeat", h.HandleUpdateAnimeEntryRepeat)
+	v1Library.GET("/anime-entry/silence/:id", h.HandleGetAnimeEntrySilenceStatus)
+	v1Library.POST("/anime-entry/silence", h.HandleToggleAnimeEntrySilenceStatus)
+
+	v1Library.POST("/unknown-media", h.HandleAddUnknownMedia)
+
+	//
+	// Torrent / Torrent Client
+	//
+
+	v1.POST("/torrent/search", h.HandleSearchTorrent)
+	v1.POST("/torrent-client/download", h.HandleTorrentClientDownload)
+	v1.GET("/torrent-client/list", h.HandleGetActiveTorrentList)
+	v1.POST("/torrent-client/action", h.HandleTorrentClientAction)
+	v1.POST("/torrent-client/rule-magnet", h.HandleTorrentClientAddMagnetFromRule)
+
+	//
+	// Download
+	//
+
+	v1.POST("/download-torrent-file", h.HandleDownloadTorrentFile)
+
+	//
+	// Updates
+	//
+
+	v1.GET("/latest-update", h.HandleGetLatestUpdate)
+	v1.POST("/install-update", h.HandleInstallLatestUpdate)
+	v1.POST("/download-release", h.HandleDownloadRelease)
+
+	//
+	// Theme
+	//
+
+	v1.GET("/theme", h.HandleGetTheme)
+	v1.PATCH("/theme", h.HandleUpdateTheme)
+
+	//
+	// Playback Manager
+	//
+
+	v1.POST("/playback-manager/sync-current-progress", h.HandlePlaybackSyncCurrentProgress)
+	v1.POST("/playback-manager/start-playlist", h.HandlePlaybackStartPlaylist)
+	v1.POST("/playback-manager/playlist-next", h.HandlePlaybackPlaylistNext)
+	v1.POST("/playback-manager/cancel-playlist", h.HandlePlaybackCancelCurrentPlaylist)
+	v1.POST("/playback-manager/next-episode", h.HandlePlaybackPlayNextEpisode)
+	v1.GET("/playback-manager/next-episode", h.HandlePlaybackGetNextEpisode)
+	v1.POST("/playback-manager/autoplay-next-episode", h.HandlePlaybackAutoPlayNextEpisode)
+	v1.POST("/playback-manager/play", h.HandlePlaybackPlayVideo)
+	v1.POST("/playback-manager/play-random", h.HandlePlaybackPlayRandomVideo)
+	//------------
+	v1.POST("/playback-manager/manual-tracking/start", h.HandlePlaybackStartManualTracking)
+	v1.POST("/playback-manager/manual-tracking/cancel", h.HandlePlaybackCancelManualTracking)
+
+	//
+	// Playlists
+	//
+
+	v1.GET("/playlists", h.HandleGetPlaylists)
+	v1.POST("/playlist", h.HandleCreatePlaylist)
+	v1.PATCH("/playlist", h.HandleUpdatePlaylist)
+	v1.DELETE("/playlist", h.HandleDeletePlaylist)
+	v1.GET("/playlist/episodes/:id/:progress", h.HandleGetPlaylistEpisodes)
+
+	//
+	// Onlinestream
+	//
+
+	v1.POST("/onlinestream/episode-source", h.HandleGetOnlineStreamEpisodeSource)
+	v1.POST("/onlinestream/episode-list", h.HandleGetOnlineStreamEpisodeList)
+	v1.DELETE("/onlinestream/cache", h.HandleOnlineStreamEmptyCache)
+
+	v1.POST("/onlinestream/search", h.HandleOnlinestreamManualSearch)
+	v1.POST("/onlinestream/manual-mapping", h.HandleOnlinestreamManualMapping)
+	v1.POST("/onlinestream/get-mapping", h.HandleGetOnlinestreamMapping)
+	v1.POST("/onlinestream/remove-mapping", h.HandleRemoveOnlinestreamMapping)
+
+	//
+	// Metadata Provider
+	//
+
+	v1.POST("/metadata-provider/tvdb-episodes", h.HandlePopulateTVDBEpisodes)
+	v1.DELETE("/metadata-provider/tvdb-episodes", h.HandleEmptyTVDBEpisodes)
+
+	v1.POST("/metadata-provider/filler", h.HandlePopulateFillerData)
+	v1.DELETE("/metadata-provider/filler", h.HandleRemoveFillerData)
+
+	//
+	// Manga
+	//
+
+	v1Manga := v1.Group("/manga")
+	v1Manga.POST("/anilist/collection", h.HandleGetAnilistMangaCollection)
+	v1Manga.GET("/anilist/collection/raw", h.HandleGetRawAnilistMangaCollection)
+	v1Manga.POST("/anilist/collection/raw", h.HandleGetRawAnilistMangaCollection)
+	v1Manga.POST("/anilist/list", h.HandleAnilistListManga)
+	v1Manga.GET("/collection", h.HandleGetMangaCollection)
+	v1Manga.GET("/chapter-counts", h.HandleGetMangaChapterCountMap)
+	v1Manga.GET("/entry/:id", h.HandleGetMangaEntry)
+	v1Manga.GET("/entry/:id/details", h.HandleGetMangaEntryDetails)
+	v1Manga.DELETE("/entry/cache", h.HandleEmptyMangaEntryCache)
+	v1Manga.POST("/chapters", h.HandleGetMangaEntryChapters)
+	v1Manga.POST("/pages", h.HandleGetMangaEntryPages)
+	v1Manga.POST("/update-progress", h.HandleUpdateMangaProgress)
+
+	v1Manga.GET("/downloaded-chapters/:id", h.HandleGetMangaEntryDownloadedChapters)
+	v1Manga.GET("/downloads", h.HandleGetMangaDownloadsList)
+	v1Manga.POST("/download-chapters", h.HandleDownloadMangaChapters)
+	v1Manga.POST("/download-data", h.HandleGetMangaDownloadData)
+	v1Manga.DELETE("/download-chapter", h.HandleDeleteMangaDownloadedChapters)
+	v1Manga.GET("/download-queue", h.HandleGetMangaDownloadQueue)
+	v1Manga.POST("/download-queue/start", h.HandleStartMangaDownloadQueue)
+	v1Manga.POST("/download-queue/stop", h.HandleStopMangaDownloadQueue)
+	v1Manga.DELETE("/download-queue", h.HandleClearAllChapterDownloadQueue)
+	v1Manga.POST("/download-queue/reset-errored", h.HandleResetErroredChapterDownloadQueue)
+
+	v1Manga.POST("/search", h.HandleMangaManualSearch)
+	v1Manga.POST("/manual-mapping", h.HandleMangaManualMapping)
+	v1Manga.POST("/get-mapping", h.HandleGetMangaMapping)
+	v1Manga.POST("/remove-mapping", h.HandleRemoveMangaMapping)
+
+	//
+	// File Cache
+	//
+
+	v1FileCache := v1.Group("/filecache")
+	v1FileCache.GET("/total-size", h.HandleGetFileCacheTotalSize)
+	v1FileCache.DELETE("/bucket", h.HandleRemoveFileCacheBucket)
+	v1FileCache.GET("/mediastream/videofiles/total-size", h.HandleGetFileCacheMediastreamVideoFilesTotalSize)
+	v1FileCache.DELETE("/mediastream/videofiles", h.HandleClearFileCacheMediastreamVideoFiles)
+
+	//
+	// Discord
+	//
+
+	v1Discord := v1.Group("/discord")
+	v1Discord.POST("/presence/manga", h.HandleSetDiscordMangaActivity)
+	v1Discord.POST("/presence/cancel", h.HandleCancelDiscordActivity)
+
+	//
+	// Media Stream
+	//
+	v1.GET("/mediastream/settings", h.HandleGetMediastreamSettings)
+	v1.PATCH("/mediastream/settings", h.HandleSaveMediastreamSettings)
+	v1.POST("/mediastream/request", h.HandleRequestMediastreamMediaContainer)
+	v1.POST("/mediastream/preload", h.HandlePreloadMediastreamMediaContainer)
+	// Transcode
+	v1.POST("/mediastream/shutdown-transcode", h.HandleMediastreamShutdownTranscodeStream)
+	v1.GET("/mediastream/transcode/*", h.HandleMediastreamTranscode)
+	v1.GET("/mediastream/subs/*", h.HandleMediastreamGetSubtitles)
+	v1.GET("/mediastream/att/*", h.HandleMediastreamGetAttachments)
+	v1.GET("/mediastream/direct", h.HandleMediastreamDirectPlay)
+	v1.GET("/mediastream/file/*", h.HandleMediastreamFile)
+
+	//
+	// Torrent stream
+	//
+	v1.GET("/torrentstream/episodes/:id", h.HandleGetTorrentstreamEpisodeCollection)
+	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)
+	v1.PATCH("/torrentstream/settings", h.HandleSaveTorrentstreamSettings)
+	v1.POST("/torrentstream/start", h.HandleTorrentstreamStartStream)
+	v1.POST("/torrentstream/stop", h.HandleTorrentstreamStopStream)
+	v1.POST("/torrentstream/drop", h.HandleTorrentstreamDropTorrent)
+	v1.POST("/torrentstream/torrent-file-previews", h.HandleGetTorrentstreamTorrentFilePreviews)
+	v1.POST("/torrentstream/batch-history", h.HandleGetTorrentstreamBatchHistory)
+	v1.GET("/torrentstream/stream/*", echo.WrapHandler(h.HandleTorrentstreamServeStream()))
+
+	//
+	// Extensions
+	//
+
+	v1Extensions := v1.Group("/extensions")
+	v1Extensions.POST("/playground/run", h.HandleRunExtensionPlaygroundCode)
+	v1Extensions.POST("/external/fetch", h.HandleFetchExternalExtensionData)
+	v1Extensions.POST("/external/install", h.HandleInstallExternalExtension)
+	v1Extensions.POST("/external/uninstall", h.HandleUninstallExternalExtension)
+	v1Extensions.POST("/external/edit-payload", h.HandleUpdateExtensionCode)
+	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtensions)
+	v1Extensions.POST("/all", h.HandleGetAllExtensions)
+	v1Extensions.GET("/list", h.HandleListExtensionData)
+	v1Extensions.GET("/list/manga-provider", h.HandleListMangaProviderExtensions)
+	v1Extensions.GET("/list/onlinestream-provider", h.HandleListOnlinestreamProviderExtensions)
+	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
+	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
+	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
+
+	//
+	// Continuity
+	//
+	v1Continuity := v1.Group("/continuity")
+	v1Continuity.PATCH("/item", h.HandleUpdateContinuityWatchHistoryItem)
+	v1Continuity.GET("/item/:id", h.HandleGetContinuityWatchHistoryItem)
+	v1Continuity.GET("/history", h.HandleGetContinuityWatchHistory)
+
+	//
+	// Sync
+	//
+	v1Sync := v1.Group("/sync")
+	v1Sync.GET("/track", h.HandleSyncGetTrackedMediaItems)
+	v1Sync.POST("/track", h.HandleSyncAddMedia)
+	v1Sync.DELETE("/track", h.HandleSyncRemoveMedia)
+	v1Sync.GET("/track/:id/:type", h.HandleSyncGetIsMediaTracked)
+	v1Sync.POST("/local", h.HandleSyncLocalData)
+	v1Sync.GET("/queue", h.HandleSyncGetQueueState)
+	v1Sync.POST("/anilist", h.HandleSyncAnilistData)
+	v1Sync.POST("/updated", h.HandleSyncSetHasLocalChanges)
+	v1Sync.GET("/updated", h.HandleSyncGetHasLocalChanges)
+	v1Sync.GET("/storage/size", h.HandleSyncGetLocalStorageSize)
+
+	//
+	// Debrid
+	//
+
+	v1.GET("/debrid/settings", h.HandleGetDebridSettings)
+	v1.PATCH("/debrid/settings", h.HandleSaveDebridSettings)
+	v1.POST("/debrid/torrents", h.HandleDebridAddTorrents)
+	v1.POST("/debrid/torrents/download", h.HandleDebridDownloadTorrent)
+	v1.POST("/debrid/torrents/cancel", h.HandleDebridCancelDownload)
+	v1.DELETE("/debrid/torrent", h.HandleDebridDeleteTorrent)
+	v1.GET("/debrid/torrents", h.HandleDebridGetTorrents)
+	v1.POST("/debrid/torrents/info", h.HandleDebridGetTorrentInfo)
+	v1.POST("/debrid/torrents/file-previews", h.HandleDebridGetTorrentFilePreviews)
+	v1.POST("/debrid/stream/start", h.HandleDebridStartStream)
+	v1.POST("/debrid/stream/cancel", h.HandleDebridCancelStream)
+
+	//
+	// Report
+	//
+
+	v1.POST("/report/issue", h.HandleSaveIssueReport)
+	v1.GET("/report/issue/download", h.HandleDownloadIssueReport)
 }
 
 func (h *Handler) JSON(c echo.Context, code int, i interface{}) error {

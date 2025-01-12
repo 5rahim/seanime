@@ -3,9 +3,9 @@ package torrentstream
 import (
 	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
+	"net/http"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -182,8 +182,8 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	return nil
 }
 
-func (r *Repository) ServeStream(c *fiber.Ctx) error {
-	return r.serverManager.serve(c)
+func (r *Repository) HTTPStreamHandler() http.Handler {
+	return r.serverManager
 }
 
 func (r *Repository) FailIfNoSettings() error {

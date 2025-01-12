@@ -2,16 +2,15 @@ package mediastream
 
 import (
 	"errors"
-	"github.com/gofiber/fiber/v2"
 	"net/url"
-	"os"
 	"path/filepath"
 	"seanime/internal/events"
 	"seanime/internal/mediastream/videofile"
+
+	"github.com/labstack/echo/v4"
 )
 
-// ServeFiberExtractedSubtitles serves the extracted subtitles
-func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
+func (r *Repository) ServeEchoExtractedSubtitles(c echo.Context) error {
 
 	if !r.IsInitialized() {
 		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
@@ -23,14 +22,8 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 		return errors.New("transcoder not initialized")
 	}
 
-	// Get the route parameters
-	params := fiberCtx.AllParams()
-	if len(params) == 0 {
-		return errors.New("no params")
-	}
-
 	// Get the parameter group
-	subFilePath := params["*1"]
+	subFilePath := c.Param("*")
 
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
@@ -44,19 +37,12 @@ func (r *Repository) ServeFiberExtractedSubtitles(fiberCtx *fiber.Ctx) error {
 		return errors.New("could not find subtitles")
 	}
 
-	contentB, err := os.ReadFile(filepath.Join(retPath, subFilePath))
-	if err != nil {
-		return err
-	}
-
 	r.logger.Trace().Msgf("mediastream: Serving subtitles from %s", retPath)
 
-	return fiberCtx.SendString(string(contentB))
+	return c.File(filepath.Join(retPath, subFilePath))
 }
 
-// ServeFiberExtractedAttachments serves the extracted attachments
-func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
-
+func (r *Repository) ServeEchoExtractedAttachments(c echo.Context) error {
 	if !r.IsInitialized() {
 		r.wsEventManager.SendEvent(events.MediastreamShutdownStream, "Module not initialized")
 		return errors.New("module not initialized")
@@ -67,14 +53,8 @@ func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
 		return errors.New("transcoder not initialized")
 	}
 
-	// Get the route parameters
-	params := fiberCtx.AllParams()
-	if len(params) == 0 {
-		return errors.New("no params")
-	}
-
 	// Get the parameter group
-	subFilePath := params["*1"]
+	subFilePath := c.Param("*")
 
 	// Get current media
 	mediaContainer, found := r.playbackManager.currentMediaContainer.Get()
@@ -90,12 +70,5 @@ func (r *Repository) ServeFiberExtractedAttachments(fiberCtx *fiber.Ctx) error {
 
 	subFilePath, _ = url.QueryUnescape(subFilePath)
 
-	contentB, err := os.ReadFile(filepath.Join(retPath, subFilePath))
-	if err != nil {
-		return err
-	}
-
-	r.logger.Trace().Msgf("mediastream: Serving subtitles from %s", retPath)
-
-	return fiberCtx.SendString(string(contentB))
+	return c.File(filepath.Join(retPath, subFilePath))
 }

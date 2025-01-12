@@ -1,10 +1,12 @@
-package handlers
+package handlersv2
 
 import (
 	"errors"
 	"fmt"
 	"seanime/internal/database/models"
 	"seanime/internal/mediastream"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleGetMediastreamSettings
@@ -13,13 +15,13 @@ import (
 //	@desc This returns the mediastream settings.
 //	@returns models.MediastreamSettings
 //	@route /api/v1/mediastream/settings [GET]
-func HandleGetMediastreamSettings(c *RouteCtx) error {
-	mediastreamSettings, found := c.App.Database.GetMediastreamSettings()
+func (h *Handler) HandleGetMediastreamSettings(c echo.Context) error {
+	mediastreamSettings, found := h.App.Database.GetMediastreamSettings()
 	if !found {
-		return c.RespondWithError(errors.New("media streaming settings not found"))
+		return h.RespondWithError(c, errors.New("media streaming settings not found"))
 	}
 
-	return c.RespondWithData(mediastreamSettings)
+	return h.RespondWithData(c, mediastreamSettings)
 }
 
 // HandleSaveMediastreamSettings
@@ -28,24 +30,24 @@ func HandleGetMediastreamSettings(c *RouteCtx) error {
 //	@desc This saves the mediastream settings.
 //	@returns models.MediastreamSettings
 //	@route /api/v1/mediastream/settings [PATCH]
-func HandleSaveMediastreamSettings(c *RouteCtx) error {
+func (h *Handler) HandleSaveMediastreamSettings(c echo.Context) error {
 	type body struct {
 		Settings models.MediastreamSettings `json:"settings"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	settings, err := c.App.Database.UpsertMediastreamSettings(&b.Settings)
+	settings, err := h.App.Database.UpsertMediastreamSettings(&b.Settings)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.InitOrRefreshMediastreamSettings()
+	h.App.InitOrRefreshMediastreamSettings()
 
-	return c.RespondWithData(settings)
+	return h.RespondWithData(c, settings)
 }
 
 // HandleRequestMediastreamMediaContainer
@@ -54,7 +56,7 @@ func HandleSaveMediastreamSettings(c *RouteCtx) error {
 //	@desc This requests a media stream and returns the media container to start the playback.
 //	@returns mediastream.MediaContainer
 //	@route /api/v1/mediastream/request [POST]
-func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
+func (h *Handler) HandleRequestMediastreamMediaContainer(c echo.Context) error {
 
 	type body struct {
 		Path             string                 `json:"path"`             // The path of the file.
@@ -64,8 +66,8 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	var mediaContainer *mediastream.MediaContainer
@@ -73,20 +75,20 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 
 	switch b.StreamType {
 	case mediastream.StreamTypeDirect:
-		mediaContainer, err = c.App.MediastreamRepository.RequestDirectPlay(b.Path, b.ClientId)
+		mediaContainer, err = h.App.MediastreamRepository.RequestDirectPlay(b.Path, b.ClientId)
 	case mediastream.StreamTypeTranscode:
-		mediaContainer, err = c.App.MediastreamRepository.RequestTranscodeStream(b.Path, b.ClientId)
+		mediaContainer, err = h.App.MediastreamRepository.RequestTranscodeStream(b.Path, b.ClientId)
 	case mediastream.StreamTypeOptimized:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
-		//mediaContainer, err = c.App.MediastreamRepository.RequestOptimizedStream(b.Path)
+		//mediaContainer, err = h.App.MediastreamRepository.RequestOptimizedStream(b.Path)
 	default:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 	}
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(mediaContainer)
+	return h.RespondWithData(c, mediaContainer)
 }
 
 // HandlePreloadMediastreamMediaContainer
@@ -95,7 +97,7 @@ func HandleRequestMediastreamMediaContainer(c *RouteCtx) error {
 //	@desc This preloads a media stream by extracting the media information and attachments.
 //	@returns bool
 //	@route /api/v1/mediastream/preload [POST]
-func HandlePreloadMediastreamMediaContainer(c *RouteCtx) error {
+func (h *Handler) HandlePreloadMediastreamMediaContainer(c echo.Context) error {
 
 	type body struct {
 		Path             string                 `json:"path"`             // The path of the file.
@@ -104,49 +106,51 @@ func HandlePreloadMediastreamMediaContainer(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	var err error
 
 	switch b.StreamType {
 	case mediastream.StreamTypeTranscode:
-		err = c.App.MediastreamRepository.RequestPreloadTranscodeStream(b.Path)
+		err = h.App.MediastreamRepository.RequestPreloadTranscodeStream(b.Path)
 	case mediastream.StreamTypeDirect:
-		err = c.App.MediastreamRepository.RequestPreloadDirectPlay(b.Path)
+		err = h.App.MediastreamRepository.RequestPreloadDirectPlay(b.Path)
 	default:
 		err = fmt.Errorf("stream type %s not implemented", b.StreamType)
 	}
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
-func HandleMediastreamGetSubtitles(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleMediastreamGetSubtitles(c echo.Context) error {
+	return h.App.MediastreamRepository.ServeEchoExtractedSubtitles(c)
 }
 
-func HandleMediastreamGetAttachments(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleMediastreamGetAttachments(c echo.Context) error {
+	return h.App.MediastreamRepository.ServeEchoExtractedAttachments(c)
 }
 
 //
 // Direct
 //
 
-func HandleMediastreamDirectPlay(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleMediastreamDirectPlay(c echo.Context) error {
+	client := "1"
+	return h.App.MediastreamRepository.ServeEchoDirectPlay(c, client)
 }
 
 //
 // Transcode
 //
 
-func HandleMediastreamTranscode(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleMediastreamTranscode(c echo.Context) error {
+	client := "1"
+	return h.App.MediastreamRepository.ServeEchoTranscodeStream(c, client)
 }
 
 // HandleMediastreamShutdownTranscodeStream
@@ -157,14 +161,18 @@ func HandleMediastreamTranscode(c *RouteCtx) error {
 //	@desc It will not return any error and is safe to call multiple times.
 //	@returns bool
 //	@route /api/v1/mediastream/shutdown-transcode [POST]
-func HandleMediastreamShutdownTranscodeStream(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleMediastreamShutdownTranscodeStream(c echo.Context) error {
+	client := "1"
+	h.App.MediastreamRepository.ShutdownTranscodeStream(client)
+	return h.RespondWithData(c, true)
 }
 
 //
 // Serve file
 //
 
-func HandleMediastreamFile(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleMediastreamFile(c echo.Context) error {
+	client := "1"
+	fp := c.Param("*")
+	return h.App.MediastreamRepository.ServeEchoFile(c, fp, client)
 }

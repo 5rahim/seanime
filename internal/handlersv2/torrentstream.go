@@ -1,15 +1,17 @@
-package handlers
+package handlersv2
 
 import (
 	"errors"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/labstack/echo/v4"
+	lop "github.com/samber/lo/parallel"
+	"net/http"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
-
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	lop "github.com/samber/lo/parallel"
+	"strconv"
 )
 
 // HandleGetTorrentstreamEpisodeCollection
@@ -19,22 +21,22 @@ import (
 //	@returns torrentstream.EpisodeCollection
 //	@param id - int - true - "AniList anime media ID"
 //	@route /api/v1/torrentstream/episodes/{id} [GET]
-func HandleGetTorrentstreamEpisodeCollection(c *RouteCtx) error {
-	mId, err := c.Fiber.ParamsInt("id")
+func (h *Handler) HandleGetTorrentstreamEpisodeCollection(c echo.Context) error {
+	mId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	ec, err := c.App.TorrentstreamRepository.NewEpisodeCollection(mId)
+	ec, err := h.App.TorrentstreamRepository.NewEpisodeCollection(mId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	lop.ForEach(ec.Episodes, func(e *anime.Episode, _ int) {
-		c.App.FillerManager.HydrateEpisodeFillerData(mId, e)
+		h.App.FillerManager.HydrateEpisodeFillerData(mId, e)
 	})
 
-	return c.RespondWithData(ec)
+	return h.RespondWithData(c, ec)
 }
 
 // HandleGetTorrentstreamSettings
@@ -43,13 +45,13 @@ func HandleGetTorrentstreamEpisodeCollection(c *RouteCtx) error {
 //	@desc This returns the torrentstream settings.
 //	@returns models.TorrentstreamSettings
 //	@route /api/v1/torrentstream/settings [GET]
-func HandleGetTorrentstreamSettings(c *RouteCtx) error {
-	torrentstreamSettings, found := c.App.Database.GetTorrentstreamSettings()
+func (h *Handler) HandleGetTorrentstreamSettings(c echo.Context) error {
+	torrentstreamSettings, found := h.App.Database.GetTorrentstreamSettings()
 	if !found {
-		return c.RespondWithError(errors.New("torrent streaming settings not found"))
+		return h.RespondWithError(c, errors.New("torrent streaming settings not found"))
 	}
 
-	return c.RespondWithData(torrentstreamSettings)
+	return h.RespondWithData(c, torrentstreamSettings)
 }
 
 // HandleSaveTorrentstreamSettings
@@ -59,25 +61,25 @@ func HandleGetTorrentstreamSettings(c *RouteCtx) error {
 //	@desc The client should refetch the server status.
 //	@returns models.TorrentstreamSettings
 //	@route /api/v1/torrentstream/settings [PATCH]
-func HandleSaveTorrentstreamSettings(c *RouteCtx) error {
+func (h *Handler) HandleSaveTorrentstreamSettings(c echo.Context) error {
 
 	type body struct {
 		Settings models.TorrentstreamSettings `json:"settings"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	settings, err := c.App.Database.UpsertTorrentstreamSettings(&b.Settings)
+	settings, err := h.App.Database.UpsertTorrentstreamSettings(&b.Settings)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.InitOrRefreshTorrentstreamSettings()
+	h.App.InitOrRefreshTorrentstreamSettings()
 
-	return c.RespondWithData(settings)
+	return h.RespondWithData(c, settings)
 }
 
 // HandleGetTorrentstreamTorrentFilePreviews
@@ -86,35 +88,35 @@ func HandleSaveTorrentstreamSettings(c *RouteCtx) error {
 //	@desc This returns a list of file previews from the torrent
 //	@returns []torrentstream.FilePreview
 //	@route /api/v1/torrentstream/torrent-file-previews [POST]
-func HandleGetTorrentstreamTorrentFilePreviews(c *RouteCtx) error {
+func (h *Handler) HandleGetTorrentstreamTorrentFilePreviews(c echo.Context) error {
 	type body struct {
 		Torrent       *hibiketorrent.AnimeTorrent `json:"torrent"`
 		EpisodeNumber int                         `json:"episodeNumber"`
 		Media         *anilist.BaseAnime          `json:"media"`
 	}
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	providerExtension, ok := c.App.ExtensionRepository.GetAnimeTorrentProviderExtensionByID(b.Torrent.Provider)
+	providerExtension, ok := h.App.ExtensionRepository.GetAnimeTorrentProviderExtensionByID(b.Torrent.Provider)
 	if !ok {
-		return c.RespondWithError(errors.New("torrentstream: Torrent provider extension not found"))
+		return h.RespondWithError(c, errors.New("torrentstream: Torrent provider extension not found"))
 	}
 
 	magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(b.Torrent)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Get the media metadata
-	animeMetadata, _ := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
+	animeMetadata, _ := h.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.Media.ID)
 	absoluteOffset := 0
 	if animeMetadata != nil {
 		absoluteOffset = animeMetadata.GetOffset()
 	}
 
-	files, err := c.App.TorrentstreamRepository.GetTorrentFilePreviewsFromManualSelection(&torrentstream.GetTorrentFilePreviewsOptions{
+	files, err := h.App.TorrentstreamRepository.GetTorrentFilePreviewsFromManualSelection(&torrentstream.GetTorrentFilePreviewsOptions{
 		Torrent:        b.Torrent,
 		Magnet:         magnet,
 		EpisodeNumber:  b.EpisodeNumber,
@@ -122,10 +124,10 @@ func HandleGetTorrentstreamTorrentFilePreviews(c *RouteCtx) error {
 		Media:          b.Media,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(files)
+	return h.RespondWithData(c, files)
 }
 
 // HandleTorrentstreamStartStream
@@ -134,7 +136,7 @@ func HandleGetTorrentstreamTorrentFilePreviews(c *RouteCtx) error {
 //	@desc This starts the entire streaming process.
 //	@returns bool
 //	@route /api/v1/torrentstream/start [POST]
-func HandleTorrentstreamStartStream(c *RouteCtx) error {
+func (h *Handler) HandleTorrentstreamStartStream(c echo.Context) error {
 
 	type body struct {
 		MediaId       int                         `json:"mediaId"`
@@ -148,13 +150,13 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	userAgent := c.Fiber.Get("User-Agent")
+	userAgent := c.Request().Header.Get("User-Agent")
 
-	err := c.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
+	err := h.App.TorrentstreamRepository.StartStream(&torrentstream.StartStreamOptions{
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 		AniDBEpisode:  b.AniDBEpisode,
@@ -166,10 +168,10 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 		PlaybackType:  b.PlaybackType,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleTorrentstreamStopStream
@@ -179,14 +181,14 @@ func HandleTorrentstreamStartStream(c *RouteCtx) error {
 //	@desc This is made to be used while the stream is running.
 //	@returns bool
 //	@route /api/v1/torrentstream/stop [POST]
-func HandleTorrentstreamStopStream(c *RouteCtx) error {
+func (h *Handler) HandleTorrentstreamStopStream(c echo.Context) error {
 
-	err := c.App.TorrentstreamRepository.StopStream()
+	err := h.App.TorrentstreamRepository.StopStream()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleTorrentstreamDropTorrent
@@ -196,14 +198,14 @@ func HandleTorrentstreamStopStream(c *RouteCtx) error {
 //	@desc This is made to be used to force drop a torrent.
 //	@returns bool
 //	@route /api/v1/torrentstream/drop [POST]
-func HandleTorrentstreamDropTorrent(c *RouteCtx) error {
+func (h *Handler) HandleTorrentstreamDropTorrent(c echo.Context) error {
 
-	err := c.App.TorrentstreamRepository.DropTorrent()
+	err := h.App.TorrentstreamRepository.DropTorrent()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetTorrentstreamBatchHistory
@@ -212,20 +214,20 @@ func HandleTorrentstreamDropTorrent(c *RouteCtx) error {
 //	@desc This returns the most recent batch selected.
 //	@returns torrentstream.BatchHistoryResponse
 //	@route /api/v1/torrentstream/batch-history [POST]
-func HandleGetTorrentstreamBatchHistory(c *RouteCtx) error {
+func (h *Handler) HandleGetTorrentstreamBatchHistory(c echo.Context) error {
 	type body struct {
 		MediaID int `json:"mediaId"`
 	}
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	ret := c.App.TorrentstreamRepository.GetBatchHistory(b.MediaID)
-	return c.RespondWithData(ret)
+	ret := h.App.TorrentstreamRepository.GetBatchHistory(b.MediaID)
+	return h.RespondWithData(c, ret)
 }
 
 // route /api/v1/torrentstream/stream/*
-func HandleTorrentstreamServeStream(c *RouteCtx) error {
-	return nil
+func (h *Handler) HandleTorrentstreamServeStream() http.Handler {
+	return h.App.TorrentstreamRepository.HTTPStreamHandler()
 }
