@@ -62,26 +62,23 @@ func (m *WSEventManager) ExitIfNoConnsAsDesktopSidecar() {
 		var connectionLostTime time.Time
 		exitTimeout := 10 * time.Second
 
-		for {
-			select {
-			case <-ticker.C:
-				// Check WebSocket connection status
-				if len(m.Conns) == 0 && m.hasHadConnection {
-					// If not connected and first detection of connection loss
-					if connectionLostTime.IsZero() {
-						m.Logger.Warn().Msg("ws: No connection detected. Starting countdown...")
-						connectionLostTime = time.Now()
-					}
-
-					// Check if connection has been lost for more than 15 seconds
-					if time.Since(connectionLostTime) > exitTimeout {
-						m.Logger.Warn().Msg("ws: No connection detected for 10 seconds. Exiting...")
-						os.Exit(1)
-					}
-				} else {
-					// Connection is active, reset connection lost time
-					connectionLostTime = time.Time{}
+		for range ticker.C {
+			// Check WebSocket connection status
+			if len(m.Conns) == 0 && m.hasHadConnection {
+				// If not connected and first detection of connection loss
+				if connectionLostTime.IsZero() {
+					m.Logger.Warn().Msg("ws: No connection detected. Starting countdown...")
+					connectionLostTime = time.Now()
 				}
+
+				// Check if connection has been lost for more than 15 seconds
+				if time.Since(connectionLostTime) > exitTimeout {
+					m.Logger.Warn().Msg("ws: No connection detected for 10 seconds. Exiting...")
+					os.Exit(1)
+				}
+			} else {
+				// Connection is active, reset connection lost time
+				connectionLostTime = time.Time{}
 			}
 		}
 	}()

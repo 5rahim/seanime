@@ -114,7 +114,7 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 		return h.RespondWithData(c, "")
 	}
 
-	filename := c.Param("*1")
+	filename := c.Param("*")
 	fp := util.NormalizePath(filepath.Join(h.App.Config.Logs.Dir, filename))
 
 	fileContent := ""
