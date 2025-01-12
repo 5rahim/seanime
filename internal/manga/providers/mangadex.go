@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
@@ -283,7 +282,7 @@ func (md *Mangadex) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, err
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := md.Client.Do(req)
 	if err != nil {

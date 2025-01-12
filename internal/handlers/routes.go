@@ -12,7 +12,6 @@ import (
 	"seanime/internal/core"
 	"seanime/internal/util"
 	"seanime/internal/util/fiberlogger"
-	util2 "seanime/internal/util/proxies"
 	"sync"
 	"time"
 )
@@ -112,10 +111,10 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 	v1.Get("/internal/docs", makeHandler(app, HandleGetDocs))
 
 	// Image Proxy
-	imageProxy := &util2.ImageProxy{}
-	v1.Get("/image-proxy", imageProxy.ProxyImage)
+	//imageProxy := &util2.ImageProxy{}
+	//v1.Get("/image-proxy", imageProxy.ProxyImage)
 
-	v1.Get("/proxy", util2.M3U8Proxy)
+	//v1.Get("/proxy", util2.M3U8Proxy)
 
 	//
 	// General

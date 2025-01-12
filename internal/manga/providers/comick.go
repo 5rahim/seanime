@@ -14,7 +14,7 @@ import (
 	"time"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	browser "github.com/EDDYCJY/fake-useragent"
+	uaFake "github.com/lib4u/fake-useragent"
 	"github.com/rs/zerolog"
 )
 
@@ -24,6 +24,7 @@ type (
 		Client    *http.Client
 		UserAgent string
 		logger    *zerolog.Logger
+		UAFake    *uaFake.UserAgent
 	}
 
 	ComicKResultItem struct {
@@ -71,7 +72,7 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 	return &ComicK{
 		Url:       "https://api.comick.fun",
 		Client:    c,
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }
@@ -100,7 +101,7 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -175,7 +176,7 @@ func (c *ComicK) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) 
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -264,7 +265,7 @@ func (c *ComicK) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error)
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {

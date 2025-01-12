@@ -1,9 +1,22 @@
 package util
 
 import (
+	"github.com/rs/zerolog/log"
 	"math/rand"
 	"time"
+
+	uaFake "github.com/lib4u/fake-useragent"
 )
+
+var ua *uaFake.UserAgent
+
+func init() {
+	var err error
+	ua, err = uaFake.New()
+	if err != nil {
+		log.Warn().Err(err).Msg("util: Failed to initialize fake user agent")
+	}
+}
 
 var userAgents = []string{
 	"Mozilla/5.0 (Linux; Android 10; AC2003) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.61 Mobile Safari/537.36",
@@ -1059,6 +1072,10 @@ var userAgents = []string{
 }
 
 func GetRandomUserAgent() string {
+	if ua != nil {
+		return ua.GetRandom()
+	}
+
 	source := rand.NewSource(time.Now().UnixNano())
 	rand1 := rand.New(source)
 	return userAgents[rand1.Intn(len(userAgents))]

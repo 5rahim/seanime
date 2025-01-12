@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"seanime/internal/core"
+	util "seanime/internal/util/proxies"
 	"strings"
 	"time"
 
@@ -101,6 +102,11 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	e.GET("/events", h.webSocketEventHandler)
 
 	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
+
+	imageProxy := &util.ImageProxy{}
+	v1.GET("/image-proxy", imageProxy.ProxyImage)
+
+	v1.GET("/proxy", util.M3U8Proxy)
 
 	v1.GET("/status", h.HandleGetStatus)
 	v1.GET("/log/*", h.HandleGetLogContent)

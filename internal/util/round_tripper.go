@@ -2,7 +2,6 @@ package util
 
 import (
 	"crypto/tls"
-	browser "github.com/EDDYCJY/fake-useragent"
 	"net/http"
 )
 
@@ -76,7 +75,7 @@ func GetDefaultOptions() Options {
 		Headers: map[string]string{
 			"Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
 			"Accept-Language": "en-US,en;q=0.5",
-			"User-Agent":      browser.Firefox(),
+			"User-Agent":      GetRandomUserAgent(),
 		},
 	}
 }

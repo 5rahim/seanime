@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
@@ -13,6 +12,7 @@ import (
 	"net/url"
 	"regexp"
 	onlinestream_sources "seanime/internal/onlinestream/sources"
+	"seanime/internal/util"
 	"sort"
 	"strings"
 	"sync"
@@ -41,7 +41,7 @@ func NewAnimepahe(logger *zerolog.Logger) hibikeonlinestream.Provider {
 	return &Animepahe{
 		BaseURL:   "https://animepahe.ru",
 		Client:    http.Client{},
-		UserAgent: browser.Firefox(),
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }
