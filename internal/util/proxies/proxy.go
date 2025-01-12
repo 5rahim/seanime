@@ -15,6 +15,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var proxyUA = util.GetRandomUserAgent()
+
 func M3U8Proxy(c echo.Context) (err error) {
 	defer util.HandlePanicInModuleWithError("util/EchoM3U8Proxy", &err)
 
@@ -44,7 +46,7 @@ func M3U8Proxy(c echo.Context) (err error) {
 		}
 	}
 
-	req.Header.Set("User-Agent", "AppleCoreMedia/1.0.0.16F203 (iPod touch; U; CPU OS 12_3_1 like Mac OS X; zh_cn)")
+	req.Header.Set("User-Agent", proxyUA)
 	req.Header.Set("Accept", "*/*")
 
 	resp, err := client.Do(req)
@@ -110,7 +112,9 @@ func M3U8Proxy(c echo.Context) (err error) {
 	// Copy response headers
 	for k, vs := range resp.Header {
 		for _, v := range vs {
-			c.Response().Header().Set(k, v)
+			if !strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
+				c.Response().Header().Set(k, v)
+			}
 		}
 	}
 
