@@ -120,7 +120,7 @@ func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer
 // It should be called before any other method, to ensure the module is active.
 func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string, port int, isMainServer bool) (err error) {
 	r.client.Shutdown()
-	useSeparateServer := !isMainServer
+	useSeparateServer := false
 
 	defer util.HandlePanicInModuleWithError("torrentstream/InitModules", &err)
 

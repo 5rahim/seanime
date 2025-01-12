@@ -293,9 +293,9 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	}
 
 	// Uncomment if "MainServerTorrentStreaming" is no longer an experimental feature
-	//if cfg.Experimental.MainServerTorrentStreaming {
-	//	logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
-	//}
+	if cfg.Experimental.MainServerTorrentStreaming {
+		logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
+	}
 
 	return nil
 }

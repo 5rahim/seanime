@@ -4,9 +4,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	browser "github.com/EDDYCJY/fake-useragent"
-	"github.com/rs/zerolog"
+	"io"
 	"net/http"
 	"net/url"
 	"seanime/internal/util"
@@ -14,6 +12,10 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	browser "github.com/EDDYCJY/fake-useragent"
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -105,9 +107,16 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 		c.logger.Error().Err(err).Msg("comick: Failed to send request")
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.logger.Error().Err(err).Msg("comick: Failed to read response body")
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
 
 	var data []*ComicKResultItem
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+	if err := json.Unmarshal(body, &data); err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}

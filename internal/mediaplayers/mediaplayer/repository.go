@@ -345,6 +345,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 	var filename string
 	var completed bool
 	var retries int
+	maxTries := 5
 
 	// Unlike normal tracking when the file is downloaded, we may need to wait a bit before we can get the status
 	// So we need to keep track of whether we have started tracking
@@ -401,7 +402,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 						continue
 					} else {
 						m.trackingRetry("Failed to get player status")
-						m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, 3)
+						m.Logger.Error().Msgf("media player: Failed to get player status, retrying (%d/%d)", retries+1, maxTries)
 						// Video is completed, and we are unable to get the status
 						// We can safely assume that the player has been closed
 						if retries == 1 && (completed || m.continuityManager.GetSettings().WatchContinuityEnabled) {
@@ -411,7 +412,7 @@ func (m *Repository) StartTrackingTorrentStream() {
 							break
 						}
 
-						if retries >= 2 {
+						if retries >= maxTries-1 {
 							m.Logger.Debug().Msg("media player: Sending failed status query event")
 							m.streamingTrackingStopped("Failed to get player status")
 							close(done)
@@ -427,8 +428,8 @@ func (m *Repository) StartTrackingTorrentStream() {
 
 				if !ok {
 					m.streamingTrackingRetry("Failed to get player status")
-					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, 3)
-					if retries >= 2 {
+					m.Logger.Error().Msgf("media player: Failed to process status, retrying (%d/%d)", retries+1, maxTries)
+					if retries >= maxTries-1 {
 						m.Logger.Debug().Msg("media player: Sending failed status query event")
 						m.streamingTrackingStopped("Failed to process status")
 						close(done)
