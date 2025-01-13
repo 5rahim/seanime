@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/labstack/echo/v4"
 	"seanime/internal/api/anilist"
 	"seanime/internal/onlinestream"
 )
@@ -15,7 +16,7 @@ import (
 //	@desc The episode list might be nil or empty if nothing could be found, but the media will always be returned.
 //	@route /api/v1/onlinestream/episode-list [POST]
 //	@returns onlinestream.EpisodeListResponse
-func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
+func (h *Handler) HandleGetOnlineStreamEpisodeList(c echo.Context) error {
 
 	type body struct {
 		MediaId  int    `json:"mediaId"`
@@ -24,30 +25,30 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	if c.App.Settings == nil || !c.App.Settings.Library.EnableOnlinestream {
-		return c.RespondWithError(errors.New("enable online streaming in the settings"))
+	if h.App.Settings == nil || !h.App.Settings.Library.EnableOnlinestream {
+		return h.RespondWithError(c, errors.New("enable online streaming in the settings"))
 	}
 
 	// Get media
 	// This is cached
-	media, err := c.App.OnlinestreamRepository.GetMedia(b.MediaId)
+	media, err := h.App.OnlinestreamRepository.GetMedia(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if media.Status == nil || *media.Status == anilist.MediaStatusNotYetReleased {
-		return c.RespondWithError(errors.New("unavailable"))
+		return h.RespondWithError(c, errors.New("unavailable"))
 	}
 
 	// Get episode list
 	// This is cached using file cache
-	episodes, err := c.App.OnlinestreamRepository.GetMediaEpisodes(b.Provider, media, b.Dubbed)
+	episodes, err := h.App.OnlinestreamRepository.GetMediaEpisodes(b.Provider, media, b.Dubbed)
 	//if err != nil {
-	//	return c.RespondWithError(err)
+	//	return h.RespondWithError(c, err)
 	//}
 
 	ret := onlinestream.EpisodeListResponse{
@@ -55,9 +56,9 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 		Media:    media,
 	}
 
-	c.App.FillerManager.HydrateOnlinestreamFillerData(b.MediaId, ret.Episodes)
+	h.App.FillerManager.HydrateOnlinestreamFillerData(b.MediaId, ret.Episodes)
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }
 
 // HandleGetOnlineStreamEpisodeSource
@@ -65,7 +66,7 @@ func HandleGetOnlineStreamEpisodeList(c *RouteCtx) error {
 //	@summary returns the video sources for the given media, episode number and provider.
 //	@route /api/v1/onlinestream/episode-source [POST]
 //	@returns onlinestream.EpisodeSource
-func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
+func (h *Handler) HandleGetOnlineStreamEpisodeSource(c echo.Context) error {
 
 	type body struct {
 		EpisodeNumber int    `json:"episodeNumber"`
@@ -75,23 +76,23 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get media
 	// This is cached
-	media, err := c.App.OnlinestreamRepository.GetMedia(b.MediaId)
+	media, err := h.App.OnlinestreamRepository.GetMedia(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	sources, err := c.App.OnlinestreamRepository.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe())
+	sources, err := h.App.OnlinestreamRepository.GetEpisodeSources(b.Provider, b.MediaId, b.EpisodeNumber, b.Dubbed, media.GetStartYearSafe())
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(sources)
+	return h.RespondWithData(c, sources)
 }
 
 // HandleOnlineStreamEmptyCache
@@ -99,23 +100,23 @@ func HandleGetOnlineStreamEpisodeSource(c *RouteCtx) error {
 //	@summary empties the cache for the given media.
 //	@route /api/v1/onlinestream/cache [DELETE]
 //	@returns bool
-func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
+func (h *Handler) HandleOnlineStreamEmptyCache(c echo.Context) error {
 
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.OnlinestreamRepository.EmptyCache(b.MediaId)
+	err := h.App.OnlinestreamRepository.EmptyCache(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +127,7 @@ func HandleOnlineStreamEmptyCache(c *RouteCtx) error {
 //	@desc Returns search results for a manual search.
 //	@route /api/v1/onlinestream/search [POST]
 //	@returns []vendor_hibike_onlinestream.SearchResult
-func HandleOnlinestreamManualSearch(c *RouteCtx) error {
+func (h *Handler) HandleOnlinestreamManualSearch(c echo.Context) error {
 
 	type body struct {
 		Provider string `json:"provider"`
@@ -135,16 +136,16 @@ func HandleOnlinestreamManualSearch(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	ret, err := c.App.OnlinestreamRepository.ManualSearch(b.Provider, b.Query, b.Dubbed)
+	ret, err := h.App.OnlinestreamRepository.ManualSearch(b.Provider, b.Query, b.Dubbed)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }
 
 // HandleOnlinestreamManualMapping
@@ -154,7 +155,7 @@ func HandleOnlinestreamManualSearch(c *RouteCtx) error {
 //	@desc The client should re-fetch the chapter container after this.
 //	@route /api/v1/onlinestream/manual-mapping [POST]
 //	@returns bool
-func HandleOnlinestreamManualMapping(c *RouteCtx) error {
+func (h *Handler) HandleOnlinestreamManualMapping(c echo.Context) error {
 
 	type body struct {
 		Provider string `json:"provider"`
@@ -163,16 +164,16 @@ func HandleOnlinestreamManualMapping(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.OnlinestreamRepository.ManualMapping(b.Provider, b.MediaId, b.AnimeId)
+	err := h.App.OnlinestreamRepository.ManualMapping(b.Provider, b.MediaId, b.AnimeId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetOnlinestreamMapping
@@ -182,7 +183,7 @@ func HandleOnlinestreamManualMapping(c *RouteCtx) error {
 //	@desc An empty string is returned if there's no manual mapping. If there is, the anime ID will be returned.
 //	@route /api/v1/onlinestream/get-mapping [POST]
 //	@returns onlinestream.MappingResponse
-func HandleGetOnlinestreamMapping(c *RouteCtx) error {
+func (h *Handler) HandleGetOnlinestreamMapping(c echo.Context) error {
 
 	type body struct {
 		Provider string `json:"provider"`
@@ -190,12 +191,12 @@ func HandleGetOnlinestreamMapping(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	mapping := c.App.OnlinestreamRepository.GetMapping(b.Provider, b.MediaId)
-	return c.RespondWithData(mapping)
+	mapping := h.App.OnlinestreamRepository.GetMapping(b.Provider, b.MediaId)
+	return h.RespondWithData(c, mapping)
 }
 
 // HandleRemoveOnlinestreamMapping
@@ -205,7 +206,7 @@ func HandleGetOnlinestreamMapping(c *RouteCtx) error {
 //	@desc The client should re-fetch the chapter container after this.
 //	@route /api/v1/onlinestream/remove-mapping [POST]
 //	@returns bool
-func HandleRemoveOnlinestreamMapping(c *RouteCtx) error {
+func (h *Handler) HandleRemoveOnlinestreamMapping(c echo.Context) error {
 
 	type body struct {
 		Provider string `json:"provider"`
@@ -213,14 +214,14 @@ func HandleRemoveOnlinestreamMapping(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.OnlinestreamRepository.RemoveMapping(b.Provider, b.MediaId)
+	err := h.App.OnlinestreamRepository.RemoveMapping(b.Provider, b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

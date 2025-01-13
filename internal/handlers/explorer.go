@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"seanime/internal/util"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleOpenInExplorer
@@ -13,21 +15,20 @@ import (
 //	@desc It returns 'true' whether the operation was successful or not.
 //	@route /api/v1/open-in-explorer [POST]
 //	@returns bool
-func HandleOpenInExplorer(c *RouteCtx) error {
+func (h *Handler) HandleOpenInExplorer(c echo.Context) error {
 
 	type body struct {
 		Path string `json:"path"`
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	OpenDirInExplorer(p.Path)
 
-	return c.RespondWithData(true)
-
+	return h.RespondWithData(c, true)
 }
 
 func OpenDirInExplorer(dir string) {

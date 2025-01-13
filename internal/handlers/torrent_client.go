@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/labstack/echo/v4"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
@@ -18,21 +19,21 @@ import (
 //
 //	@route /api/v1/torrent-client/list [GET]
 //	@returns []torrent_client.Torrent
-func HandleGetActiveTorrentList(c *RouteCtx) error {
+func (h *Handler) HandleGetActiveTorrentList(c echo.Context) error {
 
 	// Get torrent list
-	res, err := c.App.TorrentClientRepository.GetActiveTorrents()
+	res, err := h.App.TorrentClientRepository.GetActiveTorrents()
 	// If an error occurred, try to start the torrent client and get the list again
 	// DEVNOTE: We try to get the list first because this route is called repeatedly by the client.
 	if err != nil {
-		ok := c.App.TorrentClientRepository.Start()
+		ok := h.App.TorrentClientRepository.Start()
 		if !ok {
-			return c.RespondWithError(errors.New("could not start torrent client, verify your settings"))
+			return h.RespondWithError(c, errors.New("could not start torrent client, verify your settings"))
 		}
-		res, err = c.App.TorrentClientRepository.GetActiveTorrents()
+		res, err = h.App.TorrentClientRepository.GetActiveTorrents()
 	}
 
-	return c.RespondWithData(res)
+	return h.RespondWithData(c, res)
 
 }
 
@@ -42,7 +43,7 @@ func HandleGetActiveTorrentList(c *RouteCtx) error {
 //	@desc This handler is used to pause, resume or remove a torrent.
 //	@route /api/v1/torrent-client/action [POST]
 //	@returns bool
-func HandleTorrentClientAction(c *RouteCtx) error {
+func (h *Handler) HandleTorrentClientAction(c echo.Context) error {
 
 	type body struct {
 		Hash   string `json:"hash"`
@@ -51,38 +52,38 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.Hash == "" || b.Action == "" {
-		return c.RespondWithError(errors.New("missing arguments"))
+		return h.RespondWithError(c, errors.New("missing arguments"))
 	}
 
 	switch b.Action {
 	case "pause":
-		err := c.App.TorrentClientRepository.PauseTorrents([]string{b.Hash})
+		err := h.App.TorrentClientRepository.PauseTorrents([]string{b.Hash})
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	case "resume":
-		err := c.App.TorrentClientRepository.ResumeTorrents([]string{b.Hash})
+		err := h.App.TorrentClientRepository.ResumeTorrents([]string{b.Hash})
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	case "remove":
-		err := c.App.TorrentClientRepository.RemoveTorrents([]string{b.Hash})
+		err := h.App.TorrentClientRepository.RemoveTorrents([]string{b.Hash})
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	case "open":
 		if b.Dir == "" {
-			return c.RespondWithError(errors.New("directory not found"))
+			return h.RespondWithError(c, errors.New("directory not found"))
 		}
 		OpenDirInExplorer(b.Dir)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 
 }
 
@@ -93,7 +94,7 @@ func HandleTorrentClientAction(c *RouteCtx) error {
 //	@desc If smart select is enabled, it will try to select the best torrent based on the missing episodes.
 //	@route /api/v1/torrent-client/download [POST]
 //	@returns bool
-func HandleTorrentClientDownload(c *RouteCtx) error {
+func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 
 	type body struct {
 		Torrents    []hibiketorrent.AnimeTorrent `json:"torrents"`
@@ -106,45 +107,45 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.Destination == "" {
-		return c.RespondWithError(errors.New("destination not found"))
+		return h.RespondWithError(c, errors.New("destination not found"))
 	}
 
 	if !filepath.IsAbs(b.Destination) {
-		return c.RespondWithError(errors.New("destination path must be absolute"))
+		return h.RespondWithError(c, errors.New("destination path must be absolute"))
 	}
 
 	// try to start torrent client if it's not running
-	ok := c.App.TorrentClientRepository.Start()
+	ok := h.App.TorrentClientRepository.Start()
 	if !ok {
-		return c.RespondWithError(errors.New("could not contact torrent client, verify your settings or make sure it's running"))
+		return h.RespondWithError(c, errors.New("could not contact torrent client, verify your settings or make sure it's running"))
 	}
 
-	completeAnime, err := c.App.AnilistPlatform.GetAnimeWithRelations(b.Media.ID)
+	completeAnime, err := h.App.AnilistPlatform.GetAnimeWithRelations(b.Media.ID)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if b.SmartSelect.Enabled {
 		if len(b.Torrents) > 1 {
-			return c.RespondWithError(errors.New("smart select is not supported for multiple torrents"))
+			return h.RespondWithError(c, errors.New("smart select is not supported for multiple torrents"))
 		}
 
 		// smart select
-		err = c.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelectParams{
+		err = h.App.TorrentClientRepository.SmartSelect(&torrent_client.SmartSelectParams{
 			Torrent:          &b.Torrents[0],
 			EpisodeNumbers:   b.SmartSelect.MissingEpisodeNumbers,
 			Media:            completeAnime,
 			Destination:      b.Destination,
-			Platform:         c.App.AnilistPlatform,
+			Platform:         h.App.AnilistPlatform,
 			ShouldAddTorrent: true,
 		})
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	} else {
 
@@ -152,23 +153,23 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		magnets := make([]string, 0)
 		for _, t := range b.Torrents {
 			// Get the torrent's provider extension
-			providerExtension, ok := c.App.TorrentRepository.GetAnimeProviderExtension(t.Provider)
+			providerExtension, ok := h.App.TorrentRepository.GetAnimeProviderExtension(t.Provider)
 			if !ok {
-				return c.RespondWithError(errors.New("provider extension not found for torrent"))
+				return h.RespondWithError(c, errors.New("provider extension not found for torrent"))
 			}
 			// Get the torrent magnet link
 			magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(&t)
 			if err != nil {
-				return c.RespondWithError(err)
+				return h.RespondWithError(c, err)
 			}
 
 			magnets = append(magnets, magnet)
 		}
 
 		// try to add torrents to client, on error return error
-		err = c.App.TorrentClientRepository.AddMagnets(magnets, b.Destination)
+		err = h.App.TorrentClientRepository.AddMagnets(magnets, b.Destination)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
@@ -177,7 +178,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 		defer util.HandlePanicInModuleThen("handlers/HandleTorrentClientDownload", func() {})
 		if b.Media != nil {
 			// Check if the media is already in the collection
-			animeCollection, err := c.App.GetAnimeCollection(false)
+			animeCollection, err := h.App.GetAnimeCollection(false)
 			if err != nil {
 				return
 			}
@@ -186,16 +187,16 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 				return
 			}
 			// Add the media to the collection
-			err = c.App.AnilistPlatform.AddMediaToCollection([]int{b.Media.ID})
+			err = h.App.AnilistPlatform.AddMediaToCollection([]int{b.Media.ID})
 			if err != nil {
-				c.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
+				h.App.Logger.Error().Err(err).Msg("anilist: Failed to add media to collection")
 			}
-			ac, _ := c.App.RefreshAnimeCollection()
-			c.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, ac)
+			ac, _ := h.App.RefreshAnimeCollection()
+			h.App.WSEventManager.SendEvent(events.RefreshedAnilistAnimeCollection, ac)
 		}
 	}()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 
 }
 
@@ -207,7 +208,7 @@ func HandleTorrentClientDownload(c *RouteCtx) error {
 //	@desc The AutoDownloader items should be re-fetched after this.
 //	@route /api/v1/torrent-client/rule-magnet [POST]
 //	@returns bool
-func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
+func (h *Handler) HandleTorrentClientAddMagnetFromRule(c echo.Context) error {
 
 	type body struct {
 		MagnetUrl    string `json:"magnetUrl"`
@@ -216,37 +217,37 @@ func HandleTorrentClientAddMagnetFromRule(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.MagnetUrl == "" || b.RuleId == 0 {
-		return c.RespondWithError(errors.New("missing parameters"))
+		return h.RespondWithError(c, errors.New("missing parameters"))
 	}
 
 	// Get rule from database
-	rule, err := db_bridge.GetAutoDownloaderRule(c.App.Database, b.RuleId)
+	rule, err := db_bridge.GetAutoDownloaderRule(h.App.Database, b.RuleId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// try to start torrent client if it's not running
-	ok := c.App.TorrentClientRepository.Start()
+	ok := h.App.TorrentClientRepository.Start()
 	if !ok {
-		return c.RespondWithError(errors.New("could not start torrent client, verify your settings"))
+		return h.RespondWithError(c, errors.New("could not start torrent client, verify your settings"))
 	}
 
 	// try to add torrents to client, on error return error
-	err = c.App.TorrentClientRepository.AddMagnets([]string{b.MagnetUrl}, rule.Destination)
+	err = h.App.TorrentClientRepository.AddMagnets([]string{b.MagnetUrl}, rule.Destination)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if b.QueuedItemId > 0 {
 		// the magnet was added successfully, remove the item from the queue
-		err = c.App.Database.DeleteAutoDownloaderItem(b.QueuedItemId)
+		err = h.App.Database.DeleteAutoDownloaderItem(b.QueuedItemId)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 
 }

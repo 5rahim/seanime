@@ -276,7 +276,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                     <SeaLink
                         target="_blank"
-                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || "")}`}
+                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}
                     >
                         <Button
                             intent="white-link"

@@ -1,6 +1,11 @@
 package handlers
 
-import "seanime/internal/continuity"
+import (
+	"seanime/internal/continuity"
+	"strconv"
+
+	"github.com/labstack/echo/v4"
+)
 
 // HandleUpdateContinuityWatchHistoryItem
 //
@@ -9,23 +14,23 @@ import "seanime/internal/continuity"
 //	@desc Since this is low priority, we ignore any errors.
 //	@route /api/v1/continuity/item [PATCH]
 //	@returns bool
-func HandleUpdateContinuityWatchHistoryItem(c *RouteCtx) error {
+func (h *Handler) HandleUpdateContinuityWatchHistoryItem(c echo.Context) error {
 	type body struct {
 		Options continuity.UpdateWatchHistoryItemOptions `json:"options"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.ContinuityManager.UpdateWatchHistoryItem(&b.Options)
+	err := h.App.ContinuityManager.UpdateWatchHistoryItem(&b.Options)
 	if err != nil {
 		// Ignore the error
-		return c.RespondWithData(false)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetContinuityWatchHistoryItem
@@ -35,21 +40,21 @@ func HandleUpdateContinuityWatchHistoryItem(c *RouteCtx) error {
 //	@route /api/v1/continuity/item/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
 //	@returns continuity.WatchHistoryItemResponse
-func HandleGetContinuityWatchHistoryItem(c *RouteCtx) error {
-	id, err := c.Fiber.ParamsInt("id")
+func (h *Handler) HandleGetContinuityWatchHistoryItem(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	if !c.App.ContinuityManager.GetSettings().WatchContinuityEnabled {
-		return c.RespondWithData(&continuity.WatchHistoryItemResponse{
+	if !h.App.ContinuityManager.GetSettings().WatchContinuityEnabled {
+		return h.RespondWithData(c, &continuity.WatchHistoryItemResponse{
 			Item:  nil,
 			Found: false,
 		})
 	}
 
-	resp := c.App.ContinuityManager.GetWatchHistoryItem(id)
-	return c.RespondWithData(resp)
+	resp := h.App.ContinuityManager.GetWatchHistoryItem(id)
+	return h.RespondWithData(c, resp)
 }
 
 // HandleGetContinuityWatchHistory
@@ -58,12 +63,12 @@ func HandleGetContinuityWatchHistoryItem(c *RouteCtx) error {
 //	@desc This endpoint is used to retrieve all watch history items.
 //	@route /api/v1/continuity/history [GET]
 //	@returns continuity.WatchHistory
-func HandleGetContinuityWatchHistory(c *RouteCtx) error {
-	if !c.App.ContinuityManager.GetSettings().WatchContinuityEnabled {
+func (h *Handler) HandleGetContinuityWatchHistory(c echo.Context) error {
+	if !h.App.ContinuityManager.GetSettings().WatchContinuityEnabled {
 		ret := make(map[int]*continuity.WatchHistoryItem)
-		return c.RespondWithData(ret)
+		return h.RespondWithData(c, ret)
 	}
 
-	resp := c.App.ContinuityManager.GetWatchHistory()
-	return c.RespondWithData(resp)
+	resp := h.App.ContinuityManager.GetWatchHistory()
+	return h.RespondWithData(c, resp)
 }

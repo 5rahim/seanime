@@ -1,15 +1,19 @@
 package handlers
 
-import "github.com/dustin/go-humanize"
+import (
+	"github.com/dustin/go-humanize"
+	"github.com/labstack/echo/v4"
+	"strconv"
+)
 
 // HandleSyncGetTrackedMediaItems
 //
 //	@summary gets all tracked media.
 //	@route /api/v1/sync/track [GET]
 //	@returns []sync.TrackedMediaItem
-func HandleSyncGetTrackedMediaItems(c *RouteCtx) error {
-	tracked := c.App.SyncManager.GetTrackedMediaItems()
-	return c.RespondWithData(tracked)
+func (h *Handler) HandleSyncGetTrackedMediaItems(c echo.Context) error {
+	tracked := h.App.SyncManager.GetTrackedMediaItems()
+	return h.RespondWithData(c, tracked)
 }
 
 // HandleSyncAddMedia
@@ -17,7 +21,7 @@ func HandleSyncGetTrackedMediaItems(c *RouteCtx) error {
 //	@summary adds one or multiple media to be tracked for offline sync.
 //	@route /api/v1/sync/track [POST]
 //	@returns bool
-func HandleSyncAddMedia(c *RouteCtx) error {
+func (h *Handler) HandleSyncAddMedia(c echo.Context) error {
 	type body struct {
 		Media []struct {
 			MediaId int    `json:"mediaId"`
@@ -26,25 +30,25 @@ func HandleSyncAddMedia(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	var err error
 	for _, m := range b.Media {
 		switch m.Type {
 		case "anime":
-			err = c.App.SyncManager.AddAnime(m.MediaId)
+			err = h.App.SyncManager.AddAnime(m.MediaId)
 		case "manga":
-			err = c.App.SyncManager.AddManga(m.MediaId)
+			err = h.App.SyncManager.AddManga(m.MediaId)
 		}
 	}
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleSyncRemoveMedia
@@ -53,30 +57,30 @@ func HandleSyncAddMedia(c *RouteCtx) error {
 //	@desc This will remove anime from being tracked for offline sync and delete any associated data.
 //	@route /api/v1/sync/track [DELETE]
 //	@returns bool
-func HandleSyncRemoveMedia(c *RouteCtx) error {
+func (h *Handler) HandleSyncRemoveMedia(c echo.Context) error {
 	type body struct {
 		MediaId int    `json:"mediaId"`
 		Type    string `json:"type"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	var err error
 	switch b.Type {
 	case "anime":
-		err = c.App.SyncManager.RemoveAnime(b.MediaId)
+		err = h.App.SyncManager.RemoveAnime(b.MediaId)
 	case "manga":
-		err = c.App.SyncManager.RemoveManga(b.MediaId)
+		err = h.App.SyncManager.RemoveManga(b.MediaId)
 	}
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleSyncGetIsMediaTracked
@@ -86,16 +90,16 @@ func HandleSyncRemoveMedia(c *RouteCtx) error {
 //	@param id - int - true - "AniList anime media ID"
 //	@param type - string - true - "Type of media (anime/manga)"
 //	@returns bool
-func HandleSyncGetIsMediaTracked(c *RouteCtx) error {
-	id, err := c.Fiber.ParamsInt("id")
+func (h *Handler) HandleSyncGetIsMediaTracked(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	kind := c.Fiber.Params("type")
-	tracked := c.App.SyncManager.IsMediaTracked(id, kind)
+	kind := c.Param("type")
+	tracked := h.App.SyncManager.IsMediaTracked(id, kind)
 
-	return c.RespondWithData(tracked)
+	return h.RespondWithData(c, tracked)
 }
 
 // HandleSyncLocalData
@@ -103,12 +107,12 @@ func HandleSyncGetIsMediaTracked(c *RouteCtx) error {
 //	@summary syncs local data with AniList.
 //	@route /api/v1/sync/local [POST]
 //	@returns bool
-func HandleSyncLocalData(c *RouteCtx) error {
-	err := c.App.SyncManager.SynchronizeLocal()
+func (h *Handler) HandleSyncLocalData(c echo.Context) error {
+	err := h.App.SyncManager.SynchronizeLocal()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleSyncGetQueueState
@@ -117,8 +121,8 @@ func HandleSyncLocalData(c *RouteCtx) error {
 //	@desc This will return the list of media that are currently queued for syncing.
 //	@route /api/v1/sync/queue [GET]
 //	@returns sync.QueueState
-func HandleSyncGetQueueState(c *RouteCtx) error {
-	return c.RespondWithData(c.App.SyncManager.GetQueue().GetQueueState())
+func (h *Handler) HandleSyncGetQueueState(c echo.Context) error {
+	return h.RespondWithData(c, h.App.SyncManager.GetQueue().GetQueueState())
 }
 
 // HandleSyncAnilistData
@@ -126,12 +130,12 @@ func HandleSyncGetQueueState(c *RouteCtx) error {
 //	@summary syncs AniList data with local.
 //	@route /api/v1/sync/anilist [POST]
 //	@returns bool
-func HandleSyncAnilistData(c *RouteCtx) error {
-	err := c.App.SyncManager.SynchronizeAnilist()
+func (h *Handler) HandleSyncAnilistData(c echo.Context) error {
+	err := h.App.SyncManager.SynchronizeAnilist()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleSyncSetHasLocalChanges
@@ -139,18 +143,18 @@ func HandleSyncAnilistData(c *RouteCtx) error {
 //	@summary sets the flag to determine if there are local changes that need to be synced with AniList.
 //	@route /api/v1/sync/updated [POST]
 //	@returns bool
-func HandleSyncSetHasLocalChanges(c *RouteCtx) error {
+func (h *Handler) HandleSyncSetHasLocalChanges(c echo.Context) error {
 	type body struct {
 		Updated bool `json:"updated"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.SyncManager.SetHasLocalChanges(b.Updated)
-	return c.RespondWithData(true)
+	h.App.SyncManager.SetHasLocalChanges(b.Updated)
+	return h.RespondWithData(c, true)
 }
 
 // HandleSyncGetHasLocalChanges
@@ -158,9 +162,9 @@ func HandleSyncSetHasLocalChanges(c *RouteCtx) error {
 //	@summary gets the flag to determine if there are local changes that need to be synced with AniList.
 //	@route /api/v1/sync/updated [GET]
 //	@returns bool
-func HandleSyncGetHasLocalChanges(c *RouteCtx) error {
-	updated := c.App.SyncManager.HasLocalChanges()
-	return c.RespondWithData(updated)
+func (h *Handler) HandleSyncGetHasLocalChanges(c echo.Context) error {
+	updated := h.App.SyncManager.HasLocalChanges()
+	return h.RespondWithData(c, updated)
 }
 
 // HandleSyncGetLocalStorageSize
@@ -168,7 +172,7 @@ func HandleSyncGetHasLocalChanges(c *RouteCtx) error {
 //	@summary gets the size of the local storage in a human-readable format.
 //	@route /api/v1/sync/storage/size [GET]
 //	@returns string
-func HandleSyncGetLocalStorageSize(c *RouteCtx) error {
-	size := c.App.SyncManager.GetLocalStorageSize()
-	return c.RespondWithData(humanize.Bytes(uint64(size)))
+func (h *Handler) HandleSyncGetLocalStorageSize(c echo.Context) error {
+	size := h.App.SyncManager.GetLocalStorageSize()
+	return h.RespondWithData(c, humanize.Bytes(uint64(size)))
 }

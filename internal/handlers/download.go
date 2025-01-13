@@ -10,6 +10,8 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/updater"
 	"seanime/internal/util"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleDownloadTorrentFile
@@ -17,7 +19,7 @@ import (
 //	@summary downloads torrent files to the destination folder
 //	@route /api/v1/download-torrent-file [POST]
 //	@returns bool
-func HandleDownloadTorrentFile(c *RouteCtx) error {
+func (h *Handler) HandleDownloadTorrentFile(c echo.Context) error {
 
 	type body struct {
 		DownloadUrls []string           `json:"download_urls"`
@@ -26,8 +28,8 @@ func HandleDownloadTorrentFile(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	errs := make([]error, 0)
@@ -39,13 +41,12 @@ func HandleDownloadTorrentFile(c *RouteCtx) error {
 	}
 
 	if len(errs) == 1 {
-		return c.RespondWithError(errs[0])
+		return h.RespondWithError(c, errs[0])
 	} else if len(errs) > 1 {
-		return c.RespondWithError(errors.New("failed to download multiple files"))
+		return h.RespondWithError(c, errors.New("failed to download multiple files"))
 	}
 
-	return c.RespondWithData(true)
-
+	return h.RespondWithData(c, true)
 }
 
 func downloadTorrentFile(url string, dest string) (err error) {
@@ -90,8 +91,6 @@ func downloadTorrentFile(url string, dest string) (err error) {
 	return nil
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 type DownloadReleaseResponse struct {
 	Destination string `json:"destination"`
 	Error       string `json:"error,omitempty"`
@@ -106,7 +105,7 @@ type DownloadReleaseResponse struct {
 //	@desc It only returns an error if the download fails.
 //	@route /api/v1/download-release [POST]
 //	@returns handlers.DownloadReleaseResponse
-func HandleDownloadRelease(c *RouteCtx) error {
+func (h *Handler) HandleDownloadRelease(c echo.Context) error {
 
 	type body struct {
 		DownloadUrl string `json:"download_url"`
@@ -114,19 +113,18 @@ func HandleDownloadRelease(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	path, err := c.App.Updater.DownloadLatestRelease(b.DownloadUrl, b.Destination)
+	path, err := h.App.Updater.DownloadLatestRelease(b.DownloadUrl, b.Destination)
 
 	if err != nil {
 		if errors.Is(err, updater.ErrExtractionFailed) {
-			return c.RespondWithData(DownloadReleaseResponse{Destination: path, Error: err.Error()})
+			return h.RespondWithData(c, DownloadReleaseResponse{Destination: path, Error: err.Error()})
 		}
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(DownloadReleaseResponse{Destination: path})
-
+	return h.RespondWithData(c, DownloadReleaseResponse{Destination: path})
 }

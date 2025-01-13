@@ -1,18 +1,22 @@
 package handlers
 
-import "seanime/internal/database/models"
+import (
+	"seanime/internal/database/models"
+
+	"github.com/labstack/echo/v4"
+)
 
 // HandleGetTheme
 //
 //	@summary returns the theme settings.
 //	@route /api/v1/theme [GET]
 //	@returns models.Theme
-func HandleGetTheme(c *RouteCtx) error {
-	theme, err := c.App.Database.GetTheme()
+func (h *Handler) HandleGetTheme(c echo.Context) error {
+	theme, err := h.App.Database.GetTheme()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
-	return c.RespondWithData(theme)
+	return h.RespondWithData(c, theme)
 }
 
 // HandleUpdateTheme
@@ -21,15 +25,15 @@ func HandleGetTheme(c *RouteCtx) error {
 //	@desc The server status should be re-fetched after this on the client.
 //	@route /api/v1/theme [PATCH]
 //	@returns models.Theme
-func HandleUpdateTheme(c *RouteCtx) error {
+func (h *Handler) HandleUpdateTheme(c echo.Context) error {
 	type body struct {
 		Theme models.Theme `json:"theme"`
 	}
 
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Set the theme ID to 1, so we overwrite the previous settings
@@ -38,10 +42,10 @@ func HandleUpdateTheme(c *RouteCtx) error {
 	}
 
 	// Update the theme settings
-	if _, err := c.App.Database.UpsertTheme(&b.Theme); err != nil {
-		return c.RespondWithError(err)
+	if _, err := h.App.Database.UpsertTheme(&b.Theme); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Send the new theme to the client
-	return c.RespondWithData(b.Theme)
+	return h.RespondWithData(c, b.Theme)
 }

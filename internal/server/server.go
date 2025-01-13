@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"seanime/internal/core"
 	"seanime/internal/cron"
-	"seanime/internal/handlersv2"
+	"seanime/internal/handlers"
 	"seanime/internal/updater"
 	"seanime/internal/util"
 	"seanime/internal/util/crashlog"
@@ -82,20 +82,11 @@ appLoop:
 			break appLoop
 		case false:
 
-			//// Create the fiber app instance
-			//fiberApp := core.NewFiberApp(app, webFS)
-			//
-			//// Initialize the routes
-			//handlers.InitRoutes(app, fiberApp)
-			//
-			//// Run the server
-			//core.RunFiberServer(app, fiberApp)
-
 			// Create the echo app instance
 			echoApp := core.NewEchoApp(app, webFS)
 
 			// Initialize the routes
-			handlersv2.InitRoutes(app, echoApp)
+			handlers.InitRoutes(app, echoApp)
 
 			// Run the server
 			core.RunEchoServer(app, echoApp)

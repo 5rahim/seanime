@@ -3,10 +3,12 @@ package handlers
 import (
 	"context"
 	"errors"
-	"github.com/goccy/go-json"
 	"seanime/internal/database/models"
 	"seanime/internal/util"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/labstack/echo/v4"
 )
 
 // HandleLogin
@@ -17,7 +19,7 @@ import (
 //	@desc It creates a new handlers.Status and refreshes App modules.
 //	@route /api/v1/auth/login [POST]
 //	@returns handlers.Status
-func HandleLogin(c *RouteCtx) error {
+func (h *Handler) HandleLogin(c echo.Context) error {
 
 	type body struct {
 		Token string `json:"token"`
@@ -25,32 +27,32 @@ func HandleLogin(c *RouteCtx) error {
 
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.Fiber.JSON(NewErrorResponse(err))
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Set a new AniList client by passing to JWT token
-	c.App.UpdateAnilistClientToken(b.Token)
+	h.App.UpdateAnilistClientToken(b.Token)
 
 	// Get viewer data from AniList
-	getViewer, err := c.App.AnilistClient.GetViewer(context.Background())
+	getViewer, err := h.App.AnilistClient.GetViewer(context.Background())
 	if err != nil {
-		c.App.Logger.Error().Msg("Could not authenticate to AniList")
-		return c.RespondWithError(err)
+		h.App.Logger.Error().Msg("Could not authenticate to AniList")
+		return h.RespondWithError(c, err)
 	}
 
 	if len(getViewer.Viewer.Name) == 0 {
-		return c.RespondWithError(errors.New("could not find user"))
+		return h.RespondWithError(c, errors.New("could not find user"))
 	}
 
 	// Marshal viewer data
 	bytes, err := json.Marshal(getViewer.Viewer)
 	if err != nil {
-		c.App.Logger.Err(err).Msg("scan: could not save local files")
+		h.App.Logger.Err(err).Msg("scan: could not save local files")
 	}
 
 	// Save account data in database
-	_, err = c.App.Database.UpsertAccount(&models.Account{
+	_, err = h.App.Database.UpsertAccount(&models.Account{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
@@ -61,27 +63,27 @@ func HandleLogin(c *RouteCtx) error {
 	})
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.Logger.Info().Msg("app: Authenticated to AniList")
+	h.App.Logger.Info().Msg("app: Authenticated to AniList")
 
 	// Create a new status
-	status := NewStatus(c)
+	status := h.NewStatus(c)
 
-	c.App.InitOrRefreshAnilistData()
+	h.App.InitOrRefreshAnilistData()
 
-	c.App.InitOrRefreshModules()
+	h.App.InitOrRefreshModules()
 
 	go func() {
 		defer util.HandlePanicThen(func() {})
-		c.App.InitOrRefreshTorrentstreamSettings()
-		c.App.InitOrRefreshMediastreamSettings()
-		c.App.InitOrRefreshDebridSettings()
+		h.App.InitOrRefreshTorrentstreamSettings()
+		h.App.InitOrRefreshMediastreamSettings()
+		h.App.InitOrRefreshDebridSettings()
 	}()
 
 	// Return new status
-	return c.RespondWithData(status)
+	return h.RespondWithData(c, status)
 
 }
 
@@ -92,9 +94,9 @@ func HandleLogin(c *RouteCtx) error {
 //	@desc It creates a new handlers.Status and refreshes App modules.
 //	@route /api/v1/auth/logout [POST]
 //	@returns handlers.Status
-func HandleLogout(c *RouteCtx) error {
+func (h *Handler) HandleLogout(c echo.Context) error {
 
-	_, err := c.App.Database.UpsertAccount(&models.Account{
+	_, err := h.App.Database.UpsertAccount(&models.Account{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
@@ -105,16 +107,16 @@ func HandleLogout(c *RouteCtx) error {
 	})
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.Logger.Info().Msg("Logged out of AniList")
+	h.App.Logger.Info().Msg("Logged out of AniList")
 
-	status := NewStatus(c)
+	status := h.NewStatus(c)
 
-	c.App.InitOrRefreshModules()
+	h.App.InitOrRefreshModules()
 
-	c.App.InitOrRefreshAnilistData()
+	h.App.InitOrRefreshAnilistData()
 
-	return c.RespondWithData(status)
+	return h.RespondWithData(c, status)
 }

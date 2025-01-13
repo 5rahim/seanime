@@ -3,9 +3,6 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-	"gorm.io/gorm"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -20,6 +17,12 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
+	"gorm.io/gorm"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleGetAnimeEntry
@@ -30,27 +33,27 @@ import (
 //	@route /api/v1/library/anime-entry/{id} [GET]
 //	@param id - int - true - "AniList anime media ID"
 //	@returns anime.Entry
-func HandleGetAnimeEntry(c *RouteCtx) error {
+func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 
-	mId, err := c.Fiber.ParamsInt("id")
+	mId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Get the user's anilist collection
-	animeCollection, err := c.App.GetAnimeCollection(false)
+	animeCollection, err := h.App.GetAnimeCollection(false)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if animeCollection == nil {
-		return c.RespondWithError(errors.New("anime collection not found"))
+		return h.RespondWithError(c, errors.New("anime collection not found"))
 	}
 
 	// Create a new media entry
@@ -58,16 +61,16 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 		MediaId:          mId,
 		LocalFiles:       lfs,
 		AnimeCollection:  animeCollection,
-		Platform:         c.App.AnilistPlatform,
-		MetadataProvider: c.App.MetadataProvider,
+		Platform:         h.App.AnilistPlatform,
+		MetadataProvider: h.App.MetadataProvider,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.FillerManager.HydrateFillerData(entry)
+	h.App.FillerManager.HydrateFillerData(entry)
 
-	return c.RespondWithData(entry)
+	return h.RespondWithData(c, entry)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -79,7 +82,7 @@ func HandleGetAnimeEntry(c *RouteCtx) error {
 //	@desc The response is not used in the frontend. The client should just refetch the entire media entry data.
 //	@route /api/v1/library/anime-entry/bulk-action [PATCH]
 //	@returns []anime.LocalFile
-func HandleAnimeEntryBulkAction(c *RouteCtx) error {
+func (h *Handler) HandleAnimeEntryBulkAction(c echo.Context) error {
 
 	type body struct {
 		MediaId int    `json:"mediaId"`
@@ -87,14 +90,14 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Group local files by media id
@@ -102,7 +105,7 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 
 	selectLfs, ok := groupedLfs[p.MediaId]
 	if !ok {
-		return c.RespondWithError(errors.New("no local files found for media id"))
+		return h.RespondWithError(c, errors.New("no local files found for media id"))
 	}
 
 	switch p.Action {
@@ -127,12 +130,12 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(retLfs)
+	return h.RespondWithData(c, retLfs)
 
 }
 
@@ -145,28 +148,28 @@ func HandleAnimeEntryBulkAction(c *RouteCtx) error {
 //	@desc Returns 'true' whether the operation was successful or not, errors are ignored.
 //	@route /api/v1/library/anime-entry/open-in-explorer [POST]
 //	@returns bool
-func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
+func (h *Handler) HandleOpenAnimeEntryInExplorer(c echo.Context) error {
 
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	lf, found := lo.Find(lfs, func(i *anime.LocalFile) bool {
 		return i.MediaId == p.MediaId
 	})
 	if !found {
-		return c.RespondWithError(errors.New("local file not found"))
+		return h.RespondWithError(c, errors.New("local file not found"))
 	}
 
 	dir := filepath.Dir(lf.GetNormalizedPath())
@@ -190,9 +193,9 @@ func HandleOpenAnimeEntryInExplorer(c *RouteCtx) error {
 	cmdObj := util.NewCmd(cmd, args...)
 	cmdObj.Stdout = os.Stdout
 	cmdObj.Stderr = os.Stderr
-	err = cmdObj.Run()
+	_ = cmdObj.Run()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 
 }
 
@@ -209,28 +212,28 @@ var (
 //	@desc If some matches files are found in the directory, it will ignore them and base the suggestions on the remaining files.
 //	@route /api/v1/library/anime-entry/suggestions [POST]
 //	@returns []anilist.BaseAnime
-func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
+func (h *Handler) HandleFetchAnimeEntrySuggestions(c echo.Context) error {
 
 	type body struct {
 		Dir string `json:"dir"`
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	b.Dir = strings.ToLower(b.Dir)
 
 	suggestions, found := entriesSuggestionsCache.Get(b.Dir)
 	if found {
-		return c.RespondWithData(suggestions)
+		return h.RespondWithData(c, suggestions)
 	}
 
 	// Retrieve local files
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Group local files by dir
@@ -240,7 +243,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	selectedLfs, found := groupedLfs[b.Dir]
 	if !found {
-		return c.RespondWithError(errors.New("no local files found for selected directory"))
+		return h.RespondWithError(c, errors.New("no local files found for selected directory"))
 	}
 
 	// Filter out local files that are already matched
@@ -250,7 +253,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 
 	title := selectedLfs[0].GetParsedTitle()
 
-	c.App.Logger.Info().Str("title", title).Msg("handlers: Fetching anime suggestions")
+	h.App.Logger.Info().Str("title", title).Msg("handlers: Fetching anime suggestions")
 
 	res, err := anilist.ListAnimeM(
 		lo.ToPtr(1),
@@ -264,17 +267,17 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 		nil,
 		nil,
 		nil,
-		c.App.Logger,
-		c.App.GetAccountToken(),
+		h.App.Logger,
+		h.App.GetAccountToken(),
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Cache the results
 	entriesSuggestionsCache.Set(b.Dir, res.GetPage().GetMedia())
 
-	return c.RespondWithData(res.GetPage().GetMedia())
+	return h.RespondWithData(c, res.GetPage().GetMedia())
 
 }
 
@@ -288,7 +291,7 @@ func HandleFetchAnimeEntrySuggestions(c *RouteCtx) error {
 //	@desc The response is not used in the frontend. The client should just refetch the entire library collection.
 //	@route /api/v1/library/anime-entry/manual-match [POST]
 //	@returns []anime.LocalFile
-func HandleAnimeEntryManualMatch(c *RouteCtx) error {
+func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 
 	type body struct {
 		Paths   []string `json:"paths"`
@@ -296,19 +299,19 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	animeCollectionWithRelations, err := c.App.AnilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollectionWithRelations, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Retrieve local files
-	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	compPaths := make(map[string]struct{})
@@ -331,9 +334,9 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	})
 
 	// Get the media
-	media, err := c.App.AnilistPlatform.GetAnime(b.MediaId)
+	media, err := h.App.AnilistPlatform.GetAnime(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Create a slice of normalized media
@@ -341,9 +344,9 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 		anime.NewNormalizedMedia(media),
 	}
 
-	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)
+	scanLogger, err := scanner.NewScanLogger(h.App.Config.Logs.Dir)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Create scan summary logger
@@ -352,10 +355,10 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	fh := scanner.FileHydrator{
 		LocalFiles:         selectedLfs,
 		CompleteAnimeCache: anilist.NewCompleteAnimeCache(),
-		Platform:           c.App.AnilistPlatform,
-		MetadataProvider:   c.App.MetadataProvider,
+		Platform:           h.App.AnilistPlatform,
+		MetadataProvider:   h.App.MetadataProvider,
 		AnilistRateLimiter: limiter.NewAnilistLimiter(),
-		Logger:             c.App.Logger,
+		Logger:             h.App.Logger,
 		ScanLogger:         scanLogger,
 		ScanSummaryLogger:  scanSummaryLogger,
 		AllMedia:           normalizedMedia,
@@ -369,7 +372,7 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 
 	// Save the scan summary
 	go func() {
-		err = db_bridge.InsertScanSummary(c.App.Database, scanSummaryLogger.GenerateSummary())
+		err = db_bridge.InsertScanSummary(h.App.Database, scanSummaryLogger.GenerateSummary())
 	}()
 
 	// Remove select local files from the database slice, we will add them (hydrated) later
@@ -385,12 +388,12 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 	lfs = append(lfs, selectedLfs...)
 
 	// Update the local files
-	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(retLfs)
+	return h.RespondWithData(c, retLfs)
 
 }
 
@@ -405,33 +408,32 @@ func HandleAnimeEntryManualMatch(c *RouteCtx) error {
 //	@desc This route can be called multiple times, as it does not bypass the cache.
 //	@route /api/v1/library/missing-episodes [GET]
 //	@returns anime.MissingEpisodes
-func HandleGetMissingEpisodes(c *RouteCtx) error {
+func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
 
 	// Get the user's anilist collection
 	// Do not bypass the cache, since this handler might be called multiple times, and we don't want to spam the API
 	// A cron job will refresh the cache every 10 minutes
-	animeCollection, err := c.App.GetAnimeCollection(false)
+	animeCollection, err := h.App.GetAnimeCollection(false)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Get the silenced media ids
-	silencedMediaIds, _ := c.App.Database.GetSilencedMediaEntryIds()
+	silencedMediaIds, _ := h.App.Database.GetSilencedMediaEntryIds()
 
 	missingEps := anime.NewMissingEpisodes(&anime.NewMissingEpisodesOptions{
 		AnimeCollection:  animeCollection,
 		LocalFiles:       lfs,
 		SilencedMediaIds: silencedMediaIds,
-		MetadataProvider: c.App.MetadataProvider,
+		MetadataProvider: h.App.MetadataProvider,
 	})
 
-	return c.RespondWithData(missingEps)
-
+	return h.RespondWithData(c, missingEps)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -442,22 +444,22 @@ func HandleGetMissingEpisodes(c *RouteCtx) error {
 //	@param id - int - true - "The ID of the media entry."
 //	@route /api/v1/library/anime-entry/silence/{id} [GET]
 //	@returns models.SilencedMediaEntry
-func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
-	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+func (h *Handler) HandleGetAnimeEntrySilenceStatus(c echo.Context) error {
+	mId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(errors.New("invalid id"))
+		return h.RespondWithError(c, errors.New("invalid id"))
 	}
 
-	animeEntry, err := c.App.Database.GetSilencedMediaEntry(uint(mId))
+	animeEntry, err := h.App.Database.GetSilencedMediaEntry(uint(mId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.RespondWithData(false)
+			return h.RespondWithData(c, false)
 		} else {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
-	return c.RespondWithData(animeEntry)
+	return h.RespondWithData(c, animeEntry)
 }
 
 // HandleToggleAnimeEntrySilenceStatus
@@ -466,36 +468,36 @@ func HandleGetAnimeEntrySilenceStatus(c *RouteCtx) error {
 //	@desc The missing episodes should be re-fetched after this.
 //	@route /api/v1/library/anime-entry/silence [POST]
 //	@returns bool
-func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
+func (h *Handler) HandleToggleAnimeEntrySilenceStatus(c echo.Context) error {
 
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	animeEntry, err := c.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
+	animeEntry, err := h.App.Database.GetSilencedMediaEntry(uint(b.MediaId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = c.App.Database.InsertSilencedMediaEntry(uint(b.MediaId))
+			err = h.App.Database.InsertSilencedMediaEntry(uint(b.MediaId))
 			if err != nil {
-				return c.RespondWithError(err)
+				return h.RespondWithError(c, err)
 			}
-			return c.RespondWithData(true)
+			return h.RespondWithData(c, true)
 		} else {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
-	err = c.App.Database.DeleteSilencedMediaEntry(animeEntry.ID)
+	err = h.App.Database.DeleteSilencedMediaEntry(animeEntry.ID)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -508,7 +510,7 @@ func HandleToggleAnimeEntrySilenceStatus(c *RouteCtx) error {
 //	@desc NOTE: This is currently only used by the 'Online streaming' feature since anime progress updates are handled by the Playback Manager.
 //	@route /api/v1/library/anime-entry/update-progress [POST]
 //	@returns bool
-func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
+func (h *Handler) HandleUpdateAnimeEntryProgress(c echo.Context) error {
 
 	type body struct {
 		MediaId       int `json:"mediaId"`
@@ -518,23 +520,23 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Update the progress on AniList
-	err := c.App.AnilistPlatform.UpdateEntryProgress(
+	err := h.App.AnilistPlatform.UpdateEntryProgress(
 		b.MediaId,
 		b.EpisodeNumber,
 		&b.TotalEpisodes,
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	_, _ = c.App.RefreshAnimeCollection() // Refresh the AniList collection
+	_, _ = h.App.RefreshAnimeCollection() // Refresh the AniList collection
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -546,7 +548,7 @@ func HandleUpdateAnimeEntryProgress(c *RouteCtx) error {
 //	@desc The response is not used in the frontend, the client should just refetch the entire media entry data.
 //	@route /api/v1/library/anime-entry/update-repeat [POST]
 //	@returns bool
-func HandleUpdateAnimeEntryRepeat(c *RouteCtx) error {
+func (h *Handler) HandleUpdateAnimeEntryRepeat(c echo.Context) error {
 
 	type body struct {
 		MediaId int `json:"mediaId"`
@@ -554,19 +556,19 @@ func HandleUpdateAnimeEntryRepeat(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.AnilistPlatform.UpdateEntryRepeat(
+	err := h.App.AnilistPlatform.UpdateEntryRepeat(
 		b.MediaId,
 		b.Repeat,
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	_, _ = c.App.RefreshAnimeCollection() // Refresh the AniList collection
+	_, _ = h.App.RefreshAnimeCollection() // Refresh the AniList collection
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

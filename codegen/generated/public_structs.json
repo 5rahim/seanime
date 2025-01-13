@@ -25840,6 +25840,16 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Experimental",
+        "jsonName": "Experimental",
+        "goType": "INTERNAL_Config_Experimental",
+        "typescriptType": "INTERNAL_Config_Experimental",
+        "usedStructName": "core.Config_Experimental",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -26102,6 +26112,25 @@
   {
     "filepath": "../internal/core/config.go",
     "filename": "config.go",
+    "name": "Config_Experimental",
+    "formattedName": "INTERNAL_Config_Experimental",
+    "package": "core",
+    "fields": [
+      {
+        "name": "MainServerTorrentStreaming",
+        "jsonName": "MainServerTorrentStreaming",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
     "name": "ConfigOptions",
     "formattedName": "INTERNAL_ConfigOptions",
     "package": "core",
@@ -26152,12 +26181,31 @@
     "comments": []
   },
   {
+    "filepath": "../internal/core/echo.go",
+    "filename": "echo.go",
+    "name": "CustomJSONSerializer",
+    "formattedName": "INTERNAL_CustomJSONSerializer",
+    "package": "core",
+    "fields": [],
+    "comments": []
+  },
+  {
     "filepath": "../internal/core/feature_flags.go",
     "filename": "feature_flags.go",
     "name": "FeatureFlags",
     "formattedName": "INTERNAL_FeatureFlags",
     "package": "core",
-    "fields": [],
+    "fields": [
+      {
+        "name": "MainServerTorrentStreaming",
+        "jsonName": "MainServerTorrentStreaming",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -28000,9 +28048,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " UNUSED, LEGACY"
-        ]
+        "comments": []
       },
       {
         "name": "StreamingServerPort",
@@ -28011,9 +28057,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " UNUSED, LEGACY"
-        ]
+        "comments": []
       },
       {
         "name": "IncludeInLibrary",
@@ -34494,8 +34538,8 @@
   {
     "filepath": "../internal/handlers/routes.go",
     "filename": "routes.go",
-    "name": "RouteCtx",
-    "formattedName": "RouteCtx",
+    "name": "Handler",
+    "formattedName": "Handler",
     "package": "handlers",
     "fields": [
       {
@@ -34507,22 +34551,9 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Fiber",
-        "jsonName": "Fiber",
-        "goType": "fiber.Ctx",
-        "typescriptType": "Ctx",
-        "usedStructName": "fiber.Ctx",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
-    "comments": [
-      " RouteCtx is a context object that is passed to route handlers.",
-      " It contains the App instance and the Fiber context."
-    ]
+    "comments": []
   },
   {
     "filepath": "../internal/handlers/status.go",
@@ -34592,16 +34623,6 @@
         "goType": "models.Settings",
         "typescriptType": "Models_Settings",
         "usedStructName": "models.Settings",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Mal",
-        "jsonName": "mal",
-        "goType": "models.Mal",
-        "typescriptType": "Models_Mal",
-        "usedStructName": "models.Mal",
         "required": false,
         "public": true,
         "comments": []
@@ -34694,6 +34715,16 @@
         "comments": [
           " The server is running as a desktop sidecar"
         ]
+      },
+      {
+        "name": "FeatureFlags",
+        "jsonName": "featureFlags",
+        "goType": "core.FeatureFlags",
+        "typescriptType": "INTERNAL_FeatureFlags",
+        "usedStructName": "core.FeatureFlags",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -40906,6 +40937,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "UAFake",
+        "jsonName": "UAFake",
+        "goType": "uaFake.UserAgent",
+        "typescriptType": "UserAgent",
+        "usedStructName": "uaFake.UserAgent",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -44459,44 +44500,6 @@
     ]
   },
   {
-    "filepath": "../internal/mediastream/directplay.go",
-    "filename": "directplay.go",
-    "name": "VideoStream",
-    "formattedName": "Mediastream_VideoStream",
-    "package": "mediastream",
-    "fields": [
-      {
-        "name": "FilePath",
-        "jsonName": "FilePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "File",
-        "jsonName": "File",
-        "goType": "os.File",
-        "typescriptType": "File",
-        "usedStructName": "os.File",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FileSize",
-        "jsonName": "FileSize",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/mediastream/optimizer/optimizer.go",
     "filename": "optimizer.go",
     "name": "Quality",
@@ -44806,15 +44809,6 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "directPlayVideoStreamCache",
-        "jsonName": "directPlayVideoStreamCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
         "public": false,
         "comments": []
       },
@@ -55984,6 +55978,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UseSeparateServer",
+        "jsonName": "UseSeparateServer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -56998,128 +57001,6 @@
       }
     ],
     "comments": []
-  },
-  {
-    "filepath": "../internal/util/fiberlogger/config.go",
-    "filename": "config.go",
-    "name": "Config",
-    "formattedName": "Config",
-    "package": "fiberlogger",
-    "fields": [
-      {
-        "name": "Next",
-        "jsonName": "Next",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SkipBody",
-        "jsonName": "SkipBody",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SkipResBody",
-        "jsonName": "SkipResBody",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "GetResBody",
-        "jsonName": "GetResBody",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SkipURIs",
-        "jsonName": "SkipURIs",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "GetLogger",
-        "jsonName": "GetLogger",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Fields",
-        "jsonName": "Fields",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WrapHeaders",
-        "jsonName": "WrapHeaders",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FieldsSnakeCase",
-        "jsonName": "FieldsSnakeCase",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Messages",
-        "jsonName": "Messages",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Levels",
-        "jsonName": "Levels",
-        "goType": "[]zerolog.Level",
-        "typescriptType": "Array\u003cLevel\u003e",
-        "usedStructName": "zerolog.Level",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " Config defines the config for middleware."
-    ]
   },
   {
     "filepath": "../internal/util/filecache/filecache.go",

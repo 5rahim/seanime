@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/labstack/echo/v4"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/playbackmanager"
 )
@@ -12,25 +13,25 @@ import (
 //	@desc This returns 'true' if the video was successfully played.
 //	@route /api/v1/playback-manager/play [POST]
 //	@returns bool
-func HandlePlaybackPlayVideo(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackPlayVideo(c echo.Context) error {
 	type body struct {
 		Path string `json:"path"`
 	}
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.PlaybackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
+	err := h.App.PlaybackManager.StartPlayingUsingMediaPlayer(&playbackmanager.StartPlayingOptions{
 		Payload:   b.Path,
-		UserAgent: c.Fiber.Get("User-Agent"),
+		UserAgent: c.Request().Header.Get("User-Agent"),
 		ClientId:  "",
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandlePlaybackPlayRandomVideo
@@ -41,17 +42,17 @@ func HandlePlaybackPlayVideo(c *RouteCtx) error {
 //	@desc This returns 'true' if the video was successfully played.
 //	@route /api/v1/playback-manager/play-random [POST]
 //	@returns bool
-func HandlePlaybackPlayRandomVideo(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackPlayRandomVideo(c echo.Context) error {
 
-	err := c.App.PlaybackManager.StartRandomVideo(&playbackmanager.StartRandomVideoOptions{
-		UserAgent: c.Fiber.Get("User-Agent"),
+	err := h.App.PlaybackManager.StartRandomVideo(&playbackmanager.StartRandomVideoOptions{
+		UserAgent: c.Request().Header.Get("User-Agent"),
 		ClientId:  "",
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandlePlaybackSyncCurrentProgress
@@ -61,16 +62,16 @@ func HandlePlaybackPlayRandomVideo(c *RouteCtx) error {
 //	@desc This route returns the media ID of the currently playing media, so the client can refetch the media entry data.
 //	@route /api/v1/playback-manager/sync-current-progress [POST]
 //	@returns int
-func HandlePlaybackSyncCurrentProgress(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackSyncCurrentProgress(c echo.Context) error {
 
-	err := c.App.PlaybackManager.SyncCurrentProgress()
+	err := h.App.PlaybackManager.SyncCurrentProgress()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	mId, _ := c.App.PlaybackManager.GetCurrentMediaID()
+	mId, _ := h.App.PlaybackManager.GetCurrentMediaID()
 
-	return c.RespondWithData(mId)
+	return h.RespondWithData(c, mId)
 }
 
 // HandlePlaybackPlayNextEpisode
@@ -80,14 +81,14 @@ func HandlePlaybackSyncCurrentProgress(c *RouteCtx) error {
 //	@desc This is non-blocking so the client should prevent multiple calls until the next status is received.
 //	@route /api/v1/playback-manager/next-episode [POST]
 //	@returns bool
-func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackPlayNextEpisode(c echo.Context) error {
 
-	err := c.App.PlaybackManager.PlayNextEpisode()
+	err := h.App.PlaybackManager.PlayNextEpisode()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandlePlaybackGetNextEpisode
@@ -96,10 +97,10 @@ func HandlePlaybackPlayNextEpisode(c *RouteCtx) error {
 //	@desc This is used by the client's autoplay feature
 //	@route /api/v1/playback-manager/next-episode [GET]
 //	@returns *anime.LocalFile
-func HandlePlaybackGetNextEpisode(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackGetNextEpisode(c echo.Context) error {
 
-	lf := c.App.PlaybackManager.GetNextEpisode()
-	return c.RespondWithData(lf)
+	lf := h.App.PlaybackManager.GetNextEpisode()
+	return h.RespondWithData(c, lf)
 }
 
 // HandlePlaybackAutoPlayNextEpisode
@@ -108,14 +109,14 @@ func HandlePlaybackGetNextEpisode(c *RouteCtx) error {
 //	@desc This will play the next episode of the currently playing media.
 //	@route /api/v1/playback-manager/autoplay-next-episode [POST]
 //	@returns bool
-func HandlePlaybackAutoPlayNextEpisode(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackAutoPlayNextEpisode(c echo.Context) error {
 
-	err := c.App.PlaybackManager.AutoPlayNextEpisode()
+	err := h.App.PlaybackManager.AutoPlayNextEpisode()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,29 +127,29 @@ func HandlePlaybackAutoPlayNextEpisode(c *RouteCtx) error {
 //	@desc The client should refetch playlists.
 //	@route /api/v1/playback-manager/start-playlist [POST]
 //	@returns bool
-func HandlePlaybackStartPlaylist(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackStartPlaylist(c echo.Context) error {
 
 	type body struct {
 		DbId uint `json:"dbId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get playlist
-	playlist, err := db_bridge.GetPlaylist(c.App.Database, b.DbId)
+	playlist, err := db_bridge.GetPlaylist(h.App.Database, b.DbId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	err = c.App.PlaybackManager.StartPlaylist(playlist)
+	err = h.App.PlaybackManager.StartPlaylist(playlist)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandlePlaybackCancelCurrentPlaylist
@@ -157,14 +158,14 @@ func HandlePlaybackStartPlaylist(c *RouteCtx) error {
 //	@desc This will stop the current playlist. This is non-blocking.
 //	@route /api/v1/playback-manager/cancel-playlist [POST]
 //	@returns bool
-func HandlePlaybackCancelCurrentPlaylist(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackCancelCurrentPlaylist(c echo.Context) error {
 
-	err := c.App.PlaybackManager.CancelCurrentPlaylist()
+	err := h.App.PlaybackManager.CancelCurrentPlaylist()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandlePlaybackPlaylistNext
@@ -173,14 +174,14 @@ func HandlePlaybackCancelCurrentPlaylist(c *RouteCtx) error {
 //	@desc This is non-blocking so the client should prevent multiple calls until the next status is received.
 //	@route /api/v1/playback-manager/playlist-next [POST]
 //	@returns bool
-func HandlePlaybackPlaylistNext(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackPlaylistNext(c echo.Context) error {
 
-	err := c.App.PlaybackManager.RequestNextPlaylistFile()
+	err := h.App.PlaybackManager.RequestNextPlaylistFile()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,27 +194,27 @@ func HandlePlaybackPlaylistNext(c *RouteCtx) error {
 //	@desc This returns 'true' if the tracking was successfully started.
 //	@route /api/v1/playback-manager/manual-tracking/start [POST]
 //	@returns bool
-func HandlePlaybackStartManualTracking(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackStartManualTracking(c echo.Context) error {
 	type body struct {
 		MediaId       int    `json:"mediaId"`
 		EpisodeNumber int    `json:"episodeNumber"`
 		ClientId      string `json:"clientId"`
 	}
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.PlaybackManager.StartManualProgressTracking(&playbackmanager.StartManualProgressTrackingOptions{
+	err := h.App.PlaybackManager.StartManualProgressTracking(&playbackmanager.StartManualProgressTrackingOptions{
 		ClientId:      b.ClientId,
 		MediaId:       b.MediaId,
 		EpisodeNumber: b.EpisodeNumber,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandlePlaybackCancelManualTracking
@@ -222,9 +223,9 @@ func HandlePlaybackStartManualTracking(c *RouteCtx) error {
 //	@desc This will stop the server from expecting progress updates for the media.
 //	@route /api/v1/playback-manager/manual-tracking/cancel [POST]
 //	@returns bool
-func HandlePlaybackCancelManualTracking(c *RouteCtx) error {
+func (h *Handler) HandlePlaybackCancelManualTracking(c echo.Context) error {
 
-	c.App.PlaybackManager.CancelManualProgressTracking()
+	h.App.PlaybackManager.CancelManualProgressTracking()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

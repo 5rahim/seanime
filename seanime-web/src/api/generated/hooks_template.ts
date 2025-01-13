@@ -874,7 +874,7 @@
 // }
 
 // export function useDeleteLocalFiles() {
-//     return useServerMutation<Array<Anime_LocalFile>, DeleteLocalFiles_Variables>({
+//     return useServerMutation<boolean, DeleteLocalFiles_Variables>({
 //         endpoint: API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.endpoint,
 //         method: API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.key],

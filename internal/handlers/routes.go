@@ -1,159 +1,148 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/google/uuid"
-	"github.com/rs/zerolog"
-	"runtime"
+	"net/http"
+	"path/filepath"
 	"seanime/internal/core"
-	"seanime/internal/util"
-	"seanime/internal/util/fiberlogger"
-	"sync"
+	util "seanime/internal/util/proxies"
+	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/ziflex/lecho/v3"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-func InitRoutes(app *core.App, fiberApp *fiber.App) {
+type Handler struct {
+	App *core.App
+}
 
-	fiberApp.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+func InitRoutes(app *core.App, e *echo.Echo) {
+	// CORS middleware
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept"},
 	}))
 
-	// Set up a custom logger for fiber.
-	// This is not instantiated in `core.NewFiberApp` because we do not want to log requests for the static file server.
-	fiberLogger := fiberlogger.New(fiberlogger.Config{
-		Logger: app.Logger,
-		SkipURIs: []string{
-			"/internal/metrics",
-			"/_next",
-			"/icons",
-			"/events",
-			"/api/v1/image-proxy",
-			"/api/v1/mediastream/transcode/",
-			"/api/v1/torrent-client/list",
-			"/api/v1/proxy",
+	lechoLogger := lecho.From(*app.Logger)
+
+	urisToSkip := []string{
+		"/internal/metrics",
+		"/_next",
+		"/icons",
+		"/events",
+		"/api/v1/image-proxy",
+		"/api/v1/mediastream/transcode/",
+		"/api/v1/torrent-client/list",
+		"/api/v1/proxy",
+	}
+
+	// Logging middleware
+	e.Use(lecho.Middleware(lecho.Config{
+		Logger: lechoLogger,
+		Skipper: func(c echo.Context) bool {
+			path := c.Request().URL.RequestURI()
+			if filepath.Ext(c.Request().URL.Path) == ".txt" ||
+				filepath.Ext(c.Request().URL.Path) == ".png" ||
+				filepath.Ext(c.Request().URL.Path) == ".ico" {
+				return true
+			}
+			for _, uri := range urisToSkip {
+				if uri == path || strings.HasPrefix(path, uri) {
+					return true
+				}
+			}
+			return false
 		},
-		Fields:   []string{"method", "error", "url", "latency"},
-		Messages: []string{"api: Error", "api: Client error", "api: Success"},
-		Levels:   []zerolog.Level{zerolog.ErrorLevel, zerolog.WarnLevel, zerolog.InfoLevel},
-	})
-	fiberApp.Use(fiberLogger)
-	fiberApp.Use(recover.New())
+		Enricher: func(c echo.Context, logger zerolog.Context) zerolog.Context {
+			// Add which file the request came from
+			return logger.Str("file", c.Path())
+		},
+	}))
 
-	fiberApp.Use(func(c *fiber.Ctx) error {
-		// Check if the client has a UUID cookie
-		cookie := c.Cookies("Seanime-Client-Id")
+	// Recovery middleware
+	e.Use(middleware.Recover())
 
-		if cookie == "" {
-			// Generate a new UUID for the client
-			u := uuid.New().String()
+	// Client ID middleware
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// Check if the client has a UUID cookie
+			cookie, err := c.Cookie("Seanime-Client-Id")
 
-			// Create a cookie with the UUID
-			cookie := new(fiber.Cookie)
-			cookie.Name = "Seanime-Client-Id"
-			cookie.Value = u
-			cookie.HTTPOnly = false // Make the cookie accessible via JS
-			cookie.Expires = time.Now().Add(24 * time.Hour)
+			if err != nil || cookie.Value == "" {
+				// Generate a new UUID for the client
+				u := uuid.New().String()
 
-			// Set the cookie
-			c.Cookie(cookie)
+				// Create a cookie with the UUID
+				newCookie := new(http.Cookie)
+				newCookie.Name = "Seanime-Client-Id"
+				newCookie.Value = u
+				newCookie.HttpOnly = false // Make the cookie accessible via JS
+				newCookie.Expires = time.Now().Add(24 * time.Hour)
 
-			// Store the UUID in the context for use in the request
-			c.Locals("Seanime-Client-Id", u)
-		} else {
-			// Store the existing UUID in the context for use in the request
-			c.Locals("Seanime-Client-Id", cookie)
+				// Set the cookie
+				c.SetCookie(newCookie)
+
+				// Store the UUID in the context for use in the request
+				c.Set("Seanime-Client-Id", u)
+			} else {
+				// Store the existing UUID in the context for use in the request
+				c.Set("Seanime-Client-Id", cookie.Value)
+			}
+
+			return next(c)
 		}
-
-		return c.Next()
 	})
 
-	api := fiberApp.Group("/api")
-	v1 := api.Group("/v1")
+	h := &Handler{App: app}
 
-	//if app.IsOffline() {
-	//	v1.Use(func(c *fiber.Ctx) error {
-	//		uriS := strings.Split(c.Request().URI().String(), "v1")
-	//		if len(uriS) > 1 {
-	//			if strings.HasPrefix(uriS[1], "/offline") ||
-	//				strings.HasPrefix(uriS[1], "/settings") ||
-	//				strings.HasPrefix(uriS[1], "/theme") ||
-	//				strings.HasPrefix(uriS[1], "/status") ||
-	//				strings.HasPrefix(uriS[1], "/media-player") ||
-	//				strings.HasPrefix(uriS[1], "/filecache") ||
-	//				strings.HasPrefix(uriS[1], "/playback-manager") ||
-	//				strings.HasPrefix(uriS[1], "/playlists") ||
-	//				strings.HasPrefix(uriS[1], "/directory-selector") ||
-	//				strings.HasPrefix(uriS[1], "/manga") ||
-	//				strings.HasPrefix(uriS[1], "/mediastream") ||
-	//				strings.HasPrefix(uriS[1], "/torrentstream") ||
-	//				strings.HasPrefix(uriS[1], "/extensions") ||
-	//				strings.HasPrefix(uriS[1], "/continuity") ||
-	//				strings.HasPrefix(uriS[1], "/logs") ||
-	//				strings.HasPrefix(uriS[1], "/open-in-explorer") {
-	//				return c.Next()
-	//			} else {
-	//				return c.Status(200).SendString("offline")
-	//			}
-	//		}
-	//		return c.Next()
-	//	})
-	//}
+	e.GET("/events", h.webSocketEventHandler)
 
-	//fiberApp.Use(pprof.New(pprof.Config{
-	//	Prefix: "/api/v1",
-	//}))
+	v1 := e.Group("/api").Group("/v1") // Commented out for now, will be used later
 
-	v1.Get("/internal/docs", makeHandler(app, HandleGetDocs))
+	imageProxy := &util.ImageProxy{}
+	v1.GET("/image-proxy", imageProxy.ProxyImage)
 
-	// Image Proxy
-	//imageProxy := &util2.ImageProxy{}
-	//v1.Get("/image-proxy", imageProxy.ProxyImage)
+	v1.GET("/proxy", util.M3U8Proxy)
 
-	//v1.Get("/proxy", util2.M3U8Proxy)
-
-	//
-	// General
-	//
-	v1.Get("/status", makeHandler(app, HandleGetStatus))
-	v1.Get("/log/*", makeHandler(app, HandleGetLogContent))
-	v1.Get("/logs/filenames", makeHandler(app, HandleGetLogFilenames))
-	v1.Delete("/logs", makeHandler(app, HandleDeleteLogs))
+	v1.GET("/status", h.HandleGetStatus)
+	v1.GET("/log/*", h.HandleGetLogContent)
+	v1.GET("/logs/filenames", h.HandleGetLogFilenames)
+	v1.DELETE("/logs", h.HandleDeleteLogs)
 
 	// Auth
-	v1.Post("/auth/login", makeHandler(app, HandleLogin))
-	v1.Post("/auth/logout", makeHandler(app, HandleLogout))
+	v1.POST("/auth/login", h.HandleLogin)
+	v1.POST("/auth/logout", h.HandleLogout)
 
 	// Settings
-	v1.Get("/settings", makeHandler(app, HandleGetSettings))
-	v1.Patch("/settings", makeHandler(app, HandleSaveSettings))
-	v1.Post("/start", makeHandler(app, HandleGettingStarted))
-	v1.Patch("/settings/auto-downloader", makeHandler(app, HandleSaveAutoDownloaderSettings))
+	v1.GET("/settings", h.HandleGetSettings)
+	v1.PATCH("/settings", h.HandleSaveSettings)
+	v1.POST("/start", h.HandleGettingStarted)
+	v1.PATCH("/settings/auto-downloader", h.HandleSaveAutoDownloaderSettings)
 
 	// Auto Downloader
-	v1.Post("/auto-downloader/run", makeHandler(app, HandleRunAutoDownloader))
-	v1.Get("/auto-downloader/rule/:id", makeHandler(app, HandleGetAutoDownloaderRule))
-	v1.Get("/auto-downloader/rule/anime/:id", makeHandler(app, HandleGetAutoDownloaderRulesByAnime))
-	v1.Get("/auto-downloader/rules", makeHandler(app, HandleGetAutoDownloaderRules))
-	v1.Post("/auto-downloader/rule", makeHandler(app, HandleCreateAutoDownloaderRule))
-	v1.Patch("/auto-downloader/rule", makeHandler(app, HandleUpdateAutoDownloaderRule))
-	v1.Delete("/auto-downloader/rule/:id", makeHandler(app, HandleDeleteAutoDownloaderRule))
+	v1.POST("/auto-downloader/run", h.HandleRunAutoDownloader)
+	v1.GET("/auto-downloader/rule/:id", h.HandleGetAutoDownloaderRule)
+	v1.GET("/auto-downloader/rule/anime/:id", h.HandleGetAutoDownloaderRulesByAnime)
+	v1.GET("/auto-downloader/rules", h.HandleGetAutoDownloaderRules)
+	v1.POST("/auto-downloader/rule", h.HandleCreateAutoDownloaderRule)
+	v1.PATCH("/auto-downloader/rule", h.HandleUpdateAutoDownloaderRule)
+	v1.DELETE("/auto-downloader/rule/:id", h.HandleDeleteAutoDownloaderRule)
 
-	v1.Get("/auto-downloader/items", makeHandler(app, HandleGetAutoDownloaderItems))
-	v1.Delete("/auto-downloader/item", makeHandler(app, HandleDeleteAutoDownloaderItem))
+	v1.GET("/auto-downloader/items", h.HandleGetAutoDownloaderItems)
+	v1.DELETE("/auto-downloader/item", h.HandleDeleteAutoDownloaderItem)
 
 	// Other
-	v1.Post("/test-dump", makeHandler(app, HandleTestDump))
+	v1.POST("/test-dump", h.HandleTestDump)
 
-	v1.Post("/directory-selector", makeHandler(app, HandleDirectorySelector))
+	v1.POST("/directory-selector", h.HandleDirectorySelector)
 
-	v1.Post("/open-in-explorer", makeHandler(app, HandleOpenInExplorer))
+	v1.POST("/open-in-explorer", h.HandleOpenInExplorer)
 
-	v1.Post("/media-player/start", makeHandler(app, HandleStartDefaultMediaPlayer))
+	v1.POST("/media-player/start", h.HandleStartDefaultMediaPlayer)
 
 	//
 	// AniList
@@ -161,35 +150,35 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Anilist := v1.Group("/anilist")
 
-	v1Anilist.Get("/collection", makeHandler(app, HandleGetAnimeCollection))
-	v1Anilist.Post("/collection", makeHandler(app, HandleGetAnimeCollection))
+	v1Anilist.GET("/collection", h.HandleGetAnimeCollection)
+	v1Anilist.POST("/collection", h.HandleGetAnimeCollection)
 
-	v1Anilist.Get("/collection/raw", makeHandler(app, HandleGetRawAnimeCollection))
-	v1Anilist.Post("/collection/raw", makeHandler(app, HandleGetRawAnimeCollection))
+	v1Anilist.GET("/collection/raw", h.HandleGetRawAnimeCollection)
+	v1Anilist.POST("/collection/raw", h.HandleGetRawAnimeCollection)
 
-	v1Anilist.Get("/media-details/:id", makeHandler(app, HandleGetAnilistAnimeDetails))
+	v1Anilist.GET("/media-details/:id", h.HandleGetAnilistAnimeDetails)
 
-	v1Anilist.Get("/studio-details/:id", makeHandler(app, HandleGetAnilistStudioDetails))
+	v1Anilist.GET("/studio-details/:id", h.HandleGetAnilistStudioDetails)
 
-	v1Anilist.Post("/list-entry", makeHandler(app, HandleEditAnilistListEntry))
+	v1Anilist.POST("/list-entry", h.HandleEditAnilistListEntry)
 
-	v1Anilist.Delete("/list-entry", makeHandler(app, HandleDeleteAnilistListEntry))
+	v1Anilist.DELETE("/list-entry", h.HandleDeleteAnilistListEntry)
 
-	v1Anilist.Post("/list-anime", makeHandler(app, HandleAnilistListAnime))
+	v1Anilist.POST("/list-anime", h.HandleAnilistListAnime)
 
-	v1Anilist.Post("/list-recent-anime", makeHandler(app, HandleAnilistListRecentAiringAnime))
+	v1Anilist.POST("/list-recent-anime", h.HandleAnilistListRecentAiringAnime)
 
-	v1Anilist.Get("/list-missed-sequels", makeHandler(app, HandleAnilistListMissedSequels))
+	v1Anilist.GET("/list-missed-sequels", h.HandleAnilistListMissedSequels)
 
-	v1Anilist.Get("/stats", makeHandler(app, HandleGetAniListStats))
+	v1Anilist.GET("/stats", h.HandleGetAniListStats)
 
 	//
 	// MAL
 	//
 
-	v1.Post("/mal/auth", makeHandler(app, HandleMALAuth))
+	v1.POST("/mal/auth", h.HandleMALAuth)
 
-	v1.Post("/mal/logout", makeHandler(app, HandleMALLogout))
+	v1.POST("/mal/logout", h.HandleMALLogout)
 
 	//
 	// Library
@@ -197,328 +186,271 @@ func InitRoutes(app *core.App, fiberApp *fiber.App) {
 
 	v1Library := v1.Group("/library")
 
-	v1Library.Post("/scan", makeHandler(app, HandleScanLocalFiles))
+	v1Library.POST("/scan", h.HandleScanLocalFiles)
 
-	v1Library.Delete("/empty-directories", makeHandler(app, HandleRemoveEmptyDirectories))
+	v1Library.DELETE("/empty-directories", h.HandleRemoveEmptyDirectories)
 
-	v1Library.Get("/local-files", makeHandler(app, HandleGetLocalFiles))
-	v1Library.Post("/local-files", makeHandler(app, HandleLocalFileBulkAction))
-	v1Library.Patch("/local-files", makeHandler(app, HandleUpdateLocalFiles))
-	v1Library.Delete("/local-files", makeHandler(app, HandleDeleteLocalFiles))
-	v1Library.Get("/local-files/dump", makeHandler(app, HandleDumpLocalFilesToFile))
-	v1Library.Post("/local-files/import", makeHandler(app, HandleImportLocalFiles))
-	v1Library.Patch("/local-file", makeHandler(app, HandleUpdateLocalFileData))
+	v1Library.GET("/local-files", h.HandleGetLocalFiles)
+	v1Library.POST("/local-files", h.HandleLocalFileBulkAction)
+	v1Library.PATCH("/local-files", h.HandleUpdateLocalFiles)
+	v1Library.DELETE("/local-files", h.HandleDeleteLocalFiles)
+	v1Library.GET("/local-files/dump", h.HandleDumpLocalFilesToFile)
+	v1Library.POST("/local-files/import", h.HandleImportLocalFiles)
+	v1Library.PATCH("/local-file", h.HandleUpdateLocalFileData)
 
-	v1Library.Get("/collection", makeHandler(app, HandleGetLibraryCollection))
+	v1Library.GET("/collection", h.HandleGetLibraryCollection)
 
-	v1Library.Get("/scan-summaries", makeHandler(app, HandleGetScanSummaries))
+	v1Library.GET("/scan-summaries", h.HandleGetScanSummaries)
 
-	v1Library.Get("/missing-episodes", makeHandler(app, HandleGetMissingEpisodes))
+	v1Library.GET("/missing-episodes", h.HandleGetMissingEpisodes)
 
-	v1Library.Get("/anime-entry/:id", makeHandler(app, HandleGetAnimeEntry))
-	v1Library.Post("/anime-entry/suggestions", makeHandler(app, HandleFetchAnimeEntrySuggestions))
-	v1Library.Post("/anime-entry/manual-match", makeHandler(app, HandleAnimeEntryManualMatch))
-	v1Library.Patch("/anime-entry/bulk-action", makeHandler(app, HandleAnimeEntryBulkAction))
-	v1Library.Post("/anime-entry/open-in-explorer", makeHandler(app, HandleOpenAnimeEntryInExplorer))
-	v1Library.Post("/anime-entry/update-progress", makeHandler(app, HandleUpdateAnimeEntryProgress))
-	v1Library.Post("/anime-entry/update-repeat", makeHandler(app, HandleUpdateAnimeEntryRepeat))
-	v1Library.Get("/anime-entry/silence/:id", makeHandler(app, HandleGetAnimeEntrySilenceStatus))
-	v1Library.Post("/anime-entry/silence", makeHandler(app, HandleToggleAnimeEntrySilenceStatus))
+	v1Library.GET("/anime-entry/:id", h.HandleGetAnimeEntry)
+	v1Library.POST("/anime-entry/suggestions", h.HandleFetchAnimeEntrySuggestions)
+	v1Library.POST("/anime-entry/manual-match", h.HandleAnimeEntryManualMatch)
+	v1Library.PATCH("/anime-entry/bulk-action", h.HandleAnimeEntryBulkAction)
+	v1Library.POST("/anime-entry/open-in-explorer", h.HandleOpenAnimeEntryInExplorer)
+	v1Library.POST("/anime-entry/update-progress", h.HandleUpdateAnimeEntryProgress)
+	v1Library.POST("/anime-entry/update-repeat", h.HandleUpdateAnimeEntryRepeat)
+	v1Library.GET("/anime-entry/silence/:id", h.HandleGetAnimeEntrySilenceStatus)
+	v1Library.POST("/anime-entry/silence", h.HandleToggleAnimeEntrySilenceStatus)
 
-	v1Library.Post("/unknown-media", makeHandler(app, HandleAddUnknownMedia))
+	v1Library.POST("/unknown-media", h.HandleAddUnknownMedia)
 
 	//
 	// Torrent / Torrent Client
 	//
 
-	v1.Post("/torrent/search", makeHandler(app, HandleSearchTorrent))
-	v1.Post("/torrent-client/download", makeHandler(app, HandleTorrentClientDownload))
-	v1.Get("/torrent-client/list", makeHandler(app, HandleGetActiveTorrentList))
-	v1.Post("/torrent-client/action", makeHandler(app, HandleTorrentClientAction))
-	v1.Post("/torrent-client/rule-magnet", makeHandler(app, HandleTorrentClientAddMagnetFromRule))
+	v1.POST("/torrent/search", h.HandleSearchTorrent)
+	v1.POST("/torrent-client/download", h.HandleTorrentClientDownload)
+	v1.GET("/torrent-client/list", h.HandleGetActiveTorrentList)
+	v1.POST("/torrent-client/action", h.HandleTorrentClientAction)
+	v1.POST("/torrent-client/rule-magnet", h.HandleTorrentClientAddMagnetFromRule)
 
 	//
 	// Download
 	//
 
-	v1.Post("/download-torrent-file", makeHandler(app, HandleDownloadTorrentFile))
+	v1.POST("/download-torrent-file", h.HandleDownloadTorrentFile)
 
 	//
 	// Updates
 	//
 
-	v1.Get("/latest-update", makeHandler(app, HandleGetLatestUpdate))
-	v1.Post("/install-update", makeHandler(app, HandleInstallLatestUpdate))
-	v1.Post("/download-release", makeHandler(app, HandleDownloadRelease))
+	v1.GET("/latest-update", h.HandleGetLatestUpdate)
+	v1.POST("/install-update", h.HandleInstallLatestUpdate)
+	v1.POST("/download-release", h.HandleDownloadRelease)
 
 	//
 	// Theme
 	//
 
-	v1.Get("/theme", makeHandler(app, HandleGetTheme))
-	v1.Patch("/theme", makeHandler(app, HandleUpdateTheme))
+	v1.GET("/theme", h.HandleGetTheme)
+	v1.PATCH("/theme", h.HandleUpdateTheme)
 
 	//
 	// Playback Manager
 	//
 
-	v1.Post("/playback-manager/sync-current-progress", makeHandler(app, HandlePlaybackSyncCurrentProgress))
-	v1.Post("/playback-manager/start-playlist", makeHandler(app, HandlePlaybackStartPlaylist))
-	v1.Post("/playback-manager/playlist-next", makeHandler(app, HandlePlaybackPlaylistNext))
-	v1.Post("/playback-manager/cancel-playlist", makeHandler(app, HandlePlaybackCancelCurrentPlaylist))
-	v1.Post("/playback-manager/next-episode", makeHandler(app, HandlePlaybackPlayNextEpisode))
-	v1.Get("/playback-manager/next-episode", makeHandler(app, HandlePlaybackGetNextEpisode))
-	v1.Post("/playback-manager/autoplay-next-episode", makeHandler(app, HandlePlaybackAutoPlayNextEpisode))
-	v1.Post("/playback-manager/play", makeHandler(app, HandlePlaybackPlayVideo))
-	v1.Post("/playback-manager/play-random", makeHandler(app, HandlePlaybackPlayRandomVideo))
+	v1.POST("/playback-manager/sync-current-progress", h.HandlePlaybackSyncCurrentProgress)
+	v1.POST("/playback-manager/start-playlist", h.HandlePlaybackStartPlaylist)
+	v1.POST("/playback-manager/playlist-next", h.HandlePlaybackPlaylistNext)
+	v1.POST("/playback-manager/cancel-playlist", h.HandlePlaybackCancelCurrentPlaylist)
+	v1.POST("/playback-manager/next-episode", h.HandlePlaybackPlayNextEpisode)
+	v1.GET("/playback-manager/next-episode", h.HandlePlaybackGetNextEpisode)
+	v1.POST("/playback-manager/autoplay-next-episode", h.HandlePlaybackAutoPlayNextEpisode)
+	v1.POST("/playback-manager/play", h.HandlePlaybackPlayVideo)
+	v1.POST("/playback-manager/play-random", h.HandlePlaybackPlayRandomVideo)
 	//------------
-	v1.Post("/playback-manager/manual-tracking/start", makeHandler(app, HandlePlaybackStartManualTracking))
-	v1.Post("/playback-manager/manual-tracking/cancel", makeHandler(app, HandlePlaybackCancelManualTracking))
+	v1.POST("/playback-manager/manual-tracking/start", h.HandlePlaybackStartManualTracking)
+	v1.POST("/playback-manager/manual-tracking/cancel", h.HandlePlaybackCancelManualTracking)
 
 	//
 	// Playlists
 	//
 
-	v1.Get("/playlists", makeHandler(app, HandleGetPlaylists))
-	v1.Post("/playlist", makeHandler(app, HandleCreatePlaylist))
-	v1.Patch("/playlist", makeHandler(app, HandleUpdatePlaylist))
-	v1.Delete("/playlist", makeHandler(app, HandleDeletePlaylist))
-	v1.Get("/playlist/episodes/:id/:progress", makeHandler(app, HandleGetPlaylistEpisodes))
+	v1.GET("/playlists", h.HandleGetPlaylists)
+	v1.POST("/playlist", h.HandleCreatePlaylist)
+	v1.PATCH("/playlist", h.HandleUpdatePlaylist)
+	v1.DELETE("/playlist", h.HandleDeletePlaylist)
+	v1.GET("/playlist/episodes/:id/:progress", h.HandleGetPlaylistEpisodes)
 
 	//
 	// Onlinestream
 	//
 
-	v1.Post("/onlinestream/episode-source", makeHandler(app, HandleGetOnlineStreamEpisodeSource))
-	v1.Post("/onlinestream/episode-list", makeHandler(app, HandleGetOnlineStreamEpisodeList))
-	v1.Delete("/onlinestream/cache", makeHandler(app, HandleOnlineStreamEmptyCache))
+	v1.POST("/onlinestream/episode-source", h.HandleGetOnlineStreamEpisodeSource)
+	v1.POST("/onlinestream/episode-list", h.HandleGetOnlineStreamEpisodeList)
+	v1.DELETE("/onlinestream/cache", h.HandleOnlineStreamEmptyCache)
 
-	v1.Post("/onlinestream/search", makeHandler(app, HandleOnlinestreamManualSearch))
-	v1.Post("/onlinestream/manual-mapping", makeHandler(app, HandleOnlinestreamManualMapping))
-	v1.Post("/onlinestream/get-mapping", makeHandler(app, HandleGetOnlinestreamMapping))
-	v1.Post("/onlinestream/remove-mapping", makeHandler(app, HandleRemoveOnlinestreamMapping))
+	v1.POST("/onlinestream/search", h.HandleOnlinestreamManualSearch)
+	v1.POST("/onlinestream/manual-mapping", h.HandleOnlinestreamManualMapping)
+	v1.POST("/onlinestream/get-mapping", h.HandleGetOnlinestreamMapping)
+	v1.POST("/onlinestream/remove-mapping", h.HandleRemoveOnlinestreamMapping)
 
 	//
 	// Metadata Provider
 	//
 
-	v1.Post("/metadata-provider/tvdb-episodes", makeHandler(app, HandlePopulateTVDBEpisodes))
-	v1.Delete("/metadata-provider/tvdb-episodes", makeHandler(app, HandleEmptyTVDBEpisodes))
+	v1.POST("/metadata-provider/tvdb-episodes", h.HandlePopulateTVDBEpisodes)
+	v1.DELETE("/metadata-provider/tvdb-episodes", h.HandleEmptyTVDBEpisodes)
 
-	v1.Post("/metadata-provider/filler", makeHandler(app, HandlePopulateFillerData))
-	v1.Delete("/metadata-provider/filler", makeHandler(app, HandleRemoveFillerData))
+	v1.POST("/metadata-provider/filler", h.HandlePopulateFillerData)
+	v1.DELETE("/metadata-provider/filler", h.HandleRemoveFillerData)
 
 	//
 	// Manga
 	//
 
 	v1Manga := v1.Group("/manga")
-	v1Manga.Post("/anilist/collection", makeHandler(app, HandleGetAnilistMangaCollection))
-	v1Manga.Get("/anilist/collection/raw", makeHandler(app, HandleGetRawAnilistMangaCollection))
-	v1Manga.Post("/anilist/collection/raw", makeHandler(app, HandleGetRawAnilistMangaCollection))
-	v1Manga.Post("/anilist/list", makeHandler(app, HandleAnilistListManga))
-	v1Manga.Get("/collection", makeHandler(app, HandleGetMangaCollection))
-	v1Manga.Get("/chapter-counts", makeHandler(app, HandleGetMangaChapterCountMap))
-	v1Manga.Get("/entry/:id", makeHandler(app, HandleGetMangaEntry))
-	v1Manga.Get("/entry/:id/details", makeHandler(app, HandleGetMangaEntryDetails))
-	v1Manga.Delete("/entry/cache", makeHandler(app, HandleEmptyMangaEntryCache))
-	v1Manga.Post("/chapters", makeHandler(app, HandleGetMangaEntryChapters))
-	v1Manga.Post("/pages", makeHandler(app, HandleGetMangaEntryPages))
-	v1Manga.Post("/update-progress", makeHandler(app, HandleUpdateMangaProgress))
+	v1Manga.POST("/anilist/collection", h.HandleGetAnilistMangaCollection)
+	v1Manga.GET("/anilist/collection/raw", h.HandleGetRawAnilistMangaCollection)
+	v1Manga.POST("/anilist/collection/raw", h.HandleGetRawAnilistMangaCollection)
+	v1Manga.POST("/anilist/list", h.HandleAnilistListManga)
+	v1Manga.GET("/collection", h.HandleGetMangaCollection)
+	v1Manga.GET("/chapter-counts", h.HandleGetMangaChapterCountMap)
+	v1Manga.GET("/entry/:id", h.HandleGetMangaEntry)
+	v1Manga.GET("/entry/:id/details", h.HandleGetMangaEntryDetails)
+	v1Manga.DELETE("/entry/cache", h.HandleEmptyMangaEntryCache)
+	v1Manga.POST("/chapters", h.HandleGetMangaEntryChapters)
+	v1Manga.POST("/pages", h.HandleGetMangaEntryPages)
+	v1Manga.POST("/update-progress", h.HandleUpdateMangaProgress)
 
-	v1Manga.Get("/downloaded-chapters/:id", makeHandler(app, HandleGetMangaEntryDownloadedChapters))
-	v1Manga.Get("/downloads", makeHandler(app, HandleGetMangaDownloadsList))
-	v1Manga.Post("/download-chapters", makeHandler(app, HandleDownloadMangaChapters))
-	v1Manga.Post("/download-data", makeHandler(app, HandleGetMangaDownloadData))
-	v1Manga.Delete("/download-chapter", makeHandler(app, HandleDeleteMangaDownloadedChapters))
-	v1Manga.Get("/download-queue", makeHandler(app, HandleGetMangaDownloadQueue))
-	v1Manga.Post("/download-queue/start", makeHandler(app, HandleStartMangaDownloadQueue))
-	v1Manga.Post("/download-queue/stop", makeHandler(app, HandleStopMangaDownloadQueue))
-	v1Manga.Delete("/download-queue", makeHandler(app, HandleClearAllChapterDownloadQueue))
-	v1Manga.Post("/download-queue/reset-errored", makeHandler(app, HandleResetErroredChapterDownloadQueue))
+	v1Manga.GET("/downloaded-chapters/:id", h.HandleGetMangaEntryDownloadedChapters)
+	v1Manga.GET("/downloads", h.HandleGetMangaDownloadsList)
+	v1Manga.POST("/download-chapters", h.HandleDownloadMangaChapters)
+	v1Manga.POST("/download-data", h.HandleGetMangaDownloadData)
+	v1Manga.DELETE("/download-chapter", h.HandleDeleteMangaDownloadedChapters)
+	v1Manga.GET("/download-queue", h.HandleGetMangaDownloadQueue)
+	v1Manga.POST("/download-queue/start", h.HandleStartMangaDownloadQueue)
+	v1Manga.POST("/download-queue/stop", h.HandleStopMangaDownloadQueue)
+	v1Manga.DELETE("/download-queue", h.HandleClearAllChapterDownloadQueue)
+	v1Manga.POST("/download-queue/reset-errored", h.HandleResetErroredChapterDownloadQueue)
 
-	v1Manga.Post("/search", makeHandler(app, HandleMangaManualSearch))
-	v1Manga.Post("/manual-mapping", makeHandler(app, HandleMangaManualMapping))
-	v1Manga.Post("/get-mapping", makeHandler(app, HandleGetMangaMapping))
-	v1Manga.Post("/remove-mapping", makeHandler(app, HandleRemoveMangaMapping))
+	v1Manga.POST("/search", h.HandleMangaManualSearch)
+	v1Manga.POST("/manual-mapping", h.HandleMangaManualMapping)
+	v1Manga.POST("/get-mapping", h.HandleGetMangaMapping)
+	v1Manga.POST("/remove-mapping", h.HandleRemoveMangaMapping)
 
 	//
 	// File Cache
 	//
 
 	v1FileCache := v1.Group("/filecache")
-	v1FileCache.Get("/total-size", makeHandler(app, HandleGetFileCacheTotalSize))
-	v1FileCache.Delete("/bucket", makeHandler(app, HandleRemoveFileCacheBucket))
-	v1FileCache.Get("/mediastream/videofiles/total-size", makeHandler(app, HandleGetFileCacheMediastreamVideoFilesTotalSize))
-	v1FileCache.Delete("/mediastream/videofiles", makeHandler(app, HandleClearFileCacheMediastreamVideoFiles))
+	v1FileCache.GET("/total-size", h.HandleGetFileCacheTotalSize)
+	v1FileCache.DELETE("/bucket", h.HandleRemoveFileCacheBucket)
+	v1FileCache.GET("/mediastream/videofiles/total-size", h.HandleGetFileCacheMediastreamVideoFilesTotalSize)
+	v1FileCache.DELETE("/mediastream/videofiles", h.HandleClearFileCacheMediastreamVideoFiles)
 
 	//
 	// Discord
 	//
 
 	v1Discord := v1.Group("/discord")
-	v1Discord.Post("/presence/manga", makeHandler(app, HandleSetDiscordMangaActivity))
-	v1Discord.Post("/presence/cancel", makeHandler(app, HandleCancelDiscordActivity))
+	v1Discord.POST("/presence/manga", h.HandleSetDiscordMangaActivity)
+	v1Discord.POST("/presence/cancel", h.HandleCancelDiscordActivity)
 
 	//
 	// Media Stream
 	//
-	v1.Get("/mediastream/settings", makeHandler(app, HandleGetMediastreamSettings))
-	v1.Patch("/mediastream/settings", makeHandler(app, HandleSaveMediastreamSettings))
-	v1.Post("/mediastream/request", makeHandler(app, HandleRequestMediastreamMediaContainer))
-	v1.Post("/mediastream/preload", makeHandler(app, HandlePreloadMediastreamMediaContainer))
+	v1.GET("/mediastream/settings", h.HandleGetMediastreamSettings)
+	v1.PATCH("/mediastream/settings", h.HandleSaveMediastreamSettings)
+	v1.POST("/mediastream/request", h.HandleRequestMediastreamMediaContainer)
+	v1.POST("/mediastream/preload", h.HandlePreloadMediastreamMediaContainer)
 	// Transcode
-	v1.Post("/mediastream/shutdown-transcode", makeHandler(app, HandleMediastreamShutdownTranscodeStream))
-	v1.Get("/mediastream/transcode/*", makeHandler(app, HandleMediastreamTranscode))
-	v1.Get("/mediastream/subs/*", makeHandler(app, HandleMediastreamGetSubtitles))
-	v1.Get("/mediastream/att/*", makeHandler(app, HandleMediastreamGetAttachments))
-	v1.Get("/mediastream/direct", makeHandler(app, HandleMediastreamDirectPlay))
-	v1.Get("/mediastream/file/*", makeHandler(app, HandleMediastreamFile))
+	v1.POST("/mediastream/shutdown-transcode", h.HandleMediastreamShutdownTranscodeStream)
+	v1.GET("/mediastream/transcode/*", h.HandleMediastreamTranscode)
+	v1.GET("/mediastream/subs/*", h.HandleMediastreamGetSubtitles)
+	v1.GET("/mediastream/att/*", h.HandleMediastreamGetAttachments)
+	v1.GET("/mediastream/direct", h.HandleMediastreamDirectPlay)
+	v1.GET("/mediastream/file/*", h.HandleMediastreamFile)
 
 	//
 	// Torrent stream
 	//
-	v1.Get("/torrentstream/episodes/:id", makeHandler(app, HandleGetTorrentstreamEpisodeCollection))
-	v1.Get("/torrentstream/settings", makeHandler(app, HandleGetTorrentstreamSettings))
-	v1.Patch("/torrentstream/settings", makeHandler(app, HandleSaveTorrentstreamSettings))
-	v1.Post("/torrentstream/start", makeHandler(app, HandleTorrentstreamStartStream))
-	v1.Post("/torrentstream/stop", makeHandler(app, HandleTorrentstreamStopStream))
-	v1.Post("/torrentstream/drop", makeHandler(app, HandleTorrentstreamDropTorrent))
-	v1.Post("/torrentstream/torrent-file-previews", makeHandler(app, HandleGetTorrentstreamTorrentFilePreviews))
-	v1.Post("/torrentstream/batch-history", makeHandler(app, HandleGetTorrentstreamBatchHistory))
-	v1.Get("/torrentstream/stream/*", makeHandler(app, HandleTorrentstreamServeStream))
+	v1.GET("/torrentstream/episodes/:id", h.HandleGetTorrentstreamEpisodeCollection)
+	v1.GET("/torrentstream/settings", h.HandleGetTorrentstreamSettings)
+	v1.PATCH("/torrentstream/settings", h.HandleSaveTorrentstreamSettings)
+	v1.POST("/torrentstream/start", h.HandleTorrentstreamStartStream)
+	v1.POST("/torrentstream/stop", h.HandleTorrentstreamStopStream)
+	v1.POST("/torrentstream/drop", h.HandleTorrentstreamDropTorrent)
+	v1.POST("/torrentstream/torrent-file-previews", h.HandleGetTorrentstreamTorrentFilePreviews)
+	v1.POST("/torrentstream/batch-history", h.HandleGetTorrentstreamBatchHistory)
+	v1.GET("/torrentstream/stream/*", echo.WrapHandler(h.HandleTorrentstreamServeStream()))
 
 	//
 	// Extensions
 	//
 
 	v1Extensions := v1.Group("/extensions")
-	v1Extensions.Post("/playground/run", makeHandler(app, HandleRunExtensionPlaygroundCode))
-	v1Extensions.Post("/external/fetch", makeHandler(app, HandleFetchExternalExtensionData))
-	v1Extensions.Post("/external/install", makeHandler(app, HandleInstallExternalExtension))
-	v1Extensions.Post("/external/uninstall", makeHandler(app, HandleUninstallExternalExtension))
-	v1Extensions.Post("/external/edit-payload", makeHandler(app, HandleUpdateExtensionCode))
-	v1Extensions.Post("/external/reload", makeHandler(app, HandleReloadExternalExtensions))
-	v1Extensions.Post("/all", makeHandler(app, HandleGetAllExtensions))
-	v1Extensions.Get("/list", makeHandler(app, HandleListExtensionData))
-	v1Extensions.Get("/list/manga-provider", makeHandler(app, HandleListMangaProviderExtensions))
-	v1Extensions.Get("/list/onlinestream-provider", makeHandler(app, HandleListOnlinestreamProviderExtensions))
-	v1Extensions.Get("/list/anime-torrent-provider", makeHandler(app, HandleListAnimeTorrentProviderExtensions))
-	v1Extensions.Get("/user-config/:id", makeHandler(app, HandleGetExtensionUserConfig))
-	v1Extensions.Post("/user-config", makeHandler(app, HandleSaveExtensionUserConfig))
+	v1Extensions.POST("/playground/run", h.HandleRunExtensionPlaygroundCode)
+	v1Extensions.POST("/external/fetch", h.HandleFetchExternalExtensionData)
+	v1Extensions.POST("/external/install", h.HandleInstallExternalExtension)
+	v1Extensions.POST("/external/uninstall", h.HandleUninstallExternalExtension)
+	v1Extensions.POST("/external/edit-payload", h.HandleUpdateExtensionCode)
+	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtensions)
+	v1Extensions.POST("/all", h.HandleGetAllExtensions)
+	v1Extensions.GET("/list", h.HandleListExtensionData)
+	v1Extensions.GET("/list/manga-provider", h.HandleListMangaProviderExtensions)
+	v1Extensions.GET("/list/onlinestream-provider", h.HandleListOnlinestreamProviderExtensions)
+	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
+	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
+	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
 
 	//
 	// Continuity
 	//
 	v1Continuity := v1.Group("/continuity")
-	v1Continuity.Patch("/item", makeHandler(app, HandleUpdateContinuityWatchHistoryItem))
-	v1Continuity.Get("/item/:id", makeHandler(app, HandleGetContinuityWatchHistoryItem))
-	v1Continuity.Get("/history", makeHandler(app, HandleGetContinuityWatchHistory))
+	v1Continuity.PATCH("/item", h.HandleUpdateContinuityWatchHistoryItem)
+	v1Continuity.GET("/item/:id", h.HandleGetContinuityWatchHistoryItem)
+	v1Continuity.GET("/history", h.HandleGetContinuityWatchHistory)
 
 	//
 	// Sync
 	//
 	v1Sync := v1.Group("/sync")
-	v1Sync.Get("/track", makeHandler(app, HandleSyncGetTrackedMediaItems))
-	v1Sync.Post("/track", makeHandler(app, HandleSyncAddMedia))
-	v1Sync.Delete("/track", makeHandler(app, HandleSyncRemoveMedia))
-	v1Sync.Get("/track/:id/:type", makeHandler(app, HandleSyncGetIsMediaTracked))
-	v1Sync.Post("/local", makeHandler(app, HandleSyncLocalData))
-	v1Sync.Get("/queue", makeHandler(app, HandleSyncGetQueueState))
-	v1Sync.Post("/anilist", makeHandler(app, HandleSyncAnilistData))
-	v1Sync.Post("/updated", makeHandler(app, HandleSyncSetHasLocalChanges))
-	v1Sync.Get("/updated", makeHandler(app, HandleSyncGetHasLocalChanges))
-	v1Sync.Get("/storage/size", makeHandler(app, HandleSyncGetLocalStorageSize))
+	v1Sync.GET("/track", h.HandleSyncGetTrackedMediaItems)
+	v1Sync.POST("/track", h.HandleSyncAddMedia)
+	v1Sync.DELETE("/track", h.HandleSyncRemoveMedia)
+	v1Sync.GET("/track/:id/:type", h.HandleSyncGetIsMediaTracked)
+	v1Sync.POST("/local", h.HandleSyncLocalData)
+	v1Sync.GET("/queue", h.HandleSyncGetQueueState)
+	v1Sync.POST("/anilist", h.HandleSyncAnilistData)
+	v1Sync.POST("/updated", h.HandleSyncSetHasLocalChanges)
+	v1Sync.GET("/updated", h.HandleSyncGetHasLocalChanges)
+	v1Sync.GET("/storage/size", h.HandleSyncGetLocalStorageSize)
 
 	//
 	// Debrid
 	//
 
-	v1.Get("/debrid/settings", makeHandler(app, HandleGetDebridSettings))
-	v1.Patch("/debrid/settings", makeHandler(app, HandleSaveDebridSettings))
-	v1.Post("/debrid/torrents", makeHandler(app, HandleDebridAddTorrents))
-	v1.Post("/debrid/torrents/download", makeHandler(app, HandleDebridDownloadTorrent))
-	v1.Post("/debrid/torrents/cancel", makeHandler(app, HandleDebridCancelDownload))
-	v1.Delete("/debrid/torrent", makeHandler(app, HandleDebridDeleteTorrent))
-	v1.Get("/debrid/torrents", makeHandler(app, HandleDebridGetTorrents))
-	v1.Post("/debrid/torrents/info", makeHandler(app, HandleDebridGetTorrentInfo))
-	v1.Post("/debrid/torrents/file-previews", makeHandler(app, HandleDebridGetTorrentFilePreviews))
-	v1.Post("/debrid/stream/start", makeHandler(app, HandleDebridStartStream))
-	v1.Post("/debrid/stream/cancel", makeHandler(app, HandleDebridCancelStream))
+	v1.GET("/debrid/settings", h.HandleGetDebridSettings)
+	v1.PATCH("/debrid/settings", h.HandleSaveDebridSettings)
+	v1.POST("/debrid/torrents", h.HandleDebridAddTorrents)
+	v1.POST("/debrid/torrents/download", h.HandleDebridDownloadTorrent)
+	v1.POST("/debrid/torrents/cancel", h.HandleDebridCancelDownload)
+	v1.DELETE("/debrid/torrent", h.HandleDebridDeleteTorrent)
+	v1.GET("/debrid/torrents", h.HandleDebridGetTorrents)
+	v1.POST("/debrid/torrents/info", h.HandleDebridGetTorrentInfo)
+	v1.POST("/debrid/torrents/file-previews", h.HandleDebridGetTorrentFilePreviews)
+	v1.POST("/debrid/stream/start", h.HandleDebridStartStream)
+	v1.POST("/debrid/stream/cancel", h.HandleDebridCancelStream)
 
 	//
 	// Report
 	//
 
-	v1.Post("/report/issue", makeHandler(app, HandleSaveIssueReport))
-	v1.Get("/report/issue/download", makeHandler(app, HandleDownloadIssueReport))
-
-	//
-	// Websocket
-	//
-
-	fiberApp.Use("/events", websocketUpgradeMiddleware)
-	// Create a new websocket event handler.
-	// This will be used to send real-time events to the client.
-	// It also attaches the websocket connection to the app instance, so it is available to other handlers.
-	fiberApp.Get("/events", newWebSocketEventHandler(app))
-
+	v1.POST("/report/issue", h.HandleSaveIssueReport)
+	v1.GET("/report/issue/download", h.HandleDownloadIssueReport)
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-
-// RouteCtx is a context object that is passed to route handlers.
-// It contains the App instance and the Fiber context.
-type RouteCtx struct {
-	App   *core.App
-	Fiber *fiber.Ctx
+func (h *Handler) JSON(c echo.Context, code int, i interface{}) error {
+	return c.JSON(code, i)
 }
 
-// RouteCtx pool
-// This is used to avoid allocating memory for each request
-var syncPool = sync.Pool{
-	New: func() interface{} {
-		return &RouteCtx{}
-	},
+func (h *Handler) RespondWithData(c echo.Context, data interface{}) error {
+	return c.JSON(200, NewDataResponse(data))
 }
 
-// makeHandler creates a new route handler function.
-// It takes the App instance and a custom handler function as arguments.
-// The custom handler function is similar to a fiber handler, but it takes a RouteCtx as an argument, allowing route handlers to access the app's state.
-// We use a sync.Pool to avoid allocating memory for each request.
-func makeHandler(app *core.App, handler func(*RouteCtx) error) func(*fiber.Ctx) error {
-	return func(c *fiber.Ctx) (err error) {
-		defer util.HandlePanicInModuleThen("handlers/routes", func() {
-			err = errors.New("runtime panic")
-		})
-
-		ctx := syncPool.Get().(*RouteCtx)
-		defer syncPool.Put(ctx)
-		ctx.App = app
-		ctx.Fiber = c
-		return handler(ctx)
-	}
-}
-
-func PrintMemUsage() {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	fmt.Printf("Alloc = %v MiB", m.Alloc/1024/1024)
-	fmt.Printf("\tTotalAlloc = %v MiB", m.TotalAlloc/1024/1024)
-	fmt.Printf("\tSys = %v MiB", m.Sys/1024/1024)
-	fmt.Printf("\tNumGC = %v\n", m.NumGC)
-}
-
-func (c *RouteCtx) AcceptJSON() {
-	c.Fiber.Accepts(fiber.MIMEApplicationJSON)
-}
-
-// RespondWithData responds with a JSON response containing the given data.
-func (c *RouteCtx) RespondWithData(data any) error {
-	return c.Fiber.Status(200).JSON(NewDataResponse(data))
-}
-
-// RespondWithError responds with a JSON response containing the given error.
-func (c *RouteCtx) RespondWithError(err error) error {
-	return c.Fiber.Status(500).JSON(NewErrorResponse(err))
+func (h *Handler) RespondWithError(c echo.Context, err error) error {
+	return c.JSON(500, NewErrorResponse(err))
 }

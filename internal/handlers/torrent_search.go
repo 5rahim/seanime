@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/labstack/echo/v4"
 	"seanime/internal/api/anilist"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/torrents/torrent"
@@ -17,7 +18,7 @@ var debridInstantAvailabilityCache = result.NewCache[string, map[string]debrid.T
 //	@desc If smart search is enabled, it will filter the torrents based on search parameters.
 //	@route /api/v1/torrent/search [POST]
 //	@returns torrent.SearchData
-func HandleSearchTorrent(c *RouteCtx) error {
+func (h *Handler) HandleSearchTorrent(c echo.Context) error {
 
 	type body struct {
 		// "smart" or "simple"
@@ -33,11 +34,11 @@ func HandleSearchTorrent(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	data, err := c.App.TorrentRepository.SearchAnime(torrent.AnimeSearchOptions{
+	data, err := h.App.TorrentRepository.SearchAnime(torrent.AnimeSearchOptions{
 		Provider:      b.Provider,
 		Type:          torrent.AnimeSearchType(b.Type),
 		Media:         &b.Media,
@@ -48,13 +49,13 @@ func HandleSearchTorrent(c *RouteCtx) error {
 		Resolution:    b.Resolution,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	//
 	// Debrid torrent instant availability
 	//
-	if c.App.SecondarySettings.Debrid.Enabled {
+	if h.App.SecondarySettings.Debrid.Enabled {
 		hashes := make([]string, 0)
 		for _, t := range data.Torrents {
 			if t.InfoHash == "" {
@@ -66,7 +67,7 @@ func HandleSearchTorrent(c *RouteCtx) error {
 		var found bool
 		data.DebridInstantAvailability, found = debridInstantAvailabilityCache.Get(hashesKey)
 		if !found {
-			provider, err := c.App.DebridClientRepository.GetProvider()
+			provider, err := h.App.DebridClientRepository.GetProvider()
 			if err == nil {
 				instantAvail := provider.GetInstantAvailability(hashes)
 				data.DebridInstantAvailability = instantAvail
@@ -75,6 +76,6 @@ func HandleSearchTorrent(c *RouteCtx) error {
 		}
 	}
 
-	return c.RespondWithData(data)
+	return h.RespondWithData(c, data)
 
 }
