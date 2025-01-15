@@ -4,6 +4,7 @@ logs/
 .run/
 testdata/
 .vscode
+.cursorrules
 
 Dockerfile
 Dockerfile.dev

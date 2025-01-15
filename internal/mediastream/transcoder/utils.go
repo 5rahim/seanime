@@ -5,14 +5,25 @@
 package transcoder
 
 import (
+	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
 )
+
+func ParseSegment(segment string) (int32, error) {
+	var ret int32
+	_, err := fmt.Sscanf(segment, "segment-%d.ts", &ret)
+	if err != nil {
+		return 0, errors.New("could not parse segment")
+	}
+	return ret, nil
+}
 
 func getSavedInfo[T any](savePath string, mi *T) error {
 	savedFile, err := os.Open(savePath)

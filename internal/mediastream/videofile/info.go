@@ -4,16 +4,17 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"golang.org/x/text/language"
-	"gopkg.in/vansante/go-ffprobe.v2"
 	"mime"
 	"path/filepath"
 	"seanime/internal/util/filecache"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"golang.org/x/text/language"
+	"gopkg.in/vansante/go-ffprobe.v2"
 )
 
 type MediaInfo struct {
@@ -95,6 +96,8 @@ type Subtitle struct {
 	IsDefault bool `json:"isDefault"`
 	// Is this stream tagged as forced? (useful only for subtitles)
 	IsForced bool `json:"isForced"`
+	// Is this subtitle file external?
+	IsExternal bool `json:"isExternal"`
 	// The link to access this subtitle
 	Link *string `json:"link"`
 }
@@ -411,6 +414,10 @@ func streamToMimeCodec(stream *ffprobe.Stream) *string {
 
 	case "flac":
 		ret := "fLaC"
+		return &ret
+
+	case "alac":
+		ret := "alac"
 		return &ret
 
 	default:
