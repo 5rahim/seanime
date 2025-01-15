@@ -74,7 +74,7 @@ export const MANGA_READING_MODE_OPTIONS = [
     },
     {
         value: MangaReadingMode.PAGED,
-        label: <span className="flex gap-2 items-center"><PiReadCvLogoLight className="text-xl" /> <span>Singe Page</span></span>,
+        label: <span className="flex gap-2 items-center"><PiReadCvLogoLight className="text-xl" /> <span>Single Page</span></span>,
     },
     {
         value: MangaReadingMode.DOUBLE_PAGE,
