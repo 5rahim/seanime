@@ -1,8 +1,9 @@
 package db
 
 import (
-	"gorm.io/gorm/clause"
 	"seanime/internal/database/models"
+
+	"gorm.io/gorm/clause"
 )
 
 var CurrSettings *models.Settings
@@ -57,6 +58,14 @@ func (db *Database) GetAdditionalLibraryPathsFromSettings() ([]string, error) {
 		return []string{}, err
 	}
 	return settings.Library.LibraryPaths, nil
+}
+
+func (db *Database) GetAllLibraryPathsFromSettings() ([]string, error) {
+	settings, err := db.GetSettings()
+	if err != nil {
+		return []string{}, err
+	}
+	return append([]string{settings.Library.LibraryPath}, settings.Library.LibraryPaths...), nil
 }
 
 func (db *Database) AutoUpdateProgressIsEnabled() (bool, error) {

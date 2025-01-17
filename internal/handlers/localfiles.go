@@ -314,18 +314,12 @@ func (h *Handler) HandleDeleteLocalFiles(c echo.Context) error {
 //	@returns bool
 func (h *Handler) HandleRemoveEmptyDirectories(c echo.Context) error {
 
-	libraryPath, err := h.App.Database.GetLibraryPathFromSettings()
+	libraryPaths, err := h.App.Database.GetAllLibraryPathsFromSettings()
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
-	filesystem.RemoveEmptyDirectories(libraryPath, h.App.Logger)
-
-	otherLibraryPaths, err := h.App.Database.GetAdditionalLibraryPathsFromSettings()
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-	for _, path := range otherLibraryPaths {
+	for _, path := range libraryPaths {
 		filesystem.RemoveEmptyDirectories(path, h.App.Logger)
 	}
 
