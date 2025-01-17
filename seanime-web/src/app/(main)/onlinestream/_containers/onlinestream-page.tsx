@@ -1,5 +1,4 @@
 import { Anime_Entry } from "@/api/generated/types"
-import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
 import { serverStatusAtom } from "@/app/(main)/_atoms/server-status.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
@@ -8,7 +7,6 @@ import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/se
 import { SeaMediaPlayerProvider } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
 import {
     OnlinestreamParametersButton,
-    OnlinestreamPlaybackSubmenu,
     OnlinestreamProviderButton,
     OnlinestreamVideoQualitySubmenu,
     SwitchSubOrDubButton,
@@ -16,12 +14,6 @@ import {
 import { OnlinestreamManualMappingModal } from "@/app/(main)/onlinestream/_containers/onlinestream-manual-matching"
 import { useHandleOnlinestream } from "@/app/(main)/onlinestream/_lib/handle-onlinestream"
 import { OnlinestreamManagerProvider } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
-import {
-    __onlinestream_autoNextAtom,
-    __onlinestream_autoPlayAtom,
-    __onlinestream_autoSkipIntroOutroAtom,
-    __onlinestream_volumeAtom,
-} from "@/app/(main)/onlinestream/_lib/onlinestream.atoms"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -29,7 +21,7 @@ import { logger } from "@/lib/helpers/debug"
 import { isHLSProvider, MediaPlayerInstance, MediaProviderAdapter, MediaProviderChangeEvent, MediaProviderSetupEvent } from "@vidstack/react"
 import HLS from "hls.js"
 import { atom } from "jotai/index"
-import { useAtom, useAtomValue } from "jotai/react"
+import { useAtomValue } from "jotai/react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { FaSearch } from "react-icons/fa"
@@ -57,13 +49,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     const urlEpNumber = searchParams.get("episode")
 
     const ref = React.useRef<MediaPlayerInstance>(null)
-
-    const [volume, setVolume] = useAtom(__onlinestream_volumeAtom)
-
-    const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
-    const autoNext = useAtomValue(__onlinestream_autoNextAtom)
-    const autoSkipIntroOutro = useAtomValue(__onlinestream_autoSkipIntroOutroAtom)
-    const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
 
     const {
         episodes,
@@ -222,14 +207,6 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             playerRef={ref}
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
-                            volume={volume}
-                            onVolumeChange={(e, n) => {
-                                setVolume(n.detail.volume)
-                            }}
-                            autoPlay={autoPlay}
-                            autoNext={autoNext}
-                            discreteControls={discreteControls}
-                            autoSkipIntroOutro={autoSkipIntroOutro}
                             onCanPlay={_onCanPlay}
                             onGoToNextEpisode={goToNextEpisode}
                             tracks={episodeSource?.subtitles?.map((sub) => ({
@@ -242,13 +219,12 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                                     ? sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us"
                                     : sub.language?.toLowerCase() === "english" || sub.language?.toLowerCase() === "en-us",
                             }))}
+                            settingsItems={<>
+                                {opts.hasCustomQualities ? (
+                                    <OnlinestreamVideoQualitySubmenu />
+                                ) : null}
+                            </>}
                             videoLayoutSlots={{
-                                settingsMenuEndItems: <>
-                                    {opts.hasCustomQualities ? (
-                                        <OnlinestreamVideoQualitySubmenu />
-                                    ) : null}
-                                    <OnlinestreamPlaybackSubmenu />
-                                </>,
                                 beforeCaptionButton: <>
                                     <div className="flex items-center">
                                         <OnlinestreamProviderButton />

@@ -1,5 +1,3 @@
-import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
-import { __mediastream_autoNextAtom, __mediastream_autoPlayAtom } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { submenuClass, VdsSubmenuButton } from "@/app/(main)/onlinestream/_components/onlinestream-video-addons"
 import { Switch } from "@/components/ui/switch"
 import { Menu } from "@vidstack/react"
@@ -8,12 +6,19 @@ import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 import { MdPlaylistPlay } from "react-icons/md"
 import { RxSlider } from "react-icons/rx"
+import {
+    __seaMediaPlayer_autoNextAtom,
+    __seaMediaPlayer_autoPlayAtom,
+    __seaMediaPlayer_autoSkipIntroOutroAtom,
+    __seaMediaPlayer_discreteControlsAtom,
+} from "./sea-media-player.atoms"
 
-export function MediastreamPlaybackSubmenu() {
+export function SeaMediaPlayerPlaybackSubmenu() {
 
-    const [autoPlay, setAutoPlay] = useAtom(__mediastream_autoPlayAtom)
-    const [autoNext, setAutoNext] = useAtom(__mediastream_autoNextAtom)
-    const [discreteControls, setDiscreteControls] = useAtom(__mediaplayer_discreteControlsAtom)
+    const [autoPlay, setAutoPlay] = useAtom(__seaMediaPlayer_autoPlayAtom)
+    const [autoNext, setAutoNext] = useAtom(__seaMediaPlayer_autoNextAtom)
+    const [autoSkipIntroOutro, setAutoSkipIntroOutro] = useAtom(__seaMediaPlayer_autoSkipIntroOutroAtom)
+    const [discreteControls, setDiscreteControls] = useAtom(__seaMediaPlayer_discreteControlsAtom)
 
     return (
         <>
@@ -51,6 +56,22 @@ export function MediastreamPlaybackSubmenu() {
             </Menu.Root>
             <Menu.Root>
                 <VdsSubmenuButton
+                    label={`Skip Intro/Outro`}
+                    hint={autoSkipIntroOutro ? "On" : "Off"}
+                    disabled={false}
+                    icon={MdPlaylistPlay}
+                />
+                <Menu.Content className={submenuClass}>
+                    <Switch
+                        label="Skip intro/outro"
+                        fieldClass="py-2 px-2"
+                        value={autoSkipIntroOutro}
+                        onValueChange={setAutoSkipIntroOutro}
+                    />
+                </Menu.Content>
+            </Menu.Root>
+            <Menu.Root>
+                <VdsSubmenuButton
                     label={`Discrete Controls`}
                     hint={discreteControls ? "On" : "Off"}
                     disabled={false}
@@ -63,6 +84,7 @@ export function MediastreamPlaybackSubmenu() {
                         fieldClass="py-2 px-2"
                         value={discreteControls}
                         onValueChange={setDiscreteControls}
+                        fieldHelpTextClass="max-w-xs"
                     />
                 </Menu.Content>
             </Menu.Root>

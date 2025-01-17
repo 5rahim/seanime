@@ -1,22 +1,13 @@
 "use client"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
-import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { MediaEntryPageSmallBanner } from "@/app/(main)/_features/media/_components/media-entry-page-small-banner"
 import { MediaEpisodeInfoModal } from "@/app/(main)/_features/media/_components/media-episode-info-modal"
 import { SeaMediaPlayer } from "@/app/(main)/_features/sea-media-player/sea-media-player"
 import { SeaMediaPlayerLayout } from "@/app/(main)/_features/sea-media-player/sea-media-player-layout"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { MediastreamPlaybackSubmenu } from "@/app/(main)/mediastream/_components/mediastream-video-addons"
 import { useHandleMediastream } from "@/app/(main)/mediastream/_lib/handle-mediastream"
-import {
-    __mediastream_autoNextAtom,
-    __mediastream_autoPlayAtom,
-    __mediastream_autoSkipIntroOutroAtom,
-    __mediastream_volumeAtom,
-    useMediastreamCurrentFile,
-    useMediastreamJassubOffscreenRender,
-} from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -27,8 +18,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { MediaPlayerInstance } from "@vidstack/react"
 import "@/app/vidstack-theme.css"
 import "@vidstack/react/player/styles/default/layouts/video.css"
-import { useAtomValue } from "jotai"
-import { useAtom } from "jotai/react"
 import { uniq } from "lodash"
 import { CaptionsFileFormat } from "media-captions"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -83,11 +72,6 @@ export default function Page() {
         duration,
     } = useHandleMediastream({ playerRef, episodes, mediaId })
 
-    const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
-    const autoNext = useAtomValue(__mediastream_autoNextAtom)
-    const discreteControls = useAtomValue(__mediaplayer_discreteControlsAtom)
-    const autoSkipIntroOutro = useAtomValue(__mediastream_autoSkipIntroOutroAtom)
-    const [volume, setVolume] = useAtom(__mediastream_volumeAtom)
     const { jassubOffscreenRender, setJassubOffscreenRender } = useMediastreamJassubOffscreenRender()
 
     /**
@@ -222,20 +206,20 @@ export default function Page() {
                         </div>
 
                         {/* {(!!progressItem && animeEntry?.media && progressItem.episodeNumber > currentProgress) && <Button
-                            className="animate-pulse"
-                            loading={isUpdatingProgress}
-                            disabled={hasUpdatedProgress}
-                            onClick={() => {
-                                updateProgress({
-                                    episodeNumber: progressItem.episodeNumber,
-                                    mediaId: animeEntry.media!.id,
-                                    totalEpisodes: animeEntry.media!.episodes || 0,
-                                    malId: animeEntry.media!.idMal || undefined,
-                                }, {
-                                    onSuccess: () => setProgressItem(undefined),
-                                })
-                                setCurrentProgress(progressItem.episodeNumber)
-                            }}
+                         className="animate-pulse"
+                         loading={isUpdatingProgress}
+                         disabled={hasUpdatedProgress}
+                         onClick={() => {
+                         updateProgress({
+                         episodeNumber: progressItem.episodeNumber,
+                         mediaId: animeEntry.media!.id,
+                         totalEpisodes: animeEntry.media!.episodes || 0,
+                         malId: animeEntry.media!.idMal || undefined,
+                         }, {
+                         onSuccess: () => setProgressItem(undefined),
+                         })
+                         setCurrentProgress(progressItem.episodeNumber)
+                         }}
                          >Update progress</Button>} */}
                     </>}
                     mediaPlayer={
@@ -248,14 +232,6 @@ export default function Page() {
                                 animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge}
                             onProviderChange={onProviderChange}
                             onProviderSetup={onProviderSetup}
-                            volume={volume}
-                            onVolumeChange={(e, n) => {
-                                setVolume(n.detail.volume)
-                            }}
-                            autoPlay={autoPlay}
-                            autoNext={autoNext}
-                            discreteControls={discreteControls}
-                            autoSkipIntroOutro={autoSkipIntroOutro}
                             onCanPlay={onCanPlay}
                             onGoToNextEpisode={playNextEpisode}
                             tracks={subtitles?.map((sub) => ({
@@ -266,11 +242,6 @@ export default function Page() {
                                 kind: "subtitles",
                                 default: sub.isDefault || (!subtitles.some(n => n.isDefault) && sub.language?.startsWith("en")),
                             }))}
-                            videoLayoutSlots={{
-                                settingsMenuEndItems: <>
-                                    <MediastreamPlaybackSubmenu />
-                                </>,
-                            }}
                             loadingText={<>
                                 <p>Extracting video metadata...</p>
                                 <p>This might take a while.</p>

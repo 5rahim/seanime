@@ -5,8 +5,6 @@ import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
-    __onlinestream_autoPlayAtom,
-    __onlinestream_fullscreenAtom,
     __onlinestream_qualityAtom,
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedEpisodeNumberAtom,
@@ -160,10 +158,8 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
     const setDubbed = useSetAtom(__onlinestream_selectedDubbedAtom)
-    const isFullscreen = useAtomValue(__onlinestream_fullscreenAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
 
-    const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
 
     // Refs

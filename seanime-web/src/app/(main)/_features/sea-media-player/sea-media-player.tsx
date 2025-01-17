@@ -1,11 +1,19 @@
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
+import { SeaMediaPlayerPlaybackSubmenu } from "@/app/(main)/_features/sea-media-player/sea-media-player-components"
 import {
     __seaMediaPlayer_scopedCurrentProgressAtom,
     __seaMediaPlayer_scopedProgressItemAtom,
     useSeaMediaPlayer,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player-provider"
+import {
+    __seaMediaPlayer_autoNextAtom,
+    __seaMediaPlayer_autoPlayAtom,
+    __seaMediaPlayer_autoSkipIntroOutroAtom,
+    __seaMediaPlayer_discreteControlsAtom,
+    __seaMediaPlayer_volumeAtom,
+} from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { vidstackLayoutIcons } from "@/components/shared/vidstack"
@@ -27,13 +35,11 @@ import {
     MediaProviderSetupEvent,
     MediaTimeUpdateEvent,
     MediaTimeUpdateEventDetail,
-    MediaVolumeChange,
-    MediaVolumeChangeEvent,
     Track,
     type TrackProps,
 } from "@vidstack/react"
 import { DefaultVideoLayout, DefaultVideoLayoutProps } from "@vidstack/react/player/layouts/default"
-import { atom } from "jotai"
+import { atom, useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import Image from "next/image"
@@ -52,16 +58,11 @@ export type SeaMediaPlayerProps = {
     onTimeUpdate?: (detail: MediaTimeUpdateEventDetail, e: MediaTimeUpdateEvent) => void
     onCanPlay?: (detail: MediaCanPlayDetail, e: MediaCanPlayEvent) => void
     onEnded?: (e: MediaEndedEvent) => void
-    volume?: number
-    autoSkipIntroOutro?: boolean
-    onVolumeChange?: (detail: MediaVolumeChange, e: MediaVolumeChangeEvent) => void
     onDurationChange?: (detail: number, e: MediaDurationChangeEvent) => void
-    autoPlay?: boolean
-    autoNext?: boolean
-    discreteControls?: boolean
     tracks?: TrackProps[]
     chapters?: ChapterProps[]
-    videoLayoutSlots?: DefaultVideoLayoutProps["slots"]
+    videoLayoutSlots?: Omit<DefaultVideoLayoutProps["slots"], "settingsMenuEndItems">
+    settingsItems?: React.ReactElement
     loadingText?: React.ReactNode
     onGoToNextEpisode: () => void
 }
@@ -79,12 +80,6 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         isLoading,
         isPlaybackError,
         playerRef,
-        autoSkipIntroOutro = false,
-        volume = 1,
-        onVolumeChange,
-        autoPlay = false,
-        autoNext = false,
-        discreteControls = false,
         tracks = [],
         chapters = [],
         videoLayoutSlots,
@@ -96,6 +91,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         onTimeUpdate: _onTimeUpdate,
         onDurationChange: _onDurationChange,
         onGoToNextEpisode,
+        settingsItems,
     } = props
 
     const serverStatus = useServerStatus()
@@ -105,6 +101,12 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const { media, progress } = useSeaMediaPlayer()
 
     const [progressItem, setProgressItem] = useAtom(__seaMediaPlayer_scopedProgressItemAtom) // scoped
+
+    const autoPlay = useAtomValue(__seaMediaPlayer_autoPlayAtom)
+    const autoNext = useAtomValue(__seaMediaPlayer_autoNextAtom)
+    const discreteControls = useAtomValue(__seaMediaPlayer_discreteControlsAtom)
+    const autoSkipIntroOutro = useAtomValue(__seaMediaPlayer_autoSkipIntroOutroAtom)
+    const [volume, setVolume] = useAtom(__seaMediaPlayer_volumeAtom)
 
     // Store the updated progress
     const [currentProgress, setCurrentProgress] = useAtom(__seaMediaPlayer_scopedCurrentProgressAtom)
@@ -229,18 +231,6 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const onEnded = (e: MediaEndedEvent) => {
         _onEnded?.(e)
 
-        // If the watch history is found and the episode number matches, seek to the last watched time
-        if (progress.currentEpisodeNumber && watchHistory?.found && watchHistory.item?.episodeNumber === progress.currentEpisodeNumber) {
-            const lastWatchedTime = getEpisodeContinuitySeekTo(progress.currentEpisodeNumber,
-                playerRef.current?.currentTime,
-                playerRef.current?.duration)
-            logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
-            if (lastWatchedTime > 0) {
-                logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
-                Object.assign(playerRef.current || {}, { currentTime: lastWatchedTime })
-            }
-        }
-
         if (autoNext) {
             onGoToNextEpisode()
         }
@@ -257,6 +247,18 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
     const onCanPlay = (e: MediaCanPlayDetail, event: MediaCanPlayEvent) => {
         _onCanPlay?.(e, event)
+
+        // If the watch history is found and the episode number matches, seek to the last watched time
+        if (progress.currentEpisodeNumber && watchHistory?.found && watchHistory.item?.episodeNumber === progress.currentEpisodeNumber) {
+            const lastWatchedTime = getEpisodeContinuitySeekTo(progress.currentEpisodeNumber,
+                playerRef.current?.currentTime,
+                playerRef.current?.duration)
+            logger("MEDIA PLAYER").info("Watch continuity: Seeking to last watched time", { lastWatchedTime })
+            if (lastWatchedTime > 0) {
+                logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
+                Object.assign(playerRef.current || {}, { currentTime: lastWatchedTime })
+            }
+        }
 
         if (autoPlay) {
             playerRef.current?.play()
@@ -335,7 +337,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     onProviderChange={onProviderChange}
                     onProviderSetup={onProviderSetup}
                     volume={volume}
-                    onVolumeChange={onVolumeChange}
+                    onVolumeChange={detail => setVolume(detail.volume)}
                     onTimeUpdate={onTimeUpdate}
                     onDurationChange={onDurationChange}
                     onCanPlay={onCanPlay}
@@ -354,14 +356,14 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
                         <div>
                             {showSkipIntroButton && (
-                                <Button intent="white-subtle" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
+                                <Button intent="white" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
                                     Skip opening
                                 </Button>
                             )}
                         </div>
                         <div>
                             {showSkipEndingButton && (
-                                <Button intent="white-subtle" size="sm" onClick={onSkipOutro} loading={autoSkipIntroOutro}>
+                                <Button intent="white" size="sm" onClick={onSkipOutro} loading={autoSkipIntroOutro}>
                                     Skip ending
                                 </Button>
                             )}
@@ -369,7 +371,13 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     </div>
                     <DefaultVideoLayout
                         icons={vidstackLayoutIcons}
-                        slots={videoLayoutSlots}
+                        slots={{
+                            ...videoLayoutSlots,
+                            settingsMenuEndItems: <>
+                                {settingsItems}
+                                <SeaMediaPlayerPlaybackSubmenu />
+                            </>,
+                        }}
                     />
                 </MediaPlayer>
             ) : (
