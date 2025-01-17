@@ -321,5 +321,13 @@ func (h *Handler) HandleRemoveEmptyDirectories(c echo.Context) error {
 
 	filesystem.RemoveEmptyDirectories(libraryPath, h.App.Logger)
 
+	otherLibraryPaths, err := h.App.Database.GetAdditionalLibraryPathsFromSettings()
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+	for _, path := range otherLibraryPaths {
+		filesystem.RemoveEmptyDirectories(path, h.App.Logger)
+	}
+
 	return h.RespondWithData(c, true)
 }
