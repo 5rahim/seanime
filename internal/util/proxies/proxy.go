@@ -29,7 +29,8 @@ func M3U8Proxy(c echo.Context) (err error) {
 		},
 	}
 
-	req, err := http.NewRequest(c.Request().Method, url, nil)
+	// Always use GET request internally, even for HEAD requests
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error creating request")
 		return echo.NewHTTPError(http.StatusInternalServerError)
@@ -55,6 +56,25 @@ func M3U8Proxy(c echo.Context) (err error) {
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 	defer resp.Body.Close()
+
+	// Copy response headers
+	for k, vs := range resp.Header {
+		for _, v := range vs {
+			if !strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
+				c.Response().Header().Set(k, v)
+			}
+		}
+	}
+
+	// Set CORS headers
+	c.Response().Header().Set("Access-Control-Allow-Origin", "*")
+	c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	c.Response().Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+	// For HEAD requests, return only headers
+	if c.Request().Method == http.MethodHead {
+		return c.NoContent(http.StatusOK)
+	}
 
 	var ret []byte
 
@@ -108,20 +128,6 @@ func M3U8Proxy(c echo.Context) (err error) {
 	} else {
 		ret = b
 	}
-
-	// Copy response headers
-	for k, vs := range resp.Header {
-		for _, v := range vs {
-			if !strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
-				c.Response().Header().Set(k, v)
-			}
-		}
-	}
-
-	// Set CORS headers
-	c.Response().Header().Set("Access-Control-Allow-Origin", "*")
-	c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	c.Response().Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 
 	return c.Blob(http.StatusOK, c.Response().Header().Get("Content-Type"), ret)
 }

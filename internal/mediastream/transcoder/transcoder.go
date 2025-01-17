@@ -1,7 +1,3 @@
-//
-// The transcoder package is based on the work of "zoriya/Kyoo" licensed under the GPL-3.0 License.
-//
-
 package transcoder
 
 import (
@@ -109,15 +105,14 @@ func (t *Transcoder) getFileStream(path string, hash string, mediaInfo *videofil
 		t.logger.Trace().Msgf("transcoder: Getting filestream")
 		defer t.logger.Trace().Msgf("transcoder: Filestream retrieved in %.2fs", time.Since(start).Seconds())
 	}
-	var err error
 	ret, _ := t.streams.GetOrSet(path, func() (*FileStream, error) {
 		return NewFileStream(path, hash, mediaInfo, &t.settings, t.logger), nil
 	})
-	ret.ready.Wait()
 	if ret == nil {
 		return nil, fmt.Errorf("could not get filestream, file may not exist")
 	}
-	if err != nil || ret.err != nil {
+	ret.ready.Wait()
+	if ret.err != nil {
 		t.streams.Delete(path)
 		return nil, ret.err
 	}

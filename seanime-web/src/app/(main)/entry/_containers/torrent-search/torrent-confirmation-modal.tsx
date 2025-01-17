@@ -20,7 +20,6 @@ import React, { useMemo, useState } from "react"
 import { AiOutlineCloudServer } from "react-icons/ai"
 import { BiCollection, BiDownload, BiX } from "react-icons/bi"
 import { FcFilmReel, FcFolder } from "react-icons/fc"
-import { toast } from "sonner"
 import * as upath from "upath"
 
 const isOpenAtom = atom(false)
@@ -95,10 +94,6 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const isDisabled = isPending || isDownloadingFiles || isDownloadingDebrid
 
     function handleLaunchDownload(smartSelect: boolean) {
-        if (!libraryPath || !destination.toLowerCase().startsWith(libraryPath.slice(0, -1).toLowerCase())) {
-            toast.error("Destination folder does not match local library")
-            return
-        }
         if (smartSelect) {
             mutate({
                 torrents: selectedTorrents,

@@ -1,6 +1,6 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
-import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
@@ -142,7 +142,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     /**
      * 2. Watch history
      */
-    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(mediaId)
+    const { waitForWatchHistory } = useHandleCurrentMediaContinuity(mediaId)
 
     /**
      * 3. Get the current episode source
@@ -284,18 +284,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     }
 
     /**
-     * Handle provider setup
-     */
-    const onProviderSetup = React.useCallback(() => {
-
-    }, [provider, videoSource, autoPlay])
-
-    /**
-     * Continuity
-     */
-    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(playerRef, episodeSource?.number, mediaId)
-
-    /**
      * Handle the onCanPlay event
      */
     const onCanPlay = () => {
@@ -312,15 +300,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             // Reset the previous time ref
             previousCurrentTimeRef.current = 0
             logger("ONLINESTREAM").info("Seeking to previous time", { previousCurrentTime: previousCurrentTimeRef.current })
-        }
-
-
-        if (watchHistory?.found) {
-            const lastWatchedTime = getEpisodeContinuitySeekTo(episodeSource?.number, playerRef.current?.currentTime, playerRef.current?.duration)
-            logger("CONTINUITY").info("Seeking to last watched time if greater than 0", { lastWatchedTime })
-            if (lastWatchedTime > 0) {
-                Object.assign(playerRef.current ?? {}, { currentTime: lastWatchedTime })
-            }
         }
 
         // If the player was playing before the onCanPlay event, resume playing
@@ -416,7 +395,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         servers,
         videoSource,
         onMediaDetached,
-        onProviderSetup,
         onFatalError,
         onCanPlay,
         url,
@@ -429,7 +407,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
         isErrorEpisodeSource,
         isErrorProvider: isError,
-        handleUpdateWatchHistory,
         opts: {
             selectedExtension,
             currentEpisodeDetails: episodeDetails,
