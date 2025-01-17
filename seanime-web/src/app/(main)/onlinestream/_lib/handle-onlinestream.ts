@@ -17,7 +17,6 @@ import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
-import mousetrap from "mousetrap"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -310,18 +309,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             }
         }, 500)
     }
-
-    React.useEffect(() => {
-        mousetrap.bind("f", () => {
-            logger("ONLINESTREAM").info("Fullscreen key pressed")
-            playerRef.current?.enterFullscreen()
-            playerRef.current?.el?.focus()
-        })
-
-        return () => {
-            mousetrap.unbind("f")
-        }
-    }, [])
 
 
     // Quality

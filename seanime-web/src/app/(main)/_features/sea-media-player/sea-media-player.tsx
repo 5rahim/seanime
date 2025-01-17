@@ -35,6 +35,7 @@ import {
 import { DefaultVideoLayout, DefaultVideoLayoutProps } from "@vidstack/react/player/layouts/default"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import mousetrap from "mousetrap"
 import Image from "next/image"
 import React from "react"
 
@@ -100,8 +101,6 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const serverStatus = useServerStatus()
 
     const [duration, setDuration] = React.useState(0)
-
-    const [fullscreen, setFullscreen] = useAtom(fullscreenAtom)
 
     const { media, progress } = useSeaMediaPlayer()
 
@@ -301,6 +300,22 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         return ret
     }, [])
 
+    React.useEffect(() => {
+        mousetrap.bind("f", () => {
+            logger("MEDIA PLAYER").info("Fullscreen key pressed")
+            try {
+                playerRef.current?.enterFullscreen()
+                playerRef.current?.el?.focus()
+            }
+            catch {
+            }
+        })
+
+        return () => {
+            mousetrap.unbind("f")
+        }
+    }, [])
+
     return (
         <div className="aspect-video relative w-full self-start mx-auto">
             {isPlaybackError ? (
@@ -325,9 +340,6 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     onDurationChange={onDurationChange}
                     onCanPlay={onCanPlay}
                     onEnded={onEnded}
-                    onFullscreenChange={isFullscreen => {
-                        setFullscreen(isFullscreen)
-                    }}
                 >
                     <MediaProvider>
                         {tracks.map((track, index) => (
@@ -342,14 +354,14 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
                         <div>
                             {showSkipIntroButton && (
-                                <Button intent="white" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
-                                    Skip intro
+                                <Button intent="white-subtle" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
+                                    Skip opening
                                 </Button>
                             )}
                         </div>
                         <div>
                             {showSkipEndingButton && (
-                                <Button intent="white" onClick={onSkipOutro} loading={autoSkipIntroOutro}>
+                                <Button intent="white-subtle" size="sm" onClick={onSkipOutro} loading={autoSkipIntroOutro}>
                                     Skip ending
                                 </Button>
                             )}
@@ -363,7 +375,6 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
             ) : (
                 <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
                     <LoadingSpinner
-                        containerClass=""
                         spinner={
                             <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
                                 <Image
