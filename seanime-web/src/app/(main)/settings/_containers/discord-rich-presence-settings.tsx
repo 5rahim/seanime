@@ -1,3 +1,4 @@
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import React from "react"
@@ -20,46 +21,50 @@ export function DiscordRichPresenceSettings(props: DiscordRichPresenceSettingsPr
 
     return (
         <>
-            <Field.Switch
-                name="enableRichPresence"
-                label={<span className="flex gap-1 items-center">Discord Rich Presence</span>}
-            />
-            <div
-                className={cn(
-                    "flex gap-4 items-center flex-col md:flex-row !mt-3",
-                    enableRichPresence ? "opacity-100" : "opacity-50 pointer-events-none",
-                )}
-            >
-                <Field.Checkbox
-                    name="enableAnimeRichPresence"
-                    label="Anime"
-                    help="Show what you are watching in Discord."
-                    fieldClass="w-fit"
+            <SettingsCard title="Rich Presence" description="Show what you are watching or reading in Discord.">
+                <Field.Switch
+                    side="right"
+                    name="enableRichPresence"
+                    label={<span className="flex gap-1 items-center">Enable</span>}
                 />
-                <Field.Checkbox
-                    name="enableMangaRichPresence"
-                    label="Manga"
-                    help="Show what you are reading in Discord."
-                    fieldClass="w-fit"
+                <div
+                    className={cn(
+                        "flex gap-4 items-center flex-col md:flex-row !mt-3",
+                        enableRichPresence ? "opacity-100" : "opacity-50 pointer-events-none",
+                    )}
+                >
+                    <Field.Checkbox
+                        name="enableAnimeRichPresence"
+                        label="Anime"
+                        fieldClass="w-fit"
+                    />
+                    <Field.Checkbox
+                        name="enableMangaRichPresence"
+                        label="Manga"
+                        fieldClass="w-fit"
+                    />
+                </div>
+
+                <Field.Switch
+                    side="right"
+                    name="richPresenceHideSeanimeRepositoryButton"
+                    label="Hide Seanime Repository Button"
                 />
-            </div>
 
-            <Field.Switch
-                name="richPresenceHideSeanimeRepositoryButton"
-                label="Hide Seanime Repository Button"
-            />
+                <Field.Switch
+                    side="right"
+                    name="richPresenceShowAniListMediaButton"
+                    label="Show AniList Media Button"
+                    help="Show a button to open the media page on AniList."
+                />
 
-            <Field.Switch
-                name="richPresenceShowAniListMediaButton"
-                label="Show AniList Media Button"
-                help="Show a button to open the media page on AniList."
-            />
-
-            <Field.Switch
-                name="richPresenceShowAniListProfileButton"
-                label="Show AniList Profile Button"
-                help="Show a button to open your profile page on AniList."
-            />
+                <Field.Switch
+                    side="right"
+                    name="richPresenceShowAniListProfileButton"
+                    label="Show AniList Profile Button"
+                    help="Show a button to open your profile page on AniList."
+                />
+            </SettingsCard>
         </>
     )
 }

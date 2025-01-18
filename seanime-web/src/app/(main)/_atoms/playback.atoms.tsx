@@ -2,6 +2,8 @@ import { Nullish } from "@/api/generated/types"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import { FaShareFromSquare } from "react-icons/fa6"
+import { PiVideoFill } from "react-icons/pi"
 
 export const enum PlaybackDownloadedMedia {
     Default = "default", // Built-in player
@@ -9,8 +11,18 @@ export const enum PlaybackDownloadedMedia {
 }
 
 export const playbackDownloadedMediaOptions = [
-    { label: "Desktop media player / Integrated player (media streaming)", value: PlaybackDownloadedMedia.Default },
-    { label: "External player link", value: PlaybackDownloadedMedia.ExternalPlayerLink },
+    {
+        label: <div className="flex items-center gap-2">
+            <PiVideoFill className="text-2xl" />
+            <p>Desktop media player or Integrated player (media streaming)</p>
+        </div>, value: PlaybackDownloadedMedia.Default,
+    },
+    {
+        label: <div className="flex items-center gap-2">
+            <FaShareFromSquare className="text-2xl" />
+            <p>External player link</p>
+        </div>, value: PlaybackDownloadedMedia.ExternalPlayerLink,
+    },
 ]
 
 export const __playback_downloadedMediaAtom = atomWithStorage<string>("sea-playback-downloaded-media", PlaybackDownloadedMedia.Default)
@@ -23,8 +35,18 @@ export const enum PlaybackTorrentStreaming {
 }
 
 export const playbackTorrentStreamingOptions = [
-    { label: "Desktop media player", value: PlaybackTorrentStreaming.Default },
-    { label: "External player link", value: PlaybackTorrentStreaming.ExternalPlayerLink },
+    {
+        label: <div className="flex items-center gap-2">
+            <PiVideoFill className="text-2xl" />
+            <p>Desktop media player</p>
+        </div>, value: PlaybackTorrentStreaming.Default,
+    },
+    {
+        label: <div className="flex items-center gap-2">
+            <FaShareFromSquare className="text-2xl" />
+            <p>External player link</p>
+        </div>, value: PlaybackTorrentStreaming.ExternalPlayerLink,
+    },
 ]
 
 

@@ -10,6 +10,7 @@ import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 import { FaCopy } from "react-icons/fa"
 import { toast } from "sonner"
+import { SettingsCard } from "../_components/settings-card"
 
 type LogsSettingsProps = {}
 
@@ -63,33 +64,35 @@ export function LogsSettings(props: LogsSettingsProps) {
             )}
 
 
-            <DataGrid
-                data={filenamesObj}
-                columns={columns}
-                rowCount={filenamesObj.length}
-                isLoading={isLoading}
-                isDataMutating={isDeleting}
-                rowSelectionPrimaryKey="name"
-                enableRowSelection
-                initialState={{
-                    pagination: {
-                        pageIndex: 0,
-                        pageSize: 20,
-                    },
-                }}
-                state={{
-                    rowSelection,
-                }}
-                hideColumns={[
-                    // {
-                    //     below: 1000,
-                    //     hide: ["number", "scanlator", "language"],
-                    // },
-                ]}
-                onRowSelect={onSelectChange}
-                onRowSelectionChange={setRowSelection}
-                className=""
-            />
+            <SettingsCard>
+                <DataGrid
+                    data={filenamesObj}
+                    columns={columns}
+                    rowCount={filenamesObj.length}
+                    isLoading={isLoading}
+                    isDataMutating={isDeleting}
+                    rowSelectionPrimaryKey="name"
+                    enableRowSelection
+                    initialState={{
+                        pagination: {
+                            pageIndex: 0,
+                            pageSize: 20,
+                        },
+                    }}
+                    state={{
+                        rowSelection,
+                    }}
+                    hideColumns={[
+                        // {
+                        //     below: 1000,
+                        //     hide: ["number", "scanlator", "language"],
+                        // },
+                    ]}
+                    onRowSelect={onSelectChange}
+                    onRowSelectionChange={setRowSelection}
+                    className=""
+                />
+            </SettingsCard>
         </>
     )
 }
@@ -137,21 +140,21 @@ function LogModal(props: { filename: string }) {
 
                 {isPending ? <LoadingSpinner /> :
                     <div className="bg-gray-900 rounded-md border max-w-full overflow-x-auto">
-                    <pre className="text-md max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap break-all">
-                        {data?.split("\n").map((line, i) => (
-                            <p
-                                key={i}
-                                className={cn(
-                                    "w-full",
-                                    i % 2 === 0 ? "bg-gray-800" : "bg-gray-900",
-                                    line.includes("|ERR|") && "text-white bg-red-800",
-                                    line.includes("|WRN|") && "text-orange-500",
-                                    line.includes("|INF|") && "text-blue-200",
-                                    line.includes("|TRC|") && "text-[--muted]",
-                                )}
-                            >{line}</p>
-                        ))}
-                    </pre>
+                        <pre className="text-md max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap break-all">
+                            {data?.split("\n").map((line, i) => (
+                                <p
+                                    key={i}
+                                    className={cn(
+                                        "w-full",
+                                        i % 2 === 0 ? "bg-gray-800" : "bg-gray-900",
+                                        line.includes("|ERR|") && "text-white bg-red-800",
+                                        line.includes("|WRN|") && "text-orange-500",
+                                        line.includes("|INF|") && "text-blue-200",
+                                        line.includes("|TRC|") && "text-[--muted]",
+                                    )}
+                                >{line}</p>
+                            ))}
+                        </pre>
                     </div>}
             </Modal>
         </>

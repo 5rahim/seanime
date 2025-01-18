@@ -19,7 +19,10 @@ import { atom } from "jotai"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import React from "react"
+import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
+import { SettingsCard } from "../_components/settings-card"
+import { SettingsIsDirty } from "../_components/settings-submit-button"
 
 const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
@@ -74,9 +77,12 @@ export function UISettings() {
 
     const [tab, setTab] = useAtom(selectUISettingTabAtom)
 
+    const formRef = React.useRef<UseFormReturn<any>>(null)
+
     return (
         <Form
             schema={themeSchema}
+            mRef={formRef}
             onSubmit={data => {
                 if (colord(data.backgroundColor).isLight()) {
                     toast.error("Seanime does not support light themes")
@@ -128,10 +134,11 @@ export function UISettings() {
                 mediaPageBannerSize: themeSettings?.mediaPageBannerSize ?? ThemeMediaPageBannerType.Default,
                 mediaPageBannerInfoBoxSize: themeSettings?.mediaPageBannerInfoBoxSize ?? ThemeMediaPageBannerType.Default,
             }}
-            stackClass="space-y-4"
+            stackClass="space-y-4 relative"
         >
             {(f) => (
                 <>
+                    <SettingsIsDirty className="-top-14" />
 
                     <Tabs
                         value={tab}
@@ -149,302 +156,290 @@ export function UISettings() {
 
                         <TabsContent value="main" className="space-y-4">
 
-                            <h3>Color scheme</h3>
-
-                            <Field.Switch
-                                label="Enable color settings"
-                                name="enableColorSettings"
-                            />
-                            <div className="flex flex-col md:flex-row gap-3">
-                                <Field.ColorPicker
-                                    name="backgroundColor"
-                                    label="Background color"
-                                    help="Default: #070707"
-                                    disabled={!f.watch("enableColorSettings")}
+                            <SettingsCard title="Color scheme">
+                                <Field.Switch
+                                    side="right"
+                                    label="Enable color settings"
+                                    name="enableColorSettings"
                                 />
-                                <Field.ColorPicker
-                                    name="accentColor"
-                                    label="Accent color"
-                                    help="Default: #6152df"
-                                    disabled={!f.watch("enableColorSettings")}
-                                />
-                            </div>
+                                <div className="flex flex-col md:flex-row gap-3">
+                                    <Field.ColorPicker
+                                        name="backgroundColor"
+                                        label="Background color"
+                                        help="Default: #070707"
+                                        disabled={!f.watch("enableColorSettings")}
+                                    />
+                                    <Field.ColorPicker
+                                        name="accentColor"
+                                        label="Accent color"
+                                        help="Default: #6152df"
+                                        disabled={!f.watch("enableColorSettings")}
+                                    />
+                                </div>
 
-                            {f.watch("enableColorSettings") && (
-                                <div className="flex flex-wrap gap-3 w-full">
-                                    {THEME_COLOR_BANK.map((opt) => (
-                                        <div
-                                            key={opt.name}
-                                            className={cn(
-                                                "flex gap-3 items-center w-fit rounded-full border p-1 cursor-pointer",
-                                                themeSettings.backgroundColor === opt.backgroundColor && themeSettings.accentColor === opt.accentColor && "border-[--brand] ring-[--brand] ring-offset-1 ring-offset-[--background]",
-                                            )}
-                                            onClick={() => {
-                                                f.setValue("backgroundColor", opt.backgroundColor)
-                                                f.setValue("accentColor", opt.accentColor)
-                                                mutate({
-                                                    theme: {
-                                                        id: 0,
-                                                        ...themeSettings,
-                                                        enableColorSettings: true,
-                                                        backgroundColor: opt.backgroundColor,
-                                                        accentColor: opt.accentColor,
-                                                    },
-                                                })
-                                            }}
-                                        >
+                                {f.watch("enableColorSettings") && (
+                                    <div className="flex flex-wrap gap-3 w-full">
+                                        {THEME_COLOR_BANK.map((opt) => (
                                             <div
-                                                className="flex gap-1"
+                                                key={opt.name}
+                                                className={cn(
+                                                    "flex gap-3 items-center w-fit rounded-full border p-1 cursor-pointer",
+                                                    themeSettings.backgroundColor === opt.backgroundColor && themeSettings.accentColor === opt.accentColor && "border-[--brand] ring-[--brand] ring-offset-1 ring-offset-[--background]",
+                                                )}
+                                                onClick={() => {
+                                                    f.setValue("backgroundColor", opt.backgroundColor)
+                                                    f.setValue("accentColor", opt.accentColor)
+                                                    mutate({
+                                                        theme: {
+                                                            id: 0,
+                                                            ...themeSettings,
+                                                            enableColorSettings: true,
+                                                            backgroundColor: opt.backgroundColor,
+                                                            accentColor: opt.accentColor,
+                                                        },
+                                                    }, {
+                                                        onSuccess() {
+                                                            formRef.current?.reset(formRef.current?.getValues())
+                                                        },
+                                                    })
+                                                }}
                                             >
                                                 <div
-                                                    className="w-6 h-6 rounded-full border"
-                                                    style={{ backgroundColor: opt.backgroundColor }}
-                                                />
-                                                <div
-                                                    className="w-6 h-6 rounded-full border"
-                                                    style={{ backgroundColor: opt.accentColor }}
-                                                />
+                                                    className="flex gap-1"
+                                                >
+                                                    <div
+                                                        className="w-6 h-6 rounded-full border"
+                                                        style={{ backgroundColor: opt.backgroundColor }}
+                                                    />
+                                                    <div
+                                                        className="w-6 h-6 rounded-full border"
+                                                        style={{ backgroundColor: opt.accentColor }}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
+                                )}
+
+                            </SettingsCard>
+
+                            <SettingsCard title="Background image">
+
+                                <div className="flex flex-col md:flex-row gap-3">
+                                    <Field.Text
+                                        label="Image path"
+                                        name="libraryScreenCustomBackgroundImage"
+                                        placeholder="e.g., image.png"
+                                        help="Background image for all pages. Dimmed on non-library screens."
+                                    />
+
+                                    <Field.Number
+                                        label="Opacity"
+                                        name="libraryScreenCustomBackgroundOpacity"
+                                        placeholder="Default: 10"
+                                        min={1}
+                                        max={100}
+                                    />
+
+                                    {/*<Field.Select*/}
+                                    {/*    label="Blur"*/}
+                                    {/*    name="libraryScreenCustomBackgroundBlur"*/}
+                                    {/*    help="Can cause performance issues."*/}
+                                    {/*    options={[*/}
+                                    {/*        { label: "None", value: "-" },*/}
+                                    {/*        { label: "5px", value: "5px" },*/}
+                                    {/*        { label: "10px", value: "10px" },*/}
+                                    {/*        { label: "15px", value: "15px" },*/}
+                                    {/*    ]}*/}
+                                    {/*/>*/}
                                 </div>
-                            )}
 
-                            <br />
+                            </SettingsCard>
 
-                            <h3>
-                                Background image
-                            </h3>
+                            <SettingsCard title="Banner image">
 
-                            <div className="flex flex-col md:flex-row gap-3">
-                                <Field.Text
-                                    label="Image path"
-                                    name="libraryScreenCustomBackgroundImage"
-                                    placeholder="e.g., image.png"
-                                    help="Background image for all pages. Dimmed on non-library screens."
-                                />
+                                <div className="flex flex-col md:flex-row gap-3">
+                                    <Field.Text
+                                        label="Image path"
+                                        name="libraryScreenCustomBannerImage"
+                                        placeholder="e.g., image.gif"
+                                        help="Banner image for all pages."
+                                    />
+                                    <Field.Text
+                                        label="Position"
+                                        name="libraryScreenCustomBannerPosition"
+                                        placeholder="Default: 50% 50%"
+                                    />
+                                    <Field.Number
+                                        label="Opacity"
+                                        name="libraryScreenCustomBannerOpacity"
+                                        placeholder="Default: 10"
+                                        min={1}
+                                        max={100}
+                                    />
+                                </div>
 
-                                <Field.Number
-                                    label="Opacity"
-                                    name="libraryScreenCustomBackgroundOpacity"
-                                    placeholder="Default: 10"
-                                    min={1}
-                                    max={100}
-                                />
-
-                                {/*<Field.Select*/}
-                                {/*    label="Blur"*/}
-                                {/*    name="libraryScreenCustomBackgroundBlur"*/}
-                                {/*    help="Can cause performance issues."*/}
-                                {/*    options={[*/}
-                                {/*        { label: "None", value: "-" },*/}
-                                {/*        { label: "5px", value: "5px" },*/}
-                                {/*        { label: "10px", value: "10px" },*/}
-                                {/*        { label: "15px", value: "15px" },*/}
-                                {/*    ]}*/}
-                                {/*/>*/}
-                            </div>
-
-                            <br />
-
-                            <h3>Banner image</h3>
-
-                            <div className="flex flex-col md:flex-row gap-3">
-                                <Field.Text
-                                    label="Image path"
-                                    name="libraryScreenCustomBannerImage"
-                                    placeholder="e.g., image.gif"
-                                    help="Banner image for all pages."
-                                />
-                                <Field.Text
-                                    label="Position"
-                                    name="libraryScreenCustomBannerPosition"
-                                    placeholder="Default: 50% 50%"
-                                />
-                                <Field.Number
-                                    label="Opacity"
-                                    name="libraryScreenCustomBannerOpacity"
-                                    placeholder="Default: 10"
-                                    min={1}
-                                    max={100}
-                                />
-                            </div>
+                            </SettingsCard>
 
                         </TabsContent>
 
                         <TabsContent value="navigation" className="space-y-4">
 
-                            <h3>Sidebar</h3>
+                            <SettingsCard title="Sidebar">
 
-                            <Field.Switch
-                                label="Expand sidebar on hover"
-                                name="expandSidebarOnHover"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Expand sidebar on hover"
+                                    name="expandSidebarOnHover"
+                                />
 
-                            <Field.Switch
-                                label="Disable transparency"
-                                name="disableSidebarTransparency"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Disable transparency"
+                                    name="disableSidebarTransparency"
+                                />
 
-                            <br />
+                            </SettingsCard>
 
-                            <h3>Navbar</h3>
+                            <SettingsCard title="Navbar">
 
-                            <Field.Switch
-                                label={process.env.NEXT_PUBLIC_PLATFORM === "desktop" ? "Hide top navbar (Web interface)" : "Hide top navbar"}
-                                name="hideTopNavbar"
-                                help="Switches to sidebar-only mode."
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label={process.env.NEXT_PUBLIC_PLATFORM === "desktop" ? "Hide top navbar (Web interface)" : "Hide top navbar"}
+                                    name="hideTopNavbar"
+                                    help="Switches to sidebar-only mode."
+                                />
+
+                            </SettingsCard>
 
                         </TabsContent>
 
                         <TabsContent value="media" className="space-y-4">
 
-                            <div>
-                                <h3>My Library and Manga screens</h3>
-                            </div>
+                            <SettingsCard title="Collection screens">
 
-                            <Field.RadioCards
-                                label="Banner type"
-                                name="libraryScreenBannerType"
-                                options={[
-                                    {
-                                        label: "Dynamic Banner",
-                                        value: "dynamic",
-                                    },
-                                    {
-                                        label: "Custom Banner",
-                                        value: "custom",
-                                    },
-                                    {
-                                        label: "None",
-                                        value: "none",
-                                    },
-                                ]}
-                                itemContainerClass={cn(
-                                    "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
-                                    "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
-                                    "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
-                                    "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                                    "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
-                                    "py-2",
-                                )}
-                                help={f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && "Use the banner image on all library screens."}
-                            />
+                                <Field.RadioCards
+                                    label="Banner type"
+                                    name="libraryScreenBannerType"
+                                    options={[
+                                        {
+                                            label: "Dynamic Banner",
+                                            value: "dynamic",
+                                        },
+                                        {
+                                            label: "Custom Banner",
+                                            value: "custom",
+                                        },
+                                        {
+                                            label: "None",
+                                            value: "none",
+                                        },
+                                    ]}
+                                    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
+                                    help={f.watch("libraryScreenBannerType") === ThemeLibraryScreenBannerType.Custom && "Use the banner image on all library screens."}
+                                />
 
-                            <Field.Switch
-                                label="No genre selector"
-                                name="disableLibraryScreenGenreSelector"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="No genre selector"
+                                    name="disableLibraryScreenGenreSelector"
+                                />
 
-                            <br />
+                            </SettingsCard>
 
-                            <div>
-                                <h3>Media page</h3>
-                            </div>
+                            <SettingsCard title="Media page">
 
-                            <Field.RadioCards
-                                label="AniList banner image"
-                                name="mediaPageBannerType"
-                                options={ThemeMediaPageBannerTypeOptions.map(n => ({ value: n.value, label: n.label }))}
-                                itemContainerClass={cn(
-                                    "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
-                                    "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
-                                    "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
-                                    "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                                    "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
-                                    "py-2",
-                                )}
-                                help={ThemeMediaPageBannerTypeOptions.find(n => n.value === f.watch("mediaPageBannerType"))?.description}
-                            />
+                                <Field.RadioCards
+                                    label="AniList banner image"
+                                    name="mediaPageBannerType"
+                                    options={ThemeMediaPageBannerTypeOptions.map(n => ({ value: n.value, label: n.label }))}
+                                    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
+                                    help={ThemeMediaPageBannerTypeOptions.find(n => n.value === f.watch("mediaPageBannerType"))?.description}
+                                />
 
-                            <Field.RadioCards
-                                label="Banner size"
-                                name="mediaPageBannerSize"
-                                options={ThemeMediaPageBannerSizeOptions.map(n => ({ value: n.value, label: n.label }))}
-                                itemContainerClass={cn(
-                                    "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
-                                    "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
-                                    "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
-                                    "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                                    "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
-                                    "py-2",
-                                )}
-                                help={ThemeMediaPageBannerSizeOptions.find(n => n.value === f.watch("mediaPageBannerSize"))?.description}
-                            />
+                                <Field.RadioCards
+                                    label="Banner size"
+                                    name="mediaPageBannerSize"
+                                    options={ThemeMediaPageBannerSizeOptions.map(n => ({ value: n.value, label: n.label }))}
+                                    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
+                                    help={ThemeMediaPageBannerSizeOptions.find(n => n.value === f.watch("mediaPageBannerSize"))?.description}
+                                />
 
-                            <Field.RadioCards
-                                label="Banner info layout"
-                                name="mediaPageBannerInfoBoxSize"
-                                options={ThemeMediaPageInfoBoxSizeOptions.map(n => ({ value: n.value, label: n.label }))}
-                                itemContainerClass={cn(
-                                    "items-start w-fit cursor-pointer transition border-transparent rounded-[--radius] p-4",
-                                    "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-900",
-                                    "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
-                                    "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
-                                    "border border-transparent data-[state=checked]:border-[--brand] data-[state=checked]:ring-offset-0",
-                                    "py-2",
-                                )}
+                                <Field.RadioCards
+                                    label="Banner info layout"
+                                    name="mediaPageBannerInfoBoxSize"
+                                    options={ThemeMediaPageInfoBoxSizeOptions.map(n => ({ value: n.value, label: n.label }))}
+                                    stackClass="flex flex-col md:flex-row flex-wrap gap-2 space-y-0"
                                 // help={ThemeMediaPageInfoBoxSizeOptions.find(n => n.value === f.watch("mediaPageBannerInfoBoxSize"))?.description}
-                            />
+                                />
 
-                            <Field.Switch
-                                label="Blurred gradient background"
-                                name="enableMediaPageBlurredBackground"
-                                help="Can cause performance issues."
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Blurred gradient background"
+                                    name="enableMediaPageBlurredBackground"
+                                    help="Can cause performance issues."
+                                />
 
-                            <br />
+                            </SettingsCard>
 
-                            <h3>Media card</h3>
+                            <SettingsCard title="Media card">
 
-                            <Field.Switch
-                                label="Glassy background"
-                                name="enableMediaCardBlurredBackground"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Glassy background"
+                                    name="enableMediaCardBlurredBackground"
+                                />
 
-                            <br />
+                            </SettingsCard>
 
-                            <h3>Episode card</h3>
+                            <SettingsCard title="Episode card">
 
-                            <Field.Switch
-                                label="Legacy episode cards"
-                                name="useLegacyEpisodeCard"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Legacy episode cards"
+                                    name="useLegacyEpisodeCard"
+                                />
 
 
-                            <br />
+                            </SettingsCard>
 
-                            <h3>Carousel</h3>
+                            <SettingsCard title="Carousel">
 
-                            <Field.Switch
-                                label="Disable auto-scroll"
-                                name="disableCarouselAutoScroll"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Disable auto-scroll"
+                                    name="disableCarouselAutoScroll"
+                                />
 
-                            <Field.Switch
-                                label="Smaller episode cards"
-                                name="smallerEpisodeCarouselSize"
-                            />
+                                <Field.Switch
+                                    side="right"
+                                    label="Smaller episode cards"
+                                    name="smallerEpisodeCarouselSize"
+                                />
+
+                            </SettingsCard>
 
                         </TabsContent>
 
                         <TabsContent value="browser-client" className="space-y-4">
 
-                            <Switch
-                                label="Fix border rendering artifacts (client-specific)"
-                                name="enableMediaCardStyleFix"
-                                help="Seanime will try to fix border rendering artifacts. This setting only affects this client/browser."
-                                value={fixBorderRenderingArtifacts}
-                                onValueChange={(v) => {
-                                    setFixBorerRenderingArtifacts(v)
-                                    if (v) {
-                                        toast.success("Handling border rendering artifacts")
-                                    } else {
-                                        toast.success("Border rendering artifacts are no longer handled")
-                                    }
-                                }}
-                            />
+                            <SettingsCard>
+                                <Switch
+                                    side="right"
+                                    label="Fix border rendering artifacts (client-specific)"
+                                    name="enableMediaCardStyleFix"
+                                    help="Seanime will try to fix border rendering artifacts. This setting only affects this client/browser."
+                                    value={fixBorderRenderingArtifacts}
+                                    onValueChange={(v) => {
+                                        setFixBorerRenderingArtifacts(v)
+                                        if (v) {
+                                            toast.success("Handling border rendering artifacts")
+                                        } else {
+                                            toast.success("Border rendering artifacts are no longer handled")
+                                        }
+                                    }}
+                                />
+                            </SettingsCard>
 
                         </TabsContent>
 

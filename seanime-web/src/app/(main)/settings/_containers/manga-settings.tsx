@@ -1,4 +1,5 @@
 import { useListMangaProviderExtensions } from "@/api/hooks/extensions.hooks"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Field } from "@/components/ui/form"
 import React from "react"
@@ -30,18 +31,23 @@ export function MangaSettings(props: MangaSettingsProps) {
         <>
             <h3>Manga</h3>
 
-            <Field.Switch
-                name="enableManga"
-                label={<span className="flex gap-1 items-center">Enable</span>}
-                help="Read manga series, download chapters and track your progress."
-            />
+            <SettingsCard>
+                <Field.Switch
+                    side="right"
+                    name="enableManga"
+                    label={<span className="flex gap-1 items-center">Enable</span>}
+                    help="Read manga series, download chapters and track your progress."
+                />
+            </SettingsCard>
 
-            <Field.Select
-                name="defaultMangaProvider"
-                label="Default Provider"
-                help="Select the default provider for manga series."
-                options={options}
-            />
+            <SettingsCard title="Sources">
+                <Field.Select
+                    name="defaultMangaProvider"
+                    label="Default Provider"
+                    help="Select the default provider for manga series."
+                    options={options}
+                />
+            </SettingsCard>
 
             <SettingsSubmitButton isPending={isPending} />
         </>

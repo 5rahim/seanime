@@ -1,7 +1,7 @@
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
-import { Separator } from "@/components/ui/separator"
 import React from "react"
 
 type ServerSettingsProps = {
@@ -95,73 +95,82 @@ export function ServerSettings(props: ServerSettingsProps) {
             {/*    help="Choose the mode you want to fine-tune your anime experience."*/}
             {/*/>*/}
 
-            {/*<Separator />*/}
+            {/*/!*<Separator />*!/*/}
 
-            <Field.Switch
-                name="disableUpdateCheck"
-                label="Do not check for updates"
-                help="If enabled, Seanime will not check for new releases."
-            />
-            <Field.Switch
-                name="openTorrentClientOnStart"
-                label="Open torrent client on startup"
-            />
-            <Field.Switch
-                name="openWebURLOnStart"
-                label="Open localhost web URL on startup"
-            />
+            <SettingsCard title="Anime tracking">
+                {/*<p className="text-[--muted]">*/}
+                {/*    Only applies to desktop and integrated players.*/}
+                {/*</p>*/}
 
-            <Separator />
+                <Field.Switch
+                    side="right"
+                    name="autoUpdateProgress"
+                    label="Automatically update progress"
+                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="enableWatchContinuity"
+                    label="Enable watch continuity"
+                    help="If enabled, Seanime will remember your watch progress and resume from where you left off."
+                />
+            </SettingsCard>
 
-            <div>
-                <h3>
-                    Anime tracking
-                </h3>
-                <p className="text-[--muted]">
-                    Only applies to desktop and integrated players.
-                </p>
-            </div>
+            <SettingsCard title="Notifications">
 
-            <Field.Switch
-                name="autoUpdateProgress"
-                label="Automatically update progress"
-                help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
-            />
+                <Field.Switch
+                    side="right"
+                    name="disableNotifications"
+                    label="Disable notifications"
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="disableAutoDownloaderNotifications"
+                    label="Disable Auto Downloader notifications"
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="disableAutoScannerNotifications"
+                    label="Disable Auto Scanner notifications"
+                />
 
-            <Field.Switch
-                name="enableWatchContinuity"
-                label="Enable watch continuity"
-                help="If enabled, Seanime will remember your watch progress and resume from where you left off."
-            />
+            </SettingsCard>
 
-            <Separator />
+            <SettingsCard title="Offline">
 
-            <h3>Notifications</h3>
+                <Field.Switch
+                    side="right"
+                    name="autoSyncOfflineLocalData"
+                    label="Automatically refresh local data"
+                    help="If enabled, local data will periodically be refreshed using current AniList data."
+                    moreHelp="Only if no offline changes have been made."
+                />
 
-            <Field.Switch
-                name="disableNotifications"
-                label="Disable notifications"
-            />
+            </SettingsCard>
 
-            <Field.Switch
-                name="disableAutoDownloaderNotifications"
-                label="Disable Auto Downloader notifications"
-            />
-
-            <Field.Switch
-                name="disableAutoScannerNotifications"
-                label="Disable Auto Scanner notifications"
-            />
-
-            <Separator />
-
-            <h3>Offline</h3>
-
-            <Field.Switch
-                name="autoSyncOfflineLocalData"
-                label="Automatically refresh local data"
-                help="Automatically refresh local data with AniList data periodically if no offline changes have been made."
-            />
+            <SettingsCard title="Server settings">
+                <Field.Switch
+                    side="right"
+                    name="disableUpdateCheck"
+                    label="Do not check for updates"
+                    help="If enabled, Seanime will not check for new releases."
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="openTorrentClientOnStart"
+                    label="Open torrent client on startup"
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="openWebURLOnStart"
+                    label="Open localhost web URL on startup"
+                />
+            </SettingsCard>
 
             <SettingsSubmitButton isPending={isPending} />
 

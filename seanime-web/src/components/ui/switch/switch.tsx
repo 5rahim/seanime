@@ -1,9 +1,11 @@
 "use client"
 
 import { hiddenInputStyles } from "@/components/ui/input"
+import { Popover } from "@/components/ui/popover"
 import * as SwitchPrimitive from "@radix-ui/react-switch"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
+import { AiOutlineQuestionCircle } from "react-icons/ai"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 import { mergeRefs } from "../core/utils"
@@ -34,9 +36,19 @@ export const SwitchAnatomy = defineStyleAnatomy({
         },
     }),
     container: cva([
-        "UI-Checkbox__container",
+        "UI-Switch__container",
         "inline-flex gap-2 items-center",
-    ]),
+    ], {
+        variants: {
+            side: {
+                left: "",
+                right: "w-full flex-row-reverse",
+            },
+        },
+        defaultVariants: {
+            side: "left",
+        },
+    }),
     thumb: cva([
         "UI-Switch__thumb",
         "pointer-events-none block rounded-full bg-white shadow-lg ring-0 transition-transform",
@@ -56,7 +68,7 @@ export const SwitchAnatomy = defineStyleAnatomy({
     label: cva([
         "UI-Switch__label",
         "relative font-normal",
-        "data-[disabled=true]:text-gray-300",
+        "data-[disabled=true]:text-gray-300 cursor-pointer user-select-none select-none",
     ]),
 })
 
@@ -67,6 +79,7 @@ export const SwitchAnatomy = defineStyleAnatomy({
 export type SwitchProps = BasicFieldOptions &
     ComponentAnatomy<typeof SwitchAnatomy> &
     VariantProps<typeof SwitchAnatomy.root> &
+    VariantProps<typeof SwitchAnatomy.container> &
     Omit<React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>,
         "value" | "checked" | "disabled" | "required" | "defaultValue" | "defaultChecked" | "onCheckedChange"> & {
     /**
@@ -86,6 +99,7 @@ export type SwitchProps = BasicFieldOptions &
      */
     inputRef?: React.Ref<HTMLInputElement>
     className?: string
+    moreHelp?: React.ReactNode
 }
 
 export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, ref) => {
@@ -100,6 +114,8 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
         thumbClass,
         defaultValue,
         inputRef,
+        side,
+        moreHelp,
         ...rest
     }, { label, ...basicFieldProps }] = extractBasicFieldProps(props, React.useId())
 
@@ -122,8 +138,15 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
     }, [controlledValue])
 
     return (
-        <BasicField{...basicFieldProps} id={basicFieldProps.id}>
-            <div className={cn(SwitchAnatomy.container(), containerClass)}>
+        <BasicField
+            {...basicFieldProps}
+            id={basicFieldProps.id}
+            fieldClass={cn(
+                side === "right" && "group/switch hover:bg-white/5 rounded-md p-2 w-[calc(100%_+_1rem)] -ml-2",
+            )}
+            fieldHelpTextClass={cn("")}
+        >
+            <div className={cn(SwitchAnatomy.container({ side }), containerClass)}>
                 <SwitchPrimitive.Root
                     ref={mergeRefs([buttonRef, ref])}
                     id={basicFieldProps.id}
@@ -139,13 +162,23 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                 >
                     <SwitchPrimitive.Thumb className={cn(SwitchAnatomy.thumb({ size }), thumbClass)} />
                 </SwitchPrimitive.Root>
-                {!!label && <label
-                    className={cn(SwitchAnatomy.label(), labelClass)}
-                    htmlFor={basicFieldProps.id}
-                    data-disabled={basicFieldProps.disabled}
-                >
-                    {label}
-                </label>}
+                <div className="flex flex-1"></div>
+                {!!label && <div className="flex items-center gap-1">
+                    <label
+                        className={cn(
+                            SwitchAnatomy.label(),
+                            labelClass,
+                            side === "right" && "font-semibold transition-transform __group-hover/switch:-translate-y-0.5",
+                        )}
+                        htmlFor={basicFieldProps.id}
+                        data-disabled={basicFieldProps.disabled}
+                    >
+                        {label}
+                    </label>
+                    {moreHelp && <Popover className="text-sm" trigger={<AiOutlineQuestionCircle />}>
+                        {moreHelp}
+                    </Popover>}
+                </div>}
 
                 <input
                     ref={inputRef}

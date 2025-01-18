@@ -1,10 +1,10 @@
 import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Alert } from "@/components/ui/alert"
 import { Field } from "@/components/ui/form"
-import { Separator } from "@/components/ui/separator"
 import { TextInput } from "@/components/ui/text-input"
 import { getDefaultMpcSocket } from "@/lib/server/settings"
 import React from "react"
@@ -23,8 +23,6 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
     const serverStatus = useServerStatus()
 
-    const { externalPlayerLink, setExternalPlayerLink } = useExternalPlayerLink()
-
     return (
         <>
             <div>
@@ -35,130 +33,136 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
                 </p>
             </div>
 
-            <Field.Select
-                name="defaultPlayer"
-                label="Default player"
-                leftIcon={<FcVideoCall />}
-                options={[
-                    { label: "MPV", value: "mpv" },
-                    { label: "VLC", value: "vlc" },
-                    { label: "MPC-HC", value: "mpc-hc" },
-                ]}
-                help="Player that will be used to open files and track your progress automatically."
-            />
+            <SettingsCard>
+                <Field.Select
+                    name="defaultPlayer"
+                    label="Default player"
+                    leftIcon={<FcVideoCall />}
+                    options={[
+                        { label: "MPV", value: "mpv" },
+                        { label: "VLC", value: "vlc" },
+                        { label: "MPC-HC", value: "mpc-hc" },
+                    ]}
+                    help="Player that will be used to open files and track your progress automatically."
+                />
+            </SettingsCard>
 
-            <Separator />
+            <SettingsCard title="Playback">
+                <Field.Switch
+                    side="right"
+                    name="autoPlayNextEpisode"
+                    label="Automatically play next episode"
+                    help="If enabled, Seanime will play the next episode after a delay when the current episode is completed."
+                />
+            </SettingsCard>
 
-            <h4>Playback</h4>
-
-            <Field.Switch
-                name="autoPlayNextEpisode"
-                label="Automatically play next episode"
-                help="If enabled, Seanime will play the next episode after a delay when the current episode is completed."
-            />
-
-            <Separator />
+            <SettingsCard title="Configuration">
 
 
-            <h4>
-                Configuration
-            </h4>
+                <Field.Text
+                    name="mediaPlayerHost"
+                    label="Host"
+                    help="VLC/MPC-HC"
+                />
 
-            <Field.Text
-                name="mediaPlayerHost"
-                label="Host"
-                help="VLC/MPC-HC"
-            />
-
-            <Accordion
-                type="single"
-                className=""
-                triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
-                itemClass="border-b"
-                contentClass="pb-8"
-                collapsible
-            >
-                <AccordionItem value="vlc">
-                    <AccordionTrigger>
-                        <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
-                    </AccordionTrigger>
-                    <AccordionContent className="space-y-4">
-                        <div className="flex flex-col md:flex-row gap-4">
+                <Accordion
+                    type="single"
+                    className=""
+                    triggerClass="text-[--muted] dark:data-[state=open]:text-white px-0 dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white hover:text-black"
+                    itemClass=""
+                    contentClass="p-4 border rounded-md"
+                    collapsible
+                    defaultValue={serverStatus?.settings?.mediaPlayer?.defaultPlayer}
+                >
+                    <AccordionItem value="vlc">
+                        <AccordionTrigger>
+                            <h4 className="flex gap-2 items-center"><FcVlc /> VLC</h4>
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <Field.Text
+                                    name="vlcUsername"
+                                    label="Username"
+                                />
+                                <Field.Text
+                                    name="vlcPassword"
+                                    label="Password"
+                                />
+                                <Field.Number
+                                    name="vlcPort"
+                                    label="Port"
+                                    formatOptions={{
+                                        useGrouping: false,
+                                    }}
+                                    hideControls
+                                />
+                            </div>
                             <Field.Text
-                                name="vlcUsername"
-                                label="Username"
-                            />
-                            <Field.Text
-                                name="vlcPassword"
-                                label="Password"
-                            />
-                            <Field.Number
-                                name="vlcPort"
-                                label="Port"
-                                formatOptions={{
-                                    useGrouping: false,
-                                }}
-                                hideControls
-                            />
-                        </div>
-                        <Field.Text
-                            name="vlcPath"
-                            label="Application path"
-                        />
-                    </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="mpc-hc">
-                    <AccordionTrigger>
-                        <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <Field.Number
-                                name="mpcPort"
-                                label="Port"
-                                formatOptions={{
-                                    useGrouping: false,
-                                }}
-                                hideControls
-                            />
-                            <Field.Text
-                                name="mpcPath"
+                                name="vlcPath"
                                 label="Application path"
                             />
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
+                        </AccordionContent>
+                    </AccordionItem>
 
-                <AccordionItem value="mpv">
-                    <AccordionTrigger>
-                        <h4 className="flex gap-2 items-center"><HiPlay className="mr-1 text-purple-100" /> MPV</h4>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <div className="flex gap-4">
-                            <Field.Text
-                                name="mpvSocket"
-                                label="Socket"
-                                placeholder={`Default: '${getDefaultMpcSocket(serverStatus?.os ?? "")}'`}
-                            />
-                            <Field.Text
-                                name="mpvPath"
-                                label="Application path"
-                                placeholder={serverStatus?.os === "windows" ? "e.g. C:/Program Files/mpv/mpv.exe" : serverStatus?.os === "darwin"
-                                    ? "e.g. /Applications/mpv.app/Contents/MacOS/mpv"
-                                    : "Defaults to CLI"}
-                                help="Leave empty to use the CLI."
-                            />
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+                    <AccordionItem value="mpc-hc">
+                        <AccordionTrigger>
+                            <h4 className="flex gap-2 items-center"><FcClapperboard /> MPC-HC</h4>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <Field.Number
+                                    name="mpcPort"
+                                    label="Port"
+                                    formatOptions={{
+                                        useGrouping: false,
+                                    }}
+                                    hideControls
+                                />
+                                <Field.Text
+                                    name="mpcPath"
+                                    label="Application path"
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="mpv">
+                        <AccordionTrigger>
+                            <h4 className="flex gap-2 items-center"><HiPlay className="mr-1 text-purple-100" /> MPV</h4>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <div className="flex gap-4">
+                                <Field.Text
+                                    name="mpvSocket"
+                                    label="Socket"
+                                    placeholder={`Default: '${getDefaultMpcSocket(serverStatus?.os ?? "")}'`}
+                                />
+                                <Field.Text
+                                    name="mpvPath"
+                                    label="Application path"
+                                    placeholder={serverStatus?.os === "windows" ? "e.g. C:/Program Files/mpv/mpv.exe" : serverStatus?.os === "darwin"
+                                        ? "e.g. /Applications/mpv.app/Contents/MacOS/mpv"
+                                        : "Defaults to CLI"}
+                                    help="Leave empty to use the CLI."
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </SettingsCard>
 
             <SettingsSubmitButton isPending={isPending} />
 
-            <Separator className="!mt-10" />
-            <br />
+        </>
+    )
+}
 
+export function ExternalPlayerLinkSettings() {
+
+    const { externalPlayerLink, setExternalPlayerLink } = useExternalPlayerLink()
+
+    return (
+        <>
             <div>
                 <h3>
                     External player link
@@ -171,21 +175,22 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
             <Alert
                 intent="info" description={<>
-                This is device-specific.
+                Only applies to this device.
             </>}
             />
 
-            <TextInput
-                label="Custom scheme"
-                placeholder="Example: outplayer://{url}"
-                value={externalPlayerLink}
-                onValueChange={setExternalPlayerLink}
-            />
+            <SettingsCard>
+                <TextInput
+                    label="Custom scheme"
+                    placeholder="Example: outplayer://{url}"
+                    value={externalPlayerLink}
+                    onValueChange={setExternalPlayerLink}
+                />
+            </SettingsCard>
 
             <p className="italic text-sm text-[--muted]">
                 Changes are saved automatically.
             </p>
-
         </>
     )
 }

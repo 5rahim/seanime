@@ -54,7 +54,7 @@ export const enum ThemeMediaPageBannerSize {
 
 export const ThemeMediaPageBannerSizeOptions = [
     {
-        value: ThemeMediaPageBannerSize.Default as string, label: "Default",
+        value: ThemeMediaPageBannerSize.Default as string, label: "Large",
         description: "Fill a large portion of the screen.",
     },
     {
@@ -70,11 +70,11 @@ export const enum ThemeMediaPageInfoBoxSize {
 
 export const ThemeMediaPageInfoBoxSizeOptions = [
     {
-        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Default",
+        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Boxed",
         // description: "Display the media banner as a box",
     },
     {
-        value: ThemeMediaPageInfoBoxSize.Fluid as string, label: "Layout 2",
+        value: ThemeMediaPageInfoBoxSize.Fluid as string, label: "Fluid",
         // description: "Full-width info box with rearrangement of elements.",
     },
 ]
