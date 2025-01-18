@@ -9,6 +9,7 @@ import {
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,7 +19,6 @@ import { useSetAtom } from "jotai"
 import React from "react"
 import { MdOutlineDevices } from "react-icons/md"
 import { toast } from "sonner"
-import { __settings_tabAtom } from "../page"
 
 type PlaybackSettingsProps = {
     children?: React.ReactNode

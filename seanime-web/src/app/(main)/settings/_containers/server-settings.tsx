@@ -1,5 +1,7 @@
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { DataSettings } from "@/app/(main)/settings/_containers/data-settings"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
 import React from "react"
@@ -151,7 +153,7 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             </SettingsCard>
 
-            <SettingsCard title="Server settings">
+            <SettingsCard title="App settings">
                 <Field.Switch
                     side="right"
                     name="disableUpdateCheck"
@@ -171,6 +173,24 @@ export function ServerSettings(props: ServerSettingsProps) {
                     label="Open localhost web URL on startup"
                 />
             </SettingsCard>
+
+            <Accordion
+                type="single"
+                collapsible
+                className="border rounded-md"
+                triggerClass="dark:bg-[--paper]"
+                contentClass="!pt-2 dark:bg-[--paper]"
+            >
+                <AccordionItem value="more">
+                    <AccordionTrigger className="bg-gray-900 rounded-md">
+                        Advanced
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">
+                        <DataSettings />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+
 
             <SettingsSubmitButton isPending={isPending} />
 

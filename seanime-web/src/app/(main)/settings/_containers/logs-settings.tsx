@@ -6,6 +6,7 @@ import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
 import { DataGridRowSelectedEvent } from "@/components/ui/datagrid/use-datagrid-row-selection"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Select } from "@/components/ui/select"
 import { RowSelectionState } from "@tanstack/react-table"
 import React from "react"
 import { FaCopy } from "react-icons/fa"
@@ -23,6 +24,7 @@ export function LogsSettings(props: LogsSettingsProps) {
     const onSelectChange = React.useCallback((event: DataGridRowSelectedEvent<{ name: string }>) => {
         setSelectedFilenames(event.data)
     }, [])
+    const [globalFilter, setGlobalFilter] = React.useState<string>("")
 
     const { data: filenames, isLoading } = useGetLogFilenames()
 
@@ -45,26 +47,39 @@ export function LogsSettings(props: LogsSettingsProps) {
 
     return (
         <>
-            {selectedFilenames.length > 0 && (
-                <div className="flex items-center space-x-2">
-                    <Button
-                        onClick={() => deleteLogs({ filenames: selectedFilenames.map(f => f.name) }, {
-                            onSuccess: () => {
-                                setSelectedFilenames([])
-                                setRowSelection({})
-                            },
-                        })}
-                        intent="alert"
-                        loading={isDeleting}
-                        size="sm"
-                    >
-                        Delete selected
-                    </Button>
-                </div>
-            )}
-
 
             <SettingsCard>
+
+                <Select
+                    value={globalFilter === "seanime-" ? "seanime-" : globalFilter === "-scan" ? "-scan" : "-"}
+                    onValueChange={value => {
+                        setGlobalFilter(value === "-" ? "" : value)
+                    }}
+                    options={[
+                        { value: "-", label: "All" },
+                        { value: "seanime-", label: "Server" },
+                        { value: "-scan", label: "Scanner" },
+                    ]}
+                />
+
+                {selectedFilenames.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                        <Button
+                            onClick={() => deleteLogs({ filenames: selectedFilenames.map(f => f.name) }, {
+                                onSuccess: () => {
+                                    setSelectedFilenames([])
+                                    setRowSelection({})
+                                },
+                            })}
+                            intent="alert"
+                            loading={isDeleting}
+                            size="sm"
+                        >
+                            Delete selected
+                        </Button>
+                    </div>
+                )}
+
                 <DataGrid
                     data={filenamesObj}
                     columns={columns}
@@ -76,12 +91,14 @@ export function LogsSettings(props: LogsSettingsProps) {
                     initialState={{
                         pagination: {
                             pageIndex: 0,
-                            pageSize: 20,
+                            pageSize: 10,
                         },
                     }}
                     state={{
                         rowSelection,
+                        globalFilter,
                     }}
+                    hideGlobalSearchInput
                     hideColumns={[
                         // {
                         //     below: 1000,
@@ -90,6 +107,7 @@ export function LogsSettings(props: LogsSettingsProps) {
                     ]}
                     onRowSelect={onSelectChange}
                     onRowSelectionChange={setRowSelection}
+                    onGlobalFilterChange={setGlobalFilter}
                     className=""
                 />
             </SettingsCard>

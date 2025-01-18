@@ -8,8 +8,8 @@ import { __issueReport_overlayOpenAtom } from "@/app/(main)/_features/issue-repo
 import { useServerStatus, useSetServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { ExternalPlayerLinkSettings, MediaplayerSettings } from "@/app/(main)/settings/_components/mediaplayer-settings"
 import { PlaybackSettings } from "@/app/(main)/settings/_components/playback-settings"
+import { __settings_tabAtom } from "@/app/(main)/settings/_components/settings-page.atoms"
 import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
-import { DataSettings } from "@/app/(main)/settings/_containers/data-settings"
 import { DebridSettings } from "@/app/(main)/settings/_containers/debrid-settings"
 import { FilecacheSettings } from "@/app/(main)/settings/_containers/filecache-settings"
 import { LibrarySettings } from "@/app/(main)/settings/_containers/library-settings"
@@ -26,7 +26,7 @@ import { cn } from "@/components/ui/core/styling"
 import { Field, Form } from "@/components/ui/form"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DEFAULT_TORRENT_CLIENT, DEFAULT_TORRENT_PROVIDER, settingsSchema, TORRENT_PROVIDER } from "@/lib/server/settings"
-import { atom, useSetAtom } from "jotai"
+import { useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
 import { useRouter } from "next/navigation"
@@ -35,7 +35,6 @@ import { UseFormReturn } from "react-hook-form"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
 import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FaShareFromSquare } from "react-icons/fa6"
-import { FiDatabase } from "react-icons/fi"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
@@ -62,8 +61,6 @@ const tabsListClass = cn(
 )
 
 export const dynamic = "force-static"
-
-export const __settings_tabAtom = atom<string>("seanime")
 
 export default function Page() {
     const status = useServerStatus()
@@ -156,7 +153,7 @@ export default function Page() {
                             {/* <Separator className="hidden lg:block my-2" /> */}
                             <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
                             <TabsTrigger value="logs"><LuBookKey className="text-lg mr-3" /> Logs</TabsTrigger>
-                            <TabsTrigger value="data"><FiDatabase className="text-lg mr-3" /> Data</TabsTrigger>
+                            {/*<TabsTrigger value="data"><FiDatabase className="text-lg mr-3" /> Data</TabsTrigger>*/}
                             {/* <Separator className="hidden lg:block my-2" /> */}
                             <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
                         </SettingsNavCard>
@@ -310,7 +307,7 @@ export default function Page() {
                                     <SettingsIsDirty />
                                     <TabsContent value="seanime" className="space-y-4">
 
-                                        <h3>Server</h3>
+                                        <h3>App</h3>
 
                                         <div className="flex flex-wrap gap-2">
                                             {!!status?.dataDir && <Button
@@ -651,11 +648,11 @@ export default function Page() {
                         </TabsContent>
 
 
-                        <TabsContent value="data" className="space-y-4">
+                        {/*<TabsContent value="data" className="space-y-4">*/}
 
-                            <DataSettings />
+                        {/*    <DataSettings />*/}
 
-                        </TabsContent>
+                        {/*</TabsContent>*/}
 
                         <TabsContent value="debrid" className="space-y-4 relative">
 
