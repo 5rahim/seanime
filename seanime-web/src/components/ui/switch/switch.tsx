@@ -175,7 +175,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                     >
                         {label}
                     </label>
-                    {moreHelp && <Popover className="text-sm" trigger={<AiOutlineQuestionCircle />}>
+                    {moreHelp && <Popover className="text-sm" trigger={<AiOutlineQuestionCircle className="transition-opacity hover:opacity-50" />}>
                         {moreHelp}
                     </Popover>}
                 </div>}
