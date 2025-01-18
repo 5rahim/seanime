@@ -2,9 +2,6 @@ package sync
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -15,6 +12,10 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
 	"seanime/internal/platforms/platform"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 var (
@@ -245,11 +246,13 @@ func (m *ManagerImpl) AddAnime(mId int) error {
 
 	// Check if the anime is in the user's anime collection
 	if m.animeCollection.IsAbsent() {
-		return fmt.Errorf("sync: Anime collection not set")
+		m.logger.Error().Msg("sync: Anime collection not set")
+		return fmt.Errorf("anime collection not set")
 	}
 
 	if _, found := m.animeCollection.MustGet().GetListEntryFromAnimeId(mId); !found {
-		return fmt.Errorf("sync: Anime %d not found in user's anime collection", mId)
+		m.logger.Error().Msgf("sync: Anime %d not found in user's anime collection", mId)
+		return fmt.Errorf("anime is not in AniList collection")
 	}
 
 	if _, found := m.localDb.GetTrackedMedia(mId, AnimeType); found {
@@ -258,7 +261,8 @@ func (m *ManagerImpl) AddAnime(mId int) error {
 
 	err := m.localDb.gormdb.Create(s).Error
 	if err != nil {
-		return fmt.Errorf("sync: Failed to add anime %d to local database: %w", mId, err)
+		m.logger.Error().Msgf("sync: Failed to add anime %d to local database: %w", mId, err)
+		return fmt.Errorf("failed to add anime %d to local database: %w", mId, err)
 	}
 
 	return nil
@@ -269,7 +273,8 @@ func (m *ManagerImpl) RemoveAnime(mId int) error {
 	m.logger.Trace().Msgf("sync: Removing anime %d from local database", mId)
 
 	if _, found := m.localDb.GetTrackedMedia(mId, AnimeType); !found {
-		return fmt.Errorf("sync: Anime %d not in local database", mId)
+		m.logger.Error().Msgf("sync: Anime %d not in local database", mId)
+		return fmt.Errorf("anime is not in local database")
 	}
 
 	err := m.removeAnime(mId)
@@ -298,11 +303,13 @@ func (m *ManagerImpl) AddManga(mId int) error {
 
 	// Check if the manga is in the user's manga collection
 	if m.mangaCollection.IsAbsent() {
-		return fmt.Errorf("sync: Manga collection not set")
+		m.logger.Error().Msg("sync: Manga collection not set")
+		return fmt.Errorf("manga collection not set")
 	}
 
 	if _, found := m.mangaCollection.MustGet().GetListEntryFromMangaId(mId); !found {
-		return fmt.Errorf("sync: Manga %d not found in user's manga collection", mId)
+		m.logger.Error().Msgf("sync: Manga %d not found in user's manga collection", mId)
+		return fmt.Errorf("manga is not in AniList collection")
 	}
 
 	if _, found := m.localDb.GetTrackedMedia(mId, MangaType); found {
@@ -311,7 +318,8 @@ func (m *ManagerImpl) AddManga(mId int) error {
 
 	err := m.localDb.gormdb.Create(s).Error
 	if err != nil {
-		return fmt.Errorf("sync: Failed to add manga %d to local database: %w", mId, err)
+		m.logger.Error().Msgf("sync: Failed to add manga %d to local database: %w", mId, err)
+		return fmt.Errorf("failed to add manga %d to local database: %w", mId, err)
 	}
 
 	return nil
@@ -322,7 +330,8 @@ func (m *ManagerImpl) RemoveManga(mId int) error {
 	m.logger.Trace().Msgf("sync: Removing manga %d from local database", mId)
 
 	if _, found := m.localDb.GetTrackedMedia(mId, MangaType); !found {
-		return fmt.Errorf("sync: Manga %d not in local database", mId)
+		m.logger.Error().Msgf("sync: Manga %d not in local database", mId)
+		return fmt.Errorf("manga is not in local database")
 	}
 
 	err := m.removeManga(mId)

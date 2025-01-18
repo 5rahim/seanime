@@ -263,7 +263,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                     />
                 </Popover>}
 
-                <p className="hidden lg:flex gap-4 items-center text-[--muted]">
+                <div className="hidden lg:flex gap-4 items-center text-[--muted]">
                     <div className="hidden lg:block">
                         <p className="text-[--muted] text-sm">{selectedChapter?.provider}</p>
                     </div>
@@ -285,7 +285,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             <span>{MANGA_READING_DIRECTION_OPTIONS.find((option) => option.value === readingDirection)?.label}</span>
                         </span>
                     )}
-                </p>
+                </div>
 
                 <ChapterReaderSettings mediaId={entry.mediaId} />
             </div>
