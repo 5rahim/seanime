@@ -10,6 +10,7 @@ export const BadgeAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Badge__root",
         "inline-flex flex-none text-base w-fit overflow-hidden justify-center items-center gap-2",
+        "group/badge",
     ], {
         variants: {
             intent: {
