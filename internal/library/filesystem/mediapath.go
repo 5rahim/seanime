@@ -33,6 +33,7 @@ func SeparateFilePath(path string, prefixPath string) *SeparatedFilePath {
 }
 
 // GetMediaFilePathsFromDir returns a slice of strings containing the paths of all the media files in a directory.
+// DEPRECATED: Use GetMediaFilePathsFromDirS instead.
 func GetMediaFilePathsFromDir(dirPath string) ([]string, error) {
 	filePaths := make([]string, 0)
 
@@ -112,7 +113,7 @@ func GetMediaFilePathsFromDirS(oDirPath string) ([]string, error) {
 			}
 
 			ext := strings.ToLower(filepath.Ext(path))
-			if util.IsValidVideoExtension(ext) {
+			if util.IsValidMediaFile(path) && util.IsValidVideoExtension(ext) {
 				filePaths = append(filePaths, path)
 			}
 			return nil
