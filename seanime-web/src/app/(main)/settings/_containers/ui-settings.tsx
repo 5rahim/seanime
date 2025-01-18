@@ -105,6 +105,7 @@ export function UISettings() {
                         if (data.enableColorSettings !== prevEnableColorSettings && !data.enableColorSettings) {
                             window.location.reload()
                         }
+                        formRef.current?.reset(formRef.current?.getValues())
                     },
                 })
             }}
