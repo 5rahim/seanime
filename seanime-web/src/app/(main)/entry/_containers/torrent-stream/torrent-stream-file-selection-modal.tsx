@@ -98,6 +98,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
         />
     }, [filePreviews, selectedFileIdx])
 
+
     return (
         <Modal
             open={!!selectedTorrent}

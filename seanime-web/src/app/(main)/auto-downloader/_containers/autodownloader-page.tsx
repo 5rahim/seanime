@@ -1,6 +1,6 @@
 import { useGetAutoDownloaderItems, useGetAutoDownloaderRules, useRunAutoDownloader } from "@/api/hooks/auto_downloader.hooks"
 import { useSaveAutoDownloaderSettings } from "@/api/hooks/settings.hooks"
-import { __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
 import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-batch-rule-form"
@@ -41,7 +41,7 @@ const settingsSchema = defineSchema(({ z }) => z.object({
 
 export function AutoDownloaderPage() {
     const serverStatus = useServerStatus()
-    const userMedia = useAtomValue(__anilist_userMediaAtom)
+    const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
 
     const createRuleModal = useBoolean(false)
     const createBatchRuleModal = useBoolean(false)

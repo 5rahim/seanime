@@ -27,7 +27,7 @@ export const CommandAnatomy = defineStyleAnatomy({
     ]),
     list: cva([
         "UI-Command__list",
-        "max-h-64 overflow-y-auto overflow-x-hidden",
+        "max-h-[300px] overflow-y-auto overflow-x-hidden",
     ]),
     empty: cva([
         "UI-Command__empty",
@@ -45,7 +45,8 @@ export const CommandAnatomy = defineStyleAnatomy({
     item: cva([
         "UI-Command__item",
         "relative flex cursor-default select-none items-center rounded-[--radius] px-2 py-1.5 text-base outline-none",
-        "aria-selected:bg-[--subtle] data-disabled:pointer-events-none data-disabled:opacity-50",
+        "aria-selected:bg-[--subtle] data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
+        "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
     ]),
     itemIconContainer: cva([
         "UI-Command__itemIconContainer",
@@ -282,6 +283,7 @@ export const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>((p
             ref={ref}
             className={cn(CommandAnatomy.item(), itemClass, className)}
             {...rest}
+            data-cmdkvalue={rest.id}
         >
             {leftIcon && (
                 <span className={cn(CommandAnatomy.itemIconContainer(), _itemIconContainerClass, itemIconContainerClass)}>
@@ -319,18 +321,22 @@ CommandShortcut.displayName = "CommandShortcut"
  * CommandDialog
  * -----------------------------------------------------------------------------------------------*/
 
-export type CommandDialogProps = ModalProps & ComponentAnatomy<typeof CommandDialogAnatomy>
+export type CommandDialogProps = ModalProps & ComponentAnatomy<typeof CommandDialogAnatomy> & {
+    commandProps: React.ComponentPropsWithoutRef<typeof CommandPrimitive>
+}
 
 export const CommandDialog = (props: CommandDialogProps) => {
-    const { children, commandClass, contentClass, ...rest } = props
+    const { children, commandClass, contentClass, commandProps, ...rest } = props
     return (
         <Modal
             {...rest}
             contentClass={cn(CommandDialogAnatomy.content(), contentClass)}
         >
-            <Command className={cn(CommandDialogAnatomy.command(), commandClass)}>
+            <Command shouldFilter={false} className={cn(CommandDialogAnatomy.command(), commandClass)} {...commandProps}>
                 {children}
             </Command>
         </Modal>
     )
 }
+
+CommandDialog.displayName = "CommandDialog"

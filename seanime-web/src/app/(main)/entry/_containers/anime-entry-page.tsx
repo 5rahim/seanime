@@ -2,6 +2,7 @@ import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
+import { useSetSeaCommandParams } from "@/app/(main)/_features/sea-command/sea-command.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -101,6 +102,13 @@ export function AnimeEntryPage() {
     // Reset view when unmounting
     useUnmount(() => {
         setView("library")
+    })
+
+    useSetSeaCommandParams({
+        page: "anime-entry",
+        pageParams: {
+            entry: animeEntry,
+        },
     })
 
     if (animeEntryLoading || animeDetailsLoading) return <MediaEntryPageLoadingDisplay />

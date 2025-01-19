@@ -126,7 +126,6 @@ export function Modal(props: ModalProps) {
         <DialogPrimitive.Portal>
             <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)}>
 
-
                 {/*<div className="flex w-full justify-center h-full items-center">*/}
                 <DialogPrimitive.Content
                     className={cn(ModalAnatomy.content(), contentClass)}
@@ -136,20 +135,22 @@ export function Modal(props: ModalProps) {
                     onPointerDownCapture={onPointerDownCapture}
                     onInteractOutside={onInteractOutside}
                 >
-
-                    {(title || description) && <div className={cn(ModalAnatomy.header(), headerClass)}>
-                        {title ? <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
+                    {!title && !description ? (
+                        <VisuallyHidden>
+                            <DialogPrimitive.Title>Dialog</DialogPrimitive.Title>
+                        </VisuallyHidden>
+                    ) : (
+                        <div className={cn(ModalAnatomy.header(), headerClass)}>
+                            <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
                                 {title}
-                            </DialogPrimitive.Title> :
-                            <DialogPrimitive.Title>
-                                <VisuallyHidden>
-                                    N/A
-                                </VisuallyHidden>
-                            </DialogPrimitive.Title>}
-                        {description && <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
-                            {description}
-                        </DialogPrimitive.Description>}
-                    </div>}
+                            </DialogPrimitive.Title>
+                            {description && (
+                                <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
+                                    {description}
+                                </DialogPrimitive.Description>
+                            )}
+                        </div>
+                    )}
 
                     {children}
 

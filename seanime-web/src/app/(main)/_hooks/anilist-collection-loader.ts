@@ -1,6 +1,6 @@
 import { Anime_EntryListData, Nullish } from "@/api/generated/types"
 import { useGetAnimeCollection } from "@/api/hooks/anilist.hooks"
-import { __anilist_userAnimeListDataAtom, __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __anilist_userAnimeListDataAtom, __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useAtomValue, useSetAtom } from "jotai/react"
 import React from "react"
 
@@ -9,7 +9,7 @@ import React from "react"
  * - Fetches the Anilist collection
  */
 export function useAnimeCollectionLoader() {
-    const setAnilistUserMedia = useSetAtom(__anilist_userMediaAtom)
+    const setAnilistUserMedia = useSetAtom(__anilist_userAnimeMediaAtom)
 
     const setAnilistUserMediaListData = useSetAtom(__anilist_userAnimeListDataAtom)
 
@@ -43,7 +43,7 @@ export function useAnimeCollectionLoader() {
 }
 
 export function useAnilistUserAnime() {
-    return useAtomValue(__anilist_userMediaAtom)
+    return useAtomValue(__anilist_userAnimeMediaAtom)
 }
 
 export function useAnilistUserAnimeListData(mId: Nullish<number | string>): Anime_EntryListData | undefined {

@@ -105,7 +105,21 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
     }, [mediaId])
 
     function goToNextEpisode() {
-        handleChangeEpisodeNumber(currentEpisodeNumber + 1 < maxEp ? currentEpisodeNumber + 1 : currentEpisodeNumber)
+        if (currentEpisodeNumber < maxEp) {
+            // check if the episode exists
+            if (episodes?.find(e => e.number === currentEpisodeNumber + 1)) {
+                handleChangeEpisodeNumber(currentEpisodeNumber + 1)
+            }
+        }
+    }
+
+    function goToPreviousEpisode() {
+        if (currentEpisodeNumber > 1) {
+            // check if the episode exists
+            if (episodes?.find(e => e.number === currentEpisodeNumber - 1)) {
+                handleChangeEpisodeNumber(currentEpisodeNumber - 1)
+            }
+        }
     }
 
     function onProviderChange(
@@ -209,6 +223,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
                             onProviderSetup={onProviderSetup}
                             onCanPlay={_onCanPlay}
                             onGoToNextEpisode={goToNextEpisode}
+                            onGoToPreviousEpisode={goToPreviousEpisode}
                             tracks={episodeSource?.subtitles?.map((sub) => ({
                                 id: sub.language,
                                 label: sub.language,

@@ -142,7 +142,8 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
             {...basicFieldProps}
             id={basicFieldProps.id}
             fieldClass={cn(
-                side === "right" && "group/switch hover:bg-white/5 rounded-md p-2 w-[calc(100%_+_1rem)] -ml-2",
+                "w-fit",
+                side === "right" && "w-full group/switch hover:bg-white/5 rounded-md p-2 w-[calc(100%_+_1rem)] -ml-2",
             )}
             fieldHelpTextClass={cn("")}
         >

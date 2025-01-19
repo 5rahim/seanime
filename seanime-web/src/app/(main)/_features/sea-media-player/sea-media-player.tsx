@@ -1,5 +1,6 @@
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/sea-command.atoms"
 import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
 import { SeaMediaPlayerPlaybackSubmenu } from "@/app/(main)/_features/sea-media-player/sea-media-player-components"
 import {
@@ -27,6 +28,7 @@ import {
     MediaCanPlayEvent,
     MediaDurationChangeEvent,
     MediaEndedEvent,
+    MediaFullscreenChangeEvent,
     MediaPlayer,
     MediaPlayerInstance,
     MediaProvider,
@@ -39,13 +41,11 @@ import {
     type TrackProps,
 } from "@vidstack/react"
 import { DefaultVideoLayout, DefaultVideoLayoutProps } from "@vidstack/react/player/layouts/default"
-import { atom, useAtomValue } from "jotai"
+import { useAtomValue } from "jotai"
 import { useAtom } from "jotai/react"
 import mousetrap from "mousetrap"
 import Image from "next/image"
 import React from "react"
-
-const fullscreenAtom = atom(false)
 
 export type SeaMediaPlayerProps = {
     url?: string
@@ -65,6 +65,7 @@ export type SeaMediaPlayerProps = {
     settingsItems?: React.ReactElement
     loadingText?: React.ReactNode
     onGoToNextEpisode: () => void
+    onGoToPreviousEpisode?: () => void
 }
 
 type ChapterProps = {
@@ -91,6 +92,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         onTimeUpdate: _onTimeUpdate,
         onDurationChange: _onDurationChange,
         onGoToNextEpisode,
+        onGoToPreviousEpisode,
         settingsItems,
     } = props
 
@@ -119,6 +121,9 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
     const watchHistoryRef = React.useRef<number>(0)
     const checkTimeRef = React.useRef<number>(0)
+
+    // Track last focused element
+    const lastFocusedElementRef = React.useRef<HTMLElement | null>(null)
 
     /** AniSkip **/
     const { data: aniSkipData } = useSkipData(media?.idMal, progress.currentEpisodeNumber ?? -1)
@@ -318,6 +323,74 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         }
     }, [])
 
+    const { inject, remove } = useSeaCommandInject()
+
+    React.useEffect(() => {
+
+        inject("media-player-controls", {
+            items: [
+                {
+                    id: "toggle-play",
+                    value: "toggle-play",
+                    heading: "Controls",
+                    priority: 100,
+                    render: ({ onSelect }) => (
+                        <>
+                            <p>Toggle Play</p>
+                        </>
+                    ),
+                    onSelect: () => {
+                        if (playerRef.current?.paused) {
+                            playerRef.current?.play()
+                        } else {
+                            playerRef.current?.pause()
+                        }
+                    },
+                },
+                {
+                    id: "fullscreen",
+                    value: "fullscreen",
+                    heading: "Controls",
+                    priority: 99,
+                    render: ({ onSelect }) => (
+                        <>
+                            <p>Fullscreen</p>
+                        </>
+                    ),
+                    onSelect: () => {
+                        playerRef.current?.enterFullscreen()
+                    },
+                },
+                {
+                    id: "next-episode",
+                    value: "next-episode",
+                    heading: "Controls",
+                    priority: 98,
+                    render: ({ onSelect }) => (
+                        <>
+                            <p>Next Episode</p>
+                        </>
+                    ),
+                    onSelect: () => onGoToNextEpisode(),
+                },
+                {
+                    id: "previous-episode",
+                    value: "previous-episode",
+                    heading: "Controls",
+                    priority: 97,
+                    render: ({ onSelect }) => (
+                        <>
+                            <p>Previous Episode</p>
+                        </>
+                    ),
+                    onSelect: () => onGoToPreviousEpisode?.(),
+                },
+            ],
+        })
+
+        return () => remove("media-player-controls")
+    }, [onGoToNextEpisode, onGoToPreviousEpisode])
+
     return (
         <div className="aspect-video relative w-full self-start mx-auto">
             {isPlaybackError ? (
@@ -335,6 +408,17 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     controlsDelay={discreteControls ? 500 : undefined}
                     className={cn(discreteControls && "discrete-controls")}
                     onProviderChange={onProviderChange}
+                    onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
+                        if (isFullscreen) {
+                            // Store the currently focused element
+                            lastFocusedElementRef.current = document.activeElement as HTMLElement
+                        } else {
+                            // Restore focus
+                            setTimeout(() => {
+                                lastFocusedElementRef.current?.focus()
+                            }, 100)
+                        }
+                    }}
                     onProviderSetup={onProviderSetup}
                     volume={volume}
                     onVolumeChange={detail => setVolume(detail.volume)}

@@ -201,10 +201,8 @@ func NewEpisode(opts *NewEpisodeOptions) *Episode {
 			if episodeInt, ok := metadata.ExtractEpisodeInteger(opts.OptionalAniDBEpisode); ok {
 				entryEp.EpisodeNumber = episodeInt
 				entryEp.ProgressNumber = episodeInt
-				if foundAnizipEpisode {
-					entryEp.AniDBEpisode = opts.OptionalAniDBEpisode
-					entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnimeMetadata.GetOffset()
-				}
+				entryEp.AniDBEpisode = opts.OptionalAniDBEpisode
+				entryEp.AbsoluteEpisodeNumber = entryEp.EpisodeNumber + opts.AnimeMetadata.GetOffset()
 				switch entryEp.Type {
 				case LocalFileTypeMain:
 					if *opts.Media.GetFormat() == anilist.MediaFormatMovie {

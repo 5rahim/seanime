@@ -1,4 +1,4 @@
-import { AL_AnimeListEntry, AL_MangaListEntry, Nullish } from "@/api/generated/types"
+import { AL_AnimeListEntry, AL_BaseAnime, AL_MangaListEntry, Nullish } from "@/api/generated/types"
 
 export function anilist_getListDataFromEntry(entry: Nullish<AL_AnimeListEntry | AL_MangaListEntry>) {
     return {
@@ -12,5 +12,17 @@ export function anilist_getListDataFromEntry(entry: Nullish<AL_AnimeListEntry | 
             entry?.completedAt?.month ? entry?.completedAt?.month - 1 : 0,
             entry?.completedAt?.day || 0).toUTCString(),
     }
+}
+
+
+export function anilist_animeIsMovie(anime: Nullish<AL_BaseAnime>) {
+    if (!anime) return false
+    return anime?.format === "MOVIE"
+
+}
+
+export function anilist_animeIsSingleEpisode(anime: Nullish<AL_BaseAnime>) {
+    if (!anime) return false
+    return anime?.format === "MOVIE" || anime?.episodes === 1
 }
 

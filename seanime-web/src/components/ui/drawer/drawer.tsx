@@ -204,20 +204,22 @@ export function Drawer(props: DrawerProps) {
                     onInteractOutside={onInteractOutside}
                     tabIndex={-1}
                 >
-
-                    {(title || description) && <div className={cn(DrawerAnatomy.header(), headerClass)}>
-                        {title ? <DialogPrimitive.Title className={cn(DrawerAnatomy.title(), titleClass)}>
+                    {!title && !description ? (
+                        <VisuallyHidden>
+                            <DialogPrimitive.Title>Drawer</DialogPrimitive.Title>
+                        </VisuallyHidden>
+                    ) : (
+                        <div className={cn(DrawerAnatomy.header(), headerClass)}>
+                            <DialogPrimitive.Title className={cn(DrawerAnatomy.title(), titleClass)}>
                                 {title}
-                            </DialogPrimitive.Title> :
-                            <DialogPrimitive.Title>
-                                <VisuallyHidden>
-                                    N/A
-                                </VisuallyHidden>
-                            </DialogPrimitive.Title>}
-                        {description && <DialogPrimitive.Description className={cn(DrawerAnatomy.description(), descriptionClass)}>
-                            {description}
-                        </DialogPrimitive.Description>}
-                    </div>}
+                            </DialogPrimitive.Title>
+                            {description && (
+                                <DialogPrimitive.Description className={cn(DrawerAnatomy.description(), descriptionClass)}>
+                                    {description}
+                                </DialogPrimitive.Description>
+                            )}
+                        </div>
+                    )}
 
                     {children}
 

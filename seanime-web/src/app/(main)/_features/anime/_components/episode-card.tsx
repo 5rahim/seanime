@@ -82,7 +82,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                 <div className="absolute w-full h-full rounded-lg overflow-hidden z-[1]">
                     {!!image ? <Image
                         src={getImageUrl(image)}
-                        alt={""}
+                        alt={"episode image"}
                         fill
                         quality={100}
                         placeholder={imageShimmer(700, 475)}

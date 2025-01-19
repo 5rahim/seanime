@@ -54,23 +54,14 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 <p className="text-[--muted]">
                     Configure how anime is played on this device.
                 </p>
+                <p className="text-[--muted]">
+                    These settings do not apply to the playlists.
+                </p>
             </div>
 
             <p className="">
                 Current client: {serverStatus?.clientDevice || "N/A"}, {serverStatus?.clientPlatform || "N/A"}.
             </p>
-
-            {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
-                <Alert
-                    intent="alert" description={<>
-                    External player link is not set. <Button
-                    intent="white-link" className="h-5 px-1" onClick={() => {
-                    setTab("external-player-link")
-                }}
-                >Set external player link</Button>
-                </>}
-                />
-            )}
 
             <SettingsCard title="Downloaded media" description="Player to use for downloaded media.">
                 <RadioGroup
@@ -95,26 +86,26 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                     itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
                 />
 
-                {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
-                    <>
-                        {serverStatus?.mediastreamSettings?.transcodeEnabled && <div className="flex gap-4 items-center rounded-md">
-                            <MdOutlineDevices className="text-4xl" />
-                            <div className="space-y-1">
-                                <Checkbox
-                                    value={activeOnDevice ?? false}
-                                    onValueChange={v => {
-                                        setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)
-                                        if (v) {
-                                            toast.success("Media streaming is now active on this device.")
-                                        } else {
-                                            toast.info("Media streaming is now inactive on this device.")
-                                        }
-                                    }}
-                                    label="Use media streaming on this device"
-                                />
-                            </div>
-                        </div>}
+                <>
+                    {serverStatus?.mediastreamSettings?.transcodeEnabled && <div className="flex gap-4 items-center rounded-md">
+                        <MdOutlineDevices className="text-4xl" />
+                        <div className="space-y-1">
+                            <Checkbox
+                                value={activeOnDevice ?? false}
+                                onValueChange={v => {
+                                    setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)
+                                    if (v) {
+                                        toast.success("Media streaming is now active on this device.")
+                                    } else {
+                                        toast.info("Media streaming is now inactive on this device.")
+                                    }
+                                }}
+                                label="Use media streaming on this device"
+                            />
+                        </div>
+                    </div>}
 
+                    {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
                         <Alert
                             intent="success" description={<>
                             Using <span className="font-semibold">{(serverStatus?.mediastreamSettings?.transcodeEnabled && activeOnDevice)
@@ -122,8 +113,26 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             : "desktop media player"}</span> for downloaded media.
                         </>}
                         />
-                    </>
-                )}
+                    )}
+                    {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
+                        <Alert
+                            intent="alert" description={<>
+                            External player link is not set. <Button
+                            intent="white-link" className="h-5 px-1" onClick={() => {
+                            setTab("external-player-link")
+                        }}
+                        >Set external player link</Button>
+                        </>}
+                        />
+                    )}
+                    {(downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink && !!externalPlayerLink) && (
+                        <Alert
+                            intent="success" description={<>
+                            Using <span className="font-semibold">external player link</span> for downloaded media.
+                        </>}
+                        />
+                    )}
+                </>
             </SettingsCard>
 
             <SettingsCard title="Torrent/Debrid streaming" description="Player to use for torrent and debrid streaming.">
@@ -149,6 +158,14 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                         "absolute top-2 right-2",
                     )}
                     itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+                />
+
+                <Alert
+                    intent="success" description={<>
+                    Using <span className="font-semibold">{(torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)
+                    ? "external player link"
+                    : "desktop media player"}</span> for torrent/debrid streaming.
+                </>}
                 />
             </SettingsCard>
 

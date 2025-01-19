@@ -8,6 +8,7 @@ import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-w
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
+import { SeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
 import { useAnimeCollectionLoader } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useAnimeLibraryCollectionLoader } from "@/app/(main)/_hooks/anime-library-collection-loader"
 import { useMissingEpisodesLoader } from "@/app/(main)/_hooks/missing-episodes-loader"
@@ -59,6 +60,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaybackManagerProgressTracking />
             <ManualProgressTracking />
             <IssueReport />
+            <SeaCommand />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

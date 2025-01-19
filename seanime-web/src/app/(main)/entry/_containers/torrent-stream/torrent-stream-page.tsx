@@ -1,5 +1,6 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/sea-command.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __torrentSearch_drawerEpisodeAtom,
@@ -126,6 +127,37 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
             })
             // toast.info("Starting torrent stream...")
         }
+
+    const { inject, remove } = useSeaCommandInject()
+
+    // Inject episodes into command palette when they're loaded
+    React.useEffect(() => {
+        if (!episodeCollection?.episodes?.length) return
+
+        inject("torrent-stream-episodes", {
+            items: episodeCollection.episodes.map(episode => ({
+                id: `episode-${episode.episodeNumber}`,
+                value: `${episode.episodeNumber}`,
+                heading: "Episodes",
+                render: ({ onSelect }) => (
+                    <div className="flex gap-1 items-center w-full">
+                        <p className="max-w-[70%] truncate">{episode.displayTitle}</p>
+                        {!!episode.episodeTitle && (
+                            <p className="text-[--muted] flex-1 truncate">- {episode.episodeTitle}</p>
+                        )}
+                    </div>
+                ),
+                onSelect: () => handleEpisodeClick(episode),
+            })),
+            // Optional custom filter
+            filter: (item, input) => {
+                if (!input) return true
+                return item.value.toLowerCase().includes(input.toLowerCase())
+            },
+        })
+
+        return () => remove("torrent-stream-episodes")
+    }, [episodeCollection?.episodes])
 
     if (!entry.media) return null
     if (isLoading) return <LoadingSpinner />
