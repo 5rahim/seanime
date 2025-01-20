@@ -7,3 +7,9 @@ export function BetaBadge(props: Props) {
         <Badge intent="warning" size="sm" className="align-middle ml-1.5" {...props}>Experimental</Badge>
     )
 }
+
+export function AlphaBadge(props: Props) {
+    return (
+        <Badge intent="warning" size="sm" className="align-middle ml-1.5" {...props}>Alpha</Badge>
+    )
+}

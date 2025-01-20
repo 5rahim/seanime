@@ -2,7 +2,7 @@ import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
-import { useSetSeaCommandParams } from "@/app/(main)/_features/sea-command/sea-command.atoms"
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -69,29 +69,28 @@ export function AnimeEntryPage() {
 
     const switchedView = React.useRef(false)
     React.useLayoutEffect(() => {
-            if (!animeEntryLoading &&
-                animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
-                !animeEntry?.libraryData && // Anime is not in library
-                isLibraryView && // Current view is library
-                (
-                    // If any of the fallbacks are enabled and the view has not been switched yet
-                    (serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary) ||
-                    (serverStatus?.debridSettings?.enabled && serverStatus?.debridSettings?.includeDebridStreamInLibrary) ||
-                    (serverStatus?.settings?.library?.enableOnlinestream && serverStatus?.settings?.library?.includeOnlineStreamingInLibrary)
-                ) &&
-                !switchedView.current // View has not been switched yet
-            ) {
-                switchedView.current = true
-                if (serverStatus?.debridSettings?.enabled && serverStatus?.debridSettings?.includeDebridStreamInLibrary) {
-                    setView("debridstream")
-                } else if (serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary) {
-                    setView("torrentstream")
-                } else if (serverStatus?.settings?.library?.enableOnlinestream && serverStatus?.settings?.library?.includeOnlineStreamingInLibrary) {
-                    setView("onlinestream")
-                }
+        if (!animeEntryLoading &&
+            animeEntry?.media?.status !== "NOT_YET_RELEASED" && // Anime is not yet released
+            !animeEntry?.libraryData && // Anime is not in library
+            isLibraryView && // Current view is library
+            (
+                // If any of the fallbacks are enabled and the view has not been switched yet
+                (serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary) ||
+                (serverStatus?.debridSettings?.enabled && serverStatus?.debridSettings?.includeDebridStreamInLibrary) ||
+                (serverStatus?.settings?.library?.enableOnlinestream && serverStatus?.settings?.library?.includeOnlineStreamingInLibrary)
+            ) &&
+            !switchedView.current // View has not been switched yet
+        ) {
+            switchedView.current = true
+            if (serverStatus?.debridSettings?.enabled && serverStatus?.debridSettings?.includeDebridStreamInLibrary) {
+                setView("debridstream")
+            } else if (serverStatus?.torrentstreamSettings?.enabled && serverStatus?.torrentstreamSettings?.includeInLibrary) {
+                setView("torrentstream")
+            } else if (serverStatus?.settings?.library?.enableOnlinestream && serverStatus?.settings?.library?.includeOnlineStreamingInLibrary) {
+                setView("onlinestream")
             }
-        },
-        [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])
+        }
+    }, [animeEntryLoading, searchParams, serverStatus?.torrentstreamSettings?.includeInLibrary, currentView])
 
     React.useEffect(() => {
         if (!mediaId || (!animeEntryLoading && !animeEntry)) {
@@ -104,12 +103,48 @@ export function AnimeEntryPage() {
         setView("library")
     })
 
-    useSetSeaCommandParams({
-        page: "anime-entry",
-        pageParams: {
-            entry: animeEntry,
-        },
-    })
+    const { inject, remove } = useSeaCommandInject()
+    React.useEffect(() => {
+        inject("anime-entry-navigation", {
+            items: [
+                {
+                    command: "library",
+                    description: "Downloaded episodes",
+                    show: currentView !== "library",
+                },
+                {
+                    command: "torrentstream",
+                    description: "Torrent streaming",
+                    show: serverStatus?.torrentstreamSettings?.enabled && currentView !== "torrentstream",
+                },
+                {
+                    command: "debridstream",
+                    description: "Debrid streaming",
+                    show: serverStatus?.debridSettings?.enabled && currentView !== "debridstream",
+                },
+                {
+                    command: "onlinestream",
+                    description: "Online streaming",
+                    show: serverStatus?.settings?.library?.enableOnlinestream && currentView !== "onlinestream",
+                },
+            ].map(item => ({
+                id: item.command,
+                value: item.command,
+                heading: "Views",
+                data: item,
+                render: () => <div>{item.description}</div>,
+                onSelect: () => setView(item.command as any),
+                shouldShow: () => !!item.show,
+            })),
+            filter: ({ item, input }) => {
+                if (!input) return true
+                return item.data?.description?.toLowerCase().startsWith(input.toLowerCase())
+            },
+            priority: -1,
+        })
+
+        return () => remove("anime-entry-navigation")
+    }, [currentView, serverStatus])
 
     if (animeEntryLoading || animeDetailsLoading) return <MediaEntryPageLoadingDisplay />
     if (!animeEntry) return null

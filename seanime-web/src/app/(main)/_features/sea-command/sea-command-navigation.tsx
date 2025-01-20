@@ -12,7 +12,7 @@ import { seaCommand_compareMediaTitles } from "./utils"
 // only rendered when typing "/anime", "/library" or "/manga"
 export function SeaCommandUserMediaNavigation() {
 
-    const { params, input, select, command: { isCommand, command, args }, scrollToTop } = useSeaCommandContext<"other">()
+    const { input, select, command: { isCommand, command, args }, scrollToTop } = useSeaCommandContext()
     const { data: animeCollection, isLoading: isAnimeLoading } = useGetAnimeCollection() // should be available instantly
     const { data: mangaCollection, isLoading: isMangaLoading } = useGetMangaCollection()
 
@@ -87,7 +87,7 @@ export function SeaCommandNavigation() {
 
     const serverStatus = useServerStatus()
 
-    const { params, input, select, command: { isCommand, command, args } } = useSeaCommandContext<"other">()
+    const { input, select, command: { isCommand, command, args } } = useSeaCommandContext()
 
     const router = useRouter()
 
@@ -219,7 +219,7 @@ export function SeaCommandNavigation() {
                     </>
                 </CommandGroup>
             )}
-            {(command !== "back" && command !== "forward" && params.page === "other") && (
+            {(command !== "back" && command !== "forward") && (
                 <CommandGroup heading="Navigation">
                     {/* {command === "" && ( */}
                     <>

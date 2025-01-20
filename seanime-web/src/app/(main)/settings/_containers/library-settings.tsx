@@ -25,7 +25,7 @@ export function LibrarySettings(props: LibrarySettingsProps) {
                     name="libraryPath"
                     label="Library directory"
                     leftIcon={<FcFolder />}
-                    help="Directory where your media is located. (Keep the casing consistent)"
+                    help="Path of the directory where your media files ared located. (Keep the casing consistent)"
                     shouldExist
                 />
 
@@ -33,7 +33,7 @@ export function LibrarySettings(props: LibrarySettingsProps) {
                     name="libraryPaths"
                     label="Additional library directories"
                     leftIcon={<FcFolder />}
-                    help="Include additional directories if your library is spread across multiple locations."
+                    help="Include additional directory paths if your library is spread across multiple locations."
                     shouldExist
                 />
             </SettingsCard>

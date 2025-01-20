@@ -1,16 +1,15 @@
+import React from "react"
 import { SeaCommandContextProps, useSeaCommandContext } from "./sea-command"
-import { SeaCommandPage } from "./sea-command.atoms"
 
-export type SeaCommandHandlerProps<T extends SeaCommandPage> = {
-    type: T
-    shouldShow: (props: SeaCommandContextProps<T>) => boolean
-    render: (props: SeaCommandContextProps<T>) => React.ReactNode
+export type SeaCommandHandlerProps = {
+    shouldShow: (props: SeaCommandContextProps) => boolean
+    render: (props: SeaCommandContextProps) => React.ReactNode
 }
 
-export function SeaCommandHandler<T extends SeaCommandPage>(props: SeaCommandHandlerProps<T>) {
-    const { type, shouldShow, render } = props
+export function SeaCommandHandler(props: SeaCommandHandlerProps) {
+    const { shouldShow, render } = props
 
-    const ctx = useSeaCommandContext<T>()
+    const ctx = useSeaCommandContext()
 
     if (!shouldShow(ctx)) return null
 

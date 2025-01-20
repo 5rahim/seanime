@@ -11,7 +11,6 @@ import { __library_viewAtom } from "@/app/(main)/(library)/_lib/library-view.ato
 import { DetailedLibraryView } from "@/app/(main)/(library)/_screens/detailed-library-view"
 import { EmptyLibraryView } from "@/app/(main)/(library)/_screens/empty-library-view"
 import { LibraryView } from "@/app/(main)/(library)/_screens/library-view"
-import { useSetSeaCommandParams } from "@/app/(main)/_features/sea-command/sea-command.atoms"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence } from "framer-motion"
@@ -40,17 +39,10 @@ export default function Library() {
 
     const hasScanned = React.useMemo(() => libraryCollectionList?.some(n => !!n.entries?.length), [libraryCollectionList])
 
-    useSetSeaCommandParams({
-        page: "anime-library",
-        pageParams: {
-            episodes: continueWatchingList,
-        },
-    })
-
     return (
         <div>
 
-        {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
+            {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom && <CustomLibraryBanner isLibraryScreen />}
             {hasScanned && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && <LibraryHeader list={continueWatchingList} />}
             <LibraryToolbar
                 collectionList={libraryCollectionList}

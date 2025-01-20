@@ -1,6 +1,7 @@
 import { Anime_Entry, Anime_Episode } from "@/api/generated/types"
 import { useGetTorrentstreamEpisodeCollection } from "@/api/hooks/torrentstream.hooks"
-import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/sea-command.atoms"
+
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
     __torrentSearch_drawerEpisodeAtom,
@@ -139,7 +140,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 id: `episode-${episode.episodeNumber}`,
                 value: `${episode.episodeNumber}`,
                 heading: "Episodes",
-                render: ({ onSelect }) => (
+                render: () => (
                     <div className="flex gap-1 items-center w-full">
                         <p className="max-w-[70%] truncate">{episode.displayTitle}</p>
                         {!!episode.episodeTitle && (
@@ -150,7 +151,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 onSelect: () => handleEpisodeClick(episode),
             })),
             // Optional custom filter
-            filter: (item, input) => {
+            filter: ({ item, input }) => {
                 if (!input) return true
                 return item.value.toLowerCase().includes(input.toLowerCase())
             },

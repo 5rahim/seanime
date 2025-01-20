@@ -1,4 +1,6 @@
 import { useScanLocalFiles } from "@/api/hooks/scan.hooks"
+
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -38,6 +40,39 @@ export function ScannerModal() {
             skipIgnoredFiles: skipIgnoredFiles.active,
         })
     }
+
+    const { inject, remove } = useSeaCommandInject()
+    React.useEffect(() => {
+        inject("scanner-controls", {
+            priority: 1,
+            items: [{
+                id: "refresh",
+                value: "refresh",
+                heading: "Library",
+                render: () => (
+                    <p>Refresh library</p>
+                ),
+                onSelect: ({ ctx }) => {
+                    ctx.close()
+                    setTimeout(() => {
+                        setOpen(true)
+                        setTimeout(() => {
+                            handleScan()
+                        }, 1000)
+                    }, 500)
+                },
+                showBasedOnInput: "startsWith",
+            }],
+            filter: ({ item, input }) => {
+                if (!input) return true
+                return item.value.toLowerCase().includes(input.toLowerCase())
+            },
+            shouldShow: ({ ctx }) => ctx.router.pathname === "/",
+            showBasedOnInput: "startsWith",
+        })
+
+        return () => remove("scanner-controls")
+    }, [])
 
     return (
         <>

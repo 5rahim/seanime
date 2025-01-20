@@ -13,6 +13,7 @@ import { useSetAtom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
 
+
 type LibraryViewProps = {
     genres: string[]
     collectionList: Anime_LibraryCollectionList[]

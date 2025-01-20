@@ -1,6 +1,7 @@
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
-import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/sea-command.atoms"
+
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
 import { SeaMediaPlayerPlaybackSubmenu } from "@/app/(main)/_features/sea-media-player/sea-media-player-components"
 import {
@@ -334,7 +335,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     value: "toggle-play",
                     heading: "Controls",
                     priority: 100,
-                    render: ({ onSelect }) => (
+                    render: () => (
                         <>
                             <p>Toggle Play</p>
                         </>
@@ -352,7 +353,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     value: "fullscreen",
                     heading: "Controls",
                     priority: 99,
-                    render: ({ onSelect }) => (
+                    render: () => (
                         <>
                             <p>Fullscreen</p>
                         </>
@@ -366,7 +367,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     value: "next-episode",
                     heading: "Controls",
                     priority: 98,
-                    render: ({ onSelect }) => (
+                    render: () => (
                         <>
                             <p>Next Episode</p>
                         </>
@@ -378,7 +379,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     value: "previous-episode",
                     heading: "Controls",
                     priority: 97,
-                    render: ({ onSelect }) => (
+                    render: () => (
                         <>
                             <p>Previous Episode</p>
                         </>

@@ -1,19 +1,16 @@
-import { SeaCommandAnimeEntry } from "@/app/(main)/_features/sea-command/sea-command-anime-entry"
-import { SeaCommandAnimeLibrary } from "@/app/(main)/_features/sea-command/sea-command-anime-library"
 import { SeaCommandSearch } from "@/app/(main)/_features/sea-command/sea-command-search"
 import { SeaCommand_ParsedCommandProps, useSeaCommand_ParseCommand } from "@/app/(main)/_features/sea-command/utils"
+import { AlphaBadge } from "@/components/shared/beta-badge"
 import { CommandDialog, CommandInput, CommandList } from "@/components/ui/command"
 import mousetrap from "mousetrap"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
 import { SeaCommandHandler } from "./config"
-import { SeaCommandCustom } from "./sea-command-custom"
+import { SeaCommandInjectables } from "./sea-command-injectables"
 import { SeaCommandList } from "./sea-command-list"
 import { SeaCommandNavigation, SeaCommandUserMediaNavigation } from "./sea-command-navigation"
-import { SeaCommandPage, SeaCommandParams, useSeaCommandParams } from "./sea-command.atoms"
 
-export type SeaCommandContextProps<T extends SeaCommandPage> = {
-    params: SeaCommandParams<T>
+export type SeaCommandContextProps = {
     input: string
     setInput: (input: string) => void
     resetInput: () => void
@@ -22,12 +19,12 @@ export type SeaCommandContextProps<T extends SeaCommandPage> = {
     command: SeaCommand_ParsedCommandProps
     scrollToTop: () => () => void
     commandListRef: React.RefObject<HTMLDivElement>
+    router: {
+        pathname: string
+    }
 }
 
-export const SeaCommandContext = React.createContext<SeaCommandContextProps<"other">>({
-    params: {
-        page: "other",
-    },
+export const SeaCommandContext = React.createContext<SeaCommandContextProps>({
     input: "",
     setInput: () => { },
     resetInput: () => { },
@@ -36,15 +33,16 @@ export const SeaCommandContext = React.createContext<SeaCommandContextProps<"oth
     command: { command: "", isCommand: false, args: [] },
     scrollToTop: () => () => { },
     commandListRef: React.createRef<HTMLDivElement>(),
+    router: {
+        pathname: "",
+    },
 })
 
-export function useSeaCommandContext<T extends SeaCommandPage>() {
-    return React.useContext(SeaCommandContext) as SeaCommandContextProps<T>
+export function useSeaCommandContext() {
+    return React.useContext(SeaCommandContext) as SeaCommandContextProps
 }
 
 export function SeaCommand() {
-
-    const { params, setParams } = useSeaCommandParams()
 
     const router = useRouter()
     const pathname = usePathname()
@@ -52,8 +50,6 @@ export function SeaCommand() {
     const [open, setOpen] = React.useState(false)
     const [input, setInput] = React.useState("")
     const [activeItemId, setActiveItemId] = React.useState("")
-
-    console.log(activeItemId)
 
     const parsedCommandProps = useSeaCommand_ParseCommand(input)
 
@@ -70,10 +66,6 @@ export function SeaCommand() {
     React.useEffect(() => {
         if (!open) setInput("")
     }, [open])
-
-    React.useLayoutEffect(() => {
-        setParams({ page: "other" })
-    }, [pathname])
 
     React.useEffect(() => {
         mousetrap.bind(["q"], () => {
@@ -108,24 +100,24 @@ export function SeaCommand() {
             }
         }, 100)
 
+        console.log("scrollToTop called")
+
         return () => clearTimeout(t)
     }
 
     React.useEffect(() => {
         const cl = scrollToTop()
         return () => cl()
-    }, [input, params.page])
+    }, [input, pathname])
 
     return (
         <SeaCommandContext.Provider
             value={{
-                params: params as SeaCommandParams<"other">,
                 input: input,
                 setInput: setInput,
                 resetInput: () => setInput(""),
                 close: () => {
                     React.startTransition(() => {
-                        setParams({ page: "other" })
                         setOpen(false)
                     })
                 },
@@ -136,6 +128,9 @@ export function SeaCommand() {
                 scrollToTop,
                 command: parsedCommandProps,
                 commandListRef: commandListRef,
+                router: {
+                    pathname: pathname,
+                },
             }}
         >
             <CommandDialog
@@ -149,6 +144,8 @@ export function SeaCommand() {
                 contentClass="max-w-2xl"
                 commandClass="h-[300px]"
             >
+                <AlphaBadge className="absolute top-[1.45rem] right-14 opacity-50" />
+
                 <CommandInput
                     placeholder="Type a command or input..."
                     value={input}
@@ -158,12 +155,10 @@ export function SeaCommand() {
 
                     {/*Active commands*/}
                     <SeaCommandHandler
-                        type="other"
                         shouldShow={ctx => ctx.command.command === "search"}
                         render={() => <SeaCommandSearch />}
                     />
                     <SeaCommandHandler
-                        type="other"
                         shouldShow={ctx => (
                             ctx.command.command === "anime"
                             || ctx.command.command === "manga"
@@ -174,33 +169,30 @@ export function SeaCommand() {
 
                     {/*Injected items*/}
                     <SeaCommandHandler
-                        type="other"
                         shouldShow={() => true}
-                        render={() => <SeaCommandCustom />}
+                        render={() => <SeaCommandInjectables />}
                     />
 
                     {/*Page items*/}
-                    <SeaCommandHandler
-                        type="anime-entry"
-                        shouldShow={ctx => !ctx.command.isCommand && ctx.params.page === "anime-entry"}
-                        render={() => <SeaCommandAnimeEntry />}
-                    />
-                    <SeaCommandHandler
-                        type="anime-library"
-                        shouldShow={ctx => !ctx.command.isCommand && ctx.params.page === "anime-library"}
-                        render={() => <SeaCommandAnimeLibrary />}
-                    />
+                    {/* <SeaCommandHandler
+                     type="anime-entry"
+                     shouldShow={ctx => !ctx.command.isCommand && ctx.params.page === "anime-entry"}
+                     render={() => <SeaCommandAnimeEntry />}
+                     /> */}
+                    {/* <SeaCommandHandler
+                     type="anime-library"
+                     shouldShow={ctx => !ctx.command.isCommand && ctx.params.page === "anime-library"}
+                     render={() => <SeaCommandAnimeLibrary />}
+                     /> */}
 
                     {/*Suggestions*/}
                     <SeaCommandHandler
-                        type="other"
                         shouldShow={ctx => ctx.input === "/"}
                         render={() => <SeaCommandList />}
                     />
 
                     {/*Navigation*/}
                     <SeaCommandHandler
-                        type="other"
                         shouldShow={() => true}
                         render={() => <SeaCommandNavigation />}
                     />

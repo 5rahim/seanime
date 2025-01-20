@@ -14,7 +14,7 @@ export function SeaCommandSearch() {
 
     const serverStatus = useServerStatus()
 
-    const { params, input, select, scrollToTop, commandListRef, command: { isCommand, command, args } } = useSeaCommandContext<"other">()
+    const { input, select, scrollToTop, commandListRef, command: { isCommand, command, args } } = useSeaCommandContext()
 
     const router = useRouter()
 
@@ -49,7 +49,7 @@ export function SeaCommandSearch() {
     React.useEffect(() => {
         const cl = scrollToTop()
         return () => cl()
-    }, [input, params.page, isLoading, isFetching])
+    }, [input, isLoading, isFetching])
 
 
     return (

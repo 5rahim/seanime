@@ -2,7 +2,8 @@
 import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
 import { getEpisodeMinutesRemaining, getEpisodePercentageComplete, useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { EpisodeCard } from "@/app/(main)/_features/anime/_components/episode-card"
-import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/sea-command.atoms"
+
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { EpisodeListGrid } from "@/app/(main)/entry/_components/episode-list-grid"
 import { useAnimeEntryPageView } from "@/app/(main)/entry/_containers/anime-entry-page"
@@ -55,6 +56,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
         inject("library-episodes", {
             items: allEpisodes.map(episode => ({
+                data: episode,
                 id: `${episode.type}-${episode.localFile?.path || ""}-${episode.episodeNumber}`,
                 value: `${episode.episodeNumber}`,
                 heading: episode.type === "next" ? "Next Episodes" :
@@ -62,7 +64,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                         episode.type === "other" ? "Others" : "Episodes",
                 priority: episode.type === "next" ? 2 :
                     episode.type === "main" ? 1 : 0,
-                render: ({ onSelect }) => (
+                render: () => (
                     <div className="flex gap-1 items-center w-full">
                         <p className="max-w-[70%] truncate">{episode.displayTitle}</p>
                         {!!episode.episodeTitle && (
@@ -75,11 +77,12 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                     mediaId: entry.mediaId,
                 }),
             })),
-            filter: (item, input) => {
+            filter: ({ item, input }) => {
                 if (!input) return true
                 return item.value.toLowerCase().includes(input.toLowerCase())
             },
             shouldShow: () => currentView === "library",
+            priority: 1,
         })
 
         return () => remove("library-episodes")

@@ -55,7 +55,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                     Configure how anime is played on this device.
                 </p>
                 <p className="text-[--muted]">
-                    These settings do not apply to the playlists.
+                    These settings do not apply to playlists.
                 </p>
             </div>
 
