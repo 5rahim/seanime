@@ -1,3 +1,4 @@
+import { ErrorExplainer } from "@/app/(main)/_features/error-explainer/error-explainer"
 import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { OfflineSidebar } from "@/app/(main)/_features/navigation/offline-sidebar"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
@@ -52,6 +53,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <PlaybackManagerProgressTracking />
             <ManualProgressTracking />
             <IssueReport />
+            <ErrorExplainer />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

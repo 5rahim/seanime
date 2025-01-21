@@ -1,7 +1,6 @@
 package core
 
 import (
-	"github.com/rs/zerolog"
 	"os"
 	"runtime"
 	"seanime/internal/api/anilist"
@@ -41,6 +40,8 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"sync"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -80,6 +81,7 @@ type (
 		MangaDownloader         *manga.Downloader
 		ContinuityManager       *continuity.Manager
 		Cleanups                []func()
+		OnFlushLogs             func()
 		MediastreamRepository   *mediastream.Repository
 		TorrentstreamRepository *torrentstream.Repository
 		FeatureFlags            FeatureFlags

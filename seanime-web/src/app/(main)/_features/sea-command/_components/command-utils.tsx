@@ -39,7 +39,7 @@ export function SeaCommandAutocompleteSuggestions({
     commands: { command: string, description: string, show?: boolean }[]
 }) {
 
-    const { params, input, setInput, select, command: { isCommand, command, args }, scrollToTop } = useSeaCommandContext()
+    const { input, setInput, select, command: { isCommand, command, args }, scrollToTop } = useSeaCommandContext()
 
     if (input !== "/") return null
 

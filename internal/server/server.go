@@ -3,7 +3,6 @@ package server
 import (
 	"embed"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	golog "log"
 	"os"
 	"path/filepath"
@@ -14,6 +13,8 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/crashlog"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 func startApp(embeddedLogo []byte) (*core.App, core.SeanimeFlags, *updater.SelfUpdater) {
@@ -45,6 +46,11 @@ func startApp(embeddedLogo []byte) (*core.App, core.SeanimeFlags, *updater.SelfU
 	golog.SetOutput(app.Logger)
 	util.SetupLoggerSignalHandling(logFile)
 	crashlog.GlobalCrashLogger.SetLogDir(app.Config.Logs.Dir)
+
+	app.OnFlushLogs = func() {
+		util.WriteGlobalLogBufferToFile(logFile)
+		logFile.Sync()
+	}
 
 	if !flags.Update {
 		go func() {

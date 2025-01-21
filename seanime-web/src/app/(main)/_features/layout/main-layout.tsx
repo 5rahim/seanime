@@ -2,6 +2,7 @@
 import { PlaylistsModal } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
 import { ScanProgressBar } from "@/app/(main)/(library)/_containers/scan-progress-bar"
 import { ScannerModal } from "@/app/(main)/(library)/_containers/scanner-modal"
+import { ErrorExplainer } from "@/app/(main)/_features/error-explainer/error-explainer"
 import { GlobalSearch } from "@/app/(main)/_features/global-search/global-search"
 import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
@@ -60,6 +61,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <PlaybackManagerProgressTracking />
             <ManualProgressTracking />
             <IssueReport />
+            <ErrorExplainer />
             <SeaCommand />
 
             <AppSidebarProvider>
