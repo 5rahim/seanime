@@ -39,7 +39,7 @@ export function SettingsNavCard({ title, children }: SettingsCardProps) {
     )
 }
 
-export function SettingsCard({ title, description, children }: SettingsCardProps) {
+export function SettingsCard({ title, description, children, className }: SettingsCardProps & { className?: string }) {
     const [position, setPosition] = useState({ x: 0, y: 0 })
     const cardRef = useRef<HTMLDivElement>(null)
 
@@ -55,7 +55,7 @@ export function SettingsCard({ title, description, children }: SettingsCardProps
         <>
             <Card
                 ref={cardRef}
-                className="group/settings-card relative overflow-hidden bg-[--paper]"
+                className={cn("group/settings-card relative overflow-hidden bg-[--paper]", className)}
                 onMouseMove={handleMouseMove}
             >
                 <div

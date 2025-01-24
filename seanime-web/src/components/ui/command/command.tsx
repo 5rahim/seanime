@@ -278,9 +278,40 @@ export const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>((p
         itemIconContainerClass: _itemIconContainerClass,
     } = React.useContext(__CommandAnatomyContext)
 
+    const itemRef = React.useRef<HTMLDivElement | null>(null)
+
+    React.useEffect(() => {
+        const element = itemRef.current
+        if (!element) return
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === "aria-selected" && element.getAttribute("aria-selected") === "true") {
+                    element.scrollIntoView({ block: "nearest" })
+                }
+            })
+        })
+
+        observer.observe(element, { attributes: true })
+        return () => observer.disconnect()
+    }, [])
+
+    const setRefs = React.useCallback(
+        (node: HTMLDivElement | null) => {
+            itemRef.current = node
+
+            if (ref) {
+                if (typeof ref === "function") {
+                    ref(node)
+                }
+            }
+        },
+        [ref],
+    )
+
     return (
         <CommandPrimitive.Item
-            ref={ref}
+            ref={setRefs}
             className={cn(CommandAnatomy.item(), itemClass, className)}
             {...rest}
             data-cmdkvalue={rest.id}

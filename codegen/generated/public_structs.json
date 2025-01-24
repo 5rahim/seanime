@@ -25479,6 +25479,15 @@
         "comments": []
       },
       {
+        "name": "OnFlushLogs",
+        "jsonName": "OnFlushLogs",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "MediastreamRepository",
         "jsonName": "MediastreamRepository",
         "goType": "mediastream.Repository",
@@ -27706,7 +27715,9 @@
         "typescriptType": "boolean",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " DEPRECATED"
+        ]
       },
       {
         "name": "DisableCarouselAutoScroll",
@@ -27740,6 +27751,60 @@
         "jsonName": "mediaPageBannerInfoBoxSize",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowEpisodeCardAnimeInfo",
+        "jsonName": "showEpisodeCardAnimeInfo",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContinueWatchingDefaultSorting",
+        "jsonName": "continueWatchingDefaultSorting",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeLibraryCollectionDefaultSorting",
+        "jsonName": "animeLibraryCollectionDefaultSorting",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaLibraryCollectionDefaultSorting",
+        "jsonName": "mangaLibraryCollectionDefaultSorting",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowAnimeUnwatchedCount",
+        "jsonName": "showAnimeUnwatchedCount",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowMangaUnreadCount",
+        "jsonName": "showMangaUnreadCount",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -39499,6 +39564,439 @@
     "comments": []
   },
   {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "Analyzer",
+    "formattedName": "Analyzer",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "logsDir",
+        "jsonName": "logsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "rules",
+        "jsonName": "rules",
+        "goType": "[]RuleBuilder",
+        "typescriptType": "Array\u003cRuleBuilder\u003e",
+        "usedStructName": "loganalyzer.RuleBuilder",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "state",
+        "jsonName": "state",
+        "goType": "AppState",
+        "typescriptType": "AppState",
+        "usedStructName": "loganalyzer.AppState",
+        "required": false,
+        "public": false,
+        "comments": [
+          " For accessing app state like settings"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "NewAnalyzerOptions",
+    "formattedName": "NewAnalyzerOptions",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "LogsDir",
+        "jsonName": "LogsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "State",
+        "goType": "AppState",
+        "typescriptType": "AppState",
+        "usedStructName": "loganalyzer.AppState",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "AppState",
+    "formattedName": "AppState",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "Settings",
+        "jsonName": "Settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamSettings",
+        "jsonName": "TorrentstreamSettings",
+        "goType": "models.TorrentstreamSettings",
+        "typescriptType": "Models_TorrentstreamSettings",
+        "usedStructName": "models.TorrentstreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediastreamSettings",
+        "jsonName": "MediastreamSettings",
+        "goType": "models.MediastreamSettings",
+        "typescriptType": "Models_MediastreamSettings",
+        "usedStructName": "models.MediastreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridSettings",
+        "jsonName": "DebridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "AnalysisResult",
+    "formattedName": "AnalysisResult",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]AnalysisResultItem",
+        "typescriptType": "Array\u003cAnalysisResultItem\u003e",
+        "usedStructName": "loganalyzer.AnalysisResultItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "AnalysisResultItem",
+    "formattedName": "AnalysisResultItem",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "Observation",
+        "jsonName": "observation",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Recommendation",
+        "jsonName": "recommendation",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Severity",
+        "jsonName": "severity",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Errors",
+        "jsonName": "errors",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Warnings",
+        "jsonName": "warnings",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logs",
+        "jsonName": "logs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "Module",
+    "formattedName": "Module",
+    "package": "loganalyzer",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"media player\"",
+        "\"settings\""
+      ]
+    },
+    "comments": [
+      " Enums for better type safety"
+    ]
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "Level",
+    "formattedName": "Level",
+    "package": "loganalyzer",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"error\"",
+        "\"warning\"",
+        "\"info\"",
+        "\"debug\""
+      ]
+    },
+    "comments": [
+      " Enums for better type safety"
+    ]
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "RuleBuilder",
+    "formattedName": "RuleBuilder",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "conditions",
+        "jsonName": "conditions",
+        "goType": "[]condition",
+        "typescriptType": "Array\u003ccondition\u003e",
+        "usedStructName": "loganalyzer.condition",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platforms",
+        "jsonName": "platforms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "branches",
+        "jsonName": "branches",
+        "goType": "[]branch",
+        "typescriptType": "Array\u003cbranch\u003e",
+        "usedStructName": "loganalyzer.branch",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "defaultBranch",
+        "jsonName": "defaultBranch",
+        "goType": "branch",
+        "typescriptType": "branch",
+        "usedStructName": "loganalyzer.branch",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "state",
+        "jsonName": "state",
+        "goType": "AppState",
+        "typescriptType": "AppState",
+        "usedStructName": "loganalyzer.AppState",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " RuleBuilder provides a fluent interface for building rules"
+    ]
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "BranchBuilder",
+    "formattedName": "BranchBuilder",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "rule",
+        "jsonName": "rule",
+        "goType": "RuleBuilder",
+        "typescriptType": "RuleBuilder",
+        "usedStructName": "loganalyzer.RuleBuilder",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "branch",
+        "jsonName": "branch",
+        "goType": "branch",
+        "typescriptType": "branch",
+        "usedStructName": "loganalyzer.branch",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " BranchBuilder helps build conditional branches"
+    ]
+  },
+  {
+    "filepath": "../internal/log_analyzer/analyzer.go",
+    "filename": "analyzer.go",
+    "name": "LogLine",
+    "formattedName": "LogLine",
+    "package": "loganalyzer",
+    "fields": [
+      {
+        "name": "Timestamp",
+        "jsonName": "Timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Line",
+        "jsonName": "Line",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Module",
+        "jsonName": "Module",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Level",
+        "jsonName": "Level",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Message",
+        "jsonName": "Message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " LogLine represents a parsed log line"
+    ]
+  },
+  {
     "filepath": "../internal/manga/chapter_container.go",
     "filename": "chapter_container.go",
     "name": "ChapterContainer",
@@ -45224,15 +45722,6 @@
         "comments": []
       },
       {
-        "name": "CanTransmux",
-        "jsonName": "CanTransmux",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "IsDone",
         "jsonName": "IsDone",
         "goType": "bool",
@@ -46300,6 +46789,15 @@
       {
         "name": "IsForced",
         "jsonName": "isForced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsExternal",
+        "jsonName": "isExternal",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,

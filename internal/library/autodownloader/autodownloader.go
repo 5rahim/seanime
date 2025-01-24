@@ -2,19 +2,12 @@ package autodownloader
 
 import (
 	"fmt"
-	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/adrg/strutil/metrics"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
-	"seanime/internal/debrid/client"
+	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
@@ -27,6 +20,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/5rahim/habari"
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/adrg/strutil/metrics"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 const (
@@ -459,6 +460,16 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
 
+	// Double check that the episode hasn't been added while we have the lock
+	items, err := ad.database.GetAutoDownloaderItemByMediaId(rule.MediaId)
+	if err == nil {
+		for _, item := range items {
+			if item.Episode == episode {
+				return false // Skip, episode was added by another goroutine
+			}
+		}
+	}
+
 	providerExtension, found := ad.torrentRepository.GetDefaultAnimeProviderExtension()
 	if !found {
 		ad.logger.Warn().Msg("autodownloader: Could not download torrent. Default provider not found")
@@ -803,7 +814,7 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 			// Make sure it wasn't already added
 			for _, item := range items {
 				if item.Episode == 1 {
-					return -1, false // Skip, file already downloaded
+					return -1, false // Skip, file already queued or downloaded
 				}
 			}
 			// Make sure it doesn't exist in the library
@@ -839,7 +850,7 @@ func (ad *AutoDownloader) isSeasonAndEpisodeMatch(
 	// Return false if the episode is already downloaded
 	for _, item := range items {
 		if item.Episode == episode {
-			return -1, false // Skip, file already downloaded
+			return -1, false // Skip, file already queued or downloaded
 		}
 	}
 

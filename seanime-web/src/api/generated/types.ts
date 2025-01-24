@@ -2816,11 +2816,20 @@ export type Models_Theme = {
     libraryScreenCustomBackgroundBlur: string
     enableMediaPageBlurredBackground: boolean
     disableSidebarTransparency: boolean
+    /**
+     * DEPRECATED
+     */
     useLegacyEpisodeCard: boolean
     disableCarouselAutoScroll: boolean
     mediaPageBannerType: string
     mediaPageBannerSize: string
     mediaPageBannerInfoBoxSize: string
+    showEpisodeCardAnimeInfo: boolean
+    continueWatchingDefaultSorting: string
+    animeLibraryCollectionDefaultSorting: string
+    mangaLibraryCollectionDefaultSorting: string
+    showAnimeUnwatchedCount: boolean
+    showMangaUnreadCount: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -3558,6 +3567,7 @@ export type Subtitle = {
     extension?: string
     isDefault: boolean
     isForced: boolean
+    isExternal: boolean
     link?: string
 }
 

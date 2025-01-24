@@ -29,6 +29,10 @@ type EpisodeCardProps = {
     badge?: React.ReactNode
     percentageComplete?: number
     minutesRemaining?: number
+    anime?: {
+        image?: string
+        title?: string
+    }
 } & Omit<React.ComponentPropsWithoutRef<"div">, "title">
 
 export function EpisodeCard(props: EpisodeCardProps) {
@@ -55,77 +59,36 @@ export function EpisodeCard(props: EpisodeCardProps) {
         badge,
         percentageComplete,
         minutesRemaining,
+        anime,
         ...rest
     } = props
 
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
 
+    const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
-    if (ts.useLegacyEpisodeCard) {
-        return (
-            <div
-                ref={mRef}
-                className={cn(
-                    "rounded-lg overflow-hidden aspect-[4/2] relative flex items-end flex-none group/episode-card cursor-pointer",
-                    "select-none",
-                    type === "carousel" && "w-full",
-                    type === "grid" && "w-72 lg:w-[26rem]",
-                    className,
-                    containerClass,
-                )}
-                onClick={onClick}
-                {...rest}
-            >
-                <div className="absolute w-full h-full rounded-lg overflow-hidden z-[1]">
-                    {!!image ? <Image
-                        src={getImageUrl(image)}
-                        alt={"episode image"}
-                        fill
-                        quality={100}
-                        placeholder={imageShimmer(700, 475)}
-                        sizes="20rem"
-                        className={cn(
-                            "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
-                            imageClass,
-                        )}
-                    /> : <div
-                        className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
-                    ></div>}
-                    {/*[CUSTOM UI] BOTTOM GRADIENT*/}
-                    <EpisodeItemBottomGradient />
-
-                    {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
-                        <div className="absolute bottom-0 left-0 w-full z-[3]">
-                            <ProgressBar value={percentageComplete} size="sm" />
-                        </div>}
-                </div>
-                <div
-                    className={cn(
-                        "group-hover/episode-card:opacity-100 text-6xl text-gray-200",
-                        "cursor-pointer opacity-0 transition-opacity bg-gray-950 bg-opacity-60 z-[2] absolute w-[105%] h-[105%] items-center justify-center",
-                        "hidden md:flex")}
-                > {actionIcon && actionIcon} </div>
-                <div className="relative z-[3] w-full p-4 space-y-0"><p
-                    className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold"
-                >{topTitle?.replaceAll("`", "'")}</p>
-                    <div className="w-full justify-between flex flex-none items-center">
-                        <p
-                            className="text-base md:text-lg font-medium line-clamp-1"
-                        >
-                            <span>{title}{showTotalEpisodes ? <span className="opacity-40">{` / `}{progressTotal! - offset}</span> :
-                                ``}</span>
-                        </p> {(!!meta || !!length) &&
-                        <p className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right"> {meta}{!!meta && !!length && `  • `}{length
-                            ? `${length}m`
-                            : ""} </p>}
-                    </div>
-                    {isInvalid && <p className="text-red-300">No metadata found</p>} </div>
+    const Meta = () => (
+        <div className="relative z-[3] w-full space-y-0">
+            <p className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold">
+                {topTitle?.replaceAll("`", "'")}</p>
+            <div className="w-full justify-between flex flex-none items-center">
+                <p className="line-clamp-1 flex items-center">
+                    <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
+                        <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
+                        : ``}</span>
+                    <span className="text-[--muted] text-base md:text-xl ml-2 font-normal line-clamp-1">{showAnimeInfo
+                        ? "- " + anime.title
+                        : ""}</span>
+                </p>
+                {(!!meta || !!length) && <p className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
+                    {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
+                </p>}
             </div>
-        )
-    }
+        </div>
+    )
 
     return (
         <div
@@ -179,22 +142,73 @@ export function EpisodeCard(props: EpisodeCardProps) {
 
                 {isInvalid && <p className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata found</p>}
             </div>
-            <div className="relative z-[3] w-full space-y-0">
-                <p className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold">{topTitle?.replaceAll(
-                    "`",
-                    "'")}</p>
-                <div className="w-full justify-between flex flex-none items-center">
-                    <p className="text-base md:text-xl font-medium line-clamp-1">
-                        <span>{title}{showTotalEpisodes ?
-                            <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
-                            : ``}</span>
-                    </p>
-                    {(!!meta || !!length) && <p className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
-                        {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
-                    </p>}
+            {(showAnimeInfo) ? <div className="flex gap-3 items-center">
+                <div className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
+                    {!!anime?.image && <Image
+                        src={getImageUrl(anime.image)}
+                        alt={""}
+                        fill
+                        quality={100}
+                        placeholder={imageShimmer(700, 475)}
+                        sizes="20rem"
+                        className={cn(
+                            "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                            imageClass,
+                        )}
+                    />}
                 </div>
-            </div>
+                <Meta />
+            </div> : <Meta />}
         </div>
     )
 
+    // if (ts.useLegacyEpisodeCard) {
+    //     return (
+    //         <div
+    //             ref={mRef}
+    //             className={cn(
+    //                 "rounded-lg overflow-hidden aspect-[4/2] relative flex items-end flex-none group/episode-card cursor-pointer",
+    //                 "select-none",
+    //                 type === "carousel" && "w-full",
+    //                 type === "grid" && "w-72 lg:w-[26rem]",
+    //                 className,
+    //                 containerClass,
+    //             )}
+    //             onClick={onClick}
+    //             {...rest}
+    //         >
+    //             <div className="absolute w-full h-full rounded-lg overflow-hidden z-[1]">
+    //                 {!!image ? <Image
+    //                     src={getImageUrl(image)}
+    //                     alt={"episode image"}
+    //                     fill
+    //                     quality={100}
+    //                     placeholder={imageShimmer(700, 475)}
+    //                     sizes="20rem"
+    //                     className={cn(
+    //                         "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+    //                         imageClass,
+    //                     )}
+    //                 /> : <div
+    //                     className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
+    //                 ></div>}
+    //                 {/*[CUSTOM UI] BOTTOM GRADIENT*/}
+    //                 <EpisodeItemBottomGradient />
+
+    //                 {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
+    //                     <div className="absolute bottom-0 left-0 w-full z-[3]">
+    //                         <ProgressBar value={percentageComplete} size="sm" />
+    //                     </div>}
+    //             </div>
+    //             <div
+    //                 className={cn(
+    //                     "group-hover/episode-card:opacity-100 text-6xl text-gray-200",
+    //                     "cursor-pointer opacity-0 transition-opacity bg-gray-950 bg-opacity-60 z-[2] absolute w-[105%] h-[105%] items-center
+    // justify-center", "hidden md:flex")} > {actionIcon && actionIcon} </div> <div className="relative z-[3] w-full p-4 space-y-0"><p
+    // className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold"
+    // >{topTitle?.replaceAll("`", "'")}</p> <div className="w-full justify-between flex flex-none items-center"> <p className="text-base md:text-lg
+    // font-medium line-clamp-1" > <span>{title}{showTotalEpisodes ? <span className="opacity-40">{` / `}{progressTotal! - offset}</span> :
+    // ``}</span> </p> {(!!meta || !!length) && <p className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
+    // {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""} </p>} </div> {isInvalid && <p className="text-red-300">No metadata found</p>}
+    // </div> </div> ) }
 }

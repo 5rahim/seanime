@@ -4,6 +4,7 @@ import { cn } from "@/components/ui/core/styling"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ANIME_COLLECTION_SORTING_OPTIONS, CONTINUE_WATCHING_SORTING_OPTIONS, MANGA_COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import {
     THEME_DEFAULT_VALUES,
     ThemeLibraryScreenBannerType,
@@ -52,6 +53,12 @@ const themeSchema = defineSchema(({ z }) => z.object({
     mediaPageBannerType: z.string().default(THEME_DEFAULT_VALUES.mediaPageBannerType),
     mediaPageBannerSize: z.string().default(THEME_DEFAULT_VALUES.mediaPageBannerSize),
     mediaPageBannerInfoBoxSize: z.string().default(THEME_DEFAULT_VALUES.mediaPageBannerInfoBoxSize),
+    showEpisodeCardAnimeInfo: z.boolean().default(THEME_DEFAULT_VALUES.showEpisodeCardAnimeInfo),
+    continueWatchingDefaultSorting: z.string().default(THEME_DEFAULT_VALUES.continueWatchingDefaultSorting),
+    animeLibraryCollectionDefaultSorting: z.string().default(THEME_DEFAULT_VALUES.animeLibraryCollectionDefaultSorting),
+    mangaLibraryCollectionDefaultSorting: z.string().default(THEME_DEFAULT_VALUES.mangaLibraryCollectionDefaultSorting),
+    showAnimeUnwatchedCount: z.boolean().default(THEME_DEFAULT_VALUES.showAnimeUnwatchedCount),
+    showMangaUnreadCount: z.boolean().default(THEME_DEFAULT_VALUES.showMangaUnreadCount),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -134,6 +141,12 @@ export function UISettings() {
                 mediaPageBannerType: themeSettings?.mediaPageBannerType ?? ThemeMediaPageBannerType.Default,
                 mediaPageBannerSize: themeSettings?.mediaPageBannerSize ?? ThemeMediaPageBannerType.Default,
                 mediaPageBannerInfoBoxSize: themeSettings?.mediaPageBannerInfoBoxSize ?? ThemeMediaPageBannerType.Default,
+                showEpisodeCardAnimeInfo: themeSettings?.showEpisodeCardAnimeInfo,
+                continueWatchingDefaultSorting: themeSettings?.continueWatchingDefaultSorting,
+                animeLibraryCollectionDefaultSorting: themeSettings?.animeLibraryCollectionDefaultSorting,
+                mangaLibraryCollectionDefaultSorting: themeSettings?.mangaLibraryCollectionDefaultSorting,
+                showAnimeUnwatchedCount: themeSettings?.showAnimeUnwatchedCount,
+                showMangaUnreadCount: themeSettings?.showMangaUnreadCount,
             }}
             stackClass="space-y-4 relative"
         >
@@ -342,9 +355,30 @@ export function UISettings() {
 
                                 <Field.Switch
                                     side="right"
-                                    label="No genre selector"
+                                    label="Remove genre selector"
                                     name="disableLibraryScreenGenreSelector"
                                 />
+
+                                <Field.Select
+                                    label="Continue watching sorting"
+                                    name="continueWatchingDefaultSorting"
+                                    options={CONTINUE_WATCHING_SORTING_OPTIONS.map(n => ({ value: n.value, label: n.label }))}
+                                />
+
+                                <Field.Select
+                                    label="Anime library sorting"
+                                    name="animeLibraryCollectionDefaultSorting"
+                                    options={ANIME_COLLECTION_SORTING_OPTIONS.filter(n => !n.value.includes("END"))
+                                        .map(n => ({ value: n.value, label: n.label }))}
+                                />
+
+                                <Field.Select
+                                    label="Manga library sorting"
+                                    name="mangaLibraryCollectionDefaultSorting"
+                                    options={MANGA_COLLECTION_SORTING_OPTIONS.filter(n => !n.value.includes("END"))
+                                        .map(n => ({ value: n.value, label: n.label }))}
+                                />
+
 
                             </SettingsCard>
 
@@ -387,6 +421,18 @@ export function UISettings() {
 
                                 <Field.Switch
                                     side="right"
+                                    label="Show anime unwatched count"
+                                    name="showAnimeUnwatchedCount"
+                                />
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Show manga unread count"
+                                    name="showMangaUnreadCount"
+                                />
+
+                                <Field.Switch
+                                    side="right"
                                     label="Glassy background"
                                     name="enableMediaCardBlurredBackground"
                                 />
@@ -395,10 +441,16 @@ export function UISettings() {
 
                             <SettingsCard title="Episode card">
 
-                                <Field.Switch
+                                {/* <Field.Switch
                                     side="right"
                                     label="Legacy episode cards"
                                     name="useLegacyEpisodeCard"
+                                 /> */}
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Show anime info"
+                                    name="showEpisodeCardAnimeInfo"
                                 />
 
 

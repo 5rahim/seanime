@@ -233,6 +233,10 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             hasDiscrepancy={episode.episodeNumber !== episode.progressNumber}
             percentageComplete={getEpisodePercentageComplete(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
+            anime={{
+                image: episode?.baseAnime?.coverImage?.medium,
+                title: episode?.baseAnime?.title?.userPreferred,
+            }}
             onMouseEnter={() => {
                 React.startTransition(() => {
                     setHeaderImage({

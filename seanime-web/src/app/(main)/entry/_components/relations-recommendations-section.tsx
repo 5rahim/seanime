@@ -10,6 +10,7 @@ import React from "react"
 type RelationsRecommendationsSectionProps = {
     entry: Anime_Entry | undefined
     details: AL_AnimeDetailsById_Media | undefined
+    containerRef?: React.RefObject<HTMLElement>
 }
 
 export function RelationsRecommendationsSection(props: RelationsRecommendationsSectionProps) {
@@ -17,6 +18,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
     const {
         entry,
         details,
+        containerRef,
         ...rest
     } = props
 

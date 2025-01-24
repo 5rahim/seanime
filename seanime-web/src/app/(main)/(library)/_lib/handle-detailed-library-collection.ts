@@ -2,13 +2,14 @@ import { Anime_LibraryCollectionList } from "@/api/generated/types"
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useDebounce } from "@/hooks/use-debounce"
-import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, filterEntriesByTitle } from "@/lib/helpers/filtering"
+import { CollectionParams, DEFAULT_ANIME_COLLECTION_PARAMS, filterAnimeCollectionEntries, filterEntriesByTitle } from "@/lib/helpers/filtering"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
-import { useAtomValue } from "jotai/index"
+import { useAtom, useAtomValue } from "jotai/index"
 import React from "react"
 
-export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
-    ...DEFAULT_COLLECTION_PARAMS,
+export const DETAILED_LIBRARY_DEFAULT_PARAMS: CollectionParams<"anime"> = {
+    ...DEFAULT_ANIME_COLLECTION_PARAMS,
     sorting: "TITLE",
 }
 
@@ -22,18 +23,25 @@ export const __library_debouncedSearchInputAtom = atomWithImmer<string>("")
 export function useHandleDetailedLibraryCollection() {
     const serverStatus = useServerStatus()
 
+    const { animeLibraryCollectionDefaultSorting } = useThemeSettings()
+
 
     /**
      * Fetch the library collection data
      */
     const { data, isLoading } = useGetLibraryCollection()
 
-    const paramsToDebounce = useAtomValue(__library_paramsAtom)
+    const [paramsToDebounce, setParamsToDebounce] = useAtom(__library_paramsAtom)
     const debouncedParams = useDebounce(paramsToDebounce, 500)
 
     const debouncedSearchInput = useAtomValue(__library_debouncedSearchInputAtom)
 
-    console.log(debouncedParams)
+    React.useLayoutEffect(() => {
+        let _params = { ...paramsToDebounce }
+        _params.sorting = animeLibraryCollectionDefaultSorting as any
+        setParamsToDebounce(_params)
+    }, [data, animeLibraryCollectionDefaultSorting])
+
 
     /**
      * Sort and filter the collection data
@@ -43,7 +51,10 @@ export function useHandleDetailedLibraryCollection() {
 
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
-            const arr = filterCollectionEntries(obj.entries, paramsToDebounce, serverStatus?.settings?.anilist?.enableAdultContent)
+            const arr = filterAnimeCollectionEntries(obj.entries,
+                paramsToDebounce,
+                serverStatus?.settings?.anilist?.enableAdultContent,
+                data.continueWatchingList)
             return {
                 type: obj.type,
                 status: obj.status,

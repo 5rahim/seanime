@@ -27,7 +27,7 @@ import { Switch } from "@/components/ui/switch"
 import { StaticTabs } from "@/components/ui/tabs"
 import { TextInput } from "@/components/ui/text-input"
 import { useDebounce } from "@/hooks/use-debounce"
-import { COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
+import { ANIME_COLLECTION_SORTING_OPTIONS } from "@/lib/helpers/filtering"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { getYear } from "date-fns"
@@ -217,7 +217,7 @@ export function SearchOptions() {
                     className="w-full"
                     fieldClass="flex items-center"
                     inputContainerClass="w-full"
-                    options={COLLECTION_SORTING_OPTIONS}
+                    options={ANIME_COLLECTION_SORTING_OPTIONS}
                     value={params.sorting || "TITLE"}
                     onValueChange={v => setParams(draft => {
                         draft.sorting = v as any

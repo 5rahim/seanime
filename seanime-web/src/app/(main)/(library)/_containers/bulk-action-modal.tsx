@@ -1,4 +1,5 @@
 import { useLocalFileBulkAction, useRemoveEmptyDirectories } from "@/api/hooks/localfiles.hooks"
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,41 @@ export function BulkActionModal() {
             handleRemoveEmptyDirectories()
         },
     })
+
+    const { inject, remove } = useSeaCommandInject()
+    React.useEffect(() => {
+        inject("anime-library-bulk-actions", {
+            priority: 1,
+            items: [
+                {
+                    id: "lock-files", value: "lock", heading: "Library",
+                    render: () => (
+                        <p>Lock all files</p>
+                    ),
+                    onSelect: ({ ctx }) => {
+                        handleLockFiles()
+                    },
+                },
+                {
+                    id: "unlock-files", value: "unlock", heading: "Library",
+                    render: () => (
+                        <p>Unlock all files</p>
+                    ),
+                    onSelect: ({ ctx }) => {
+                        handleUnlockFiles()
+                    },
+                },
+            ],
+            filter: ({ item, input }) => {
+                if (!input) return true
+                return item.value.toLowerCase().includes(input.toLowerCase())
+            },
+            shouldShow: ({ ctx }) => ctx.router.pathname === "/",
+            showBasedOnInput: "startsWith",
+        })
+
+        return () => remove("anime-library-bulk-actions")
+    }, [])
 
     return (
         <Modal

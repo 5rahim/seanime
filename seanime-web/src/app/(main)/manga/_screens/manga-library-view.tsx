@@ -7,8 +7,7 @@ import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { IconButton } from "@/components/ui/button"
-import { Disclosure, DisclosureContent, DisclosureItem, DisclosureTrigger } from "@/components/ui/disclosure"
-import { Tooltip } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useDebounce } from "@/hooks/use-debounce"
 import { getMangaCollectionTitle } from "@/lib/server/utils"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
@@ -16,7 +15,7 @@ import { AnimatePresence } from "framer-motion"
 import { useSetAtom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import React, { memo } from "react"
-import { PiBooksDuotone } from "react-icons/pi"
+import { CgChevronDown } from "react-icons/cg"
 
 type MangaLibraryViewProps = {
     collection: Manga_Collection
@@ -41,34 +40,24 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
                 key="lists"
                 className="relative 2xl:order-first pb-10 p-4"
             >
-                {!!genres?.length && <div className="flex w-full">
-                    <Disclosure type="single" collapsible className="w-full">
-                        <DisclosureItem value="item-1" className="flex w-full flex-col gap-2">
-                            <div className="w-full flex justify-end">
-                                <Tooltip
-                                    side="right"
-                                    trigger={<DisclosureTrigger>
-                                        <IconButton
-                                            icon={<PiBooksDuotone />}
-                                            intent="white-outline"
-                                            rounded
-                                        />
-                                    </DisclosureTrigger>}
-                                >Genres</Tooltip>
-                            </div>
-                            <DisclosureContent>
-                                <div className="pb-4">
-                                    <GenreSelector genres={genres} />
-                                </div>
-                            </DisclosureContent>
-                        </DisclosureItem>
-                    </Disclosure>
-                </div>}
+                <div className="w-full flex justify-end">
+                    {/*<Tooltip*/}
+                    {/*    side="right"*/}
+                    {/*    trigger={<DisclosureTrigger>*/}
+                    {/*        <IconButton*/}
+                    {/*            icon={<PiBooksDuotone />}*/}
+                    {/*            intent="white-outline"*/}
+                    {/*            rounded*/}
+                    {/*        />*/}
+                    {/*    </DisclosureTrigger>}*/}
+                    {/*>Genres</Tooltip>*/}
+                </div>
+
 
                 <AnimatePresence mode="wait" initial={false}>
                     {!params.genre?.length ?
-                        <CollectionLists key="lists" collectionList={collection} />
-                        : <FilteredCollectionLists key="filtered-collection" collectionList={filteredCollection} />
+                        <CollectionLists key="lists" collectionList={collection} genres={genres} />
+                        : <FilteredCollectionLists key="filtered-collection" collectionList={filteredCollection} genres={genres} />
                     }
                 </AnimatePresence>
             </PageWrapper>
@@ -76,8 +65,9 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
     )
 }
 
-export function CollectionLists({ collectionList }: {
+export function CollectionLists({ collectionList, genres }: {
     collectionList: Manga_Collection | undefined
+    genres: string[]
 }) {
 
     return (
@@ -94,15 +84,22 @@ export function CollectionLists({ collectionList }: {
         >
             {collectionList?.lists?.map(collection => {
                 if (!collection.entries?.length) return null
-                return <CollectionListItem key={collection.type} list={collection} />
+                return (
+                    <React.Fragment key={collection.type}>
+                        <CollectionListItem list={collection} />
+
+                        {(collection.type === "CURRENT" && !!genres?.length) && <GenreSelector genres={genres} />}
+                    </React.Fragment>
+                )
             })}
         </PageWrapper>
     )
 
 }
 
-export function FilteredCollectionLists({ collectionList }: {
+export function FilteredCollectionLists({ collectionList, genres }: {
     collectionList: Manga_Collection | undefined
+    genres: string[]
 }) {
 
     const entries = React.useMemo(() => {
@@ -121,6 +118,11 @@ export function FilteredCollectionLists({ collectionList }: {
                 },
             }}
         >
+
+            {!!genres?.length && <div className="mt-24">
+                <GenreSelector genres={genres} />
+            </div>}
+
             <MediaCardLazyGrid itemCount={entries?.length || 0}>
                 {entries.map(entry => {
                     return <div
@@ -146,6 +148,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     const ts = useThemeSettings()
     const [currentHeaderImage, setCurrentHeaderImage] = useAtom(__mangaLibraryHeaderImageAtom)
     const headerManga = useAtomValue(__mangaLibraryHeaderMangaAtom)
+    const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
 
     React.useEffect(() => {
         if (list.type === "CURRENT") {
@@ -157,7 +160,30 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
 
     return (
         <React.Fragment key={list.type}>
-            <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
+
+            <div className="flex gap-3 items-center">
+                <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
+
+                {list.type === "CURRENT" && <DropdownMenu
+                    trigger={<IconButton
+                        intent="white-basic"
+                        size="xs"
+                        className="mt-1"
+                        icon={<CgChevronDown />}
+                    />}
+                >
+                    <DropdownMenuItem
+                        onClick={() => {
+                            setParams(draft => {
+                                draft.unreadOnly = !draft.unreadOnly
+                                return
+                            })
+                        }}
+                    >
+                        {params.unreadOnly ? "Show all" : "Show unread only"}
+                    </DropdownMenuItem>
+                </DropdownMenu>}
+            </div>
 
             {(list.type === "CURRENT" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&
                 <TextGenerateEffect

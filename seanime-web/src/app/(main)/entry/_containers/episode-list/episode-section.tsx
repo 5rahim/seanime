@@ -48,7 +48,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
 
         // Combine all episode types
         const allEpisodes = [
-            ...episodesToWatch.map(ep => ({ ...ep, type: "next" as const })),
+            { ...episodesToWatch?.[0], type: "next" as const },
             ...mainEpisodes.map(ep => ({ ...ep, type: "main" as const })),
             ...specialEpisodes.map(ep => ({ ...ep, type: "special" as const })),
             ...ncEpisodes.map(ep => ({ ...ep, type: "other" as const })),
@@ -59,7 +59,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                 data: episode,
                 id: `${episode.type}-${episode.localFile?.path || ""}-${episode.episodeNumber}`,
                 value: `${episode.episodeNumber}`,
-                heading: episode.type === "next" ? "Next Episodes" :
+                heading: episode.type === "next" ? "Next Episode" :
                     episode.type === "special" ? "Specials" :
                         episode.type === "other" ? "Others" : "Episodes",
                 priority: episode.type === "next" ? 2 :

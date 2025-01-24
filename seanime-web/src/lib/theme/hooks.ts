@@ -105,6 +105,12 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     mediaPageBannerType: ThemeMediaPageBannerType.Default,
     mediaPageBannerSize: ThemeMediaPageBannerSize.Default,
     mediaPageBannerInfoBoxSize: ThemeMediaPageInfoBoxSize.Default,
+    showEpisodeCardAnimeInfo: false,
+    continueWatchingDefaultSorting: "AIRDATE_DESC",
+    animeLibraryCollectionDefaultSorting: "TITLE",
+    mangaLibraryCollectionDefaultSorting: "TITLE",
+    showAnimeUnwatchedCount: false,
+    showMangaUnreadCount: true,
 }
 
 
@@ -144,6 +150,12 @@ export function useThemeSettings(): ThemeSettingsHook {
         mediaPageBannerType: getThemeValue("mediaPageBannerType", serverStatus?.themeSettings),
         mediaPageBannerSize: getThemeValue("mediaPageBannerSize", serverStatus?.themeSettings),
         mediaPageBannerInfoBoxSize: getThemeValue("mediaPageBannerInfoBoxSize", serverStatus?.themeSettings),
+        showEpisodeCardAnimeInfo: getThemeValue("showEpisodeCardAnimeInfo", serverStatus?.themeSettings),
+        continueWatchingDefaultSorting: getThemeValue("continueWatchingDefaultSorting", serverStatus?.themeSettings),
+        animeLibraryCollectionDefaultSorting: getThemeValue("animeLibraryCollectionDefaultSorting", serverStatus?.themeSettings),
+        mangaLibraryCollectionDefaultSorting: getThemeValue("mangaLibraryCollectionDefaultSorting", serverStatus?.themeSettings),
+        showAnimeUnwatchedCount: getThemeValue("showAnimeUnwatchedCount", serverStatus?.themeSettings),
+        showMangaUnreadCount: getThemeValue("showMangaUnreadCount", serverStatus?.themeSettings),
     }
 }
 
