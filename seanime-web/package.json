@@ -58,6 +58,7 @@
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@uidotdev/usehooks": "^2.4.1",
     "@uiw/codemirror-theme-vscode": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
     "@vidstack/react": "^1.10.9",

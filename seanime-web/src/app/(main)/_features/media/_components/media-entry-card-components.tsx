@@ -175,7 +175,7 @@ export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFo
     return (
         <div
             className={cn(
-                "flex gap-2",
+                "flex gap-2 items-center",
                 className,
             )}
             {...rest}
@@ -244,17 +244,15 @@ export function AnimeEntryCardNextAiring(props: AnimeEntryCardNextAiringProps) {
     return (
         <>
             <div className="flex gap-1 items-center justify-center">
-                <p className="text-xs min-[2000px]:text-md">Next episode:</p>
-                <Tooltip
-                    className="bg-gray-200 text-gray-800 font-semibold mb-1"
-                    trigger={
-                        <p className="text-justify font-normal text-xs min-[2000px]:text-md">
-                            <Badge
-                                size="sm"
-                            >{nextAiring?.episode}</Badge>
-                        </p>
-                    }
-                >{formatDistanceToNow(addSeconds(new Date(), nextAiring?.timeUntilAiring), { addSuffix: true })}</Tooltip>
+                {/*<p className="text-xs min-[2000px]:text-md">Next episode:</p>*/}
+                <p className="text-justify font-normal text-xs min-[2000px]:text-md">
+                    Episode <span className="font-semibold">{nextAiring?.episode}</span> {formatDistanceToNow(addSeconds(new Date(),
+                    nextAiring?.timeUntilAiring), { addSuffix: true })}
+                    {/*<Badge*/}
+                    {/*    size="sm"*/}
+                    {/*    className="bg-transparent rounded-md"*/}
+                    {/*>{nextAiring?.episode}</Badge>*/}
+                </p>
             </div>
         </>
     )

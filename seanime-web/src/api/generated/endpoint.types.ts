@@ -548,6 +548,21 @@ export type SetDiscordMangaActivity_Variables = {
     chapter: string
 }
 
+/**
+ * - Filepath: internal/handlers/discord.go
+ * - Filename: discord.go
+ * - Endpoint: /api/v1/discord/presence/anime
+ * @description
+ * Route sets anime activity for discord rich presence.
+ */
+export type SetDiscordAnimeActivity_Variables = {
+    mediaId: number
+    title: string
+    image: string
+    isMovie: boolean
+    episodeNumber: number
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // docs
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

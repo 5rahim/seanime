@@ -3,6 +3,7 @@ import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-col
 import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
 import { AnimeEntryCardUnwatchedBadge } from "@/app/(main)/_features/anime/_containers/anime-entry-card-unwatched-badge"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
+import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
 import {
     __mediaEntryCard_hoveredPopupId,
     AnimeEntryCardNextAiring,
@@ -20,22 +21,15 @@ import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_component
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { useAnimePreviewModal } from "@/app/(main)/entry/anime-preview-modal"
 import { MangaEntryCardUnreadBadge } from "@/app/(main)/manga/_containers/manga-entry-card-unread-badge"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuGroup,
-    ContextMenuItem,
-    ContextMenuLabel,
-    ContextMenuTrigger,
-} from "@/components/ui/context-menu"
+import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -155,7 +149,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         setActionPopupHover(undefined)
     }, [media.id])
 
-    const { setPreviewModalMediaId } = useAnimePreviewModal()
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
 
     if (!media) return null
 
@@ -164,8 +158,20 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
             <MediaEntryCardOverlay overlay={overlay} />
 
-            <ContextMenu>
-
+            <SeaContextMenu
+                content={<ContextMenuGroup>
+                    <ContextMenuLabel className="text-[--muted] line-clamp-2 py-0 my-2">
+                        {media.title?.userPreferred}
+                    </ContextMenuLabel>
+                    <ContextMenuItem
+                        onClick={() => {
+                            setPreviewModalMediaId(media.id!, type)
+                        }}
+                    >
+                        Preview
+                    </ContextMenuItem>
+                </ContextMenuGroup>}
+            >
                 <ContextMenuTrigger>
 
                     {/*ACTION POPUP*/}
@@ -226,9 +232,9 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             >
                                 <Button
                                     leftIcon={<IoLibrarySharp />}
-                                    intent="white"
-                                    size="md"
-                                    className="w-full text-md mt-2"
+                                    intent="gray-subtle"
+                                    size="sm"
+                                    className="w-full text-sm mt-2"
                                     tabIndex={-1}
                                 >
                                     Read
@@ -248,7 +254,21 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             {(type === "anime" && !!libraryData) &&
                                 <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
 
-                            {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} />}
+                            <AnilistMediaEntryModal listData={listData} media={media} type={type} />
+
+                            {/*{!serverStatus?.isOffline && <Tooltip*/}
+                            {/*    trigger={<IconButton*/}
+                            {/*        intent="gray-subtle"*/}
+                            {/*        icon={<PiEye />}*/}
+                            {/*        rounded*/}
+                            {/*        size="sm"*/}
+                            {/*        onClick={() => {*/}
+                            {/*            setPreviewModalMediaId(media.id!, type)*/}
+                            {/*        }}*/}
+                            {/*    />}*/}
+                            {/*>*/}
+                            {/*    Preview*/}
+                            {/*</Tooltip>}*/}
 
                             {withAudienceScore &&
                                 <MediaEntryAudienceScore
@@ -258,27 +278,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         </MediaEntryCardHoverPopupFooter>
                     </MediaEntryCardHoverPopup>
                 </ContextMenuTrigger>
-
-                <ContextMenuContent className="max-w-xs">
-                    {type === "anime" && <>
-                        <ContextMenuGroup>
-                            <ContextMenuLabel className="text-[--muted] line-clamp-2 py-0 my-2">
-                                {media.title?.userPreferred}
-                            </ContextMenuLabel>
-                            <ContextMenuItem
-                                onClick={() => {
-                                    if (type === "anime") {
-                                        setPreviewModalMediaId(media.id!)
-                                    }
-                                }}
-                            >
-                                Preview
-                            </ContextMenuItem>
-                        </ContextMenuGroup>
-                    </>}
-                </ContextMenuContent>
-
-            </ContextMenu>
+            </SeaContextMenu>
 
 
             <MediaEntryCardBody

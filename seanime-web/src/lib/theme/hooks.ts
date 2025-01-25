@@ -64,18 +64,19 @@ export const ThemeMediaPageBannerSizeOptions = [
 ]
 
 export const enum ThemeMediaPageInfoBoxSize {
-    Default = "default",
+    // Default = "default",
     Fluid = "fluid",
+    Boxed = "boxed",
 }
 
 export const ThemeMediaPageInfoBoxSizeOptions = [
     {
-        value: ThemeMediaPageInfoBoxSize.Default as string, label: "Boxed",
-        // description: "Display the media banner as a box",
-    },
-    {
         value: ThemeMediaPageInfoBoxSize.Fluid as string, label: "Fluid",
         // description: "Full-width info box with rearrangement of elements.",
+    },
+    {
+        value: ThemeMediaPageInfoBoxSize.Boxed as string, label: "Boxed",
+        // description: "Display the media banner as a box",
     },
 ]
 
@@ -104,7 +105,7 @@ export const THEME_DEFAULT_VALUES: ThemeSettings = {
     disableCarouselAutoScroll: false,
     mediaPageBannerType: ThemeMediaPageBannerType.Default,
     mediaPageBannerSize: ThemeMediaPageBannerSize.Default,
-    mediaPageBannerInfoBoxSize: ThemeMediaPageInfoBoxSize.Default,
+    mediaPageBannerInfoBoxSize: ThemeMediaPageInfoBoxSize.Fluid,
     showEpisodeCardAnimeInfo: false,
     continueWatchingDefaultSorting: "AIRDATE_DESC",
     animeLibraryCollectionDefaultSorting: "TITLE",
@@ -164,6 +165,13 @@ function getThemeValue(key: string, settings: ThemeSettings | undefined | null):
         // @ts-ignore
         return THEME_DEFAULT_VALUES[key]
     }
+
+    if (key === "mediaPageBannerInfoBoxSize") {
+        if (settings?.mediaPageBannerInfoBoxSize !== "boxed") {
+            return THEME_DEFAULT_VALUES[key]
+        }
+    }
+
     const val = (settings as any)[key]
     if (typeof val === "string" && val === "") {
         // @ts-ignore

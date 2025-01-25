@@ -526,6 +526,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/discord/presence/manga",
         },
+        SetDiscordAnimeActivity: {
+            key: "DISCORD-set-discord-anime-activity",
+            methods: ["POST"],
+            endpoint: "/api/v1/discord/presence/anime",
+        },
         CancelDiscordActivity: {
             key: "DISCORD-cancel-discord-activity",
             methods: ["POST"],

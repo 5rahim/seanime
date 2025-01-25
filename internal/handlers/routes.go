@@ -348,6 +348,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 
 	v1Discord := v1.Group("/discord")
 	v1Discord.POST("/presence/manga", h.HandleSetDiscordMangaActivity)
+	v1Discord.POST("/presence/anime", h.HandleSetDiscordAnimeActivity)
 	v1Discord.POST("/presence/cancel", h.HandleCancelDiscordActivity)
 
 	//

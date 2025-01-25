@@ -255,6 +255,7 @@ type MediaPageHeaderEntryDetailsProps = {
     progressTotal?: number
     status?: AL_MediaStatus
     description?: string
+    smallerTitle?: boolean
 
     listData?: Anime_EntryListData | Manga_EntryListData
     media: AL_BaseAnime | AL_BaseManga
@@ -276,6 +277,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
         status,
         description,
         color,
+        smallerTitle,
 
         listData,
         media,
@@ -317,7 +319,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     {/*TITLE*/}
                     <div className="space-y-2">
                         <TextGenerateEffect
-                            className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl xl:max-w-[50vw]"
+                            className={cn(
+                                "[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl xl:max-w-[50vw]",
+                                smallerTitle && "text-3xl 2xl:text-3xl",
+                            )}
                             words={title || ""}
                         />
                         {(!!englishTitle && title?.toLowerCase() !== englishTitle?.toLowerCase()) &&

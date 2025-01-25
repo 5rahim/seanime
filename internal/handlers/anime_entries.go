@@ -568,7 +568,7 @@ func (h *Handler) HandleUpdateAnimeEntryRepeat(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	_, _ = h.App.RefreshAnimeCollection() // Refresh the AniList collection
+	//_, _ = h.App.RefreshAnimeCollection() // Refresh the AniList collection
 
 	return h.RespondWithData(c, true)
 }

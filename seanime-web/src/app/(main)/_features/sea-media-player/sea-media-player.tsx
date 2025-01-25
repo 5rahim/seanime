@@ -1,5 +1,6 @@
 import { useUpdateAnimeEntryProgress } from "@/api/hooks/anime_entries.hooks"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useCancelDiscordActivity, useSetDiscordAnimeActivity } from "@/api/hooks/discord.hooks"
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
@@ -146,6 +147,12 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
      */
     const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(playerRef, progress.currentEpisodeNumber, media?.id)
 
+    /**
+     * Discord Rich Presence
+     */
+    const { mutate: setAnimeDiscordActivity } = useSetDiscordAnimeActivity()
+    const { mutate: cancelDiscordActivity } = useCancelDiscordActivity()
+
 
     const onTimeUpdate = (detail: MediaTimeUpdateEventDetail, e: MediaTimeUpdateEvent) => { // let React compiler optimize
         _onTimeUpdate?.(detail, e)
@@ -185,6 +192,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
             watchHistoryRef.current = 0
             handleUpdateWatchHistory()
         }
+
         watchHistoryRef.current++
 
         /**
@@ -234,11 +242,13 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
      */
     const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(media?.id)
 
+    const wentToNextEpisodeRef = React.useRef(false)
     const onEnded = (e: MediaEndedEvent) => {
         _onEnded?.(e)
 
-        if (autoNext) {
+        if (autoNext && !wentToNextEpisodeRef.current) {
             onGoToNextEpisode()
+            wentToNextEpisodeRef.current = true
         }
     }
 
@@ -254,6 +264,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const onCanPlay = (e: MediaCanPlayDetail, event: MediaCanPlayEvent) => {
         _onCanPlay?.(e, event)
 
+        wentToNextEpisodeRef.current = false
+
         // If the watch history is found and the episode number matches, seek to the last watched time
         if (progress.currentEpisodeNumber && watchHistory?.found && watchHistory.item?.episodeNumber === progress.currentEpisodeNumber) {
             const lastWatchedTime = getEpisodeContinuitySeekTo(progress.currentEpisodeNumber,
@@ -264,6 +276,20 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                 logger("MEDIA PLAYER").info("Watch continuity: Seeking to", lastWatchedTime)
                 Object.assign(playerRef.current || {}, { currentTime: lastWatchedTime })
             }
+        }
+
+        if (
+            serverStatus?.settings?.discord?.enableRichPresence &&
+            serverStatus?.settings?.discord?.enableAnimeRichPresence &&
+            media?.id
+        ) {
+            setAnimeDiscordActivity({
+                mediaId: media?.id ?? 0,
+                title: media?.title?.userPreferred || media?.title?.romaji || media?.title?.english || "Watching",
+                image: media?.coverImage?.large || media?.coverImage?.medium || "",
+                isMovie: media?.format === "MOVIE",
+                episodeNumber: progress.currentEpisodeNumber ?? 0,
+            })
         }
 
         if (autoPlay) {
@@ -321,6 +347,10 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
 
         return () => {
             mousetrap.unbind("f")
+
+            if (serverStatus?.settings?.discord?.enableRichPresence && serverStatus?.settings?.discord?.enableAnimeRichPresence) {
+                cancelDiscordActivity()
+            }
         }
     }, [])
 
@@ -390,7 +420,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         })
 
         return () => remove("media-player-controls")
-    }, [onGoToNextEpisode, onGoToPreviousEpisode])
+    }, [url])
 
     return (
         <div className="aspect-video relative w-full self-start mx-auto">
@@ -462,6 +492,28 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                                 {settingsItems}
                                 <SeaMediaPlayerPlaybackSubmenu />
                             </>,
+                            // centerControlsGroupStart: <div>
+                            //     {onGoToPreviousEpisode && (
+                            //         <IconButton
+                            //             intent="white-basic"
+                            //             size="lg"
+                            //             onClick={onGoToPreviousEpisode}
+                            //             aria-label="Previous Episode"
+                            //             icon={<LuArrowLeft className="size-12" />}
+                            //         />
+                            //     )}
+                            // </div>,
+                            // centerControlsGroupEnd: <div className="flex items-center justify-center gap-2">
+                            //     {onGoToNextEpisode && (
+                            //         <IconButton
+                            //             intent="white-basic"
+                            //             size="lg"
+                            //             onClick={onGoToNextEpisode}
+                            //             aria-label="Next Episode"
+                            //             icon={<LuArrowRight className="size-12" />}
+                            //         />
+                            //     )}
+                            // </div>
                         }}
                     />
                 </MediaPlayer>

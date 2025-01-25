@@ -204,7 +204,7 @@ export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubme
             <ChevronLeftIcon className="vds-menu-button-close-icon" />
             <Icon className="vds-menu-button-icon" />
             <span className="vds-menu-button-label">{label}</span>
-            <span className="vds-menu-button-hint">{hint}</span>
+            <span className="vds-menu-button-hint ml-2">{hint}</span>
             <ChevronRightIcon className="vds-menu-button-open-icon" />
         </Menu.Button>
     )

@@ -2399,6 +2399,79 @@
     }
   },
   {
+    "name": "HandleSetDiscordAnimeActivity",
+    "trimmedName": "SetDiscordAnimeActivity",
+    "comments": [
+      "HandleSetDiscordAnimeActivity",
+      "",
+      "\t@summary sets anime activity for discord rich presence.",
+      "\t@route /api/v1/discord/presence/anime [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/discord.go",
+    "filename": "discord.go",
+    "api": {
+      "summary": "sets anime activity for discord rich presence.",
+      "descriptions": [],
+      "endpoint": "/api/v1/discord/presence/anime",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Title",
+          "jsonName": "title",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Image",
+          "jsonName": "image",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "IsMovie",
+          "jsonName": "isMovie",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleCancelDiscordActivity",
     "trimmedName": "CancelDiscordActivity",
     "comments": [

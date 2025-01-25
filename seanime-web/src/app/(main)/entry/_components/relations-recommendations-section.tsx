@@ -1,15 +1,14 @@
-import { AL_AnimeDetailsById_Media, Anime_Entry } from "@/api/generated/types"
+import { AL_AnimeDetailsById_Media, Anime_Entry, Nullish } from "@/api/generated/types"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import capitalize from "lodash/capitalize"
 import React from "react"
 
 type RelationsRecommendationsSectionProps = {
-    entry: Anime_Entry | undefined
-    details: AL_AnimeDetailsById_Media | undefined
+    entry: Nullish<Anime_Entry>
+    details: Nullish<AL_AnimeDetailsById_Media>
     containerRef?: React.RefObject<HTMLElement>
 }
 
@@ -42,7 +41,7 @@ export function RelationsRecommendationsSection(props: RelationsRecommendationsS
 
     return (
         <>
-            {(!!sourceManga || relations.length > 0 || recommendations.length > 0) && <Separator />}
+            {/*{(!!sourceManga || relations.length > 0 || recommendations.length > 0) && <Separator />}*/}
             {(!!sourceManga || relations.length > 0) && (
                 <>
                     <h2>Relations</h2>

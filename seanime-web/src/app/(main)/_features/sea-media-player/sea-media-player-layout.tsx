@@ -55,18 +55,47 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
 
     /** Scroll to selected episode element when the episode list changes (on mount) **/
     const episodeListContainerRef = React.useRef<HTMLDivElement>(null)
+    const scrollTimeoutRef = React.useRef<NodeJS.Timeout>()
+
     React.useEffect(() => {
-        if (episodeListContainerRef.current && width > 1024) {
-            if (progress.currentEpisodeNumber) {
-                React.startTransition(() => {
-                    const element = document.getElementById(`episode-${progress.currentEpisodeNumber}`)
-                    if (element) {
-                        element.scrollIntoView({ behavior: "smooth" })
-                    }
-                })
+        if (!episodeListContainerRef.current || width <= 1024 || !progress.currentEpisodeNumber) return
+
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current)
+        }
+
+        // Set a new timeout to scroll after a brief delay
+        scrollTimeoutRef.current = setTimeout(() => {
+            const element = document.getElementById(`episode-${progress.currentEpisodeNumber}`)
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" })
+            }
+        }, 100)
+
+        // Cleanup
+        return () => {
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current)
             }
         }
-    }, [episodeListContainerRef.current, episodes, progress.currentEpisodeNumber])
+    }, [width, progress.currentEpisodeNumber])
+
+    const handleProgressUpdate = React.useCallback(() => {
+        if (!media || !progressItem || isUpdatingProgress || hasUpdatedProgress) return
+
+        updateProgress({
+            episodeNumber: progressItem.episodeNumber,
+            mediaId: media.id,
+            totalEpisodes: media.episodes || 0,
+            malId: media.idMal || undefined,
+        }, {
+            onSuccess: () => {
+                setProgressItem(null)
+                setCurrentProgress(progressItem.episodeNumber)
+            },
+        })
+    }, [media, progressItem, isUpdatingProgress, hasUpdatedProgress])
 
     return (
         <div className="space-y-4">
@@ -81,25 +110,16 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 <div className="flex gap-2 items-center justify-end w-full">
                     {leftHeaderActions}
                     <div className="hidden lg:flex flex-1"></div>
-                    {(!!progressItem && progressItem.episodeNumber > currentProgress) && <Button
-                        className="animate-pulse"
-                        loading={isUpdatingProgress}
-                        disabled={hasUpdatedProgress}
-                        onClick={() => {
-                            if (!media) return
-                            updateProgress({
-                                episodeNumber: progressItem.episodeNumber,
-                                mediaId: media.id,
-                                totalEpisodes: media.episodes || 0,
-                                malId: media.idMal || undefined,
-                            }, {
-                                onSuccess: () => {
-                                    setProgressItem(null)
-                                },
-                            })
-                            setCurrentProgress(progressItem.episodeNumber)
-                        }}
-                    >Update progress</Button>}
+                    {(!!progressItem && progressItem.episodeNumber > currentProgress) && (
+                        <Button
+                            className="animate-pulse"
+                            loading={isUpdatingProgress}
+                            disabled={hasUpdatedProgress}
+                            onClick={handleProgressUpdate}
+                        >
+                            Update progress
+                        </Button>
+                    )}
                     {rightHeaderActions}
                     <IconButton
                         onClick={() => setTheaterMode(p => !p)}
