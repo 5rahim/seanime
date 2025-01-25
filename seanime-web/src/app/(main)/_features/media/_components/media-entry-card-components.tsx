@@ -495,7 +495,6 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                     progress={progress}
                     progressTotal={progressTotal}
                     forceShowTotal
-                    forceShowProgress
                 />
             </div>
 

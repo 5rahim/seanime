@@ -78,6 +78,9 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
 
         let videoSources = episodeSource.videoSources
 
+        logger("ONLINESTREAM").info("Stored quality", quality)
+        logger("ONLINESTREAM").info("Selected server", selectedServer)
+
         if (selectedServer && videoSources.some(n => n.server === selectedServer)) {
             videoSources = videoSources.filter(s => s.server === selectedServer)
         }
@@ -85,11 +88,21 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
         const hasQuality = videoSources.some(n => n.quality === quality)
         const hasAuto = videoSources.some(n => n.quality === "auto")
 
+        logger("ONLINESTREAM").info("Selecting quality", {
+            hasAuto,
+            hasQuality,
+        })
+
         // If quality is set, filter sources by quality
         // Only filter by quality if the quality is present in the sources
         if (quality && hasQuality) {
             videoSources = videoSources.filter(s => s.quality === quality)
-        } else if (!quality && !hasAuto) {
+        } else if (hasAuto) {
+            videoSources = videoSources.filter(s => s.quality === "auto")
+        } else {
+
+            logger("ONLINESTREAM").info("Choosing a quality")
+
             if (videoSources.some(n => n.quality.includes("1080p"))) {
                 videoSources = videoSources.filter(s => s.quality.includes("1080p"))
             } else if (videoSources.some(n => n.quality.includes("720p"))) {
@@ -103,11 +116,10 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
             if (videoSources.some(n => n.quality.includes("default"))) {
                 videoSources = videoSources.filter(s => s.quality.includes("default"))
             }
-        } else if (quality && hasAuto) {
-            videoSources = videoSources.filter(s => s.quality === "auto")
         }
 
-        console.log("videoSources", videoSources)
+
+        logger("ONLINESTREAM").info("videoSources", videoSources)
 
         return videoSources[0]
     }, [episodeSource, selectedServer, quality])

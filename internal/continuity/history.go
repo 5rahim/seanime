@@ -13,6 +13,7 @@ import (
 
 const (
 	MaxWatchHistoryItems   = 50
+	IgnoreRatioThreshold   = 0.9
 	WatchHistoryBucketName = "watch_history"
 )
 
@@ -308,7 +309,29 @@ func (m *Manager) UpdateExternalPlayerEpisodeWatchHistoryItem(currentTime, durat
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (m *Manager) getWatchHistory(mediaId int) (ret *WatchHistoryItem, exists bool) {
+	defer util.HandlePanicInModuleThen("continuity/getWatchHistory", func() {
+		ret = nil
+		exists = false
+	})
+
 	exists, _ = m.fileCacher.Get(*m.watchHistoryFileCacheBucket, strconv.Itoa(mediaId), &ret)
+
+	if exists && ret != nil && ret.Duration > 0 {
+		// If the item completion ratio is equal or above IgnoreRatioThreshold, don't return anything
+		ratio := ret.CurrentTime / ret.Duration
+		if ratio >= IgnoreRatioThreshold {
+			// Delete the item
+			go func() {
+				defer util.HandlePanicInModuleThen("continuity/getWatchHistory", func() {})
+				_ = m.fileCacher.Delete(*m.watchHistoryFileCacheBucket, strconv.Itoa(mediaId))
+			}()
+			return nil, false
+		}
+		if ratio < 0.05 {
+			return nil, false
+		}
+	}
+
 	return
 }
 

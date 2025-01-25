@@ -15,6 +15,7 @@ import {
     __seaMediaPlayer_autoPlayAtom,
     __seaMediaPlayer_autoSkipIntroOutroAtom,
     __seaMediaPlayer_discreteControlsAtom,
+    __seaMediaPlayer_mutedAtom,
     __seaMediaPlayer_volumeAtom,
 } from "@/app/(main)/_features/sea-media-player/sea-media-player.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -111,6 +112,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const discreteControls = useAtomValue(__seaMediaPlayer_discreteControlsAtom)
     const autoSkipIntroOutro = useAtomValue(__seaMediaPlayer_autoSkipIntroOutroAtom)
     const [volume, setVolume] = useAtom(__seaMediaPlayer_volumeAtom)
+    const [muted, setMuted] = useAtom(__seaMediaPlayer_mutedAtom)
 
     // Store the updated progress
     const [currentProgress, setCurrentProgress] = useAtom(__seaMediaPlayer_scopedCurrentProgressAtom)
@@ -457,6 +459,9 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
                     onDurationChange={onDurationChange}
                     onCanPlay={onCanPlay}
                     onEnded={onEnded}
+                    muted={muted}
+                    onMediaMuteRequest={() => setMuted(true)}
+                    onMediaUnmuteRequest={() => setMuted(false)}
                 >
                     <MediaProvider>
                         {tracks.map((track, index) => (

@@ -9,3 +9,5 @@ export const __seaMediaPlayer_autoSkipIntroOutroAtom = atomWithStorage("sea-medi
 export const __seaMediaPlayer_discreteControlsAtom = atomWithStorage("sea-media-player-discrete-controls", false)
 
 export const __seaMediaPlayer_volumeAtom = atomWithStorage("sea-media-player-volume", 1)
+
+export const __seaMediaPlayer_mutedAtom = atomWithStorage("sea-media-player-muted", false)
