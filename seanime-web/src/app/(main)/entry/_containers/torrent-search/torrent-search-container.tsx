@@ -1,5 +1,7 @@
 import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { DebridStreamFileSelectionModal } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-file-selection-modal"
 import {
     TorrentDebridInstantAvailabilityBadge,
@@ -15,7 +17,11 @@ import {
     TorrentConfirmationModal,
 } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import {
+    useDebridStreamAutoplay,
+    useHandleStartTorrentStream,
+    useTorrentStreamAutoplay,
+} from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
     __torrentSearch_torrentstreamSelectedTorrentAtom,
     TorrentstreamFileSelectionModal,
@@ -47,6 +53,7 @@ export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorr
 
 export function TorrentSearchContainer({ type, entry }: { type: TorrentSelectionType, entry: Anime_Entry }) {
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
+    const serverStatus = useServerStatus()
 
     const shouldLookForBatches = React.useMemo(() => {
         const endedDate = entry.media?.endDate?.year ? new Date(entry.media?.endDate?.year,
@@ -172,16 +179,20 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     }, [setSelectedTorrents, smartSearchBest, type])
 
     /**
-     * This function is called only when the type is 'select'
-     * Meaning, the user has selected a torrent and wants to start streaming
+     * Handle streams
      */
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const { handleStreamSelection } = useHandleStartDebridStream()
     const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const { setDebridstreamAutoplaySelectedTorrent } = useDebridStreamAutoplay()
+    const { setTorrentstreamAutoplaySelectedTorrent } = useTorrentStreamAutoplay()
+
     const onTorrentValidated = () => {
         if (type === "select") {
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+                setTorrentstreamAutoplaySelectedTorrent(selectedTorrents[0])
                 handleManualTorrentStreamSelection({
                     torrent: selectedTorrents[0],
                     entry,
@@ -203,7 +214,23 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     setSelectedTorrents([])
                 })
             }
-        } else if (type === "debrid-stream") {
+        } else if (type === "debrid-stream-select") {
+            // Start debrid stream with auto file selection
+            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
+                setDebridstreamAutoplaySelectedTorrent(selectedTorrents[0])
+                handleStreamSelection({
+                    torrent: selectedTorrents[0],
+                    entry,
+                    aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
+                    episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                    chosenFileId: "",
+                })
+                setter(undefined)
+                React.startTransition(() => {
+                    setSelectedTorrents([])
+                })
+            }
+        } else if (type === "debrid-stream-select-file") {
             // Open the drawer to select the file
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 // This opens the file selection drawer
@@ -217,7 +244,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
 
     return (
         <>
-            {(type === "select" || type === "select-file" || type === "debrid-stream") &&
+            {(type === "select" || type === "select-file" || type === "debrid-stream-select-file" || type === "debrid-stream-select") &&
                 <TorrentSearchTorrentStreamBatchHistory
                     type={type}
                     entry={entry}
@@ -395,7 +422,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
             />}
 
             {type === "select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
-            {type === "debrid-stream" && <DebridStreamFileSelectionModal entry={entry} />}
+            {type === "debrid-stream-select-file" && <DebridStreamFileSelectionModal entry={entry} />}
         </>
     )
 
@@ -410,6 +437,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
     const { data: batchHistory } = useGetTorrentstreamBatchHistory(entry?.mediaId, true)
 
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const { handleStreamSelection } = useHandleStartDebridStream()
     const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
@@ -442,7 +470,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                             })
                             setter(undefined)
                         }
-                    } else if (type === "select-file" || type === "debrid-stream") {
+                    } else if (type === "select-file" || type === "debrid-stream-select-file") {
                         // Open the drawer to select the file
                         if (!!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                             // This opens the file selection drawer

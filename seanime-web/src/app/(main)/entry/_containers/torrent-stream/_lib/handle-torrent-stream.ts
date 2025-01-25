@@ -95,23 +95,41 @@ export function useHandleStartTorrentStream() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type TorrentStreamAutoplayInfo = {
+type AutoplayInfo = {
     allEpisodes: Anime_Episode[]
     entry: Anime_Entry
     episodeNumber: number
     aniDBEpisode: string
+    type: "torrentstream" | "debridstream"
 }
-const __torrentstream_autoplayAtom = atom<TorrentStreamAutoplayInfo | null>(null)
+const __stream_autoplayAtom = atom<AutoplayInfo | null>(null)
+const __stream_autoplaySelectedTorrentAtom = atom<HibikeTorrent_AnimeTorrent | null>(null)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function useTorrentStreamAutoplay() {
-    const [info, setInfo] = useAtom(__torrentstream_autoplayAtom)
+    const [info, setInfo] = useAtom(__stream_autoplayAtom)
 
-    const { handleAutoSelectTorrentStream } = useHandleStartTorrentStream()
+    const { handleAutoSelectTorrentStream, handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const [selectedTorrent, setSelectedTorrent] = useAtom(__stream_autoplaySelectedTorrentAtom)
 
     function handleAutoplayNextTorrentstreamEpisode() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
-        handleAutoSelectTorrentStream({ entry, episodeNumber: episodeNumber, aniDBEpisode })
+
+        if (selectedTorrent) {
+            // If the user provided a torrent, use it
+            handleManualTorrentStreamSelection({
+                entry,
+                episodeNumber: episodeNumber,
+                aniDBEpisode: aniDBEpisode,
+                torrent: selectedTorrent,
+                chosenFileIndex: undefined,
+            })
+        } else {
+            // Otherwise, use the auto-select function
+            handleAutoSelectTorrentStream({ entry, episodeNumber: episodeNumber, aniDBEpisode })
+        }
 
         const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
         if (nextEpisode && !!nextEpisode.aniDBEpisode) {
@@ -120,6 +138,7 @@ export function useTorrentStreamAutoplay() {
                 entry,
                 episodeNumber: nextEpisode.episodeNumber,
                 aniDBEpisode: nextEpisode.aniDBEpisode,
+                type: "torrentstream",
             })
         } else {
             setInfo(null)
@@ -128,34 +147,42 @@ export function useTorrentStreamAutoplay() {
         toast.info("Requesting next torrent")
     }
 
+
     return {
-        hasNextTorrentstreamEpisode: !!info,
+        hasNextTorrentstreamEpisode: !!info && info.type === "torrentstream",
         setTorrentstreamAutoplayInfo: setInfo,
         autoplayNextTorrentstreamEpisode: handleAutoplayNextTorrentstreamEpisode,
         resetTorrentstreamAutoplayInfo: () => setInfo(null),
+        setTorrentstreamAutoplaySelectedTorrent: setSelectedTorrent,
     }
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-type DebridStreamAutoplayInfo = {
-    allEpisodes: Anime_Episode[]
-    entry: Anime_Entry
-    episodeNumber: number
-    aniDBEpisode: string
-}
-const __debridstream_autoplayAtom = atom<DebridStreamAutoplayInfo | null>(null)
-
 export function useDebridStreamAutoplay() {
-    const [info, setInfo] = useAtom(__debridstream_autoplayAtom)
+    const [info, setInfo] = useAtom(__stream_autoplayAtom)
 
-    const { handleAutoSelectStream } = useHandleStartDebridStream()
+    const { handleAutoSelectStream, handleStreamSelection } = useHandleStartDebridStream()
+    const [selectedTorrent, setSelectedTorrent] = useAtom(__stream_autoplaySelectedTorrentAtom)
 
     function handleAutoplayNextTorrentstreamEpisode() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
-        handleAutoSelectStream({ entry, episodeNumber: episodeNumber, aniDBEpisode })
+
+        if (selectedTorrent) {
+            // If the user provided a torrent, use it
+            handleStreamSelection({
+                entry,
+                episodeNumber: episodeNumber,
+                aniDBEpisode: aniDBEpisode,
+                torrent: selectedTorrent,
+                chosenFileId: "",
+            })
+        } else {
+            // Otherwise, use the auto-select function
+            handleAutoSelectStream({ entry, episodeNumber: episodeNumber, aniDBEpisode })
+        }
 
         const nextEpisode = allEpisodes?.find(e => e.episodeNumber === episodeNumber + 1)
         if (nextEpisode && !!nextEpisode.aniDBEpisode) {
@@ -164,6 +191,7 @@ export function useDebridStreamAutoplay() {
                 entry,
                 episodeNumber: nextEpisode.episodeNumber,
                 aniDBEpisode: nextEpisode.aniDBEpisode,
+                type: "debridstream",
             })
         } else {
             setInfo(null)
@@ -172,10 +200,12 @@ export function useDebridStreamAutoplay() {
         toast.info("Requesting next torrent")
     }
 
+
     return {
-        hasNextDebridstreamEpisode: !!info,
+        hasNextDebridstreamEpisode: !!info && info.type === "debridstream",
         setDebridstreamAutoplayInfo: setInfo,
         autoplayNextDebridstreamEpisode: handleAutoplayNextTorrentstreamEpisode,
         resetDebridstreamAutoplayInfo: () => setInfo(null),
+        setDebridstreamAutoplaySelectedTorrent: setSelectedTorrent,
     }
 }

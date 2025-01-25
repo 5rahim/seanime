@@ -12,7 +12,8 @@ export const __torrentSearch_drawerEpisodeAtom = atom<number | undefined>(undefi
 export type TorrentSelectionType =
     "select" // torrent streaming, torrent selection
     | "select-file" // torrent streaming, torrent & file selection
-    | "debrid-stream"  // debrid streaming, torrent & file selection
+    | "debrid-stream-select" // debrid streaming, torrent selection only
+    | "debrid-stream-select-file"  // debrid streaming, torrent & file selection
     | "download"
 
 export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {

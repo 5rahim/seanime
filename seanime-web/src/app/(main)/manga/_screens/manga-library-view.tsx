@@ -15,7 +15,7 @@ import { AnimatePresence } from "framer-motion"
 import { useSetAtom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import React, { memo } from "react"
-import { CgChevronDown } from "react-icons/cg"
+import { LuListFilter } from "react-icons/lu"
 
 type MangaLibraryViewProps = {
     collection: Manga_Collection
@@ -163,13 +163,13 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
 
             <div className="flex gap-3 items-center">
                 <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
-
+                <div className="flex flex-1"></div>
                 {list.type === "CURRENT" && <DropdownMenu
                     trigger={<IconButton
                         intent="white-basic"
                         size="xs"
                         className="mt-1"
-                        icon={<CgChevronDown />}
+                        icon={<LuListFilter />}
                     />}
                 >
                     <DropdownMenuItem

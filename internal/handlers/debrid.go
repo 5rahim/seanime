@@ -338,6 +338,7 @@ func (h *Handler) HandleDebridStartStream(c echo.Context) error {
 		AutoSelect    bool                             `json:"autoSelect"`
 		Torrent       *hibiketorrent.AnimeTorrent      `json:"torrent"`
 		FileId        string                           `json:"fileId"`
+		FileIndex     *int                             `json:"fileIndex"`
 		PlaybackType  debrid_client.StreamPlaybackType `json:"playbackType"` // "default" or "externalPlayerLink"
 		ClientId      string                           `json:"clientId"`
 	}
@@ -369,6 +370,7 @@ func (h *Handler) HandleDebridStartStream(c echo.Context) error {
 		AniDBEpisode:  b.AniDBEpisode,
 		Torrent:       b.Torrent,
 		FileId:        b.FileId,
+		FileIndex:     b.FileIndex,
 		UserAgent:     userAgent,
 		ClientId:      b.ClientId,
 		PlaybackType:  b.PlaybackType,

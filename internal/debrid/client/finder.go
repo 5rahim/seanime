@@ -3,8 +3,6 @@ package debrid_client
 import (
 	"cmp"
 	"fmt"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/debrid/debrid"
 	torrentanalyzer "seanime/internal/torrents/analyzer"
@@ -12,6 +10,9 @@ import (
 	"seanime/internal/util"
 	"slices"
 	"strconv"
+
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/samber/lo"
 )
 
 func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.CompleteAnime, episodeNumber int) (selectedTorrent *hibiketorrent.AnimeTorrent, fileId string, err error) {
@@ -242,4 +243,101 @@ searchLoop:
 	}
 
 	return
+}
+
+// findBestTorrentFromManualSelection is like findBestTorrent but for a pre-selected torrent
+func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider, t *hibiketorrent.AnimeTorrent, media *anilist.CompleteAnime, episodeNumber int, chosenFileIndex *int) (selectedTorrent *hibiketorrent.AnimeTorrent, fileId string, err error) {
+
+	r.logger.Debug().Msgf("debridstream: Analyzing torrent from %s for %s", t.Link, media.GetTitleSafe())
+
+	// Get the torrent's provider extension
+	providerExtension, ok := r.torrentRepository.GetAnimeProviderExtension(t.Provider)
+	if !ok {
+		r.logger.Error().Str("provider", t.Provider).Msg("debridstream: provider extension not found")
+		return nil, "", fmt.Errorf("provider extension not found")
+	}
+
+	// Check if the torrent is cached
+	if t.InfoHash != "" {
+		instantAvail := provider.GetInstantAvailability([]string{t.InfoHash})
+		if len(instantAvail) == 0 {
+			r.logger.Warn().Msg("debridstream: Torrent is not cached")
+			// We'll still continue since the user specifically selected this torrent
+		}
+	}
+
+	// Get the magnet link
+	magnet, err := providerExtension.GetProvider().GetTorrentMagnetLink(t)
+	if err != nil {
+		r.logger.Error().Err(err).Msgf("debridstream: Error scraping magnet link for %s", t.Link)
+		return nil, "", fmt.Errorf("could not get magnet link from %s", t.Link)
+	}
+
+	// Set the magnet link
+	t.MagnetLink = magnet
+
+	// Get the torrent info from the debrid provider
+	info, err := provider.GetTorrentInfo(debrid.GetTorrentInfoOptions{
+		MagnetLink: t.MagnetLink,
+		InfoHash:   t.InfoHash,
+	})
+	if err != nil {
+		r.logger.Error().Err(err).Msgf("debridstream: Error adding torrent %s", t.Link)
+		return nil, "", err
+	}
+
+	// If the torrent has only one file, return it
+	if len(info.Files) == 1 {
+		return t, info.Files[0].ID, nil
+	}
+
+	var fileIndex int
+
+	// If the file index is already selected
+	if chosenFileIndex != nil {
+		fileIndex = *chosenFileIndex
+	} else {
+		// We know the torrent has multiple files, so we'll need to analyze it
+		filepaths := lo.Map(info.Files, func(f *debrid.TorrentItemFile, _ int) string {
+			return f.Path
+		})
+
+		if len(filepaths) == 0 {
+			r.logger.Error().Msg("debridstream: No files found in the torrent")
+			return nil, "", fmt.Errorf("no files found in the torrent")
+		}
+
+		// Create a new Torrent Analyzer
+		analyzer := torrentanalyzer.NewAnalyzer(&torrentanalyzer.NewAnalyzerOptions{
+			Logger:           r.logger,
+			Filepaths:        filepaths,
+			Media:            media,
+			Platform:         r.platform,
+			MetadataProvider: r.metadataProvider,
+		})
+
+		// Analyze torrent files
+		analysis, err := analyzer.AnalyzeTorrentFiles()
+		if err != nil {
+			r.logger.Warn().Err(err).Msg("debridstream: Error analyzing torrent files")
+			return nil, "", err
+		}
+
+		analysisFile, found := analysis.GetFileByAniDBEpisode(strconv.Itoa(episodeNumber))
+		// Check if analyzer found the episode
+		if !found {
+			r.logger.Error().Msgf("debridstream: Failed to auto-select episode from torrent %s", t.Name)
+			return nil, "", fmt.Errorf("could not find episode %d in torrent", episodeNumber)
+		}
+
+		r.logger.Debug().Msgf("debridstream: Found corresponding file for episode %s: %s", strconv.Itoa(episodeNumber), analysisFile.GetLocalFile().Name)
+
+		fileIndex = analysisFile.GetIndex()
+	}
+
+	tFile := info.Files[fileIndex]
+	r.logger.Debug().Str("file", util.SpewT(tFile)).Msgf("debridstream: Selected file %s", tFile.Name)
+	r.logger.Debug().Msgf("debridstream: Selected torrent %s", t.Name)
+
+	return t, tFile.ID, nil
 }

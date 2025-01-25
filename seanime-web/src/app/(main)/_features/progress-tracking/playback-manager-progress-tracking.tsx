@@ -353,6 +353,26 @@ export function PlaybackManagerProgressTracking() {
         syncProgress()
     }
 
+    // React.useEffect(() => {
+    //     mousetrap.bind("esc", () => {
+    //         cancelAutoPlay()
+    //         setShowModal(false)
+    //         setShowAutoPlayCountdownModal(false)
+    //         setIsTracking(false)
+    //         setIsCompleted(false)
+    //         setState(null)
+    //         setPlaylistState(null)
+    //         setWillAutoPlay(false)
+    //         resetTorrentstreamAutoplayInfo()
+    //         resetDebridstreamAutoplayInfo()
+    //         clearTimers()
+    //     })
+
+    //     return () => {
+    //         mousetrap.unbind("esc")
+    //     }
+    // }, [])
+
     return (
         <>
             <Modal

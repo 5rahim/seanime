@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
@@ -12,6 +11,8 @@ import (
 	"seanime/internal/util"
 	"strconv"
 	"time"
+
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 )
 
 type (
@@ -37,6 +38,7 @@ type (
 		AniDBEpisode  string                      // Anizip episode
 		Torrent       *hibiketorrent.AnimeTorrent // Selected torrent
 		FileId        string                      // File ID or index
+		FileIndex     *int                        // Index of the file to stream (Manual selection)
 		UserAgent     string
 		ClientId      string
 		PlaybackType  StreamPlaybackType
@@ -123,6 +125,36 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 		}
 		selectedTorrent = st
 		fileId = fi
+	} else {
+		// Manual selection
+		if selectedTorrent == nil {
+			return fmt.Errorf("debridstream: Failed to start stream, no torrent provided")
+		}
+
+		s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+			Status:      StreamStatusDownloading,
+			TorrentName: selectedTorrent.Name,
+			Message:     "Analyzing selected torrent...",
+		})
+
+		// If no fileId is provided, we need to analyze the torrent to find the correct file
+		if fileId == "" {
+			var chosenFileIndex *int
+			if opts.FileIndex != nil {
+				chosenFileIndex = opts.FileIndex
+			}
+			st, fi, err := s.repository.findBestTorrentFromManualSelection(provider, selectedTorrent, media, opts.EpisodeNumber, chosenFileIndex)
+			if err != nil {
+				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+					Status:      StreamStatusFailed,
+					TorrentName: selectedTorrent.Name,
+					Message:     fmt.Sprintf("Failed to analyze torrent, %v", err),
+				})
+				return fmt.Errorf("debridstream: Failed to analyze torrent: %w", err)
+			}
+			selectedTorrent = st
+			fileId = fi
+		}
 	}
 
 	if selectedTorrent == nil {

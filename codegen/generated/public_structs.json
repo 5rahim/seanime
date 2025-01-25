@@ -29019,6 +29019,17 @@
         ]
       },
       {
+        "name": "FileIndex",
+        "jsonName": "FileIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Index of the file to stream (Manual selection)"
+        ]
+      },
+      {
         "name": "UserAgent",
         "jsonName": "UserAgent",
         "goType": "string",

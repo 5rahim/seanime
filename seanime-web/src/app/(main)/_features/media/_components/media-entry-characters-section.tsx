@@ -2,7 +2,6 @@ import { AL_AnimeDetailsById_Media, AL_MangaDetailsById_Media } from "@/api/gene
 import { imageShimmer } from "@/components/shared/image-helpers"
 import { SeaLink } from "@/components/shared/sea-link"
 import { cn } from "@/components/ui/core/styling"
-import { Separator } from "@/components/ui/separator"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
 import React from "react"
@@ -31,7 +30,7 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
 
     return (
         <>
-            {!isMangaPage && <Separator />}
+            {/*{!isMangaPage && <Separator />}*/}
 
             <h2>Characters</h2>
 

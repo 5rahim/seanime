@@ -297,7 +297,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
-                <div className="absolute z-[10] left-0 bottom-0">
+                <div className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}

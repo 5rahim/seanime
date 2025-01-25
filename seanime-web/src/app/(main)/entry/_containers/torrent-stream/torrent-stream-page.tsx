@@ -24,7 +24,7 @@ type TorrentStreamPageProps = {
     bottomSection?: React.ReactNode
 }
 
-const manuallySelectFileAtom = atomWithStorage("sea-torrentstream-manually-select-file", true)
+const autoSelectFileAtom = atomWithStorage("sea-torrentstream-auto-select-file", true)
 
 export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
@@ -39,7 +39,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
     const [autoSelect, setAutoSelect] = React.useState(serverStatus?.torrentstreamSettings?.autoSelect)
 
-    const [manuallySelectFile, setManuallySelectFile] = useAtom(manuallySelectFileAtom)
+    const [autoSelectFile, setAutoSelectFile] = useAtom(autoSelectFileAtom)
 
     /**
      * Get all episodes to watch
@@ -69,15 +69,12 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
     const { handleAutoSelectTorrentStream, isPending } = useHandleStartTorrentStream()
     const { setTorrentstreamAutoplayInfo } = useTorrentStreamAutoplay()
 
-    function handleAutoSelect(entry: Anime_Entry, episode: Anime_Episode | undefined) {
-        if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
-        // Start the torrent stream
-        handleAutoSelectTorrentStream({
-            entry: entry,
-            episodeNumber: episode.episodeNumber,
-            aniDBEpisode: episode.aniDBEpisode,
-        })
-        // Check if next episode exists for autoplay
+    // Function to set the torrent stream autoplay info
+    // It checks if there is a next episode and if it has aniDBEpisode
+    // If so, it sets the autoplay info
+    // Otherwise, it resets the autoplay info
+    function handleSetTorrentstreamAutoplayInfo(episode: Anime_Episode | undefined) {
+        if (!episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
         const nextEpisode = episodeCollection?.episodes?.find(e => e.episodeNumber === episode.episodeNumber + 1)
         logger("TORRENTSTREAM").info("Auto select, Next episode", nextEpisode)
         if (nextEpisode && !!nextEpisode.aniDBEpisode) {
@@ -86,10 +83,24 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                 entry: entry,
                 episodeNumber: nextEpisode.episodeNumber,
                 aniDBEpisode: nextEpisode.aniDBEpisode,
+                type: "torrentstream",
             })
         } else {
             setTorrentstreamAutoplayInfo(null)
         }
+    }
+
+    function handleAutoSelect(entry: Anime_Entry, episode: Anime_Episode | undefined) {
+        if (isPending || !episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
+        // Start the torrent stream
+        handleAutoSelectTorrentStream({
+            entry: entry,
+            episodeNumber: episode.episodeNumber,
+            aniDBEpisode: episode.aniDBEpisode,
+        })
+
+        // Set the torrent stream autoplay info
+        handleSetTorrentstreamAutoplayInfo(episode)
     }
 
     function handlePlayNextEpisodeOnMount(episode: Anime_Episode) {
@@ -112,18 +123,25 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
             setTorrentStreamingSelectedEpisode(episode)
 
             React.startTransition(() => {
+                // If auto-select is enabled, send the streaming request
                 if (autoSelect) {
                     handleAutoSelect(entry, episode)
-                } else if (!manuallySelectFile) {
-                    setTorrentSearchEpisode(episode.episodeNumber)
-                    React.startTransition(() => {
-                        setTorrentDrawerIsOpen("select")
-                    })
                 } else {
+
                     setTorrentSearchEpisode(episode.episodeNumber)
                     React.startTransition(() => {
+                        // If auto-select file is enabled, open the torrent drawer
+                        if (autoSelectFile) {
+                            setTorrentDrawerIsOpen("select")
+
+                            // Set the torrent stream autoplay info
+                            handleSetTorrentstreamAutoplayInfo(episode)
+
+                        } else { // Otherwise, open the torrent drawer
                         setTorrentDrawerIsOpen("select-file")
+                        }
                     })
+
                 }
             })
             // toast.info("Starting torrent stream...")
@@ -183,12 +201,12 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
 
                     {!autoSelect && (
                         <Switch
-                            label="Manually select file"
-                            value={manuallySelectFile}
+                            label="Auto-select file"
+                            value={autoSelectFile}
                             onValueChange={v => {
-                                setManuallySelectFile(v)
+                                setAutoSelectFile(v)
                             }}
-                            help="Manually select the file to stream after selecting a torrent"
+                            help="Automatically select the file to stream after selecting a torrent"
                             fieldClass="w-fit"
                         />
                     )}

@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { CgChevronDown } from "react-icons/cg"
+import { LuListFilter } from "react-icons/lu"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
     collectionList: Anime_LibraryCollectionList[],
@@ -78,13 +78,13 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
         <React.Fragment key={list.type}>
             <div className="flex gap-3 items-center">
                 <h2 className="p-0 m-0">{getLibraryCollectionTitle(list.type)}</h2>
-                {/*<div className="flex flex-1"></div>*/}
+                <div className="flex flex-1"></div>
                 {isCurrentlyWatching && <DropdownMenu
                     trigger={<IconButton
                         intent="white-basic"
                         size="xs"
                         className="mt-1"
-                        icon={<CgChevronDown />}
+                        icon={<LuListFilter />}
                     />}
                 >
                     <DropdownMenuItem

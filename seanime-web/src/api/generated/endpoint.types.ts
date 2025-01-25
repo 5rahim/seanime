@@ -500,6 +500,7 @@ export type DebridStartStream_Variables = {
     autoSelect: boolean
     torrent?: HibikeTorrent_AnimeTorrent
     fileId: string
+    fileIndex?: number
     playbackType: DebridClient_StreamPlaybackType
     clientId: string
 }

@@ -2227,6 +2227,15 @@
           "descriptions": []
         },
         {
+          "name": "FileIndex",
+          "jsonName": "fileIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
           "name": "PlaybackType",
           "jsonName": "playbackType",
           "goType": "debrid_client.StreamPlaybackType",
