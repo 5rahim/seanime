@@ -61,7 +61,7 @@ export function SettingsCard({ title, description, children, className }: Settin
                 <div
                     className="pointer-events-none absolute -inset-px transition-opacity duration-300 opacity-0 group-hover/settings-card:opacity-100"
                     style={{
-                        background: `radial-gradient(400px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
+                        background: `radial-gradient(700px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
                     }}
                 />
                 {title && <CardHeader>

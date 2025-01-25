@@ -23,6 +23,7 @@ import CodeMirror from "@uiw/react-codemirror"
 import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import mousetrap from "mousetrap"
 import React from "react"
 import { toast } from "sonner"
 
@@ -282,6 +283,16 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
         })
     }
 
+    React.useEffect(() => {
+        mousetrap.bind(["cmd+s", "ctrl+s"], () => {
+            handleRunCode()
+        })
+
+        return () => {
+            mousetrap.unbind(["cmd+s", "ctrl+s"])
+        }
+    }, [])
+
 
     return (
         <>
@@ -497,10 +508,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                         <TextInput
                                                             label="Query"
                                                             type="text"
-                                                            value={inputs.animeTorrentProvider.smartSearch.query}
+                                                            value={inputs.animeTorrentProvider.search.query}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartSearch.query = v
+                                                                    d.animeTorrentProvider.search.query = v
                                                                     return
                                                                 })
                                                             }}

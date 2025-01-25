@@ -32,6 +32,16 @@ export default function Page() {
         }
     }, [mangaEntry, mangaEntryLoading])
 
+    React.useEffect(() => {
+        try {
+            if (mangaEntry?.media?.title?.userPreferred) {
+                document.title = `${mangaEntry?.media?.title?.userPreferred} | Seanime`
+            }
+        }
+        catch {
+        }
+    }, [mangaEntry])
+
     if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <MediaEntryPageLoadingDisplay />
 
     return (

@@ -75,7 +75,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                 <p className="text-md line-clamp-1">
                     <span className="text-[--muted]">Language:</span> <span className="">{capitalize(extension.language)}</span>
                 </p>
-                {!!extension.manifestURI && <p className="text-md line-clamp-1">
+                {!!extension.manifestURI && <p className="text-md w-full">
                     <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>
                 </p>}
             </div>

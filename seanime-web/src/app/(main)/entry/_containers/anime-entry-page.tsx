@@ -67,6 +67,16 @@ export function AnimeEntryPage() {
 
     const { currentView, isLibraryView, setView } = useAnimeEntryPageView()
 
+    React.useEffect(() => {
+        try {
+            if (animeEntry?.media?.title?.userPreferred) {
+                document.title = `${animeEntry?.media?.title?.userPreferred} | Seanime`
+            }
+        }
+        catch {
+        }
+    }, [animeEntry])
+
     const switchedView = React.useRef(false)
     React.useLayoutEffect(() => {
         if (!animeEntryLoading &&

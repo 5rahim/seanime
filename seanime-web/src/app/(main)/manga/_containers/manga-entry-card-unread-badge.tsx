@@ -15,7 +15,7 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
 
     const {
         mediaId,
-        progress: _progress,
+        progress,
         progressTotal: _progressTotal,
         ...rest
     } = props
@@ -23,7 +23,6 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
     const { showMangaUnreadCount } = useThemeSettings()
     const [chapterCounts] = useAtom(__mangaLibrary_chapterCountsAtom)
 
-    const [progress, setProgress] = React.useState(_progress)
     const [progressTotal, setProgressTotal] = React.useState(_progressTotal || 0)
 
     React.useEffect(() => {

@@ -80,8 +80,8 @@ export const COLLECTION_SORTING_OPTIONS = [
 ]
 
 export const ANIME_COLLECTION_SORTING_OPTIONS = [
-    { label: "Aired recently and unwatched", value: "AIRDATE_DESC" },
-    { label: "Aired oldest and unwatched", value: "AIRDATE" },
+    { label: "Aired recently and not up-to-date", value: "AIRDATE_DESC" },
+    { label: "Aired oldest and not up-to-date", value: "AIRDATE" },
     { label: "Highest unwatched count", value: "UNWATCHED_EPISODES_DESC" },
     { label: "Lowest unwatched count", value: "UNWATCHED_EPISODES" },
     ...COLLECTION_SORTING_OPTIONS,
