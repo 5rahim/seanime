@@ -4,11 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	alog "github.com/anacrolix/log"
-	"github.com/anacrolix/torrent"
-	"github.com/anacrolix/torrent/storage"
-	"github.com/dustin/go-humanize"
-	"github.com/samber/mo"
 	"io"
 	"net/http"
 	"net/url"
@@ -18,6 +13,13 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	alog "github.com/anacrolix/log"
+	"github.com/anacrolix/torrent"
+	"github.com/anacrolix/torrent/storage"
+	"github.com/dustin/go-humanize"
+	"github.com/samber/mo"
+	"golang.org/x/time/rate"
 )
 
 type (
@@ -88,8 +90,15 @@ func (c *Client) initializeClient() error {
 	// Define torrent client settings
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.Seed = true
-	cfg.DisableIPv6 = true
+	cfg.DisableIPv6 = settings.DisableIPV6
 	cfg.Logger = alog.Logger{}
+
+	if settings.SlowSeeding {
+		cfg.DialRateLimiter = rate.NewLimiter(rate.Limit(1), 1)
+		cfg.UploadRateLimiter = rate.NewLimiter(rate.Limit(1<<20), 2<<20)
+		// cfg.DisableAggressiveUpload = true
+	}
+
 	//cfg.DisableAggressiveUpload = true
 	//cfg.Debug = true
 

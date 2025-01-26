@@ -28141,6 +28141,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SlowSeeding",
+        "jsonName": "slowSeeding",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -34713,6 +34722,15 @@
         "comments": []
       },
       {
+        "name": "VersionName",
+        "jsonName": "versionName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "ThemeSettings",
         "jsonName": "themeSettings",
         "goType": "models.Theme",
@@ -38135,6 +38153,17 @@
         "public": true,
         "comments": [
           " The title of the media"
+        ]
+      },
+      {
+        "name": "MediaCoverImage",
+        "jsonName": "mediaCoverImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The cover image of the media"
         ]
       },
       {
@@ -58005,6 +58034,48 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/round_tripper.go",
+    "filename": "round_tripper.go",
+    "name": "RetryConfig",
+    "formattedName": "Util_RetryConfig",
+    "package": "util",
+    "fields": [
+      {
+        "name": "MaxRetries",
+        "jsonName": "MaxRetries",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RetryDelay",
+        "jsonName": "RetryDelay",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeoutOnly",
+        "jsonName": "TimeoutOnly",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Only retry on timeout errors"
+        ]
+      }
+    ],
+    "comments": [
+      " RetryConfig configures the retry behavior"
+    ]
   },
   {
     "filepath": "../internal/util/round_tripper.go",

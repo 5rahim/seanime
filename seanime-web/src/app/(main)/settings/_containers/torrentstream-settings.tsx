@@ -22,6 +22,7 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     preferredResolution: z.string(),
     includeInLibrary: z.boolean(),
     streamUrlAddress: z.string().optional().default(""),
+    slowSeeding: z.boolean().optional().default(false),
 }))
 
 
@@ -81,6 +82,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     preferredResolution: settings.preferredResolution || "-",
                     includeInLibrary: settings.includeInLibrary,
                     streamUrlAddress: settings.streamUrlAddress || "",
+                    slowSeeding: settings.slowSeeding,
                 }}
                 stackClass="space-y-4"
             >
@@ -139,32 +141,56 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 {/*    help="Keep completely downloaded files in corresponding library entries."*/}
                 {/*/>*/}
 
-                <SettingsCard title="Torrent Client" description="Seanime uses a built-in torrent client to download torrents.">
-                    <div className="flex items-center gap-3">
+                {/* <SettingsCard title="Torrent Client" description="Seanime uses a built-in torrent client to download torrents.">
 
-                        <Field.Text
-                            name="torrentClientHost"
-                            label="Host"
-                            help="Leave empty for default. The host to listen for new uTP and TCP BitTorrent connections."
-                        />
+                 </SettingsCard> */}
 
-                        <Field.Number
-                            name="torrentClientPort"
-                            label="Port"
-                            formatOptions={{
-                                useGrouping: false,
-                            }}
-                            help="Leave empty for default. Default is 43213."
-                        />
+                <Accordion
+                    type="single"
+                    collapsible
+                    className="border rounded-md"
+                    triggerClass="dark:bg-[--paper]"
+                    contentClass="!pt-2 dark:bg-[--paper]"
+                >
+                    <AccordionItem value="more">
+                        <AccordionTrigger className="bg-gray-900 rounded-md">
+                            Torrent Client
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4">
+                            <div className="flex items-center gap-3">
 
-                    </div>
+                                <Field.Text
+                                    name="torrentClientHost"
+                                    label="Host"
+                                    help="Leave empty for default. The host to listen for new uTP and TCP BitTorrent connections."
+                                />
 
-                    <Field.Switch
-                        side="right"
-                        name="disableIPv6"
-                        label="Disable IPv6"
-                    />
-                </SettingsCard>
+                                <Field.Number
+                                    name="torrentClientPort"
+                                    label="Port"
+                                    formatOptions={{
+                                        useGrouping: false,
+                                    }}
+                                    help="Leave empty for default. Default is 43213."
+                                />
+
+                            </div>
+
+                            <Field.Switch
+                                side="right"
+                                name="disableIPv6"
+                                label="Disable IPv6"
+                            />
+
+                            <Field.Switch
+                                side="right"
+                                name="slowSeeding"
+                                label="Slow seeding"
+                                moreHelp="This can help avoid issues with your network."
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
 
                 <Accordion
                     type="single"

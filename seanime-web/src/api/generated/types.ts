@@ -2349,6 +2349,7 @@ export type Status = {
     user?: Anime_User
     settings?: Models_Settings
     version: string
+    versionName: string
     themeSettings?: Models_Theme
     isOffline: boolean
     mediastreamSettings?: Models_MediastreamSettings
@@ -2875,6 +2876,7 @@ export type Models_TorrentstreamSettings = {
     streamingServerPort: number
     includeInLibrary: boolean
     streamUrlAddress: string
+    slowSeeding: boolean
     id: number
     createdAt?: string
     updatedAt?: string
