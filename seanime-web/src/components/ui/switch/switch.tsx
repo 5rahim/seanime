@@ -5,7 +5,7 @@ import { Popover } from "@/components/ui/popover"
 import * as SwitchPrimitive from "@radix-ui/react-switch"
 import { cva, VariantProps } from "class-variance-authority"
 import * as React from "react"
-import { AiOutlineQuestionCircle } from "react-icons/ai"
+import { AiOutlineExclamationCircle, AiOutlineQuestionCircle } from "react-icons/ai"
 import { BasicField, BasicFieldOptions, extractBasicFieldProps } from "../basic-field"
 import { cn, ComponentAnatomy, defineStyleAnatomy } from "../core/styling"
 import { mergeRefs } from "../core/utils"
@@ -143,7 +143,7 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
             id={basicFieldProps.id}
             fieldClass={cn(
                 "w-fit",
-                side === "right" && "w-full group/switch hover:bg-white/5 rounded-md p-2 w-[calc(100%_+_1rem)] -ml-2",
+                side === "right" && "w-full group/switch hover:bg-white/5 rounded-[--radius] p-2 w-[calc(100%_+_1rem)] -ml-2",
             )}
             fieldHelpTextClass={cn("")}
         >
@@ -176,7 +176,10 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>((props, r
                     >
                         {label}
                     </label>
-                    {moreHelp && <Popover className="text-sm" trigger={<AiOutlineQuestionCircle className="transition-opacity hover:opacity-50" />}>
+                    {moreHelp && <Popover
+                        className="text-sm"
+                        trigger={<AiOutlineExclamationCircle className="transition-opacity opacity-45 hover:opacity-90" />}
+                    >
                         {moreHelp}
                     </Popover>}
                 </div>}

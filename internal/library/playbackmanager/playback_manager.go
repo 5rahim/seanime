@@ -4,19 +4,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
-	"seanime/internal/discordrpc/presence"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"sync"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 const (
@@ -107,6 +108,7 @@ type (
 	PlaybackState struct {
 		EpisodeNumber        int     `json:"episodeNumber"`        // The episode number
 		MediaTitle           string  `json:"mediaTitle"`           // The title of the media
+		MediaCoverImage      string  `json:"mediaCoverImage"`      // The cover image of the media
 		MediaTotalEpisodes   int     `json:"mediaTotalEpisodes"`   // The total number of episodes
 		Filename             string  `json:"filename"`             // The filename
 		CompletionPercentage float64 `json:"completionPercentage"` // The completion percentage

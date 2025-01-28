@@ -163,7 +163,7 @@ export default function Page() {
                                         }
                                         contentClass="max-w-3xl"
                                     >
-                                        <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-md bg-gray-900">
+                                        <pre className="overflow-x-auto overflow-y-auto max-h-[calc(100dvh-300px)] whitespace-pre-wrap p-2 rounded-[--radius-md] bg-gray-900">
                                             {JSON.stringify(mediaContainer, null, 2)}
                                         </pre>
                                     </Modal>

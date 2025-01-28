@@ -55,7 +55,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
         ]
 
         inject("library-episodes", {
-            items: allEpisodes.map(episode => ({
+            items: allEpisodes.filter(n => !!n.episodeTitle).map(episode => ({
                 data: episode,
                 id: `${episode.type}-${episode.localFile?.path || ""}-${episode.episodeNumber}`,
                 value: `${episode.episodeNumber}`,

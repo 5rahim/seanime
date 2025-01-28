@@ -83,13 +83,13 @@ export function ScannerModal() {
                         setOpen(o)
                     }
                 }}
-                title="Library scanner"
+                // title="Library scanner"
                 titleClass="text-center"
-                contentClass="space-y-4 max-w-2xl"
+                contentClass="space-y-4 max-w-2xl overflow-hidden"
             >
 
                 <div
-                    className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-60 top-0 left-0 bg-no-repeat bg-right bg-cover"
+                    className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
                 >
                     <div
                         className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
@@ -99,7 +99,7 @@ export function ScannerModal() {
                 <div className="space-y-4 mt-6">
 
                     <AppLayoutStack className="space-y-2">
-                        <h5>Local files</h5>
+                        <h5 className="text-[--muted]">Local files</h5>
                         <Switch
                             side="right"
                             label="Skip locked files"
@@ -114,10 +114,11 @@ export function ScannerModal() {
                             onValueChange={v => skipIgnoredFiles.set(v as boolean)}
                             // size="lg"
                         />
+
                         <Separator />
 
                         <AppLayoutStack className="space-y-2">
-                            <h5>Matching data</h5>
+                            <h5 className="text-[--muted]">Matching data</h5>
                             <Switch
                                 side="right"
                                 label="Use my AniList lists only"

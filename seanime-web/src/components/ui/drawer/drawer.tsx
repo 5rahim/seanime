@@ -44,19 +44,21 @@ export const DrawerAnatomy = defineStyleAnatomy({
         "fixed inset-0 z-[50] bg-black/80",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        // "transition-opacity duration-300",
     ]),
     content: cva([
         "UI-Drawer__content",
         "fixed z-50 w-full gap-4 bg-[--background] p-6 shadow-lg overflow-y-auto",
         "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-500 data-[state=open]:duration-500",
         "focus:outline-none focus-visible:outline-none",
+        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "select-none",
     ], {
         variants: {
             side: {
-                top: "w-full inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-                bottom: "w-full inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-                left: "inset-y-0 left-0 h-full border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
-                right: "inset-y-0 right-0 h-full border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+                top: "w-[calc(100%_-_20px)] inset-x-0 top-0 border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+                bottom: "w-[calc(100%_-_20px)] inset-x-0 bottom-0 border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+                left: "inset-y-0 left-0 h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+                right: "inset-y-0 right-0 h-[calc(100%_-_20px)] border data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
             },
             size: { sm: null, md: null, lg: null, xl: null, full: null },
         },
@@ -141,6 +143,8 @@ export type DrawerProps = Omit<React.ComponentPropsWithoutRef<typeof DialogPrimi
      *  Portal container
      */
     portalContainer?: HTMLElement
+
+    mangaReader?: boolean
 }
 
 export function Drawer(props: DrawerProps) {
@@ -171,6 +175,7 @@ export function Drawer(props: DrawerProps) {
         onPointerDownCapture,
         onInteractOutside,
         portalContainer,
+        mangaReader,
         ...rest
     } = props
 
@@ -185,18 +190,20 @@ export function Drawer(props: DrawerProps) {
 
             <DialogPrimitive.Portal container={portalContainer}>
 
-                {/*<DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} />*/}
-                {open && <div
-                    className={cn(DrawerAnatomy.overlay(), overlayClass)}
-                    data-state={open ? "open" : "closed"}
-                />}
+                <DialogPrimitive.Overlay className={cn(DrawerAnatomy.overlay(), overlayClass)} />
 
                 <DialogPrimitive.Content
                     className={cn(
                         DrawerAnatomy.content({ size, side }),
-                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-12",
+                        // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "pt-12",
+                        !mangaReader && "m-[10px] rounded-[--radius]",
                         contentClass,
                     )}
+                    style={{
+                        marginTop: (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !mangaReader) ? "30px" : undefined,
+                        height: (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !mangaReader &&
+                            (side === "left" || side === "right")) ? "calc(100% - 40px)" : undefined,
+                    }}
                     onOpenAutoFocus={onOpenAutoFocus}
                     onCloseAutoFocus={onCloseAutoFocus}
                     onEscapeKeyDown={onEscapeKeyDown}
@@ -210,7 +217,13 @@ export function Drawer(props: DrawerProps) {
                         </VisuallyHidden>
                     ) : (
                         <div className={cn(DrawerAnatomy.header(), headerClass)}>
-                            <DialogPrimitive.Title className={cn(DrawerAnatomy.title(), titleClass)}>
+                            <DialogPrimitive.Title
+                                className={cn(
+                                    DrawerAnatomy.title(),
+                                    process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "relative",
+                                    titleClass,
+                                )}
+                            >
                                 {title}
                             </DialogPrimitive.Title>
                             {description && (
@@ -230,7 +243,7 @@ export function Drawer(props: DrawerProps) {
                     {!hideCloseButton && <DialogPrimitive.Close
                         className={cn(
                             DrawerAnatomy.close(),
-                            process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "!top-10 !right-4",
+                            // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "!top-10 !right-4",
                             closeClass,
                         )}
                         asChild

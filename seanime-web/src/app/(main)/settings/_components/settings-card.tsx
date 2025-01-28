@@ -25,7 +25,7 @@ export function SettingsNavCard({ title, children }: SettingsCardProps) {
             <div
                 ref={cardRef}
                 onMouseMove={handleMouseMove}
-                className="lg:p-2 lg:border lg:rounded-md lg:bg-[--paper] contents lg:block relative group/settings-nav overflow-hidden"
+                className="lg:p-2 lg:border lg:rounded-[--radius] lg:bg-[--paper] contents lg:block relative group/settings-nav overflow-hidden"
             >
                 <div
                     className="pointer-events-none absolute -inset-px transition-opacity duration-300 opacity-0 group-hover/settings-nav:opacity-100 hidden lg:block"

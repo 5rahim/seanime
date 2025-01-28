@@ -147,7 +147,7 @@ function FileSelectorModal(props: FileSelectorProps & { isOpen: boolean, onOpenC
 
                 <ScrollArea
                     className={cn(
-                        "h-60 rounded-md border",
+                        "h-60 rounded-[--radius-md] border",
                     )}
                 >
                     <TreeNode

@@ -40,7 +40,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
                                     showLibraryBadge
                                     showTrailer
                                     overlay={<Badge
-                                        className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
+                                        className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
                                         intent="gray"
                                         size="lg"
                                     >{edge?.node?.format === "MOVIE"

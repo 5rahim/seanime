@@ -37,7 +37,7 @@ export function AnimeEntryCardUnwatchedBadge(props: AnimeEntryCardUnwatchedBadge
             <Badge
                 intent="unstyled"
                 size="lg"
-                className="text-sm tracking-wide flex gap-1 items-center rounded-md border-0 bg-transparent px-1.5"
+                className="text-sm tracking-wide flex gap-1 items-center rounded-[--radius-md] border-0 bg-transparent px-1.5"
             >
                 <MdOutlinePlayCircleOutline className="text-lg" /><span className="text-[--foreground] font-normal">{unwatched}</span>
             </Badge>

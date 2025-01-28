@@ -117,7 +117,7 @@ export function useTorrentStreamAutoplay() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
-        if (selectedTorrent) {
+        if (selectedTorrent?.isBatch) {
             // If the user provided a torrent, use it
             handleManualTorrentStreamSelection({
                 entry,
@@ -170,7 +170,7 @@ export function useDebridStreamAutoplay() {
         if (!info) return
         const { entry, episodeNumber, aniDBEpisode, allEpisodes } = info
 
-        if (selectedTorrent) {
+        if (selectedTorrent?.isBatch) {
             // If the user provided a torrent, use it
             handleStreamSelection({
                 entry,

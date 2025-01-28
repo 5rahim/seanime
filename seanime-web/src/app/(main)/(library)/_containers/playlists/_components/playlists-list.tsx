@@ -71,7 +71,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
                             )}
                             // onClick={() => handleSelect(lf.path)}
                         >
-                            <div className="group/playlist-item flex gap-3 h-full justify-between items-center bg-gray-950 rounded-md border transition relative overflow-hidden">
+                            <div className="group/playlist-item flex gap-3 h-full justify-between items-center bg-gray-950 rounded-[--radius-md] transition relative overflow-hidden">
                                 {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image
                                     src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}
                                     placeholder={imageShimmer(700, 475)}

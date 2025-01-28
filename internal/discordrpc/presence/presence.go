@@ -2,13 +2,14 @@ package discordrpc_presence
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"seanime/internal/constants"
 	"seanime/internal/database/models"
-	"seanime/internal/discordrpc/client"
+	discordrpc_client "seanime/internal/discordrpc/client"
 	"seanime/internal/util"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type Presence struct {
@@ -157,7 +158,7 @@ var (
 			LargeImage: "",
 			LargeText:  "",
 			SmallImage: "https://seanime.rahim.app/images/circular-logo.png",
-			SmallText:  "Seanime",
+			SmallText:  "Seanime v" + constants.Version,
 		},
 		Timestamps: &discordrpc_client.Timestamps{
 			Start: &discordrpc_client.Epoch{

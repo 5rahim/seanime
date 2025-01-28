@@ -24,7 +24,7 @@ export const SimpleDropzoneAnatomy = defineStyleAnatomy({
     ]),
     list: cva([
         "UI-SimpleDropzone__list",
-        "flex rounded-md flex-wrap divide-y divide-[--border]",
+        "flex rounded-[--radius-md] flex-wrap divide-y divide-[--border]",
     ]),
     listItem: cva([
         "UI-SimpleDropzone__listItem",
@@ -56,7 +56,7 @@ export const SimpleDropzoneAnatomy = defineStyleAnatomy({
     ]),
     imagePreview: cva([
         "UI-SimpleDropzone__imagePreview",
-        "relative bg-transparent border h-full bg-center bg-no-repeat bg-contain rounded-md overflow-hidden",
+        "relative bg-transparent border h-full bg-center bg-no-repeat bg-contain rounded-[--radius-md] overflow-hidden",
         "col-span-1 row-span-1",
     ]),
     imagePreviewRemoveButton: cva([

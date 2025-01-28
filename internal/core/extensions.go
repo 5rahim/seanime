@@ -103,17 +103,17 @@ func (a *App) LoadBuiltInExtensions() {
 	// Built-in online stream providers
 	//
 
-	a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
-		ID:          "gogoanime",
-		Name:        "Gogoanime",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeOnlinestreamProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
-	}, onlinestream_providers.NewGogoanime(a.Logger))
+	//a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
+	//	ID:          "gogoanime",
+	//	Name:        "Gogoanime",
+	//	Version:     "",
+	//	ManifestURI: "builtin",
+	//	Language:    extension.LanguageGo,
+	//	Type:        extension.TypeOnlinestreamProvider,
+	//	Author:      "Seanime",
+	//	Lang:        "en",
+	//	Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/gogoanime.png",
+	//}, onlinestream_providers.NewGogoanime(a.Logger))
 
 	//a.ExtensionRepository.LoadBuiltInOnlinestreamProviderExtension(extension.Extension{
 	//	ID:          "zoro",

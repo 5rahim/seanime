@@ -129,7 +129,7 @@ export function TorrentstreamFileSelectionModal({ entry }: { entry: Anime_Entry 
                             </Button>
                         </div>
 
-                        <ScrollArea className="h-[75dvh] overflow-y-auto p-4 border rounded-md">
+                        <ScrollArea className="h-[75dvh] overflow-y-auto p-4 border rounded-[--radius-md]">
                             <FileSelection />
                         </ScrollArea>
 

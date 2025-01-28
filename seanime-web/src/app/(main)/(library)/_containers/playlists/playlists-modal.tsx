@@ -26,14 +26,15 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
                 onOpenChange={v => setIsOpen(v)}
                 size="lg"
                 side="bottom"
+                contentClass=""
             >
-                <div
-                    className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[5rem] absolute opacity-30 top-0 left-0 bg-no-repeat bg-right bg-cover"
-                >
-                    <div
-                        className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"
-                    />
-                </div>
+                {/*<div*/}
+                {/*    className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[5rem] absolute opacity-30 top-0 left-0 bg-no-repeat bg-right bg-cover"*/}
+                {/*>*/}
+                {/*    <div*/}
+                {/*        className="w-full absolute top-0 h-full bg-gradient-to-t from-[--background] to-transparent z-[-2]"*/}
+                {/*    />*/}
+                {/*</div>*/}
 
                 <div className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -41,7 +42,7 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
                         <div className="flex gap-2 items-center md:pr-8">
                             <PlaylistModal
                                 trigger={
-                                    <Button intent="success" className="rounded-full">
+                                    <Button intent="white" className="rounded-full">
                                         Add a playlist
                                     </Button>
                                 }
@@ -51,7 +52,7 @@ export function PlaylistsModal(props: PlaylistsModalProps) {
 
                     {!serverStatus?.settings?.library?.autoUpdateProgress && <Alert
                         className="max-w-2xl mx-auto"
-                        intent="warning-basic"
+                        intent="warning"
                         description={<>
                             <p>
                                 You need to enable "Automatically update progress" to use playlists.

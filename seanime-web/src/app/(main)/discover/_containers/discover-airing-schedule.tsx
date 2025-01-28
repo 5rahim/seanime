@@ -97,7 +97,10 @@ export function DiscoverAiringSchedule() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                                     {day.events?.toSorted((a, b) => a.datetime.localeCompare(b.datetime))?.map((event, index) => {
                                         return (
-                                            <div key={String(`${event.id}${index}`)} className="flex gap-3 bg-[--background] rounded-md p-2">
+                                            <div
+                                                key={String(`${event.id}${index}`)}
+                                                className="flex gap-3 bg-[--background] rounded-[--radius-md] p-2"
+                                            >
                                                 <div
                                                     className="w-[5rem] h-[5rem] rounded-[--radius] flex-none object-cover object-center overflow-hidden relative"
                                                 >

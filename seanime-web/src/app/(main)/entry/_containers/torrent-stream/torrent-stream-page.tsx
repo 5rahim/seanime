@@ -188,14 +188,14 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Torrent streaming</h2>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 pb-6 2xl:py-0">
+                <div className="flex flex-col md:flex-row gap-6 pb-6 2xl:py-0">
                     <Switch
                         label="Auto-select"
                         value={autoSelect}
                         onValueChange={v => {
                             setAutoSelect(v)
                         }}
-                        help="Automatically select the best torrent and file to stream"
+                        // moreHelp="Automatically select the best torrent and file to stream"
                         fieldClass="w-fit"
                     />
 
@@ -206,7 +206,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                             onValueChange={v => {
                                 setAutoSelectFile(v)
                             }}
-                            help="Automatically select the file to stream after selecting a torrent"
+                            moreHelp="Episode file will be automatically selected from batch torrents"
                             fieldClass="w-fit"
                         />
                     )}

@@ -67,7 +67,10 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
 
         // Set a new timeout to scroll after a brief delay
         scrollTimeoutRef.current = setTimeout(() => {
-            const element = document.getElementById(`episode-${progress.currentEpisodeNumber}`)
+            let element = document.getElementById(`episode-${progress.currentEpisodeNumber}`)
+            if (theaterMode) {
+                element = document.getElementById("sea-media-player-container")
+            }
             if (element) {
                 element.scrollIntoView({ behavior: "smooth" })
             }
@@ -79,7 +82,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 clearTimeout(scrollTimeoutRef.current)
             }
         }
-    }, [width, progress.currentEpisodeNumber])
+    }, [width, progress.currentEpisodeNumber, theaterMode])
 
     const handleProgressUpdate = React.useCallback(() => {
         if (!media || !progressItem || isUpdatingProgress || hasUpdatedProgress) return
@@ -136,6 +139,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                 )}
             >
                 <div
+                    id="sea-media-player-container"
                     className={cn(
                         "aspect-video relative w-full self-start mx-auto",
                         theaterMode && "max-h-[90vh] !w-auto aspect-video mx-auto",
@@ -151,7 +155,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
                         theaterMode && "2xl:max-w-full",
                     )}
                 >
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {episodeList}
                     </div>
                     <div

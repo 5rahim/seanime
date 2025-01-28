@@ -217,7 +217,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, isPending }: Torr
     }
 
     return (
-        <div className="p-4 border rounded-md  overflow-hidden relative flex gap-2">
+        <div className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
             <div className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
                 <div
                     className={cn(

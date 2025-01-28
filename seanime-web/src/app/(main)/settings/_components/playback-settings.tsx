@@ -87,7 +87,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 />
 
                 <>
-                    {serverStatus?.mediastreamSettings?.transcodeEnabled && <div className="flex gap-4 items-center rounded-md">
+                    {serverStatus?.mediastreamSettings?.transcodeEnabled && <div className="flex gap-4 items-center rounded-[--radius-md]">
                         <MdOutlineDevices className="text-4xl" />
                         <div className="space-y-1">
                             <Checkbox

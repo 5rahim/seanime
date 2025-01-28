@@ -251,14 +251,13 @@ export function ChapterList(props: ChapterListProps) {
                         provider: v,
                     })}
                     leftAddon="Source"
-                    intent="filled"
                     size="sm"
                     disabled={isClearingMangaCache}
                 />
 
                 <Button
                     leftIcon={<FaRedo />}
-                    intent="white-subtle"
+                    intent="gray-outline"
                     onClick={() => confirmReloadSource.open()}
                     loading={isClearingMangaCache}
                     size="sm"
@@ -269,7 +268,7 @@ export function ChapterList(props: ChapterListProps) {
                 <MangaManualMappingModal entry={entry}>
                     <Button
                         leftIcon={<HiOutlineSearchCircle className="text-lg" />}
-                        intent="white-subtle"
+                        intent="gray-outline"
                         size="sm"
                     >
                         Manual match
@@ -348,7 +347,7 @@ export function ChapterList(props: ChapterListProps) {
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 border rounded-md bg-[--paper] p-4">
+                                <div className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
 
                                     <div className="flex flex-wrap items-center gap-4">
                                         <Checkbox

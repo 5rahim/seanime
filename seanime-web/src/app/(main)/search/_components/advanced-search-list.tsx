@@ -28,7 +28,7 @@ export function AdvancedSearchList() {
         {((data?.pages.filter(Boolean).flatMap(n => n.Page?.media).filter(Boolean) || []).length > 0 && hasNextPage) &&
             <div
                 className={cn(
-                    "relative flex flex-col rounded-md animate-none",
+                    "relative flex flex-col rounded-[--radius-md] animate-none",
                     "cursor-pointer border border-none text-[--muted] hover:text-white pt-24 items-center gap-2 transition",
                 )}
                 onClick={() => fetchNextPage()}

@@ -85,7 +85,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             )}
             <WebSocketContext.Provider value={socket}>
                 {!isConnected && <div
-                    className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-md z-[100] flex gap-2 items-center"
+                    className="fixed right-4 bottom-4 bg-gray-900 border text-[--muted] text-sm py-3 px-5 font-semibold rounded-[--radius-md] z-[100] flex gap-2 items-center"
                 >
                     <LuLoader className="text-brand-200 animate-spin text-lg" />
                     Establishing connection...

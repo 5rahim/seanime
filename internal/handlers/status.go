@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"seanime/internal/constants"
 	"seanime/internal/core"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
@@ -28,6 +29,7 @@ type Status struct {
 	User                  *anime.User                   `json:"user"`
 	Settings              *models.Settings              `json:"settings"`
 	Version               string                        `json:"version"`
+	VersionName           string                        `json:"versionName"`
 	ThemeSettings         *models.Theme                 `json:"themeSettings"`
 	IsOffline             bool                          `json:"isOffline"`
 	MediastreamSettings   *models.MediastreamSettings   `json:"mediastreamSettings"`
@@ -80,6 +82,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		User:                  user,
 		Settings:              settings,
 		Version:               h.App.Version,
+		VersionName:           constants.VersionName,
 		ThemeSettings:         theme,
 		IsOffline:             h.App.Config.Server.Offline,
 		MediastreamSettings:   h.App.SecondarySettings.Mediastream,

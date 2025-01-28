@@ -29,7 +29,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card relative overflow-hidden",
-                "bg-gray-950 border border-[rgb(255_255_255_/_5%)] rounded-md p-3",
+                "bg-gray-950 border border-[rgb(255_255_255_/_5%)] rounded-[--radius-md] p-3",
             )}
         >
             <div
@@ -39,7 +39,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 )}
             ></div>
 
-            <div className="absolute top-3 right-3 grid grid-cols-2 gap-1 p-1 rounded-md bg-gray-950 z-[2]">
+            <div className="absolute top-3 right-3 grid grid-cols-2 gap-1 p-1 rounded-[--radius-md] bg-gray-950 z-[2]">
                 <Modal
                     trigger={<IconButton
                         size="sm"
@@ -98,7 +98,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
 
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
+                    <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
                         {!!extension.extension?.icon ? (
                             <Image
                                 src={extension.extension?.icon}
@@ -134,16 +134,16 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                 </div>
 
                 <div className="flex gap-2">
-                    {!!extension.extension?.version && <Badge className="rounded-md">
+                    {!!extension.extension?.version && <Badge className="rounded-[--radius-md]">
                         {extension.extension?.version}
                     </Badge>}
-                    {extension.extension?.lang && <Badge className="rounded-md">
+                    {extension.extension?.lang && <Badge className="rounded-[--radius-md]">
                         {extension.extension?.lang?.toUpperCase?.()}
                     </Badge>}
-                    <Badge className="rounded-md" intent="unstyled">
+                    <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {extension.extension?.author ?? "Unknown author"}
                     </Badge>
-                    <Badge className="rounded-md" intent="unstyled">
+                    <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {capitalize(extension.extension?.author ?? "?")}
                     </Badge>
                 </div>

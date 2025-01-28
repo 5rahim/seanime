@@ -110,7 +110,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         quality={80}
                         priority
                         sizes="20rem"
-                        className="object-cover object-center opacity-30"
+                        className="object-cover object-center opacity-15"
                     />
                     <div
                         className="z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-[--background] to-transparent"

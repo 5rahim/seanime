@@ -91,7 +91,7 @@ function Line({ line, index, onFileSelect }: LineProps) {
         <AccordionItem value={String(index)}>
             <div
                 className={cn(
-                    "bg-gray-950 rounded-md",
+                    "bg-gray-950 rounded-[--radius-md]",
                 )}
             >
                 <span className="font-mono text-white break-all">

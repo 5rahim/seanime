@@ -340,6 +340,8 @@ type TorrentstreamSettings struct {
 	IncludeInLibrary bool `gorm:"column:include_in_library" json:"includeInLibrary"`
 	// v2.6+
 	StreamUrlAddress string `gorm:"column:stream_url_address" json:"streamUrlAddress"`
+	// v2.7+
+	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
 }
 
 type TorrentstreamHistory struct {

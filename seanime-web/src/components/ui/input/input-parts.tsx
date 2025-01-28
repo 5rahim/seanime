@@ -139,12 +139,12 @@ export const InputAddonsAnatomy = defineStyleAnatomy({
     addon: cva([
         "UI-Input__addons--addon",
         "bg-gray-50 inline-flex items-center flex-none px-3 border border-gray-300 text-gray-800 shadow-sm text-sm sm:text-md",
-        "dark:bg-gray-700 dark:border-gray-700 dark:text-gray-300",
+        "dark:bg-[--paper] dark:border-[--border] dark:text-gray-300",
     ], {
         variants: {
             size: { sm: "text-sm", md: "text-md", lg: "text-lg" },
-            isLeftAddon: { true: "rounded-l-md", false: null },
-            isRightAddon: { true: "rounded-r-md", false: null },
+            isLeftAddon: { true: "rounded-l-md border-r-0", false: null },
+            isRightAddon: { true: "rounded-r-md border-l-0", false: null },
             hasLeftIcon: { true: null, false: null },
             hasRightIcon: { true: null, false: null },
         },

@@ -42,7 +42,7 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
             <Badge
                 intent="unstyled"
                 size="lg"
-                className="text-sm tracking-wide rounded-md flex gap-1 items-center rounded-tr-none rounded-bl-none border-0 px-1.5"
+                className="text-sm tracking-wide rounded-[--radius-md] flex gap-1 items-center rounded-tr-none rounded-bl-none border-0 px-1.5"
             >
                 <IoBookOutline className="text-sm" /><span className="text-[--foreground] font-normal">{unread}</span>
             </Badge>

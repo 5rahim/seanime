@@ -121,7 +121,7 @@ export function DebridStreamOverlay() {
                         Closing this modal will not cancel the stream
                     </p>
 
-                    <div className="rounded-md border bg-gray-950 p-4 pb-0">
+                    <div className="rounded-[--radius-md] border bg-gray-950 p-4 pb-0">
                         <p className="text-center text-sm">
                             {state?.torrentName}
                         </p>

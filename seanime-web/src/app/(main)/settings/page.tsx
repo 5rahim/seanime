@@ -33,7 +33,7 @@ import { useRouter } from "next/navigation"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
-import { FaBookReader, FaDiscord } from "react-icons/fa"
+import { FaBookReader, FaDiscord, FaRegSquare } from "react-icons/fa"
 import { FaShareFromSquare } from "react-icons/fa6"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
@@ -43,7 +43,7 @@ import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOut
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist, SiBittorrent } from "react-icons/si"
-import { TbDatabaseExclamation } from "react-icons/tb"
+import { TbCircleLetterS, TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
 import { SettingsCard, SettingsNavCard } from "./_components/settings-card"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
@@ -51,7 +51,7 @@ import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence
 const tabsRootClass = cn("w-full grid grid-cols-1 lg:grid lg:grid-cols-[300px,1fr] gap-4")
 
 const tabsTriggerClass = cn(
-    "text-base px-6 rounded-md w-fit lg:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
+    "text-base px-6 rounded-[--radius-md] w-fit lg:w-full border-none data-[state=active]:bg-[--subtle] data-[state=active]:text-white dark:hover:text-white",
     "h-10 lg:justify-start px-3",
 )
 
@@ -119,7 +119,7 @@ export default function Page() {
                             <div className="flex flex-col gap-4 md:flex-row justify-between items-center">
                                 <div className="space-y-1 my-2 px-2">
                                     <h4 className="text-center md:text-left">Settings</h4>
-                                    <p className="text-[--muted] text-sm text-center md:text-left">App version: {status?.version}</p>
+                                    <p className="text-[--muted] text-sm text-center md:text-left">Version: {status?.version} {status?.versionName}</p>
                                     <p className="text-[--muted] text-sm text-center md:text-left">OS: {capitalize(status?.os)} {process.env.NEXT_PUBLIC_PLATFORM === "desktop" &&
                                         <span className="text-[--muted]">(Desktop)</span>}</p>
                                 </div>
@@ -127,7 +127,7 @@ export default function Page() {
 
                                 </div>
                             </div>
-                            <TabsTrigger value="seanime">Seanime</TabsTrigger>
+                            <TabsTrigger value="seanime"><TbCircleLetterS className="text-lg mr-3" /> App</TabsTrigger>
                             {/* <Separator className="hidden lg:block my-2" /> */}
                             <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime Library</TabsTrigger>
                             <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>

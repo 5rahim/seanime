@@ -72,7 +72,7 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
             >
                 <div
                     className={cn(
-                        "size-20 flex-none rounded-md object-cover object-center relative overflow-hidden",
+                        "size-20 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                         "group/ep-item-img-container",
                         !disabled && "cursor-pointer",
                         disabled && "pointer-events-none",
@@ -102,7 +102,7 @@ export const OnlinestreamEpisodeListItem: React.FC<EpisodeListItemProps & React.
                     />}
                 </div>
                 {(image && unoptimizedImage) && <div
-                    className="h-24 w-24 flex-none rounded-md object-cover object-center relative overflow-hidden"
+                    className="h-24 w-24 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                 >
                     <img
                         src={image}

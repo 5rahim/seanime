@@ -178,10 +178,10 @@ export function AnimeEntryPage() {
                         },
                     }}
                 >
+                    {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
+                        <div className="h-10 lg:h-10"></div>
+                    )}
                     <AnimatePresence mode="wait" initial={false}>
-                        {(ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && (
-                            <div className="h-10 lg:h-10"></div>
-                        )}
 
                         {(currentView === "library") && <PageWrapper
                             key="episode-list"

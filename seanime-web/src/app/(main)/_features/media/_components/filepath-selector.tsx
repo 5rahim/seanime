@@ -68,7 +68,7 @@ export function FilepathSelector(props: FilepathSelectorProps) {
                                             )
                                         }
                                     }}
-                                    labelClass="break-all"
+                                    labelClass="break-all tracking-wide text-sm"
                                     fieldLabelClass="break-all"
                                     fieldClass="w-[fit-content]"
                                 />

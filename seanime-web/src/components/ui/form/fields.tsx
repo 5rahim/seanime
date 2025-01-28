@@ -226,7 +226,7 @@ const ColorPickerField = React.memo(withControlledInput(forwardRef<HTMLInputElem
                 onBlur={handleColorChange}
                 rightAddon={<Popover
                     className="flex justify-center"
-                    trigger={<div className="cursor-pointer size-7 rounded-md" style={{ backgroundColor: value }} />}
+                    trigger={<div className="cursor-pointer size-7 rounded-[--radius-md]" style={{ backgroundColor: value }} />}
                 >
                     <HexColorPicker
                         color={value}

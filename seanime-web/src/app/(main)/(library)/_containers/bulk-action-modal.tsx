@@ -99,24 +99,26 @@ export function BulkActionModal() {
         >
             <AppLayoutStack spacing="sm">
                 {/*<p>These actions do not affect ignored files.</p>*/}
-                <Button
-                    leftIcon={<BiLockAlt />}
-                    intent="gray-outline"
-                    className="w-full"
-                    disabled={isPending || isRemoving}
-                    onClick={handleLockFiles}
-                >
-                    Lock all files
-                </Button>
-                <Button
-                    leftIcon={<BiLockOpenAlt />}
-                    intent="gray-outline"
-                    className="w-full"
-                    disabled={isPending || isRemoving}
-                    onClick={handleUnlockFiles}
-                >
-                    Unlock all files
-                </Button>
+                <div className="flex gap-2 flex-col md:flex-row">
+                    <Button
+                        leftIcon={<BiLockAlt className="text-2xl" />}
+                        intent="gray-outline"
+                        className="w-full"
+                        disabled={isPending || isRemoving}
+                        onClick={handleLockFiles}
+                    >
+                        Lock all files
+                    </Button>
+                    <Button
+                        leftIcon={<BiLockOpenAlt className="text-2xl" />}
+                        intent="gray-outline"
+                        className="w-full"
+                        disabled={isPending || isRemoving}
+                        onClick={handleUnlockFiles}
+                    >
+                        Unlock all files
+                    </Button>
+                </div>
                 <Button
                     intent="gray-outline"
                     className="w-full"

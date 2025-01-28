@@ -159,7 +159,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     }, [])
 
     return (
-        <React.Fragment key={list.type}>
+        <React.Fragment>
 
             <div className="flex gap-3 items-center">
                 <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>

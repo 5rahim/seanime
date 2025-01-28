@@ -8,7 +8,7 @@ import { useSeaCommandContext } from "../sea-command"
 export function CommandItemMedia({ media }: { media: AL_BaseAnime | AL_BaseManga }) {
     return (
         <div className="flex gap-3 items-center">
-            <div className="size-12 flex-none rounded-md relative overflow-hidden">
+            <div className="size-12 flex-none rounded-[--radius-md] relative overflow-hidden">
                 <Image
                     src={media.coverImage?.medium || ""}
                     alt="episode image"

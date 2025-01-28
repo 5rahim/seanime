@@ -214,9 +214,11 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             side="bottom"
             headerClass="absolute h-0"
             contentClass={cn(
-                "p-0 pt-0",
+                "p-0 pt-0 !m-0 !rounded-none",
+                "w-full inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
             )}
-            closeButton={<></>}
+            hideCloseButton
+            mangaReader
         >
 
             <div

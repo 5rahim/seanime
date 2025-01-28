@@ -1,8 +1,13 @@
 import { Anime_Entry, Anime_EntryDownloadEpisode } from "@/api/generated/types"
+import { useHandleTorrentSelection } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-selection"
+import { TorrentConfirmationContinueButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { TorrentSearchContainer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
+import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Modal } from "@/components/ui/modal"
+import { getImageUrl } from "@/lib/server/assets"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import Image from "next/image"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
@@ -34,20 +39,41 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
         }
     }, [downloadParam])
 
+    const { onTorrentValidated } = useHandleTorrentSelection({ entry, type })
+
     return (
         <Modal
             open={type !== undefined}
             onOpenChange={() => setter(undefined)}
             // size="xl"
             contentClass="max-w-5xl"
-            title="Search torrents"
+            title={`${entry?.media?.title?.userPreferred || "Anime"}`}
+            titleClass="max-w-[500px] text-ellipsis truncate"
         >
-            <div className="">
-                <div className="relative z-[1]">
-                    {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
-                    {!!type && <TorrentSearchContainer type={type} entry={entry} />}
-                </div>
-            </div>
+
+            {entry?.media?.bannerImage && <div
+                className="Sea-TorrentSearchDrawer__bannerImage h-36 w-full flex-none object-cover object-center overflow-hidden rounded-t-2xl absolute left-0 top-0 z-[-1]"
+            >
+                <Image
+                    src={getImageUrl(entry?.media?.bannerImage!)}
+                    alt="banner"
+                    fill
+                    quality={80}
+                    priority
+                    sizes="20rem"
+                    className="object-cover object-center opacity-10"
+                />
+                <div
+                    className="Sea-TorrentSearchDrawer__bannerImage-bottomGradient z-[5] absolute bottom-0 w-full h-[70%] bg-gradient-to-t from-[--background] to-transparent"
+                />
+            </div>}
+
+            <AppLayoutStack className="relative z-[1]">
+                {type === "download" && <EpisodeList episodes={entry.downloadInfo?.episodesToDownload} />}
+                {!!type && <TorrentSearchContainer type={type} entry={entry} />}
+            </AppLayoutStack>
+
+            <TorrentConfirmationContinueButton type={type || "download"} onTorrentValidated={onTorrentValidated} />
         </Modal>
     )
 
@@ -59,9 +85,10 @@ function EpisodeList({ episodes }: { episodes: Anime_EntryDownloadEpisode[] | un
     if (!episodes || !episodes.length) return null
 
     return (
-        <div className="space-y-2 mt-4">
-            <h4>Missing episodes:</h4>
-            <p>Episode {episodes.slice(0, 5).map(n => n.episodeNumber).join(", ")}{episodes.length > 5
+        <div className="space-y-2">
+            <p><span className="font-semibold">Missing episodes</span>: {episodes.slice(0, 5)
+                .map(n => n.episodeNumber)
+                .join(", ")}{episodes.length > 5
                 ? `, ..., ${episodes[episodes.length - 1].episodeNumber}`
                 : ""}
             </p>

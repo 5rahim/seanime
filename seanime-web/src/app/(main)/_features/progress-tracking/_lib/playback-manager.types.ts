@@ -7,6 +7,7 @@ export type PlaybackManager_PlaybackState = {
     canPlayNext: boolean
     progressUpdated: boolean
     mediaId: number
+    mediaCoverImage: string
 }
 
 export type PlaybackManager_PlaylistState = {

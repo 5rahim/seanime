@@ -549,7 +549,7 @@ export function GettingStartedPage({ status }: { status: Status }) {
 
 const cardCheckboxStyles: CheckboxProps = {
     labelClass: cn(
-        "block cursor-pointer transition overflow-hidden w-full py-1 rounded-md",
+        "block cursor-pointer transition overflow-hidden w-full py-1 rounded-[--radius-md]",
         "bg-gray-50 hover:bg-[--subtle] dark:bg-gray-950 border-dashed",
         "data-[checked=false]:text-[--muted] hover:data-[checked=false]:opacity-50",
         "data-[checked=true]:bg-white dark:data-[checked=true]:bg-gray-950",
@@ -561,6 +561,6 @@ const cardCheckboxStyles: CheckboxProps = {
     className: cn(
         "absolute top-0 right-0 z-10 rounded-tl-none rounded-br-none",
     ),
-    fieldClass: "border p-4 rounded-md relative",
+    fieldClass: "border p-4 rounded-[--radius-md] relative",
     fieldHelpTextClass: "text-pretty",
 }

@@ -73,7 +73,9 @@
         --color-gray-default: 105 105 105;
 
 
-        --radius: 0.375rem;
+        /*--radius: 0.375rem;*/
+        --radius: 0.5rem;
+        --radius-md: 0.5rem;
 
         --titlebar-h: theme("height.10");
 
@@ -219,7 +221,7 @@ h6 {
 }
 
 .code {
-    @apply bg-gray-800 rounded-md px-2 py-1 text-sm font-mono border
+    @apply bg-gray-800 rounded-[--radius-md] px-2 py-1 text-sm font-mono border
 }
 
 .JASSUB {

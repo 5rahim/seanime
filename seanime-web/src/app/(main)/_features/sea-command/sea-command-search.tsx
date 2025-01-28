@@ -76,7 +76,7 @@ export function SeaCommandSearch() {
                     {debouncedQuery !== "" && !isLoading && !isFetching && (!media || media.length === 0) && (
                         <div className="py-14 px-6 text-center text-sm sm:px-14">
                             {<div
-                                className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                className="h-[10rem] w-[10rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                             >
                                 <Image
                                     src="/luffy-01.png"

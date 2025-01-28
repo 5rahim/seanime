@@ -155,7 +155,7 @@ export function GlobalSearch() {
                                                                     }}
                                                                     className={({ active }) =>
                                                                         cn(
-                                                                            "flex select-none items-center rounded-md p-2 text-[--muted] cursor-pointer",
+                                                                            "flex select-none items-center rounded-[--radius-md] p-2 text-[--muted] cursor-pointer",
                                                                             active && "bg-gray-800 text-white",
                                                                         )
                                                                     }
@@ -163,7 +163,7 @@ export function GlobalSearch() {
                                                                     {({ active }) => (
                                                                         <>
                                                                             <div
-                                                                                className="h-10 w-10 flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                                                                className="h-10 w-10 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                                                             >
                                                                                 {item.coverImage?.medium && <Image
                                                                                     src={item.coverImage?.medium}
@@ -197,7 +197,7 @@ export function GlobalSearch() {
                                                         >
                                                             <div className="flex-none p-6 text-center">
                                                                 <div
-                                                                    className="h-40 w-32 mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                                                    className="h-40 w-32 mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                                                 >
                                                                     {activeOption.coverImage?.large && <Image
                                                                         src={activeOption.coverImage?.large}
@@ -244,7 +244,7 @@ export function GlobalSearch() {
                                             {debouncedQuery !== "" && !isLoading && !isFetching && (!media || media.length === 0) && (
                                                 <div className="py-14 px-6 text-center text-sm sm:px-14">
                                                     {<div
-                                                        className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                                        className="h-[10rem] w-[10rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                                     >
                                                         <Image
                                                             src="/luffy-01.png"

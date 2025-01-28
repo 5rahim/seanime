@@ -174,7 +174,7 @@ function PlaylistMediaEntry(props: PlaylistMediaEntryProps) {
         trigger={(
             <div
                 key={entry.mediaId}
-                className="col-span-1 aspect-[6/7] rounded-md border overflow-hidden relative transition cursor-pointer bg-[var(--background)] md:opacity-60 md:hover:opacity-100"
+                className="col-span-1 aspect-[6/7] rounded-[--radius-md] border overflow-hidden relative transition cursor-pointer bg-[var(--background)] md:opacity-60 md:hover:opacity-100"
             >
                 <Image
                     src={entry.media?.coverImage?.large || entry.media?.bannerImage || ""}
@@ -225,7 +225,7 @@ function SortableItem({ localFile, id, media, setPaths }: {
     if (!media) return (
         <li ref={setNodeRef} style={style}>
             <div
-                className="px-2.5 py-2 bg-[var(--background)] border-[--red] rounded-md border flex gap-3 relative"
+                className="px-2.5 py-2 bg-[var(--background)] border-[--red] rounded-[--radius-md] border flex gap-3 relative"
 
             >
                 <IconButton
@@ -258,7 +258,7 @@ function SortableItem({ localFile, id, media, setPaths }: {
     return (
         <li ref={setNodeRef} style={style}>
             <div
-                className="px-2.5 py-2 bg-[var(--background)] rounded-md border flex gap-3 relative"
+                className="px-2.5 py-2 bg-[var(--background)] rounded-[--radius-md] border flex gap-3 relative"
 
             >
                 <IconButton
@@ -275,7 +275,7 @@ function SortableItem({ localFile, id, media, setPaths }: {
                 />
                 <div
 
-                    className="w-16 aspect-square rounded-md border overflow-hidden relative transition bg-[var(--background)]"
+                    className="w-16 aspect-square rounded-[--radius-md] border overflow-hidden relative transition bg-[var(--background)]"
                 >
                     <Image
                         src={media?.coverImage?.large || media?.bannerImage || ""}
@@ -341,7 +341,7 @@ function EntryEpisodeList(props: EntryEpisodeListProps) {
                     <div
                         key={lf.path}
                         className={cn(
-                            "px-2.5 py-2 bg-[var(--background)] rounded-md border cursor-pointer opacity-80 max-w-full",
+                            "px-2.5 py-2 bg-[var(--background)] rounded-[--radius-md] border cursor-pointer opacity-80 max-w-full",
                             selectedPaths.includes(lf.path) ? "bg-gray-800 opacity-100 text-white ring-1 ring-[--zinc]" : "hover:bg-[--subtle]",
                             "transition",
                         )}

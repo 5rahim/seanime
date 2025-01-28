@@ -56,12 +56,12 @@ export function MediaEntryCharactersSection(props: RelationsRecommendationsSecti
 
                             <div
                                 className={cn(
-                                    "size-20 flex-none rounded-md object-cover object-center relative overflow-hidden",
+                                    "size-20 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                                     "group/ep-item-img-container",
                                 )}
                             >
-                                <div className="absolute z-[1] rounded-md w-full h-full"></div>
-                                <div className="bg-[--background] absolute z-[0] rounded-md w-full h-full"></div>
+                                <div className="absolute z-[1] rounded-[--radius-md] w-full h-full"></div>
+                                <div className="bg-[--background] absolute z-[0] rounded-[--radius-md] w-full h-full"></div>
                                 {(edge?.node?.image?.large) && <Image
                                     src={edge?.node?.image?.large || ""}
                                     alt="episode image"

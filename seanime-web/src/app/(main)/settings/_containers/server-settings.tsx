@@ -99,7 +99,7 @@ export function ServerSettings(props: ServerSettingsProps) {
 
             {/*/!*<Separator />*!/*/}
 
-            <SettingsCard title="Anime tracking">
+            <SettingsCard title="Anime">
                 {/*<p className="text-[--muted]">*/}
                 {/*    Only applies to desktop and integrated players.*/}
                 {/*</p>*/}
@@ -114,9 +114,22 @@ export function ServerSettings(props: ServerSettingsProps) {
                 <Field.Switch
                     side="right"
                     name="enableWatchContinuity"
-                    label="Enable watch continuity"
+                    label="Enable watch history"
                     help="If enabled, Seanime will remember your watch progress and resume from where you left off."
                 />
+
+            </SettingsCard>
+
+            <SettingsCard title="Offline">
+
+                <Field.Switch
+                    side="right"
+                    name="autoSyncOfflineLocalData"
+                    label="Automatically refresh local data"
+                    help="If enabled, local data will periodically be refreshed using current AniList data."
+                    moreHelp="Only if no offline changes have been made."
+                />
+
             </SettingsCard>
 
             <SettingsCard title="Notifications">
@@ -137,18 +150,6 @@ export function ServerSettings(props: ServerSettingsProps) {
                     side="right"
                     name="disableAutoScannerNotifications"
                     label="Disable Auto Scanner notifications"
-                />
-
-            </SettingsCard>
-
-            <SettingsCard title="Offline">
-
-                <Field.Switch
-                    side="right"
-                    name="autoSyncOfflineLocalData"
-                    label="Automatically refresh local data"
-                    help="If enabled, local data will periodically be refreshed using current AniList data."
-                    moreHelp="Only if no offline changes have been made."
                 />
 
             </SettingsCard>
@@ -177,12 +178,12 @@ export function ServerSettings(props: ServerSettingsProps) {
             <Accordion
                 type="single"
                 collapsible
-                className="border rounded-md"
+                className="border rounded-[--radius-md]"
                 triggerClass="dark:bg-[--paper]"
                 contentClass="!pt-2 dark:bg-[--paper]"
             >
                 <AccordionItem value="more">
-                    <AccordionTrigger className="bg-gray-900 rounded-md">
+                    <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
                         Advanced
                     </AccordionTrigger>
                     <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">

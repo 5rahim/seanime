@@ -2,6 +2,7 @@ import { AL_AnimeDetailsById_Media, AL_BaseAnime, AL_MangaDetailsById_Media, Ani
 import { useGetAnilistAnimeDetails } from "@/api/hooks/anilist.hooks"
 import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { useGetMangaEntry, useGetMangaEntryDetails } from "@/api/hooks/manga.hooks"
+import { TrailerModal } from "@/app/(main)/_features/anime/_components/trailer-modal"
 import { AnimeEntryStudio } from "@/app/(main)/_features/media/_components/anime-entry-studio"
 import {
     AnimeEntryRankings,
@@ -9,17 +10,28 @@ import {
     MediaEntryGenresList,
 } from "@/app/(main)/_features/media/_components/media-entry-metadata-components"
 import { MediaPageHeaderEntryDetails } from "@/app/(main)/_features/media/_components/media-page-header-components"
+import { useHasDebridService, useHasTorrentProvider, useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
+import { TorrentSearchButton } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-button"
+import { __torrentSearch_selectedTorrentsAtom } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-container"
+import {
+    __torrentSearch_drawerEpisodeAtom,
+    __torrentSearch_drawerIsOpenAtom,
+    TorrentSearchDrawer,
+} from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { MangaRecommendations } from "@/app/(main)/manga/_components/manga-recommendations"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Skeleton } from "@/components/ui/skeleton"
 import { getImageUrl } from "@/lib/server/assets"
+import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { ThemeMediaPageBannerSize, ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { usePrevious } from "@uidotdev/usehooks"
 import { atom } from "jotai"
+import { ScopeProvider } from "jotai-scope"
 import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
@@ -117,16 +129,20 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
     type: "anime" | "manga"
 }) {
 
+    const serverStatus = useServerStatus()
+
     const ts = useThemeSettings()
     const media = entry?.media
     const bannerImage = media?.bannerImage || media?.coverImage?.extraLarge
 
+    const { hasTorrentProvider } = useHasTorrentProvider()
+    const { hasDebridService } = useHasDebridService()
 
     return (
-        <>
+        <ScopeProvider atoms={[__torrentSearch_drawerIsOpenAtom, __torrentSearch_drawerEpisodeAtom, __torrentSearch_selectedTorrentsAtom]}>
             <div
                 className={cn(
-                    "absolute z-[0] opacity-30 w-full rounded-t-md overflow-hidden",
+                    "absolute z-[0] opacity-30 w-full rounded-t-[--radius] overflow-hidden",
                     "w-full flex-none object-cover object-center z-[3] bg-[--background] h-[12rem]",
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[23rem]" : "h-[12rem] lg:h-[22rem] 2xl:h-[30rem]",
                 )}
@@ -187,7 +203,15 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
 
             </div>
 
-            {entryLoading && <LoadingSpinner />}
+            {entryLoading && <div className="space-y-4 relative z-[5]">
+                <Skeleton
+                    className={cn(
+                        "h-[12rem]",
+                        ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[23rem]" : "h-[12rem] lg:h-[22rem] 2xl:h-[30rem]",
+                    )}
+                />
+                {/*<LoadingSpinner />*/}
+            </div>}
 
             {(!entryLoading && entry) && <>
 
@@ -231,12 +255,34 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                         </div>
                     </MediaPageHeaderEntryDetails>
 
-                    <div className="mt-6">
+                    <div className="mt-6 flex gap-3 items-center">
+
                         <SeaLink href={type === "anime" ? `/entry?id=${media?.id}` : `/manga/entry?id=${media?.id}`}>
                             <Button className="px-0" intent="gray-link">
                                 Open page
                             </Button>
                         </SeaLink>
+
+                        {type === "anime" && !!(entry?.media as AL_BaseAnime)?.trailer?.id && <TrailerModal
+                            trailerId={(entry?.media as AL_BaseAnime)?.trailer?.id} trigger={
+                            <Button intent="gray-link" className="px-0">
+                                Trailer
+                            </Button>}
+                        />}
+
+                        {(
+                            type === "anime" &&
+                            entry?.media?.status !== "NOT_YET_RELEASED"
+                            && hasTorrentProvider
+                            && (
+                                serverStatus?.settings?.torrent?.defaultTorrentClient !== TORRENT_CLIENT.NONE
+                                || hasDebridService
+                            )
+                        ) && (
+                            <TorrentSearchButton
+                                entry={entry as Anime_Entry}
+                            />
+                        )}
                     </div>
 
                     {detailsLoading ? <LoadingSpinner /> : <div className="space-y-6 pt-6">
@@ -261,6 +307,8 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                 {/*</div>*/}
 
             </>}
-        </>
+
+            {(type === "anime" && !!entry) && <TorrentSearchDrawer entry={entry as Anime_Entry} />}
+        </ScopeProvider>
     )
 }

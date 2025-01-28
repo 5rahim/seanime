@@ -44,7 +44,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
         <div
             className={cn(
                 "group/extension-card border border-[rgb(255_255_255_/_5%)] relative overflow-hidden",
-                "bg-gray-950 rounded-md p-3",
+                "bg-gray-950 rounded-[--radius-md] p-3",
             )}
         >
             <div
@@ -95,7 +95,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
 
             <div className="z-[1] relative space-y-3">
                 <div className="flex gap-3 pr-16">
-                    <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
+                    <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
                         {!!extension.icon ? (
                             <Image
                                 src={extension.icon}
@@ -124,19 +124,19 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 </div>
 
                 <div className="flex gap-2 flex-wrap">
-                    {!!extension.version && <Badge className="rounded-md">
+                    {!!extension.version && <Badge className="rounded-[--radius-md]">
                         {extension.version}
                     </Badge>}
-                    <Badge className="rounded-md" intent="unstyled">
+                    <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {extension.author}
                     </Badge>
-                    <Badge className="rounded-md">
+                    <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {extension.lang.toUpperCase()}
                     </Badge>
-                    <Badge className="rounded-md" intent="unstyled">
+                    <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>
-                    {hasUpdate && <Badge className="rounded-md" intent="success">
+                    {hasUpdate && <Badge className="rounded-[--radius-md]" intent="success">
                         Update available
                     </Badge>}
                 </div>

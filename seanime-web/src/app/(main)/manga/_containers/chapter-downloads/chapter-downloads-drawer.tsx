@@ -266,7 +266,7 @@ export function ChapterDownloadList(props: ChapterDownloadListProps) {
                                                 media={item.media!}
                                                 type="manga"
                                                 overlay={<Badge
-                                                    className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none"
+                                                    className="font-semibold text-white bg-gray-950 !bg-opacity-100 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
                                                     intent="gray"
                                                     size="lg"
                                                 >{nb} chapter{nb === 1 ? "" : "s"}</Badge>}

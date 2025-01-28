@@ -83,7 +83,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
             {isFiller && (
                 <Badge
                     className={cn(
-                        "font-semibold absolute top-3 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-md text-base rounded-bl-none rounded-tr-none",
+                        "font-semibold absolute top-3 left-0 z-[5] text-white bg-orange-800 !bg-opacity-100 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none",
                         !!ts.libraryScreenCustomBackgroundImage && ts.libraryScreenCustomBackgroundOpacity > 5 && "top-3  left-3",
                     )}
                     intent="gray"
@@ -98,7 +98,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
             >
                 <div
                     className={cn(
-                        "w-36 lg:w-40 h-28 flex-none rounded-md object-cover object-center relative overflow-hidden cursor-pointer",
+                        "w-36 lg:w-40 h-28 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden cursor-pointer",
                         "group/ep-item-img-container",
 
                         {
@@ -111,8 +111,8 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                     )}
                     onClick={onClick}
                 >
-                    <div className="absolute z-[1] rounded-md w-full h-full"></div>
-                    <div className="bg-[--background] absolute z-[0] rounded-md w-full h-full"></div>
+                    <div className="absolute z-[1] rounded-[--radius-md] w-full h-full"></div>
+                    <div className="bg-[--background] absolute z-[0] rounded-[--radius-md] w-full h-full"></div>
                     {!!onClick && <div
                         className={cn(
                             "absolute inset-0 bg-gray-950 bg-opacity-60 z-[1] flex items-center justify-center",
@@ -170,7 +170,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         >{episodeTitle?.replaceAll("`", "'")}</p>}
 
 
-                    {!!fileName && <p className="text-sm text-[--muted] line-clamp-1">{fileName}</p>}
+                    {!!fileName && <p className="text-sm tracking-wide text-[--muted] line-clamp-1">{fileName}</p>}
                     {!!description && <p className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`", "'")}</p>}
                     {children && children}
                 </div>

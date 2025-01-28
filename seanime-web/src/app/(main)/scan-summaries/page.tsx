@@ -192,7 +192,7 @@ function ScanSummaryGroupItem(props: ScanSummaryFileItem) {
             <AccordionTrigger
                 className="w-full max-w-full py-2.5"
             >
-                <div className="space-y-1 line-clamp-1 max-w-full w-full">
+                <div className="space-y-1 line-clamp-1 max-w-full w-full tracking-wide text-sm">
                     <p
                         className={cn(
                             "text-left font-normal text-gray-200 text-sm line-clamp-1 w-full flex items-center gap-2",
