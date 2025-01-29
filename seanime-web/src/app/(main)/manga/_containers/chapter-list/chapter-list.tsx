@@ -1,5 +1,6 @@
 import { AL_MangaDetailsById_Media, HibikeManga_ChapterDetails, Manga_Entry, Manga_MediaDownloadData } from "@/api/generated/types"
 import { useEmptyMangaEntryCache } from "@/api/hooks/manga.hooks"
+import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { ChapterListBulkActions } from "@/app/(main)/manga/_containers/chapter-list/_components/chapter-list-bulk-actions"
 import { DownloadedChapterList } from "@/app/(main)/manga/_containers/chapter-list/downloaded-chapter-list"
 import { MangaManualMappingModal } from "@/app/(main)/manga/_containers/chapter-list/manga-manual-mapping-modal"
@@ -102,6 +103,8 @@ export function ChapterList(props: ChapterListProps) {
         isChapterQueued,
         isChapterDownloaded,
     } = useMangaDownloadDataUtils(downloadData, downloadDataLoading)
+
+    const { inject, remove } = useSeaCommandInject()
 
     /**
      * Function to filter unread chapters
@@ -233,6 +236,79 @@ export function ChapterList(props: ChapterListProps) {
     React.useEffect(() => {
         resetRowSelection()
     }, [chapters])
+
+    // Inject chapter list command
+    React.useEffect(() => {
+        if (!chapterContainer?.chapters?.length) return
+
+        const nextChapter = unreadChapters[0]
+        const upcomingChapters = unreadChapters.slice(0, 10)
+
+        const commandItems: SeaCommandInjectableItem[] = [
+            // Next chapter
+            ...(nextChapter ? [{
+                data: nextChapter,
+                id: `next-chapter-${nextChapter.id}`,
+                value: `${nextChapter.chapter}`,
+                heading: "Next Chapter",
+                priority: 2,
+                render: () => (
+                    <div className="flex gap-1 items-center w-full">
+                        <p className="max-w-[70%] truncate">Chapter {nextChapter.chapter}</p>
+                        {nextChapter.scanlator && (
+                            <p className="text-[--muted]">({nextChapter.scanlator})</p>
+                        )}
+                    </div>
+                ),
+                onSelect: ({ ctx }) => {
+                    setSelectedChapter({
+                        chapterId: nextChapter.id,
+                        chapterNumber: nextChapter.chapter,
+                        provider: nextChapter.provider,
+                        mediaId: Number(mediaId),
+                    })
+                    ctx.close()
+                },
+            } as SeaCommandInjectableItem] : []),
+            // Upcoming chapters
+            ...upcomingChapters.map(chapter => ({
+                data: chapter,
+                id: `chapter-${chapter.id}`,
+                value: `${chapter.chapter}`,
+                heading: "Upcoming Chapters",
+                priority: 1,
+                render: () => (
+                    <div className="flex gap-1 items-center w-full">
+                        <p className="max-w-[70%] truncate">Chapter {chapter.chapter}</p>
+                        {chapter.scanlator && (
+                            <p className="text-[--muted]">({chapter.scanlator})</p>
+                        )}
+                    </div>
+                ),
+                onSelect: ({ ctx }) => {
+                    setSelectedChapter({
+                        chapterId: chapter.id,
+                        chapterNumber: chapter.chapter,
+                        provider: chapter.provider,
+                        mediaId: Number(mediaId),
+                    })
+                    ctx.close()
+                },
+            } as SeaCommandInjectableItem)),
+        ]
+
+        inject("manga-chapters", {
+            items: commandItems,
+            filter: ({ item, input }) => {
+                if (!input) return true
+                return item.value.toLowerCase().includes(input.toLowerCase()) ||
+                    (item.data.title?.toLowerCase() || "").includes(input.toLowerCase())
+            },
+            priority: 100,
+        })
+
+        return () => remove("manga-chapters")
+    }, [chapterContainer?.chapters, unreadChapters, mediaId])
 
     if (providerExtensionsLoading) return <LoadingSpinner />
 

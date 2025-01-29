@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Tooltip } from "@/components/ui/tooltip"
 import React from "react"
-import { HiOutlineServerStack } from "react-icons/hi2"
 import { LuGauge } from "react-icons/lu"
 
 export function TorrentResolutionBadge({ resolution }: { resolution?: string }) {
@@ -15,7 +14,7 @@ export function TorrentResolutionBadge({ resolution }: { resolution?: string }) 
             ? "warning"
             : (resolution?.includes("2160") || resolution?.toLowerCase().includes("4k"))
                 ? "success"
-                : "gray"}
+                    : "blue"}
         >
             {resolution}
         </Badge>
@@ -43,7 +42,7 @@ export function TorrentDebridInstantAvailabilityBadge() {
     return (
         <Tooltip
             trigger={<Badge
-                className="rounded-[--radius-md] border-transparent bg-transparent px-0 dark:text-[--pink]"
+                className="rounded-[--radius-md] bg-transparent dark:text-[--green]"
                 intent="white"
                 leftIcon={<LuGauge className="text-lg" />}
         >

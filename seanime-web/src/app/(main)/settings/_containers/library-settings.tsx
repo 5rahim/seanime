@@ -1,7 +1,9 @@
 import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { DataSettings } from "@/app/(main)/settings/_containers/data-settings"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Field } from "@/components/ui/form"
+import { Separator } from "@/components/ui/separator"
 import React from "react"
 import { FcFolder } from "react-icons/fc"
 
@@ -69,29 +71,36 @@ export function LibrarySettings(props: LibrarySettingsProps) {
                     <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
                         Advanced
                     </AccordionTrigger>
-                    <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">
-                        <Field.Select
-                            options={[
-                                { value: "-", label: "Levenshtein + Sorensen-Dice (Default)" },
-                                { value: "sorensen-dice", label: "Sorensen-Dice" },
-                                { value: "jaccard", label: "Jaccard" },
-                            ]}
-                            name="scannerMatchingAlgorithm"
-                            label="Matching algorithm"
-                            help="Choose the algorithm used to match files to AniList entries."
-                        />
-                        <Field.Number
-                            name="scannerMatchingThreshold"
-                            label="Matching threshold"
-                            placeholder="0.5"
-                            help="The minimum score required for a file to be matched to an AniList entry. Default is 0.5."
-                            formatOptions={{
-                                minimumFractionDigits: 1,
-                                maximumFractionDigits: 1,
-                            }}
-                            max={1.0}
-                            step={0.1}
-                        />
+                    <AccordionContent className="space-y-4">
+                        <div className="flex flex-col md:flex-row gap-3">
+
+                            <Field.Select
+                                options={[
+                                    { value: "-", label: "Levenshtein + Sorensen-Dice (Default)" },
+                                    { value: "sorensen-dice", label: "Sorensen-Dice" },
+                                    { value: "jaccard", label: "Jaccard" },
+                                ]}
+                                name="scannerMatchingAlgorithm"
+                                label="Matching algorithm"
+                                help="Choose the algorithm used to match files to AniList entries."
+                            />
+                            <Field.Number
+                                name="scannerMatchingThreshold"
+                                label="Matching threshold"
+                                placeholder="0.5"
+                                help="The minimum score required for a file to be matched to an AniList entry. Default is 0.5."
+                                formatOptions={{
+                                    minimumFractionDigits: 1,
+                                    maximumFractionDigits: 1,
+                                }}
+                                max={1.0}
+                                step={0.1}
+                            />
+                        </div>
+
+                        <Separator />
+
+                        <DataSettings />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

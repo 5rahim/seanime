@@ -1493,6 +1493,16 @@ export const API_ENDPOINTS = {
             methods: ["DELETE"],
             endpoint: "/api/v1/logs",
         },
+        /**
+         *  @description
+         *  Route returns the content of the latest server log file.
+         *  This returns the content of the most recent seanime- log file after flushing logs.
+         */
+        GetLatestLogContent: {
+            key: "STATUS-get-latest-log-content",
+            methods: ["GET"],
+            endpoint: "/api/v1/logs/latest",
+        },
     },
     SYNC: {
         SyncGetTrackedMediaItems: {

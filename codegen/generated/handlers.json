@@ -7082,6 +7082,36 @@
     }
   },
   {
+    "name": "HandleGetLatestLogContent",
+    "trimmedName": "GetLatestLogContent",
+    "comments": [
+      "HandleGetLatestLogContent",
+      "",
+      "\t@summary returns the content of the latest server log file.",
+      "\t@desc This returns the content of the most recent seanime- log file after flushing logs.",
+      "\t@route /api/v1/logs/latest [GET]",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "returns the content of the latest server log file.",
+      "descriptions": [
+        "This returns the content of the most recent seanime- log file after flushing logs."
+      ],
+      "endpoint": "/api/v1/logs/latest",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
+    }
+  },
+  {
     "name": "HandleSyncGetTrackedMediaItems",
     "trimmedName": "SyncGetTrackedMediaItems",
     "comments": [

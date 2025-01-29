@@ -12,16 +12,9 @@ import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-searc
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
-import {
-    TorrentConfirmationContinueButton,
-    TorrentConfirmationModal,
-} from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
-import {
-    useDebridStreamAutoplay,
-    useHandleStartTorrentStream,
-    useTorrentStreamAutoplay,
-} from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
+import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
     __torrentSearch_torrentstreamSelectedTorrentAtom,
     TorrentstreamFileSelectionModal,
@@ -46,7 +39,7 @@ import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
-import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt, BiLinkExternal } from "react-icons/bi"
 import { LuCornerLeftDown } from "react-icons/lu"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
@@ -129,6 +122,10 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     const torrents = React.useMemo(() => data?.torrents ?? [], [data?.torrents])
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
     const debridInstantAvailability = React.useMemo(() => data?.debridInstantAvailability ?? {}, [data?.debridInstantAvailability])
+
+    React.useEffect(() => {
+        setSelectedTorrents([])
+    }, [torrents])
 
     const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
@@ -411,7 +408,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
 
     return (
         <AppLayoutStack>
-            <h5 className="text-center flex gap-2 items-center"><LuCornerLeftDown /> Previous selection</h5>
+            <h5 className="text-center flex gap-2 items-center"><LuCornerLeftDown className="mt-1" /> Previous selection</h5>
 
             <TorrentPreviewItem
                 confirmed={batchHistory?.torrent?.confirmed}

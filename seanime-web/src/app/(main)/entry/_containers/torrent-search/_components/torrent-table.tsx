@@ -5,11 +5,11 @@ import {
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { LuffyError } from "@/components/shared/luffy-error"
+import { ScrollAreaBox } from "@/components/shared/scroll-area-box"
 import { Badge } from "@/components/ui/badge"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { defineDataGridColumns } from "@/components/ui/datagrid"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TextInput } from "@/components/ui/text-input"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -126,66 +126,58 @@ export const TorrentTable = memo((
             </div> : (
                 <>
                     <p className="text-sm text-[--muted]">{torrents?.length} results</p>
-                    <ScrollArea className="h-[calc(100dvh_-_25rem)] relative border rounded-[--radius]">
-                        <div
-                            className="z-[5] absolute bottom-0 w-full h-8 bg-gradient-to-t from-[--background] to-transparent"
-                        />
-                        <div
-                            className="z-[5] absolute top-0 w-full h-8 bg-gradient-to-b from-[--background] to-transparent"
-                        />
-                        <div className="space-y-2 p-6">
-                            {torrents.map(torrent => {
-                                return (
-                                    <TorrentPreviewItem
-                                        isBasic
-                                        key={torrent.link}
-                                        title={torrent.name}
-                                        releaseGroup={torrent.releaseGroup || ""}
-                                        subtitle={torrent.isBatch ? torrent.name : (torrent?.episodeNumber || -1) >= 0
-                                            ? `Episode ${torrent?.episodeNumber ?? "N/A"}`
-                                            : ""}
-                                        isBatch={torrent.isBatch ?? false}
-                                        isBestRelease={torrent.isBestRelease}
-                                        // image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
-                                        //     (torrent.confirmed ? (entry.media?.coverImage?.large || entry.media?.bannerImage) : null)}
-                                        // fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
-                                        isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
-                                        onClick={() => onToggleTorrent(torrent!)}
-                                        action={<Tooltip
-                                            side="left"
-                                            trigger={<IconButton
-                                                icon={<BiLinkExternal />}
-                                                intent="primary-basic"
-                                                size="sm"
-                                                onClick={() => openTab(torrent!.link)}
-                                            />}
-                                        >Open in browser</Tooltip>}
-                                    >
-                                        <div className="flex flex-wrap gap-3 items-center">
-                                            {torrent.isBestRelease && (
-                                                <Badge
-                                                    className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
-                                                    intent="success-solid"
-                                                >
-                                                    Best release
-                                                </Badge>
-                                            )}
-                                            <TorrentResolutionBadge resolution={torrent.resolution} />
-                                            {(!!torrent.infoHash && debridInstantAvailability[torrent.infoHash]) && (
-                                                <TorrentDebridInstantAvailabilityBadge />
-                                            )}
-                                            <TorrentSeedersBadge seeders={torrent.seeders} />
-                                            {!!torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
-                                                {torrent.formattedSize}</p>}
-                                            <p className="text-[--muted] text-sm flex items-center gap-1">
-                                                <BiCalendarAlt /> {formatDistanceToNowSafe(torrent.date)}
-                                            </p>
-                                        </div>
-                                    </TorrentPreviewItem>
-                                )
-                            })}
-                        </div>
-                    </ScrollArea>
+                    <ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">
+                        {torrents.map(torrent => {
+                            return (
+                                <TorrentPreviewItem
+                                    isBasic
+                                    key={torrent.link}
+                                    title={torrent.name}
+                                    releaseGroup={torrent.releaseGroup || ""}
+                                    subtitle={torrent.isBatch ? torrent.name : (torrent?.episodeNumber || -1) >= 0
+                                        ? `Episode ${torrent?.episodeNumber ?? "N/A"}`
+                                        : ""}
+                                    isBatch={torrent.isBatch ?? false}
+                                    isBestRelease={torrent.isBestRelease}
+                                    // image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
+                                    //     (torrent.confirmed ? (entry.media?.coverImage?.large || entry.media?.bannerImage) : null)}
+                                    // fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
+                                    isSelected={selectedTorrents.findIndex(n => n.link === torrent!.link) !== -1}
+                                    onClick={() => onToggleTorrent(torrent!)}
+                                    action={<Tooltip
+                                        side="left"
+                                        trigger={<IconButton
+                                            icon={<BiLinkExternal />}
+                                            intent="primary-basic"
+                                            size="sm"
+                                            onClick={() => openTab(torrent!.link)}
+                                        />}
+                                    >Open in browser</Tooltip>}
+                                >
+                                    <div className="flex flex-wrap gap-3 items-center">
+                                        {torrent.isBestRelease && (
+                                            <Badge
+                                                className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
+                                                intent="success-solid"
+                                            >
+                                                Best release
+                                            </Badge>
+                                        )}
+                                        <TorrentResolutionBadge resolution={torrent.resolution} />
+                                        {(!!torrent.infoHash && debridInstantAvailability[torrent.infoHash]) && (
+                                            <TorrentDebridInstantAvailabilityBadge />
+                                        )}
+                                        <TorrentSeedersBadge seeders={torrent.seeders} />
+                                        {!!torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
+                                            {torrent.formattedSize}</p>}
+                                        <p className="text-[--muted] text-sm flex items-center gap-1">
+                                            <BiCalendarAlt /> {formatDistanceToNowSafe(torrent.date)}
+                                        </p>
+                                    </div>
+                                </TorrentPreviewItem>
+                            )
+                        })}
+                    </ScrollAreaBox>
                 </>
             )}
 

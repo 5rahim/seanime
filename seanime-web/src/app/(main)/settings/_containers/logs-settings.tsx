@@ -1,5 +1,6 @@
 import { useServerQuery } from "@/api/client/requests"
 import { useDeleteLogs, useGetLogFilenames } from "@/api/hooks/status.hooks"
+import { useHandleCopyLatestLogs } from "@/app/(main)/_hooks/logs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGrid, defineDataGridColumns } from "@/components/ui/datagrid"
@@ -45,10 +46,20 @@ export function LogsSettings(props: LogsSettingsProps) {
         },
     ]), [filenamesObj])
 
+    const { handleCopyLatestLogs } = useHandleCopyLatestLogs()
+
     return (
         <>
-
             <SettingsCard>
+
+                <div className="pb-3">
+                    <Button
+                        intent="white"
+                        onClick={handleCopyLatestLogs}
+                    >
+                        Copy current logs
+                    </Button>
+                </div>
 
                 <Select
                     value={globalFilter === "seanime-" ? "seanime-" : globalFilter === "-scan" ? "-scan" : "-"}

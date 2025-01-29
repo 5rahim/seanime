@@ -153,7 +153,7 @@ export function SeaCommandNavigation() {
             show: !serverStatus?.isOffline,
         },
         {
-            name: "Search",
+            name: "Advanced search",
             href: "/search",
             flag: "search",
             show: !serverStatus?.isOffline,
@@ -212,8 +212,8 @@ export function SeaCommandNavigation() {
                                     })
                                 }}
                             >
-                                {page.name}
-                                <CommandShortcut>/{page.flag}</CommandShortcut>
+                                <span className="text-sm tracking-wide font-bold text-[--muted]">Go to:&nbsp;</span>{" "}{page.name}
+                                {command === page.flag ? <CommandShortcut>Enter</CommandShortcut> : <CommandShortcut>/{page.flag}</CommandShortcut>}
                             </CommandItem>
                         ))}
                     </>

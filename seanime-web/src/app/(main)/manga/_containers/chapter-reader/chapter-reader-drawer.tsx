@@ -1,5 +1,6 @@
 import { AL_BaseManga, Manga_ChapterContainer, Manga_EntryListData } from "@/api/generated/types"
 import { useGetMangaEntryPages, useUpdateMangaProgress } from "@/api/hooks/manga.hooks"
+import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MangaHorizontalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-horizontal-reader"
 import { MangaVerticalReader } from "@/app/(main)/manga/_containers/chapter-reader/_components/chapter-vertical-reader"
@@ -72,6 +73,8 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
     const [hiddenBar, setHideBar] = useAtom(__manga_hiddenBarAtom)
 
     useSwitchSettingsWithKeys()
+
+    const { inject, remove } = useSeaCommandInject()
 
     /**
      * Get the pages
@@ -205,6 +208,32 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         }
     }, [kbsChapterLeft, kbsChapterRight, paginationMap, readingDirection, chapterContainer, previousChapter, nextChapter])
 
+    // Inject close reader command
+    React.useEffect(() => {
+        if (!currentChapter) return
+
+        inject("close-manga-reader", {
+            items: [{
+                id: "close-reader",
+                value: "Close reader",
+                heading: "Reader",
+                priority: 100,
+                render: () => (
+                    <div className="flex gap-1 items-center w-full">
+                        <p>Close reader</p>
+                    </div>
+                ),
+                onSelect: () => setCurrentChapter(undefined),
+            }],
+            filter: ({ item, input }) => {
+                if (!input) return true
+                return item.value.toLowerCase().includes(input.toLowerCase())
+            },
+            priority: 105,
+        })
+
+        return () => remove("close-manga-reader")
+    }, [currentChapter])
 
     return (
         <Drawer

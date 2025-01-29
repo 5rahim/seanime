@@ -69,6 +69,8 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
     }, [previews])
 
     const hasLikelyMatch = previews?.some(f => f.isLikely)
+    const hasOneLikelyMatch = hasLikelyMatch && previews?.filter(f => f.isLikely).length === 1
+    const likelyMatchRef = React.useRef<HTMLDivElement>(null)
 
     const FileSelection = React.useCallback(() => {
         return <RadioGroup
@@ -81,6 +83,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                             "w-full",
                             (hasLikelyMatch && !f.isLikely) && "opacity-60",
                         )}
+                        ref={hasOneLikelyMatch && f.isLikely ? likelyMatchRef : undefined}
                     >
                         <p className="mb-1 line-clamp-1">
                             {f.displayTitle}
@@ -97,7 +100,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                 }
             }) || [])}
             itemContainerClass={cn(
-                "items-start cursor-pointer transition border-transparent rounded-[--radius] p-4 w-full",
+                "items-start cursor-pointer transition border-transparent rounded-[--radius] p-2 w-full",
                 "hover:bg-[--subtle] bg-gray-900 hover:bg-gray-950",
                 "data-[state=checked]:bg-white dark:data-[state=checked]:bg-gray-950",
                 "focus:ring-2 ring-brand-100 dark:ring-brand-900 ring-offset-1 ring-offset-[--background] focus-within:ring-2 transition",
@@ -113,6 +116,31 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
             stackClass="flex flex-col gap-2 space-y-0"
         />
     }, [previews, selectedFileId, hasLikelyMatch])
+
+    const scrollRef = React.useRef<HTMLDivElement>(null)
+
+    // Scroll to the likely match on mount
+    React.useEffect(() => {
+        if (hasOneLikelyMatch && likelyMatchRef.current && scrollRef.current) {
+            const t = setTimeout(() => {
+                const element = likelyMatchRef.current
+                const container = scrollRef.current
+
+                if (element && container) {
+                    const elementRect = element.getBoundingClientRect()
+                    const containerRect = container.getBoundingClientRect()
+
+                    const scrollTop = elementRect.top - containerRect.top + container.scrollTop - 16 // 16px offset for padding
+
+                    container.scrollTo({
+                        top: scrollTop,
+                        behavior: "smooth",
+                    })
+                }
+            }, 1000) // Increased timeout to ensure DOM is ready
+            return () => clearTimeout(t)
+        }
+    }, [hasOneLikelyMatch, likelyMatchRef.current])
 
     return (
         <Modal
@@ -145,7 +173,7 @@ export function DebridStreamFileSelectionModal(props: DebridStreamFileSelectionM
                         </Button>
                     </div>
 
-                    <ScrollArea className="h-[75dvh] overflow-y-auto p-4 border rounded-[--radius-md]">
+                    <ScrollArea viewportRef={scrollRef} className="h-[75dvh] overflow-y-auto p-4 border rounded-[--radius-md]">
                         <FileSelection />
                     </ScrollArea>
 

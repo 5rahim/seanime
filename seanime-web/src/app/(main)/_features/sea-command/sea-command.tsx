@@ -1,7 +1,10 @@
+import { SeaCommandActions } from "@/app/(main)/_features/sea-command/sea-command-actions"
 import { SeaCommandSearch } from "@/app/(main)/_features/sea-command/sea-command-search"
 import { SeaCommand_ParsedCommandProps, useSeaCommand_ParseCommand } from "@/app/(main)/_features/sea-command/utils"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { CommandDialog, CommandInput, CommandList } from "@/components/ui/command"
+import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
@@ -9,6 +12,8 @@ import { SeaCommandHandler } from "./config"
 import { SeaCommandInjectables } from "./sea-command-injectables"
 import { SeaCommandList } from "./sea-command-list"
 import { SeaCommandNavigation, SeaCommandUserMediaNavigation } from "./sea-command-navigation"
+
+export const __seaCommand_shortcuts = atomWithStorage<string[]>("sea-command-shortcuts", ["meta+j", "q"], undefined, { getOnInit: true })
 
 export type SeaCommandContextProps = {
     input: string
@@ -51,24 +56,29 @@ export function SeaCommand() {
     const [input, setInput] = React.useState("")
     const [activeItemId, setActiveItemId] = React.useState("")
 
+    const [shortcuts, setShortcuts] = useAtom(__seaCommand_shortcuts)
+
     const parsedCommandProps = useSeaCommand_ParseCommand(input)
 
     React.useEffect(() => {
-        mousetrap.bind(["command+k", "ctrl+k"], () => {
-            setOpen(prev => !prev)
+        mousetrap.bind(shortcuts, () => {
+            setInput("")
+            React.startTransition(() => {
+                setOpen(true)
+            })
         })
 
         return () => {
-            mousetrap.unbind(["command+k", "ctrl+k"])
+            mousetrap.unbind(shortcuts)
         }
-    }, [])
+    }, [shortcuts])
 
     React.useEffect(() => {
         if (!open) setInput("")
     }, [open])
 
     React.useEffect(() => {
-        mousetrap.bind(["q"], () => {
+        mousetrap.bind(["s"], () => {
             setOpen(true)
             React.startTransition(() => {
                 setTimeout(() => {
@@ -78,7 +88,7 @@ export function SeaCommand() {
         })
 
         return () => {
-            mousetrap.unbind(["q"])
+            mousetrap.unbind(["s"])
         }
     }, [])
 
@@ -166,6 +176,13 @@ export function SeaCommand() {
                         )}
                         render={() => <SeaCommandUserMediaNavigation />}
                     />
+                    <SeaCommandHandler
+                        shouldShow={ctx => (
+                            ctx.command.command === "logs"
+                            || ctx.command.command === "issue"
+                        )}
+                        render={() => <SeaCommandActions />}
+                    />
 
                     {/*Injected items*/}
                     <SeaCommandHandler
@@ -187,7 +204,7 @@ export function SeaCommand() {
 
                     {/*Suggestions*/}
                     <SeaCommandHandler
-                        shouldShow={ctx => ctx.input === "/"}
+                        shouldShow={ctx => ctx.input.startsWith("/")}
                         render={() => <SeaCommandList />}
                     />
 

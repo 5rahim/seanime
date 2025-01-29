@@ -14,6 +14,7 @@ import (
 	"seanime/internal/util/result"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -229,4 +230,66 @@ func (h *Handler) HandleDeleteLogs(c echo.Context) error {
 	})
 
 	return h.RespondWithData(c, true)
+}
+
+// HandleGetLatestLogContent
+//
+//	@summary returns the content of the latest server log file.
+//	@desc This returns the content of the most recent seanime- log file after flushing logs.
+//	@route /api/v1/logs/latest [GET]
+//	@returns string
+func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
+	if h.App.Config == nil || h.App.Config.Logs.Dir == "" {
+		return h.RespondWithData(c, "")
+	}
+
+	// Flush logs first
+	if h.App.OnFlushLogs != nil {
+		h.App.OnFlushLogs()
+		// Small delay to ensure logs are written
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	var logFiles []string
+
+	// Find all seanime- log files
+	err := filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+
+		filename := filepath.Base(path)
+		if !strings.HasPrefix(strings.ToLower(filename), "seanime-") || filepath.Ext(path) != ".log" {
+			return nil
+		}
+
+		logFiles = append(logFiles, path)
+		return nil
+	})
+
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if len(logFiles) == 0 {
+		return h.RespondWithData(c, "")
+	}
+
+	// Sort filenames in descending order (newest first)
+	slices.SortFunc(logFiles, func(a, b string) int {
+		return strings.Compare(filepath.Base(b), filepath.Base(a))
+	})
+
+	// Get the first (newest) file
+	latestLogFile := logFiles[0]
+
+	contentB, err := os.ReadFile(latestLogFile)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, string(contentB))
 }

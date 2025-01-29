@@ -13,7 +13,7 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React from "react"
-import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt, BiLinkExternal } from "react-icons/bi"
 
 type TorrentPreviewList = {
     entry: Anime_Entry
@@ -49,6 +49,8 @@ export const TorrentPreviewList = React.memo((
 
     return (
         <div className="space-y-2">
+            <p className="text-sm text-[--muted]">{previews?.length} results</p>
+            {/*<ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">*/}
             {previews.filter(Boolean).map(item => {
                 if (!item.torrent) return null
                 // const isReleasedBeforeMedia = differenceInCalendarYears(mediaReleaseDate, item.torrent.date) > 2
@@ -99,6 +101,7 @@ export const TorrentPreviewList = React.memo((
                     </TorrentPreviewItem>
                 )
             })}
+            {/*</ScrollAreaBox>*/}
         </div>
     )
 

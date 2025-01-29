@@ -2,6 +2,8 @@ import { Manga_Collection, Manga_CollectionList } from "@/api/generated/types"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
+import { SeaCommandInjectableItem, useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
+import { seaCommand_compareMediaTitles } from "@/app/(main)/_features/sea-command/utils"
 import { __mangaLibraryHeaderImageAtom, __mangaLibraryHeaderMangaAtom } from "@/app/(main)/manga/_components/library-header"
 import { __mangaLibrary_paramsAtom, __mangaLibrary_paramsInputAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { PageWrapper } from "@/components/shared/page-wrapper"
@@ -14,8 +16,10 @@ import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hook
 import { AnimatePresence } from "framer-motion"
 import { useSetAtom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
+import { useRouter } from "next/navigation"
 import React, { memo } from "react"
 import { LuListFilter } from "react-icons/lu"
+import { CommandItemMedia } from "../../_features/sea-command/_components/command-utils"
 
 type MangaLibraryViewProps = {
     collection: Manga_Collection
@@ -149,6 +153,9 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     const [currentHeaderImage, setCurrentHeaderImage] = useAtom(__mangaLibraryHeaderImageAtom)
     const headerManga = useAtomValue(__mangaLibraryHeaderMangaAtom)
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
+    const router = useRouter()
+
+    const { inject, remove } = useSeaCommandInject()
 
     React.useEffect(() => {
         if (list.type === "CURRENT") {
@@ -157,6 +164,34 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
             }
         }
     }, [])
+
+    // Inject command for currently reading manga
+    React.useEffect(() => {
+        if (list.type === "CURRENT" && list.entries?.length) {
+            inject("currently-reading-manga", {
+                items: list.entries.map(entry => ({
+                    data: entry,
+                    id: `manga-${entry.mediaId}`,
+                    value: entry.media?.title?.userPreferred || "",
+                    heading: "Currently Reading",
+                    priority: 100,
+                    render: () => (
+                        <CommandItemMedia media={entry.media!} />
+                    ),
+                    onSelect: () => {
+                        router.push(`/manga/entry?id=${entry.mediaId}`)
+                    },
+                })),
+                filter: ({ item, input }: { item: SeaCommandInjectableItem, input: string }) => {
+                    if (!input) return true
+                    return seaCommand_compareMediaTitles((item.data as typeof list.entries[0])?.media?.title, input)
+                },
+                priority: 100,
+            })
+        }
+
+        return () => remove("currently-reading-manga")
+    }, [list.entries])
 
     return (
         <React.Fragment>

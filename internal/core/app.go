@@ -10,11 +10,12 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
-	"seanime/internal/debrid/client"
-	"seanime/internal/discordrpc/presence"
+	debrid_client "seanime/internal/debrid/client"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
@@ -102,6 +103,7 @@ type (
 		account            *models.Account
 		previousVersion    string
 		moduleMu           sync.Mutex
+		HookManager        *hook.HookManager
 	}
 )
 
@@ -248,6 +250,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher:     fileCacher,
 	})
 
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 
 	app := &App{
@@ -291,6 +295,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		}{Mediastream: nil, Torrentstream: nil},
 		SelfUpdater: selfupdater,
 		moduleMu:    sync.Mutex{},
+		HookManager: hookManager,
 	}
 
 	// Perform necessary migrations if the version has changed

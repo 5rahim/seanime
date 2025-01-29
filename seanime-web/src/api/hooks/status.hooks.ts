@@ -40,3 +40,18 @@ export function useDeleteLogs() {
         },
     })
 }
+
+
+export function useGetLatestLogContent() {
+    const qc = useQueryClient()
+    return useServerMutation<string>({
+        endpoint: API_ENDPOINTS.STATUS.GetLatestLogContent.endpoint,
+        method: API_ENDPOINTS.STATUS.GetLatestLogContent.methods[0],
+        mutationKey: [API_ENDPOINTS.STATUS.GetLatestLogContent.key],
+        onSuccess: async data => {
+            if (!data) return toast.error("Couldn't fetch logs")
+            await navigator.clipboard.writeText(data)
+            toast.success("Copied to clipboard")
+        },
+    })
+}

@@ -9,25 +9,39 @@ export function SeaCommandList() {
     const commands = [
         {
             command: "anime",
-            description: "Find anime in your collection",
+            description: "Find in your collection",
             show: true,
         },
         {
             command: "manga",
-            description: "Find manga in your collection",
+            description: "Find in your collection",
             show: true,
         },
         {
             command: "search",
-            description: "Search for anime or manga",
+            description: "Search on AniList",
+            show: true,
+        },
+        {
+            command: "logs",
+            description: "Copy the current logs",
+            show: true,
+        },
+        {
+            command: "issue",
+            description: "Record an issue",
             show: true,
         },
     ]
 
+    const filtered = commands.filter(n => n.show && n.command.startsWith(command) && n.command != command)
+
+    if (!filtered?.length) return null
+
     return (
         <>
-            <CommandGroup heading="Suggestions">
-                {commands.filter(n => n.show).map(command => (
+            <CommandGroup heading="Autocomplete">
+                {filtered.map(command => (
                     <CommandItem
                         key={command.command}
                         onSelect={() => {
