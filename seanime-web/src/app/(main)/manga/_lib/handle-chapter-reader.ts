@@ -90,6 +90,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
     const previousChapter = React.useMemo<MangaReader_SelectedChapter | undefined>(() => {
         if (!mId) return undefined
         if (!currentChapter) return undefined
+
         // First, look in downloaded chapters
         // e.g., current is 14.2, look for the highest chapter number that is less than 14.2
         const _1 = entryDownloadedChapters
@@ -156,6 +157,7 @@ export function useHandleChapterPagination(mId: Nullish<string | number>, chapte
     const nextChapter = React.useMemo<MangaReader_SelectedChapter | undefined>(() => {
         if (!mId) return undefined
         if (!currentChapter) return undefined
+
         // First, look in downloaded chapters
         // e.g., current is 14.2, look for the lowest chapter number that is greater than 14.2
         const _1 = entryDownloadedChapters

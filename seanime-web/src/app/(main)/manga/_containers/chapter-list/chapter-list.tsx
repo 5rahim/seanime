@@ -212,16 +212,9 @@ export function ChapterList(props: ChapterListProps) {
         if (showDownloadedChapters) {
             d = d.filter(ch => isChapterDownloaded(ch) || isChapterQueued(ch))
         }
-        if (selectedExtension?.settings?.supportsMultiLanguage && selectedFilters.language) {
-            d = d.filter(ch => ch.language === selectedFilters.language)
-        }
-        if (selectedExtension?.settings?.supportsMultiScanlator && selectedFilters.scanlators[0]) {
-            d = d.filter(ch => ch.scanlator === selectedFilters.scanlators[0])
-        }
         return d
     }, [
-        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData,
-        selectedFilters, selectedExtension,
+        showUnreadChapter, unreadChapters, allChapters, showDownloadedChapters, isChapterDownloaded, isChapterQueued, downloadData, selectedExtension,
     ])
 
 

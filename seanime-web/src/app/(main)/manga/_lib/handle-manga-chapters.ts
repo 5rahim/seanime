@@ -65,6 +65,28 @@ export function useHandleMangaChapters(
         !chapterContainerLoading,
     )
 
+    /**
+     * 5. Filter chapters based on language and scanlator
+     */
+    const filteredChapterContainer = React.useMemo(() => {
+        if (!chapterContainer) return chapterContainer
+
+        const filteredChapters = chapterContainer.chapters?.filter(ch => {
+            if (selectedExtension?.settings?.supportsMultiLanguage && selectedFilters.language) {
+                if (ch.language !== selectedFilters.language) return false
+            }
+            if (selectedExtension?.settings?.supportsMultiScanlator && selectedFilters.scanlators[0]) {
+                if (ch.scanlator !== selectedFilters.scanlators[0]) return false
+            }
+            return true
+        })
+
+        return {
+            ...chapterContainer,
+            chapters: filteredChapters,
+        }
+    }, [chapterContainer, selectedExtension, selectedFilters])
+
     return {
         selectedExtension,
         providerExtensions,
@@ -80,7 +102,7 @@ export function useHandleMangaChapters(
         languageOptions,
         scanlatorOptions,
         // Chapters
-        chapterContainer,
+        chapterContainer: filteredChapterContainer,
         chapterContainerLoading,
         chapterContainerError,
     }
