@@ -56,10 +56,7 @@ export function ScannerModal() {
                 onSelect: ({ ctx }) => {
                     ctx.close()
                     setTimeout(() => {
-                        setOpen(true)
-                        setTimeout(() => {
-                            handleScan()
-                        }, 1000)
+                        handleScan()
                     }, 500)
                 },
                 showBasedOnInput: "startsWith",

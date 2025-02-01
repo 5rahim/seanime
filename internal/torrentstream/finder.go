@@ -312,6 +312,7 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 			Media:            media,
 			Platform:         r.platform,
 			MetadataProvider: r.metadataProvider,
+			ForceMatch:       true,
 		})
 
 		// Analyze torrent files

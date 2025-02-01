@@ -36,6 +36,9 @@ type (
 		stopCh                      chan struct{}                    // Closed when the media player stops
 		mediaPlayerPlaybackStatusCh chan *mediaplayer.PlaybackStatus // Continuously receives playback status
 		timeSinceLoggedSeeding      time.Time
+		lastSpeedCheck              time.Time // Track the last time we checked speeds
+		lastBytesCompleted          int64     // Track the last bytes completed
+		lastBytesWrittenData        int64     // Track the last bytes written data
 	}
 
 	TorrentStatus struct {
@@ -173,24 +176,36 @@ func (c *Client) initializeClient() error {
 					t := c.currentTorrent.MustGet()
 					f := c.currentFile.MustGet()
 
+					// Get the current time
+					now := time.Now()
+					elapsed := now.Sub(c.lastSpeedCheck).Seconds()
+
 					// downloadProgress is the number of bytes downloaded
 					downloadProgress := t.BytesCompleted()
-					// Difference between the current download progress and the last download progress
-					progressDiff := downloadProgress - c.currentTorrentStatus.DownloadProgress
-					// Get the download speed based on the difference
+
 					downloadSpeed := ""
-					if progressDiff > 0 {
-						downloadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(progressDiff)))
+					if elapsed > 0 {
+						bytesPerSecond := float64(downloadProgress-c.lastBytesCompleted) / elapsed
+						if bytesPerSecond > 0 {
+							downloadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(bytesPerSecond)))
+						}
 					}
 					size := humanize.Bytes(uint64(f.Length()))
 
 					bytesWrittenData := t.Stats().BytesWrittenData
-					// uploadProgress is the number of bytes uploaded
-					uploadProgress := (&bytesWrittenData).Int64() - c.currentTorrentStatus.UploadProgress
 					uploadSpeed := ""
-					if uploadProgress > 0 {
-						uploadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(uploadProgress)))
+					if elapsed > 0 {
+						bytesPerSecond := float64((&bytesWrittenData).Int64()-c.lastBytesWrittenData) / elapsed
+						if bytesPerSecond > 0 {
+							uploadSpeed = fmt.Sprintf("%s/s", humanize.Bytes(uint64(bytesPerSecond)))
+						}
 					}
+
+					// Update the stored values for next calculation
+					c.lastBytesCompleted = downloadProgress
+					c.lastBytesWrittenData = (&bytesWrittenData).Int64()
+					c.lastSpeedCheck = now
+
 					if t.PeerConns() != nil {
 						c.currentTorrentStatus.Seeders = len(t.PeerConns())
 					}
@@ -203,7 +218,7 @@ func (c *Client) initializeClient() error {
 
 					c.currentTorrentStatus = TorrentStatus{
 						Size:               size,
-						UploadProgress:     uploadProgress,
+						UploadProgress:     (&bytesWrittenData).Int64() - c.currentTorrentStatus.UploadProgress,
 						DownloadSpeed:      downloadSpeed,
 						UploadSpeed:        uploadSpeed,
 						DownloadProgress:   downloadProgress,

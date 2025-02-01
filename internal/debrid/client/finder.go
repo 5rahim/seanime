@@ -314,6 +314,7 @@ func (r *Repository) findBestTorrentFromManualSelection(provider debrid.Provider
 			Media:            media,
 			Platform:         r.platform,
 			MetadataProvider: r.metadataProvider,
+			ForceMatch:       true,
 		})
 
 		// Analyze torrent files

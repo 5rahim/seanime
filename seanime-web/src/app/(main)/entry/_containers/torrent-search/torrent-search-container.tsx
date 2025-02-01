@@ -419,23 +419,29 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                 fallbackImage={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
                 isBestRelease={batchHistory?.torrent.isBestRelease}
                 onClick={() => {
+                    if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
                     if (type === "select") {
-                        if (batchHistory?.torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                            handleManualTorrentStreamSelection({
-                                torrent: batchHistory?.torrent,
-                                entry,
-                                aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
-                                episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
-                                chosenFileIndex: undefined,
-                            })
-                            setter(undefined)
-                        }
+                        handleManualTorrentStreamSelection({
+                            torrent: batchHistory?.torrent,
+                            entry,
+                            aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
+                            episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                            chosenFileIndex: undefined,
+                        })
+                        setter(undefined)
+                    } else if (type === "debrid-stream-select") {
+                        handleStreamSelection({
+                            torrent: batchHistory?.torrent,
+                            entry,
+                            aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
+                            episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                            chosenFileId: "",
+                        })
+                        setter(undefined)
                     } else if (type === "select-file" || type === "debrid-stream-select-file") {
                         // Open the drawer to select the file
-                        if (!!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                            // This opens the file selection drawer
-                            setTorrentstreamSelectedTorrent(batchHistory?.torrent)
-                        }
+                        // This opens the file selection drawer
+                        setTorrentstreamSelectedTorrent(batchHistory?.torrent)
                     }
                 }}
             >

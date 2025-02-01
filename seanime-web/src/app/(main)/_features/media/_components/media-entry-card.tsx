@@ -308,6 +308,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                                 <AnimeEntryCardUnwatchedBadge
                                     progress={listData?.progress || 0}
                                     media={media}
+                                    libraryData={libraryData}
                                 />
                             )}
                             {type === "manga" &&

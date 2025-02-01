@@ -84,12 +84,14 @@ function EpisodeList({ episodes }: { episodes: Anime_EntryDownloadEpisode[] | un
 
     if (!episodes || !episodes.length) return null
 
+    const missingEpisodes = episodes.sort((a, b) => a.episodeNumber - b.episodeNumber)
+
     return (
         <div className="space-y-2">
-            <p><span className="font-semibold">Missing episodes</span>: {episodes.sort((a, b) => a.episodeNumber - b.episodeNumber).slice(0, 5)
+            <p><span className="font-semibold">Missing episode{missingEpisodes.length > 1 ? "s" : ""}</span>: {missingEpisodes.slice(0, 5)
                 .map(n => n.episodeNumber)
-                .join(", ")}{episodes.length > 5
-                ? `, ..., ${episodes[episodes.length - 1].episodeNumber}`
+                .join(", ")}{missingEpisodes.length > 5
+                ? `, ..., ${missingEpisodes[missingEpisodes.length - 1].episodeNumber}`
                 : ""}
             </p>
         </div>
