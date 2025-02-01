@@ -22,7 +22,9 @@ export function useHandleEpisodeSection(props: { entry: Anime_Entry }) {
     }, [entry.episodes])
 
     const specialEpisodes = React.useMemo(() => {
-        return (entry.episodes?.filter(ep => ep.type === "special") ?? []).sort((a, b) => a.displayTitle.localeCompare(b.displayTitle))
+        return (entry.episodes?.filter(ep => ep.type === "special") ?? [])
+            .sort((a, b) => a.displayTitle.localeCompare(b.displayTitle))
+            .sort((a, b) => (a.episodeNumber ?? 0) - (b.episodeNumber ?? 0))
     }, [entry.episodes])
 
     const ncEpisodes = React.useMemo(() => {

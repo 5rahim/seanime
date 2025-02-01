@@ -18,7 +18,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { AiOutlineCloudServer } from "react-icons/ai"
-import { BiCollection, BiDownload, BiPlay, BiX } from "react-icons/bi"
+import { BiCollection, BiDownload, BiX } from "react-icons/bi"
 import { FcFilmReel, FcFolder } from "react-icons/fc"
 import { LuDownload, LuPlay } from "react-icons/lu"
 import * as upath from "upath"
@@ -277,8 +277,8 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
 
     return (
         <Button
-            intent="white"
-            className="Sea-TorrentSearchConfirmationContinueButton fixed z-[9999] ring-2 ring-[--brand] ring-offset-2 left-0 right-0 bottom-4 rounded-full max-w-lg mx-auto halo"
+            intent="primary"
+            className="Sea-TorrentSearchConfirmationContinueButton fixed z-[9999] left-0 right-0 bottom-4 rounded-full max-w-lg mx-auto halo"
             size="lg"
             onClick={() => {
                 if (type === "download") {

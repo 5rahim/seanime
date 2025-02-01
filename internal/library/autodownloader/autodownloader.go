@@ -502,8 +502,7 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 
 	downloaded := false
 
-	switch useDebrid {
-	case true:
+	if useDebrid {
 		//
 		// Debrid
 		//
@@ -536,25 +535,25 @@ func (ad *AutoDownloader) downloadTorrent(t *NormalizedTorrent, rule *anime.Auto
 			}
 		}
 
-	case false:
-		//
-		// Torrent client
-		//
-		started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
-		if !started {
-			ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
-			return false
-		}
-
-		// Return if the torrent is already added
-		torrentExists := ad.torrentClientRepository.TorrentExists(t.InfoHash)
-		if torrentExists {
-			//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
-			return false
-		}
-
+	} else {
 		// Pause the torrent when it's added
 		if ad.settings.DownloadAutomatically {
+
+			//
+			// Torrent client
+			//
+			started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
+			if !started {
+				ad.logger.Error().Str("link", t.Link).Str("name", t.Name).Msg("autodownloader: Failed to download torrent. torrent client is not running.")
+				return false
+			}
+
+			// Return if the torrent is already added
+			torrentExists := ad.torrentClientRepository.TorrentExists(t.InfoHash)
+			if torrentExists {
+				//ad.Logger.Debug().Str("name", t.Name).Msg("autodownloader: Torrent already added")
+				return false
+			}
 
 			ad.logger.Debug().Msgf("autodownloader: Downloading torrent: %s", t.Name)
 

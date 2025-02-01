@@ -6,6 +6,7 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner, Spinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { ProgressBar } from "@/components/ui/progress-bar"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
@@ -27,7 +28,7 @@ export function DebridStreamOverlay() {
 
     const { mutate: cancelStream, isPending: isCancelling } = useDebridCancelStream()
 
-    const [minimized, setMinimized] = React.useState(false)
+    const [minimized, setMinimized] = React.useState(true)
 
     useWebsocketMessageListener<DebridClient_StreamState>({
         type: WSEvents.DEBRID_STREAM_STATE,
@@ -44,7 +45,7 @@ export function DebridStreamOverlay() {
                 }
                 if (data.status === "ready") {
                     setState(null)
-                    toast.info("Sending stream to player...", { duration: 10000 })
+                    toast.info("Sending stream to player...", { duration: 5000 })
                     return
                 }
             }
@@ -90,7 +91,7 @@ export function DebridStreamOverlay() {
             {minimized && (
                 <div className="fixed z-[100] bottom-8 w-full h-fit flex justify-center">
                     <div
-                        className=" p-4 bg-gray-900 border text-white rounded-xl cursor-pointer hover:border-gray-600"
+                        className="shadow-2xl p-4 bg-gray-900 border text-white rounded-3xl cursor-pointer hover:border-gray-600"
                         onClick={() => setMinimized(false)}
                     >
                         <div className="flex items-center justify-center gap-4">
@@ -99,8 +100,8 @@ export function DebridStreamOverlay() {
                                 <p>
                                     Awaiting stream from Debrid service
                                 </p>
-                                <p className="text-[--muted] text-sm text-center">
-                                    The stream will launch once it's downloaded
+                                <p className="text-[--muted] text-sm">
+                                    {state?.message}
                                 </p>
                             </div>
                             <Spinner className="size-5" />
@@ -108,9 +109,14 @@ export function DebridStreamOverlay() {
                     </div>
                 </div>
             )}
+
+            {state?.status === "downloading" && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
+                <ProgressBar size="xs" isIndeterminate />
+            </div>}
+
             <Modal
-                contentClass="max-w-3xl"
-                title="Awaiting stream"
+                contentClass="max-w-xl sm:rounded-3xl"
+                // title="Awaiting stream"
                 open={!minimized && !!state}
                 onOpenChange={v => setMinimized(!v)}
             >
@@ -121,8 +127,8 @@ export function DebridStreamOverlay() {
                         Closing this modal will not cancel the stream
                     </p>
 
-                    <div className="rounded-[--radius-md] border bg-gray-950 p-4 pb-0">
-                        <p className="text-center text-sm">
+                    <div className="p-4 pb-0">
+                        <p className="text-center text-sm line-clamp-1 tracking-wide">
                             {state?.torrentName}
                         </p>
 
@@ -131,10 +137,10 @@ export function DebridStreamOverlay() {
                         />
                     </div>
 
-                    <div className="flex justify-center gap-4 mt-4">
+                    <div className="flex justify-center gap-1 mt-4">
                         <Button
                             onClick={() => confirmCancelStream.open()}
-                            intent="alert-subtle"
+                            intent="alert-basic"
                             disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..."}
                             size="sm"
                         >
@@ -142,7 +148,7 @@ export function DebridStreamOverlay() {
                         </Button>
                         <Button
                             onClick={() => confirmCancelAndRemoveTorrent.open()}
-                            intent="alert-subtle"
+                            intent="alert-basic"
                             disabled={isCancelling || state?.status !== "downloading" || state?.message === "Downloading torrent..."}
                             size="sm"
                         >

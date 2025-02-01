@@ -7,13 +7,10 @@ import {
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
-import { IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tooltip } from "@/components/ui/tooltip"
-import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React from "react"
-import { BiCalendarAlt, BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt } from "react-icons/bi"
 
 type TorrentPreviewList = {
     entry: Anime_Entry
@@ -56,6 +53,7 @@ export const TorrentPreviewList = React.memo((
                 // const isReleasedBeforeMedia = differenceInCalendarYears(mediaReleaseDate, item.torrent.date) > 2
                 return (
                     <TorrentPreviewItem
+                        link={item.torrent?.link}
                         confirmed={item.torrent?.confirmed}
                         key={item.torrent.link}
                         title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
@@ -68,15 +66,6 @@ export const TorrentPreviewList = React.memo((
                         fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent!)}
-                        action={<Tooltip
-                            side="left"
-                            trigger={<IconButton
-                                icon={<BiLinkExternal />}
-                                intent="primary-basic"
-                                size="sm"
-                                onClick={() => openTab(item.torrent!.link)}
-                            />}
-                        >Open in browser</Tooltip>}
                     >
                         <div className="flex flex-wrap gap-3 items-center">
                             {item.torrent.isBestRelease && (

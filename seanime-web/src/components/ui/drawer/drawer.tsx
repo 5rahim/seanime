@@ -165,7 +165,7 @@ export function Drawer(props: DrawerProps) {
         titleClass,
         descriptionClass,
         hideCloseButton,
-        side,
+        side = "right",
         size,
         open,
         // Content
@@ -201,8 +201,11 @@ export function Drawer(props: DrawerProps) {
                     )}
                     style={{
                         marginTop: (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !mangaReader) ? "30px" : undefined,
-                        height: (process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !mangaReader &&
-                            (side === "left" || side === "right")) ? "calc(100% - 40px)" : undefined,
+                        height: (
+                            process.env.NEXT_PUBLIC_PLATFORM === "desktop"
+                            && !mangaReader
+                            && (side === "left" || side === "right")
+                        ) ? "calc(100dvh - 50px)" : undefined,
                     }}
                     onOpenAutoFocus={onOpenAutoFocus}
                     onCloseAutoFocus={onCloseAutoFocus}

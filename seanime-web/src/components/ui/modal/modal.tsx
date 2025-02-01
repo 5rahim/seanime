@@ -29,7 +29,7 @@ export const ModalAnatomy = defineStyleAnatomy({
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "mt-10",
         // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "select-none",
-        "sm:rounded-2xl",
+        "sm:rounded-xl",
     ]),
     close: cva([
         "UI-Modal__close",

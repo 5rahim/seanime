@@ -253,6 +253,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                                 })
                                             }
                                         }}
+                                        labelClass="text-sm tracking-wide data-[checked=false]:opacity-50"
                                         fieldClass="w-[fit-content]"
                                     />
                                 </div>

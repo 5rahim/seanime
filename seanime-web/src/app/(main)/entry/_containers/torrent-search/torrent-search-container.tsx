@@ -24,22 +24,19 @@ import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
-import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
-import { Tooltip } from "@/components/ui/tooltip"
-import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
-import { BiCalendarAlt, BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt } from "react-icons/bi"
 import { LuCornerLeftDown } from "react-icons/lu"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
@@ -411,6 +408,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
             <h5 className="text-center flex gap-2 items-center"><LuCornerLeftDown className="mt-1" /> Previous selection</h5>
 
             <TorrentPreviewItem
+                link={batchHistory?.torrent?.link}
                 confirmed={batchHistory?.torrent?.confirmed}
                 key={batchHistory?.torrent.link}
                 title={""}
@@ -440,15 +438,6 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
                         }
                     }
                 }}
-                action={<Tooltip
-                    side="left"
-                    trigger={<IconButton
-                        icon={<BiLinkExternal />}
-                        intent="primary-basic"
-                        size="sm"
-                        onClick={() => openTab(batchHistory?.torrent?.link ?? "")}
-                    />}
-                >Open in browser</Tooltip>}
             >
                 <div className="flex flex-wrap gap-3 items-center">
                     {batchHistory?.torrent?.isBestRelease && (

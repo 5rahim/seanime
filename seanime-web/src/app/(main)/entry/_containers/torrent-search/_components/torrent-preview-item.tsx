@@ -1,12 +1,17 @@
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Tooltip } from "@/components/ui/tooltip"
+import { openTab } from "@/lib/helpers/browser"
 import Image from "next/image"
 import React, { memo } from "react"
 import { AiFillWarning } from "react-icons/ai"
+import { BiLinkExternal } from "react-icons/bi"
 import { BsFileEarmarkPlayFill } from "react-icons/bs"
-import { FcFile, FcFolder } from "react-icons/fc"
+import { FcFolder } from "react-icons/fc"
 import { MdVerified } from "react-icons/md"
 
 type TorrentPreviewItemProps = {
+    link?: string
     isSelected?: boolean
     isInvalid?: boolean
     className?: string
@@ -28,6 +33,7 @@ type TorrentPreviewItemProps = {
 export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
 
     const {
+        link,
         isBasic,
         isSelected,
         isInvalid,
@@ -148,9 +154,18 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 </div>
             </div>
 
-            {action && <div className="absolute right-1 top-1 flex flex-col items-center">
+            <div className="absolute right-1 top-1 flex flex-col items-center">
+                {link && <Tooltip
+                    side="left"
+                    trigger={<IconButton
+                        icon={<BiLinkExternal className="text-[--muted]" />}
+                        intent="gray-basic"
+                        size="sm"
+                        onClick={() => openTab(link)}
+                    />}
+                >Open in browser</Tooltip>}
                 {action}
-            </div>}
+            </div>
         </div>
     )
 
