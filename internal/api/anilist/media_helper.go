@@ -519,6 +519,9 @@ func (m *CompleteAnime) ToBaseAnime() *BaseAnime {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (m *AnimeListEntry) GetProgressSafe() int {
+	if m == nil {
+		return 0
+	}
 	if m.Progress == nil {
 		return 0
 	}
@@ -526,6 +529,9 @@ func (m *AnimeListEntry) GetProgressSafe() int {
 }
 
 func (m *AnimeListEntry) GetScoreSafe() float64 {
+	if m == nil {
+		return 0
+	}
 	if m.Score == nil {
 		return 0
 	}
@@ -533,6 +539,9 @@ func (m *AnimeListEntry) GetScoreSafe() float64 {
 }
 
 func (m *AnimeListEntry) GetRepeatSafe() int {
+	if m == nil {
+		return 0
+	}
 	if m.Repeat == nil {
 		return 0
 	}
@@ -540,6 +549,9 @@ func (m *AnimeListEntry) GetRepeatSafe() int {
 }
 
 func (m *AnimeListEntry) GetStatusSafe() MediaListStatus {
+	if m == nil {
+		return ""
+	}
 	if m.Status == nil {
 		return ""
 	}

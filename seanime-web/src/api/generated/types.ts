@@ -1407,6 +1407,8 @@ export type Anime_EntryDownloadInfo = {
 export type Anime_EntryLibraryData = {
     allFilesLocked: boolean
     sharedPath: string
+    unwatchedCount: number
+    mainFileCount: number
 }
 
 /**

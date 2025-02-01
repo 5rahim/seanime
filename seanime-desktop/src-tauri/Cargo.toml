@@ -20,13 +20,13 @@ tauri-build = { version = "2.0.3", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "2.1.1", features = ["macos-private-api", "tray-icon", "devtools"] }
+tauri = { version = "2.2.5", features = ["macos-private-api", "tray-icon", "devtools"] }
 tauri-plugin-shell = "2.2.0"
-strip-ansi-escapes = "0.2.0"
-tokio = "1.41.0"
+strip-ansi-escapes = "0.2.1"
+tokio = "1.43.0"
 tauri-plugin-decorum = "1.1.1"
 tauri-plugin-os = "2.2.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
-tauri-plugin-updater = "2.0.2"
+tauri-plugin-updater = "2.4.0"

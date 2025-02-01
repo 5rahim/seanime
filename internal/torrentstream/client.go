@@ -251,7 +251,11 @@ func (c *Client) GetStreamingUrl() string {
 	}
 
 	if !settings.UseSeparateServer {
-		address := fmt.Sprintf("%s:%d", settings.Host, settings.Port)
+		host := settings.Host
+		if host == "0.0.0.0" {
+			host = "127.0.0.1"
+		}
+		address := fmt.Sprintf("%s:%d", host, settings.Port)
 		if settings.StreamUrlAddress != "" {
 			address = settings.StreamUrlAddress
 		}
@@ -266,7 +270,7 @@ func (c *Client) GetStreamingUrl() string {
 	//	return fmt.Sprintf("http://127.0.0.1:%d/stream/%s", settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))
 	//}
 	host := settings.StreamingServerHost
-	if host == "" || host == "0.0.0.0" {
+	if host == "" {
 		host = "127.0.0.1"
 	}
 	_url := fmt.Sprintf("http://%s:%d/stream/%s", host, settings.StreamingServerPort, url.PathEscape(c.currentFile.MustGet().DisplayPath()))

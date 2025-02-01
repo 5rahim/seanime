@@ -108,6 +108,7 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 	libraryData, _ := NewEntryLibraryData(&NewEntryLibraryDataOptions{
 		EntryLocalFiles: lfs,
 		MediaId:         entry.Media.ID,
+		CurrentProgress: anilistEntry.GetProgressSafe(),
 	})
 	entry.EntryLibraryData = libraryData
 
@@ -156,8 +157,8 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 	// If the media exist in the user's anime list, add the details
 	if found {
 		entry.EntryListData = &EntryListData{
-			Progress:    *anilistEntry.Progress,
-			Score:       *anilistEntry.Score,
+			Progress:    anilistEntry.GetProgressSafe(),
+			Score:       anilistEntry.GetScoreSafe(),
 			Status:      anilistEntry.Status,
 			Repeat:      anilistEntry.GetRepeatSafe(),
 			StartedAt:   anilist.FuzzyDateToString(anilistEntry.StartedAt),

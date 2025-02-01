@@ -178,6 +178,7 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 						libraryData, _ := NewEntryLibraryData(&NewEntryLibraryDataOptions{
 							EntryLocalFiles: entryLfs,
 							MediaId:         entry.Media.ID,
+							CurrentProgress: entry.GetProgressSafe(),
 						})
 
 						return &LibraryCollectionEntry{
@@ -185,8 +186,8 @@ func (lc *LibraryCollection) hydrateCollectionLists(
 							Media:            entry.Media,
 							EntryLibraryData: libraryData,
 							EntryListData: &EntryListData{
-								Progress:    *entry.Progress,
-								Score:       *entry.Score,
+								Progress:    entry.GetProgressSafe(),
+								Score:       entry.GetScoreSafe(),
 								Status:      entry.Status,
 								Repeat:      entry.GetRepeatSafe(),
 								StartedAt:   anilist.ToEntryStartDate(entry.StartedAt),
