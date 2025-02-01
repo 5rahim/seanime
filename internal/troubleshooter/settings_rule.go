@@ -1,4 +1,4 @@
-package loganalyzer
+package troubleshooter
 
 func mediaPlayerRules(state *AppState) *RuleBuilder {
 	return NewRule("Media Player")

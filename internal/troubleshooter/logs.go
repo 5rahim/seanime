@@ -1,39 +1,14 @@
-package loganalyzer
+package troubleshooter
 
 import (
 	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
-	"seanime/internal/database/models"
 	"seanime/internal/util"
 	"sort"
 	"strings"
 	"time"
-
-	"github.com/rs/zerolog"
-)
-
-type (
-	Analyzer struct {
-		logsDir string
-		logger  *zerolog.Logger
-		rules   []RuleBuilder
-		state   *AppState // For accessing app state like settings
-	}
-
-	NewAnalyzerOptions struct {
-		LogsDir string
-		Logger  *zerolog.Logger
-		State   *AppState
-	}
-
-	AppState struct {
-		Settings              *models.Settings
-		TorrentstreamSettings *models.TorrentstreamSettings
-		MediastreamSettings   *models.MediastreamSettings
-		DebridSettings        *models.DebridSettings
-	}
 )
 
 type AnalysisResult struct {
@@ -48,23 +23,6 @@ type AnalysisResultItem struct {
 	Warnings       []string `json:"warnings"`
 	Logs           []string `json:"logs"`
 }
-
-// Enums for better type safety
-type (
-	Module string
-	Level  string
-)
-
-const (
-	ModuleMediaPlayer Module = "media player"
-	ModuleSettings    Module = "settings"
-	// ...
-
-	LevelError   Level = "error"
-	LevelWarning Level = "warning"
-	LevelInfo    Level = "info"
-	LevelDebug   Level = "debug"
-)
 
 // RuleBuilder provides a fluent interface for building rules
 type RuleBuilder struct {
@@ -230,8 +188,8 @@ func (r *RuleBuilder) matches(line LogLine, platform string) (bool, *branch) {
 }
 
 // NewAnalyzer creates a new analyzer with the default rule groups
-func NewAnalyzer(opts NewAnalyzerOptions) *Analyzer {
-	a := &Analyzer{
+func NewAnalyzer(opts NewTroubleshooterOptions) *Troubleshooter {
+	a := &Troubleshooter{
 		logsDir: opts.LogsDir,
 		logger:  opts.Logger,
 		state:   opts.State,
@@ -249,9 +207,9 @@ func defaultRules() []RuleBuilder {
 
 // Analyze analyzes the logs in the logs directory and returns an AnalysisResult
 // App.OnFlushLogs should be called before this function
-func (a *Analyzer) Analyze() (AnalysisResult, error) {
+func (t *Troubleshooter) Analyze() (AnalysisResult, error) {
 
-	files, err := os.ReadDir(a.logsDir)
+	files, err := os.ReadDir(t.logsDir)
 	if err != nil {
 		return AnalysisResult{}, err
 	}
@@ -269,7 +227,7 @@ func (a *Analyzer) Analyze() (AnalysisResult, error) {
 
 	latestFile := files[0]
 
-	return analyzeLogFile(filepath.Join(a.logsDir, latestFile.Name()))
+	return analyzeLogFile(filepath.Join(t.logsDir, latestFile.Name()))
 }
 
 // LogLine represents a parsed log line

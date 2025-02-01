@@ -1,4 +1,4 @@
-package loganalyzer
+package troubleshooter
 
 import (
 	"strings"

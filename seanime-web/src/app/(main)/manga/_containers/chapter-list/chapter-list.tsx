@@ -357,7 +357,7 @@ export function ChapterList(props: ChapterListProps) {
                     <div className="flex gap-2 items-center">
                         {selectedExtension?.settings?.supportsMultiLanguage && (
                             <Select
-                                fieldClass="w-52"
+                                fieldClass="w-64"
                                 options={languageOptions}
                                 placeholder="All"
                                 value={selectedFilters.language}
@@ -366,14 +366,14 @@ export function ChapterList(props: ChapterListProps) {
                                     language: v,
                                 })}
                                 leftAddon="Language"
-                                intent="filled"
-                                size="sm"
+                                // intent="filled"
+                                // size="sm"
                             />
                         )}
                         {selectedExtension?.settings?.supportsMultiScanlator && (
                             <>
                                 <Select
-                                    fieldClass="w-52"
+                                    fieldClass="w-64"
                                     options={scanlatorOptions}
                                     placeholder="All"
                                     value={selectedFilters.scanlators[0] || ""}
@@ -382,8 +382,8 @@ export function ChapterList(props: ChapterListProps) {
                                         scanlators: [v],
                                     })}
                                     leftAddon="Scanlator"
-                                    intent="filled"
-                                    size="sm"
+                                    // intent="filled"
+                                    // size="sm"
                                 />
                             </>
                         )}
@@ -479,7 +479,7 @@ export function ChapterList(props: ChapterListProps) {
                                         onRowSelect={onRowSelectionChange}
                                         onRowSelectionChange={setRowSelection}
                                         className=""
-                                        tableClass="table-auto lg:table-fixed"
+                                        tableClass="table-fixed lg:table-fixed"
                                     />
                                 </div>
                             </>

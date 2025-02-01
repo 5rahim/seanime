@@ -39,6 +39,7 @@ export function ScannerModal() {
             skipLockedFiles: skipLockedFiles.active,
             skipIgnoredFiles: skipIgnoredFiles.active,
         })
+        setOpen(false)
     }
 
     const { inject, remove } = useSeaCommandInject()
@@ -79,9 +80,10 @@ export function ScannerModal() {
             <Modal
                 open={isOpen}
                 onOpenChange={o => {
-                    if (!isScanning) {
-                        setOpen(o)
-                    }
+                    // if (!isScanning) {
+                    //     setOpen(o)
+                    // }
+                    setOpen(o)
                 }}
                 // title="Library scanner"
                 titleClass="text-center"

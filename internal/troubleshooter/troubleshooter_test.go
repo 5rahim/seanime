@@ -1,4 +1,4 @@
-package loganalyzer
+package troubleshooter
 
 import (
 	"path/filepath"
@@ -11,7 +11,7 @@ func TestAnalyze(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t)
 
-	analyzer := NewAnalyzer(NewAnalyzerOptions{
+	analyzer := NewAnalyzer(NewTroubleshooterOptions{
 		LogsDir: filepath.Join(test_utils.ConfigData.Path.DataDir, "logs"),
 	})
 

@@ -78,6 +78,7 @@ export const DataGridAnatomy = defineStyleAnatomy({
         "data-[editing=true]:ring-1 data-[editing=true]:ring-[--ring] ring-inset",
         "data-[editable=true]:hover:bg-[--subtle] md:data-[editable=true]:focus:ring-2 md:data-[editable=true]:focus:ring-[--slate]",
         "focus:outline-none",
+        "border-b",
     ]),
     tr: cva([
         "UI-DataGrid__tr",

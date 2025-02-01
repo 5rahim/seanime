@@ -18,7 +18,7 @@ func (api *MpcHc) getExecutableName() string {
 	return "mpc-hc64.exe"
 }
 
-func (api *MpcHc) getExecutablePath() string {
+func (api *MpcHc) GetExecutablePath() string {
 
 	if len(api.Path) > 0 {
 		return api.Path
@@ -39,7 +39,7 @@ func (api *MpcHc) isRunning(executable string) bool {
 
 func (api *MpcHc) Start() error {
 	name := api.getExecutableName()
-	exe := api.getExecutablePath()
+	exe := api.GetExecutablePath()
 	if api.isRunning(name) {
 		return nil
 	}

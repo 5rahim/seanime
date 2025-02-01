@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
 	"seanime/internal/continuity"
 	"seanime/internal/events"
 	mpchc2 "seanime/internal/mediaplayers/mpchc"
@@ -13,6 +12,8 @@ import (
 	"seanime/internal/util/result"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 const (
@@ -118,6 +119,22 @@ func (m *Repository) GetStatus() *PlaybackStatus {
 
 func (m *Repository) IsRunning() bool {
 	return m.isRunning
+}
+
+func (m *Repository) GetExecutablePath() string {
+	switch m.Default {
+	case "vlc":
+		return m.VLC.GetExecutablePath()
+	case "mpc-hc":
+		return m.MpcHc.GetExecutablePath()
+	case "mpv":
+		return m.Mpv.GetExecutablePath()
+	}
+	return ""
+}
+
+func (m *Repository) GetDefault() string {
+	return m.Default
 }
 
 // Play will start the media player and load the video at the given path.
