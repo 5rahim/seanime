@@ -52,7 +52,7 @@ export function TorrentSearchDrawer(props: { entry: Anime_Entry }) {
         >
 
             {entry?.media?.bannerImage && <div
-                className="Sea-TorrentSearchDrawer__bannerImage h-36 w-full flex-none object-cover object-center overflow-hidden rounded-t-2xl absolute left-0 top-0 z-[-1]"
+                className="Sea-TorrentSearchDrawer__bannerImage h-36 w-full flex-none object-cover object-center overflow-hidden rounded-t-xl absolute left-0 top-0 z-[-1]"
             >
                 <Image
                     src={getImageUrl(entry?.media?.bannerImage!)}

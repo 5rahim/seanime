@@ -8,14 +8,14 @@ import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
 import { DebridStreamPage } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-page"
 import { EpisodeSection } from "@/app/(main)/entry/_containers/episode-list/episode-section"
-import { TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
+import { __torrentSearch_drawerIsOpenAtom, TorrentSearchDrawer } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai"
-import { useAtom } from "jotai/react"
+import { useAtom, useSetAtom } from "jotai/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import { useUnmount } from "react-use"
@@ -113,39 +113,51 @@ export function AnimeEntryPage() {
         setView("library")
     })
 
+    const setTorrentSearchDrawer = useSetAtom(__torrentSearch_drawerIsOpenAtom)
+
     const { inject, remove } = useSeaCommandInject()
     React.useEffect(() => {
         inject("anime-entry-navigation", {
             items: [
-                {
-                    command: "library",
+                ...[{
+                    id: "library",
                     description: "Downloaded episodes",
                     show: currentView !== "library",
                 },
                 {
-                    command: "torrentstream",
+                    id: "torrentstream",
                     description: "Torrent streaming",
                     show: serverStatus?.torrentstreamSettings?.enabled && currentView !== "torrentstream",
                 },
                 {
-                    command: "debridstream",
+                    id: "debridstream",
                     description: "Debrid streaming",
                     show: serverStatus?.debridSettings?.enabled && currentView !== "debridstream",
                 },
                 {
-                    command: "onlinestream",
+                    id: "onlinestream",
                     description: "Online streaming",
                     show: serverStatus?.settings?.library?.enableOnlinestream && currentView !== "onlinestream",
                 },
             ].map(item => ({
-                id: item.command,
-                value: item.command,
+                    id: item.id,
+                    value: item.id,
                 heading: "Views",
                 data: item,
                 render: () => <div>{item.description}</div>,
-                onSelect: () => setView(item.command as any),
+                    onSelect: () => setView(item.id as any),
                 shouldShow: () => !!item.show,
             })),
+                {
+                    id: "download",
+                    value: "download",
+                    render: () => <div>Download torrents</div>,
+                    heading: "Views",
+                    data: "download torrents",
+                    onSelect: () => setTorrentSearchDrawer("select"),
+                    shouldShow: () => currentView === "library",
+                },
+            ],
             filter: ({ item, input }) => {
                 if (!input) return true
                 return item.data?.description?.toLowerCase().startsWith(input.toLowerCase())

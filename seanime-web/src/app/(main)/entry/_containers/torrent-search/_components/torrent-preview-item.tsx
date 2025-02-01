@@ -66,6 +66,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     // "opacity-50": isWatched && !isSelected,
                 }, className,
             )}
+            tabIndex={0}
         >
 
             {addon}
@@ -74,7 +75,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                 <MdVerified
                     className={cn(
                         "text-[--gray] text-lg",
-                        isBestRelease ? "text-[--pink]" : "opacity-50",
+                        isBestRelease ? "text-[--pink]" : "opacity-30",
                     )}
                 />
             </div>}
@@ -85,7 +86,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     alt="episode image"
                     fill
                     className={cn(
-                        "object-cover object-center absolute w-full h-full  group-hover/torrent-preview-item:blur-0 transition-opacity opacity-20 group-hover/torrent-preview-item:opacity-40 z-[0] select-none pointer-events-none",
+                        "object-cover object-center absolute w-full h-full group-hover/torrent-preview-item:blur-0 transition-opacity opacity-25 group-hover/torrent-preview-item:opacity-60 z-[0] select-none pointer-events-none",
                         isSelected && "opacity-50",
                     )}
                 />}
@@ -124,7 +125,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
                     >
                         <span className="truncate">{releaseGroup}</span>
                     </p>
-                    {isBatch && <FcFolder className="text-7xl absolute opacity-20" />}
+                    {isBatch && <FcFolder className="text-7xl absolute opacity-20 group-hover/torrent-preview-item:opacity-30" />}
                     {!(image || fallbackImage) && !isBatch && <BsFileEarmarkPlayFill className="text-7xl absolute opacity-10" />}
                 </div>
 

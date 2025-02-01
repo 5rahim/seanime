@@ -48,6 +48,7 @@ export const TorrentPreviewList = React.memo((
         <div className="space-y-2">
             <p className="text-sm text-[--muted]">{previews?.length} results</p>
             {/*<ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">*/}
+            {/*<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">*/}
             {previews.filter(Boolean).map(item => {
                 if (!item.torrent) return null
                 // const isReleasedBeforeMedia = differenceInCalendarYears(mediaReleaseDate, item.torrent.date) > 2
@@ -90,6 +91,7 @@ export const TorrentPreviewList = React.memo((
                     </TorrentPreviewItem>
                 )
             })}
+            {/*</div>*/}
             {/*</ScrollAreaBox>*/}
         </div>
     )

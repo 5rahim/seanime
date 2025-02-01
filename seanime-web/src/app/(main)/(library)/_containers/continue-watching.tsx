@@ -116,7 +116,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                 priority: 100,
                 render: () => (
                     <>
-                        <div className="w-12 aspect-[6/5] rounded-[--radius-md] relative overflow-hidden">
+                        <div className="w-12 aspect-[6/5] flex-none rounded-[--radius-md] relative overflow-hidden">
                             <Image
                                 src={episode.episodeMetadata?.image || ""}
                                 alt="episode image"

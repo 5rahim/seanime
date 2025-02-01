@@ -14,13 +14,13 @@ export const playbackDownloadedMediaOptions = [
     {
         label: <div className="flex items-center gap-2">
             <PiVideoFill className="text-2xl" />
-            <p>Desktop media player or Integrated player (media streaming)</p>
+            <p className="max-w-[90%]">Desktop media player or Integrated player (media streaming)</p>
         </div>, value: PlaybackDownloadedMedia.Default,
     },
     {
         label: <div className="flex items-center gap-2">
             <FaShareFromSquare className="text-2xl" />
-            <p>External player link</p>
+            <p className="max-w-[90%]">External player link</p>
         </div>, value: PlaybackDownloadedMedia.ExternalPlayerLink,
     },
 ]
@@ -38,13 +38,13 @@ export const playbackTorrentStreamingOptions = [
     {
         label: <div className="flex items-center gap-2">
             <PiVideoFill className="text-2xl" />
-            <p>Desktop media player</p>
+            <p className="max-w-[90%]">Desktop media player</p>
         </div>, value: PlaybackTorrentStreaming.Default,
     },
     {
         label: <div className="flex items-center gap-2">
             <FaShareFromSquare className="text-2xl" />
-            <p>External player link</p>
+            <p className="max-w-[90%]">External player link</p>
         </div>, value: PlaybackTorrentStreaming.ExternalPlayerLink,
     },
 ]
