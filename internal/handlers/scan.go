@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/labstack/echo/v4"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
@@ -14,9 +15,7 @@ import (
 //	@desc The response is ignored, the client should re-fetch the library after this.
 //	@route /api/v1/library/scan [POST]
 //	@returns []anime.LocalFile
-func HandleScanLocalFiles(c *RouteCtx) error {
-
-	c.AcceptJSON()
+func (h *Handler) HandleScanLocalFiles(c echo.Context) error {
 
 	type body struct {
 		Enhanced         bool `json:"enhanced"`
@@ -27,23 +26,23 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	var b body
 
 	// Retrieve the user's library path
-	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()
+	libraryPath, err := h.App.Database.GetLibraryPathFromSettings()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
-	additionalLibraryPaths, err := c.App.Database.GetAdditionalLibraryPathsFromSettings()
+	additionalLibraryPaths, err := h.App.Database.GetAdditionalLibraryPathsFromSettings()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	if err = c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err = c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get the latest local files
-	existingLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	existingLfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// +---------------------+
@@ -54,9 +53,9 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 	scanSummaryLogger := summary.NewScanSummaryLogger()
 
 	// Create a new scan logger
-	scanLogger, err := scanner.NewScanLogger(c.App.Config.Logs.Dir)
+	scanLogger, err := scanner.NewScanLogger(h.App.Config.Logs.Dir)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 	defer scanLogger.Done()
 
@@ -65,40 +64,40 @@ func HandleScanLocalFiles(c *RouteCtx) error {
 		DirPath:            libraryPath,
 		OtherDirPaths:      additionalLibraryPaths,
 		Enhanced:           b.Enhanced,
-		Platform:           c.App.AnilistPlatform,
-		Logger:             c.App.Logger,
-		WSEventManager:     c.App.WSEventManager,
+		Platform:           h.App.AnilistPlatform,
+		Logger:             h.App.Logger,
+		WSEventManager:     h.App.WSEventManager,
 		ExistingLocalFiles: existingLfs,
 		SkipLockedFiles:    b.SkipLockedFiles,
 		SkipIgnoredFiles:   b.SkipIgnoredFiles,
 		ScanSummaryLogger:  scanSummaryLogger,
 		ScanLogger:         scanLogger,
-		MetadataProvider:   c.App.MetadataProvider,
-		MatchingAlgorithm:  c.App.Settings.Library.ScannerMatchingAlgorithm,
-		MatchingThreshold:  c.App.Settings.Library.ScannerMatchingThreshold,
+		MetadataProvider:   h.App.MetadataProvider,
+		MatchingAlgorithm:  h.App.Settings.Library.ScannerMatchingAlgorithm,
+		MatchingThreshold:  h.App.Settings.Library.ScannerMatchingThreshold,
 	}
 
 	// Scan the library
 	allLfs, err := sc.Scan()
 	if err != nil {
 		if errors.Is(err, scanner.ErrNoLocalFiles) {
-			return c.RespondWithData([]interface{}{})
+			return h.RespondWithData(c, []interface{}{})
 		} else {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
 	// Insert the local files
-	lfs, err := db_bridge.InsertLocalFiles(c.App.Database, allLfs)
+	lfs, err := db_bridge.InsertLocalFiles(h.App.Database, allLfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Save the scan summary
-	err = db_bridge.InsertScanSummary(c.App.Database, scanSummaryLogger.GenerateSummary())
+	err = db_bridge.InsertScanSummary(h.App.Database, scanSummaryLogger.GenerateSummary())
 
-	go c.App.AutoDownloader.CleanUpDownloadedItems()
+	go h.App.AutoDownloader.CleanUpDownloadedItems()
 
-	return c.RespondWithData(lfs)
+	return h.RespondWithData(c, lfs)
 
 }

@@ -3,13 +3,14 @@ package core
 import (
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"seanime/internal/constants"
 	"seanime/internal/util"
 	"strconv"
+
+	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -292,9 +293,9 @@ func validateConfig(cfg *Config, logger *zerolog.Logger) error {
 	}
 
 	// Uncomment if "MainServerTorrentStreaming" is no longer an experimental feature
-	//if cfg.Experimental.MainServerTorrentStreaming {
-	//	logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
-	//}
+	if cfg.Experimental.MainServerTorrentStreaming {
+		logger.Warn().Msgf("app: 'Main Server Torrent Streaming' feature is no longer experimental, remove the flag from your config file")
+	}
 
 	return nil
 }
@@ -309,7 +310,7 @@ func checkIsValidPath(path string) error {
 
 // errInvalidConfigValue returns an error for an invalid config value
 func errInvalidConfigValue(s string, s2 string) error {
-	return errors.New(fmt.Sprintf("invalid config value: \"%s\" %s", s, s2))
+	return fmt.Errorf("invalid config value: \"%s\" %s", s, s2)
 }
 func wrapInvalidConfigValue(s string, err error) error {
 	return fmt.Errorf("invalid config value: \"%s\" %w", s, err)

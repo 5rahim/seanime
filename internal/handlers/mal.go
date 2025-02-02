@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"github.com/goccy/go-json"
 	"net/http"
 	"net/url"
 	"seanime/internal/api/mal"
@@ -11,6 +10,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/labstack/echo/v4"
 )
 
 type MalAuthResponse struct {
@@ -28,7 +30,7 @@ type MalAuthResponse struct {
 //	@desc The client should re-fetch the server status after this.
 //	@route /api/v1/mal/auth [POST]
 //	@returns handlers.MalAuthResponse
-func HandleMALAuth(c *RouteCtx) error {
+func (h *Handler) HandleMALAuth(c echo.Context) error {
 
 	type body struct {
 		Code         string `json:"code"`
@@ -37,8 +39,8 @@ func HandleMALAuth(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	client := &http.Client{}
@@ -53,7 +55,7 @@ func HandleMALAuth(c *RouteCtx) error {
 
 	req, err := http.NewRequest("POST", "https://myanimelist.net/v1/oauth2/token", strings.NewReader(encodedData))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Content-Length", strconv.Itoa(len(urlData.Encode())))
@@ -61,13 +63,13 @@ func HandleMALAuth(c *RouteCtx) error {
 	// Response
 	res, err := client.Do(req)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 	defer res.Body.Close()
 
 	ret := MalAuthResponse{}
 	if err := json.NewDecoder(res.Body).Decode(&ret); err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Save
@@ -82,22 +84,20 @@ func HandleMALAuth(c *RouteCtx) error {
 		TokenExpiresAt: time.Now().Add(time.Duration(ret.ExpiresIn) * time.Second),
 	}
 
-	_, err = c.App.Database.UpsertMalInfo(&malInfo)
+	_, err = h.App.Database.UpsertMalInfo(&malInfo)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // HandleEditMALListEntryProgress
 //
 //	@summary updates the progress of a MAL list entry.
 //	@route /api/v1/mal/list-entry/progress [POST]
 //	@returns bool
-func HandleEditMALListEntryProgress(c *RouteCtx) error {
+func (h *Handler) HandleEditMALListEntryProgress(c echo.Context) error {
 
 	type body struct {
 		MediaId  *int `json:"mediaId"`
@@ -105,43 +105,41 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.MediaId == nil || b.Progress == nil {
-		return c.RespondWithError(errors.New("mediaId and progress is required"))
+		return h.RespondWithError(c, errors.New("mediaId and progress is required"))
 	}
 
 	// Get MAL info
-	_malInfo, err := c.App.Database.GetMalInfo()
+	_malInfo, err := h.App.Database.GetMalInfo()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Verify MAL auth
-	malInfo, err := mal.VerifyMALAuth(_malInfo, c.App.Database, c.App.Logger)
+	malInfo, err := mal.VerifyMALAuth(_malInfo, h.App.Database, h.App.Logger)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Get MAL Wrapper
-	malWrapper := mal.NewWrapper(malInfo.AccessToken, c.App.Logger)
+	malWrapper := mal.NewWrapper(malInfo.AccessToken, h.App.Logger)
 
 	// Update MAL list entry
 	err = malWrapper.UpdateAnimeProgress(&mal.AnimeListProgressParams{
 		NumEpisodesWatched: b.Progress,
 	}, *b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.Logger.Debug().Msgf("mal: Updated MAL list entry for mediaId %d", *b.MediaId)
+	h.App.Logger.Debug().Msgf("mal: Updated MAL list entry for mediaId %d", *b.MediaId)
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // HandleMALLogout
 //
@@ -150,12 +148,12 @@ func HandleEditMALListEntryProgress(c *RouteCtx) error {
 //	@desc The client should re-fetch the server status after this.
 //	@route /api/v1/mal/logout [POST]
 //	@returns bool
-func HandleMALLogout(c *RouteCtx) error {
+func (h *Handler) HandleMALLogout(c echo.Context) error {
 
-	err := c.App.Database.DeleteMalInfo()
+	err := h.App.Database.DeleteMalInfo()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

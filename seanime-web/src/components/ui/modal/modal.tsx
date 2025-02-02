@@ -17,17 +17,19 @@ export const ModalAnatomy = defineStyleAnatomy({
         "fixed inset-0 z-50 bg-black/80",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "overflow-y-auto p-0 md:p-4 grid place-items-center",
+        // "overflow-y-auto p-0 md:p-4 grid place-items-center",
     ]),
     content: cva([
         "UI-Modal__content",
         "z-50 grid relative w-full w-full shadow-xl border border-[rgb(255_255_255_/_5%)] max-w-lg gap-4 bg-[--background] p-6 shadow-xl duration-200",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
         // "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
         // "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-        "sm:rounded-lg",
+        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "mt-10",
+        // process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "select-none",
+        "sm:rounded-xl",
     ]),
     close: cva([
         "UI-Modal__close",
@@ -125,44 +127,49 @@ export function Modal(props: ModalProps) {
 
         <DialogPrimitive.Portal>
             <DialogPrimitive.Overlay className={cn(ModalAnatomy.overlay(), overlayClass)}>
-
-
-                {/*<div className="flex w-full justify-center h-full items-center">*/}
-                <DialogPrimitive.Content
-                    className={cn(ModalAnatomy.content(), contentClass)}
-                    onOpenAutoFocus={onOpenAutoFocus}
-                    onCloseAutoFocus={onCloseAutoFocus}
-                    onEscapeKeyDown={onEscapeKeyDown}
-                    onPointerDownCapture={onPointerDownCapture}
-                    onInteractOutside={onInteractOutside}
+                <div
+                    className={cn(
+                        "overflow-y-auto absolute inset-0 grid place-items-center p-0 md:p-4",
+                        process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "md:p-8",
+                    )}
                 >
+                    <DialogPrimitive.Content
+                        className={cn(ModalAnatomy.content(), contentClass)}
+                        onOpenAutoFocus={onOpenAutoFocus}
+                        onCloseAutoFocus={onCloseAutoFocus}
+                        onEscapeKeyDown={onEscapeKeyDown}
+                        onPointerDownCapture={onPointerDownCapture}
+                        onInteractOutside={onInteractOutside}
+                    >
+                        {!title && !description ? (
+                            <VisuallyHidden>
+                                <DialogPrimitive.Title>Dialog</DialogPrimitive.Title>
+                            </VisuallyHidden>
+                        ) : (
+                            <div className={cn(ModalAnatomy.header(), headerClass)}>
+                                <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
+                                    {title}
+                                </DialogPrimitive.Title>
+                                {description && (
+                                    <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
+                                        {description}
+                                    </DialogPrimitive.Description>
+                                )}
+                            </div>
+                        )}
 
-                    {(title || description) && <div className={cn(ModalAnatomy.header(), headerClass)}>
-                        {title ? <DialogPrimitive.Title className={cn(ModalAnatomy.title(), titleClass)}>
-                                {title}
-                            </DialogPrimitive.Title> :
-                            <DialogPrimitive.Title>
-                                <VisuallyHidden>
-                                    N/A
-                                </VisuallyHidden>
-                            </DialogPrimitive.Title>}
-                        {description && <DialogPrimitive.Description className={cn(ModalAnatomy.description(), descriptionClass)}>
-                            {description}
-                        </DialogPrimitive.Description>}
-                    </div>}
+                        {children}
 
-                    {children}
+                        {footer && <div className={cn(ModalAnatomy.footer(), footerClass)}>
+                            {footer}
+                        </div>}
 
-                    {footer && <div className={cn(ModalAnatomy.footer(), footerClass)}>
-                        {footer}
-                    </div>}
+                        {!hideCloseButton && <DialogPrimitive.Close className={cn(ModalAnatomy.close(), closeClass)} asChild>
+                            {closeButton ? closeButton : <CloseButton />}
+                        </DialogPrimitive.Close>}
 
-                    {!hideCloseButton && <DialogPrimitive.Close className={cn(ModalAnatomy.close(), closeClass)} asChild>
-                        {closeButton ? closeButton : <CloseButton />}
-                    </DialogPrimitive.Close>}
-
-                </DialogPrimitive.Content>
-                {/*</div>*/}
+                    </DialogPrimitive.Content>
+                </div>
 
 
             </DialogPrimitive.Overlay>

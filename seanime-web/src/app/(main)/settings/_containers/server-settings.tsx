@@ -1,8 +1,12 @@
+import { __seaCommand_shortcuts } from "@/app/(main)/_features/sea-command/sea-command"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Field } from "@/components/ui/form"
-import { Separator } from "@/components/ui/separator"
+import { useAtom } from "jotai/react"
 import React from "react"
+import { FaRedo } from "react-icons/fa"
 
 type ServerSettingsProps = {
     isPending: boolean
@@ -15,6 +19,7 @@ export function ServerSettings(props: ServerSettingsProps) {
         ...rest
     } = props
 
+    const [shortcuts, setShortcuts] = useAtom(__seaCommand_shortcuts)
 
     return (
         <div className="space-y-4">
@@ -95,73 +100,189 @@ export function ServerSettings(props: ServerSettingsProps) {
             {/*    help="Choose the mode you want to fine-tune your anime experience."*/}
             {/*/>*/}
 
-            {/*<Separator />*/}
+            {/*/!*<Separator />*!/*/}
 
-            <Field.Switch
-                name="disableUpdateCheck"
-                label="Do not check for updates"
-                help="If enabled, Seanime will not check for new releases."
-            />
-            <Field.Switch
-                name="openTorrentClientOnStart"
-                label="Open torrent client on startup"
-            />
-            <Field.Switch
-                name="openWebURLOnStart"
-                label="Open localhost web URL on startup"
-            />
+            <SettingsCard title="Anime">
+                {/*<p className="text-[--muted]">*/}
+                {/*    Only applies to desktop and integrated players.*/}
+                {/*</p>*/}
 
-            <Separator />
+                <Field.Switch
+                    side="right"
+                    name="autoUpdateProgress"
+                    label="Automatically update progress"
+                    help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="enableWatchContinuity"
+                    label="Enable watch history"
+                    help="If enabled, Seanime will remember your watch progress and resume from where you left off."
+                />
 
-            <div>
-                <h3>
-                    Anime tracking
-                </h3>
-                <p className="text-[--muted]">
-                    Only applies to desktop and integrated players.
-                </p>
-            </div>
+            </SettingsCard>
 
-            <Field.Switch
-                name="autoUpdateProgress"
-                label="Automatically update progress"
-                help="If enabled, your progress will be automatically updated without having to confirm it when you watch 80% of an episode."
-            />
+            <SettingsCard title="Offline">
 
-            <Field.Switch
-                name="enableWatchContinuity"
-                label="Enable watch continuity"
-                help="If enabled, Seanime will remember your watch progress and resume from where you left off."
-            />
+                <Field.Switch
+                    side="right"
+                    name="autoSyncOfflineLocalData"
+                    label="Automatically refresh local data"
+                    help="If enabled, local data will periodically be refreshed using current AniList data."
+                    moreHelp="Only if no offline changes have been made."
+                />
 
-            <Separator />
+            </SettingsCard>
 
-            <h3>Notifications</h3>
+            <SettingsCard title="Notifications">
 
-            <Field.Switch
-                name="disableNotifications"
-                label="Disable notifications"
-            />
+                <Field.Switch
+                    side="right"
+                    name="disableNotifications"
+                    label="Disable notifications"
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="disableAutoDownloaderNotifications"
+                    label="Disable Auto Downloader notifications"
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="disableAutoScannerNotifications"
+                    label="Disable Auto Scanner notifications"
+                />
 
-            <Field.Switch
-                name="disableAutoDownloaderNotifications"
-                label="Disable Auto Downloader notifications"
-            />
+            </SettingsCard>
 
-            <Field.Switch
-                name="disableAutoScannerNotifications"
-                label="Disable Auto Scanner notifications"
-            />
+            <SettingsCard title="App">
+                <Field.Switch
+                    side="right"
+                    name="disableUpdateCheck"
+                    label="Do not check for updates"
+                    help="If enabled, Seanime will not check for new releases."
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="openTorrentClientOnStart"
+                    label="Open torrent client on startup"
+                />
+                {/*<Separator />*/}
+                <Field.Switch
+                    side="right"
+                    name="openWebURLOnStart"
+                    label="Open localhost web URL on startup"
+                />
+            </SettingsCard>
 
-            <Separator />
+            <SettingsCard title="Keyboard shortcuts">
+                <div className="space-y-4">
+                    {[
+                        {
+                            label: "Open command palette",
+                            value: "meta+j",
+                            altValue: "q",
+                        },
+                    ].map(item => {
+                        return (
+                            <div className="flex gap-2 items-center" key={item.label}>
+                                <label className="text-[--gray]">
+                                    <span className="font-semibold">{item.label}</span>
+                                </label>
+                                <div className="flex gap-2 items-center">
+                                    <Button
+                                        onKeyDownCapture={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
 
-            <h3>Offline</h3>
+                                            const specialKeys = ["Control", "Shift", "Meta", "Command", "Alt", "Option"]
+                                            if (!specialKeys.includes(e.key)) {
+                                                const keyStr = `${e.metaKey ? "meta+" : ""}${e.ctrlKey ? "ctrl+" : ""}${e.altKey
+                                                    ? "alt+"
+                                                    : ""}${e.shiftKey ? "shift+" : ""}${e.key.toLowerCase()
+                                                    .replace("arrow", "")
+                                                    .replace("insert", "ins")
+                                                    .replace("delete", "del")
+                                                    .replace(" ", "space")
+                                                    .replace("+", "plus")}`
 
-            <Field.Switch
-                name="autoSyncOfflineLocalData"
-                label="Automatically refresh local data"
-                help="Automatically refresh local data with AniList data periodically if no offline changes have been made."
-            />
+                                                // Update the first shortcut
+                                                setShortcuts(prev => [keyStr, prev[1]])
+                                            }
+                                        }}
+                                        className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
+                                        size="sm"
+                                        intent="white-subtle"
+                                    >
+                                        {shortcuts[0]}
+                                    </Button>
+                                    <span className="text-[--muted]">or</span>
+                                    <Button
+                                        onKeyDownCapture={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+
+                                            const specialKeys = ["Control", "Shift", "Meta", "Command", "Alt", "Option"]
+                                            if (!specialKeys.includes(e.key)) {
+                                                const keyStr = `${e.metaKey ? "meta+" : ""}${e.ctrlKey ? "ctrl+" : ""}${e.altKey
+                                                    ? "alt+"
+                                                    : ""}${e.shiftKey ? "shift+" : ""}${e.key.toLowerCase()
+                                                    .replace("arrow", "")
+                                                    .replace("insert", "ins")
+                                                    .replace("delete", "del")
+                                                    .replace(" ", "space")
+                                                    .replace("+", "plus")}`
+
+                                                // Update the second shortcut
+                                                setShortcuts(prev => [prev[0], keyStr])
+                                            }
+                                        }}
+                                        className="focus:ring-2 focus:ring-[--brand] focus:ring-offset-1"
+                                        size="sm"
+                                        intent="white-subtle"
+                                    >
+                                        {shortcuts[1]}
+                                    </Button>
+                                </div>
+                                {(shortcuts[0] !== "meta+j" || shortcuts[1] !== "q") && (
+                                    <Button
+                                        onClick={() => {
+                                            setShortcuts(["meta+j", "q"])
+                                        }}
+                                        className="rounded-full"
+                                        size="sm"
+                                        intent="white-basic"
+                                        leftIcon={<FaRedo />}
+                                    >
+                                        Reset
+                                    </Button>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+            </SettingsCard>
+
+            {/*<Accordion*/}
+            {/*    type="single"*/}
+            {/*    collapsible*/}
+            {/*    className="border rounded-[--radius-md]"*/}
+            {/*    triggerClass="dark:bg-[--paper]"*/}
+            {/*    contentClass="!pt-2 dark:bg-[--paper]"*/}
+            {/*>*/}
+            {/*    <AccordionItem value="more">*/}
+            {/*        <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">*/}
+            {/*            Advanced*/}
+            {/*        </AccordionTrigger>*/}
+            {/*        <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">*/}
+            {/*            */}
+            {/*        </AccordionContent>*/}
+            {/*    </AccordionItem>*/}
+            {/*</Accordion>*/}
+
 
             <SettingsSubmitButton isPending={isPending} />
 

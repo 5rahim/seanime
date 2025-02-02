@@ -3,15 +3,16 @@ package torrentstream
 import (
 	"cmp"
 	"fmt"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/anacrolix/torrent"
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	torrentanalyzer "seanime/internal/torrents/analyzer"
 	itorrent "seanime/internal/torrents/torrent"
 	"seanime/internal/util"
 	"slices"
 	"time"
+
+	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	"github.com/anacrolix/torrent"
+	"github.com/samber/lo"
 )
 
 var (
@@ -142,17 +143,20 @@ searchLoop:
 
 		// If the torrent has only one file, return it
 		if len(t.Files()) == 1 {
-			t.DownloadAll()
-			firstPieceIdx := t.Files()[0].Offset() * int64(t.NumPieces()) / t.Length()
-			endPieceIdx := (t.Files()[0].Offset() + t.Length()) * int64(t.NumPieces()) / t.Length()
-			for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+			tFile := t.Files()[0]
+			tFile.Download()
+			firstPieceIdx := tFile.Offset() * int64(t.NumPieces()) / t.Length()
+			endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(t.NumPieces()) / t.Length()
+			numPiecesForFivePercent := (endPieceIdx - firstPieceIdx + 1) * 5 / 100
+			r.logger.Debug().Msgf("torrentstream: Setting priority for pieces %d to %d", firstPieceIdx, firstPieceIdx+numPiecesForFivePercent)
+			for idx := firstPieceIdx; idx <= firstPieceIdx+numPiecesForFivePercent; idx++ {
 				t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 			}
-			r.logger.Debug().Msgf("torrentstream: Found single file torrent: %s", t.Files()[0].DisplayPath())
+			r.logger.Debug().Msgf("torrentstream: Found single file torrent: %s", tFile.DisplayPath())
 
 			return &playbackTorrent{
 				Torrent: t,
-				File:    t.Files()[0],
+				File:    tFile,
 			}, nil
 		}
 
@@ -215,13 +219,15 @@ searchLoop:
 			}
 		}
 		tFile := t.Files()[analysisFile.GetIndex()]
-		// Select the first 5% of the pieces
+		r.logger.Debug().Msgf("torrentstream: Selecting file %s", tFile.DisplayPath())
+		// Calculate the number of pieces that represent 5% of the file
 		firstPieceIdx := tFile.Offset() * int64(t.NumPieces()) / t.Length()
 		endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(t.NumPieces()) / t.Length()
-		for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+		numPiecesForFivePercent := (endPieceIdx - firstPieceIdx + 1) * 5 / 100
+		r.logger.Debug().Msgf("torrentstream: Setting priority for pieces %d to %d", firstPieceIdx, firstPieceIdx+numPiecesForFivePercent)
+		for idx := firstPieceIdx; idx <= firstPieceIdx+numPiecesForFivePercent; idx++ {
 			t.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 		}
-		r.logger.Debug().Msgf("torrentstream: Selected torrent %s", tFile.DisplayPath())
 		selectedTorrent = t
 		selectedFile = tFile
 		break
@@ -265,15 +271,18 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 
 	// If the torrent has only one file, return it
 	if len(selectedTorrent.Files()) == 1 {
-		selectedTorrent.DownloadAll()
-		firstPieceIdx := selectedTorrent.Files()[0].Offset() * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
-		endPieceIdx := (selectedTorrent.Files()[0].Offset() + selectedTorrent.Length()) * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
-		for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+		tFile := selectedTorrent.Files()[0]
+		tFile.Download()
+		firstPieceIdx := tFile.Offset() * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
+		endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
+		numPiecesForFivePercent := (endPieceIdx - firstPieceIdx + 1) * 5 / 100
+		r.logger.Debug().Msgf("torrentstream: Setting priority for pieces %d to %d", firstPieceIdx, firstPieceIdx+numPiecesForFivePercent)
+		for idx := firstPieceIdx; idx <= firstPieceIdx+numPiecesForFivePercent; idx++ {
 			selectedTorrent.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 		}
 		return &playbackTorrent{
 			Torrent: selectedTorrent,
-			File:    selectedTorrent.Files()[0],
+			File:    tFile,
 		}, nil
 	}
 
@@ -303,6 +312,7 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 			Media:            media,
 			Platform:         r.platform,
 			MetadataProvider: r.metadataProvider,
+			ForceMatch:       true,
 		})
 
 		// Analyze torrent files
@@ -344,10 +354,12 @@ func (r *Repository) findBestTorrentFromManualSelection(t *hibiketorrent.AnimeTo
 
 	tFile := selectedTorrent.Files()[fileIndex]
 	tFile.Download()
-	// Select the first 5% of the pieces
+	// Calculate the number of pieces that represent 5% of the file
 	firstPieceIdx := tFile.Offset() * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
 	endPieceIdx := (tFile.Offset() + tFile.Length()) * int64(selectedTorrent.NumPieces()) / selectedTorrent.Length()
-	for idx := firstPieceIdx; idx <= endPieceIdx*5/100; idx++ {
+	numPiecesForFivePercent := (endPieceIdx - firstPieceIdx + 1) * 5 / 100
+	r.logger.Debug().Msgf("torrentstream: Setting priority for pieces %d to %d", firstPieceIdx, firstPieceIdx+numPiecesForFivePercent)
+	for idx := firstPieceIdx; idx <= firstPieceIdx+numPiecesForFivePercent; idx++ {
 		selectedTorrent.Piece(int(idx)).SetPriority(torrent.PiecePriorityNow)
 	}
 

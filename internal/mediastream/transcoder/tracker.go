@@ -1,7 +1,3 @@
-//
-// The transcoder package is based on the work of "zoriya/Kyoo" licensed under the GPL-3.0 License.
-//
-
 package transcoder
 
 import (
@@ -245,7 +241,7 @@ func (t *Tracker) killOrphanedHeads(stream *Stream) {
 			distance = min(Abs(info.head-head.segment), distance)
 		}
 		if distance > 20 {
-			t.logger.Trace().Msgf("Killing orphaned head %s %d", stream.file.Path, encoderId)
+			t.logger.Trace().Msgf("transcoder: Killing orphaned head %d", encoderId)
 			stream.KillHead(encoderId)
 		}
 	}

@@ -3,9 +3,9 @@ package torrentstream
 import (
 	"errors"
 	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
-	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
+	"net/http"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
@@ -120,7 +120,7 @@ func (r *Repository) SetMediaPlayerRepository(mediaPlayerRepository *mediaplayer
 // It should be called before any other method, to ensure the module is active.
 func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host string, port int, isMainServer bool) (err error) {
 	r.client.Shutdown()
-	useSeparateServer := !isMainServer
+	useSeparateServer := false
 
 	defer util.HandlePanicInModuleWithError("torrentstream/InitModules", &err)
 
@@ -156,7 +156,7 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 		s.TorrentClientPort = 43213
 	}
 	if s.StreamingServerHost == "" {
-		s.StreamingServerHost = "0.0.0.0"
+		s.StreamingServerHost = "127.0.0.1"
 	}
 
 	// Set the settings
@@ -182,8 +182,8 @@ func (r *Repository) InitModules(settings *models.TorrentstreamSettings, host st
 	return nil
 }
 
-func (r *Repository) ServeStream(c *fiber.Ctx) error {
-	return r.serverManager.serve(c)
+func (r *Repository) HTTPStreamHandler() http.Handler {
+	return r.serverManager
 }
 
 func (r *Repository) FailIfNoSettings() error {

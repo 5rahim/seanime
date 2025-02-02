@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"seanime/internal/api/metadata"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandlePopulateTVDBEpisodes
@@ -10,37 +12,37 @@ import (
 //	@desc This will populate the cache with TVDB episode metadata for the given media.
 //	@returns []tvdb.Episode
 //	@route /api/v1/metadata-provider/tvdb-episodes [POST]
-func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
+func (h *Handler) HandlePopulateTVDBEpisodes(c echo.Context) error {
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	animeMetadata, err := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
+	animeMetadata, err := h.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	media, err := c.App.AnilistPlatform.GetAnime(b.MediaId)
+	media, err := h.App.AnilistPlatform.GetAnime(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Create media wrapper
-	aw := c.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
+	aw := h.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
 
 	// Fetch episodes
 	episodes, err := aw.GetTVDBEpisodes(true)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Respond
-	return c.RespondWithData(episodes)
+	return h.RespondWithData(c, episodes)
 }
 
 // HandleEmptyTVDBEpisodes
@@ -49,40 +51,38 @@ func HandlePopulateTVDBEpisodes(c *RouteCtx) error {
 //	@desc This will empty the TVDB episode metadata cache for the given media.
 //	@returns bool
 //	@route /api/v1/metadata-provider/tvdb-episodes [DELETE]
-func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
+func (h *Handler) HandleEmptyTVDBEpisodes(c echo.Context) error {
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	animeMetadata, err := c.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
+	animeMetadata, err := h.App.MetadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	media, err := c.App.AnilistPlatform.GetAnime(b.MediaId)
+	media, err := h.App.AnilistPlatform.GetAnime(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Create media wrapper
-	aw := c.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
+	aw := h.App.MetadataProvider.GetAnimeMetadataWrapper(media, animeMetadata)
 
 	// Empty TVDB episodes bucket
 	err = aw.EmptyTVDBEpisodesBucket(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Respond
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // HandlePopulateFillerData
 //
@@ -90,37 +90,37 @@ func HandleEmptyTVDBEpisodes(c *RouteCtx) error {
 //	@desc This will fetch and cache filler data for the given media.
 //	@returns true
 //	@route /api/v1/metadata-provider/filler [POST]
-func HandlePopulateFillerData(c *RouteCtx) error {
+func (h *Handler) HandlePopulateFillerData(c echo.Context) error {
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	animeCollection, err := c.App.GetAnimeCollection(false)
+	animeCollection, err := h.App.GetAnimeCollection(false)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	media, found := animeCollection.FindAnime(b.MediaId)
 	if !found {
 		// Fetch media
-		media, err = c.App.AnilistPlatform.GetAnime(b.MediaId)
+		media, err = h.App.AnilistPlatform.GetAnime(b.MediaId)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
 	// Fetch filler data
-	err = c.App.FillerManager.FetchAndStoreFillerData(b.MediaId, media.GetAllTitlesDeref())
+	err = h.App.FillerManager.FetchAndStoreFillerData(b.MediaId, media.GetAllTitlesDeref())
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleRemoveFillerData
@@ -129,20 +129,20 @@ func HandlePopulateFillerData(c *RouteCtx) error {
 //	@desc This will remove the filler data cache for the given media.
 //	@returns bool
 //	@route /api/v1/metadata-provider/filler [DELETE]
-func HandleRemoveFillerData(c *RouteCtx) error {
+func (h *Handler) HandleRemoveFillerData(c echo.Context) error {
 	type body struct {
 		MediaId int `json:"mediaId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.FillerManager.RemoveFillerData(b.MediaId)
+	err := h.App.FillerManager.RemoveFillerData(b.MediaId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

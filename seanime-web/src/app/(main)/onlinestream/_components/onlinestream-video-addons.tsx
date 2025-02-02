@@ -1,10 +1,6 @@
 import { useOnlineStreamEmptyCache } from "@/api/hooks/onlinestream.hooks"
-import { __mediaplayer_discreteControlsAtom } from "@/app/(main)/_atoms/builtin-mediaplayer.atoms"
 import { useOnlinestreamManagerContext } from "@/app/(main)/onlinestream/_lib/onlinestream-manager"
 import {
-    __onlinestream_autoNextAtom,
-    __onlinestream_autoPlayAtom,
-    __onlinestream_autoSkipIntroOutroAtom,
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedProviderAtom,
     __onlinestream_selectedServerAtom,
@@ -14,33 +10,30 @@ import { Modal } from "@/components/ui/modal"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Select } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
 import { Tooltip as CTooltip } from "@/components/ui/tooltip"
 import { Menu, Tooltip } from "@vidstack/react"
 import { ChevronLeftIcon, ChevronRightIcon, RadioButtonIcon, RadioButtonSelectedIcon } from "@vidstack/react/icons"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { AiFillPlayCircle } from "react-icons/ai"
-import { MdHighQuality, MdPlaylistPlay, MdVideoSettings } from "react-icons/md"
-import { RxSlider } from "react-icons/rx"
+import { MdHighQuality, MdVideoSettings } from "react-icons/md"
 import { TbCloudSearch } from "react-icons/tb"
 
 type OnlinestreamServerButtonProps = {
     children?: React.ReactNode
 }
 
-export const buttonClass = "ring-media-focus group relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4 aria-hidden:hidden"
+export const buttonClass = "ring-media-focus group relative mr-0.5 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-[--radius-md] outline-none ring-inset hover:bg-white/20 data-[focus]:ring-4 aria-hidden:hidden"
 
 export const tooltipClass =
     "animate-out fade-out slide-out-to-bottom-2 data-[visible]:animate-in data-[visible]:fade-in data-[visible]:slide-in-from-bottom-4 z-10 rounded-sm bg-black/90 px-2 py-0.5 text-sm font-medium text-white group-data-[open]/parent:hidden"
 
 export const menuClass =
-    "animate-out fade-out slide-out-to-bottom-2 data-[open]:animate-in data-[open]:fade-in data-[open]:slide-in-from-bottom-4 flex h-[var(--menu-height)] max-h-[400px] min-w-[260px] flex-col overflow-y-auto overscroll-y-contain rounded-md border border-white/10 bg-black/95 p-2.5 font-sans text-[15px] font-medium outline-none backdrop-blur-sm transition-[height] duration-300 will-change-[height] data-[resizing]:overflow-hidden"
+    "animate-out fade-out slide-out-to-bottom-2 data-[open]:animate-in data-[open]:fade-in data-[open]:slide-in-from-bottom-4 flex h-[var(--menu-height)] max-h-[400px] min-w-[260px] flex-col overflow-y-auto overscroll-y-contain rounded-[--radius-md] border border-white/10 bg-black/95 p-2.5 font-sans text-[15px] font-medium outline-none backdrop-blur-sm transition-[height] duration-300 will-change-[height] data-[resizing]:overflow-hidden"
 
 export const submenuClass =
     "hidden w-full flex-col items-start justify-center outline-none data-[keyboard]:mt-[3px] data-[open]:inline-block"
 
-const radioGroupItemContainerClass = "px-2 py-1.5 rounded-md hover:bg-[--subtle]"
+const radioGroupItemContainerClass = "px-2 py-1.5 rounded-[--radius-md] hover:bg-[--subtle]"
 
 export function OnlinestreamVideoQualitySubmenu() {
 
@@ -72,85 +65,6 @@ export function OnlinestreamVideoQualitySubmenu() {
                 </Menu.RadioGroup>
             </Menu.Content>
         </Menu.Root>
-    )
-}
-
-export function OnlinestreamPlaybackSubmenu() {
-
-    const [autoPlay, setAutoPlay] = useAtom(__onlinestream_autoPlayAtom)
-    const [autoNext, setAutoNext] = useAtom(__onlinestream_autoNextAtom)
-    const [autoSkipIntroOutro, setAutoSkipIntroOutro] = useAtom(__onlinestream_autoSkipIntroOutroAtom)
-    const [discreteControls, setDiscreteControls] = useAtom(__mediaplayer_discreteControlsAtom)
-
-    return (
-        <>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Auto Play`}
-                    hint={autoPlay ? "On" : "Off"}
-                    disabled={false}
-                    icon={AiFillPlayCircle}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Auto play"
-                        fieldClass="py-2 px-2"
-                        value={autoPlay}
-                        onValueChange={setAutoPlay}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Auto Play Next Episode`}
-                    hint={autoNext ? "On" : "Off"}
-                    disabled={false}
-                    icon={MdPlaylistPlay}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Auto play next episode"
-                        fieldClass="py-2 px-2"
-                        value={autoNext}
-                        onValueChange={setAutoNext}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Skip Intro/Outro`}
-                    hint={autoSkipIntroOutro ? "On" : "Off"}
-                    disabled={false}
-                    icon={MdPlaylistPlay}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Skip intro/outro"
-                        fieldClass="py-2 px-2"
-                        value={autoSkipIntroOutro}
-                        onValueChange={setAutoSkipIntroOutro}
-                    />
-                </Menu.Content>
-            </Menu.Root>
-            <Menu.Root>
-                <VdsSubmenuButton
-                    label={`Discrete Controls`}
-                    hint={discreteControls ? "On" : "Off"}
-                    disabled={false}
-                    icon={RxSlider}
-                />
-                <Menu.Content className={submenuClass}>
-                    <Switch
-                        label="Discrete controls"
-                        help="Only show the controls when the mouse is over the bottom part. (Large screens only)"
-                        fieldClass="py-2 px-2"
-                        value={discreteControls}
-                        onValueChange={setDiscreteControls}
-                        fieldHelpTextClass="max-w-xs"
-                    />
-                </Menu.Content>
-            </Menu.Root>
-        </>
     )
 }
 
@@ -289,7 +203,7 @@ export function VdsSubmenuButton({ label, hint, icon: Icon, disabled }: VdsSubme
         <Menu.Button className="vds-menu-button" disabled={disabled}>
             <ChevronLeftIcon className="vds-menu-button-close-icon" />
             <Icon className="vds-menu-button-icon" />
-            <span className="vds-menu-button-label">{label}</span>
+            <span className="vds-menu-button-label mr-2">{label}</span>
             <span className="vds-menu-button-hint">{hint}</span>
             <ChevronRightIcon className="vds-menu-button-open-icon" />
         </Menu.Button>

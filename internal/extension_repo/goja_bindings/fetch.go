@@ -110,7 +110,7 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) (ret *goja.Promise) {
 		}
 
 		client := &http.Client{
-			Timeout: 60 * time.Second,
+			Timeout: 35 * time.Second,
 		}
 		client.Transport = util.AddCloudFlareByPass(client.Transport)
 

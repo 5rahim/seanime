@@ -2,9 +2,11 @@ package util
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
 	"io"
 	"net/http"
+	"seanime/internal/util"
+
+	"github.com/labstack/echo/v4"
 )
 
 type ImageProxy struct{}
@@ -34,7 +36,7 @@ func (ip *ImageProxy) GetImage(url string, headers map[string]string) ([]byte, e
 	return body, nil
 }
 
-func (ip *ImageProxy) setHeaders(c *fiber.Ctx) {
+func (ip *ImageProxy) setHeaders(c echo.Context) {
 	c.Set("Content-Type", "image/jpeg")
 	c.Set("Cache-Control", "public, max-age=31536000")
 	c.Set("Access-Control-Allow-Origin", "*")
@@ -43,25 +45,26 @@ func (ip *ImageProxy) setHeaders(c *fiber.Ctx) {
 	c.Set("Access-Control-Allow-Credentials", "true")
 }
 
-func (ip *ImageProxy) ProxyImage(c *fiber.Ctx) error {
-	url := c.Query("url")
-	headersJSON := c.Query("headers")
+func (ip *ImageProxy) ProxyImage(c echo.Context) (err error) {
+	defer util.HandlePanicInModuleWithError("util/ImageProxy", &err)
+
+	url := c.QueryParam("url")
+	headersJSON := c.QueryParam("headers")
 
 	if url == "" || headersJSON == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("No URL provided")
+		return c.String(echo.ErrBadRequest.Code, "No URL provided")
 	}
 
 	headers := make(map[string]string)
-	err := json.Unmarshal([]byte(headersJSON), &headers)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Error parsing headers JSON")
+	if err := json.Unmarshal([]byte(headersJSON), &headers); err != nil {
+		return c.String(echo.ErrBadRequest.Code, "Error parsing headers JSON")
 	}
 
 	ip.setHeaders(c)
 	imageBuffer, err := ip.GetImage(url, headers)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Error fetching image")
+		return c.String(echo.ErrInternalServerError.Code, "Error fetching image")
 	}
 
-	return c.Send(imageBuffer)
+	return c.Blob(http.StatusOK, c.Response().Header().Get("Content-Type"), imageBuffer)
 }

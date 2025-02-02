@@ -570,6 +570,17 @@
 //     })
 // }
 
+// export function useSetDiscordAnimeActivity() {
+//     return useServerMutation<boolean, SetDiscordAnimeActivity_Variables>({
+//         endpoint: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.endpoint,
+//         method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.methods[0],
+//         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useCancelDiscordActivity() {
 //     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.DISCORD.CancelDiscordActivity.endpoint,
@@ -874,7 +885,7 @@
 // }
 
 // export function useDeleteLocalFiles() {
-//     return useServerMutation<Array<Anime_LocalFile>, DeleteLocalFiles_Variables>({
+//     return useServerMutation<boolean, DeleteLocalFiles_Variables>({
 //         endpoint: API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.endpoint,
 //         method: API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.methods[0],
 //         mutationKey: [API_ENDPOINTS.LOCALFILES.DeleteLocalFiles.key],
@@ -1754,6 +1765,15 @@
 //         onSuccess: async () => {
 // 
 //         },
+//     })
+// }
+
+// export function useGetLatestLogContent() {
+//     return useServerQuery<string>({
+//         endpoint: API_ENDPOINTS.STATUS.GetLatestLogContent.endpoint,
+//         method: API_ENDPOINTS.STATUS.GetLatestLogContent.methods[0],
+//         queryKey: [API_ENDPOINTS.STATUS.GetLatestLogContent.key],
+//         enabled: true,
 //     })
 // }
 

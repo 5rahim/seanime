@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
@@ -43,7 +42,7 @@ func NewProvider(logger *zerolog.Logger) hibikeonlinestream.Provider {
 		BaseURL:   "https://anitaku.to",
 		AjaxURL:   "https://ajax.gogocdn.net",
 		Client:    http.Client{},
-		UserAgent: browser.Firefox(),
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }

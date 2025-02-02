@@ -149,7 +149,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                     <div
                                         key={item.id}
                                         className={cn(
-                                            "group/sr-item col-span-1 aspect-[6/7] rounded-md relative bg-[--background] cursor-pointer transition-opacity",
+                                            "group/sr-item col-span-1 aspect-[6/7] rounded-[--radius-md] relative bg-[--background] cursor-pointer transition-opacity",
                                         )}
                                         onClick={() => {
                                             setMangaId(item.id)
@@ -166,7 +166,7 @@ function Content({ entry }: { entry: Manga_Entry }) {
                                             fill
                                             alt=""
                                             className={cn(
-                                                "object-center object-cover lg:opacity-50 rounded-md transition-opacity lg:group-hover/sr-item:opacity-100",
+                                                "object-center object-cover lg:opacity-50 rounded-[--radius-md] transition-opacity lg:group-hover/sr-item:opacity-100",
                                             )}
                                         />}
                                         {/*<Badge intent="gray-solid" size="sm" className="absolute text-sm top-1 left-1">*/}

@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-)
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	"github.com/labstack/echo/v4"
+)
 
 type DirectoryInfo struct {
 	FullPath   string `json:"fullPath"`
@@ -29,35 +29,35 @@ type DirectorySelectorResponse struct {
 //	@desc It returns 500 error if the directory does not exist (or cannot be accessed).
 //	@route /api/v1/directory-selector [POST]
 //	@returns handlers.DirectorySelectorResponse
-func HandleDirectorySelector(c *RouteCtx) error {
+func (h *Handler) HandleDirectorySelector(c echo.Context) error {
 
 	type body struct {
 		Input string `json:"input"`
 	}
 	var request body
 
-	if err := c.Fiber.BodyParser(&request); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&request); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	input := filepath.ToSlash(filepath.Clean(request.Input))
 	directoryExists, err := checkDirectoryExists(input)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if directoryExists {
 		suggestions, err := getAutocompletionSuggestions(input)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 
 		content, err := getDirectoryContent(input)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 
-		return c.RespondWithData(DirectorySelectorResponse{
+		return h.RespondWithData(c, DirectorySelectorResponse{
 			FullPath:    input,
 			BasePath:    filepath.ToSlash(filepath.Dir(input)),
 			Exists:      true,
@@ -68,10 +68,10 @@ func HandleDirectorySelector(c *RouteCtx) error {
 
 	suggestions, err := getAutocompletionSuggestions(input)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(DirectorySelectorResponse{
+	return h.RespondWithData(c, DirectorySelectorResponse{
 		FullPath:    input,
 		BasePath:    filepath.ToSlash(filepath.Dir(input)),
 		Exists:      false,

@@ -236,25 +236,24 @@ function EpisodeItemInfoModalButton({ episode }: { episode: Anime_Episode }) {
             <p className="text-gray-300">
                 {(episode.episodeMetadata?.summary || episode.episodeMetadata?.overview)?.replaceAll("`", "'") || "No summary"}
             </p>
+            <Separator />
+            <p className="text-[--muted] line-clamp-2">
+                {episode.localFile?.parsedInfo?.original}
+            </p>
             {
                 (!!episode.episodeMetadata?.anidbId) && <>
-                    <Separator />
-                    <div className="w-full flex justify-between">
+                    <div className="w-full flex gap-2">
                         <p>AniDB Episode: {episode.fileMetadata?.aniDBEpisode}</p>
                         <a
                             href={"https://anidb.net/episode/" + episode.episodeMetadata?.anidbId + "#layout-footer"}
                             target="_blank"
-                            className="text-brand-200"
+                            className="hover:underline text-[--muted]"
                         >Open on AniDB
                         </a>
                     </div>
                 </>
             }
 
-            <Separator />
-            <p className="text-[--muted] line-clamp-2">
-                {episode.localFile?.parsedInfo?.original}
-            </p>
         </div>
 
     </Modal>

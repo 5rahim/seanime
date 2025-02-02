@@ -36,7 +36,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
             >
                 <MediaEntryAudienceScore meanScore={entry.media?.meanScore} badgeClass="bg-transparent" />
 
-                <MediaEntryGenresList genres={details?.genres} />
+                <MediaEntryGenresList genres={details?.genres} type="manga" />
             </div>
 
             <AnimeEntryRankings rankings={details?.rankings} />

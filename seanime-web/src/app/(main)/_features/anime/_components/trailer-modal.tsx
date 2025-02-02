@@ -27,9 +27,9 @@ export function TrailerModal(props: PlaylistsModalProps) {
                 open={isOpen}
                 onOpenChange={v => setIsOpen?.(v)}
                 trigger={trigger}
-                size="full"
-                side="bottom"
-                contentClass="flex items-center justify-center w-full h-full"
+                size="xl"
+                side="right"
+                contentClass="flex items-center justify-center"
             >
                 <div
                     className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[5rem] absolute opacity-30 top-0 left-0 bg-no-repeat bg-right bg-cover"
@@ -66,14 +66,14 @@ export function Content(props: ContentProps) {
             {!loaded && <LoadingSpinner className="" />}
             <div
                 className={cn(
-                    "relative aspect-video h-[85dvh] overflow-hidden rounded-xl",
+                    "relative aspect-video h-[85dvh] flex items-center overflow-hidden rounded-xl",
                     !loaded && "hidden",
                 )}
             >
                 <iframe
                     src={`https://www.youtube.com/embed/${trailerId}`}
                     title="YouTube Video"
-                    className="w-full h-full"
+                    className="w-full aspect-video rounded-xl"
                     allowFullScreen
                     loading="lazy" // Lazy load the iframe
                 />

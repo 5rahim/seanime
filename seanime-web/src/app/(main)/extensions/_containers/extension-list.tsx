@@ -55,7 +55,7 @@ export function ExtensionList(props: ExtensionListProps) {
     </LuffyError>
 
     return (
-        <AppLayoutStack>
+        <AppLayoutStack className="gap-6">
             <div className="flex items-center gap-2 flex-wrap">
                 <h2>
                     Extensions
@@ -101,7 +101,7 @@ export function ExtensionList(props: ExtensionListProps) {
                     </DropdownMenu>
                 </div>
             </div>
-            <h3 className="flex gap-3 items-center"><RiFolderDownloadFill />Torrent providers</h3>
+            <h3 className="flex gap-3 items-center"><RiFolderDownloadFill />Torrent</h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {orderExtensions(allExtensions.extensions).filter(n => n.type === "anime-torrent-provider").map(extension => (
                     <ExtensionCard
@@ -113,8 +113,8 @@ export function ExtensionList(props: ExtensionListProps) {
                     />
                 ))}
             </div>
-            <Separator />
-            <h3 className="flex gap-3 items-center"><PiBookFill />Manga sources</h3>
+            {/*<Separator />*/}
+            <h3 className="flex gap-3 items-center"><PiBookFill />Manga</h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {orderExtensions(allExtensions.extensions).filter(n => n.type === "manga-provider").map(extension => (
                     <ExtensionCard
@@ -126,8 +126,8 @@ export function ExtensionList(props: ExtensionListProps) {
                     />
                 ))}
             </div>
-            <Separator />
-            <h3 className="flex gap-3 items-center"><CgMediaPodcast /> Online streaming sources</h3>
+            {/*<Separator />*/}
+            <h3 className="flex gap-3 items-center"><CgMediaPodcast /> Online streaming</h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {orderExtensions(allExtensions.extensions).filter(n => n.type === "onlinestream-provider").map(extension => (
                     <ExtensionCard

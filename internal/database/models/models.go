@@ -240,7 +240,7 @@ type Theme struct {
 	ExpandSidebarOnHover             bool   `gorm:"column:expand_sidebar_on_hover" json:"expandSidebarOnHover"`
 	HideTopNavbar                    bool   `gorm:"column:hide_top_navbar" json:"hideTopNavbar"`
 	EnableMediaCardBlurredBackground bool   `gorm:"column:enable_media_card_blurred_background" json:"enableMediaCardBlurredBackground"`
-	// These are named "libraryScreen" but are used on all pages
+	// Note: These are named "libraryScreen" but are used on all pages
 	LibraryScreenCustomBackgroundImage   string `gorm:"column:library_screen_custom_background_image" json:"libraryScreenCustomBackgroundImage"`
 	LibraryScreenCustomBackgroundOpacity int    `gorm:"column:library_screen_custom_background_opacity" json:"libraryScreenCustomBackgroundOpacity"`
 	// Anime
@@ -256,13 +256,21 @@ type Theme struct {
 	LibraryScreenCustomBackgroundBlur string `gorm:"column:library_screen_custom_background_blur" json:"libraryScreenCustomBackgroundBlur"`
 	EnableMediaPageBlurredBackground  bool   `gorm:"column:enable_media_page_blurred_background" json:"enableMediaPageBlurredBackground"`
 	DisableSidebarTransparency        bool   `gorm:"column:disable_sidebar_transparency" json:"disableSidebarTransparency"`
-	UseLegacyEpisodeCard              bool   `gorm:"column:use_legacy_episode_card" json:"useLegacyEpisodeCard"`
+	UseLegacyEpisodeCard              bool   `gorm:"column:use_legacy_episode_card" json:"useLegacyEpisodeCard"` // DEPRECATED
 	DisableCarouselAutoScroll         bool   `gorm:"column:disable_carousel_auto_scroll" json:"disableCarouselAutoScroll"`
 
 	// v2.6+
 	MediaPageBannerType        string `gorm:"column:media_page_banner_type" json:"mediaPageBannerType"`
 	MediaPageBannerSize        string `gorm:"column:media_page_banner_size" json:"mediaPageBannerSize"`
 	MediaPageBannerInfoBoxSize string `gorm:"column:media_page_banner_info_box_size" json:"mediaPageBannerInfoBoxSize"`
+
+	// v2.7+
+	ShowEpisodeCardAnimeInfo             bool   `gorm:"column:show_episode_card_anime_info" json:"showEpisodeCardAnimeInfo"`
+	ContinueWatchingDefaultSorting       string `gorm:"column:continue_watching_default_sorting" json:"continueWatchingDefaultSorting"`
+	AnimeLibraryCollectionDefaultSorting string `gorm:"column:anime_library_collection_default_sorting" json:"animeLibraryCollectionDefaultSorting"`
+	MangaLibraryCollectionDefaultSorting string `gorm:"column:manga_library_collection_default_sorting" json:"mangaLibraryCollectionDefaultSorting"`
+	ShowAnimeUnwatchedCount              bool   `gorm:"column:show_anime_unwatched_count" json:"showAnimeUnwatchedCount"`
+	ShowMangaUnreadCount                 bool   `gorm:"column:show_manga_unread_count" json:"showMangaUnreadCount"`
 }
 
 // +---------------------+
@@ -332,6 +340,8 @@ type TorrentstreamSettings struct {
 	IncludeInLibrary bool `gorm:"column:include_in_library" json:"includeInLibrary"`
 	// v2.6+
 	StreamUrlAddress string `gorm:"column:stream_url_address" json:"streamUrlAddress"`
+	// v2.7+
+	SlowSeeding bool `gorm:"column:slow_seeding" json:"slowSeeding"`
 }
 
 type TorrentstreamHistory struct {

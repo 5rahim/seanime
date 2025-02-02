@@ -1,8 +1,11 @@
 package handlers
 
 import (
-	"github.com/dustin/go-humanize"
 	"strings"
+
+	"github.com/dustin/go-humanize"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleGetFileCacheTotalSize
@@ -11,15 +14,15 @@ import (
 //	@desc The total size of the cache files is returned in human-readable format.
 //	@route /api/v1/filecache/total-size [GET]
 //	@returns string
-func HandleGetFileCacheTotalSize(c *RouteCtx) error {
+func (h *Handler) HandleGetFileCacheTotalSize(c echo.Context) error {
 	// Get the cache size
-	size, err := c.App.FileCacher.GetTotalSize()
+	size, err := h.App.FileCacher.GetTotalSize()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Return the cache size
-	return c.RespondWithData(humanize.Bytes(uint64(size)))
+	return h.RespondWithData(c, humanize.Bytes(uint64(size)))
 }
 
 // HandleRemoveFileCacheBucket
@@ -29,7 +32,7 @@ func HandleGetFileCacheTotalSize(c *RouteCtx) error {
 //	@desc Returns 'true' if the operation was successful.
 //	@route /api/v1/filecache/bucket [DELETE]
 //	@returns bool
-func HandleRemoveFileCacheBucket(c *RouteCtx) error {
+func (h *Handler) HandleRemoveFileCacheBucket(c echo.Context) error {
 
 	type body struct {
 		Bucket string `json:"bucket"` // e.g. "onlinestream_"
@@ -37,21 +40,21 @@ func HandleRemoveFileCacheBucket(c *RouteCtx) error {
 
 	// Parse the request body
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Remove all files in the cache directory that match the given filter
-	err := c.App.FileCacher.RemoveAllBy(func(filename string) bool {
+	err := h.App.FileCacher.RemoveAllBy(func(filename string) bool {
 		return strings.HasPrefix(filename, b.Bucket)
 	})
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Return a success response
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetFileCacheMediastreamVideoFilesTotalSize
@@ -60,15 +63,15 @@ func HandleRemoveFileCacheBucket(c *RouteCtx) error {
 //	@desc The total size of the cache video file data is returned in human-readable format.
 //	@route /api/v1/filecache/mediastream/videofiles/total-size [GET]
 //	@returns string
-func HandleGetFileCacheMediastreamVideoFilesTotalSize(c *RouteCtx) error {
+func (h *Handler) HandleGetFileCacheMediastreamVideoFilesTotalSize(c echo.Context) error {
 	// Get the cache size
-	size, err := c.App.FileCacher.GetMediastreamVideoFilesTotalSize()
+	size, err := h.App.FileCacher.GetMediastreamVideoFilesTotalSize()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Return the cache size
-	return c.RespondWithData(humanize.Bytes(uint64(size)))
+	return h.RespondWithData(c, humanize.Bytes(uint64(size)))
 }
 
 // HandleClearFileCacheMediastreamVideoFiles
@@ -77,22 +80,22 @@ func HandleGetFileCacheMediastreamVideoFilesTotalSize(c *RouteCtx) error {
 //	@desc Returns 'true' if the operation was successful.
 //	@route /api/v1/filecache/mediastream/videofiles [DELETE]
 //	@returns bool
-func HandleClearFileCacheMediastreamVideoFiles(c *RouteCtx) error {
+func (h *Handler) HandleClearFileCacheMediastreamVideoFiles(c echo.Context) error {
 
 	// Clear the attachments
-	err := c.App.FileCacher.ClearMediastreamVideoFiles()
+	err := h.App.FileCacher.ClearMediastreamVideoFiles()
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Clear the transcode dir
-	c.App.MediastreamRepository.ClearTranscodeDir()
+	h.App.MediastreamRepository.ClearTranscodeDir()
 
-	if c.App.MediastreamRepository != nil {
-		go c.App.MediastreamRepository.CacheWasCleared()
+	if h.App.MediastreamRepository != nil {
+		go h.App.MediastreamRepository.CacheWasCleared()
 	}
 
 	// Return a success response
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

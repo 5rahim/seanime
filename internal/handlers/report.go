@@ -8,6 +8,8 @@ import (
 	"seanime/internal/library/anime"
 	"seanime/internal/report"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleSaveIssueReport
@@ -15,7 +17,7 @@ import (
 //	@summary saves the issue report in memory.
 //	@route /api/v1/report/issue [POST]
 //	@returns bool
-func HandleSaveIssueReport(c *RouteCtx) error {
+func (h *Handler) HandleSaveIssueReport(c echo.Context) error {
 
 	type body struct {
 		ClickLogs           []*report.ClickLog      `json:"clickLogs"`
@@ -26,39 +28,39 @@ func HandleSaveIssueReport(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	var localFiles []*anime.LocalFile
 	if b.IsAnimeLibraryIssue {
 		// Get local files
 		var err error
-		localFiles, _, err = db_bridge.GetLocalFiles(c.App.Database)
+		localFiles, _, err = db_bridge.GetLocalFiles(h.App.Database)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
-	status := NewStatus(c)
+	status := h.NewStatus(c)
 
-	if err := c.App.ReportRepository.SaveIssueReport(report.SaveIssueReportOptions{
-		LogsDir:             c.App.Config.Logs.Dir,
-		UserAgent:           c.Fiber.Get("User-Agent"),
+	if err := h.App.ReportRepository.SaveIssueReport(report.SaveIssueReportOptions{
+		LogsDir:             h.App.Config.Logs.Dir,
+		UserAgent:           c.Request().Header.Get("User-Agent"),
 		ClickLogs:           b.ClickLogs,
 		NetworkLogs:         b.NetworkLogs,
 		ReactQueryLogs:      b.ReactQueryLogs,
 		ConsoleLogs:         b.ConsoleLogs,
-		Settings:            c.App.Settings,
-		DebridSettings:      c.App.SecondarySettings.Debrid,
+		Settings:            h.App.Settings,
+		DebridSettings:      h.App.SecondarySettings.Debrid,
 		IsAnimeLibraryIssue: b.IsAnimeLibraryIssue,
 		LocalFiles:          localFiles,
 		ServerStatus:        status,
 	}); err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleDownloadIssueReport
@@ -66,16 +68,16 @@ func HandleSaveIssueReport(c *RouteCtx) error {
 //	@summary generates and downloads the issue report file.
 //	@route /api/v1/report/issue/download [GET]
 //	@returns report.IssueReport
-func HandleDownloadIssueReport(c *RouteCtx) error {
+func (h *Handler) HandleDownloadIssueReport(c echo.Context) error {
 
-	issueReport, ok := c.App.ReportRepository.GetSavedIssueReport()
+	issueReport, ok := h.App.ReportRepository.GetSavedIssueReport()
 	if !ok {
-		return c.RespondWithError(fmt.Errorf("no issue report found"))
+		return h.RespondWithError(c, fmt.Errorf("no issue report found"))
 	}
 
 	marshaledIssueReport, err := json.Marshal(issueReport)
 	if err != nil {
-		return c.RespondWithError(fmt.Errorf("failed to marshal issue report: %w", err))
+		return h.RespondWithError(c, fmt.Errorf("failed to marshal issue report: %w", err))
 	}
 
 	buffer := bytes.Buffer{}
@@ -84,9 +86,8 @@ func HandleDownloadIssueReport(c *RouteCtx) error {
 	// Generate filename with current timestamp
 	filename := fmt.Sprintf("issue_report_%s.json", time.Now().Format("2006-01-02_15-04-05"))
 
-	// Set content disposition header for file download
-	c.Fiber.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Fiber.Set("Content-Type", "application/json")
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Response().Header().Set("Content-Type", "application/json")
 
-	return c.Fiber.SendStream(&buffer)
+	return c.Stream(200, "application/json", &buffer)
 }

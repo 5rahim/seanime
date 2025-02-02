@@ -9,7 +9,7 @@ import { cn, defineStyleAnatomy } from "../core/styling"
 export const SkeletonAnatomy = defineStyleAnatomy({
     root: cva([
         "UI-Skeleton__root",
-        "animate-pulse rounded-md bg-[--subtle] w-full h-12",
+        "animate-pulse rounded-[--radius-md] bg-[--subtle] w-full h-12",
     ]),
 })
 

@@ -395,7 +395,7 @@ function LogConsole({ title, logs = [], icon, type, currentTime }: LogConsolePro
                 </span>
                 <h2 className="text-lg font-semibold">{title}</h2>
             </div>
-            <div ref={listRef} className={`text-[--foreground] p-3 rounded-md h-72 overflow-y-auto`}>
+            <div ref={listRef} className={`text-[--foreground] p-3 rounded-[--radius-md] h-72 overflow-y-auto`}>
                 {logs && logs.length > 0 ? (
                     logs.map((log, index) => {
                         if (type === "server") {

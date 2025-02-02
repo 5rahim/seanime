@@ -15,9 +15,9 @@ import type {
     Anime_LocalFileMetadata,
     ChapterDownloader_DownloadID,
     Continuity_UpdateWatchHistoryItemOptions,
-    Debrid_TorrentItem,
     DebridClient_CancelStreamOptions,
     DebridClient_StreamPlaybackType,
+    Debrid_TorrentItem,
     HibikeTorrent_AnimeTorrent,
     Mediastream_StreamType,
     Models_AnilistSettings,
@@ -500,6 +500,7 @@ export type DebridStartStream_Variables = {
     autoSelect: boolean
     torrent?: HibikeTorrent_AnimeTorrent
     fileId: string
+    fileIndex?: number
     playbackType: DebridClient_StreamPlaybackType
     clientId: string
 }
@@ -546,6 +547,21 @@ export type SetDiscordMangaActivity_Variables = {
     title: string
     image: string
     chapter: string
+}
+
+/**
+ * - Filepath: internal/handlers/discord.go
+ * - Filename: discord.go
+ * - Endpoint: /api/v1/discord/presence/anime
+ * @description
+ * Route sets anime activity for discord rich presence.
+ */
+export type SetDiscordAnimeActivity_Variables = {
+    mediaId: number
+    title: string
+    image: string
+    isMovie: boolean
+    episodeNumber: number
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -754,7 +770,7 @@ export type UpdateLocalFiles_Variables = {
  * - Filename: localfiles.go
  * - Endpoint: /api/v1/library/local-files
  * @description
- * Route deletes the local file with the given paths.
+ * Route deletes local files with the given paths.
  */
 export type DeleteLocalFiles_Variables = {
     paths: Array<string>
@@ -1330,10 +1346,6 @@ export type SaveIssueReport_Variables = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// routes
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // scan
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1556,7 +1568,7 @@ export type TorrentClientAddMagnetFromRule_Variables = {
 export type SearchTorrent_Variables = {
     /**
      *  "smart" or "simple"
-     *
+     *  
      *  "smart" or "simple"
      */
     type?: string

@@ -20,7 +20,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
 
     return (
         <>
-            <div className="relative rounded-md size-12 bg-gray-900 overflow-hidden">
+            <div className="relative rounded-[--radius-md] size-12 bg-gray-900 overflow-hidden">
                 {!!extension.icon ? (
                     <Image
                         src={extension.icon}
@@ -41,7 +41,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
             <div className="space-y-2">
                 <div className="flex items-center flex-wrap">
                     <p className="text-md font-semibold flex gap-2 flex-wrap">
-                        {extension.name} {!!extension.version && <Badge className="rounded-md text-md">
+                        {extension.name} {!!extension.version && <Badge className="rounded-[--radius-md] text-md">
                         {extension.version}
                     </Badge>}</p>
 
@@ -75,7 +75,7 @@ export function ExtensionDetails(props: ExtensionDetailsProps) {
                 <p className="text-md line-clamp-1">
                     <span className="text-[--muted]">Language:</span> <span className="">{capitalize(extension.language)}</span>
                 </p>
-                {!!extension.manifestURI && <p className="text-md line-clamp-1">
+                {!!extension.manifestURI && <p className="text-md w-full">
                     <span className="text-[--muted]">Manifest URL:</span> <span className="">{extension.manifestURI}</span>
                 </p>}
             </div>

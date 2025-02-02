@@ -1,19 +1,21 @@
 import { Manga_Collection } from "@/api/generated/types"
 import { useGetMangaChapterCountMap, useGetMangaCollection } from "@/api/hooks/manga.hooks"
-import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries } from "@/lib/helpers/filtering"
+import { CollectionParams, DEFAULT_COLLECTION_PARAMS, filterCollectionEntries, filterMangaCollectionEntries } from "@/lib/helpers/filtering"
+import { useThemeSettings } from "@/lib/theme/hooks"
 import { atomWithImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
 
-export const MANGA_LIBRARY_DEFAULT_PARAMS: CollectionParams = {
+export const MANGA_LIBRARY_DEFAULT_PARAMS: CollectionParams<"manga"> = {
     ...DEFAULT_COLLECTION_PARAMS,
     sorting: "TITLE",
+    unreadOnly: false,
 }
 
-export const __mangaLibrary_paramsAtom = atomWithImmer<CollectionParams>(MANGA_LIBRARY_DEFAULT_PARAMS)
+export const __mangaLibrary_paramsAtom = atomWithImmer<CollectionParams<"manga">>(MANGA_LIBRARY_DEFAULT_PARAMS)
 
-export const __mangaLibrary_paramsInputAtom = atomWithImmer<CollectionParams>(MANGA_LIBRARY_DEFAULT_PARAMS)
+export const __mangaLibrary_paramsInputAtom = atomWithImmer<CollectionParams<"manga">>(MANGA_LIBRARY_DEFAULT_PARAMS)
 
 export const __mangaLibrary_chapterCountsAtom = atomWithImmer<Record<number, number>>({})
 
@@ -25,6 +27,8 @@ export function useHandleMangaCollection() {
     const { data, isLoading, isError } = useGetMangaCollection()
 
     const { data: chapterCounts } = useGetMangaChapterCountMap()
+
+    const { mangaLibraryCollectionDefaultSorting } = useThemeSettings()
 
     React.useEffect(() => {
         if (isError) {
@@ -62,23 +66,45 @@ export function useHandleMangaCollection() {
 
     const sortedCollection = React.useMemo(() => {
         if (!data || !data.lists) return data
+
+        let _lists = data.lists.map(obj => {
+            if (!obj) return obj
+
+            const newParams = { ...params, sorting: mangaLibraryCollectionDefaultSorting as any }
+            let arr = filterMangaCollectionEntries(obj.entries, newParams, true, chapterCounts)
+
+            // Reset `unreadOnly` if it's about to make the list disappear
+            if (arr.length === 0 && newParams.unreadOnly) {
+                const newParams = { ...params, unreadOnly: false, sorting: mangaLibraryCollectionDefaultSorting as any }
+                arr = filterMangaCollectionEntries(obj.entries, newParams, true, chapterCounts)
+            }
+
+            return {
+                type: obj.type,
+                status: obj.status,
+                entries: arr,
+            }
+        })
+
         return {
             lists: [
-                data.lists.find(n => n.type === "CURRENT"),
-                data.lists.find(n => n.type === "PAUSED"),
-                data.lists.find(n => n.type === "PLANNING"),
+                _lists.find(n => n.type === "CURRENT"),
+                _lists.find(n => n.type === "PAUSED"),
+                _lists.find(n => n.type === "PLANNING"),
                 // data.lists.find(n => n.type === "COMPLETED"), // DO NOT SHOW THIS LIST IN MANGA VIEW
                 // data.lists.find(n => n.type === "DROPPED"), // DO NOT SHOW THIS LIST IN MANGA VIEW
             ].filter(Boolean),
         } as Manga_Collection
-    }, [data])
+    }, [data, params, chapterCounts])
 
     const filteredCollection = React.useMemo(() => {
         if (!data || !data.lists) return data
 
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
-            const arr = filterCollectionEntries(obj.entries, params, true)
+
+            const newParams = { ...params, sorting: mangaLibraryCollectionDefaultSorting as any }
+            const arr = filterCollectionEntries("manga", obj.entries, newParams, true)
             return {
                 type: obj.type,
                 status: obj.status,

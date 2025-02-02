@@ -112,8 +112,8 @@ export function MonthCalendar(props: WeekCalendarProps) {
 
     return (
         <>
-            <div className="hidden lg:flex lg:h-full lg:flex-col rounded-md border">
-                <header className="relative flex items-center justify-center py-4 px-6 gap-4 lg:flex-none rounded-tr-md rounded-tl-md border-b bg-[--background]">
+            <div className="hidden lg:flex lg:h-full lg:flex-col rounded-[--radius-md] border">
+                <header className="relative flex items-center justify-center py-4 px-6 gap-4 lg:flex-none rounded-tr-[--radius-md] rounded-tl-[--radius-md] border-b bg-[--background]">
                     <IconButton icon={<AiOutlineArrowLeft />} onClick={goToPreviousMonth} rounded intent="gray-outline" size="sm" />
                     <h1
                         className={cn(
@@ -139,7 +139,7 @@ export function MonthCalendar(props: WeekCalendarProps) {
                         />
                     </Modal>
                 </header>
-                <div className="lg:flex lg:flex-auto lg:flex-col rounded-br-md rounded-bl-md">
+                <div className="lg:flex lg:flex-auto lg:flex-col rounded-br-[--radius-md] rounded-bl-[--radius-md] overflow-hidden">
                     <div className="grid grid-cols-7 gap-px border-b bg-[--background] text-center text-base font-semibold leading-6 text-gray-200 lg:flex-none">
                         {weekStartsOn === 0 && <div className="py-2">
                             S<span className="sr-only sm:not-sr-only">un</span>

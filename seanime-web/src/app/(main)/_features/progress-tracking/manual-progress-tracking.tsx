@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal"
 import { WSEvents } from "@/lib/server/ws-events"
 import { atom } from "jotai"
 import { useAtom } from "jotai/react"
+import Image from "next/image"
 import React from "react"
 import { PiPopcornFill } from "react-icons/pi"
 import { PlaybackManager_PlaybackState } from "./_lib/playback-manager.types"
@@ -105,12 +106,15 @@ export function ManualProgressTracking() {
             <Modal
                 open={showModal && isWatching}
                 onOpenChange={v => setShowModal(v)}
-                title="Progress"
+                // title="Progress"
                 titleClass="text-center"
                 contentClass="!space-y-2 relative max-w-2xl"
             >
-                {state && <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
-                    <p className="text-[--muted]">Currently watching</p>
+                {state && <div className="text-center relative overflow-hidden space-y-2">
+                    <p className="text-[--muted]">Playing externally</p>
+                    {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
+                        <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
+                    </div>}
                     <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
                     <p className="text-2xl font-bold">Episode {state?.episodeNumber}
                         <span className="text-[--muted]">{" / "}{(!!state?.mediaTotalEpisodes && state?.mediaTotalEpisodes > 0)
@@ -120,7 +124,7 @@ export function ManualProgressTracking() {
 
                 <div className="flex gap-2 w-full">
                     <Button
-                        intent="white"
+                        intent="primary-subtle"
                         disabled={isSyncing || isStarting || isCanceling}
                         onClick={() => syncProgress()}
                         className="w-full"
@@ -135,7 +139,7 @@ export function ManualProgressTracking() {
                         className="w-full"
                         loading={isCanceling}
                     >
-                        Cancel
+                        Stop
                     </Button>
                 </div>
             </Modal>

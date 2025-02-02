@@ -5,14 +5,12 @@ import {
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
+import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
-import { IconButton } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tooltip } from "@/components/ui/tooltip"
-import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React from "react"
-import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt } from "react-icons/bi"
 
 type TorrentPreviewList = {
     entry: Anime_Entry
@@ -42,19 +40,26 @@ export const TorrentPreviewList = React.memo((
 
     // const mediaReleaseDate = new Date(entry?.media?.startDate?.year || 0, entry?.media?.startDate?.month! - 1, entry?.media?.startDate?.day)
 
+    if (!isLoading && !previews?.length) {
+        return <LuffyError title="Nothing found" />
+    }
 
     return (
         <div className="space-y-2">
+            <p className="text-sm text-[--muted]">{previews?.length} results</p>
+            {/*<ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">*/}
+            {/*<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">*/}
             {previews.filter(Boolean).map(item => {
                 if (!item.torrent) return null
                 // const isReleasedBeforeMedia = differenceInCalendarYears(mediaReleaseDate, item.torrent.date) > 2
                 return (
                     <TorrentPreviewItem
+                        link={item.torrent?.link}
                         confirmed={item.torrent?.confirmed}
                         key={item.torrent.link}
                         title={item.episode?.displayTitle || item.episode?.baseAnime?.title?.userPreferred || ""}
                         releaseGroup={item.torrent.releaseGroup || ""}
-                        filename={item.torrent.name}
+                        subtitle={item.torrent.name}
                         isBatch={item.torrent.isBatch ?? false}
                         isBestRelease={item.torrent.isBestRelease}
                         image={item.episode?.episodeMetadata?.image || item.episode?.baseAnime?.coverImage?.large ||
@@ -62,32 +67,23 @@ export const TorrentPreviewList = React.memo((
                         fallbackImage={entry.media?.coverImage?.large || entry.media?.bannerImage}
                         isSelected={selectedTorrents.findIndex(n => n.link === item.torrent!.link) !== -1}
                         onClick={() => onToggleTorrent(item.torrent!)}
-                        action={<Tooltip
-                            side="left"
-                            trigger={<IconButton
-                                icon={<BiLinkExternal />}
-                                intent="primary-basic"
-                                size="sm"
-                                onClick={() => openTab(item.torrent!.link)}
-                            />}
-                        >Open in browser</Tooltip>}
                     >
-                        <div className="flex flex-wrap gap-2 items-center">
+                        <div className="flex flex-wrap gap-3 items-center">
                             {item.torrent.isBestRelease && (
                                 <Badge
-                                    className="rounded-md text-[0.8rem] bg-pink-800 border-pink-600 border"
+                                    className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                                     intent="success-solid"
                                 >
                                     Best release
                                 </Badge>
                             )}
                             <TorrentResolutionBadge resolution={item.torrent.resolution} />
-                            <TorrentSeedersBadge seeders={item.torrent.seeders} />
                             {(!!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
                                 <TorrentDebridInstantAvailabilityBadge />
                             )}
+                            <TorrentSeedersBadge seeders={item.torrent.seeders} />
                             {!!item.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
-                                <BiFile /> {item.torrent.formattedSize}</p>}
+                                {item.torrent.formattedSize}</p>}
                             <p className="text-[--muted] text-sm flex items-center gap-1">
                                 <BiCalendarAlt /> {formatDistanceToNowSafe(item.torrent.date)}
                             </p>
@@ -95,6 +91,8 @@ export const TorrentPreviewList = React.memo((
                     </TorrentPreviewItem>
                 )
             })}
+            {/*</div>*/}
+            {/*</ScrollAreaBox>*/}
         </div>
     )
 

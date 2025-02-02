@@ -1,10 +1,5 @@
 package anilist
 
-import (
-	"github.com/samber/lo"
-	"seanime/internal/util/comparison"
-)
-
 type MangaList = MangaCollection_MediaListCollection_Lists
 type MangaListEntry = MangaCollection_MediaListCollection_Lists_Entries
 
@@ -87,7 +82,7 @@ func (m *BaseManga) GetAllTitles() []*string {
 		titles = append(titles, m.Title.English)
 	}
 	if m.HasSynonyms() && len(m.Synonyms) > 1 {
-		titles = append(titles, lo.Filter(m.Synonyms, func(s *string, i int) bool { return comparison.ValueContainsSeason(*s) })...)
+		titles = append(titles, m.Synonyms...)
 	}
 	return titles
 }

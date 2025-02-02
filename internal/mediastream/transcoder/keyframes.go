@@ -2,7 +2,6 @@ package transcoder
 
 import (
 	"bufio"
-	"github.com/rs/zerolog"
 	"path/filepath"
 	"seanime/internal/mediastream/videofile"
 	"seanime/internal/util"
@@ -10,14 +9,15 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/rs/zerolog"
 )
 
 type Keyframe struct {
-	Sha         string
-	Keyframes   []float64
-	CanTransmux bool
-	IsDone      bool
-	info        *KeyframeInfo
+	Sha       string
+	Keyframes []float64
+	IsDone    bool
+	info      *KeyframeInfo
 }
 type KeyframeInfo struct {
 	mutex     sync.RWMutex

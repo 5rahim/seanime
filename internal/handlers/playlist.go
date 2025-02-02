@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"errors"
+	"github.com/labstack/echo/v4"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
+	"strconv"
 )
 
 // HandleCreatePlaylist
@@ -14,7 +16,7 @@ import (
 //	@desc The response is ignored, the client should re-fetch the playlists after this.
 //	@route /api/v1/playlist [POST]
 //	@returns anime.Playlist
-func HandleCreatePlaylist(c *RouteCtx) error {
+func (h *Handler) HandleCreatePlaylist(c echo.Context) error {
 
 	type body struct {
 		Name  string   `json:"name"`
@@ -22,14 +24,14 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get the local files
-	dbLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	dbLfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Filter the local files
@@ -48,11 +50,11 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 	playlist.SetLocalFiles(lfs)
 
 	// Save the playlist
-	if err := db_bridge.SavePlaylist(c.App.Database, playlist); err != nil {
-		return c.RespondWithError(err)
+	if err := db_bridge.SavePlaylist(h.App.Database, playlist); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(playlist)
+	return h.RespondWithData(c, playlist)
 }
 
 // HandleGetPlaylists
@@ -60,14 +62,14 @@ func HandleCreatePlaylist(c *RouteCtx) error {
 //	@summary returns all playlists.
 //	@route /api/v1/playlists [GET]
 //	@returns []anime.Playlist
-func HandleGetPlaylists(c *RouteCtx) error {
+func (h *Handler) HandleGetPlaylists(c echo.Context) error {
 
-	playlists, err := db_bridge.GetPlaylists(c.App.Database)
+	playlists, err := db_bridge.GetPlaylists(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(playlists)
+	return h.RespondWithData(c, playlists)
 }
 
 // HandleUpdatePlaylist
@@ -78,7 +80,7 @@ func HandleGetPlaylists(c *RouteCtx) error {
 //	@route /api/v1/playlist [PATCH]
 //	@param id - int - true - "The ID of the playlist to update."
 //	@returns anime.Playlist
-func HandleUpdatePlaylist(c *RouteCtx) error {
+func (h *Handler) HandleUpdatePlaylist(c echo.Context) error {
 
 	type body struct {
 		DbId  uint     `json:"dbId"`
@@ -87,14 +89,14 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get the local files
-	dbLfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	dbLfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Filter the local files
@@ -115,11 +117,11 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 	playlist.SetLocalFiles(lfs)
 
 	// Save the playlist
-	if err := db_bridge.UpdatePlaylist(c.App.Database, playlist); err != nil {
-		return c.RespondWithError(err)
+	if err := db_bridge.UpdatePlaylist(h.App.Database, playlist); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(playlist)
+	return h.RespondWithData(c, playlist)
 }
 
 // HandleDeletePlaylist
@@ -127,23 +129,23 @@ func HandleUpdatePlaylist(c *RouteCtx) error {
 //	@summary deletes a playlist.
 //	@route /api/v1/playlist [DELETE]
 //	@returns bool
-func HandleDeletePlaylist(c *RouteCtx) error {
+func (h *Handler) HandleDeletePlaylist(c echo.Context) error {
 
 	type body struct {
 		DbId uint `json:"dbId"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 
 	}
 
-	if err := db_bridge.DeletePlaylist(c.App.Database, b.DbId); err != nil {
-		return c.RespondWithError(err)
+	if err := db_bridge.DeletePlaylist(h.App.Database, b.DbId); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetPlaylistEpisodes
@@ -153,31 +155,31 @@ func HandleDeletePlaylist(c *RouteCtx) error {
 //	@param id - int - true - "The ID of the media entry."
 //	@param progress - int - true - "The progress of the media entry."
 //	@returns []anime.LocalFile
-func HandleGetPlaylistEpisodes(c *RouteCtx) error {
+func (h *Handler) HandleGetPlaylistEpisodes(c echo.Context) error {
 
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	lfw := anime.NewLocalFileWrapper(lfs)
 
 	// Params
-	mId, err := c.Fiber.ParamsInt("id")
+	mId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
-	progress, err := c.Fiber.ParamsInt("progress")
+	progress, err := strconv.Atoi(c.Param("progress"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	group, found := lfw.GetLocalEntryById(mId)
 	if !found {
-		return c.RespondWithError(errors.New("media entry not found"))
+		return h.RespondWithError(c, errors.New("media entry not found"))
 	}
 
 	toWatch := group.GetUnwatchedLocalFiles(progress)
 
-	return c.RespondWithData(toWatch)
+	return h.RespondWithData(c, toWatch)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
+	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"slices"
 	"strings"
@@ -39,7 +40,7 @@ func NewManganato(logger *zerolog.Logger) *Manganato {
 	return &Manganato{
 		Url:       "https://manganato.com",
 		Client:    c,
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }

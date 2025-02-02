@@ -8,6 +8,8 @@ import (
 	"seanime/internal/util/result"
 	"strconv"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleGetAnimeCollection
@@ -18,26 +20,26 @@ import (
 //	@desc Calling POST will refetch both the anime and manga collections.
 //	@returns anilist.AnimeCollection
 //	@route /api/v1/anilist/collection [GET,POST]
-func HandleGetAnimeCollection(c *RouteCtx) error {
+func (h *Handler) HandleGetAnimeCollection(c echo.Context) error {
 
-	bypassCache := c.Fiber.Method() == "POST"
+	bypassCache := c.Request().Method == "POST"
 
 	// Get the user's anilist collection
-	animeCollection, err := c.App.GetAnimeCollection(bypassCache)
+	animeCollection, err := h.App.GetAnimeCollection(bypassCache)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	go func() {
-		if c.App.Settings != nil && c.App.Settings.Library.EnableManga {
-			_, _ = c.App.GetMangaCollection(bypassCache)
+		if h.App.Settings != nil && h.App.Settings.Library.EnableManga {
+			_, _ = h.App.GetMangaCollection(bypassCache)
 			if bypassCache {
-				c.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
+				h.App.WSEventManager.SendEvent(events.RefreshedAnilistMangaCollection, nil)
 			}
 		}
 	}()
 
-	return c.RespondWithData(animeCollection)
+	return h.RespondWithData(c, animeCollection)
 }
 
 // HandleGetRawAnimeCollection
@@ -46,17 +48,17 @@ func HandleGetAnimeCollection(c *RouteCtx) error {
 //	@desc Calling GET will return the cached anime collection.
 //	@returns anilist.AnimeCollection
 //	@route /api/v1/anilist/collection/raw [GET,POST]
-func HandleGetRawAnimeCollection(c *RouteCtx) error {
+func (h *Handler) HandleGetRawAnimeCollection(c echo.Context) error {
 
-	bypassCache := c.Fiber.Method() == "POST"
+	bypassCache := c.Request().Method == "POST"
 
 	// Get the user's anilist collection
-	animeCollection, err := c.App.GetRawAnimeCollection(bypassCache)
+	animeCollection, err := h.App.GetRawAnimeCollection(bypassCache)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(animeCollection)
+	return h.RespondWithData(c, animeCollection)
 }
 
 // HandleEditAnilistListEntry
@@ -67,7 +69,7 @@ func HandleGetRawAnimeCollection(c *RouteCtx) error {
 //	@desc The client should refetch collection-dependent queries after this mutation.
 //	@returns true
 //	@route /api/v1/anilist/list-entry [POST]
-func HandleEditAnilistListEntry(c *RouteCtx) error {
+func (h *Handler) HandleEditAnilistListEntry(c echo.Context) error {
 
 	type body struct {
 		MediaId   *int                     `json:"mediaId"`
@@ -80,11 +82,11 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.AnilistPlatform.UpdateEntry(
+	err := h.App.AnilistPlatform.UpdateEntry(
 		*p.MediaId,
 		p.Status,
 		p.Score,
@@ -93,20 +95,20 @@ func HandleEditAnilistListEntry(c *RouteCtx) error {
 		p.EndDate,
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	switch p.Type {
 	case "anime":
-		_, _ = c.App.RefreshAnimeCollection()
+		_, _ = h.App.RefreshAnimeCollection()
 	case "manga":
-		_, _ = c.App.RefreshMangaCollection()
+		_, _ = h.App.RefreshMangaCollection()
 	default:
-		_, _ = c.App.RefreshAnimeCollection()
-		_, _ = c.App.RefreshMangaCollection()
+		_, _ = h.App.RefreshAnimeCollection()
+		_, _ = h.App.RefreshMangaCollection()
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -122,23 +124,23 @@ var (
 //	@param id - int - true - "The AniList anime ID"
 //	@returns anilist.AnimeDetailsById_Media
 //	@route /api/v1/anilist/media-details/{id} [GET]
-func HandleGetAnilistAnimeDetails(c *RouteCtx) error {
+func (h *Handler) HandleGetAnilistAnimeDetails(c echo.Context) error {
 
-	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	mId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if details, ok := detailsCache.Get(mId); ok {
-		return c.RespondWithData(details)
+		return h.RespondWithData(c, details)
 	}
-	details, err := c.App.AnilistPlatform.GetAnimeDetails(mId)
+	details, err := h.App.AnilistPlatform.GetAnimeDetails(mId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 	detailsCache.Set(mId, details)
 
-	return c.RespondWithData(details)
+	return h.RespondWithData(c, details)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -152,19 +154,19 @@ var studioDetailsMap = result.NewResultMap[int, *anilist.StudioDetails]()
 //	@param id - int - true - "The AniList studio ID"
 //	@returns anilist.StudioDetails
 //	@route /api/v1/anilist/studio-details/{id} [GET]
-func HandleGetAnilistStudioDetails(c *RouteCtx) error {
+func (h *Handler) HandleGetAnilistStudioDetails(c echo.Context) error {
 
-	mId, err := strconv.Atoi(c.Fiber.Params("id"))
+	mId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if details, ok := studioDetailsMap.Get(mId); ok {
-		return c.RespondWithData(details)
+		return h.RespondWithData(c, details)
 	}
-	details, err := c.App.AnilistPlatform.GetStudioDetails(mId)
+	details, err := h.App.AnilistPlatform.GetStudioDetails(mId)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	go func() {
@@ -173,7 +175,7 @@ func HandleGetAnilistStudioDetails(c *RouteCtx) error {
 		}
 	}()
 
-	return c.RespondWithData(details)
+	return h.RespondWithData(c, details)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -186,7 +188,7 @@ func HandleGetAnilistStudioDetails(c *RouteCtx) error {
 //	@desc The client should refetch collection-dependent queries after this mutation.
 //	@route /api/v1/anilist/list-entry [DELETE]
 //	@returns bool
-func HandleDeleteAnilistListEntry(c *RouteCtx) error {
+func (h *Handler) HandleDeleteAnilistListEntry(c echo.Context) error {
 
 	type body struct {
 		MediaId *int    `json:"mediaId"`
@@ -194,12 +196,12 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if p.Type == nil || p.MediaId == nil {
-		return c.RespondWithError(errors.New("missing parameters"))
+		return h.RespondWithError(c, errors.New("missing parameters"))
 	}
 
 	var listEntryID int
@@ -207,44 +209,44 @@ func HandleDeleteAnilistListEntry(c *RouteCtx) error {
 	switch *p.Type {
 	case "anime":
 		// Get the list entry ID
-		animeCollection, err := c.App.GetAnimeCollection(false)
+		animeCollection, err := h.App.GetAnimeCollection(false)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 
 		listEntry, found := animeCollection.GetListEntryFromAnimeId(*p.MediaId)
 		if !found {
-			return c.RespondWithError(errors.New("list entry not found"))
+			return h.RespondWithError(c, errors.New("list entry not found"))
 		}
 		listEntryID = listEntry.ID
 	case "manga":
 		// Get the list entry ID
-		mangaCollection, err := c.App.GetMangaCollection(false)
+		mangaCollection, err := h.App.GetMangaCollection(false)
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 
 		listEntry, found := mangaCollection.GetListEntryFromMangaId(*p.MediaId)
 		if !found {
-			return c.RespondWithError(errors.New("list entry not found"))
+			return h.RespondWithError(c, errors.New("list entry not found"))
 		}
 		listEntryID = listEntry.ID
 	}
 
 	// Delete the list entry
-	err := c.App.AnilistPlatform.DeleteEntry(listEntryID)
+	err := h.App.AnilistPlatform.DeleteEntry(listEntryID)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	switch *p.Type {
 	case "anime":
-		_, _ = c.App.RefreshAnimeCollection()
+		_, _ = h.App.RefreshAnimeCollection()
 	case "manga":
-		_, _ = c.App.RefreshMangaCollection()
+		_, _ = h.App.RefreshMangaCollection()
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -260,7 +262,7 @@ var (
 //	@desc This is used by the "Discover" and "Advanced Search".
 //	@route /api/v1/anilist/list-anime [POST]
 //	@returns anilist.ListAnime
-func HandleAnilistListAnime(c *RouteCtx) error {
+func (h *Handler) HandleAnilistListAnime(c echo.Context) error {
 
 	type body struct {
 		Page                *int                   `json:"page,omitempty"`
@@ -277,8 +279,8 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if p.Page == nil || p.PerPage == nil {
@@ -288,7 +290,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 
 	isAdult := false
 	if p.IsAdult != nil {
-		isAdult = *p.IsAdult && c.App.Settings.Anilist.EnableAdultContent
+		isAdult = *p.IsAdult && h.App.Settings.Anilist.EnableAdultContent
 	}
 
 	cacheKey := anilist.ListAnimeCacheKey(
@@ -307,7 +309,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 
 	cached, ok := anilistListAnimeCache.Get(cacheKey)
 	if ok {
-		return c.RespondWithData(cached)
+		return h.RespondWithData(c, cached)
 	}
 
 	ret, err := anilist.ListAnimeM(
@@ -322,18 +324,18 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 		p.SeasonYear,
 		p.Format,
 		&isAdult,
-		c.App.Logger,
-		c.App.GetAccountToken(),
+		h.App.Logger,
+		h.App.GetAccountToken(),
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if ret != nil {
 		anilistListAnimeCache.SetT(cacheKey, ret, time.Minute*10)
 	}
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }
 
 // HandleAnilistListRecentAiringAnime
@@ -342,7 +344,7 @@ func HandleAnilistListAnime(c *RouteCtx) error {
 //	@desc This is used by the "Schedule" page to display recently aired anime.
 //	@route /api/v1/anilist/list-recent-anime [POST]
 //	@returns anilist.ListRecentAnime
-func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
+func (h *Handler) HandleAnilistListRecentAiringAnime(c echo.Context) error {
 
 	type body struct {
 		Page            *int                  `json:"page,omitempty"`
@@ -355,8 +357,8 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 	}
 
 	p := new(body)
-	if err := c.Fiber.BodyParser(p); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(p); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if p.Page == nil || p.PerPage == nil {
@@ -368,7 +370,7 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 
 	cached, ok := anilistListRecentAnimeCache.Get(cacheKey)
 	if ok {
-		return c.RespondWithData(cached)
+		return h.RespondWithData(c, cached)
 	}
 
 	ret, err := anilist.ListRecentAiringAnimeM(
@@ -379,16 +381,16 @@ func HandleAnilistListRecentAiringAnime(c *RouteCtx) error {
 		p.AiringAtLesser,
 		p.NotYetAired,
 		p.Sort,
-		c.App.Logger,
-		c.App.GetAccountToken(),
+		h.App.Logger,
+		h.App.GetAccountToken(),
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	anilistListRecentAnimeCache.SetT(cacheKey, ret, time.Hour*1)
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -401,33 +403,33 @@ var anilistMissedSequelsCache = result.NewCache[string, []*anilist.BaseAnime]()
 //	@desc This is used by the "Discover" page to display sequels the user may have missed.
 //	@route /api/v1/anilist/list-missed-sequels [GET]
 //	@returns []anilist.BaseAnime
-func HandleAnilistListMissedSequels(c *RouteCtx) error {
+func (h *Handler) HandleAnilistListMissedSequels(c echo.Context) error {
 
 	cacheKey := "missed_sequels"
 
 	cached, ok := anilistMissedSequelsCache.Get(cacheKey)
 	if ok {
-		return c.RespondWithData(cached)
+		return h.RespondWithData(c, cached)
 	}
 
 	// Get complete anime collection
-	animeCollection, err := c.App.AnilistPlatform.GetAnimeCollectionWithRelations()
+	animeCollection, err := h.App.AnilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	ret, err := anilist.ListMissedSequels(
 		animeCollection,
-		c.App.Logger,
-		c.App.GetAccountToken(),
+		h.App.Logger,
+		h.App.GetAccountToken(),
 	)
 	if err != nil {
-		return c.RespondWithData([]*anilist.BaseAnime{})
+		return h.RespondWithError(c, err)
 	}
 
 	anilistMissedSequelsCache.SetT(cacheKey, ret, time.Hour*4)
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -440,21 +442,21 @@ var anilistStatsCache = result.NewCache[int, *anilist.Stats]()
 //	@desc This returns the AniList stats for the user.
 //	@route /api/v1/anilist/stats [GET]
 //	@returns anilist.Stats
-func HandleGetAniListStats(c *RouteCtx) error {
+func (h *Handler) HandleGetAniListStats(c echo.Context) error {
 	cached, ok := anilistStatsCache.Get(0)
 	if ok {
-		return c.RespondWithData(cached)
+		return h.RespondWithData(c, cached)
 	}
 
 	ret, err := anilist.GetStats(
-		c.Fiber.Context(),
-		c.App.AnilistClient,
+		c.Request().Context(),
+		h.App.AnilistClient,
 	)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	anilistStatsCache.SetT(0, ret, time.Hour*1)
 
-	return c.RespondWithData(ret)
+	return h.RespondWithData(c, ret)
 }

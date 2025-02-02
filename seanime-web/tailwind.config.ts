@@ -43,6 +43,7 @@ const config: Config = {
         "text-audienceScore-100", "text-audienceScore-200", "text-audienceScore-300", "text-audienceScore-400", "text-audienceScore-500",
         "text-audienceScore-600", "text-audienceScore-700", "text-audienceScore-800", "text-audienceScore-900",
         "drop-shadow-sm",
+        "-top-10 top-10",
     ],
     theme: {
         container: {

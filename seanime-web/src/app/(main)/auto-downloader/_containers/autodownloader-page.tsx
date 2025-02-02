@@ -1,11 +1,12 @@
 import { useGetAutoDownloaderItems, useGetAutoDownloaderRules, useRunAutoDownloader } from "@/api/hooks/auto_downloader.hooks"
 import { useSaveAutoDownloaderSettings } from "@/api/hooks/settings.hooks"
-import { __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { AutoDownloaderRuleItem } from "@/app/(main)/auto-downloader/_components/autodownloader-rule-item"
 import { AutoDownloaderBatchRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-batch-rule-form"
 import { AutoDownloaderItemList } from "@/app/(main)/auto-downloader/_containers/autodownloader-item-list"
 import { AutoDownloaderRuleForm } from "@/app/(main)/auto-downloader/_containers/autodownloader-rule-form"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
 import { tabsListClass, tabsTriggerClass } from "@/components/shared/classnames"
 import { Alert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +16,6 @@ import { Drawer } from "@/components/ui/drawer"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
-import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useBoolean } from "@/hooks/use-disclosure"
 import { useAtomValue } from "jotai/react"
@@ -41,7 +41,7 @@ const settingsSchema = defineSchema(({ z }) => z.object({
 
 export function AutoDownloaderPage() {
     const serverStatus = useServerStatus()
-    const userMedia = useAtomValue(__anilist_userMediaAtom)
+    const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
 
     const createRuleModal = useBoolean(false)
     const createBatchRuleModal = useBoolean(false)
@@ -164,43 +164,47 @@ export function AutoDownloaderPage() {
                         >
                             {(f) => (
                                 <>
-                                    <Field.Switch
-                                        label="Enabled"
-                                        name="enabled"
-                                    />
-
-                                    <Field.Switch
-                                        label="Use Debrid service"
-                                        name="useDebrid"
-                                    />
-
-                                    {f.watch("useDebrid") && !(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
-                                        <Alert
-                                            intent="alert"
-                                            title="Auto Downloader deactivated"
-                                            description="Debrid service is not enabled or configured. Please enable it in the settings."
+                                    <SettingsCard>
+                                        <Field.Switch
+                                            side="right"
+                                            label="Enabled"
+                                            name="enabled"
                                         />
-                                    )}
 
-                                    <Separator />
+                                        <Field.Switch
+                                            side="right"
+                                            label="Use Debrid service"
+                                            name="useDebrid"
+                                        />
 
-                                    <div
+                                        {f.watch("useDebrid") && !(serverStatus?.debridSettings?.enabled && !!serverStatus?.debridSettings?.provider) && (
+                                            <Alert
+                                                intent="alert"
+                                                title="Auto Downloader deactivated"
+                                                description="Debrid service is not enabled or configured. Please enable it in the settings."
+                                            />
+                                        )}
+                                    </SettingsCard>
+
+                                    <SettingsCard
                                         className={cn(
-                                            "space-y-3",
                                             !f.watch("enabled") && "pointer-events-none opacity-50",
                                         )}
                                     >
                                         <Field.Switch
+                                            side="right"
                                             label="Use enhanced queries"
                                             name="enableEnhancedQueries"
                                             help="Seanime will use multiple custom queries instead of a single one. Enable this if you notice some missing downloads."
                                         />
                                         <Field.Switch
+                                            side="right"
                                             label="Verify season"
                                             name="enableSeasonCheck"
                                             help="Seanime will perform an additional check to ensure the season number is correct. This is not needed in most cases."
                                         />
                                         <Field.Switch
+                                            side="right"
                                             label="Download episodes immediately"
                                             name="downloadAutomatically"
                                             help="If disabled, torrents will be added to the queue."
@@ -215,7 +219,7 @@ export function AutoDownloaderPage() {
                                             className="text-center w-20"
                                             min={15}
                                         />
-                                    </div>
+                                    </SettingsCard>
 
                                     <Field.Submit role="save" loading={isPending}>Save</Field.Submit>
                                 </>

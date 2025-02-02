@@ -36,7 +36,7 @@ export function DataSettings(props: DataSettingsProps) {
         <div className="space-y-4">
 
             <div>
-                <h3>Local files</h3>
+                <h5>Local files</h5>
 
                 <p className="text-[--muted]">
                     Scanned local file data.

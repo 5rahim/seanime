@@ -4,7 +4,7 @@ import (
 	"context"
 	"path/filepath"
 	"seanime/internal/api/anilist"
-	"seanime/internal/onlinestream/providers"
+	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
@@ -88,7 +88,7 @@ func TestOnlineStream_GetEpisodes(t *testing.T) {
 			}
 			media := mediaF.GetMedia()
 
-			ec, err := os.getEpisodeContainer(tt.provider, tt.mediaId, media.GetAllTitles(), tt.from, tt.to, tt.dubbed)
+			ec, err := os.getEpisodeContainer(tt.provider, tt.mediaId, media.GetAllTitles(), tt.from, tt.to, tt.dubbed, 0)
 			if err != nil {
 				t.Fatalf("couldn't find episodes, %s", err)
 			}

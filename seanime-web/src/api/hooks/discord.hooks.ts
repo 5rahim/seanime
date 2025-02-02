@@ -1,5 +1,5 @@
 import { useServerMutation } from "@/api/client/requests"
-import { SetDiscordMangaActivity_Variables } from "@/api/generated/endpoint.types"
+import { SetDiscordAnimeActivity_Variables, SetDiscordMangaActivity_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 
 export function useSetDiscordMangaActivity() {
@@ -7,6 +7,17 @@ export function useSetDiscordMangaActivity() {
         endpoint: API_ENDPOINTS.DISCORD.SetDiscordMangaActivity.endpoint,
         method: API_ENDPOINTS.DISCORD.SetDiscordMangaActivity.methods[0],
         mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordMangaActivity.key],
+        onSuccess: async () => {
+
+        },
+    })
+}
+
+export function useSetDiscordAnimeActivity() {
+    return useServerMutation<boolean, SetDiscordAnimeActivity_Variables>({
+        endpoint: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.endpoint,
+        method: API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.methods[0],
+        mutationKey: [API_ENDPOINTS.DISCORD.SetDiscordAnimeActivity.key],
         onSuccess: async () => {
 
         },

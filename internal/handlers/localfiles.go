@@ -3,14 +3,16 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/samber/lo"
-	"github.com/sourcegraph/conc/pool"
 	"os"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/filesystem"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 // HandleGetLocalFiles
@@ -19,34 +21,34 @@ import (
 //	@desc Reminder that local files are scanned from the library path.
 //	@route /api/v1/library/local-files [GET]
 //	@returns []anime.LocalFile
-func HandleGetLocalFiles(c *RouteCtx) error {
+func (h *Handler) HandleGetLocalFiles(c echo.Context) error {
 
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(lfs)
+	return h.RespondWithData(c, lfs)
 }
 
-func HandleDumpLocalFilesToFile(c *RouteCtx) error {
+func (h *Handler) HandleDumpLocalFilesToFile(c echo.Context) error {
 
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	filename := fmt.Sprintf("seanime-localfiles-%s.json", time.Now().Format("2006-01-02_15-04-05"))
 
-	c.Fiber.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Fiber.Set("Content-Type", "application/json")
+	c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Response().Header().Set("Content-Type", "application/json")
 
 	jsonData, err := json.MarshalIndent(lfs, "", "  ")
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.Fiber.Send(jsonData)
+	return c.Blob(200, "application/json", jsonData)
 }
 
 // HandleImportLocalFiles
@@ -55,41 +57,39 @@ func HandleDumpLocalFilesToFile(c *RouteCtx) error {
 //	@desc This will import local files from the given path.
 //	@desc The response is ignored, the client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-files/import [POST]
-func HandleImportLocalFiles(c *RouteCtx) error {
+func (h *Handler) HandleImportLocalFiles(c echo.Context) error {
 	type body struct {
 		DataFilePath string `json:"dataFilePath"`
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	contentB, err := os.ReadFile(b.DataFilePath)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	var lfs []*anime.LocalFile
 	if err := json.Unmarshal(contentB, &lfs); err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if len(lfs) == 0 {
-		return c.RespondWithError(errors.New("no local files found"))
+		return h.RespondWithError(c, errors.New("no local files found"))
 	}
 
-	_, err = db_bridge.InsertLocalFiles(c.App.Database, lfs)
+	_, err = db_bridge.InsertLocalFiles(h.App.Database, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.Database.TrimLocalFileEntries()
+	h.App.Database.TrimLocalFileEntries()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 // HandleLocalFileBulkAction
 //
@@ -98,21 +98,21 @@ func HandleImportLocalFiles(c *RouteCtx) error {
 //	@desc The response is ignored, the client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-files [POST]
 //	@returns []anime.LocalFile
-func HandleLocalFileBulkAction(c *RouteCtx) error {
+func (h *Handler) HandleLocalFileBulkAction(c echo.Context) error {
 
 	type body struct {
 		Action string `json:"action"`
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	switch b.Action {
@@ -131,16 +131,13 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(retLfs)
-
+	return h.RespondWithData(c, retLfs)
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 // HandleUpdateLocalFileData
 //
@@ -149,7 +146,7 @@ func HandleLocalFileBulkAction(c *RouteCtx) error {
 //	@desc The response is ignored, the client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-file [PATCH]
 //	@returns []anime.LocalFile
-func HandleUpdateLocalFileData(c *RouteCtx) error {
+func (h *Handler) HandleUpdateLocalFileData(c echo.Context) error {
 
 	type body struct {
 		Path     string                   `json:"path"`
@@ -160,21 +157,21 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	lf, found := lo.Find(lfs, func(i *anime.LocalFile) bool {
 		return i.HasSamePath(b.Path)
 	})
 	if !found {
-		return c.RespondWithError(errors.New("local file not found"))
+		return h.RespondWithError(c, errors.New("local file not found"))
 	}
 	lf.Metadata = b.Metadata
 	lf.Locked = b.Locked
@@ -182,16 +179,13 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 	lf.MediaId = b.MediaId
 
 	// Save the local files
-	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
+	retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(retLfs)
-
+	return h.RespondWithData(c, retLfs)
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 // HandleUpdateLocalFiles
 //
@@ -199,7 +193,7 @@ func HandleUpdateLocalFileData(c *RouteCtx) error {
 //	@desc The client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-files [PATCH]
 //	@returns bool
-func HandleUpdateLocalFiles(c *RouteCtx) error {
+func (h *Handler) HandleUpdateLocalFiles(c echo.Context) error {
 
 	type body struct {
 		Paths   []string `json:"paths"`
@@ -208,14 +202,14 @@ func HandleUpdateLocalFiles(c *RouteCtx) error {
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Update the files
@@ -250,87 +244,84 @@ func HandleUpdateLocalFiles(c *RouteCtx) error {
 	}
 
 	// Save the local files
-	_, err = db_bridge.SaveLocalFiles(c.App.Database, lfsId, lfs)
+	_, err = db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
-
+	return h.RespondWithData(c, true)
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 // HandleDeleteLocalFiles
 //
-//	@summary deletes the local file with the given paths.
-//	@desc The response is ignored, the client should refetch the entire library collection and media entry.
+//	@summary deletes local files with the given paths.
+//	@desc This will delete the local files with the given paths.
+//	@desc The client should refetch the entire library collection and media entry.
 //	@route /api/v1/library/local-files [DELETE]
-//	@returns []anime.LocalFile
-func HandleDeleteLocalFiles(c *RouteCtx) error {
+//	@returns bool
+func (h *Handler) HandleDeleteLocalFiles(c echo.Context) error {
 
 	type body struct {
 		Paths []string `json:"paths"`
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Get all the local files
-	lfs, lfsId, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Delete the files
-	p := pool.NewWithResults[string]()
+	p := pool.New().WithErrors()
 	for _, path := range b.Paths {
-		p.Go(func() string {
-			err = os.Remove(path)
+		path := path
+		p.Go(func() error {
+			err := os.Remove(path)
 			if err != nil {
-				return ""
+				return err
 			}
-			return path
+			return nil
 		})
 	}
-	deletedPaths := p.Wait()
-	deletedPaths = lo.Filter(deletedPaths, func(i string, _ int) bool {
-		return i != ""
-	})
+	if err := p.Wait(); err != nil {
+		return h.RespondWithError(c, err)
+	}
 
-	// Remove the deleted files from the local files
-	newLfs := lo.Filter(lfs, func(i *anime.LocalFile, _ int) bool {
-		return !lo.Contains(deletedPaths, i.Path)
+	// Remove the files from the list
+	lfs = lo.Filter(lfs, func(i *anime.LocalFile, _ int) bool {
+		return !lo.Contains(b.Paths, i.Path)
 	})
 
 	// Save the local files
-	retLfs, err := db_bridge.SaveLocalFiles(c.App.Database, lfsId, newLfs)
+	_, err = db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(retLfs)
-
+	return h.RespondWithData(c, true)
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 // HandleRemoveEmptyDirectories
 //
-//	@summary deletes the empty directories from the library path.
+//	@summary removes empty directories.
+//	@desc This will remove empty directories in the library path.
 //	@route /api/v1/library/empty-directories [DELETE]
 //	@returns bool
-func HandleRemoveEmptyDirectories(c *RouteCtx) error {
+func (h *Handler) HandleRemoveEmptyDirectories(c echo.Context) error {
 
-	libraryPath, err := c.App.Database.GetLibraryPathFromSettings()
+	libraryPaths, err := h.App.Database.GetAllLibraryPathsFromSettings()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	filesystem.RemoveEmptyDirectories(libraryPath, c.App.Logger)
+	for _, path := range libraryPaths {
+		filesystem.RemoveEmptyDirectories(path, h.App.Logger)
+	}
 
-	return c.RespondWithData(true)
-
+	return h.RespondWithData(c, true)
 }

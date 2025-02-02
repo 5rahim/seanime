@@ -1407,6 +1407,8 @@ export type Anime_EntryDownloadInfo = {
 export type Anime_EntryLibraryData = {
     allFilesLocked: boolean
     sharedPath: string
+    unwatchedCount: number
+    mainFileCount: number
 }
 
 /**
@@ -1749,6 +1751,19 @@ export type Continuity_WatchHistoryItem = {
 export type Continuity_WatchHistoryItemResponse = {
     item?: Continuity_WatchHistoryItem
     found: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Core
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/core/feature_flags.go
+ * - Filename: feature_flags.go
+ * - Package: core
+ */
+export type INTERNAL_FeatureFlags = {
+    MainServerTorrentStreaming: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2335,8 +2350,8 @@ export type Status = {
     dataDir: string
     user?: Anime_User
     settings?: Models_Settings
-    mal?: Models_Mal
     version: string
+    versionName: string
     themeSettings?: Models_Theme
     isOffline: boolean
     mediastreamSettings?: Models_MediastreamSettings
@@ -2351,6 +2366,7 @@ export type Status = {
      * The server is running as a desktop sidecar
      */
     isDesktopSidecar: boolean
+    featureFlags?: INTERNAL_FeatureFlags
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2683,21 +2699,6 @@ export type Models_ListSyncSettings = {
  * - Filename: models.go
  * - Package: models
  */
-export type Models_Mal = {
-    username: string
-    accessToken: string
-    refreshToken: string
-    tokenExpiresAt?: string
-    id: number
-    createdAt?: string
-    updatedAt?: string
-}
-
-/**
- * - Filepath: internal/database/models/models.go
- * - Filename: models.go
- * - Package: models
- */
 export type Models_MangaSettings = {
     defaultMangaProvider: string
 }
@@ -2818,11 +2819,20 @@ export type Models_Theme = {
     libraryScreenCustomBackgroundBlur: string
     enableMediaPageBlurredBackground: boolean
     disableSidebarTransparency: boolean
+    /**
+     * DEPRECATED
+     */
     useLegacyEpisodeCard: boolean
     disableCarouselAutoScroll: boolean
     mediaPageBannerType: string
     mediaPageBannerSize: string
     mediaPageBannerInfoBoxSize: string
+    showEpisodeCardAnimeInfo: boolean
+    continueWatchingDefaultSorting: string
+    animeLibraryCollectionDefaultSorting: string
+    mangaLibraryCollectionDefaultSorting: string
+    showAnimeUnwatchedCount: boolean
+    showMangaUnreadCount: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -2864,16 +2874,11 @@ export type Models_TorrentstreamSettings = {
     addToLibrary: boolean
     torrentClientHost: string
     torrentClientPort: number
-    /**
-     * UNUSED, LEGACY
-     */
     streamingServerHost: string
-    /**
-     * UNUSED, LEGACY
-     */
     streamingServerPort: number
     includeInLibrary: boolean
     streamUrlAddress: string
+    slowSeeding: boolean
     id: number
     createdAt?: string
     updatedAt?: string
@@ -3566,6 +3571,7 @@ export type Subtitle = {
     extension?: string
     isDefault: boolean
     isForced: boolean
+    isExternal: boolean
     link?: string
 }
 

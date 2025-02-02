@@ -1,31 +1,34 @@
 package handlers
 
+import (
+	"github.com/labstack/echo/v4"
+)
+
 // HandleStartDefaultMediaPlayer
 //
 //	@summary launches the default media player (vlc or mpc-hc).
 //	@route /api/v1/media-player/start [POST]
 //	@returns bool
-func HandleStartDefaultMediaPlayer(c *RouteCtx) error {
+func (h *Handler) HandleStartDefaultMediaPlayer(c echo.Context) error {
 
 	// Retrieve settings
-	settings, err := c.App.Database.GetSettings()
+	settings, err := h.App.Database.GetSettings()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	switch settings.MediaPlayer.Default {
 	case "vlc":
-		err = c.App.MediaPlayer.VLC.Start()
+		err = h.App.MediaPlayer.VLC.Start()
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	case "mpc-hc":
-		err = c.App.MediaPlayer.MpcHc.Start()
+		err = h.App.MediaPlayer.MpcHc.Start()
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 	}
 
-	return c.RespondWithData(true)
-
+	return h.RespondWithData(c, true)
 }

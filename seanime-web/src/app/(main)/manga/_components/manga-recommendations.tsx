@@ -1,4 +1,4 @@
-import { AL_MangaDetailsById_Media, Manga_Entry } from "@/api/generated/types"
+import { AL_MangaDetailsById_Media, Manga_Entry, Nullish } from "@/api/generated/types"
 import { MediaCardGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { Badge } from "@/components/ui/badge"
@@ -6,8 +6,8 @@ import capitalize from "lodash/capitalize"
 import React from "react"
 
 type MangaRecommendationsProps = {
-    entry: Manga_Entry | undefined
-    details: AL_MangaDetailsById_Media | undefined
+    entry: Nullish<Manga_Entry>
+    details: Nullish<AL_MangaDetailsById_Media>
 }
 
 export function MangaRecommendations(props: MangaRecommendationsProps) {
@@ -40,7 +40,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
                                     showLibraryBadge
                                     showTrailer
                                     overlay={<Badge
-                                        className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-tr-none"
+                                        className="font-semibold text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-tr-none"
                                         intent="gray"
                                         size="lg"
                                     >{edge?.node?.format === "MOVIE"

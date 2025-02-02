@@ -526,6 +526,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/discord/presence/manga",
         },
+        SetDiscordAnimeActivity: {
+            key: "DISCORD-set-discord-anime-activity",
+            methods: ["POST"],
+            endpoint: "/api/v1/discord/presence/anime",
+        },
         CancelDiscordActivity: {
             key: "DISCORD-cancel-discord-activity",
             methods: ["POST"],
@@ -742,14 +747,20 @@ export const API_ENDPOINTS = {
         },
         /**
          *  @description
-         *  Route deletes the local file with the given paths.
-         *  The response is ignored, the client should refetch the entire library collection and media entry.
+         *  Route deletes local files with the given paths.
+         *  This will delete the local files with the given paths.
+         *  The client should refetch the entire library collection and media entry.
          */
         DeleteLocalFiles: {
             key: "LOCALFILES-delete-local-files",
             methods: ["DELETE"],
             endpoint: "/api/v1/library/local-files",
         },
+        /**
+         *  @description
+         *  Route removes empty directories.
+         *  This will remove empty directories in the library path.
+         */
         RemoveEmptyDirectories: {
             key: "LOCALFILES-remove-empty-directories",
             methods: ["DELETE"],
@@ -1481,6 +1492,16 @@ export const API_ENDPOINTS = {
             key: "STATUS-delete-logs",
             methods: ["DELETE"],
             endpoint: "/api/v1/logs",
+        },
+        /**
+         *  @description
+         *  Route returns the content of the latest server log file.
+         *  This returns the content of the most recent seanime- log file after flushing logs.
+         */
+        GetLatestLogContent: {
+            key: "STATUS-get-latest-log-content",
+            methods: ["GET"],
+            endpoint: "/api/v1/logs/latest",
         },
     },
     SYNC: {

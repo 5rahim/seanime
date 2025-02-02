@@ -30,7 +30,8 @@ import { Select } from "@/components/ui/select"
 import { useSetAtom } from "jotai"
 import { useAtom, useAtomValue } from "jotai/react"
 import React from "react"
-import { AiOutlineArrowLeft, AiOutlineArrowRight, AiOutlineCloseCircle } from "react-icons/ai"
+import { BiX } from "react-icons/bi"
+import { LuChevronLeft, LuChevronRight, LuInfo } from "react-icons/lu"
 
 type MangaReaderBarProps = {
     children?: React.ReactNode
@@ -71,7 +72,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
             if (dir === "left") {
                 return (
                     <IconButton
-                        icon={<AiOutlineArrowLeft />}
+                        icon={<LuChevronLeft />}
                         rounded
                         intent="white-outline"
                         size="sm"
@@ -81,12 +82,13 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             }
                         }}
                         disabled={!nextChapter}
+                        className="border-transparent"
                     />
                 )
             } else {
                 return (
                     <IconButton
-                        icon={<AiOutlineArrowRight />}
+                        icon={<LuChevronRight />}
                         rounded
                         intent="gray-outline"
                         size="sm"
@@ -96,6 +98,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             }
                         }}
                         disabled={!previousChapter}
+                        className="border-transparent"
                     />
                 )
             }
@@ -103,7 +106,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
             if (dir === "left") {
                 return (
                     <IconButton
-                        icon={<AiOutlineArrowLeft />}
+                        icon={<LuChevronLeft />}
                         rounded
                         intent="gray-outline"
                         size="sm"
@@ -113,12 +116,13 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             }
                         }}
                         disabled={!previousChapter}
+                        className="border-transparent"
                     />
                 )
             } else {
                 return (
                     <IconButton
-                        icon={<AiOutlineArrowRight />}
+                        icon={<LuChevronRight />}
                         rounded
                         intent="white-outline"
                         size="sm"
@@ -128,6 +132,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
                             }
                         }}
                         disabled={!nextChapter}
+                        className="border-transparent"
                     />
                 )
             }
@@ -219,9 +224,9 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
             >
 
                 <IconButton
-                    icon={<AiOutlineCloseCircle />}
+                    icon={<BiX />}
                     rounded
-                    intent="white-outline"
+                    intent="gray-outline"
                     size="xs"
                     onClick={() => setSelectedChapter(undefined)}
                 />
@@ -239,55 +244,73 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
                 <div className="flex flex-1"></div>
 
-                {pageContainer && <Popover
-                    trigger={
-                        <Badge
-                            size="lg"
-                            className="w-fit cursor-pointer rounded-md z-[5] flex bg-gray-950 items-center bottom-2 focus-visible:outline-none"
-                            tabIndex={-1}
+                <div className="flex items-center gap-2">
+
+                    {pageContainer && <Popover
+                        trigger={
+                            <Badge
+                                size="lg"
+                                className="w-fit cursor-pointer rounded-[--radius-md] z-[5] flex bg-gray-950 items-center bottom-2 focus-visible:outline-none"
+                                tabIndex={-1}
+                            >
+                                {!!(currentPageIndex + 1) && (
+                                    <p className="">
+                                        {currentPageIndex + 1}{secondPageText}
+                                        <span className="text-[--muted]"> / {pageContainer?.pages?.length}</span>
+                                    </p>
+                                )}
+                            </Badge>
+                        }
+                    >
+                        <Select
+                            options={pageContainer.pages?.map((_, index) => ({ label: String(index + 1), value: String(index) })) ?? []}
+                            value={String(currentPageIndex)}
+                            onValueChange={e => {
+                                handlePageChange(Number(e))
+                            }}
+                        />
+                    </Popover>}
+
+                    <div className="hidden lg:flex">
+                        <Popover
+                            trigger={
+                                <IconButton
+                                    icon={<LuInfo />}
+                                    intent="gray-basic"
+                                    className="opacity-50 outline-0"
+                                    tabIndex={-1}
+                                />
+                            }
+                            className="text-[--muted] space-y-1"
                         >
-                            {!!(currentPageIndex + 1) && (
-                                <p className="">
-                                    {currentPageIndex + 1}{secondPageText} <span className="text-[--muted]">/ {pageContainer?.pages?.length}</span>
-                                </p>
+                            <div className="hidden lg:block">
+                                <p className="text-[--muted] text-sm">{selectedChapter?.provider}</p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="text-white w-6">m:</span>
+                                {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="text-white w-6">f:</span>
+                                {MANGA_PAGE_FIT_OPTIONS.find((option) => option.value === pageFit)?.label}
+                            </div>
+                            {pageStretch !== MangaPageStretch.NONE && <div className="flex items-center gap-1">
+                                <span className="text-white w-6">s:</span>
+                                {MANGA_PAGE_STRETCH_OPTIONS.find((option) => option.value === pageStretch)?.label}
+                            </div>}
+                            {readingMode !== MangaReadingMode.LONG_STRIP && (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-white w-6">d:</span>
+                                    <span>{MANGA_READING_DIRECTION_OPTIONS.find((option) => option.value === readingDirection)?.label}</span>
+                                </div>
                             )}
-                        </Badge>
-                    }
-                >
-                    <Select
-                        options={pageContainer.pages?.map((_, index) => ({ label: String(index + 1), value: String(index) })) ?? []}
-                        value={String(currentPageIndex)}
-                        onValueChange={e => {
-                            handlePageChange(Number(e))
-                        }}
-                    />
-                </Popover>}
-
-                <p className="hidden lg:flex gap-4 items-center text-[--muted]">
-                    <div className="hidden lg:block">
-                        <p className="text-[--muted] text-sm">{selectedChapter?.provider}</p>
+                        </Popover>
                     </div>
-                    <span className="flex items-center gap-1">
-                        <span className="text-white">m:</span>
-                        {MANGA_READING_MODE_OPTIONS.find((option) => option.value === readingMode)?.label}
-                    </span>
-                    <span className="flex items-center gap-1">
-                        <span className="text-white">f:</span>
-                        {MANGA_PAGE_FIT_OPTIONS.find((option) => option.value === pageFit)?.label}
-                    </span>
-                    {pageStretch !== MangaPageStretch.NONE && <span className="flex items-center gap-1">
-                        <span className="text-white">s:</span>
-                        {MANGA_PAGE_STRETCH_OPTIONS.find((option) => option.value === pageStretch)?.label}
-                    </span>}
-                    {readingMode !== MangaReadingMode.LONG_STRIP && (
-                        <span className="flex items-center gap-1">
-                            <span className="text-white">d:</span>
-                            <span>{MANGA_READING_DIRECTION_OPTIONS.find((option) => option.value === readingDirection)?.label}</span>
-                        </span>
-                    )}
-                </p>
 
-                <ChapterReaderSettings mediaId={entry.mediaId} />
+
+                    <ChapterReaderSettings mediaId={entry.mediaId} />
+
+                </div>
             </div>
         </>
     )

@@ -271,13 +271,6 @@ func (r *Repository) getMediaInfo(mediaId int) (media *anilist.CompleteAnime, an
 		animeMetadata.Titles["en"] = media.GetTitleSafe()
 		animeMetadata.Titles["x-jat"] = media.GetRomajiTitleSafe()
 		err = nil
-		//for i := 1; i <= media.GetCurrentEpisodeCount(); i++ {
-		//	animeMetadata.Episodes[fmt.Sprintf("%d", i)] = &metadata.EpisodeMetadata{
-		//		AniDBEpisode: fmt.Sprintf("%d", i),
-		//		EpisodeNumber: i,
-		//		EpisodeTitle: media.GetPreferredTitle(),
-		//	}
-		//}
 	}
 
 	return

@@ -185,7 +185,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                 </div>
 
                 <div
-                    className="bg-gray-900 border  p-2 px-4 rounded-md line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
+                    className="bg-gray-900 border  p-2 px-4 rounded-[--radius-md] line-clamp-1 flex gap-2 items-center cursor-pointer transition hover:bg-opacity-80"
                     onClick={() => openInExplorer({
                         path: currentGroup.dir,
                     })}
@@ -209,7 +209,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                     {/*</div>*/}
                 </div>
 
-                <div className="bg-gray-950 border p-2 px-2 divide-y divide-[--border] rounded-md max-h-[50vh] max-w-full overflow-x-auto overflow-y-auto text-sm">
+                <div className="bg-gray-950 border p-2 px-2 divide-y divide-[--border] rounded-[--radius-md] max-h-[50vh] max-w-full overflow-x-auto overflow-y-auto text-sm">
 
                     <div className="p-2">
                         <Checkbox
@@ -253,6 +253,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                                 })
                                             }
                                         }}
+                                        labelClass="text-sm tracking-wide data-[checked=false]:opacity-50"
                                         fieldClass="w-[fit-content]"
                                     />
                                 </div>
@@ -276,7 +277,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
                     <SeaLink
                         target="_blank"
-                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || "")}`}
+                        href={`https://anilist.co/search/anime?search=${encodeURIComponent(currentGroup?.localFiles?.[0]?.parsedInfo?.title || currentGroup?.localFiles?.[0]?.parsedFolderInfo?.[0]?.title || "")}`}
                     >
                         <Button
                             intent="white-link"
@@ -314,7 +315,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
                                 <p className="text-base md:text-md font-medium !-mt-1.5 line-clamp-1">{media.title?.userPreferred || media.title?.english || media.title?.romaji || "N/A"}</p>
                                 <div className="mt-2 flex w-full gap-4">
                                     {media.coverImage?.medium && <div
-                                        className="h-28 w-28 flex-none rounded-md object-cover object-center relative overflow-hidden"
+                                        className="h-28 w-28 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                                     >
                                         <Image
                                             src={media.coverImage.medium}

@@ -4,6 +4,7 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/tvdb"
 	"seanime/internal/util/result"
+	"strings"
 )
 
 const (
@@ -135,5 +136,5 @@ func (e *EpisodeMetadata) GetTitle() string {
 	if e == nil {
 		return ""
 	}
-	return e.Title
+	return strings.ReplaceAll(e.Title, "`", "'")
 }

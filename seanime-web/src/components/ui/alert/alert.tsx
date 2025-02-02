@@ -44,7 +44,7 @@ export const AlertAnatomy = defineStyleAnatomy({
     ]),
     icon: cva([
         "UI-Alert__icon",
-        "text-2xl mt-1",
+        "text-2xl content-evenly",
     ], {
         variants: {
             intent: {

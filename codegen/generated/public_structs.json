@@ -25479,6 +25479,15 @@
         "comments": []
       },
       {
+        "name": "OnFlushLogs",
+        "jsonName": "OnFlushLogs",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "MediastreamRepository",
         "jsonName": "MediastreamRepository",
         "goType": "mediastream.Repository",
@@ -25640,6 +25649,16 @@
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "HookManager",
+        "jsonName": "HookManager",
+        "goType": "hook.HookManager",
+        "typescriptType": "HookManager",
+        "usedStructName": "hook.HookManager",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -25837,6 +25856,16 @@
         "goType": "INTERNAL_Config_Anilist",
         "typescriptType": "INTERNAL_Config_Anilist",
         "usedStructName": "core.Config_Anilist",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Experimental",
+        "jsonName": "Experimental",
+        "goType": "INTERNAL_Config_Experimental",
+        "typescriptType": "INTERNAL_Config_Experimental",
+        "usedStructName": "core.Config_Experimental",
         "required": true,
         "public": true,
         "comments": []
@@ -26102,6 +26131,25 @@
   {
     "filepath": "../internal/core/config.go",
     "filename": "config.go",
+    "name": "Config_Experimental",
+    "formattedName": "INTERNAL_Config_Experimental",
+    "package": "core",
+    "fields": [
+      {
+        "name": "MainServerTorrentStreaming",
+        "jsonName": "MainServerTorrentStreaming",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/core/config.go",
+    "filename": "config.go",
     "name": "ConfigOptions",
     "formattedName": "INTERNAL_ConfigOptions",
     "package": "core",
@@ -26152,12 +26200,31 @@
     "comments": []
   },
   {
+    "filepath": "../internal/core/echo.go",
+    "filename": "echo.go",
+    "name": "CustomJSONSerializer",
+    "formattedName": "INTERNAL_CustomJSONSerializer",
+    "package": "core",
+    "fields": [],
+    "comments": []
+  },
+  {
     "filepath": "../internal/core/feature_flags.go",
     "filename": "feature_flags.go",
     "name": "FeatureFlags",
     "formattedName": "INTERNAL_FeatureFlags",
     "package": "core",
-    "fields": [],
+    "fields": [
+      {
+        "name": "MainServerTorrentStreaming",
+        "jsonName": "MainServerTorrentStreaming",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -27658,7 +27725,9 @@
         "typescriptType": "boolean",
         "required": true,
         "public": true,
-        "comments": []
+        "comments": [
+          " DEPRECATED"
+        ]
       },
       {
         "name": "DisableCarouselAutoScroll",
@@ -27692,6 +27761,60 @@
         "jsonName": "mediaPageBannerInfoBoxSize",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowEpisodeCardAnimeInfo",
+        "jsonName": "showEpisodeCardAnimeInfo",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ContinueWatchingDefaultSorting",
+        "jsonName": "continueWatchingDefaultSorting",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeLibraryCollectionDefaultSorting",
+        "jsonName": "animeLibraryCollectionDefaultSorting",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MangaLibraryCollectionDefaultSorting",
+        "jsonName": "mangaLibraryCollectionDefaultSorting",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowAnimeUnwatchedCount",
+        "jsonName": "showAnimeUnwatchedCount",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ShowMangaUnreadCount",
+        "jsonName": "showMangaUnreadCount",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -28000,9 +28123,7 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
-        "comments": [
-          " UNUSED, LEGACY"
-        ]
+        "comments": []
       },
       {
         "name": "StreamingServerPort",
@@ -28011,9 +28132,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " UNUSED, LEGACY"
-        ]
+        "comments": []
       },
       {
         "name": "IncludeInLibrary",
@@ -28029,6 +28148,15 @@
         "jsonName": "streamUrlAddress",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SlowSeeding",
+        "jsonName": "slowSeeding",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -28907,6 +29035,17 @@
         "public": true,
         "comments": [
           " File ID or index"
+        ]
+      },
+      {
+        "name": "FileIndex",
+        "jsonName": "FileIndex",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Index of the file to stream (Manual selection)"
         ]
       },
       {
@@ -34494,8 +34633,8 @@
   {
     "filepath": "../internal/handlers/routes.go",
     "filename": "routes.go",
-    "name": "RouteCtx",
-    "formattedName": "RouteCtx",
+    "name": "Handler",
+    "formattedName": "Handler",
     "package": "handlers",
     "fields": [
       {
@@ -34507,22 +34646,9 @@
         "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "Fiber",
-        "jsonName": "Fiber",
-        "goType": "fiber.Ctx",
-        "typescriptType": "Ctx",
-        "usedStructName": "fiber.Ctx",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
-    "comments": [
-      " RouteCtx is a context object that is passed to route handlers.",
-      " It contains the App instance and the Fiber context."
-    ]
+    "comments": []
   },
   {
     "filepath": "../internal/handlers/status.go",
@@ -34597,18 +34723,17 @@
         "comments": []
       },
       {
-        "name": "Mal",
-        "jsonName": "mal",
-        "goType": "models.Mal",
-        "typescriptType": "Models_Mal",
-        "usedStructName": "models.Mal",
-        "required": false,
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       },
       {
-        "name": "Version",
-        "jsonName": "version",
+        "name": "VersionName",
+        "jsonName": "versionName",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -34694,12 +34819,216 @@
         "comments": [
           " The server is running as a desktop sidecar"
         ]
+      },
+      {
+        "name": "FeatureFlags",
+        "jsonName": "featureFlags",
+        "goType": "core.FeatureFlags",
+        "typescriptType": "INTERNAL_FeatureFlags",
+        "usedStructName": "core.FeatureFlags",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
       " Status is a struct containing the user data, settings, and OS.",
       " It is used by the client in various places to access necessary information."
     ]
+  },
+  {
+    "filepath": "../internal/hook/event.go",
+    "filename": "event.go",
+    "name": "Event",
+    "formattedName": "Event",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "next",
+        "jsonName": "next",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Event implements [Resolver] and it is intended to be used as a base",
+      " Hook event that you can embed in your custom typed event structs.",
+      "",
+      " Example:",
+      "",
+      "\ttype CustomEvent struct {",
+      "\t\thook.Event",
+      "",
+      "\t\tSomeField int",
+      "\t}"
+    ]
+  },
+  {
+    "filepath": "../internal/hook/events.go",
+    "filename": "events.go",
+    "name": "AnimeLibraryCollectionRequestEvent",
+    "formattedName": "AnimeLibraryCollectionRequestEvent",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "LibraryCollection",
+        "jsonName": "LibraryCollection",
+        "goType": "anime.LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/hook/hook.go",
+    "filename": "hook.go",
+    "name": "Handler",
+    "formattedName": "Handler",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "Func",
+        "jsonName": "Func",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Id",
+        "jsonName": "Id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Priority",
+        "jsonName": "Priority",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Handler defines a single Hook handler.",
+      " Multiple handlers can share the same id.",
+      " If Id is not explicitly set it will be autogenerated by Hook.Add and Hook.AddHandler."
+    ]
+  },
+  {
+    "filepath": "../internal/hook/hook.go",
+    "filename": "hook.go",
+    "name": "Hook",
+    "formattedName": "Hook",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "handlers",
+        "jsonName": "handlers",
+        "goType": "[]",
+        "typescriptType": "Array\u003cany\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Hook defines a generic concurrent safe structure for managing event hooks.",
+      " When using custom event it must embed the base [hook.Event].",
+      "",
+      " Example:",
+      "",
+      "\ttype CustomEvent struct {",
+      "\t\thook.Event",
+      "\t\tSomeField int",
+      "\t}",
+      "",
+      "\th := Hook[*CustomEvent]{}",
+      "",
+      "\th.BindFunc(func(e *CustomEvent) error {",
+      "\t\tprintln(e.SomeField)",
+      "",
+      "\t\treturn e.Next()",
+      "\t})",
+      "",
+      "\th.Trigger(\u0026CustomEvent{ SomeField: 123 })"
+    ]
+  },
+  {
+    "filepath": "../internal/hook/hooks.go",
+    "filename": "hooks.go",
+    "name": "HookManager",
+    "formattedName": "HookManager",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onRequestAnimeLibraryCollection",
+        "jsonName": "onRequestAnimeLibraryCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " HookManager manages all hooks in the application"
+    ]
+  },
+  {
+    "filepath": "../internal/hook/hooks.go",
+    "filename": "hooks.go",
+    "name": "NewHookManagerOptions",
+    "formattedName": "NewHookManagerOptions",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/library/anime/autodownloader_rule.go",
@@ -35698,6 +36027,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UnwatchedCount",
+        "jsonName": "unwatchedCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MainFileCount",
+        "jsonName": "mainFileCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -35722,6 +36069,15 @@
       {
         "name": "MediaId",
         "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentProgress",
+        "jsonName": "CurrentProgress",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -38028,6 +38384,17 @@
         "public": true,
         "comments": [
           " The title of the media"
+        ]
+      },
+      {
+        "name": "MediaCoverImage",
+        "jsonName": "mediaCoverImage",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " The cover image of the media"
         ]
       },
       {
@@ -40905,6 +41272,16 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "UAFake",
+        "jsonName": "UAFake",
+        "goType": "uaFake.UserAgent",
+        "typescriptType": "UserAgent",
+        "usedStructName": "uaFake.UserAgent",
+        "required": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -44459,44 +44836,6 @@
     ]
   },
   {
-    "filepath": "../internal/mediastream/directplay.go",
-    "filename": "directplay.go",
-    "name": "VideoStream",
-    "formattedName": "Mediastream_VideoStream",
-    "package": "mediastream",
-    "fields": [
-      {
-        "name": "FilePath",
-        "jsonName": "FilePath",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "File",
-        "jsonName": "File",
-        "goType": "os.File",
-        "typescriptType": "File",
-        "usedStructName": "os.File",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FileSize",
-        "jsonName": "FileSize",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
     "filepath": "../internal/mediastream/optimizer/optimizer.go",
     "filename": "optimizer.go",
     "name": "Quality",
@@ -44806,15 +45145,6 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "directPlayVideoStreamCache",
-        "jsonName": "directPlayVideoStreamCache",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
         "public": false,
         "comments": []
       },
@@ -45226,15 +45556,6 @@
         "goType": "[]float64",
         "typescriptType": "Array\u003cnumber\u003e",
         "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CanTransmux",
-        "jsonName": "CanTransmux",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
         "public": true,
         "comments": []
       },
@@ -46306,6 +46627,15 @@
       {
         "name": "IsForced",
         "jsonName": "isForced",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsExternal",
+        "jsonName": "isExternal",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -55984,6 +56314,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "UseSeparateServer",
+        "jsonName": "UseSeparateServer",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
@@ -56207,6 +56546,635 @@
         "required": true,
         "public": true,
         "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/logs.go",
+    "filename": "logs.go",
+    "name": "AnalysisResult",
+    "formattedName": "AnalysisResult",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]AnalysisResultItem",
+        "typescriptType": "Array\u003cAnalysisResultItem\u003e",
+        "usedStructName": "troubleshooter.AnalysisResultItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/logs.go",
+    "filename": "logs.go",
+    "name": "AnalysisResultItem",
+    "formattedName": "AnalysisResultItem",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "Observation",
+        "jsonName": "observation",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Recommendation",
+        "jsonName": "recommendation",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Severity",
+        "jsonName": "severity",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Errors",
+        "jsonName": "errors",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Warnings",
+        "jsonName": "warnings",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logs",
+        "jsonName": "logs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/logs.go",
+    "filename": "logs.go",
+    "name": "RuleBuilder",
+    "formattedName": "RuleBuilder",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "conditions",
+        "jsonName": "conditions",
+        "goType": "[]condition",
+        "typescriptType": "Array\u003ccondition\u003e",
+        "usedStructName": "troubleshooter.condition",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "platforms",
+        "jsonName": "platforms",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "branches",
+        "jsonName": "branches",
+        "goType": "[]branch",
+        "typescriptType": "Array\u003cbranch\u003e",
+        "usedStructName": "troubleshooter.branch",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "defaultBranch",
+        "jsonName": "defaultBranch",
+        "goType": "branch",
+        "typescriptType": "branch",
+        "usedStructName": "troubleshooter.branch",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "state",
+        "jsonName": "state",
+        "goType": "AppState",
+        "typescriptType": "AppState",
+        "usedStructName": "troubleshooter.AppState",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " RuleBuilder provides a fluent interface for building rules"
+    ]
+  },
+  {
+    "filepath": "../internal/troubleshooter/logs.go",
+    "filename": "logs.go",
+    "name": "BranchBuilder",
+    "formattedName": "BranchBuilder",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "rule",
+        "jsonName": "rule",
+        "goType": "RuleBuilder",
+        "typescriptType": "RuleBuilder",
+        "usedStructName": "troubleshooter.RuleBuilder",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "branch",
+        "jsonName": "branch",
+        "goType": "branch",
+        "typescriptType": "branch",
+        "usedStructName": "troubleshooter.branch",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " BranchBuilder helps build conditional branches"
+    ]
+  },
+  {
+    "filepath": "../internal/troubleshooter/logs.go",
+    "filename": "logs.go",
+    "name": "LogLine",
+    "formattedName": "LogLine",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "Timestamp",
+        "jsonName": "Timestamp",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Line",
+        "jsonName": "Line",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Module",
+        "jsonName": "Module",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Level",
+        "jsonName": "Level",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Message",
+        "jsonName": "Message",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " LogLine represents a parsed log line"
+    ]
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "Troubleshooter",
+    "formattedName": "Troubleshooter",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "logsDir",
+        "jsonName": "logsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "rules",
+        "jsonName": "rules",
+        "goType": "[]RuleBuilder",
+        "typescriptType": "Array\u003cRuleBuilder\u003e",
+        "usedStructName": "troubleshooter.RuleBuilder",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "state",
+        "jsonName": "state",
+        "goType": "AppState",
+        "typescriptType": "AppState",
+        "usedStructName": "troubleshooter.AppState",
+        "required": false,
+        "public": false,
+        "comments": [
+          " For accessing app state like settings"
+        ]
+      },
+      {
+        "name": "modules",
+        "jsonName": "modules",
+        "goType": "Modules",
+        "typescriptType": "Modules",
+        "usedStructName": "troubleshooter.Modules",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "clientParams",
+        "jsonName": "clientParams",
+        "goType": "ClientParams",
+        "typescriptType": "ClientParams",
+        "usedStructName": "troubleshooter.ClientParams",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "currentResult",
+        "jsonName": "currentResult",
+        "goType": "Result",
+        "typescriptType": "Result",
+        "usedStructName": "troubleshooter.Result",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "Modules",
+    "formattedName": "Modules",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "MediaPlayerRepository",
+        "jsonName": "MediaPlayerRepository",
+        "goType": "mediaplayer.Repository",
+        "typescriptType": "Repository",
+        "usedStructName": "mediaplayer.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "OnlinestreamRepository",
+        "jsonName": "OnlinestreamRepository",
+        "goType": "onlinestream.Repository",
+        "typescriptType": "Onlinestream_Repository",
+        "usedStructName": "onlinestream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamRepository",
+        "jsonName": "TorrentstreamRepository",
+        "goType": "torrentstream.Repository",
+        "typescriptType": "Torrentstream_Repository",
+        "usedStructName": "torrentstream.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "NewTroubleshooterOptions",
+    "formattedName": "NewTroubleshooterOptions",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "LogsDir",
+        "jsonName": "LogsDir",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logger",
+        "jsonName": "Logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "State",
+        "jsonName": "State",
+        "goType": "AppState",
+        "typescriptType": "AppState",
+        "usedStructName": "troubleshooter.AppState",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "AppState",
+    "formattedName": "AppState",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "Settings",
+        "jsonName": "Settings",
+        "goType": "models.Settings",
+        "typescriptType": "Models_Settings",
+        "usedStructName": "models.Settings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TorrentstreamSettings",
+        "jsonName": "TorrentstreamSettings",
+        "goType": "models.TorrentstreamSettings",
+        "typescriptType": "Models_TorrentstreamSettings",
+        "usedStructName": "models.TorrentstreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediastreamSettings",
+        "jsonName": "MediastreamSettings",
+        "goType": "models.MediastreamSettings",
+        "typescriptType": "Models_MediastreamSettings",
+        "usedStructName": "models.MediastreamSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DebridSettings",
+        "jsonName": "DebridSettings",
+        "goType": "models.DebridSettings",
+        "typescriptType": "Models_DebridSettings",
+        "usedStructName": "models.DebridSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "Result",
+    "formattedName": "Result",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]ResultItem",
+        "typescriptType": "Array\u003cResultItem\u003e",
+        "usedStructName": "troubleshooter.ResultItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "ResultItem",
+    "formattedName": "ResultItem",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "Module",
+        "jsonName": "module",
+        "goType": "Module",
+        "typescriptType": "Module",
+        "usedStructName": "troubleshooter.Module",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Observation",
+        "jsonName": "observation",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Recommendation",
+        "jsonName": "recommendation",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Level",
+        "jsonName": "level",
+        "goType": "Level",
+        "typescriptType": "Level",
+        "usedStructName": "troubleshooter.Level",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Errors",
+        "jsonName": "errors",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Warnings",
+        "jsonName": "warnings",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Logs",
+        "jsonName": "logs",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "Module",
+    "formattedName": "Module",
+    "package": "troubleshooter",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"Playback\"",
+        "\"Media player\"",
+        "\"Anime library\"",
+        "\"Media streaming\"",
+        "\"Torrent streaming\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "Level",
+    "formattedName": "Level",
+    "package": "troubleshooter",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"error\"",
+        "\"warning\"",
+        "\"info\"",
+        "\"debug\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/troubleshooter/troubleshooter.go",
+    "filename": "troubleshooter.go",
+    "name": "ClientParams",
+    "formattedName": "ClientParams",
+    "package": "troubleshooter",
+    "fields": [
+      {
+        "name": "LibraryPlaybackOption",
+        "jsonName": "libraryPlaybackOption",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"desktop_media_player\" or \"media_streaming\" or \"external_player_link\""
+        ]
+      },
+      {
+        "name": "TorrentOrDebridPlaybackOption",
+        "jsonName": "torrentOrDebridPlaybackOption",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " \"desktop_torrent_player\" or \"external_player_link\""
+        ]
       }
     ],
     "comments": []
@@ -57000,128 +57968,6 @@
     "comments": []
   },
   {
-    "filepath": "../internal/util/fiberlogger/config.go",
-    "filename": "config.go",
-    "name": "Config",
-    "formattedName": "Config",
-    "package": "fiberlogger",
-    "fields": [
-      {
-        "name": "Next",
-        "jsonName": "Next",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SkipBody",
-        "jsonName": "SkipBody",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SkipResBody",
-        "jsonName": "SkipResBody",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "GetResBody",
-        "jsonName": "GetResBody",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SkipURIs",
-        "jsonName": "SkipURIs",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Logger",
-        "jsonName": "Logger",
-        "goType": "zerolog.Logger",
-        "typescriptType": "Logger",
-        "usedStructName": "zerolog.Logger",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "GetLogger",
-        "jsonName": "GetLogger",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Fields",
-        "jsonName": "Fields",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "WrapHeaders",
-        "jsonName": "WrapHeaders",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "FieldsSnakeCase",
-        "jsonName": "FieldsSnakeCase",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Messages",
-        "jsonName": "Messages",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Levels",
-        "jsonName": "Levels",
-        "goType": "[]zerolog.Level",
-        "typescriptType": "Array\u003cLevel\u003e",
-        "usedStructName": "zerolog.Level",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " Config defines the config for middleware."
-    ]
-  },
-  {
     "filepath": "../internal/util/filecache/filecache.go",
     "filename": "filecache.go",
     "name": "CacheStore",
@@ -57615,6 +58461,48 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/util/round_tripper.go",
+    "filename": "round_tripper.go",
+    "name": "RetryConfig",
+    "formattedName": "Util_RetryConfig",
+    "package": "util",
+    "fields": [
+      {
+        "name": "MaxRetries",
+        "jsonName": "MaxRetries",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RetryDelay",
+        "jsonName": "RetryDelay",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TimeoutOnly",
+        "jsonName": "TimeoutOnly",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Only retry on timeout errors"
+        ]
+      }
+    ],
+    "comments": [
+      " RetryConfig configures the retry behavior"
+    ]
   },
   {
     "filepath": "../internal/util/round_tripper.go",

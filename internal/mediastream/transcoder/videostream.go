@@ -1,7 +1,3 @@
-//
-// The transcoder package is based on the work of "zoriya/Kyoo" licensed under the GPL-3.0 License.
-//
-
 package transcoder
 
 import (

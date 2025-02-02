@@ -19,14 +19,26 @@ func (s *StreamManager) getMediaInfo(mediaId int) (media *anilist.CompleteAnime,
 		// Fetch the media
 		media, err = s.repository.platform.GetAnimeWithRelations(mediaId)
 		if err != nil {
-			return nil, nil, fmt.Errorf("torrentstream: failed to fetch media: %w", err)
+			return nil, nil, fmt.Errorf("torrentstream: Failed to fetch media: %w", err)
 		}
 	}
 
 	// Get the media
 	animeMetadata, err = s.repository.metadataProvider.GetAnimeMetadata(metadata.AnilistPlatform, mediaId)
 	if err != nil {
-		return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
+		//return nil, nil, fmt.Errorf("torrentstream: Could not fetch AniDB media: %w", err)
+		animeMetadata = &metadata.AnimeMetadata{
+			Titles:       make(map[string]string),
+			Episodes:     make(map[string]*metadata.EpisodeMetadata),
+			EpisodeCount: 0,
+			SpecialCount: 0,
+			Mappings: &metadata.AnimeMappings{
+				AnilistId: media.GetID(),
+			},
+		}
+		animeMetadata.Titles["en"] = media.GetTitleSafe()
+		animeMetadata.Titles["x-jat"] = media.GetRomajiTitleSafe()
+		err = nil
 	}
 
 	return

@@ -2227,6 +2227,15 @@
           "descriptions": []
         },
         {
+          "name": "FileIndex",
+          "jsonName": "fileIndex",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": false,
+          "descriptions": []
+        },
+        {
           "name": "PlaybackType",
           "jsonName": "playbackType",
           "goType": "debrid_client.StreamPlaybackType",
@@ -2389,6 +2398,79 @@
           "goType": "string",
           "usedStructType": "",
           "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleSetDiscordAnimeActivity",
+    "trimmedName": "SetDiscordAnimeActivity",
+    "comments": [
+      "HandleSetDiscordAnimeActivity",
+      "",
+      "\t@summary sets anime activity for discord rich presence.",
+      "\t@route /api/v1/discord/presence/anime [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/discord.go",
+    "filename": "discord.go",
+    "api": {
+      "summary": "sets anime activity for discord rich presence.",
+      "descriptions": [],
+      "endpoint": "/api/v1/discord/presence/anime",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaId",
+          "jsonName": "mediaId",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Title",
+          "jsonName": "title",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "Image",
+          "jsonName": "image",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "IsMovie",
+          "jsonName": "isMovie",
+          "goType": "bool",
+          "usedStructType": "",
+          "typescriptType": "boolean",
+          "required": true,
+          "descriptions": []
+        },
+        {
+          "name": "EpisodeNumber",
+          "jsonName": "episodeNumber",
+          "goType": "int",
+          "usedStructType": "",
+          "typescriptType": "number",
           "required": true,
           "descriptions": []
         }
@@ -3440,18 +3522,20 @@
     "comments": [
       "HandleDeleteLocalFiles",
       "",
-      "\t@summary deletes the local file with the given paths.",
-      "\t@desc The response is ignored, the client should refetch the entire library collection and media entry.",
+      "\t@summary deletes local files with the given paths.",
+      "\t@desc This will delete the local files with the given paths.",
+      "\t@desc The client should refetch the entire library collection and media entry.",
       "\t@route /api/v1/library/local-files [DELETE]",
-      "\t@returns []anime.LocalFile",
+      "\t@returns bool",
       ""
     ],
     "filepath": "internal/handlers/localfiles.go",
     "filename": "localfiles.go",
     "api": {
-      "summary": "deletes the local file with the given paths.",
+      "summary": "deletes local files with the given paths.",
       "descriptions": [
-        "The response is ignored, the client should refetch the entire library collection and media entry."
+        "This will delete the local files with the given paths.",
+        "The client should refetch the entire library collection and media entry."
       ],
       "endpoint": "/api/v1/library/local-files",
       "methods": [
@@ -3469,9 +3553,9 @@
           "descriptions": []
         }
       ],
-      "returns": "[]anime.LocalFile",
-      "returnGoType": "anime.LocalFile",
-      "returnTypescriptType": "Array\u003cAnime_LocalFile\u003e"
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
     }
   },
   {
@@ -3480,7 +3564,8 @@
     "comments": [
       "HandleRemoveEmptyDirectories",
       "",
-      "\t@summary deletes the empty directories from the library path.",
+      "\t@summary removes empty directories.",
+      "\t@desc This will remove empty directories in the library path.",
       "\t@route /api/v1/library/empty-directories [DELETE]",
       "\t@returns bool",
       ""
@@ -3488,8 +3573,10 @@
     "filepath": "internal/handlers/localfiles.go",
     "filename": "localfiles.go",
     "api": {
-      "summary": "deletes the empty directories from the library path.",
-      "descriptions": [],
+      "summary": "removes empty directories.",
+      "descriptions": [
+        "This will remove empty directories in the library path."
+      ],
       "endpoint": "/api/v1/library/empty-directories",
       "methods": [
         "DELETE"
@@ -6443,72 +6530,6 @@
     }
   },
   {
-    "name": "makeHandler",
-    "trimmedName": "makeHandler",
-    "comments": [
-      "makeHandler creates a new route handler function.",
-      "It takes the App instance and a custom handler function as arguments.",
-      "The custom handler function is similar to a fiber handler, but it takes a RouteCtx as an argument, allowing route handlers to access the app's state.",
-      "We use a sync.Pool to avoid allocating memory for each request.",
-      ""
-    ],
-    "filepath": "internal/handlers/routes.go",
-    "filename": "routes.go",
-    "api": {
-      "summary": "",
-      "descriptions": [],
-      "endpoint": "",
-      "methods": null,
-      "params": [],
-      "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "RespondWithData",
-    "trimmedName": "RespondWithData",
-    "comments": [
-      "RespondWithData responds with a JSON response containing the given data.",
-      ""
-    ],
-    "filepath": "internal/handlers/routes.go",
-    "filename": "routes.go",
-    "api": {
-      "summary": "",
-      "descriptions": [],
-      "endpoint": "",
-      "methods": null,
-      "params": [],
-      "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
-    "name": "RespondWithError",
-    "trimmedName": "RespondWithError",
-    "comments": [
-      "RespondWithError responds with a JSON response containing the given error.",
-      ""
-    ],
-    "filepath": "internal/handlers/routes.go",
-    "filename": "routes.go",
-    "api": {
-      "summary": "",
-      "descriptions": [],
-      "endpoint": "",
-      "methods": null,
-      "params": [],
-      "bodyFields": [],
-      "returns": "boolean",
-      "returnGoType": "boolean",
-      "returnTypescriptType": "boolean"
-    }
-  },
-  {
     "name": "HandleScanLocalFiles",
     "trimmedName": "ScanLocalFiles",
     "comments": [
@@ -7058,6 +7079,36 @@
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"
+    }
+  },
+  {
+    "name": "HandleGetLatestLogContent",
+    "trimmedName": "GetLatestLogContent",
+    "comments": [
+      "HandleGetLatestLogContent",
+      "",
+      "\t@summary returns the content of the latest server log file.",
+      "\t@desc This returns the content of the most recent seanime- log file after flushing logs.",
+      "\t@route /api/v1/logs/latest [GET]",
+      "\t@returns string",
+      ""
+    ],
+    "filepath": "internal/handlers/status.go",
+    "filename": "status.go",
+    "api": {
+      "summary": "returns the content of the latest server log file.",
+      "descriptions": [
+        "This returns the content of the most recent seanime- log file after flushing logs."
+      ],
+      "endpoint": "/api/v1/logs/latest",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "string",
+      "returnGoType": "string",
+      "returnTypescriptType": "string"
     }
   },
   {
@@ -8207,10 +8258,10 @@
     }
   },
   {
-    "name": "newWebSocketEventHandler",
-    "trimmedName": "newWebSocketEventHandler",
+    "name": "webSocketEventHandler",
+    "trimmedName": "webSocketEventHandler",
     "comments": [
-      "newWebSocketEventHandler creates a new websocket handler for real-time event communication",
+      "webSocketEventHandler creates a new websocket handler for real-time event communication",
       ""
     ],
     "filepath": "internal/handlers/websocket.go",

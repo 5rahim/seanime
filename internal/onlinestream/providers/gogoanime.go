@@ -2,12 +2,12 @@ package onlinestream_providers
 
 import (
 	"fmt"
-	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
 	"seanime/internal/onlinestream/sources"
+	"seanime/internal/util"
 	"strconv"
 	"strings"
 
@@ -27,7 +27,7 @@ func NewGogoanime(logger *zerolog.Logger) hibikeonlinestream.Provider {
 		BaseURL:   "https://anitaku.to",
 		AjaxURL:   "https://ajax.gogocdn.net",
 		Client:    http.Client{},
-		UserAgent: browser.Firefox(),
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }

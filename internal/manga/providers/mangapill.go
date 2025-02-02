@@ -32,7 +32,7 @@ func NewMangapill(logger *zerolog.Logger) *Mangapill {
 	return &Mangapill{
 		Url:       "https://mangapill.com",
 		Client:    c,
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }

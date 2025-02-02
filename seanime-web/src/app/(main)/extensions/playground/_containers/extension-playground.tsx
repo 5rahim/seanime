@@ -23,6 +23,7 @@ import CodeMirror from "@uiw/react-codemirror"
 import { withImmer } from "jotai-immer"
 import { useAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
+import mousetrap from "mousetrap"
 import React from "react"
 import { toast } from "sonner"
 
@@ -282,6 +283,16 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
         })
     }
 
+    React.useEffect(() => {
+        mousetrap.bind(["cmd+s", "ctrl+s"], () => {
+            handleRunCode()
+        })
+
+        return () => {
+            mousetrap.unbind(["cmd+s", "ctrl+s"])
+        }
+    }, [])
+
 
     return (
         <>
@@ -336,7 +347,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                     <ResizablePanelGroup
                         autoSaveId="sea-extension-playground-1"
                         direction="horizontal"
-                        className="w-full border rounded-md !h-[calc(100vh-16rem)] xl:!h-[calc(100vh-14rem)] mt-8"
+                        className="w-full border rounded-[--radius-md] !h-[calc(100vh-16rem)] xl:!h-[calc(100vh-14rem)] mt-8"
                     >
                         <ResizablePanel defaultSize={75}>
                             <ResizablePanelGroup direction="vertical" autoSaveId="sea-extension-playground-2">
@@ -363,7 +374,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                     <div className="flex w-full h-full p-6">
                                         <AppLayoutStack className="w-full">
                                             <p className="font-semibold">Console</p>
-                                            <div className="bg-gray-900 rounded-md border max-w-full overflow-x-auto">
+                                            <div className="bg-gray-900 rounded-[--radius-md] border max-w-full overflow-x-auto">
                                                 <pre className="max-h-[40rem] p-2 min-h-12 whitespace-pre-wrap break-all">
                                                     {response?.logs?.split("\n").map((l, i) => (
                                                         <p
@@ -497,10 +508,10 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                                         <TextInput
                                                             label="Query"
                                                             type="text"
-                                                            value={inputs.animeTorrentProvider.smartSearch.query}
+                                                            value={inputs.animeTorrentProvider.search.query}
                                                             onValueChange={v => {
                                                                 setInputs(d => {
-                                                                    d.animeTorrentProvider.smartSearch.query = v
+                                                                    d.animeTorrentProvider.search.query = v
                                                                     return
                                                                 })
                                                             }}
@@ -711,7 +722,7 @@ export function ExtensionPlayground(props: ExtensionPlaygroundProps) {
                                         <AppLayoutStack>
                                             <p className="font-semibold">Output</p>
 
-                                            <div className="bg-gray-900 border rounded-md max-w-full overflow-x-auto">
+                                            <div className="bg-gray-900 border rounded-[--radius-md] max-w-full overflow-x-auto">
                                                 <pre className="text-sm text-white min-h-12 max-h-[40rem] p-2">
                                                     {response?.value?.split("\n").map((l, i) => (
                                                         <p

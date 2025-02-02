@@ -2,33 +2,24 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { Anime_Episode, Mediastream_StreamType, Nullish } from "@/api/generated/types"
 import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetMediastreamSettings, useMediastreamShutdownTranscodeStream, useRequestMediastreamMediaContainer } from "@/api/hooks/mediastream.hooks"
+import { useIsCodecSupported } from "@/app/(main)/_features/sea-media-player/hooks"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import {
-    __mediastream_autoNextAtom,
-    __mediastream_autoPlayAtom,
-    useMediastreamCurrentFile,
-    useMediastreamJassubOffscreenRender,
-} from "@/app/(main)/mediastream/_lib/mediastream.atoms"
+import { useMediastreamCurrentFile, useMediastreamJassubOffscreenRender } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { legacy_getAssetUrl } from "@/lib/server/assets"
 import { WSEvents } from "@/lib/server/ws-events"
-import { isMobile } from "@/lib/utils/browser-detection"
 import {
     isHLSProvider,
     LibASSTextRenderer,
     MediaCanPlayDetail,
-    MediaEndedEvent,
     MediaPlayerInstance,
     MediaProviderAdapter,
     MediaProviderChangeEvent,
     MediaProviderSetupEvent,
-    MediaTimeUpdateEventDetail,
 } from "@vidstack/react"
 import HLS, { LoadPolicy } from "hls.js"
 import { useAtomValue } from "jotai"
-import { atom } from "jotai/index"
-import { useAtom } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -94,14 +85,6 @@ const mediastream_getHlsConfig = () => {
     }
 }
 
-type ProgressItem = {
-    episodeNumber: number
-}
-
-export const __mediastream_progressItemAtom = atom<ProgressItem | undefined>(undefined)
-
-export const __mediastream_currentProgressAtom = atom(0)
-
 type HandleMediastreamProps = {
     playerRef: React.RefObject<MediaPlayerInstance>
     episodes: Anime_Episode[]
@@ -126,8 +109,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const prevUrlRef = React.useRef<string | undefined>(undefined)
     const definedUrlRef = React.useRef<string | undefined>(undefined)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
-    const autoNext = useAtomValue(__mediastream_autoNextAtom)
-    const autoPlay = useAtomValue(__mediastream_autoPlayAtom)
     const [streamType, setStreamType] = React.useState<Mediastream_StreamType>("transcode") // do not chance
 
     // Refs
@@ -139,7 +120,7 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     /**
      * Watch history
      */
-    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(mediaId)
+    const { waitForWatchHistory } = useHandleCurrentMediaContinuity(mediaId)
 
     /**
      * Fetch media container containing stream URL
@@ -173,20 +154,12 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
     const { mutate: shutdownTranscode } = useMediastreamShutdownTranscodeStream()
 
     /**
-     * This error is thrown when the media container is available but the URL has been set to undefined
-     * - This is usually when the transcoder has errored out
+     * This error happens when the media container is available but the URL has been set to undefined
+     * - This is usually the case when the transcoder has errored out
      */
     const isStreamError = !!mediaContainer && !url
 
-
-    const isCodecSupported = React.useCallback((codec: string) => {
-        if (isMobile()) return false
-        if (navigator.userAgent.search("Firefox") === -1)
-            codec = codec.replace("video/x-matroska", "video/mp4")
-        const videos = document.getElementsByTagName("video")
-        const video = videos.item(0) ?? document.createElement("video")
-        return video.canPlayType(codec) === "probably"
-    }, [])
+    const { isCodecSupported } = useIsCodecSupported()
 
     /**
      * Effect triggered when media container is available
@@ -463,30 +436,15 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         logger("MEDIASTREAM").info("[onCanPlay] called", e)
         preloadedNextFileForRef.current = undefined
         setDuration(e.duration)
-
-        if (episode && watchHistory && watchHistory.item?.episodeNumber === episode.episodeNumber) {
-            const lastWatchedTime = getEpisodeContinuitySeekTo(episode.episodeNumber, playerRef.current?.currentTime, playerRef.current?.duration)
-            logger("CONTINUITY").info("Seeking to last watched time", { lastWatchedTime })
-            if (lastWatchedTime > 0) {
-                logger("MEDIASTREAM").info("Seeking to", lastWatchedTime)
-                Object.assign(playerRef.current || {}, { currentTime: lastWatchedTime })
-            }
-        }
-
-        if (autoPlay) {
-            playerRef.current?.play()
-        }
     }
 
-    const onEnded = (e: MediaEndedEvent) => {
-        logger("MEDIASTREAM").info("[onEnded] called", e)
-        if (autoNext) {
-            const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
-            if (currentEpisodeIndex !== -1) {
-                const nextFile = episodes[currentEpisodeIndex + 1]
-                if (nextFile?.localFile?.path) {
-                    onPlayFile(nextFile.localFile.path)
-                }
+    const playNextEpisode = () => {
+        logger("MEDIASTREAM").info("[playNextEpisode] called")
+        const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
+        if (currentEpisodeIndex !== -1) {
+            const nextFile = episodes[currentEpisodeIndex + 1]
+            if (nextFile?.localFile?.path) {
+                onPlayFile(nextFile.localFile.path)
             }
         }
     }
@@ -497,36 +455,6 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
         previousCurrentTimeRef.current = 0
         setFilePath(filepath)
     }
-
-    //////////////////////////////////////////////////////////////
-    // Progress
-    //////////////////////////////////////////////////////////////
-
-    const [progressItem, setProgressItem] = useAtom(__mediastream_progressItemAtom)
-
-
-    const onTimeUpdate = React.useCallback((e: MediaTimeUpdateEventDetail) => {
-        // DEVNOTE: Disable preloading next file, it causes issues
-        // if (!!filePath && duration > 0 && (e.currentTime / duration) > 0.7 && preloadedNextFileForRef.current !== filePath) {
-        //     const currentEpisodeIndex = episodes.findIndex(ep => !!ep.localFile?.path && ep.localFile?.path === filePath)
-        //     const nextFile = currentEpisodeIndex !== -1 ? episodes[currentEpisodeIndex + 1] : undefined
-        //     if (nextFile?.localFile?.path && nextFile?.localFile?.path !== preloadedNextFileForRef.current) {
-        //         logger("MEDIASTREAM").info("Preloading next file")
-        //         preloadedNextFileForRef.current = filePath
-        //         preloadMediaContainer({ path: nextFile?.localFile?.path, streamType: streamType, audioStreamIndex: 0 })
-        //     }
-        // }
-        if (
-            (!progressItem || (!!episode?.progressNumber && episode?.progressNumber > progressItem.episodeNumber)) &&
-            duration > 0 && (e.currentTime / duration) > 0.8
-        ) {
-            if (episode) {
-                setProgressItem({
-                    episodeNumber: episode.progressNumber,
-                })
-            }
-        }
-    }, [duration, filePath, episode, progressItem])
 
     //////////////////////////////////////////////////////////////
     // Events
@@ -577,9 +505,8 @@ export function useHandleMediastream(props: HandleMediastreamProps) {
             playerRef.current?.destroy?.()
             changeUrl(undefined)
         },
-        onTimeUpdate,
         onCanPlay,
-        onEnded,
+        playNextEpisode,
         onProviderChange,
         onProviderSetup,
         isCodecSupported,

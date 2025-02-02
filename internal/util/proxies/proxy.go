@@ -2,23 +2,26 @@ package util
 
 import (
 	"bytes"
-	"github.com/goccy/go-json"
-	"github.com/gofiber/fiber/v2"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	url2 "net/url"
 	"seanime/internal/util"
 	"strings"
 
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog/log"
+
 	"github.com/grafov/m3u8"
+	"github.com/labstack/echo/v4"
 )
 
-func M3U8Proxy(c *fiber.Ctx) (err error) {
-	defer util.HandlePanicInModuleWithError("util/M3U8Proxy", &err)
+var proxyUA = util.GetRandomUserAgent()
 
-	url := c.Query("url")
-	headers := c.Query("headers")
+func M3U8Proxy(c echo.Context) (err error) {
+	defer util.HandlePanicInModuleWithError("util/EchoM3U8Proxy", &err)
+
+	url := c.QueryParam("url")
+	headers := c.QueryParam("headers")
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -26,51 +29,70 @@ func M3U8Proxy(c *fiber.Ctx) (err error) {
 		},
 	}
 
-	req, err := http.NewRequest(c.Method(), url, nil)
+	// Always use GET request internally, even for HEAD requests
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error creating request")
-		return fiber.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	var headerMap map[string]string
 	if headers != "" {
 		if err := json.Unmarshal([]byte(headers), &headerMap); err != nil {
 			log.Error().Err(err).Msg("proxy: Error unmarshalling headers")
-			return fiber.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 		for key, value := range headerMap {
 			req.Header.Set(key, value)
 		}
 	}
 
-	req.Header.Set("User-Agent", "AppleCoreMedia/1.0.0.16F203 (iPod touch; U; CPU OS 12_3_1 like Mac OS X; zh_cn)")
+	req.Header.Set("User-Agent", proxyUA)
 	req.Header.Set("Accept", "*/*")
 
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error sending request")
-		return fiber.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 	defer resp.Body.Close()
+
+	// Copy response headers
+	for k, vs := range resp.Header {
+		for _, v := range vs {
+			if !strings.EqualFold(k, "Content-Length") { // Skip Content-Length header, fixes net::ERR_CONTENT_LENGTH_MISMATCH
+				c.Response().Header().Set(k, v)
+			}
+		}
+	}
+
+	// Set CORS headers
+	c.Response().Header().Set("Access-Control-Allow-Origin", "*")
+	c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	c.Response().Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+	// For HEAD requests, return only headers
+	if c.Request().Method == http.MethodHead {
+		return c.NoContent(http.StatusOK)
+	}
 
 	var ret []byte
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Error().Err(err).Msg("proxy: Error reading response body")
-		return fiber.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
 	if strings.HasSuffix(url, ".m3u8") {
 		playlist, listType, err := m3u8.DecodeFrom(bytes.NewReader(b), true)
 		if err != nil {
 			log.Error().Err(err).Msg("proxy: Error decoding m3u8 playlist")
-			return fiber.ErrInternalServerError
+			return echo.NewHTTPError(http.StatusInternalServerError)
 		}
 
 		if listType == m3u8.MASTER {
 			ret = b
-			//master := playlist.(*m3u8.MasterPlaylist)
 		} else if listType == m3u8.MEDIA {
 			media := playlist.(*m3u8.MediaPlaylist)
 			for _, segment := range media.Segments {
@@ -107,15 +129,5 @@ func M3U8Proxy(c *fiber.Ctx) (err error) {
 		ret = b
 	}
 
-	for k, vs := range resp.Header {
-		for _, v := range vs {
-			c.Set(k, v)
-		}
-	}
-
-	c.Set("Access-Control-Allow-Origin", "*")
-	c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	c.Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-
-	return c.Send(ret)
+	return c.Blob(http.StatusOK, c.Response().Header().Get("Content-Type"), ret)
 }

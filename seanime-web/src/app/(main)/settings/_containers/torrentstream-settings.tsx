@@ -1,10 +1,12 @@
 import { Models_TorrentstreamSettings } from "@/api/generated/types"
 import { useSaveTorrentstreamSettings, useTorrentstreamDropTorrent } from "@/api/hooks/torrentstream.hooks"
-import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
-import { Separator } from "@/components/ui/separator"
 import React from "react"
+import { UseFormReturn } from "react-hook-form"
 import { SiBittorrent } from "react-icons/si"
 
 const torrentstreamSchema = defineSchema(({ z }) => z.object({
@@ -13,13 +15,14 @@ const torrentstreamSchema = defineSchema(({ z }) => z.object({
     autoSelect: z.boolean(),
     disableIPv6: z.boolean(),
     addToLibrary: z.boolean(),
-    streamingServerPort: z.number(),
-    streamingServerHost: z.string(),
+    // streamingServerPort: z.number(),
+    // streamingServerHost: z.string(),
     torrentClientHost: z.string().optional().default(""),
     torrentClientPort: z.number(),
     preferredResolution: z.string(),
     includeInLibrary: z.boolean(),
     streamUrlAddress: z.string().optional().default(""),
+    slowSeeding: z.boolean().optional().default(false),
 }))
 
 
@@ -40,21 +43,30 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
 
     const { mutate: dropTorrent, isPending: droppingTorrent } = useTorrentstreamDropTorrent()
 
+    const formRef = React.useRef<UseFormReturn<any>>(null)
+
     if (!settings) return null
 
     return (
         <>
             <Form
                 schema={torrentstreamSchema}
+                mRef={formRef}
                 onSubmit={data => {
                     if (settings) {
                         mutate({
-                            settings: {
-                                ...settings,
-                                ...data,
-                                preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
+                                settings: {
+                                    ...settings,
+                                    ...data,
+                                    preferredResolution: data.preferredResolution === "-" ? "" : data.preferredResolution,
+                                },
                             },
-                        })
+                            {
+                                onSuccess: () => {
+                                    formRef.current?.reset(formRef.current.getValues())
+                                },
+                            },
+                        )
                     }
                 }}
                 defaultValues={{
@@ -63,56 +75,56 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                     downloadDir: settings.downloadDir || "",
                     disableIPv6: settings.disableIPV6,
                     addToLibrary: settings.addToLibrary,
-                    streamingServerPort: settings.streamingServerPort,
-                    streamingServerHost: settings.streamingServerHost || "",
+                    // streamingServerPort: settings.streamingServerPort,
+                    // streamingServerHost: settings.streamingServerHost || "",
                     torrentClientHost: settings.torrentClientHost || "",
                     torrentClientPort: settings.torrentClientPort,
                     preferredResolution: settings.preferredResolution || "-",
                     includeInLibrary: settings.includeInLibrary,
                     streamUrlAddress: settings.streamUrlAddress || "",
+                    slowSeeding: settings.slowSeeding,
                 }}
-                stackClass="space-y-6"
+                stackClass="space-y-4"
             >
-                <Field.Switch
-                    name="enabled"
-                    label="Enable"
-                />
+                <SettingsIsDirty />
+                <SettingsCard>
+                    <Field.Switch
+                        side="right"
+                        name="enabled"
+                        label="Enable"
+                    />
+                </SettingsCard>
 
-                <Separator />
+                <SettingsCard title="Integration">
+                    <Field.Switch
+                        side="right"
+                        name="includeInLibrary"
+                        label="Include in library"
+                        help="Shows that are currently being watched but haven't been downloaded will default to the torrent streaming view and appear in your library."
+                    />
+                </SettingsCard>
 
-                <h3>
-                    Integration
-                </h3>
 
-                <Field.Switch
-                    name="includeInLibrary"
-                    label="Include in library"
-                    help="Shows that are currently being watched but haven't been downloaded will default to the torrent streaming view and appear in your library."
-                />
+                <SettingsCard title="Auto-select">
+                    <Field.Switch
+                        side="right"
+                        name="autoSelect"
+                        label="Enable"
+                        help="Let Seanime find the best torrent automatically."
+                    />
 
-                <Separator />
-
-                <h3>
-                    Auto-select
-                </h3>
-
-                <Field.Switch
-                    name="autoSelect"
-                    label="Enable"
-                    help="Let Seanime find the best torrent automatically."
-                />
-
-                <Field.Select
-                    name="preferredResolution"
-                    label="Preferred resolution"
-                    help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
-                    options={[
-                        { label: "Highest", value: "-" },
-                        { label: "480p", value: "480" },
-                        { label: "720p", value: "720" },
-                        { label: "1080p", value: "1080" },
-                    ]}
-                />
+                    <Field.Select
+                        name="preferredResolution"
+                        label="Preferred resolution"
+                        help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
+                        options={[
+                            { label: "Highest", value: "-" },
+                            { label: "480p", value: "480" },
+                            { label: "720p", value: "720" },
+                            { label: "1080p", value: "1080" },
+                        ]}
+                    />
+                </SettingsCard>
 
                 {/*<Field.DirectorySelector*/}
                 {/*    name="downloadDir"*/}
@@ -122,82 +134,85 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                 {/*    shouldExist*/}
                 {/*/>*/}
 
-                {/*<Field.Switch*/}
+                {/*<Field.Switch
+                 side="right"*/}
                 {/*    name="addToLibrary"*/}
                 {/*    label="Add to library"*/}
                 {/*    help="Keep completely downloaded files in corresponding library entries."*/}
                 {/*/>*/}
 
-                <Separator />
+                {/* <SettingsCard title="Torrent Client" description="Seanime uses a built-in torrent client to download torrents.">
 
-                <div>
-                    <h3>Torrent client</h3>
+                 </SettingsCard> */}
 
-                    <p>
-                        Seanime uses a built-in torrent client to download torrents.
-                    </p>
-                </div>
+                <Accordion
+                    type="single"
+                    collapsible
+                    className="border rounded-[--radius-md]"
+                    triggerClass="dark:bg-[--paper]"
+                    contentClass="!pt-2 dark:bg-[--paper]"
+                >
+                    <AccordionItem value="more">
+                        <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
+                            Torrent Client
+                        </AccordionTrigger>
+                        <AccordionContent className="space-y-4">
+                            <div className="flex items-center gap-3">
 
-                <div className="flex items-center gap-3">
+                                <Field.Text
+                                    name="torrentClientHost"
+                                    label="Host"
+                                    help="Leave empty for default. The host to listen for new uTP and TCP BitTorrent connections."
+                                />
 
-                    <Field.Text
-                        name="torrentClientHost"
-                        label="Host"
-                        help="Leave empty for default. The host to listen for new uTP and TCP BitTorrent connections."
-                    />
+                                <Field.Number
+                                    name="torrentClientPort"
+                                    label="Port"
+                                    formatOptions={{
+                                        useGrouping: false,
+                                    }}
+                                    help="Leave empty for default. Default is 43213."
+                                />
 
-                    <Field.Number
-                        name="torrentClientPort"
-                        label="Port"
-                        formatOptions={{
-                            useGrouping: false,
-                        }}
-                        help="Leave empty for default. Default is 43213."
-                    />
+                            </div>
 
-                </div>
+                            <Field.Switch
+                                side="right"
+                                name="disableIPv6"
+                                label="Disable IPv6"
+                            />
 
-                <Field.Switch
-                    name="disableIPv6"
-                    label="Disable IPv6"
-                />
+                            <Field.Switch
+                                side="right"
+                                name="slowSeeding"
+                                label="Slow seeding"
+                                moreHelp="This can help avoid issues with your network."
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
 
-                <Separator />
-
-                <h3>
-                    Streaming server
-                </h3>
-
-                <p>
-                    Seanime will launch a separate server to stream torrents. You can configure the port and host it uses here.
-                </p>
-
-                <div className="flex items-center gap-3">
-
-                    <Field.Text
-                        name="streamingServerHost"
-                        label="Host"
-                        help="Default is 0.0.0.0"
-                    />
-                    <Field.Number
-                        name="streamingServerPort"
-                        label="Port"
-                        formatOptions={{
-                            useGrouping: false,
-                        }}
-                        help="Default is 43214"
-                    />
-
-                </div>
-
-                <Separator />
-
-                <Field.Text
-                    name="streamUrlAddress"
-                    label="Stream URL address"
-                    placeholder="e.g. {host}:{port}"
-                    help="Leave empty for default. The URL to use for streaming."
-                />
+                <Accordion
+                    type="single"
+                    collapsible
+                    className="border rounded-[--radius-md]"
+                    triggerClass="dark:bg-[--paper]"
+                    contentClass="!pt-2 dark:bg-[--paper]"
+                >
+                    <AccordionItem value="more">
+                        <AccordionTrigger className="bg-gray-900 rounded-[--radius-md]">
+                            Advanced
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-6 flex flex-col md:flex-row gap-3">
+                            <Field.Text
+                                name="streamUrlAddress"
+                                label="Stream URL address"
+                                placeholder="e.g. 0.0.0.0:43211"
+                                help="Modify the stream URL formatting. Leave empty for default."
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
 
 
                 <div className="flex w-full items-center">

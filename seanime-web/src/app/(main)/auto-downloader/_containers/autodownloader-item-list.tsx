@@ -38,6 +38,9 @@ export function AutoDownloaderItemList(props: AutoDownloaderItemListProps) {
                 <li>
                     The queue shows items waiting to be downloaded or scanned.
                 </li>
+                {/* <li>
+                 Removing an item from the queue can cause it to be re-added if the rule is still active and the episode isn't downloaded and scanned.
+                 </li> */}
             </ul>
             {!data?.length && (
                 <p className="text-center text-[--muted]">

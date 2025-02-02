@@ -24,7 +24,8 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
         <>
             <div className={cn("w-full flex flex-col items-center mt-10 space-y-4", className)}>
                 {<div
-                    className="h-[10rem] w-[10rem] mx-auto flex-none rounded-md object-cover object-center relative overflow-hidden">
+                    className="size-[8rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
+                >
                     <Image
                         src="/luffy-01.png"
                         alt={""}
@@ -36,7 +37,7 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                     />
                 </div>}
                 <div className="text-center space-y-4">
-                    {!!title && <h2>{title}</h2>}
+                    {!!title && <h3>{title}</h3>}
                     <div>{children}</div>
                     <div>
                         {(showRefreshButton && !reset) && (

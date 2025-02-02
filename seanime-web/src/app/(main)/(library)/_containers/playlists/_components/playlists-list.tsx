@@ -2,7 +2,7 @@ import { useGetPlaylists } from "@/api/hooks/playlist.hooks"
 import { PlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/playlist-modal"
 import { StartPlaylistModal } from "@/app/(main)/(library)/_containers/playlists/_components/start-playlist-modal"
 import { __playlists_modalOpenAtom } from "@/app/(main)/(library)/_containers/playlists/playlists-modal"
-import { __anilist_userMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
+import { __anilist_userAnimeMediaAtom } from "@/app/(main)/_atoms/anilist.atoms"
 import { MediaCardBodyBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
@@ -24,7 +24,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
     const {} = props
 
     const { data: playlists, isLoading } = useGetPlaylists()
-    const userMedia = useAtomValue(__anilist_userMediaAtom)
+    const userMedia = useAtomValue(__anilist_userAnimeMediaAtom)
     const serverStatus = useServerStatus()
 
     const setOpen = useSetAtom(__playlists_modalOpenAtom)
@@ -71,7 +71,7 @@ export function PlaylistsList(props: PlaylistsListProps) {
                             )}
                             // onClick={() => handleSelect(lf.path)}
                         >
-                            <div className="group/playlist-item flex gap-3 h-full justify-between items-center bg-gray-950 rounded-md border transition relative overflow-hidden">
+                            <div className="group/playlist-item flex gap-3 h-full justify-between items-center bg-gray-950 rounded-[--radius-md] transition relative overflow-hidden">
                                 {(mainMedia?.coverImage?.large || mainMedia?.bannerImage) && <Image
                                     src={mainMedia?.coverImage?.extraLarge || mainMedia?.bannerImage || ""}
                                     placeholder={imageShimmer(700, 475)}

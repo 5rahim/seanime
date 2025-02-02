@@ -48,7 +48,8 @@ export type ScrollAreaProps =
     React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
     & ComponentAnatomy<typeof ScrollAreaAnatomy> &
     {
-        orientation?: "vertical" | "horizontal"
+        orientation?: "vertical" | "horizontal",
+        viewportRef?: React.RefObject<HTMLDivElement>
     }
 
 export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>((props, ref) => {
@@ -59,6 +60,7 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>((pro
         viewportClass,
         children,
         orientation = "vertical",
+        viewportRef,
         ...rest
     } = props
     return (
@@ -67,7 +69,10 @@ export const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>((pro
             className={cn(ScrollAreaAnatomy.root(), className)}
             {...rest}
         >
-            <ScrollAreaPrimitive.Viewport className={cn(ScrollAreaAnatomy.viewport(), viewportClass)}>
+            <ScrollAreaPrimitive.Viewport
+                ref={viewportRef}
+                className={cn(ScrollAreaAnatomy.viewport(), viewportClass)}
+            >
                 {children}
             </ScrollAreaPrimitive.Viewport>
             <ScrollBar

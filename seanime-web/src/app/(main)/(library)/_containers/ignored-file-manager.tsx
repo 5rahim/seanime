@@ -78,7 +78,7 @@ export function IgnoredFileManager(props: IgnoredFileManagerProps) {
                 </LuffyError>}
 
                 {files.length > 0 &&
-                    <div className="bg-gray-950 border p-2 px-2 divide-y divide-[--border] rounded-md max-h-[85vh] max-w-full overflow-x-auto overflow-y-auto text-sm">
+                    <div className="bg-gray-950 border p-2 px-2 divide-y divide-[--border] rounded-[--radius-md] max-h-[85vh] max-w-full overflow-x-auto overflow-y-auto text-sm">
 
                         <div className="p-2">
                             <Checkbox

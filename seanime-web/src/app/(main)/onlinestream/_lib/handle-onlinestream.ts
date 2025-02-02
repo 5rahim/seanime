@@ -1,12 +1,10 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
-import { useHandleContinuityWithMediaPlayer, useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
+import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
-    __onlinestream_autoPlayAtom,
-    __onlinestream_fullscreenAtom,
     __onlinestream_qualityAtom,
     __onlinestream_selectedDubbedAtom,
     __onlinestream_selectedEpisodeNumberAtom,
@@ -17,7 +15,6 @@ import { logger } from "@/lib/helpers/debug"
 import { MediaPlayerInstance } from "@vidstack/react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
 import { uniq } from "lodash"
-import mousetrap from "mousetrap"
 import { useRouter } from "next/navigation"
 import React from "react"
 import { toast } from "sonner"
@@ -81,6 +78,9 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
 
         let videoSources = episodeSource.videoSources
 
+        logger("ONLINESTREAM").info("Stored quality", quality)
+        logger("ONLINESTREAM").info("Selected server", selectedServer)
+
         if (selectedServer && videoSources.some(n => n.server === selectedServer)) {
             videoSources = videoSources.filter(s => s.server === selectedServer)
         }
@@ -88,11 +88,21 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
         const hasQuality = videoSources.some(n => n.quality === quality)
         const hasAuto = videoSources.some(n => n.quality === "auto")
 
+        logger("ONLINESTREAM").info("Selecting quality", {
+            hasAuto,
+            hasQuality,
+        })
+
         // If quality is set, filter sources by quality
         // Only filter by quality if the quality is present in the sources
         if (quality && hasQuality) {
             videoSources = videoSources.filter(s => s.quality === quality)
-        } else if (!quality && !hasAuto) {
+        } else if (hasAuto) {
+            videoSources = videoSources.filter(s => s.quality === "auto")
+        } else {
+
+            logger("ONLINESTREAM").info("Choosing a quality")
+
             if (videoSources.some(n => n.quality.includes("1080p"))) {
                 videoSources = videoSources.filter(s => s.quality.includes("1080p"))
             } else if (videoSources.some(n => n.quality.includes("720p"))) {
@@ -106,11 +116,10 @@ export function useOnlinestreamVideoSource(episodeSource: Onlinestream_EpisodeSo
             if (videoSources.some(n => n.quality.includes("default"))) {
                 videoSources = videoSources.filter(s => s.quality.includes("default"))
             }
-        } else if (quality && hasAuto) {
-            videoSources = videoSources.filter(s => s.quality === "auto")
         }
 
-        console.log("videoSources", videoSources)
+
+        logger("ONLINESTREAM").info("videoSources", videoSources)
 
         return videoSources[0]
     }, [episodeSource, selectedServer, quality])
@@ -142,7 +151,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     /**
      * 2. Watch history
      */
-    const { watchHistory, waitForWatchHistory, getEpisodeContinuitySeekTo } = useHandleCurrentMediaContinuity(mediaId)
+    const { waitForWatchHistory } = useHandleCurrentMediaContinuity(mediaId)
 
     /**
      * 3. Get the current episode source
@@ -161,10 +170,8 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     const setServer = useSetAtom(__onlinestream_selectedServerAtom)
     const setQuality = useSetAtom(__onlinestream_qualityAtom)
     const setDubbed = useSetAtom(__onlinestream_selectedDubbedAtom)
-    const isFullscreen = useAtomValue(__onlinestream_fullscreenAtom)
     const [provider, setProvider] = useAtom(__onlinestream_selectedProviderAtom)
 
-    const autoPlay = useAtomValue(__onlinestream_autoPlayAtom)
     const [url, setUrl] = React.useState<string | undefined>(undefined)
 
     // Refs
@@ -284,18 +291,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
     }
 
     /**
-     * Handle provider setup
-     */
-    const onProviderSetup = React.useCallback(() => {
-
-    }, [provider, videoSource, autoPlay])
-
-    /**
-     * Continuity
-     */
-    const { handleUpdateWatchHistory } = useHandleContinuityWithMediaPlayer(playerRef, episodeSource?.number, mediaId)
-
-    /**
      * Handle the onCanPlay event
      */
     const onCanPlay = () => {
@@ -314,15 +309,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             logger("ONLINESTREAM").info("Seeking to previous time", { previousCurrentTime: previousCurrentTimeRef.current })
         }
 
-
-        if (watchHistory?.found) {
-            const lastWatchedTime = getEpisodeContinuitySeekTo(episodeSource?.number, playerRef.current?.currentTime, playerRef.current?.duration)
-            logger("CONTINUITY").info("Seeking to last watched time if greater than 0", { lastWatchedTime })
-            if (lastWatchedTime > 0) {
-                Object.assign(playerRef.current ?? {}, { currentTime: lastWatchedTime })
-            }
-        }
-
         // If the player was playing before the onCanPlay event, resume playing
         setTimeout(() => {
             if (previousIsPlayingRef.current) {
@@ -331,18 +317,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
             }
         }, 500)
     }
-
-    React.useEffect(() => {
-        mousetrap.bind("f", () => {
-            logger("ONLINESTREAM").info("Fullscreen key pressed")
-            playerRef.current?.enterFullscreen()
-            playerRef.current?.el?.focus()
-        })
-
-        return () => {
-            mousetrap.unbind("f")
-        }
-    }, [])
 
 
     // Quality
@@ -416,7 +390,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         servers,
         videoSource,
         onMediaDetached,
-        onProviderSetup,
         onFatalError,
         onCanPlay,
         url,
@@ -429,7 +402,6 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         episodeLoading: isLoadingEpisodeSource || isFetchingEpisodeSource,
         isErrorEpisodeSource,
         isErrorProvider: isError,
-        handleUpdateWatchHistory,
         opts: {
             selectedExtension,
             currentEpisodeDetails: episodeDetails,

@@ -2,8 +2,24 @@ package util
 
 import (
 	"math/rand"
-	"time"
+
+	"github.com/rs/zerolog/log"
 )
+
+func init() {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Warn().Msgf("util: Failed to get online user agents: %v", r)
+			}
+		}()
+		var err error
+		onlineUserAgentList, err = GetOnlineUserAgents()
+		if err != nil {
+			log.Warn().Err(err).Msg("util: Failed to get online user agents")
+		}
+	}()
+}
 
 var userAgents = []string{
 	"Mozilla/5.0 (Linux; Android 10; AC2003) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.61 Mobile Safari/537.36",
@@ -1059,7 +1075,8 @@ var userAgents = []string{
 }
 
 func GetRandomUserAgent() string {
-	source := rand.NewSource(time.Now().UnixNano())
-	rand1 := rand.New(source)
-	return userAgents[rand1.Intn(len(userAgents))]
+	if len(onlineUserAgentList) > 0 {
+		return onlineUserAgentList[rand.Intn(len(onlineUserAgentList))]
+	}
+	return UserAgentList[rand.Intn(len(UserAgentList))]
 }

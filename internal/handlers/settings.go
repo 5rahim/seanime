@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"github.com/labstack/echo/v4"
 	"github.com/samber/lo"
 	"os"
 	"path/filepath"
@@ -17,17 +18,17 @@ import (
 //	@summary returns the app settings.
 //	@route /api/v1/settings [GET]
 //	@returns models.Settings
-func HandleGetSettings(c *RouteCtx) error {
+func (h *Handler) HandleGetSettings(c echo.Context) error {
 
-	settings, err := c.App.Database.GetSettings()
+	settings, err := h.App.Database.GetSettings()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 	if settings.ID == 0 {
-		return c.RespondWithError(errors.New(runtime.GOOS))
+		return h.RespondWithError(c, errors.New(runtime.GOOS))
 	}
 
-	return c.RespondWithData(settings)
+	return h.RespondWithData(c, settings)
 }
 
 // HandleGettingStarted
@@ -37,7 +38,7 @@ func HandleGetSettings(c *RouteCtx) error {
 //	@desc The client should re-fetch the server status after this.
 //	@route /api/v1/start [POST]
 //	@returns handlers.Status
-func HandleGettingStarted(c *RouteCtx) error {
+func (h *Handler) HandleGettingStarted(c echo.Context) error {
 
 	type body struct {
 		Library                models.LibrarySettings      `json:"library"`
@@ -54,8 +55,8 @@ func HandleGettingStarted(c *RouteCtx) error {
 	}
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Check settings
@@ -64,7 +65,7 @@ func HandleGettingStarted(c *RouteCtx) error {
 	}
 	b.Library.LibraryPath = filepath.ToSlash(b.Library.LibraryPath)
 
-	settings, err := c.App.Database.UpsertSettings(&models.Settings{
+	settings, err := h.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
@@ -86,17 +87,17 @@ func HandleGettingStarted(c *RouteCtx) error {
 	})
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if b.EnableTorrentStreaming {
 		go func() {
 			defer util.HandlePanicThen(func() {})
-			prev, found := c.App.Database.GetTorrentstreamSettings()
+			prev, found := h.App.Database.GetTorrentstreamSettings()
 			if found {
 				prev.Enabled = true
 				//prev.IncludeInLibrary = true
-				_, _ = c.App.Database.UpsertTorrentstreamSettings(prev)
+				_, _ = h.App.Database.UpsertTorrentstreamSettings(prev)
 			}
 		}()
 	}
@@ -104,10 +105,10 @@ func HandleGettingStarted(c *RouteCtx) error {
 	if b.EnableTranscode {
 		go func() {
 			defer util.HandlePanicThen(func() {})
-			prev, found := c.App.Database.GetMediastreamSettings()
+			prev, found := h.App.Database.GetMediastreamSettings()
 			if found {
 				prev.TranscodeEnabled = true
-				_, _ = c.App.Database.UpsertMediastreamSettings(prev)
+				_, _ = h.App.Database.UpsertMediastreamSettings(prev)
 			}
 		}()
 	}
@@ -115,25 +116,25 @@ func HandleGettingStarted(c *RouteCtx) error {
 	if b.DebridProvider != "" && b.DebridProvider != "none" {
 		go func() {
 			defer util.HandlePanicThen(func() {})
-			prev, found := c.App.Database.GetDebridSettings()
+			prev, found := h.App.Database.GetDebridSettings()
 			if found {
 				prev.Enabled = true
 				prev.Provider = b.DebridProvider
 				prev.ApiKey = b.DebridApiKey
 				//prev.IncludeDebridStreamInLibrary = true
-				_, _ = c.App.Database.UpsertDebridSettings(prev)
+				_, _ = h.App.Database.UpsertDebridSettings(prev)
 			}
 		}()
 	}
 
-	c.App.WSEventManager.SendEvent("settings", settings)
+	h.App.WSEventManager.SendEvent("settings", settings)
 
-	status := NewStatus(c)
+	status := h.NewStatus(c)
 
 	// Refresh modules that depend on the settings
-	c.App.InitOrRefreshModules()
+	h.App.InitOrRefreshModules()
 
-	return c.RespondWithData(status)
+	return h.RespondWithData(c, status)
 }
 
 // HandleSaveSettings
@@ -143,7 +144,7 @@ func HandleGettingStarted(c *RouteCtx) error {
 //	@desc The client should re-fetch the server status after this.
 //	@route /api/v1/settings [PATCH]
 //	@returns handlers.Status
-func HandleSaveSettings(c *RouteCtx) error {
+func (h *Handler) HandleSaveSettings(c echo.Context) error {
 
 	type body struct {
 		Library       models.LibrarySettings      `json:"library"`
@@ -156,8 +157,8 @@ func HandleSaveSettings(c *RouteCtx) error {
 	}
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.Library.LibraryPath != "" {
@@ -186,27 +187,27 @@ func HandleSaveSettings(c *RouteCtx) error {
 	// Check that any library paths are not subdirectories of each other
 	for i, path1 := range b.Library.LibraryPaths {
 		if util.IsSubdirectory(b.Library.LibraryPath, path1) || util.IsSubdirectory(path1, b.Library.LibraryPath) {
-			return c.RespondWithError(errors.New("library paths cannot be subdirectories of each other"))
+			return h.RespondWithError(c, errors.New("library paths cannot be subdirectories of each other"))
 		}
 		for j, path2 := range b.Library.LibraryPaths {
 			if i != j && util.IsSubdirectory(path1, path2) {
-				return c.RespondWithError(errors.New("library paths cannot be subdirectories of each other"))
+				return h.RespondWithError(c, errors.New("library paths cannot be subdirectories of each other"))
 			}
 		}
 	}
 
 	autoDownloaderSettings := models.AutoDownloaderSettings{}
-	prevSettings, err := c.App.Database.GetSettings()
+	prevSettings, err := h.App.Database.GetSettings()
 	if err == nil && prevSettings.AutoDownloader != nil {
 		autoDownloaderSettings = *prevSettings.AutoDownloader
 	}
 	// Disable auto-downloader if the torrent provider is set to none
 	if b.Library.TorrentProvider == torrent.ProviderNone && autoDownloaderSettings.Enabled {
-		c.App.Logger.Debug().Msg("app: Disabling auto-downloader because the torrent provider is set to none")
+		h.App.Logger.Debug().Msg("app: Disabling auto-downloader because the torrent provider is set to none")
 		autoDownloaderSettings.Enabled = false
 	}
 
-	settings, err := c.App.Database.UpsertSettings(&models.Settings{
+	settings, err := h.App.Database.UpsertSettings(&models.Settings{
 		BaseModel: models.BaseModel{
 			ID:        1,
 			UpdatedAt: time.Now(),
@@ -222,17 +223,17 @@ func HandleSaveSettings(c *RouteCtx) error {
 	})
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.WSEventManager.SendEvent("settings", settings)
+	h.App.WSEventManager.SendEvent("settings", settings)
 
-	status := NewStatus(c)
+	status := h.NewStatus(c)
 
 	// Refresh modules that depend on the settings
-	c.App.InitOrRefreshModules()
+	h.App.InitOrRefreshModules()
 
-	return c.RespondWithData(status)
+	return h.RespondWithData(c, status)
 }
 
 // HandleSaveAutoDownloaderSettings
@@ -240,7 +241,7 @@ func HandleSaveSettings(c *RouteCtx) error {
 //	@summary updates the auto-downloader settings.
 //	@route /api/v1/settings/auto-downloader [PATCH]
 //	@returns bool
-func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
+func (h *Handler) HandleSaveAutoDownloaderSettings(c echo.Context) error {
 
 	type body struct {
 		Interval              int  `json:"interval"`
@@ -253,18 +254,18 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	currSettings, err := c.App.Database.GetSettings()
+	currSettings, err := h.App.Database.GetSettings()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Validation
 	if b.Interval < 15 {
-		return c.RespondWithError(errors.New("interval must be at least 15 minutes"))
+		return h.RespondWithError(c, errors.New("interval must be at least 15 minutes"))
 	}
 
 	autoDownloaderSettings := &models.AutoDownloaderSettings{
@@ -283,13 +284,13 @@ func HandleSaveAutoDownloaderSettings(c *RouteCtx) error {
 		UpdatedAt: time.Now(),
 	}
 
-	_, err = c.App.Database.UpsertSettings(currSettings)
+	_, err = h.App.Database.UpsertSettings(currSettings)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Update Auto Downloader - This runs in a goroutine
-	c.App.AutoDownloader.SetSettings(autoDownloaderSettings, currSettings.Library.TorrentProvider)
+	h.App.AutoDownloader.SetSettings(autoDownloaderSettings, currSettings.Library.TorrentProvider)
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

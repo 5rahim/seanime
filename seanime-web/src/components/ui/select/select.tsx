@@ -160,7 +160,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>((props, r
     }, [controlledValue])
 
     return (
-        <BasicField{...basicFieldProps}>
+        <BasicField {...basicFieldProps}>
             <InputContainer {...inputContainerProps}>
                 <InputAddon {...leftAddonProps} />
                 <InputIcon {...leftIconProps} />

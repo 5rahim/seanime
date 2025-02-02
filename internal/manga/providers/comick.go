@@ -4,9 +4,7 @@ import (
 	"cmp"
 	"encoding/json"
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	browser "github.com/EDDYCJY/fake-useragent"
-	"github.com/rs/zerolog"
+	"io"
 	"net/http"
 	"net/url"
 	"seanime/internal/util"
@@ -14,6 +12,9 @@ import (
 	"slices"
 	"strings"
 	"time"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -69,7 +70,7 @@ func NewComicK(logger *zerolog.Logger) *ComicK {
 	return &ComicK{
 		Url:       "https://api.comick.fun",
 		Client:    c,
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,
 	}
 }
@@ -98,16 +99,23 @@ func (c *ComicK) Search(opts hibikemanga.SearchOptions) ([]*hibikemanga.SearchRe
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to send request")
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.logger.Error().Err(err).Msg("comick: Failed to read response body")
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
 
 	var data []*ComicKResultItem
-	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+	if err := json.Unmarshal(body, &data); err != nil {
 		c.logger.Error().Err(err).Msg("comick: Failed to decode response")
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -166,7 +174,7 @@ func (c *ComicK) FindChapters(id string) ([]*hibikemanga.ChapterDetails, error) 
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
@@ -255,7 +263,7 @@ func (c *ComicK) FindChapterPages(id string) ([]*hibikemanga.ChapterPage, error)
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", browser.Firefox())
+	req.Header.Set("User-Agent", util.GetRandomUserAgent())
 
 	resp, err := c.Client.Do(req)
 	if err != nil {

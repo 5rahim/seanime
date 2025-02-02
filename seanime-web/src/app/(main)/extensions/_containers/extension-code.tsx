@@ -87,7 +87,7 @@ function ExtensionCodeEditor({
 }: { code: string, language: string, setCode: any }) {
 
     return (
-        <div className="overflow-hidden rounded-md">
+        <div className="overflow-hidden rounded-[--radius-md]">
             <CodeMirror
                 value={code}
                 height="75vh"

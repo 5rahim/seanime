@@ -1,12 +1,13 @@
 import { useGetDebridSettings, useSaveDebridSettings } from "@/api/hooks/debrid.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Alert } from "@/components/ui/alert"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Separator } from "@/components/ui/separator"
 import React from "react"
+import { UseFormReturn } from "react-hook-form"
 
 const debridSettingsSchema = defineSchema(({ z }) => z.object({
     enabled: z.boolean().default(false),
@@ -32,6 +33,8 @@ export function DebridSettings(props: DebridSettingsProps) {
     const { data: settings, isLoading } = useGetDebridSettings()
     const { mutate, isPending } = useSaveDebridSettings()
 
+    const formRef = React.useRef<UseFormReturn<any>>(null)
+
     if (isLoading) return <LoadingSpinner />
 
     return (
@@ -39,6 +42,7 @@ export function DebridSettings(props: DebridSettingsProps) {
 
             <Form
                 schema={debridSettingsSchema}
+                mRef={formRef}
                 onSubmit={data => {
                     if (settings) {
                         mutate({
@@ -48,7 +52,13 @@ export function DebridSettings(props: DebridSettingsProps) {
                                 provider: data.provider === "-" ? "" : data.provider,
                                 streamPreferredResolution: data.streamPreferredResolution === "-" ? "" : data.streamPreferredResolution,
                             },
-                        })
+                            },
+                            {
+                                onSuccess: () => {
+                                    formRef.current?.reset(formRef.current.getValues())
+                                },
+                            },
+                        )
                     }
                 }}
                 defaultValues={{
@@ -59,92 +69,92 @@ export function DebridSettings(props: DebridSettingsProps) {
                     streamAutoSelect: settings?.streamAutoSelect ?? false,
                     streamPreferredResolution: settings?.streamPreferredResolution || "-",
                 }}
-                stackClass="space-y-6"
+                stackClass="space-y-4"
             >
                 {(f) => (
                     <>
-                        <Field.Switch
-                            name="enabled"
-                            label="Enable"
-                        />
-
-                        {(f.watch("enabled") && serverStatus?.settings?.autoDownloader?.enabled && !serverStatus?.settings?.autoDownloader?.useDebrid) && (
-                            <Alert
-                                intent="info-basic"
-                                title="Auto Downloader not using Debrid"
-                                description={<p>
-                                    Auto Downloader is enabled but not using Debrid. Change the <SeaLink
-                                    href="/auto-downloader"
-                                    className="underline"
-                                >Auto Downloader settings</SeaLink> to use your Debrid service.
-                                </p>}
+                        <SettingsIsDirty />
+                        <SettingsCard>
+                            <Field.Switch
+                                side="right"
+                                name="enabled"
+                                label="Enable"
                             />
-                        )}
+                            {(f.watch("enabled") && serverStatus?.settings?.autoDownloader?.enabled && !serverStatus?.settings?.autoDownloader?.useDebrid) && (
+                                <Alert
+                                    intent="info"
+                                    title="Auto Downloader not using Debrid"
+                                    description={<p>
+                                        Auto Downloader is enabled but not using Debrid. Change the <SeaLink
+                                        href="/auto-downloader"
+                                        className="underline"
+                                    >Auto Downloader settings</SeaLink> to use your Debrid service.
+                                    </p>}
+                                />
+                            )}
+                        </SettingsCard>
 
-                        <Field.Select
-                            options={[
-                                { label: "None", value: "-" },
-                                { label: "TorBox", value: "torbox" },
-                                { label: "Real-Debrid", value: "realdebrid" },
-                            ]}
-                            name="provider"
-                            label="Provider"
-                        />
 
-                        <Field.Text
-                            name="apiKey"
-                            label="API Key"
-                        />
+                        <SettingsCard>
+                            <Field.Select
+                                options={[
+                                    { label: "None", value: "-" },
+                                    { label: "TorBox", value: "torbox" },
+                                    { label: "Real-Debrid", value: "realdebrid" },
+                                ]}
+                                name="provider"
+                                label="Provider"
+                            />
 
-                        <Separator />
+                            <Field.Text
+                                name="apiKey"
+                                label="API Key"
+                            />
+                        </SettingsCard>
 
                         <h3>
-                            Streaming
+                            Debrid Streaming
                         </h3>
 
-                        <h4>
-                            Integration
-                        </h4>
-
-                        <Field.Switch
-                            name="includeDebridStreamInLibrary"
-                            label="Include in library"
-                            help="Shows that are currently being watched but haven't been downloaded will default to the debrid streaming view and appear in your library."
-                        />
-
-                        <Separator />
-
-                        <h4>
-                            Auto-select
-                        </h4>
-
-                        <Field.Switch
-                            name="streamAutoSelect"
-                            label="Enable"
-                            help="Let Seanime find the best torrent automatically, based on cache and resolution."
-                        />
-
-                        {f.watch("streamAutoSelect") && f.watch("provider") === "torbox" && (
-                            <Alert
-                                intent="warning-basic"
-                                title="Auto-select with TorBox"
-                                description={<p>
-                                    Avoid using auto-select if you have a limited amount of downloads on your Debrid service.
-                                </p>}
+                        <SettingsCard title="Integration">
+                            <Field.Switch
+                                side="right"
+                                name="includeDebridStreamInLibrary"
+                                label="Include in library"
+                                help="Shows that are currently being watched but haven't been downloaded will default to the debrid streaming view and appear in your library."
                             />
-                        )}
+                        </SettingsCard>
 
-                        <Field.Select
-                            name="streamPreferredResolution"
-                            label="Preferred resolution"
-                            help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
-                            options={[
-                                { label: "Highest", value: "-" },
-                                { label: "480p", value: "480" },
-                                { label: "720p", value: "720" },
-                                { label: "1080p", value: "1080" },
-                            ]}
-                        />
+                        <SettingsCard title="Auto-select">
+                            <Field.Switch
+                                side="right"
+                                name="streamAutoSelect"
+                                label="Enable"
+                                help="Let Seanime find the best torrent automatically, based on cache and resolution."
+                            />
+
+                            {/*{f.watch("streamAutoSelect") && f.watch("provider") === "torbox" && (*/}
+                            {/*    <Alert*/}
+                            {/*        intent="warning-basic"*/}
+                            {/*        title="Auto-select with TorBox"*/}
+                            {/*        description={<p>*/}
+                            {/*            Avoid using auto-select if you have a limited amount of downloads on your Debrid service.*/}
+                            {/*        </p>}*/}
+                            {/*    />*/}
+                            {/*)}*/}
+
+                            <Field.Select
+                                name="streamPreferredResolution"
+                                label="Preferred resolution"
+                                help="If auto-select is enabled, Seanime will try to find torrents with this resolution."
+                                options={[
+                                    { label: "Highest", value: "-" },
+                                    { label: "480p", value: "480" },
+                                    { label: "720p", value: "720" },
+                                    { label: "1080p", value: "1080" },
+                                ]}
+                            />
+                        </SettingsCard>
 
 
                         <SettingsSubmitButton isPending={isPending} />

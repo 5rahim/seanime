@@ -1,55 +1,58 @@
 package handlers
 
 import (
-	"github.com/gofiber/contrib/websocket"
-	"github.com/gofiber/fiber/v2"
-	"seanime/internal/core"
+	"net/http"
+
+	"github.com/gorilla/websocket"
+	"github.com/labstack/echo/v4"
 )
 
-// newWebSocketEventHandler creates a new websocket handler for real-time event communication
-func newWebSocketEventHandler(app *core.App) fiber.Handler {
-	return websocket.New(func(c *websocket.Conn) {
-
-		// Attach the websocket connection to the app instance, so it is available to other handlers
-		//app.WSEventManager.Conn = c
-
-		id := c.Locals("id").(string)
-
-		app.WSEventManager.AddConn(id, c)
-		app.Logger.Debug().Str("id", id).Msg("ws: Client connected")
-
-		var (
-			_   int
-			msg []byte
-			err error
-		)
-		for {
-			if _, msg, err = c.ReadMessage(); err != nil {
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-					app.Logger.Debug().Str("id", id).Msg("ws: Client disconnected")
-					app.WSEventManager.RemoveConn(c.Locals("id").(string))
-				} else {
-					app.Logger.Debug().Str("id", id).Msg("ws: Client disconnection")
-					app.WSEventManager.RemoveConn(c.Locals("id").(string))
-				}
-				break
-			}
-			app.Logger.Debug().Msgf("ws: message received: %+v", msg)
-
-			if err = c.WriteJSON(msg); err != nil {
-				app.Logger.Err(err).Msg("ws: Failed to send message")
-				break
-			}
-		}
-	})
-}
-
-func websocketUpgradeMiddleware(c *fiber.Ctx) error {
-	if websocket.IsWebSocketUpgrade(c) {
-		c.Locals("allowed", true)
-		c.Locals("userAgent", c.Get("User-Agent"))
-		c.Locals("id", c.Query("id", "0"))
-		return c.Next()
+var (
+	upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
-	return fiber.ErrUpgradeRequired
+)
+
+// webSocketEventHandler creates a new websocket handler for real-time event communication
+func (h *Handler) webSocketEventHandler(c echo.Context) error {
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		return err
+	}
+	defer ws.Close()
+
+	// Get connection ID from query parameter
+	id := c.QueryParam("id")
+	if id == "" {
+		id = "0"
+	}
+
+	// Add connection to manager
+	h.App.WSEventManager.AddConn(id, ws)
+	h.App.Logger.Debug().Str("id", id).Msg("ws: Client connected")
+
+	for {
+		messageType, msg, err := ws.ReadMessage()
+		if err != nil {
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+				h.App.Logger.Debug().Str("id", id).Msg("ws: Client disconnected")
+			} else {
+				h.App.Logger.Debug().Str("id", id).Msg("ws: Client disconnection")
+			}
+			h.App.WSEventManager.RemoveConn(id)
+			break
+		}
+
+		h.App.Logger.Debug().Msgf("ws: message received: %+v", msg)
+
+		// Echo the message back
+		if err = ws.WriteMessage(messageType, msg); err != nil {
+			h.App.Logger.Err(err).Msg("ws: Failed to send message")
+			break
+		}
+	}
+
+	return nil
 }

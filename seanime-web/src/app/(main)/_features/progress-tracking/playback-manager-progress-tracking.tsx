@@ -353,34 +353,59 @@ export function PlaybackManagerProgressTracking() {
         syncProgress()
     }
 
+    // React.useEffect(() => {
+    //     mousetrap.bind("esc", () => {
+    //         cancelAutoPlay()
+    //         setShowModal(false)
+    //         setShowAutoPlayCountdownModal(false)
+    //         setIsTracking(false)
+    //         setIsCompleted(false)
+    //         setState(null)
+    //         setPlaylistState(null)
+    //         setWillAutoPlay(false)
+    //         resetTorrentstreamAutoplayInfo()
+    //         resetDebridstreamAutoplayInfo()
+    //         clearTimers()
+    //     })
+
+    //     return () => {
+    //         mousetrap.unbind("esc")
+    //     }
+    // }, [])
+
     return (
         <>
             <Modal
                 open={showModal && shouldBeDisplayed}
                 onOpenChange={v => setShowModal(v)}
-                title="Progress"
                 titleClass="text-center"
-                contentClass="!space-y-2 relative max-w-2xl"
+                contentClass="!space-y-0 relative max-w-2xl overflow-hidden"
             >
-                {state && <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
-                    <p className="text-[--muted]">Currently watching</p>
-                    <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
-                    <p className="text-2xl font-bold">Episode {state?.episodeNumber}
-                        <span className="text-[--muted]">{" / "}{state?.mediaTotalEpisodes || "-"}</span></p>
-                    {!!state?.completionPercentage && <div className="absolute left-0 top-0 w-full">
-                        <ProgressBar className="h-2" value={state.completionPercentage * 100} />
-                    </div>}
+                {!!state?.completionPercentage && <div className="absolute left-0 top-0 w-full">
+                    <ProgressBar className="h-2 rounded-lg" value={state.completionPercentage * 100} />
                 </div>}
-                {(serverStatus?.settings?.library?.autoUpdateProgress && !state?.progressUpdated) && (
-                    <p className="text-[--muted] text-center">
-                        Your progress will be automatically updated
-                    </p>
-                )}
-                {(state?.progressUpdated) && (
-                    <p className="text-green-300 text-center">
-                        Progress updated
-                    </p>
-                )}
+                {state && <div className="text-center relative overflow-hidden py-2 space-y-2">
+                    {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
+                        <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
+                    </div>}
+                    {/*<p className="text-[--muted]">Currently watching</p>*/}
+                    <div>
+                        <h3 className="text-lg font-medium line-clamp-1">{state?.mediaTitle}</h3>
+                        <p className="text-2xl font-bold">Episode {state?.episodeNumber}
+                            <span className="text-[--muted]">{" / "}{state?.mediaTotalEpisodes || "-"}</span>
+                        </p>
+                    </div>
+                    {(serverStatus?.settings?.library?.autoUpdateProgress && !state?.progressUpdated) && (
+                        <p className="text-[--muted] text-center text-sm">
+                            Your progress will be automatically updated
+                        </p>
+                    )}
+                    {(state?.progressUpdated) && (
+                        <p className="text-green-300 text-center">
+                            Progress updated
+                        </p>
+                    )}
+                </div>}
 
                 {(
                     !!state?.completionPercentage
@@ -391,7 +416,7 @@ export function PlaybackManagerProgressTracking() {
                         intent="primary-subtle"
                         disabled={isPending || state?.progressUpdated}
                         onClick={handleUpdateProgress}
-                        className="w-full"
+                        className="w-full animate-pulse"
                         loading={isPending}
                     >
                         Update progress now
@@ -405,7 +430,7 @@ export function PlaybackManagerProgressTracking() {
                     && !playlistState
                 ) && <div className="flex gap-2 justify-center items-center">
                     <Button
-                        intent="white"
+                        intent="gray-subtle"
                         onClick={() => {
                             cancelAutoPlay()
                             confirmNextEpisode.open()
@@ -419,18 +444,19 @@ export function PlaybackManagerProgressTracking() {
                     </Button>
                 </div>}
                 {!!playlistState?.next && (
-                    <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
+                    <div className="border rounded-[--radius-md] p-4 text-center relative overflow-hidden">
                         <div className="space-y-3">
                             <div>
-                                <h4 className="text-lg font-medium text-center text-[--muted]">Playlist</h4>
+                                <h4 className="text-lg font-medium text-center text-[--muted] mb-2 uppercase tracking-wide">Playlist</h4>
                                 {!!playlistState.remaining &&
-                                    <p>{playlistState.remaining} episode{playlistState.remaining > 1 ? "s" : ""} after this one</p>}
+                                    <p className="text-[--muted]">{playlistState.remaining} episode{playlistState.remaining > 1 ? "s" : ""} after this
+                                                                                            one</p>}
                                 <p className="text-center truncate line-clamp-1">Next: <span className="font-semibold">{playlistState?.next?.name}</span>
                                 </p>
                             </div>
                             <div
                                 className={cn(
-                                    "w-full rounded-md relative overflow-hidden",
+                                    "w-full rounded-[--radius-md] relative overflow-hidden",
                                     submittedPlaylistNext ? "opacity-50 pointer-events-none" : "cursor-pointer",
                                 )}
                                 onClick={() => {
@@ -481,28 +507,28 @@ export function PlaybackManagerProgressTracking() {
                         cancelAutoPlay()
                     }
                 }}
-                title="Auto playing next episode"
+                title="Playing next episode in"
                 titleClass="text-center"
-                contentClass="!space-y-2 relative max-w-xl"
+                contentClass="!space-y-2 relative max-w-xl border-transparent !rounded-3xl"
+                closeClass="!text-[--red]"
             >
 
-                <div className="bg-gray-950 border rounded-md p-4 text-center relative overflow-hidden">
-                    <p className="text-[--muted]">Playing next episode in</p>
-                    <h3 className="text-2xl font-bold">{autoPlayInXSeconds}</h3>
+                <div className="rounded-[--radius-md] text-center relative overflow-hidden">
+                    <h3 className="text-5xl font-bold">{autoPlayInXSeconds}</h3>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center">
-                    <Button
-                        intent="alert-subtle"
-                        onClick={() => {
-                            logger("PlaybackManagerProgressTracking").info("Auto play cancelled")
-                            cancelAutoPlay()
-                        }}
-                        className="w-full"
-                    >
-                        Cancel
-                    </Button>
-                </div>
+                {/*<div className="flex gap-2 justify-center items-center">*/}
+                {/*    <Button*/}
+                {/*        intent="alert-link"*/}
+                {/*        onClick={() => {*/}
+                {/*            logger("PlaybackManagerProgressTracking").info("Auto play cancelled")*/}
+                {/*            cancelAutoPlay()*/}
+                {/*        }}*/}
+                {/*        className="w-full"*/}
+                {/*    >*/}
+                {/*        Stop*/}
+                {/*    </Button>*/}
+                {/*</div>*/}
 
             </Modal>
 

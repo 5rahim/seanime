@@ -276,7 +276,7 @@ function MediaItem(props: {
             <div
                 key={entry.mediaId}
                 className={cn(
-                    "col-span-1 aspect-[6/7] rounded-md overflow-hidden relative bg-[var(--background)] cursor-pointer transition-opacity select-none",
+                    "col-span-1 aspect-[6/7] rounded-[--radius-md] overflow-hidden relative bg-[var(--background)] cursor-pointer transition-opacity select-none",
                     isSaved && "",
                     isPending && "pointer-events-none",
                 )}
@@ -296,7 +296,7 @@ function MediaItem(props: {
                     fill
                     alt=""
                     className={cn(
-                        "object-center object-cover rounded-md transition-opacity",
+                        "object-center object-cover rounded-[--radius-md] transition-opacity",
                         isSelected ? "opacity-100" : "opacity-60",
                     )}
                 />

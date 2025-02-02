@@ -1,13 +1,12 @@
 package core
 
 import (
-	"github.com/cli/browser"
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/continuity"
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
-	"seanime/internal/discordrpc/presence"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
@@ -24,6 +23,8 @@ import (
 	"seanime/internal/torrent_clients/transmission"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/torrentstream"
+
+	"github.com/cli/browser"
 )
 
 // initModulesOnce will initialize modules that need to persist.
@@ -454,6 +455,7 @@ func (a *App) InitOrRefreshTorrentstreamSettings() {
 			StreamingServerPort: 43214,
 			IncludeInLibrary:    false,
 			StreamUrlAddress:    "",
+			SlowSeeding:         false,
 		})
 		if err != nil {
 			a.Logger.Error().Err(err).Msg("app: Failed to initialize mediastream module")

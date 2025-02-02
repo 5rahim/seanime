@@ -20,7 +20,7 @@ func (vlc *VLC) getExecutableName() string {
 	}
 }
 
-func (vlc *VLC) getExecutablePath() string {
+func (vlc *VLC) GetExecutablePath() string {
 
 	if len(vlc.Path) > 0 {
 		return vlc.Path
@@ -52,7 +52,7 @@ func (vlc *VLC) Start() error {
 	}
 
 	// Start VLC
-	exe := vlc.getExecutablePath()
+	exe := vlc.GetExecutablePath()
 	cmd := util.NewCmd(exe)
 	err := cmd.Start()
 	if err != nil {

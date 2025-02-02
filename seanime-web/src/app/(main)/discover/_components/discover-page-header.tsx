@@ -164,7 +164,7 @@ export function DiscoverPageHeader() {
                                         : `/manga/entry?id=${randomTrending.id}`}
                                 >
                                     {randomTrending.coverImage?.large && <div
-                                        className="w-[190px] h-[290px] relative rounded-md overflow-hidden bg-[--background] shadow-md"
+                                        className="w-[190px] h-[290px] relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md"
                                     >
                                         <Image
                                             src={randomTrending.coverImage.large}

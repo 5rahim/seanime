@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"context"
 	"errors"
-	"github.com/rs/zerolog"
 	"os/exec"
 	"runtime"
 	"seanime/internal/mediaplayers/mpvipc"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -66,6 +67,13 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		subscribers: make(map[string]*Subscriber),
 		exitedCh:    make(chan struct{}),
 	}
+}
+
+func (m *Mpv) GetExecutablePath() string {
+	if m.AppPath != "" {
+		return m.AppPath
+	}
+	return "mpv"
 }
 
 // launchPlayer starts the mpv player and plays the file.

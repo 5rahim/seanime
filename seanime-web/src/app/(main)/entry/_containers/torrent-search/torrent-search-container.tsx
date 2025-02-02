@@ -1,5 +1,7 @@
 import { Anime_Entry, Debrid_TorrentItemInstantAvailability, HibikeTorrent_AnimeTorrent } from "@/api/generated/types"
 import { useGetTorrentstreamBatchHistory } from "@/api/hooks/torrentstream.hooks"
+import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
+import { useHandleStartDebridStream } from "@/app/(main)/entry/_containers/debrid-stream/_lib/handle-debrid-stream"
 import { DebridStreamFileSelectionModal } from "@/app/(main)/entry/_containers/debrid-stream/debrid-stream-file-selection-modal"
 import {
     TorrentDebridInstantAvailabilityBadge,
@@ -10,10 +12,7 @@ import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-searc
 import { TorrentPreviewList } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-list"
 import { TorrentTable } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-table"
 import { Torrent_SearchType, useHandleTorrentSearch } from "@/app/(main)/entry/_containers/torrent-search/_lib/handle-torrent-search"
-import {
-    TorrentConfirmationContinueButton,
-    TorrentConfirmationModal,
-} from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
+import { TorrentConfirmationModal } from "@/app/(main)/entry/_containers/torrent-search/torrent-confirmation-modal"
 import { __torrentSearch_drawerIsOpenAtom, TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { useHandleStartTorrentStream } from "@/app/(main)/entry/_containers/torrent-stream/_lib/handle-torrent-stream"
 import {
@@ -25,28 +24,27 @@ import { LuffyError } from "@/components/shared/luffy-error"
 import { Alert } from "@/components/ui/alert"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Badge } from "@/components/ui/badge"
-import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { DataGridSearchInput } from "@/components/ui/datagrid"
 import { NumberInput } from "@/components/ui/number-input"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
-import { Tooltip } from "@/components/ui/tooltip"
-import { openTab } from "@/lib/helpers/browser"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import { TORRENT_PROVIDER } from "@/lib/server/settings"
 import { subDays, subMonths } from "date-fns"
 import { atom, useSetAtom } from "jotai"
 import { useAtom } from "jotai/react"
 import React, { startTransition } from "react"
-import { BiCalendarAlt, BiFile, BiLinkExternal } from "react-icons/bi"
+import { BiCalendarAlt } from "react-icons/bi"
+import { LuCornerLeftDown } from "react-icons/lu"
 import { RiFolderDownloadFill } from "react-icons/ri"
 
 export const __torrentSearch_selectedTorrentsAtom = atom<HibikeTorrent_AnimeTorrent[]>([])
 
 export function TorrentSearchContainer({ type, entry }: { type: TorrentSelectionType, entry: Anime_Entry }) {
     const downloadInfo = React.useMemo(() => entry.downloadInfo, [entry.downloadInfo])
+    const serverStatus = useServerStatus()
 
     const shouldLookForBatches = React.useMemo(() => {
         const endedDate = entry.media?.endDate?.year ? new Date(entry.media?.endDate?.year,
@@ -122,6 +120,10 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
     const debridInstantAvailability = React.useMemo(() => data?.debridInstantAvailability ?? {}, [data?.debridInstantAvailability])
 
+    React.useEffect(() => {
+        setSelectedTorrents([])
+    }, [torrents])
+
     const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
             label="Episode number"
@@ -142,7 +144,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
             fieldLabelClass={cn(
                 "flex-none self-center font-normal !text-md sm:text-md lg:text-md",
             )}
-            className="max-w-[6rem]"
+            className="max-w-[4rem]"
         />
     }, [searchType, smartSearchBatch, smartSearchBest, downloadInfo, soughtEpisode])
 
@@ -172,120 +174,102 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     }, [setSelectedTorrents, smartSearchBest, type])
 
     /**
-     * This function is called only when the type is 'select'
-     * Meaning, the user has selected a torrent and wants to start streaming
+     * Handle streams
      */
-    const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
-    const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
-    const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
-    const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
-    const onTorrentValidated = () => {
-        if (type === "select") {
-            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                handleManualTorrentStreamSelection({
-                    torrent: selectedTorrents[0],
-                    entry,
-                    aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
-                    episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
-                    chosenFileIndex: undefined,
-                })
-                setter(undefined)
-                React.startTransition(() => {
-                    setSelectedTorrents([])
-                })
-            }
-        } else if (type === "select-file") {
-            // Open the drawer to select the file
-            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                // This opens the file selection drawer
-                setTorrentstreamSelectedTorrent(selectedTorrents[0])
-                React.startTransition(() => {
-                    setSelectedTorrents([])
-                })
-            }
-        } else if (type === "debrid-stream") {
-            // Open the drawer to select the file
-            if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                // This opens the file selection drawer
-                setTorrentstreamSelectedTorrent(selectedTorrents[0])
-                React.startTransition(() => {
-                    setSelectedTorrents([])
-                })
-            }
-        }
-    }
+
 
     return (
         <>
-            {(type === "select" || type === "select-file" || type === "debrid-stream") &&
+            {(type === "select" || type === "select-file" || type === "debrid-stream-select-file" || type === "debrid-stream-select") &&
                 <TorrentSearchTorrentStreamBatchHistory
                     type={type}
                     entry={entry}
                     debridInstantAvailability={debridInstantAvailability}
                 />}
 
-            <div className="py-4 space-y-4">
-                <div className="max-w-[400px]">
-                    <Select
-                        name="torrentProvider"
-                        leftAddon="Torrent Provider"
-                        value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
-                        onValueChange={setSelectedProviderExtensionId}
-                        leftIcon={<RiFolderDownloadFill />}
-                        options={[
-                            ...(providerExtensions?.map(ext => ({
-                                label: ext.name,
-                                value: ext.id,
-                            })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
-                            { label: "None", value: TORRENT_PROVIDER.NONE },
-                        ]}
-                    />
-                </div>
+            <AppLayoutStack className="Sea-TorrentSearchContainer__root space-y-4">
 
-                {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") ? (
-                    <>
+                <div className="Sea-TorrentSearchContainer__paramContainer flex flex-wrap gap-3 items-center">
+                    <div className="w-[200px]">
+                        <Select
+                            name="torrentProvider"
+                            // leftAddon="Torrent Provider"
+                            value={selectedProviderExtension?.id ?? TORRENT_PROVIDER.NONE}
+                            onValueChange={setSelectedProviderExtensionId}
+                            leftIcon={<RiFolderDownloadFill className="text-[--brand]" />}
+                            options={[
+                                ...(providerExtensions?.map(ext => ({
+                                    label: ext.name,
+                                    value: ext.id,
+                                })) ?? []).sort((a, b) => a?.label?.localeCompare(b?.label) ?? 0),
+                                { label: "None", value: TORRENT_PROVIDER.NONE },
+                            ]}
+                        />
+                    </div>
 
-                        {Object.keys(warnings)?.map((key) => {
-                            if ((warnings as any)[key]) {
-                                return <Alert
-                                    key={key}
-                                    intent="warning"
-                                    description={<>
-                                        {key === "extensionDoesNotSupportAdult" && "This provider does not support adult content"}
-                                        {key === "extensionDoesNotSupportSmartSearch" && "This provider does not support smart search"}
-                                        {key === "extensionDoesNotSupportBestRelease" && "This provider does not support best release search"}
-                                    </>}
-                                />
-                            }
-                            return null
-                        })}
-
-                        {entry.media?.isAdult === true && <div className="">
+                    {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && <>
+                        <div
+                            className="h-10 rounded-[--radius] px-2 flex items-center"
+                        >
                             <Switch
-                                label="Adult"
-                                help="If enabled, this media is considered adult content. Some extensions may not support adult content."
-                                value={isAdult}
-                                onValueChange={setIsAdult}
-                            />
-                        </div>}
-
-                        <div className="flex w-full justify-between">
-                            <Switch
+                                // side="right"
                                 label="Smart search"
-                                help={selectedProviderExtension?.settings?.canSmartSearch
-                                    ? "Builds a search query automatically, based on parameters"
+                                moreHelp={selectedProviderExtension?.settings?.canSmartSearch
+                                    ? "Automatically search based on given parameters"
                                     : "This provider does not support smart search"}
                                 value={searchType === Torrent_SearchType.SMART}
                                 onValueChange={v => setSearchType(v ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)}
                                 disabled={!selectedProviderExtension?.settings?.canSmartSearch}
+                                containerClass="flex-row-reverse gap-1"
                             />
-                            <div className="flex flex-1"></div>
-                            <TorrentConfirmationContinueButton type={type} onTorrentValidated={onTorrentValidated} />
                         </div>
 
-                        {(searchType === Torrent_SearchType.SMART) && <div>
-                            <div className="space-y-2">
-                                <div className="flex flex-col justify-around gap-3 md:flex-row w-full">
+                        {entry.media?.isAdult === false && <div
+                            className="h-10 rounded-[--radius] px-2 flex items-center"
+                        >
+                            <Switch
+                                // side="right"
+                                label="Adult"
+                                moreHelp="If enabled, the adult content flag will be passed to the provider."
+                                value={isAdult}
+                                onValueChange={setIsAdult}
+                                containerClass="flex-row-reverse gap-1"
+                            />
+                        </div>}
+                    </>}
+                </div>
+
+                {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") && Object.keys(warnings)?.map((key) => {
+                    if ((warnings as any)[key]) {
+                        return <Alert
+                            key={key}
+                            intent="warning"
+                            description={<>
+                                {key === "extensionDoesNotSupportAdult" && "This provider does not support adult content"}
+                                {key === "extensionDoesNotSupportSmartSearch" && "This provider does not support smart search"}
+                                {key === "extensionDoesNotSupportBestRelease" && "This provider does not support best release search"}
+                            </>}
+                        />
+                    }
+                    return null
+                })}
+
+                {(selectedProviderExtensionId !== "none" && selectedProviderExtensionId !== "") ? (
+                    <>
+                        {(searchType === Torrent_SearchType.SMART) &&
+                            <AppLayoutStack className="Sea-TorrentSearchContainer__smartSearchContainer">
+                                <div
+                                    className={cn(
+                                        "Sea-TorrentSearchContainer__providerParamContainer flex flex-col items-center flex-wrap justify-around gap-3 md:flex-row w-full border rounded-[--radius] p-3",
+                                        {
+                                            "hidden": !selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") &&
+                                                !selectedProviderExtension?.settings?.smartSearchFilters?.includes("resolution")
+                                                && !selectedProviderExtension?.settings?.smartSearchFilters?.includes("batch")
+                                                && !selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases")
+                                                && !selectedProviderExtension?.settings?.smartSearchFilters?.includes("search"),
+                                        },
+                                    )}
+                                >
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("episodeNumber") && <EpisodeNumberInput />}
 
@@ -320,6 +304,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch || smartSearchBest },
                                         )}
                                         size="sm"
+                                        containerClass="flex-row-reverse gap-1"
                                     />}
 
                                     {selectedProviderExtension?.settings?.smartSearchFilters?.includes("bestReleases") && <Switch
@@ -331,22 +316,23 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             { "opacity-50 cursor-not-allowed pointer-events-none": !downloadInfo?.canBatch },
                                         )}
                                         size="sm"
+                                        containerClass="flex-row-reverse gap-1"
                                     />}
 
                                 </div>
 
                                 {!hasOneWarning && (
                                     <>
-                                        <div className="pb-1" />
-                                        {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") && <DataGridSearchInput
-                                            value={globalFilter ?? ""}
-                                            onChange={v => setGlobalFilter(v)}
-                                            placeholder={searchType === Torrent_SearchType.SMART
-                                                ? `Refine the title (${entry.media?.title?.romaji})`
-                                                : "Search"}
-                                            fieldClass="md:max-w-full w-full"
-                                        />}
-                                        <div className="pb-1" />
+                                        {selectedProviderExtension?.settings?.smartSearchFilters?.includes("query") && <div className="py-1">
+                                            <DataGridSearchInput
+                                                value={globalFilter ?? ""}
+                                                onChange={v => setGlobalFilter(v)}
+                                                placeholder={searchType === Torrent_SearchType.SMART
+                                                    ? `Refine the title (${entry.media?.title?.romaji})`
+                                                    : "Search"}
+                                                fieldClass="md:max-w-full w-full"
+                                            />
+                                        </div>}
 
                                         <TorrentPreviewList
                                             entry={entry}
@@ -358,18 +344,18 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                         />
                                     </>
                                 )}
-                            </div>
-                        </div>}
+                            </AppLayoutStack>}
 
                         {hasOneWarning && <LuffyError />}
 
-                        {!hasOneWarning && (
+                        {((searchType !== Torrent_SearchType.SMART) && !hasOneWarning && !previews?.length) && (
                             <>
                                 <TorrentTable
                                     torrents={torrents}
                                     globalFilter={globalFilter}
                                     setGlobalFilter={setGlobalFilter}
-                                    smartSearch={searchType == Torrent_SearchType.SMART}
+                                    smartSearch={false}
+                                    supportsQuery
                                     isLoading={isLoading}
                                     isFetching={isFetching}
                                     selectedTorrents={selectedTorrents}
@@ -386,7 +372,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                     <Skeleton className="h-[96px]" />
                     <Skeleton className="h-[96px]" />
                 </div>}
-            </div>
+            </AppLayoutStack>
 
             {type === "download" && <TorrentConfirmationModal
                 onToggleTorrent={handleToggleTorrent}
@@ -395,7 +381,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
             />}
 
             {type === "select-file" && <TorrentstreamFileSelectionModal entry={entry} />}
-            {type === "debrid-stream" && <DebridStreamFileSelectionModal entry={entry} />}
+            {type === "debrid-stream-select-file" && <DebridStreamFileSelectionModal entry={entry} />}
         </>
     )
 
@@ -410,6 +396,7 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
     const { data: batchHistory } = useGetTorrentstreamBatchHistory(entry?.mediaId, true)
 
     const { handleManualTorrentStreamSelection } = useHandleStartTorrentStream()
+    const { handleStreamSelection } = useHandleStartDebridStream()
     const { torrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
     const setTorrentstreamSelectedTorrent = useSetAtom(__torrentSearch_torrentstreamSelectedTorrentAtom)
     const [, setter] = useAtom(__torrentSearch_drawerIsOpenAtom)
@@ -418,66 +405,64 @@ function TorrentSearchTorrentStreamBatchHistory({ entry, type, debridInstantAvai
 
     return (
         <AppLayoutStack>
-            <h4>Previous selection</h4>
+            <h5 className="text-center flex gap-2 items-center"><LuCornerLeftDown className="mt-1" /> Previous selection</h5>
 
             <TorrentPreviewItem
+                link={batchHistory?.torrent?.link}
                 confirmed={batchHistory?.torrent?.confirmed}
                 key={batchHistory?.torrent.link}
                 title={""}
                 releaseGroup={batchHistory?.torrent.releaseGroup || ""}
-                filename={batchHistory?.torrent.name}
+                subtitle={batchHistory?.torrent.name}
                 isBatch={batchHistory?.torrent.isBatch ?? false}
                 image={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
                 fallbackImage={entry?.media?.coverImage?.large || entry?.media?.bannerImage}
                 isBestRelease={batchHistory?.torrent.isBestRelease}
                 onClick={() => {
+                    if (!batchHistory?.torrent || !torrentStreamingSelectedEpisode?.aniDBEpisode) return
                     if (type === "select") {
-                        if (batchHistory?.torrent && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                            handleManualTorrentStreamSelection({
-                                torrent: batchHistory?.torrent,
-                                entry,
-                                aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
-                                episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
-                                chosenFileIndex: undefined,
-                            })
-                            setter(undefined)
-                        }
-                    } else if (type === "select-file" || type === "debrid-stream") {
+                        handleManualTorrentStreamSelection({
+                            torrent: batchHistory?.torrent,
+                            entry,
+                            aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
+                            episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                            chosenFileIndex: undefined,
+                        })
+                        setter(undefined)
+                    } else if (type === "debrid-stream-select") {
+                        handleStreamSelection({
+                            torrent: batchHistory?.torrent,
+                            entry,
+                            aniDBEpisode: torrentStreamingSelectedEpisode.aniDBEpisode,
+                            episodeNumber: torrentStreamingSelectedEpisode.episodeNumber,
+                            chosenFileId: "",
+                        })
+                        setter(undefined)
+                    } else if (type === "select-file" || type === "debrid-stream-select-file") {
                         // Open the drawer to select the file
-                        if (!!torrentStreamingSelectedEpisode?.aniDBEpisode) {
-                            // This opens the file selection drawer
-                            setTorrentstreamSelectedTorrent(batchHistory?.torrent)
-                        }
+                        // This opens the file selection drawer
+                        setTorrentstreamSelectedTorrent(batchHistory?.torrent)
                     }
                 }}
-                action={<Tooltip
-                    side="left"
-                    trigger={<IconButton
-                        icon={<BiLinkExternal />}
-                        intent="primary-basic"
-                        size="sm"
-                        onClick={() => openTab(batchHistory?.torrent?.link ?? "")}
-                    />}
-                >Open in browser</Tooltip>}
             >
-                <div className="flex flex-wrap gap-2 items-center">
-                    {batchHistory?.torrent.isBestRelease && (
+                <div className="flex flex-wrap gap-3 items-center">
+                    {batchHistory?.torrent?.isBestRelease && (
                         <Badge
-                            className="rounded-md text-[0.8rem] bg-pink-800 border-pink-600 border"
+                            className="rounded-[--radius-md] text-[0.8rem] bg-pink-800 border-transparent border"
                             intent="success-solid"
                         >
                             Best release
                         </Badge>
                     )}
-                    <TorrentResolutionBadge resolution={batchHistory?.torrent.resolution} />
-                    <TorrentSeedersBadge seeders={batchHistory?.torrent.seeders} />
-                    {(!!batchHistory?.torrent.infoHash && debridInstantAvailability[batchHistory?.torrent.infoHash]) && (
+                    <TorrentResolutionBadge resolution={batchHistory?.torrent?.resolution} />
+                    {(!!batchHistory?.torrent?.infoHash && debridInstantAvailability[batchHistory?.torrent?.infoHash]) && (
                         <TorrentDebridInstantAvailabilityBadge />
                     )}
-                    {!!batchHistory?.torrent.size && <p className="text-gray-300 text-sm flex items-center gap-1">
-                        <BiFile /> {batchHistory?.torrent.formattedSize}</p>}
+                    <TorrentSeedersBadge seeders={batchHistory?.torrent?.seeders} />
+                    {!!batchHistory?.torrent?.size && <p className="text-gray-300 text-sm flex items-center gap-1">
+                        {batchHistory?.torrent?.formattedSize}</p>}
                     <p className="text-[--muted] text-sm flex items-center gap-1">
-                        <BiCalendarAlt /> {formatDistanceToNowSafe(batchHistory?.torrent.date)}
+                        <BiCalendarAlt /> {formatDistanceToNowSafe(batchHistory?.torrent?.date)}
                     </p>
                 </div>
             </TorrentPreviewItem>

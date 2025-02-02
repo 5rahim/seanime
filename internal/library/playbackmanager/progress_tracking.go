@@ -4,13 +4,14 @@ import (
 	"cmp"
 	"context"
 	"errors"
-	"github.com/samber/mo"
 	"seanime/internal/continuity"
-	"seanime/internal/discordrpc/presence"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/util"
+
+	"github.com/samber/mo"
 )
 
 var (
@@ -312,6 +313,7 @@ func (pm *PlaybackManager) getLocalFilePlaybackState(status *mediaplayer.Playbac
 		EpisodeNumber:        pm.currentLocalFileWrapperEntry.MustGet().GetProgressNumber(pm.currentLocalFile.MustGet()),
 		MediaTitle:           pm.currentMediaListEntry.MustGet().GetMedia().GetPreferredTitle(),
 		MediaTotalEpisodes:   pm.currentMediaListEntry.MustGet().GetMedia().GetCurrentEpisodeCount(),
+		MediaCoverImage:      pm.currentMediaListEntry.MustGet().GetMedia().GetCoverImageSafe(),
 		MediaId:              pm.currentMediaListEntry.MustGet().GetMedia().GetID(),
 		Filename:             status.Filename,
 		CompletionPercentage: status.CompletionPercentage,
@@ -336,6 +338,7 @@ func (pm *PlaybackManager) getStreamPlaybackState(status *mediaplayer.PlaybackSt
 		EpisodeNumber:        pm.currentStreamEpisode.MustGet().GetProgressNumber(),
 		MediaTitle:           pm.currentStreamMedia.MustGet().GetPreferredTitle(),
 		MediaTotalEpisodes:   pm.currentStreamMedia.MustGet().GetCurrentEpisodeCount(),
+		MediaCoverImage:      pm.currentStreamMedia.MustGet().GetCoverImageSafe(),
 		MediaId:              pm.currentStreamMedia.MustGet().GetID(),
 		Filename:             cmp.Or(status.Filename, "Stream"),
 		CompletionPercentage: status.CompletionPercentage,

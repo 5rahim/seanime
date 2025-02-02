@@ -1,15 +1,12 @@
 import { useGetMediastreamSettings, useSaveMediastreamSettings } from "@/api/hooks/mediastream.hooks"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useMediastreamActiveOnDevice } from "@/app/(main)/mediastream/_lib/mediastream.atoms"
-import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
-import { Alert } from "@/components/ui/alert"
-import { Checkbox } from "@/components/ui/checkbox"
+import { SettingsCard } from "@/app/(main)/settings/_components/settings-card"
+import { SettingsIsDirty, SettingsSubmitButton } from "@/app/(main)/settings/_components/settings-submit-button"
 import { defineSchema, Field, Form } from "@/components/ui/form"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { Separator } from "@/components/ui/separator"
 import React from "react"
-import { MdOutlineDevices } from "react-icons/md"
-import { toast } from "sonner"
+import { UseFormReturn } from "react-hook-form"
 
 const mediastreamSchema = defineSchema(({ z }) => z.object({
     transcodeEnabled: z.boolean(),
@@ -60,12 +57,15 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
 
     const { activeOnDevice, setActiveOnDevice } = useMediastreamActiveOnDevice()
 
+    const formRef = React.useRef<UseFormReturn<any>>(null)
+
     if (!settings) return <LoadingSpinner />
 
     return (
         <>
             <Form
                 schema={mediastreamSchema}
+                mRef={formRef}
                 onSubmit={data => {
                     if (settings) {
                         mutate({
@@ -76,7 +76,13 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                                 preTranscodeEnabled: false,
                                 transcodeThreads: 0,
                             },
-                        })
+                            },
+                            {
+                                onSuccess: () => {
+                                    formRef.current?.reset(formRef.current.getValues())
+                                },
+                            },
+                        )
                     }
                 }}
                 defaultValues={{
@@ -92,95 +98,110 @@ export function MediastreamSettings(props: MediastreamSettingsProps) {
                     ffprobePath: settings?.ffprobePath || "",
                     transcodeHwAccelCustomSettings: settings?.transcodeHwAccelCustomSettings || "{\n	\"name\": \"\",\n	\"decodeFlags\": [\n		\"-hwaccel\", \"\",\n		\"-hwaccel_output_format\", \"\",\n	],\n	\"encodeFlags\": [\n		\"-c:v\", \"\",\n		\"-preset\", \"\",\n		\"-pix_fmt\", \"yuv420p\",\n	],\n	\"scaleFilter\": \"scale=%d:%d\"\n}",
                 }}
-                stackClass="space-y-6"
+                stackClass="space-y-4"
             >
                 {(f) => (
                     <>
-                        <Field.Switch
-                            name="transcodeEnabled"
-                            label="Enable"
-                        />
+                        <SettingsIsDirty />
+                        <SettingsCard>
+                            <Field.Switch
+                                side="right"
+                                name="transcodeEnabled"
+                                label="Enable"
+                            />
+                        </SettingsCard>
 
-                        <div className="flex gap-4 items-center border rounded-md p-2 lg:p-4">
-                            <MdOutlineDevices className="text-4xl" />
-                            <div className="space-y-1">
-                                <Checkbox
-                                    value={activeOnDevice ?? false}
-                                    onValueChange={v => {
-                                        setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)
-                                        if (v) {
-                                            toast.success("Media streaming is now active on this device.")
-                                        } else {
-                                            toast.info("Media streaming is now inactive on this device.")
-                                        }
-                                    }}
-                                    label="Use media streaming on this device"
-                                    help="Enable this option if you want to use media streaming on this device."
+                        {/* <SettingsCard title="Client Playback">
+                         <div className="flex gap-4 items-center rounded-[--radius-md]">
+                         <MdOutlineDevices className="text-4xl" />
+                         <div className="space-y-1">
+                         <Checkbox
+                         value={activeOnDevice ?? false}
+                         onValueChange={v => {
+                         setActiveOnDevice((prev) => typeof v === "boolean" ? v : prev)
+                         if (v) {
+                         toast.success("Media streaming is now active on this device.")
+                         } else {
+                         toast.info("Media streaming is now inactive on this device.")
+                         }
+                         }}
+                         label="Use media streaming on this device"
+                         help="Enable this option if you want to use media streaming on this device."
+                         />
+                         <p className="text-gray-200">
+                         Current client: {serverStatus?.clientDevice}, {serverStatus?.clientPlatform}
+                         </p>
+                         </div>
+                         </div>
+
+                         {(f.watch("transcodeEnabled") && activeOnDevice) && (
+                         <Alert
+                         intent="info" description={<>
+                         Media streaming will be used instead of your external player on this device.
+                         </>}
+                         />
+                         )}
+                         </SettingsCard> */}
+
+                        <SettingsCard title="Direct play">
+
+                            <Field.Switch
+                                side="right"
+                                name="disableAutoSwitchToDirectPlay"
+                                label="Prefer transcoding"
+                                help="If enabled, Seanime will not automatically switch to direct play if the media codec is supported by the client."
+                            />
+
+                            <Field.Switch
+                                side="right"
+                                name="directPlayOnly"
+                                label="Direct play only"
+                                help="Only allow direct play. Transcoding will never be started."
+                            />
+
+                        </SettingsCard>
+
+                        <SettingsCard title="Transcoding">
+                            <Field.Select
+                                options={MEDIASTREAM_HW_ACCEL_OPTIONS}
+                                name="transcodeHwAccel"
+                                label="Hardware acceleration"
+                                help="Hardware acceleration is highly recommended for a smoother transcoding experience."
+                            />
+
+                            {f.watch("transcodeHwAccel") === "custom" && (
+                                <Field.Textarea
+                                    name="transcodeHwAccelCustomSettings"
+                                    label="Custom settings (JSON)"
+                                    className="min-h-[400px]"
+                                    help="Video stream only, scaleFilter = -vf, -map,-bufsize,-b:v,-maxrate automatically applied."
                                 />
-                                <p className="text-gray-200">
-                                    Current client: {serverStatus?.clientDevice}, {serverStatus?.clientPlatform}
-                                </p>
+                            )}
+
+                            <Field.Select
+                                options={MEDIASTREAM_PRESET_OPTIONS}
+                                name="transcodePreset"
+                                label="Transcode preset"
+                                help="'Fast' is recommended. VAAPI does not support presets."
+                            />
+                        </SettingsCard>
+
+                        <SettingsCard title="FFmpeg">
+
+                            <div className="flex gap-3 items-center">
+                                <Field.Text
+                                    name="ffmpegPath"
+                                    label="FFmpeg path"
+                                    help="Path to the FFmpeg binary. Leave empty if binary is already in your PATH."
+                                />
+
+                                <Field.Text
+                                    name="ffprobePath"
+                                    label="FFprobe path"
+                                    help="Path to the FFprobe binary. Leave empty if binary is already in your PATH."
+                                />
                             </div>
-                        </div>
-
-                        {(f.watch("transcodeEnabled") && activeOnDevice) && (
-                            <Alert
-                                intent="info" description={<>
-                                Your downloaded media files will be played using the integrated player on this device.
-                            </>}
-                            />
-                        )}
-
-                        <Separator />
-
-                        <Field.Switch
-                            name="disableAutoSwitchToDirectPlay"
-                            label="Don't auto switch to direct play"
-                            help="By default, Seanime will automatically switch to direct play if the media codec is supported by the client."
-                        />
-
-                        <Field.Switch
-                            name="directPlayOnly"
-                            label="Direct play only"
-                            help="Only allow direct play. Transcoding will never be started."
-                        />
-
-                        <Field.Select
-                            options={MEDIASTREAM_HW_ACCEL_OPTIONS}
-                            name="transcodeHwAccel"
-                            label="Hardware acceleration"
-                            help="Hardware acceleration is highly recommended for a smoother transcoding experience."
-                        />
-
-                        {f.watch("transcodeHwAccel") === "custom" && (
-                            <Field.Textarea
-                                name="transcodeHwAccelCustomSettings"
-                                label="Custom settings (JSON)"
-                                className="min-h-[400px]"
-                                help="Video stream only, scaleFilter = -vf, -map,-bufsize,-b:v,-maxrate automatically applied."
-                            />
-                        )}
-
-                        <Field.Select
-                            options={MEDIASTREAM_PRESET_OPTIONS}
-                            name="transcodePreset"
-                            label="Transcode preset"
-                            help="'Fast' is recommended. VAAPI does not support presets."
-                        />
-
-                        <div className="flex gap-3 items-center">
-                            <Field.Text
-                                name="ffmpegPath"
-                                label="FFmpeg path"
-                                help="Path to the FFmpeg binary. Leave empty if binary is already in your PATH."
-                            />
-
-                            <Field.Text
-                                name="ffprobePath"
-                                label="FFprobe path"
-                                help="Path to the FFprobe binary. Leave empty if binary is already in your PATH."
-                            />
-                        </div>
+                        </SettingsCard>
 
                         <SettingsSubmitButton isPending={isPending} />
                     </>

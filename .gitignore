@@ -3,6 +3,8 @@ logs/
 *.db
 .run/
 testdata/
+.vscode
+.cursorrules
 
 Dockerfile
 Dockerfile.dev

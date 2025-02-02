@@ -127,7 +127,7 @@ export function UpdateModal(props: UpdateModalProps) {
                                     Refer to the documentation for more information.
                                 </p>
                                 <Button className="w-full" onClick={handleInstallUpdate} disabled={isPending}>
-                                    Install
+                                    Download and Install
                                 </Button>
                             </div>
                         </Modal>}

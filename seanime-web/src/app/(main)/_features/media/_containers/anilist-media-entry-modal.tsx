@@ -44,7 +44,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
 
     const { mutate, isPending: _isPending1, isSuccess } = useEditAnilistListEntry(media?.id, type)
     const { mutate: mutateRepeat, isPending: _isPending2 } = useUpdateAnimeEntryRepeat(media?.id)
-    const isPending = _isPending1 || _isPending2
+    const isPending = _isPending1
     const { mutate: deleteEntry, isPending: isDeleting } = useDeleteAnilistListEntry(media?.id, type, () => {
         toggle(false)
     })
@@ -110,7 +110,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                         quality={80}
                         priority
                         sizes="20rem"
-                        className="object-cover object-center opacity-30"
+                        className="object-cover object-center opacity-15"
                     />
                     <div
                         className="z-[5] absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-[--background] to-transparent"
@@ -120,7 +120,7 @@ export const AnilistMediaEntryModal: React.FC<AnilistMediaEntryModalProps> = (pr
                 {(!!listData) && <Form
                     schema={mediaListDataSchema}
                     onSubmit={data => {
-                        if (repeat !== listData?.repeat) {
+                        if (repeat !== (listData?.repeat ?? 0)) {
                             // Update repeat count
                             mutateRepeat({
                                 mediaId: media?.id || 0,

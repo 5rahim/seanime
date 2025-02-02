@@ -6,6 +6,8 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleRunAutoDownloader
@@ -15,11 +17,11 @@ import (
 //	@desc It does nothing if the AutoDownloader is disabled.
 //	@route /api/v1/auto-downloader/run [POST]
 //	@returns bool
-func HandleRunAutoDownloader(c *RouteCtx) error {
+func (h *Handler) HandleRunAutoDownloader(c echo.Context) error {
 
-	c.App.AutoDownloader.Run()
+	h.App.AutoDownloader.Run()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetAutoDownloaderRule
@@ -29,19 +31,19 @@ func HandleRunAutoDownloader(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/rule/{id} [GET]
 //	@param id - int - true - "The DB id of the rule"
 //	@returns anime.AutoDownloaderRule
-func HandleGetAutoDownloaderRule(c *RouteCtx) error {
+func (h *Handler) HandleGetAutoDownloaderRule(c echo.Context) error {
 
-	id, err := c.Fiber.ParamsInt("id")
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(errors.New("invalid id"))
+		return h.RespondWithError(c, errors.New("invalid id"))
 	}
 
-	rule, err := db_bridge.GetAutoDownloaderRule(c.App.Database, uint(id))
+	rule, err := db_bridge.GetAutoDownloaderRule(h.App.Database, uint(id))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(rule)
+	return h.RespondWithData(c, rule)
 }
 
 // HandleGetAutoDownloaderRulesByAnime
@@ -50,15 +52,15 @@ func HandleGetAutoDownloaderRule(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/rule/anime/{id} [GET]
 //	@param id - int - true - "The AniList anime id of the rules"
 //	@returns []anime.AutoDownloaderRule
-func HandleGetAutoDownloaderRulesByAnime(c *RouteCtx) error {
+func (h *Handler) HandleGetAutoDownloaderRulesByAnime(c echo.Context) error {
 
-	id, err := c.Fiber.ParamsInt("id")
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(errors.New("invalid id"))
+		return h.RespondWithError(c, errors.New("invalid id"))
 	}
 
-	rules := db_bridge.GetAutoDownloaderRulesByMediaId(c.App.Database, id)
-	return c.RespondWithData(rules)
+	rules := db_bridge.GetAutoDownloaderRulesByMediaId(h.App.Database, id)
+	return h.RespondWithData(c, rules)
 }
 
 // HandleGetAutoDownloaderRules
@@ -67,13 +69,13 @@ func HandleGetAutoDownloaderRulesByAnime(c *RouteCtx) error {
 //	@desc This is used to list all rules. It returns an empty slice if there are no rules.
 //	@route /api/v1/auto-downloader/rules [GET]
 //	@returns []anime.AutoDownloaderRule
-func HandleGetAutoDownloaderRules(c *RouteCtx) error {
-	rules, err := db_bridge.GetAutoDownloaderRules(c.App.Database)
+func (h *Handler) HandleGetAutoDownloaderRules(c echo.Context) error {
+	rules, err := db_bridge.GetAutoDownloaderRules(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(rules)
+	return h.RespondWithData(c, rules)
 }
 
 // HandleCreateAutoDownloaderRule
@@ -83,7 +85,7 @@ func HandleGetAutoDownloaderRules(c *RouteCtx) error {
 //	@desc It returns the created rule.
 //	@route /api/v1/auto-downloader/rule [POST]
 //	@returns anime.AutoDownloaderRule
-func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
+func (h *Handler) HandleCreateAutoDownloaderRule(c echo.Context) error {
 	type body struct {
 		Enabled             bool                                        `json:"enabled"`
 		MediaId             int                                         `json:"mediaId"`
@@ -99,16 +101,16 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.Destination == "" {
-		return c.RespondWithError(errors.New("destination is required"))
+		return h.RespondWithError(c, errors.New("destination is required"))
 	}
 
 	if !filepath.IsAbs(b.Destination) {
-		return c.RespondWithError(errors.New("destination must be an absolute path"))
+		return h.RespondWithError(c, errors.New("destination must be an absolute path"))
 	}
 
 	rule := &anime.AutoDownloaderRule{
@@ -124,11 +126,11 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 		AdditionalTerms:     b.AdditionalTerms,
 	}
 
-	if err := db_bridge.InsertAutoDownloaderRule(c.App.Database, rule); err != nil {
-		return c.RespondWithError(err)
+	if err := db_bridge.InsertAutoDownloaderRule(h.App.Database, rule); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(rule)
+	return h.RespondWithData(c, rule)
 }
 
 // HandleUpdateAutoDownloaderRule
@@ -138,7 +140,7 @@ func HandleCreateAutoDownloaderRule(c *RouteCtx) error {
 //	@desc It returns the updated rule.
 //	@route /api/v1/auto-downloader/rule [PATCH]
 //	@returns anime.AutoDownloaderRule
-func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
+func (h *Handler) HandleUpdateAutoDownloaderRule(c echo.Context) error {
 
 	type body struct {
 		Rule *anime.AutoDownloaderRule `json:"rule"`
@@ -146,24 +148,24 @@ func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 
 	var b body
 
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	if b.Rule == nil {
-		return c.RespondWithError(errors.New("invalid rule"))
+		return h.RespondWithError(c, errors.New("invalid rule"))
 	}
 
 	if b.Rule.DbID == 0 {
-		return c.RespondWithError(errors.New("invalid id"))
+		return h.RespondWithError(c, errors.New("invalid id"))
 	}
 
 	// Update the rule based on its DbID (primary key)
-	if err := db_bridge.UpdateAutoDownloaderRule(c.App.Database, b.Rule.DbID, b.Rule); err != nil {
-		return c.RespondWithError(err)
+	if err := db_bridge.UpdateAutoDownloaderRule(h.App.Database, b.Rule.DbID, b.Rule); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(b.Rule)
+	return h.RespondWithData(c, b.Rule)
 }
 
 // HandleDeleteAutoDownloaderRule
@@ -173,17 +175,17 @@ func HandleUpdateAutoDownloaderRule(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/rule/{id} [DELETE]
 //	@param id - int - true - "The DB id of the rule"
 //	@returns bool
-func HandleDeleteAutoDownloaderRule(c *RouteCtx) error {
-	id, err := strconv.Atoi(c.Fiber.Params("id"))
+func (h *Handler) HandleDeleteAutoDownloaderRule(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.RespondWithError(errors.New("invalid id"))
+		return h.RespondWithError(c, errors.New("invalid id"))
 	}
 
-	if err := db_bridge.DeleteAutoDownloaderRule(c.App.Database, uint(id)); err != nil {
-		return c.RespondWithError(err)
+	if err := db_bridge.DeleteAutoDownloaderRule(h.App.Database, uint(id)); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,13 +197,13 @@ func HandleDeleteAutoDownloaderRule(c *RouteCtx) error {
 //	@desc The AutoDownloader uses these items in order to not download the same episode twice.
 //	@route /api/v1/auto-downloader/items [GET]
 //	@returns []models.AutoDownloaderItem
-func HandleGetAutoDownloaderItems(c *RouteCtx) error {
-	rules, err := c.App.Database.GetAutoDownloaderItems()
+func (h *Handler) HandleGetAutoDownloaderItems(c echo.Context) error {
+	rules, err := h.App.Database.GetAutoDownloaderItems()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(rules)
+	return h.RespondWithData(c, rules)
 }
 
 // HandleDeleteAutoDownloaderItem
@@ -212,20 +214,20 @@ func HandleGetAutoDownloaderItems(c *RouteCtx) error {
 //	@route /api/v1/auto-downloader/item [DELETE]
 //	@param id - int - true - "The DB id of the item"
 //	@returns bool
-func HandleDeleteAutoDownloaderItem(c *RouteCtx) error {
+func (h *Handler) HandleDeleteAutoDownloaderItem(c echo.Context) error {
 
 	type body struct {
 		ID uint `json:"id"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	if err := c.App.Database.DeleteAutoDownloaderItem(b.ID); err != nil {
-		return c.RespondWithError(err)
+	if err := h.App.Database.DeleteAutoDownloaderItem(b.ID); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

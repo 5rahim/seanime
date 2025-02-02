@@ -1,7 +1,9 @@
 import { AL_BaseAnime, AL_BaseManga, Anime_EntryLibraryData, Anime_EntryListData, Manga_EntryListData } from "@/api/generated/types"
 import { getAtomicLibraryEntryAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { usePlayNext } from "@/app/(main)/_atoms/playback.atoms"
+import { AnimeEntryCardUnwatchedBadge } from "@/app/(main)/_features/anime/_containers/anime-entry-card-unwatched-badge"
 import { ToggleLockFilesButton } from "@/app/(main)/_features/anime/_containers/toggle-lock-files-button"
+import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
 import {
     __mediaEntryCard_hoveredPopupId,
     AnimeEntryCardNextAiring,
@@ -19,13 +21,15 @@ import { MediaEntryAudienceScore } from "@/app/(main)/_features/media/_component
 import { MediaEntryProgressBadge } from "@/app/(main)/_features/media/_components/media-entry-progress-badge"
 import { MediaEntryScoreBadge } from "@/app/(main)/_features/media/_components/media-entry-score-badge"
 import { AnilistMediaEntryModal } from "@/app/(main)/_features/media/_containers/anilist-media-entry-modal"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useAnilistUserAnimeListData } from "@/app/(main)/_hooks/anilist-collection-loader"
 import { useMissingEpisodes } from "@/app/(main)/_hooks/missing-episodes-loader"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
-import { MangaEntryCardProgressBadge } from "@/app/(main)/manga/_containers/manga-entry-card-progress-badge"
+import { MangaEntryCardUnreadBadge } from "@/app/(main)/manga/_containers/manga-entry-card-unread-badge"
 import { SeaLink } from "@/components/shared/sea-link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { useAtom } from "jotai"
 import { useSetAtom } from "jotai/react"
 import capitalize from "lodash/capitalize"
@@ -54,7 +58,6 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
 
-    const serverStatus = useServerStatus()
     const {
         media,
         listData: _listData,
@@ -67,6 +70,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     } = props
 
     const router = useRouter()
+    const serverStatus = useServerStatus()
     const missingEpisodes = useMissingEpisodes()
     const [listData, setListData] = useState<Anime_EntryListData | undefined>(_listData)
     const [libraryData, setLibraryData] = useState<Anime_EntryLibraryData | undefined>(_libraryData)
@@ -145,6 +149,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         setActionPopupHover(undefined)
     }, [media.id])
 
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
+
     if (!media) return null
 
     return (
@@ -152,94 +158,127 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
             <MediaEntryCardOverlay overlay={overlay} />
 
-            {/*ACTION POPUP*/}
-            <MediaEntryCardHoverPopup
-                onMouseEnter={onPopupMouseEnter}
-                onMouseLeave={onPopupMouseLeave}
-                coverImage={media.bannerImage || media.coverImage?.extraLarge || ""}
-            >
-
-                {/*METADATA SECTION*/}
-                <MediaEntryCardHoverPopupBody>
-
-                    <MediaEntryCardHoverPopupBanner
-                        trailerId={(media as any)?.trailer?.id}
-                        showProgressBar={showProgressBar}
-                        mediaId={media.id}
-                        progress={listData?.progress}
-                        progressTotal={progressTotal}
-                        showTrailer={showTrailer}
-                        disableAnimeCardTrailers={serverStatus?.settings?.library?.disableAnimeCardTrailers}
-                        bannerImage={media.bannerImage || media.coverImage?.extraLarge}
-                        isAdult={media.isAdult}
-                        blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
-                        link={link}
-                        listStatus={listData?.status}
-                        status={media.status}
-                    />
-
-                    <MediaEntryCardHoverPopupTitleSection
-                        title={media.title?.userPreferred || ""}
-                        year={(media as AL_BaseAnime).seasonYear ?? media.startDate?.year}
-                        season={media.season}
-                        format={media.format}
-                        link={link}
-                    />
-
-                    {type === "anime" && (
-                        <AnimeEntryCardNextAiring nextAiring={(media as AL_BaseAnime).nextAiringEpisode} />
-                    )}
-
-                    {type === "anime" && <div className="py-1">
-                        <Button
-                            leftIcon={<BiPlay className="text-2xl" />}
-                            intent="white"
-                            size="md"
-                            className="w-full text-md"
-                            tabIndex={-1}
-                            onClick={handleWatchButtonClicked}
-                        >
-                            {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
-                                ? "Continue watching"
-                                : "Watch"}
-                        </Button>
-                    </div>}
-
-                    {type === "manga" && <SeaLink
-                        href={MANGA_LINK}
+            <SeaContextMenu
+                content={<ContextMenuGroup>
+                    <ContextMenuLabel className="text-[--muted] line-clamp-1 py-0 my-2">
+                        {media.title?.userPreferred}
+                    </ContextMenuLabel>
+                    <ContextMenuItem
+                        onClick={() => {
+                            setPreviewModalMediaId(media.id!, type)
+                        }}
                     >
-                        <Button
-                            leftIcon={<IoLibrarySharp />}
-                            intent="white"
-                            size="md"
-                            className="w-full text-md mt-2"
-                            tabIndex={-1}
-                        >
-                            Read
-                        </Button>
-                    </SeaLink>}
+                        Preview
+                    </ContextMenuItem>
+                </ContextMenuGroup>}
+            >
+                <ContextMenuTrigger>
 
-                    {(listData?.status) &&
-                        <p className="text-center text-sm text-[--muted]">
-                            {listData?.status === "CURRENT" ? type === "anime" ? "Watching" : "Reading"
-                                : capitalize(listData?.status ?? "")}
-                        </p>}
+                    {/*ACTION POPUP*/}
+                    <MediaEntryCardHoverPopup
+                        onMouseEnter={onPopupMouseEnter}
+                        onMouseLeave={onPopupMouseLeave}
+                        coverImage={media.bannerImage || media.coverImage?.extraLarge || ""}
+                    >
 
-                </MediaEntryCardHoverPopupBody>
+                        {/*METADATA SECTION*/}
+                        <MediaEntryCardHoverPopupBody>
 
-                <MediaEntryCardHoverPopupFooter>
+                            <MediaEntryCardHoverPopupBanner
+                                trailerId={(media as any)?.trailer?.id}
+                                showProgressBar={showProgressBar}
+                                mediaId={media.id}
+                                progress={listData?.progress}
+                                progressTotal={progressTotal}
+                                showTrailer={showTrailer}
+                                disableAnimeCardTrailers={serverStatus?.settings?.library?.disableAnimeCardTrailers}
+                                bannerImage={media.bannerImage || media.coverImage?.extraLarge}
+                                isAdult={media.isAdult}
+                                blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
+                                link={link}
+                                listStatus={listData?.status}
+                                status={media.status}
+                            />
 
-                    {(type === "anime" && !!libraryData) && <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
+                            <MediaEntryCardHoverPopupTitleSection
+                                title={media.title?.userPreferred || ""}
+                                year={(media as AL_BaseAnime).seasonYear ?? media.startDate?.year}
+                                season={media.season}
+                                format={media.format}
+                                link={link}
+                            />
 
-                    {showListDataButton && <AnilistMediaEntryModal listData={listData} media={media} type={type} />}
+                            {type === "anime" && (
+                                <AnimeEntryCardNextAiring nextAiring={(media as AL_BaseAnime).nextAiringEpisode} />
+                            )}
 
-                    {withAudienceScore &&
-                        <MediaEntryAudienceScore
-                            meanScore={media.meanScore}
-                        />}
+                            {type === "anime" && <div className="py-1">
+                                <Button
+                                    leftIcon={<BiPlay className="text-2xl" />}
+                                    intent="gray-subtle"
+                                    size="sm"
+                                    className="w-full text-sm"
+                                    tabIndex={-1}
+                                    onClick={handleWatchButtonClicked}
+                                >
+                                    {!!listData?.progress && (listData?.status === "CURRENT" || listData?.status === "PAUSED")
+                                        ? "Continue watching"
+                                        : "Watch"}
+                                </Button>
+                            </div>}
 
-                </MediaEntryCardHoverPopupFooter>
-            </MediaEntryCardHoverPopup>
+                            {type === "manga" && <SeaLink
+                                href={MANGA_LINK}
+                            >
+                                <Button
+                                    leftIcon={<IoLibrarySharp />}
+                                    intent="gray-subtle"
+                                    size="sm"
+                                    className="w-full text-sm mt-2"
+                                    tabIndex={-1}
+                                >
+                                    Read
+                                </Button>
+                            </SeaLink>}
+
+                            {(listData?.status) &&
+                                <p className="text-center text-sm text-[--muted]">
+                                    {listData?.status === "CURRENT" ? type === "anime" ? "Watching" : "Reading"
+                                        : capitalize(listData?.status ?? "")}
+                                </p>}
+
+                        </MediaEntryCardHoverPopupBody>
+
+                        <MediaEntryCardHoverPopupFooter>
+
+                            {(type === "anime" && !!libraryData) &&
+                                <ToggleLockFilesButton mediaId={media.id} allFilesLocked={libraryData.allFilesLocked} />}
+
+                            <AnilistMediaEntryModal listData={listData} media={media} type={type} />
+
+                            {/*{!serverStatus?.isOffline && <Tooltip*/}
+                            {/*    trigger={<IconButton*/}
+                            {/*        intent="gray-subtle"*/}
+                            {/*        icon={<PiEye />}*/}
+                            {/*        rounded*/}
+                            {/*        size="sm"*/}
+                            {/*        onClick={() => {*/}
+                            {/*            setPreviewModalMediaId(media.id!, type)*/}
+                            {/*        }}*/}
+                            {/*    />}*/}
+                            {/*>*/}
+                            {/*    Preview*/}
+                            {/*</Tooltip>}*/}
+
+                            {withAudienceScore &&
+                                <MediaEntryAudienceScore
+                                    meanScore={media.meanScore}
+                                />}
+
+                        </MediaEntryCardHoverPopupFooter>
+                    </MediaEntryCardHoverPopup>
+                </ContextMenuTrigger>
+            </SeaContextMenu>
 
 
             <MediaEntryCardBody
@@ -258,11 +297,23 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
-                <div className="absolute z-[10] left-0 bottom-0">
+                <div className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
                         forceShowTotal={type === "manga"}
+                        // forceShowProgress={listData?.status === "CURRENT"}
+                        top={<>
+                            {(type === "anime" && listData?.status === "CURRENT") && (
+                                <AnimeEntryCardUnwatchedBadge
+                                    progress={listData?.progress || 0}
+                                    media={media}
+                                    libraryData={libraryData}
+                                />
+                            )}
+                            {type === "manga" &&
+                                <MangaEntryCardUnreadBadge mediaId={media.id} progress={listData?.progress} progressTotal={progressTotal} />}
+                        </>}
                     />
                 </div>
                 <div className="absolute z-[10] right-1 bottom-1">
@@ -273,14 +324,12 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseAnime?.id === media.id)) && (
                     <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
                         <Badge
-                            className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-md text-base rounded-bl-none rounded-br-none"
+                            className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-br-none"
                             intent="gray-solid"
                             size="xl"
                         ><RiCalendarLine /></Badge>
                     </div>
                 )}
-
-                {type === "manga" && <MangaEntryCardProgressBadge mediaId={media.id} progress={listData?.progress} progressTotal={progressTotal} />}
 
             </MediaEntryCardBody>
 

@@ -73,6 +73,8 @@ export function AnilistCollectionLists() {
             season: null,
             year: null,
             isAdult: false,
+            unreadOnly: false,
+            continueWatchingOnly: false,
         })
     })
 

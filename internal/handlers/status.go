@@ -6,87 +6,93 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"seanime/internal/constants"
+	"seanime/internal/core"
 	"seanime/internal/database/models"
 	"seanime/internal/library/anime"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"slices"
 	"strings"
+	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 // Status is a struct containing the user data, settings, and OS.
 // It is used by the client in various places to access necessary information.
 type Status struct {
-	OS              string           `json:"os"`
-	ClientDevice    string           `json:"clientDevice"`
-	ClientPlatform  string           `json:"clientPlatform"`
-	ClientUserAgent string           `json:"clientUserAgent"`
-	DataDir         string           `json:"dataDir"`
-	User            *anime.User      `json:"user"`
-	Settings        *models.Settings `json:"settings"`
-	Mal             *models.Mal      `json:"mal"`
-	Version         string           `json:"version"`
-	ThemeSettings   *models.Theme    `json:"themeSettings"`
-	IsOffline       bool             `json:"isOffline"`
-	//FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
+	OS                    string                        `json:"os"`
+	ClientDevice          string                        `json:"clientDevice"`
+	ClientPlatform        string                        `json:"clientPlatform"`
+	ClientUserAgent       string                        `json:"clientUserAgent"`
+	DataDir               string                        `json:"dataDir"`
+	User                  *anime.User                   `json:"user"`
+	Settings              *models.Settings              `json:"settings"`
+	Version               string                        `json:"version"`
+	VersionName           string                        `json:"versionName"`
+	ThemeSettings         *models.Theme                 `json:"themeSettings"`
+	IsOffline             bool                          `json:"isOffline"`
 	MediastreamSettings   *models.MediastreamSettings   `json:"mediastreamSettings"`
 	TorrentstreamSettings *models.TorrentstreamSettings `json:"torrentstreamSettings"`
 	DebridSettings        *models.DebridSettings        `json:"debridSettings"`
 	AnilistClientID       string                        `json:"anilistClientId"`
 	Updating              bool                          `json:"updating"`         // If true, a new screen will be displayed
 	IsDesktopSidecar      bool                          `json:"isDesktopSidecar"` // The server is running as a desktop sidecar
+	FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
 }
 
 var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
 
 // NewStatus returns a new Status struct.
 // It uses the RouteCtx to get the App instance containing the Database instance.
-func NewStatus(c *RouteCtx) *Status {
+func (h *Handler) NewStatus(c echo.Context) *Status {
 	var dbAcc *models.Account
 	var user *anime.User
 	var settings *models.Settings
 	var theme *models.Theme
 	//var mal *models.Mal
 
-	if dbAcc, _ = c.App.Database.GetAccount(); dbAcc != nil {
+	if dbAcc, _ = h.App.Database.GetAccount(); dbAcc != nil {
 		user, _ = anime.NewUser(dbAcc)
 		if user != nil {
 			user.Token = "HIDDEN"
 		}
 	}
 
-	if settings, _ = c.App.Database.GetSettings(); settings != nil {
+	if settings, _ = h.App.Database.GetSettings(); settings != nil {
 		if settings.ID == 0 || settings.Library == nil || settings.Torrent == nil || settings.MediaPlayer == nil {
 			settings = nil
 		}
 	}
 
-	clientInfo, found := clientInfoCache.Get(c.Fiber.Get("User-Agent"))
+	clientInfo, found := clientInfoCache.Get(c.Request().UserAgent())
 	if !found {
-		clientInfo = util.GetClientInfo(c.Fiber.Get("User-Agent"))
-		clientInfoCache.Set(c.Fiber.Get("User-Agent"), clientInfo)
+		clientInfo = util.GetClientInfo(c.Request().UserAgent())
+		clientInfoCache.Set(c.Request().UserAgent(), clientInfo)
 	}
 
-	theme, _ = c.App.Database.GetTheme()
+	theme, _ = h.App.Database.GetTheme()
 
 	return &Status{
 		OS:                    runtime.GOOS,
 		ClientDevice:          clientInfo.Device,
 		ClientPlatform:        clientInfo.Platform,
-		DataDir:               c.App.Config.Data.AppDataDir,
-		ClientUserAgent:       c.Fiber.Get("User-Agent"),
+		DataDir:               h.App.Config.Data.AppDataDir,
+		ClientUserAgent:       c.Request().UserAgent(),
 		User:                  user,
 		Settings:              settings,
-		Version:               c.App.Version,
+		Version:               h.App.Version,
+		VersionName:           constants.VersionName,
 		ThemeSettings:         theme,
-		IsOffline:             c.App.Config.Server.Offline,
-		MediastreamSettings:   c.App.SecondarySettings.Mediastream,
-		TorrentstreamSettings: c.App.SecondarySettings.Torrentstream,
-		DebridSettings:        c.App.SecondarySettings.Debrid,
-		AnilistClientID:       c.App.Config.Anilist.ClientID,
+		IsOffline:             h.App.Config.Server.Offline,
+		MediastreamSettings:   h.App.SecondarySettings.Mediastream,
+		TorrentstreamSettings: h.App.SecondarySettings.Torrentstream,
+		DebridSettings:        h.App.SecondarySettings.Debrid,
+		AnilistClientID:       h.App.Config.Anilist.ClientID,
 		Updating:              false,
-		IsDesktopSidecar:      c.App.IsDesktopSidecar,
-		//FeatureFlags:          c.App.FeatureFlags,
+		IsDesktopSidecar:      h.App.IsDesktopSidecar,
+		FeatureFlags:          h.App.FeatureFlags,
 	}
 }
 
@@ -99,24 +105,24 @@ func NewStatus(c *RouteCtx) *Status {
 //	@desc It should be called right after updating the settings.
 //	@route /api/v1/status [GET]
 //	@returns handlers.Status
-func HandleGetStatus(c *RouteCtx) error {
+func (h *Handler) HandleGetStatus(c echo.Context) error {
 
-	status := NewStatus(c)
+	status := h.NewStatus(c)
 
-	return c.RespondWithData(status)
+	return h.RespondWithData(c, status)
 
 }
 
-func HandleGetLogContent(c *RouteCtx) error {
-	if c.App.Config == nil || c.App.Config.Logs.Dir == "" {
-		return c.RespondWithData("")
+func (h *Handler) HandleGetLogContent(c echo.Context) error {
+	if h.App.Config == nil || h.App.Config.Logs.Dir == "" {
+		return h.RespondWithData(c, "")
 	}
 
-	filename := c.Fiber.AllParams()["*1"]
-	fp := util.NormalizePath(filepath.Join(c.App.Config.Logs.Dir, filename))
+	filename := c.Param("*")
+	fp := util.NormalizePath(filepath.Join(h.App.Config.Logs.Dir, filename))
 
 	fileContent := ""
-	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -135,7 +141,7 @@ func HandleGetLogContent(c *RouteCtx) error {
 		return nil
 	})
 
-	return c.RespondWithData(fileContent)
+	return h.RespondWithData(c, fileContent)
 }
 
 var newestLogFilename = ""
@@ -146,13 +152,13 @@ var newestLogFilename = ""
 //	@desc This returns the filenames of all log files in the logs directory.
 //	@route /api/v1/logs/filenames [GET]
 //	@returns []string
-func HandleGetLogFilenames(c *RouteCtx) error {
-	if c.App.Config == nil || c.App.Config.Logs.Dir == "" {
-		return c.RespondWithData([]string{})
+func (h *Handler) HandleGetLogFilenames(c echo.Context) error {
+	if h.App.Config == nil || h.App.Config.Logs.Dir == "" {
+		return h.RespondWithData(c, []string{})
 	}
 
 	var filenames []string
-	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -178,7 +184,7 @@ func HandleGetLogFilenames(c *RouteCtx) error {
 		}
 	}
 
-	return c.RespondWithData(filenames)
+	return h.RespondWithData(c, filenames)
 }
 
 // HandleDeleteLogs
@@ -187,21 +193,21 @@ func HandleGetLogFilenames(c *RouteCtx) error {
 //	@desc This deletes the log files with the given filenames.
 //	@route /api/v1/logs [DELETE]
 //	@returns bool
-func HandleDeleteLogs(c *RouteCtx) error {
+func (h *Handler) HandleDeleteLogs(c echo.Context) error {
 	type body struct {
 		Filenames []string `json:"filenames"`
 	}
 
-	if c.App.Config == nil || c.App.Config.Logs.Dir == "" {
-		return c.RespondWithData(false)
+	if h.App.Config == nil || h.App.Config.Logs.Dir == "" {
+		return h.RespondWithData(c, false)
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	filepath.WalkDir(c.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -223,5 +229,67 @@ func HandleDeleteLogs(c *RouteCtx) error {
 		return nil
 	})
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
+}
+
+// HandleGetLatestLogContent
+//
+//	@summary returns the content of the latest server log file.
+//	@desc This returns the content of the most recent seanime- log file after flushing logs.
+//	@route /api/v1/logs/latest [GET]
+//	@returns string
+func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
+	if h.App.Config == nil || h.App.Config.Logs.Dir == "" {
+		return h.RespondWithData(c, "")
+	}
+
+	// Flush logs first
+	if h.App.OnFlushLogs != nil {
+		h.App.OnFlushLogs()
+		// Small delay to ensure logs are written
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	var logFiles []string
+
+	// Find all seanime- log files
+	err := filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+
+		filename := filepath.Base(path)
+		if !strings.HasPrefix(strings.ToLower(filename), "seanime-") || filepath.Ext(path) != ".log" {
+			return nil
+		}
+
+		logFiles = append(logFiles, path)
+		return nil
+	})
+
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	if len(logFiles) == 0 {
+		return h.RespondWithData(c, "")
+	}
+
+	// Sort filenames in descending order (newest first)
+	slices.SortFunc(logFiles, func(a, b string) int {
+		return strings.Compare(filepath.Base(b), filepath.Base(a))
+	})
+
+	// Get the first (newest) file
+	latestLogFile := logFiles[0]
+
+	contentB, err := os.ReadFile(latestLogFile)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, string(contentB))
 }

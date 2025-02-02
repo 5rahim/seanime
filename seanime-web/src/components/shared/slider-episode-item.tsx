@@ -21,7 +21,7 @@ export const SliderEpisodeItem = React.forwardRef<HTMLDivElement, SliderEpisodeI
             ref={ref}
             key={episode.localFile?.path}
             className={cn(
-                "rounded-md border overflow-hidden aspect-[4/2] relative flex items-end flex-none group/missed-episode-item cursor-pointer",
+                "rounded-[--radius-md] border overflow-hidden aspect-[4/2] relative flex items-end flex-none group/missed-episode-item cursor-pointer",
                 "select-none",
                 "focus-visible:ring-2 ring-[--brand]",
                 "w-full",

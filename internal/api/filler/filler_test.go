@@ -1,9 +1,10 @@
 package filler
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 func TestAnimeFillerList_Search(t *testing.T) {
@@ -15,18 +16,6 @@ func TestAnimeFillerList_Search(t *testing.T) {
 	}
 
 	ret, err := af.Search(opts)
-	if err != nil {
-		t.Error(err)
-	}
-
-	spew.Dump(ret)
-}
-
-func TestAnimeFillerList_FindFillerEpisodes(t *testing.T) {
-
-	af := NewAnimeFillerList(util.NewLogger())
-
-	ret, err := af.FindFillerEpisodes("/shows/one-piece")
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,10 +1,12 @@
 package handlers
 
 import (
-	"github.com/goccy/go-json"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/goccy/go-json"
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -53,24 +55,24 @@ var cachedDocs []*ApiDocsGroup
 //	@summary returns the API documentation
 //	@route /api/v1/internal/docs [GET]
 //	@returns []handlers.ApiDocsGroup
-func HandleGetDocs(c *RouteCtx) error {
+func (h *Handler) HandleGetDocs(c echo.Context) error {
 
 	if len(cachedDocs) > 0 {
-		return c.RespondWithData(cachedDocs)
+		return h.RespondWithData(c, cachedDocs)
 	}
 
 	// Read the file
 	wd, _ := os.Getwd()
 	buf, err := os.ReadFile(filepath.Join(wd, "codegen/generated/handlers.json"))
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	var data []*RouteHandler
 	// Unmarshal the data
 	err = json.Unmarshal(buf, &data)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	// Group the data
@@ -92,5 +94,5 @@ func HandleGetDocs(c *RouteCtx) error {
 		cachedDocs = append(cachedDocs, group)
 	}
 
-	return c.RespondWithData(groups)
+	return h.RespondWithData(c, groups)
 }

@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
 	"math"
 	"os"
 	"seanime/internal/extension"
@@ -15,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/samber/lo"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 )
@@ -260,6 +261,9 @@ func GetBestSearchResult(searchRes []*hibikemanga.SearchResult) *hibikemanga.Sea
 	return bestRes
 }
 
+// HydrateSearchResultSearchRating rates the search results based on the provided title
+// It checks if all search results have a rating of 0 and if so, it calculates ratings
+// using the Sorensen-Dice
 func HydrateSearchResultSearchRating(_searchRes []*hibikemanga.SearchResult, title *string) {
 	// Rate the search results if all ratings are 0
 	if noRatings := lo.EveryBy(_searchRes, func(res *hibikemanga.SearchResult) bool {

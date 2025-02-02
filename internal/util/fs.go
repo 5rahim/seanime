@@ -21,6 +21,9 @@ func DirSize(path string) (uint64, error) {
 	return uint64(size), err
 }
 
+func IsValidMediaFile(path string) bool {
+	return !strings.HasPrefix(path, "._")
+}
 func IsValidVideoExtension(ext string) bool {
 	validExtensions := map[string]struct{}{
 		".mp4": {}, ".avi": {}, ".mkv": {}, ".mov": {}, ".flv": {}, ".wmv": {}, ".webm": {},

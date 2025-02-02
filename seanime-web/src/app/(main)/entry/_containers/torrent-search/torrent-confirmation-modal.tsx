@@ -20,7 +20,7 @@ import React, { useMemo, useState } from "react"
 import { AiOutlineCloudServer } from "react-icons/ai"
 import { BiCollection, BiDownload, BiX } from "react-icons/bi"
 import { FcFilmReel, FcFolder } from "react-icons/fc"
-import { toast } from "sonner"
+import { LuDownload, LuPlay } from "react-icons/lu"
 import * as upath from "upath"
 
 const isOpenAtom = atom(false)
@@ -95,10 +95,6 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
     const isDisabled = isPending || isDownloadingFiles || isDownloadingDebrid
 
     function handleLaunchDownload(smartSelect: boolean) {
-        if (!libraryPath || !destination.toLowerCase().startsWith(libraryPath.slice(0, -1).toLowerCase())) {
-            toast.error("Destination folder does not match local library")
-            return
-        }
         if (smartSelect) {
             mutate({
                 torrents: selectedTorrents,
@@ -176,7 +172,7 @@ export function TorrentConfirmationModal({ onToggleTorrent, media, entry }: {
                     key={`${torrent.link}`}
                     trigger={<div
                         className={cn(
-                            "ml-12 gap-2 p-2 border rounded-md hover:bg-gray-800 relative",
+                            "ml-12 gap-2 p-2 border rounded-[--radius-md] hover:bg-gray-800 relative",
                         )}
                         key={torrent.name}
                     >
@@ -282,7 +278,8 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
     return (
         <Button
             intent="primary"
-            className="animate-pulse"
+            className="Sea-TorrentSearchConfirmationContinueButton fixed z-[9999] left-0 right-0 bottom-4 rounded-full max-w-lg mx-auto halo"
+            size="lg"
             onClick={() => {
                 if (type === "download") {
                     setter(true)
@@ -290,8 +287,10 @@ export function TorrentConfirmationContinueButton({ type, onTorrentValidated }: 
                     onTorrentValidated()
                 }
             }}
+            leftIcon={type === "download" ? <LuDownload /> : <LuPlay />}
         >
-            Continue{type === "download" ? ` (${st.length})` : ""}
+            {type === "download" ? "Download" : "Stream"}
+            {type === "download" ? ` (${st.length})` : ""}
         </Button>
     )
 

@@ -1,13 +1,17 @@
 package handlers
 
-import "seanime/internal/discordrpc/presence"
+import (
+	discordrpc_presence "seanime/internal/discordrpc/presence"
+
+	"github.com/labstack/echo/v4"
+)
 
 // HandleSetDiscordMangaActivity
 //
 //	@summary sets manga activity for discord rich presence.
 //	@route /api/v1/discord/presence/manga [POST]
 //	@returns bool
-func HandleSetDiscordMangaActivity(c *RouteCtx) error {
+func (h *Handler) HandleSetDiscordMangaActivity(c echo.Context) error {
 
 	type body struct {
 		MediaId int    `json:"mediaId"`
@@ -17,19 +21,51 @@ func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		c.App.Logger.Error().Err(err).Msg("discord rpc handler: failed to parse request body")
-		return c.RespondWithData(false)
+	if err := c.Bind(&b); err != nil {
+		h.App.Logger.Error().Err(err).Msg("discord rpc handler: failed to parse request body")
+		return h.RespondWithData(c, false)
 	}
 
-	c.App.DiscordPresence.SetMangaActivity(&discordrpc_presence.MangaActivity{
+	h.App.DiscordPresence.SetMangaActivity(&discordrpc_presence.MangaActivity{
 		ID:      b.MediaId,
 		Title:   b.Title,
 		Image:   b.Image,
 		Chapter: b.Chapter,
 	})
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
+}
+
+// HandleSetDiscordAnimeActivity
+//
+//	@summary sets anime activity for discord rich presence.
+//	@route /api/v1/discord/presence/anime [POST]
+//	@returns bool
+func (h *Handler) HandleSetDiscordAnimeActivity(c echo.Context) error {
+
+	type body struct {
+		MediaId       int    `json:"mediaId"`
+		Title         string `json:"title"`
+		Image         string `json:"image"`
+		IsMovie       bool   `json:"isMovie"`
+		EpisodeNumber int    `json:"episodeNumber"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		h.App.Logger.Error().Err(err).Msg("discord rpc handler: failed to parse request body")
+		return h.RespondWithData(c, false)
+	}
+
+	h.App.DiscordPresence.SetAnimeActivity(&discordrpc_presence.AnimeActivity{
+		ID:            b.MediaId,
+		Title:         b.Title,
+		Image:         b.Image,
+		IsMovie:       b.IsMovie,
+		EpisodeNumber: b.EpisodeNumber,
+	})
+
+	return h.RespondWithData(c, true)
 }
 
 // HandleCancelDiscordActivity
@@ -37,7 +73,7 @@ func HandleSetDiscordMangaActivity(c *RouteCtx) error {
 //	@summary cancels the current discord rich presence activity.
 //	@route /api/v1/discord/presence/cancel [POST]
 //	@returns bool
-func HandleCancelDiscordActivity(c *RouteCtx) error {
-	c.App.DiscordPresence.Close()
-	return c.RespondWithData(true)
+func (h *Handler) HandleCancelDiscordActivity(c echo.Context) error {
+	h.App.DiscordPresence.Close()
+	return h.RespondWithData(c, true)
 }

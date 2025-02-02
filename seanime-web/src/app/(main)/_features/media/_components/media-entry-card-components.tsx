@@ -97,14 +97,15 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
                 "group-hover/media-entry-card:opacity-100 group-hover/media-entry-card:scale-100",
                 "group-focus-visible/media-entry-card:opacity-100 group-focus-visible/media-entry-card:scale-100",
                 "focus-visible:opacity-100 focus-visible:scale-100",
-                "h-[105%] w-[100%] -top-[5%] rounded-md transition ease-in-out",
+                "h-[105%] w-[100%] -top-[5%] rounded-[0.7rem] transition ease-in-out",
                 "focus-visible:ring-2 ring-brand-400 focus-visible:outline-0",
                 "hidden lg:block", // Hide on small screens
                 markBorderRenderingArtifacts && "w-[101%] -left-[0.5%]",
             )}
             {...rest}
         >
-            {(ts.enableMediaCardBlurredBackground && !!coverImage) && <div className="absolute top-0 left-0 w-full h-full rounded-md overflow-hidden">
+            {(ts.enableMediaCardBlurredBackground && !!coverImage) &&
+                <div className="absolute top-0 left-0 w-full h-full rounded-[--radius] overflow-hidden">
                 <Image
                     src={getImageUrl(coverImage || "")}
                     alt={"cover image"}
@@ -121,7 +122,7 @@ export function MediaEntryCardHoverPopup(props: MediaEntryCardHoverPopupProps) {
             </div>}
 
             {ts.enableMediaCardBlurredBackground && <div
-                className="w-full absolute top-0 h-full opacity-60 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2] rounded-md"
+                className="w-full absolute top-0 h-full opacity-60 bg-gradient-to-b from-70% from-[--background] to-transparent z-[2] rounded-[--radius]"
             />}
 
             <div className="p-2 h-full w-full flex flex-col justify-between relative z-[2]">
@@ -175,7 +176,7 @@ export function MediaEntryCardHoverPopupFooter(props: MediaEntryCardHoverPopupFo
     return (
         <div
             className={cn(
-                "flex gap-2",
+                "flex gap-2 items-center",
                 className,
             )}
             {...rest}
@@ -244,17 +245,15 @@ export function AnimeEntryCardNextAiring(props: AnimeEntryCardNextAiringProps) {
     return (
         <>
             <div className="flex gap-1 items-center justify-center">
-                <p className="text-xs min-[2000px]:text-md">Next episode:</p>
-                <Tooltip
-                    className="bg-gray-200 text-gray-800 font-semibold mb-1"
-                    trigger={
-                        <p className="text-justify font-normal text-xs min-[2000px]:text-md">
-                            <Badge
-                                size="sm"
-                            >{nextAiring?.episode}</Badge>
-                        </p>
-                    }
-                >{formatDistanceToNow(addSeconds(new Date(), nextAiring?.timeUntilAiring), { addSuffix: true })}</Tooltip>
+                {/*<p className="text-xs min-[2000px]:text-md">Next episode:</p>*/}
+                <p className="text-justify font-normal text-xs min-[2000px]:text-md">
+                    Episode <span className="font-semibold">{nextAiring?.episode}</span> {formatDistanceToNow(addSeconds(new Date(),
+                    nextAiring?.timeUntilAiring), { addSuffix: true })}
+                    {/*<Badge*/}
+                    {/*    size="sm"*/}
+                    {/*    className="bg-transparent rounded-[--radius]"*/}
+                    {/*>{nextAiring?.episode}</Badge>*/}
+                </p>
             </div>
         </>
     )
@@ -310,7 +309,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
             >
                 <div
                     className={cn(
-                        "media-entry-card__body aspect-[6/8] flex-none rounded-md object-cover object-center relative overflow-hidden select-none",
+                        "media-entry-card__body aspect-[6/8] flex-none rounded-[--radius] object-cover object-center relative overflow-hidden select-none",
                     )}
                 >
 
@@ -340,7 +339,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         <div className="absolute z-[1] left-0 top-0">
                             <Badge
                                 size="xl" intent="warning-solid"
-                                className="rounded-md rounded-bl-none rounded-tr-none text-orange-900"
+                                className="rounded-[--radius] rounded-bl-none rounded-tr-none text-orange-900"
                             ><IoLibrarySharp /></Badge>
                         </div>}
 
@@ -366,7 +365,7 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                     />
 
                     {(blurAdultContent && isAdult) && <div
-                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-md"
+                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-[--radius]"
                     ></div>}
                 </div>
             </SeaLink>
@@ -453,9 +452,9 @@ export const MediaEntryCardHoverPopupBanner = memo(({
     }, [!!trailerId, !disableAnimeCardTrailers, showTrailer])
 
     return <SeaLink tabIndex={-1} href={link}>
-        <div className="aspect-[4/2] relative rounded-md mb-2 cursor-pointer">
+        <div className="aspect-[4/2] relative rounded-[--radius] mb-2 cursor-pointer">
             {(showProgressBar && progress && listStatus && progressTotal && progress !== progressTotal) &&
-                <div className="absolute rounded-md overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0">
+                <div className="absolute rounded-[--radius] overflow-hidden top-0 w-full h-1 z-[2] bg-gray-700 left-0">
                     <div
                         className={cn(
                             "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -481,7 +480,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
                 quality={100}
                 sizes="20rem"
                 className={cn(
-                    "object-cover top-0 object-center rounded-md transition",
+                    "object-cover top-0 object-center rounded-[--radius] transition",
                     trailerLoaded && "hidden",
                 )}
             /> : <div
@@ -489,7 +488,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
             ></div>}
 
             {(blurAdultContent && isAdult) && <div
-                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-md"
+                className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-[--radius]"
             ></div>}
 
             <div className="absolute z-[4] left-0 bottom-0">
@@ -502,7 +501,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
 
             {(trailerEnabled && actionPopupHover) && <div
                 className={cn(
-                    "absolute w-full h-full overflow-hidden rounded-md",
+                    "absolute w-full h-full overflow-hidden rounded-[--radius]",
                     !trailerLoaded && "hidden",
                 )}
             >
@@ -524,7 +523,7 @@ export const MediaEntryCardHoverPopupBanner = memo(({
             {<div
                 className={cn(
                     "w-full absolute -bottom-1 h-[80%] from-10% bg-gradient-to-t from-[--media-card-popup-background] to-transparent z-[2]",
-                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-md opacity-80",
+                    ts.enableMediaCardBlurredBackground && "from-[--background] from-0% bottom-0 rounded-[--radius] opacity-80",
                 )}
             />}
         </div>

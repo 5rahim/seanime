@@ -1,9 +1,14 @@
 import { Anime_LibraryCollectionEntry, Anime_LibraryCollectionList } from "@/api/generated/types"
+import { __mainLibrary_paramsAtom } from "@/app/(main)/(library)/_lib/handle-library-collection"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { PageWrapper } from "@/components/shared/page-wrapper"
+import { IconButton } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { getLibraryCollectionTitle } from "@/lib/server/utils"
+import { useAtom } from "jotai/react"
 import React from "react"
+import { LuListFilter } from "react-icons/lu"
 
 export function LibraryCollectionLists({ collectionList, isLoading }: {
     collectionList: Anime_LibraryCollectionList[],
@@ -64,9 +69,36 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
 }
 
 export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_LibraryCollectionList }) => {
+
+    const isCurrentlyWatching = list.type === "CURRENT"
+
+    const [params, setParams] = useAtom(__mainLibrary_paramsAtom)
+
     return (
         <React.Fragment key={list.type}>
-            <h2>{getLibraryCollectionTitle(list.type)}</h2>
+            <div className="flex gap-3 items-center">
+                <h2 className="p-0 m-0">{getLibraryCollectionTitle(list.type)}</h2>
+                <div className="flex flex-1"></div>
+                {isCurrentlyWatching && <DropdownMenu
+                    trigger={<IconButton
+                        intent="white-basic"
+                        size="xs"
+                        className="mt-1"
+                        icon={<LuListFilter />}
+                    />}
+                >
+                    <DropdownMenuItem
+                        onClick={() => {
+                            setParams(draft => {
+                                draft.continueWatchingOnly = !draft.continueWatchingOnly
+                                return
+                            })
+                        }}
+                    >
+                        {params.continueWatchingOnly ? "Show all" : "Show unwatched only"}
+                    </DropdownMenuItem>
+                </DropdownMenu>}
+            </div>
             <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
                 {list.entries?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />

@@ -50,7 +50,7 @@ export const DataGridAnatomy = defineStyleAnatomy({
     ]),
     tableHead: cva([
         "UI-DataGrid__tableHead",
-        "border-b",
+        "",
     ]),
     th: cva([
         "UI-DataGrid__th group/th",
@@ -67,7 +67,7 @@ export const DataGridAnatomy = defineStyleAnatomy({
     ]),
     tableBody: cva([
         "UI-DataGrid__tableBody",
-        "divide-y divide-[--border] w-full relative",
+        "w-full relative border-b",
     ]),
     td: cva([
         "UI-DataGrid__td",
@@ -78,6 +78,7 @@ export const DataGridAnatomy = defineStyleAnatomy({
         "data-[editing=true]:ring-1 data-[editing=true]:ring-[--ring] ring-inset",
         "data-[editable=true]:hover:bg-[--subtle] md:data-[editable=true]:focus:ring-2 md:data-[editable=true]:focus:ring-[--slate]",
         "focus:outline-none",
+        "border-b",
     ]),
     tr: cva([
         "UI-DataGrid__tr",
@@ -102,7 +103,7 @@ export const DataGridAnatomy = defineStyleAnatomy({
     ]),
     editingCard: cva([
         "UI-DataGrid__editingCard",
-        "flex items-center gap-2 rounded-md px-3 py-2",
+        "flex items-center gap-2 rounded-[--radius-md] px-3 py-2",
     ]),
 })
 

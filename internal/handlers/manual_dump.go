@@ -4,6 +4,8 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/scanner"
 	"seanime/internal/util/limiter"
+
+	"github.com/labstack/echo/v4"
 )
 
 // DUMMY HANDLER
@@ -17,38 +19,35 @@ type RequestBody struct {
 //
 //	@summary this is a dummy handler for testing purposes.
 //	@route /api/v1/test-dump [POST]
-func HandleTestDump(c *RouteCtx) error {
-
-	c.AcceptJSON()
+func (h *Handler) HandleTestDump(c echo.Context) error {
 
 	body := new(RequestBody)
-	if err := c.Fiber.BodyParser(body); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(body); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir, c.App.Logger)
+	localFiles, err := scanner.GetLocalFilesFromDir(body.Dir, h.App.Logger)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 
 	mc, err := scanner.NewMediaFetcher(&scanner.MediaFetcherOptions{
 		Enhanced:               false,
-		Platform:               c.App.AnilistPlatform,
-		MetadataProvider:       c.App.MetadataProvider,
+		Platform:               h.App.AnilistPlatform,
+		MetadataProvider:       h.App.MetadataProvider,
 		LocalFiles:             localFiles,
 		CompleteAnimeCache:     completeAnimeCache,
-		Logger:                 c.App.Logger,
+		Logger:                 h.App.Logger,
 		AnilistRateLimiter:     limiter.NewAnilistLimiter(),
 		DisableAnimeCollection: false,
 		ScanLogger:             nil,
 	})
 
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(mc.AllMedia)
-
+	return h.RespondWithData(c, mc.AllMedia)
 }

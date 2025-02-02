@@ -13,7 +13,8 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { logger } from "@/lib/helpers/debug"
-import { useSetAtom } from "jotai/react"
+import { useAtom } from "jotai/react"
+import { atomWithStorage } from "jotai/utils"
 import React from "react"
 
 type DebridStreamPageProps = {
@@ -21,6 +22,8 @@ type DebridStreamPageProps = {
     entry: Anime_Entry
     bottomSection?: React.ReactNode
 }
+
+const autoSelectFileAtom = atomWithStorage("sea-debridstream-manually-select-file", false)
 
 // DEVNOTE: This page uses some utility functions from the TorrentStream feature
 
@@ -37,6 +40,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
 
     // State to manage auto-select setting
     const [autoSelect, setAutoSelect] = React.useState(serverStatus?.debridSettings?.streamAutoSelect)
+    const [autoSelectFile, setAutoSelectFile] = useAtom(autoSelectFileAtom)
 
     /**
      * Get all episodes to watch
@@ -54,8 +58,8 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
     }, [serverStatus?.torrentstreamSettings?.autoSelect, episodeCollection])
 
     // Atoms to control the torrent search drawer state
-    const setTorrentSearchDrawerOpen = useSetAtom(__torrentSearch_drawerIsOpenAtom)
-    const setTorrentSearchEpisode = useSetAtom(__torrentSearch_drawerEpisodeAtom)
+    const [, setTorrentSearchDrawerOpen] = useAtom(__torrentSearch_drawerIsOpenAtom)
+    const [, setTorrentSearchEpisode] = useAtom(__torrentSearch_drawerEpisodeAtom)
 
     // Stores the episode that was clicked
     const { setTorrentStreamingSelectedEpisode } = useTorrentStreamingSelectedEpisode()
@@ -65,7 +69,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
         if (autoSelect) {
             handleAutoSelect(entry, episode)
         } else {
-            setTorrentStreamingSelectedEpisode(episode)
+            handleEpisodeClick(episode)
         }
     }
 
@@ -74,6 +78,27 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
 
     // Hook to manage debrid stream autoplay information
     const { setDebridstreamAutoplayInfo } = useDebridStreamAutoplay()
+
+    // Function to set the debrid stream autoplay info
+    // It checks if there is a next episode and if it has aniDBEpisode
+    // If so, it sets the autoplay info
+    // Otherwise, it resets the autoplay info
+    function handleSetDebridstreamAutoplayInfo(episode: Anime_Episode | undefined) {
+        if (!episode || !episode.aniDBEpisode || !episodeCollection?.episodes) return
+        const nextEpisode = episodeCollection?.episodes?.find(e => e.episodeNumber === episode.episodeNumber + 1)
+        logger("TORRENTSTREAM").info("Auto select, Next episode", nextEpisode)
+        if (nextEpisode && !!nextEpisode.aniDBEpisode) {
+            setDebridstreamAutoplayInfo({
+                allEpisodes: episodeCollection?.episodes,
+                entry: entry,
+                episodeNumber: nextEpisode.episodeNumber,
+                aniDBEpisode: nextEpisode.aniDBEpisode,
+                type: "debridstream",
+            })
+        } else {
+            setDebridstreamAutoplayInfo(null)
+        }
+    }
 
     // Function to handle auto-selecting an episode
     function handleAutoSelect(entry: Anime_Entry, episode: Anime_Episode | undefined) {
@@ -84,19 +109,9 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
             episodeNumber: episode.episodeNumber,
             aniDBEpisode: episode.aniDBEpisode,
         })
-        // Check if next episode exists for autoplay
-        const nextEpisode = episodeCollection?.episodes?.find(e => e.episodeNumber === episode.episodeNumber + 1)
-        logger("TORRENTSTREAM").info("Auto select, Next episode", nextEpisode)
-        if (nextEpisode && !!nextEpisode.aniDBEpisode) {
-            setDebridstreamAutoplayInfo({
-                allEpisodes: episodeCollection?.episodes,
-                entry: entry,
-                episodeNumber: nextEpisode.episodeNumber,
-                aniDBEpisode: nextEpisode.aniDBEpisode,
-            })
-        } else {
-            setDebridstreamAutoplayInfo(null)
-        }
+
+        // Set the debrid stream autoplay info
+        handleSetDebridstreamAutoplayInfo(episode)
     }
 
     // Function to handle episode click events
@@ -111,7 +126,16 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
             React.startTransition(() => {
                 setTorrentSearchEpisode(episode.episodeNumber)
                 React.startTransition(() => {
-                    setTorrentSearchDrawerOpen("debrid-stream")
+                    // If auto-select file is enabled, open the debrid stream select drawer
+                    if (autoSelectFile) {
+                        setTorrentSearchDrawerOpen("debrid-stream-select")
+
+                        // Set the debrid stream autoplay info
+                        handleSetDebridstreamAutoplayInfo(episode)
+                    } else {
+                        // Otherwise, open the debrid stream select file drawer
+                        setTorrentSearchDrawerOpen("debrid-stream-select-file")
+                    }
                 })
             })
         }
@@ -127,16 +151,28 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Debrid streaming</h2>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 pb-6 2xl:py-0">
+                <div className="flex flex-col md:flex-row gap-6 pb-6 2xl:py-0">
                     <Switch
                         label="Auto-select"
                         value={autoSelect}
                         onValueChange={v => {
                             setAutoSelect(v)
                         }}
-                        help="Automatically select the best torrent and file to stream"
+                        // help="Automatically select the best torrent and file to stream"
                         fieldClass="w-fit"
                     />
+
+                    {!autoSelect && (
+                        <Switch
+                            label="Auto-select file"
+                            value={autoSelectFile}
+                            onValueChange={v => {
+                                setAutoSelectFile(v)
+                            }}
+                            moreHelp="Episode file will be automatically selected from batch torrents"
+                            fieldClass="w-fit"
+                        />
+                    )}
                 </div>
 
                 {episodeCollection?.hasMappingError && (

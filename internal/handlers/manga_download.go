@@ -3,8 +3,10 @@ package handlers
 import (
 	"seanime/internal/events"
 	"seanime/internal/manga"
-	"seanime/internal/manga/downloader"
+	chapter_downloader "seanime/internal/manga/downloader"
 	"time"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleDownloadMangaChapters
@@ -12,7 +14,7 @@ import (
 //	@summary adds chapters to the download queue.
 //	@route /api/v1/manga/download-chapters [POST]
 //	@returns bool
-func HandleDownloadMangaChapters(c *RouteCtx) error {
+func (h *Handler) HandleDownloadMangaChapters(c echo.Context) error {
 
 	type body struct {
 		MediaId    int      `json:"mediaId"`
@@ -22,27 +24,27 @@ func HandleDownloadMangaChapters(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.WSEventManager.SendEvent(events.InfoToast, "Adding chapters to download queue...")
+	h.App.WSEventManager.SendEvent(events.InfoToast, "Adding chapters to download queue...")
 
 	// Add chapters to the download queue
 	for _, chapterId := range b.ChapterIds {
-		err := c.App.MangaDownloader.DownloadChapter(manga.DownloadChapterOptions{
+		err := h.App.MangaDownloader.DownloadChapter(manga.DownloadChapterOptions{
 			Provider:  b.Provider,
 			MediaId:   b.MediaId,
 			ChapterId: chapterId,
 			StartNow:  b.StartNow,
 		})
 		if err != nil {
-			return c.RespondWithError(err)
+			return h.RespondWithError(c, err)
 		}
 		time.Sleep(400 * time.Millisecond) // Sleep to avoid rate limiting
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetMangaDownloadData
@@ -52,7 +54,7 @@ func HandleDownloadMangaChapters(c *RouteCtx) error {
 //	@desc If the 'cached' parameter is false, it will refresh the data by rescanning the download folder.
 //	@route /api/v1/manga/download-data [POST]
 //	@returns manga.MediaDownloadData
-func HandleGetMangaDownloadData(c *RouteCtx) error {
+func (h *Handler) HandleGetMangaDownloadData(c echo.Context) error {
 
 	type body struct {
 		MediaId int  `json:"mediaId"`
@@ -60,16 +62,16 @@ func HandleGetMangaDownloadData(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	data, err := c.App.MangaDownloader.GetMediaDownloads(b.MediaId, b.Cached)
+	data, err := h.App.MangaDownloader.GetMediaDownloads(b.MediaId, b.Cached)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(data)
+	return h.RespondWithData(c, data)
 }
 
 // HandleGetMangaDownloadQueue
@@ -77,14 +79,14 @@ func HandleGetMangaDownloadData(c *RouteCtx) error {
 //	@summary returns the items in the download queue.
 //	@route /api/v1/manga/download-queue [GET]
 //	@returns []models.ChapterDownloadQueueItem
-func HandleGetMangaDownloadQueue(c *RouteCtx) error {
+func (h *Handler) HandleGetMangaDownloadQueue(c echo.Context) error {
 
-	data, err := c.App.Database.GetChapterDownloadQueue()
+	data, err := h.App.Database.GetChapterDownloadQueue()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(data)
+	return h.RespondWithData(c, data)
 }
 
 // HandleStartMangaDownloadQueue
@@ -94,11 +96,11 @@ func HandleGetMangaDownloadQueue(c *RouteCtx) error {
 //	@desc Returns 'true' whether the queue was started or not.
 //	@route /api/v1/manga/download-queue/start [POST]
 //	@returns bool
-func HandleStartMangaDownloadQueue(c *RouteCtx) error {
+func (h *Handler) HandleStartMangaDownloadQueue(c echo.Context) error {
 
-	c.App.MangaDownloader.RunChapterDownloadQueue()
+	h.App.MangaDownloader.RunChapterDownloadQueue()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleStopMangaDownloadQueue
@@ -108,11 +110,11 @@ func HandleStartMangaDownloadQueue(c *RouteCtx) error {
 //	@desc Returns 'true' whether the queue was stopped or not.
 //	@route /api/v1/manga/download-queue/stop [POST]
 //	@returns bool
-func HandleStopMangaDownloadQueue(c *RouteCtx) error {
+func (h *Handler) HandleStopMangaDownloadQueue(c echo.Context) error {
 
-	c.App.MangaDownloader.StopChapterDownloadQueue()
+	h.App.MangaDownloader.StopChapterDownloadQueue()
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 
 }
 
@@ -124,16 +126,16 @@ func HandleStopMangaDownloadQueue(c *RouteCtx) error {
 //	@desc This will also send a websocket event telling the client to refetch the download queue.
 //	@route /api/v1/manga/download-queue [DELETE]
 //	@returns bool
-func HandleClearAllChapterDownloadQueue(c *RouteCtx) error {
+func (h *Handler) HandleClearAllChapterDownloadQueue(c echo.Context) error {
 
-	err := c.App.Database.ClearAllChapterDownloadQueueItems()
+	err := h.App.Database.ClearAllChapterDownloadQueueItems()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.WSEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
+	h.App.WSEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleResetErroredChapterDownloadQueue
@@ -144,16 +146,16 @@ func HandleClearAllChapterDownloadQueue(c *RouteCtx) error {
 //	@desc This will also send a websocket event telling the client to refetch the download queue.
 //	@route /api/v1/manga/download-queue/reset-errored [POST]
 //	@returns bool
-func HandleResetErroredChapterDownloadQueue(c *RouteCtx) error {
+func (h *Handler) HandleResetErroredChapterDownloadQueue(c echo.Context) error {
 
-	err := c.App.Database.ResetErroredChapterDownloadQueueItems()
+	err := h.App.Database.ResetErroredChapterDownloadQueueItems()
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	c.App.WSEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
+	h.App.WSEventManager.SendEvent(events.ChapterDownloadQueueUpdated, nil)
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleDeleteMangaDownloadedChapters
@@ -164,23 +166,23 @@ func HandleResetErroredChapterDownloadQueue(c *RouteCtx) error {
 //	@desc The client should refetch the download data after this.
 //	@route /api/v1/manga/download-chapter [DELETE]
 //	@returns bool
-func HandleDeleteMangaDownloadedChapters(c *RouteCtx) error {
+func (h *Handler) HandleDeleteMangaDownloadedChapters(c echo.Context) error {
 
 	type body struct {
 		DownloadIds []chapter_downloader.DownloadID `json:"downloadIds"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.MangaDownloader.DeleteChapters(b.DownloadIds)
+	err := h.App.MangaDownloader.DeleteChapters(b.DownloadIds)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleGetMangaDownloadsList
@@ -190,19 +192,19 @@ func HandleDeleteMangaDownloadedChapters(c *RouteCtx) error {
 //	@desc It returns a list of manga.DownloadListItem where the media data might be nil if it's not in the AniList collection.
 //	@route /api/v1/manga/downloads [GET]
 //	@returns []manga.DownloadListItem
-func HandleGetMangaDownloadsList(c *RouteCtx) error {
+func (h *Handler) HandleGetMangaDownloadsList(c echo.Context) error {
 
-	mangaCollection, err := c.App.GetMangaCollection(false)
+	mangaCollection, err := h.App.GetMangaCollection(false)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	res, err := c.App.MangaDownloader.NewDownloadList(&manga.NewDownloadListOptions{
+	res, err := h.App.MangaDownloader.NewDownloadList(&manga.NewDownloadListOptions{
 		MangaCollection: mangaCollection,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(res)
+	return h.RespondWithData(c, res)
 }

@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"errors"
-	"github.com/dustin/go-humanize"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
+
+	"github.com/dustin/go-humanize"
+	"github.com/labstack/echo/v4"
 )
 
 // HandleGetLibraryCollection
@@ -17,46 +19,46 @@ import (
 //	@desc It refreshes the AniList anime collection if the POST method is used.
 //	@route /api/v1/library/collection [GET,POST]
 //	@returns anime.LibraryCollection
-func HandleGetLibraryCollection(c *RouteCtx) error {
+func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 
-	animeCollection, err := c.App.GetAnimeCollection(false)
+	animeCollection, err := h.App.GetAnimeCollection(false)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	if animeCollection == nil {
-		return c.RespondWithData(&anime.LibraryCollection{})
+		return h.RespondWithData(c, &anime.LibraryCollection{})
 	}
 
-	lfs, _, err := db_bridge.GetLocalFiles(c.App.Database)
+	lfs, _, err := db_bridge.GetLocalFiles(h.App.Database)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
 	libraryCollection, err := anime.NewLibraryCollection(&anime.NewLibraryCollectionOptions{
 		AnimeCollection:  animeCollection,
-		Platform:         c.App.AnilistPlatform,
+		Platform:         h.App.AnilistPlatform,
 		LocalFiles:       lfs,
-		MetadataProvider: c.App.MetadataProvider,
+		MetadataProvider: h.App.MetadataProvider,
 	})
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	if (c.App.SecondarySettings.Torrentstream != nil && c.App.SecondarySettings.Torrentstream.Enabled && c.App.SecondarySettings.Torrentstream.IncludeInLibrary) ||
-		(c.App.Settings.Library != nil && c.App.Settings.Library.EnableOnlinestream && c.App.Settings.Library.IncludeOnlineStreamingInLibrary) ||
-		(c.App.SecondarySettings.Debrid != nil && c.App.SecondarySettings.Debrid.Enabled && c.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary) {
-		c.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
+	if (h.App.SecondarySettings.Torrentstream != nil && h.App.SecondarySettings.Torrentstream.Enabled && h.App.SecondarySettings.Torrentstream.IncludeInLibrary) ||
+		(h.App.Settings.Library != nil && h.App.Settings.Library.EnableOnlinestream && h.App.Settings.Library.IncludeOnlineStreamingInLibrary) ||
+		(h.App.SecondarySettings.Debrid != nil && h.App.SecondarySettings.Debrid.Enabled && h.App.SecondarySettings.Debrid.IncludeDebridStreamInLibrary) {
+		h.App.TorrentstreamRepository.HydrateStreamCollection(&torrentstream.HydrateStreamCollectionOptions{
 			AnimeCollection:   animeCollection,
 			LibraryCollection: libraryCollection,
-			MetadataProvider:  c.App.MetadataProvider,
+			MetadataProvider:  h.App.MetadataProvider,
 		})
 	}
 
 	// Hydrate total library size
-	libraryCollection.Stats.TotalSize = humanize.Bytes(c.App.TotalLibrarySize)
+	libraryCollection.Stats.TotalSize = humanize.Bytes(h.App.TotalLibrarySize)
 
-	return c.RespondWithData(libraryCollection)
+	return h.RespondWithData(c, libraryCollection)
 }
 
 // HandleAddUnknownMedia
@@ -66,28 +68,28 @@ func HandleGetLibraryCollection(c *RouteCtx) error {
 //	@desc The response is ignored in the frontend, the client should just refetch the entire library collection.
 //	@route /api/v1/library/unknown-media [POST]
 //	@returns anilist.AnimeCollection
-func HandleAddUnknownMedia(c *RouteCtx) error {
+func (h *Handler) HandleAddUnknownMedia(c echo.Context) error {
 
 	type body struct {
 		MediaIds []int `json:"mediaIds"`
 	}
 
 	b := new(body)
-	if err := c.Fiber.BodyParser(b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	// Add non-added media entries to AniList collection
-	if err := c.App.AnilistPlatform.AddMediaToCollection(b.MediaIds); err != nil {
-		return c.RespondWithError(errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
+	if err := h.App.AnilistPlatform.AddMediaToCollection(b.MediaIds); err != nil {
+		return h.RespondWithError(c, errors.New("error: Anilist responded with an error, this is most likely a rate limit issue"))
 	}
 
 	// Bypass the cache
-	animeCollection, err := c.App.GetAnimeCollection(true)
+	animeCollection, err := h.App.GetAnimeCollection(true)
 	if err != nil {
-		return c.RespondWithError(errors.New("error: Anilist responded with an error, wait one minute before refreshing"))
+		return h.RespondWithError(c, errors.New("error: Anilist responded with an error, wait one minute before refreshing"))
 	}
 
-	return c.RespondWithData(animeCollection)
+	return h.RespondWithData(c, animeCollection)
 
 }

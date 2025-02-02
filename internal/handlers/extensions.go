@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"seanime/internal/extension"
 	"seanime/internal/extension_playground"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandleFetchExternalExtensionData
@@ -11,22 +13,22 @@ import (
 //	@summary returns the extension data from the given manifest uri.
 //	@route /api/v1/extensions/external/fetch [POST]
 //	@returns extension.Extension
-func HandleFetchExternalExtensionData(c *RouteCtx) error {
+func (h *Handler) HandleFetchExternalExtensionData(c echo.Context) error {
 	type body struct {
 		ManifestURI string `json:"manifestUri"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	extension, err := c.App.ExtensionRepository.FetchExternalExtensionData(b.ManifestURI)
+	extension, err := h.App.ExtensionRepository.FetchExternalExtensionData(b.ManifestURI)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(extension)
+	return h.RespondWithData(c, extension)
 }
 
 // HandleInstallExternalExtension
@@ -34,22 +36,22 @@ func HandleFetchExternalExtensionData(c *RouteCtx) error {
 //	@summary installs the extension from the given manifest uri.
 //	@route /api/v1/extensions/external/install [POST]
 //	@returns extension_repo.ExtensionInstallResponse
-func HandleInstallExternalExtension(c *RouteCtx) error {
+func (h *Handler) HandleInstallExternalExtension(c echo.Context) error {
 	type body struct {
 		ManifestURI string `json:"manifestUri"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	res, err := c.App.ExtensionRepository.InstallExternalExtension(b.ManifestURI)
+	res, err := h.App.ExtensionRepository.InstallExternalExtension(b.ManifestURI)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(res)
+	return h.RespondWithData(c, res)
 }
 
 // HandleUninstallExternalExtension
@@ -57,22 +59,22 @@ func HandleInstallExternalExtension(c *RouteCtx) error {
 //	@summary uninstalls the extension with the given ID.
 //	@route /api/v1/extensions/external/uninstall [POST]
 //	@returns bool
-func HandleUninstallExternalExtension(c *RouteCtx) error {
+func (h *Handler) HandleUninstallExternalExtension(c echo.Context) error {
 	type body struct {
 		ID string `json:"id"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.ExtensionRepository.UninstallExternalExtension(b.ID)
+	err := h.App.ExtensionRepository.UninstallExternalExtension(b.ID)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleUpdateExtensionCode
@@ -80,23 +82,23 @@ func HandleUninstallExternalExtension(c *RouteCtx) error {
 //	@summary updates the extension code with the given ID and reloads the extensions.
 //	@route /api/v1/extensions/external/edit-payload [POST]
 //	@returns bool
-func HandleUpdateExtensionCode(c *RouteCtx) error {
+func (h *Handler) HandleUpdateExtensionCode(c echo.Context) error {
 	type body struct {
 		ID      string `json:"id"`
 		Payload string `json:"payload"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	err := c.App.ExtensionRepository.UpdateExtensionCode(b.ID, b.Payload)
+	err := h.App.ExtensionRepository.UpdateExtensionCode(b.ID, b.Payload)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }
 
 // HandleReloadExternalExtensions
@@ -104,9 +106,9 @@ func HandleUpdateExtensionCode(c *RouteCtx) error {
 //	@summary reloads the external extensions.
 //	@route /api/v1/extensions/external/reload [POST]
 //	@returns bool
-func HandleReloadExternalExtensions(c *RouteCtx) error {
-	c.App.ExtensionRepository.ReloadExternalExtensions()
-	return c.RespondWithData(true)
+func (h *Handler) HandleReloadExternalExtensions(c echo.Context) error {
+	h.App.ExtensionRepository.ReloadExternalExtensions()
+	return h.RespondWithData(c, true)
 }
 
 // HandleListExtensionData
@@ -114,9 +116,9 @@ func HandleReloadExternalExtensions(c *RouteCtx) error {
 //	@summary returns the loaded extensions
 //	@route /api/v1/extensions/list [GET]
 //	@returns []extension.Extension
-func HandleListExtensionData(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.ListExtensionData()
-	return c.RespondWithData(extensions)
+func (h *Handler) HandleListExtensionData(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListExtensionData()
+	return h.RespondWithData(c, extensions)
 }
 
 // HandleGetAllExtensions
@@ -124,18 +126,18 @@ func HandleListExtensionData(c *RouteCtx) error {
 //	@summary returns all loaded and invalid extensions.
 //	@route /api/v1/extensions/all [POST]
 //	@returns extension_repo.AllExtensions
-func HandleGetAllExtensions(c *RouteCtx) error {
+func (h *Handler) HandleGetAllExtensions(c echo.Context) error {
 	type body struct {
 		WithUpdates bool `json:"withUpdates"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	extensions := c.App.ExtensionRepository.GetAllExtensions(b.WithUpdates)
-	return c.RespondWithData(extensions)
+	extensions := h.App.ExtensionRepository.GetAllExtensions(b.WithUpdates)
+	return h.RespondWithData(c, extensions)
 }
 
 // HandleListMangaProviderExtensions
@@ -143,9 +145,9 @@ func HandleGetAllExtensions(c *RouteCtx) error {
 //	@summary returns the installed manga providers.
 //	@route /api/v1/extensions/list/manga-provider [GET]
 //	@returns []extension_repo.MangaProviderExtensionItem
-func HandleListMangaProviderExtensions(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.ListMangaProviderExtensions()
-	return c.RespondWithData(extensions)
+func (h *Handler) HandleListMangaProviderExtensions(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListMangaProviderExtensions()
+	return h.RespondWithData(c, extensions)
 }
 
 // HandleListOnlinestreamProviderExtensions
@@ -153,9 +155,9 @@ func HandleListMangaProviderExtensions(c *RouteCtx) error {
 //	@summary returns the installed online streaming providers.
 //	@route /api/v1/extensions/list/onlinestream-provider [GET]
 //	@returns []extension_repo.OnlinestreamProviderExtensionItem
-func HandleListOnlinestreamProviderExtensions(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.ListOnlinestreamProviderExtensions()
-	return c.RespondWithData(extensions)
+func (h *Handler) HandleListOnlinestreamProviderExtensions(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListOnlinestreamProviderExtensions()
+	return h.RespondWithData(c, extensions)
 }
 
 // HandleListAnimeTorrentProviderExtensions
@@ -163,9 +165,9 @@ func HandleListOnlinestreamProviderExtensions(c *RouteCtx) error {
 //	@summary returns the installed torrent providers.
 //	@route /api/v1/extensions/list/anime-torrent-provider [GET]
 //	@returns []extension_repo.AnimeTorrentProviderExtensionItem
-func HandleListAnimeTorrentProviderExtensions(c *RouteCtx) error {
-	extensions := c.App.ExtensionRepository.ListAnimeTorrentProviderExtensions()
-	return c.RespondWithData(extensions)
+func (h *Handler) HandleListAnimeTorrentProviderExtensions(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListAnimeTorrentProviderExtensions()
+	return h.RespondWithData(c, extensions)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,22 +178,22 @@ func HandleListAnimeTorrentProviderExtensions(c *RouteCtx) error {
 //	@desc Returns the logs
 //	@route /api/v1/extensions/playground/run [POST]
 //	@returns extension_playground.RunPlaygroundCodeResponse
-func HandleRunExtensionPlaygroundCode(c *RouteCtx) error {
+func (h *Handler) HandleRunExtensionPlaygroundCode(c echo.Context) error {
 	type body struct {
 		Params *extension_playground.RunPlaygroundCodeParams `json:"params"`
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
-	res, err := c.App.ExtensionPlaygroundRepository.RunPlaygroundCode(b.Params)
+	res, err := h.App.ExtensionPlaygroundRepository.RunPlaygroundCode(b.Params)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(res)
+	return h.RespondWithData(c, res)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,13 +203,13 @@ func HandleRunExtensionPlaygroundCode(c *RouteCtx) error {
 //	@summary returns the user config definition and current values for the extension with the given ID.
 //	@route /api/v1/extensions/user-config/{id} [GET]
 //	@returns extension_repo.ExtensionUserConfig
-func HandleGetExtensionUserConfig(c *RouteCtx) error {
-	id := c.Fiber.Params("id", "")
+func (h *Handler) HandleGetExtensionUserConfig(c echo.Context) error {
+	id := c.Param("id")
 	if id == "" {
-		return c.RespondWithError(fmt.Errorf("id is required"))
+		return h.RespondWithError(c, fmt.Errorf("id is required"))
 	}
-	config := c.App.ExtensionRepository.GetExtensionUserConfig(id)
-	return c.RespondWithData(config)
+	config := h.App.ExtensionRepository.GetExtensionUserConfig(id)
+	return h.RespondWithData(c, config)
 }
 
 // HandleSaveExtensionUserConfig
@@ -215,7 +217,7 @@ func HandleGetExtensionUserConfig(c *RouteCtx) error {
 //	@summary saves the user config for the extension with the given ID and reloads it.
 //	@route /api/v1/extensions/user-config [POST]
 //	@returns bool
-func HandleSaveExtensionUserConfig(c *RouteCtx) error {
+func (h *Handler) HandleSaveExtensionUserConfig(c echo.Context) error {
 	type body struct {
 		ID      string            `json:"id"`      // The extension ID
 		Version int               `json:"version"` // The current extension user config definition version
@@ -223,8 +225,8 @@ func HandleSaveExtensionUserConfig(c *RouteCtx) error {
 	}
 
 	var b body
-	if err := c.Fiber.BodyParser(&b); err != nil {
-		return c.RespondWithError(err)
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
 	}
 
 	config := &extension.SavedUserConfig{
@@ -232,10 +234,10 @@ func HandleSaveExtensionUserConfig(c *RouteCtx) error {
 		Values:  b.Values,
 	}
 
-	err := c.App.ExtensionRepository.SaveExtensionUserConfig(b.ID, config)
+	err := h.App.ExtensionRepository.SaveExtensionUserConfig(b.ID, config)
 	if err != nil {
-		return c.RespondWithError(err)
+		return h.RespondWithError(c, err)
 	}
 
-	return c.RespondWithData(true)
+	return h.RespondWithData(c, true)
 }

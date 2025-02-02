@@ -126,7 +126,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
                                         </Button>
                                     </div>
                                 </div>
-                                <div className="bg-gray-900 border p-2 px-2 rounded-md space-y-1 max-h-40 max-w-full overflow-x-auto overflow-y-auto text-sm">
+                                <div className="bg-gray-900 border p-2 px-2 rounded-[--radius-md] space-y-1 max-h-40 max-w-full overflow-x-auto overflow-y-auto text-sm">
                                     {group.localFiles?.sort((a, b) => ((Number(a.parsedInfo?.episode ?? 0)) - (Number(b.parsedInfo?.episode ?? 0))))
                                         .map(lf => {
                                             return <p key={lf.path} className="text-[--muted] line-clamp-1 tracking-wide">
