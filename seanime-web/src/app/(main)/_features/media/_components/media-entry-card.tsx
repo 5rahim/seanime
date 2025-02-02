@@ -160,7 +160,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
 
             <SeaContextMenu
                 content={<ContextMenuGroup>
-                    <ContextMenuLabel className="text-[--muted] line-clamp-2 py-0 my-2">
+                    <ContextMenuLabel className="text-[--muted] line-clamp-1 py-0 my-2">
                         {media.title?.userPreferred}
                     </ContextMenuLabel>
                     <ContextMenuItem

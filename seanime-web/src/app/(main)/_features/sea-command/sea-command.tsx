@@ -3,7 +3,8 @@ import { SeaCommandSearch } from "@/app/(main)/_features/sea-command/sea-command
 import { SeaCommand_ParsedCommandProps, useSeaCommand_ParseCommand } from "@/app/(main)/_features/sea-command/utils"
 import { AlphaBadge } from "@/components/shared/beta-badge"
 import { CommandDialog, CommandInput, CommandList } from "@/components/ui/command"
-import { useAtom } from "jotai/react"
+import { atom } from "jotai"
+import { useAtom, useSetAtom } from "jotai/react"
 import { atomWithStorage } from "jotai/utils"
 import mousetrap from "mousetrap"
 import { usePathname, useRouter } from "next/navigation"
@@ -47,12 +48,21 @@ export function useSeaCommandContext() {
     return React.useContext(SeaCommandContext) as SeaCommandContextProps
 }
 
+const __seaCommand_isOpen = atom(false)
+
+export function useOpenSeaCommand() {
+    const setOpen = useSetAtom(__seaCommand_isOpen)
+    return {
+        setSeaCommandOpen: setOpen,
+    }
+}
+
 export function SeaCommand() {
 
     const router = useRouter()
     const pathname = usePathname()
 
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = useAtom(__seaCommand_isOpen)
     const [input, setInput] = React.useState("")
     const [activeItemId, setActiveItemId] = React.useState("")
 

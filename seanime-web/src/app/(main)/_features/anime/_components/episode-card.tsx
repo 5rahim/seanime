@@ -1,11 +1,15 @@
+import { SeaContextMenu } from "@/app/(main)/_features/context-menu/sea-context-menu"
 import { EpisodeItemBottomGradient } from "@/app/(main)/_features/custom-ui/item-bottom-gradients"
+import { useMediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { imageShimmer } from "@/components/shared/image-helpers"
+import { ContextMenuGroup, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { cn } from "@/components/ui/core/styling"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { getImageUrl } from "@/lib/server/assets"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import React from "react"
 import { AiFillPlayCircle } from "react-icons/ai"
 
@@ -30,6 +34,7 @@ type EpisodeCardProps = {
     percentageComplete?: number
     minutesRemaining?: number
     anime?: {
+        id: number
         image?: string
         title?: string
     }
@@ -63,8 +68,10 @@ export function EpisodeCard(props: EpisodeCardProps) {
         ...rest
     } = props
 
+    const router = useRouter()
     const serverStatus = useServerStatus()
     const ts = useThemeSettings()
+    const { setPreviewModalMediaId } = useMediaPreviewModal()
 
     const showAnimeInfo = ts.showEpisodeCardAnimeInfo && !!anime
     const showTotalEpisodes = React.useMemo(() => !!progressTotal && progressTotal > 1, [progressTotal])
@@ -91,75 +98,102 @@ export function EpisodeCard(props: EpisodeCardProps) {
     )
 
     return (
-        <div
-            ref={mRef}
-            className={cn(
-                "rounded-lg overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
-                "select-none",
-                type === "carousel" && "w-full",
-                type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
-                className,
-                containerClass,
-            )}
-            onClick={onClick}
-            {...rest}
+        <SeaContextMenu
+            hideMenuIf={!anime?.id}
+            content={
+                <ContextMenuGroup>
+                    <ContextMenuLabel className="text-[--muted] line-clamp-1 py-0 my-2">
+                        {anime?.title}
+                    </ContextMenuLabel>
+                    <ContextMenuItem
+                        onClick={() => {
+                            router.push(`/entry?id=${anime?.id}`)
+                        }}
+                    >
+                        Open page
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                        onClick={() => {
+                            setPreviewModalMediaId(anime?.id || 0, "anime")
+                        }}
+                    >
+                        Preview
+                    </ContextMenuItem>
+                </ContextMenuGroup>
+            }
         >
-            <div className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
-                {!!image ? <Image
-                    src={getImageUrl(image)}
-                    alt={""}
-                    fill
-                    quality={100}
-                    placeholder={imageShimmer(700, 475)}
-                    sizes="20rem"
-                    className={cn(
-                        "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
-                        imageClass,
-                    )}
-                /> : <div
-                    className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
-                ></div>}
-                {/*[CUSTOM UI] BOTTOM GRADIENT*/}
-                <EpisodeItemBottomGradient />
-
-                {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
-                    <div className="absolute bottom-0 left-0 w-full z-[3]">
-                        <ProgressBar value={percentageComplete} size="xs" />
-                        {minutesRemaining && <div className="absolute bottom-2 right-2">
-                            <p className="text-[--muted] text-sm">{minutesRemaining}m left</p>
-                        </div>}
-                    </div>}
-
+            <ContextMenuTrigger>
                 <div
+                    ref={mRef}
                     className={cn(
-                        "group-hover/episode-card:opacity-100 text-6xl text-gray-200",
-                        "cursor-pointer opacity-0 transition-opacity bg-gray-950 bg-opacity-60 z-[2] absolute w-[105%] h-[105%] items-center justify-center",
-                        "hidden md:flex",
+                        "rounded-lg overflow-hidden space-y-2 flex-none group/episode-card cursor-pointer",
+                        "select-none",
+                        type === "carousel" && "w-full",
+                        type === "grid" && "aspect-[4/2] w-72 lg:w-[26rem]",
+                        className,
+                        containerClass,
                     )}
+                    onClick={onClick}
+                    {...rest}
                 >
-                    {actionIcon && actionIcon}
-                </div>
+                    <div className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
+                        {!!image ? <Image
+                            src={getImageUrl(image)}
+                            alt={""}
+                            fill
+                            quality={100}
+                            placeholder={imageShimmer(700, 475)}
+                            sizes="20rem"
+                            className={cn(
+                                "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                                imageClass,
+                            )}
+                        /> : <div
+                            className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
+                        ></div>}
+                        {/*[CUSTOM UI] BOTTOM GRADIENT*/}
+                        <EpisodeItemBottomGradient />
 
-                {isInvalid && <p className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata found</p>}
-            </div>
-            {(showAnimeInfo) ? <div className="flex gap-3 items-center">
-                <div className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
-                    {!!anime?.image && <Image
-                        src={getImageUrl(anime.image)}
-                        alt={""}
-                        fill
-                        quality={100}
-                        placeholder={imageShimmer(700, 475)}
-                        sizes="20rem"
-                        className={cn(
-                            "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
-                            imageClass,
-                        )}
-                    />}
+                        {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
+                            <div className="absolute bottom-0 left-0 w-full z-[3]">
+                                <ProgressBar value={percentageComplete} size="xs" />
+                                {minutesRemaining && <div className="absolute bottom-2 right-2">
+                                    <p className="text-[--muted] text-sm">{minutesRemaining}m left</p>
+                                </div>}
+                            </div>}
+
+                        <div
+                            className={cn(
+                                "group-hover/episode-card:opacity-100 text-6xl text-gray-200",
+                                "cursor-pointer opacity-0 transition-opacity bg-gray-950 bg-opacity-60 z-[2] absolute w-[105%] h-[105%] items-center justify-center",
+                                "hidden md:flex",
+                            )}
+                        >
+                            {actionIcon && actionIcon}
+                        </div>
+
+                        {isInvalid && <p className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata found</p>}
+                    </div>
+                    {(showAnimeInfo) ? <div className="flex gap-3 items-center">
+                        <div className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative">
+                            {!!anime?.image && <Image
+                                src={getImageUrl(anime.image)}
+                                alt={""}
+                                fill
+                                quality={100}
+                                placeholder={imageShimmer(700, 475)}
+                                sizes="20rem"
+                                className={cn(
+                                    "object-cover rounded-lg object-center transition lg:group-hover/episode-card:scale-105 duration-200",
+                                    imageClass,
+                                )}
+                            />}
+                        </div>
+                        <Meta />
+                    </div> : <Meta />}
                 </div>
-                <Meta />
-            </div> : <Meta />}
-        </div>
+            </ContextMenuTrigger>
+        </SeaContextMenu>
     )
 
     // if (ts.useLegacyEpisodeCard) {

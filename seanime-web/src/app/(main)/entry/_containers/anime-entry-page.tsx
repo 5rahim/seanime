@@ -154,7 +154,7 @@ export function AnimeEntryPage() {
                     render: () => <div>Download torrents</div>,
                     heading: "Views",
                     data: "download torrents",
-                    onSelect: () => setTorrentSearchDrawer("select"),
+                    onSelect: () => setTorrentSearchDrawer("download"),
                     shouldShow: () => currentView === "library",
                 },
             ],

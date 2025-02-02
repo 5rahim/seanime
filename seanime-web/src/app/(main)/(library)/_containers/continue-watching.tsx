@@ -234,6 +234,7 @@ const _EpisodeCard = React.memo(({ episode, mRef, overrideLink, watchHistory }: 
             percentageComplete={getEpisodePercentageComplete(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
             minutesRemaining={getEpisodeMinutesRemaining(watchHistory, episode.baseAnime?.id || 0, episode.episodeNumber)}
             anime={{
+                id: episode?.baseAnime?.id || 0,
                 image: episode?.baseAnime?.coverImage?.medium,
                 title: episode?.baseAnime?.title?.userPreferred,
             }}
