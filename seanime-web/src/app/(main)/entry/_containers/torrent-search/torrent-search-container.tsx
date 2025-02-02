@@ -120,10 +120,6 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
     const previews = React.useMemo(() => data?.previews ?? [], [data?.previews])
     const debridInstantAvailability = React.useMemo(() => data?.debridInstantAvailability ?? {}, [data?.debridInstantAvailability])
 
-    React.useEffect(() => {
-        setSelectedTorrents([])
-    }, [torrents])
-
     const EpisodeNumberInput = React.useCallback(() => {
         return <NumberInput
             label="Episode number"
