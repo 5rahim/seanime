@@ -12,14 +12,14 @@ export const enum PlaybackDownloadedMedia {
 
 export const playbackDownloadedMediaOptions = [
     {
-        label: <div className="flex items-center gap-2">
-            <PiVideoFill className="text-2xl" />
+        label: <div className="flex items-center gap-4 md:gap-2 w-full">
+            <PiVideoFill className="text-2xl flex-none" />
             <p className="max-w-[90%]">Desktop media player or Integrated player (media streaming)</p>
         </div>, value: PlaybackDownloadedMedia.Default,
     },
     {
-        label: <div className="flex items-center gap-2">
-            <FaShareFromSquare className="text-2xl" />
+        label: <div className="flex items-center gap-4 md:gap-2 w-full">
+            <FaShareFromSquare className="text-2xl flex-none" />
             <p className="max-w-[90%]">External player link</p>
         </div>, value: PlaybackDownloadedMedia.ExternalPlayerLink,
     },
@@ -36,14 +36,14 @@ export const enum PlaybackTorrentStreaming {
 
 export const playbackTorrentStreamingOptions = [
     {
-        label: <div className="flex items-center gap-2">
-            <PiVideoFill className="text-2xl" />
+        label: <div className="flex items-center gap-4 md:gap-2 w-full">
+            <PiVideoFill className="text-2xl flex-none" />
             <p className="max-w-[90%]">Desktop media player</p>
         </div>, value: PlaybackTorrentStreaming.Default,
     },
     {
-        label: <div className="flex items-center gap-2">
-            <FaShareFromSquare className="text-2xl" />
+        label: <div className="flex items-center gap-4 md:gap-2 w-full">
+            <FaShareFromSquare className="text-2xl flex-none" />
             <p className="max-w-[90%]">External player link</p>
         </div>, value: PlaybackTorrentStreaming.ExternalPlayerLink,
     },

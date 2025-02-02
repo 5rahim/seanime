@@ -206,7 +206,7 @@ export function TorrentStreamPage(props: TorrentStreamPageProps) {
                             onValueChange={v => {
                                 setAutoSelectFile(v)
                             }}
-                            moreHelp="Episode file will be automatically selected from batch torrents"
+                            moreHelp="The episode file will be automatically selected from your chosen batch torrent"
                             fieldClass="w-fit"
                         />
                     )}

@@ -33,17 +33,17 @@ import { useRouter } from "next/navigation"
 import React from "react"
 import { UseFormReturn } from "react-hook-form"
 import { CgMediaPodcast, CgPlayListSearch } from "react-icons/cg"
-import { FaBookReader, FaDiscord, FaRegSquare } from "react-icons/fa"
+import { FaBookReader, FaDiscord } from "react-icons/fa"
 import { FaShareFromSquare } from "react-icons/fa6"
 import { HiOutlineServerStack } from "react-icons/hi2"
 import { ImDownload } from "react-icons/im"
 import { IoLibrary, IoPlayBackCircleSharp } from "react-icons/io5"
-import { LuBookKey } from "react-icons/lu"
+import { LuBookKey, LuWandSparkles } from "react-icons/lu"
 import { MdNoAdultContent, MdOutlineBroadcastOnHome, MdOutlineDownloading, MdOutlinePalette } from "react-icons/md"
 import { PiVideoFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { SiAnilist, SiBittorrent } from "react-icons/si"
-import { TbCircleLetterS, TbDatabaseExclamation } from "react-icons/tb"
+import { TbDatabaseExclamation } from "react-icons/tb"
 import { VscDebugAlt } from "react-icons/vsc"
 import { SettingsCard, SettingsNavCard } from "./_components/settings-card"
 import { DiscordRichPresenceSettings } from "./_containers/discord-rich-presence-settings"
@@ -127,35 +127,37 @@ export default function Page() {
 
                                 </div>
                             </div>
-                            <TabsTrigger value="seanime"><TbCircleLetterS className="text-lg mr-3" /> App</TabsTrigger>
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime Library</TabsTrigger>
-                            <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Desktop Media Player</TabsTrigger>
-                            <TabsTrigger value="external-player-link"><FaShareFromSquare className="text-lg mr-3" /> External Player
-                                                                                                                     Link</TabsTrigger>
-                            <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
-                                                                                                                                        Streaming</TabsTrigger>
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
-                            <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
-                            <TabsTrigger value="debrid"><HiOutlineServerStack className="text-lg mr-3" /> Debrid Service</TabsTrigger>
-                            <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
-                                                                                                                              Streaming</TabsTrigger>
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
-                            <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online Streaming</TabsTrigger>
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
-                            <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
-                            <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
-                            <TabsTrigger value="logs"><LuBookKey className="text-lg mr-3" /> Logs</TabsTrigger>
-                            {/*<TabsTrigger value="data"><FiDatabase className="text-lg mr-3" /> Data</TabsTrigger>*/}
-                            {/* <Separator className="hidden lg:block my-2" /> */}
-                            <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
+                            <div className="overflow-x-none lg:overflow-y-hidden overflow-y-scroll h-40 lg:h-auto rounded-[--radius-md] border lg:border-none">
+                                <TabsTrigger value="seanime"><LuWandSparkles className="text-lg mr-3" /> App</TabsTrigger>
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="library"><IoLibrary className="text-lg mr-3" /> Anime Library</TabsTrigger>
+                                <TabsTrigger value="playback"><IoPlayBackCircleSharp className="text-lg mr-3" /> Client Playback</TabsTrigger>
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="media-player"><PiVideoFill className="text-lg mr-3" /> Desktop Media Player</TabsTrigger>
+                                <TabsTrigger value="external-player-link"><FaShareFromSquare className="text-lg mr-3" /> External Player
+                                                                                                                         Link</TabsTrigger>
+                                <TabsTrigger value="mediastream" className="relative"><MdOutlineBroadcastOnHome className="text-lg mr-3" /> Media
+                                                                                                                                            Streaming</TabsTrigger>
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="torrent"><CgPlayListSearch className="text-lg mr-3" /> Torrent Provider</TabsTrigger>
+                                <TabsTrigger value="torrent-client"><MdOutlineDownloading className="text-lg mr-3" /> Torrent Client</TabsTrigger>
+                                <TabsTrigger value="debrid"><HiOutlineServerStack className="text-lg mr-3" /> Debrid Service</TabsTrigger>
+                                <TabsTrigger value="torrentstream" className="relative"><SiBittorrent className="text-lg mr-3" /> Torrent
+                                                                                                                                  Streaming</TabsTrigger>
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="manga"><FaBookReader className="text-lg mr-3" /> Manga</TabsTrigger>
+                                <TabsTrigger value="onlinestream"><CgMediaPodcast className="text-lg mr-3" /> Online Streaming</TabsTrigger>
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="discord"><FaDiscord className="text-lg mr-3" /> Discord</TabsTrigger>
+                                <TabsTrigger value="nsfw"><MdNoAdultContent className="text-lg mr-3" /> NSFW</TabsTrigger>
+                                <TabsTrigger value="anilist"><SiAnilist className="text-lg mr-3" /> AniList</TabsTrigger>
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="cache"><TbDatabaseExclamation className="text-lg mr-3" /> Cache</TabsTrigger>
+                                <TabsTrigger value="logs"><LuBookKey className="text-lg mr-3" /> Logs</TabsTrigger>
+                                {/*<TabsTrigger value="data"><FiDatabase className="text-lg mr-3" /> Data</TabsTrigger>*/}
+                                {/* <Separator className="hidden lg:block my-2" /> */}
+                                <TabsTrigger value="ui"><MdOutlinePalette className="text-lg mr-3" /> User Interface</TabsTrigger>
+                            </div>
                         </SettingsNavCard>
                     </TabsList>
 

@@ -83,7 +83,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                     itemClass={cn(
                         "absolute top-2 right-2",
                     )}
-                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer w-full"
                 />
 
                 <>
@@ -157,7 +157,7 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                     itemClass={cn(
                         "absolute top-2 right-2",
                     )}
-                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer"
+                    itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer w-full"
                 />
 
                 <Alert
