@@ -14,7 +14,6 @@ import (
 	"time"
 
 	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	uaFake "github.com/lib4u/fake-useragent"
 	"github.com/rs/zerolog"
 )
 
@@ -24,7 +23,6 @@ type (
 		Client    *http.Client
 		UserAgent string
 		logger    *zerolog.Logger
-		UAFake    *uaFake.UserAgent
 	}
 
 	ComicKResultItem struct {

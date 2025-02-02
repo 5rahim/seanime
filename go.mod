@@ -34,7 +34,6 @@ require (
 	github.com/hekmon/transmissionrpc/v3 v3.0.0
 	github.com/kr/pretty v0.3.1
 	github.com/labstack/echo/v4 v4.13.3
-	github.com/lib4u/fake-useragent v0.0.0-20250111103813-dae89821b4b4
 	github.com/mileusna/useragent v1.3.5
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/nwaples/rardecode/v2 v2.0.1
@@ -53,6 +52,7 @@ require (
 	golang.org/x/net v0.33.0
 	golang.org/x/term v0.27.0
 	golang.org/x/text v0.21.0
+	golang.org/x/time v0.8.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.2.1
 	gorm.io/gorm v1.25.12
 )
@@ -179,7 +179,6 @@ require (
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/time v0.8.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

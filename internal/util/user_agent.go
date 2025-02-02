@@ -1,21 +1,24 @@
 package util
 
 import (
-	"github.com/rs/zerolog/log"
 	"math/rand"
-	"time"
 
-	uaFake "github.com/lib4u/fake-useragent"
+	"github.com/rs/zerolog/log"
 )
 
-var ua *uaFake.UserAgent
-
 func init() {
-	var err error
-	ua, err = uaFake.New()
-	if err != nil {
-		log.Warn().Err(err).Msg("util: Failed to initialize fake user agent")
-	}
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Warn().Msgf("util: Failed to get online user agents: %v", r)
+			}
+		}()
+		var err error
+		onlineUserAgentList, err = GetOnlineUserAgents()
+		if err != nil {
+			log.Warn().Err(err).Msg("util: Failed to get online user agents")
+		}
+	}()
 }
 
 var userAgents = []string{
@@ -1072,11 +1075,8 @@ var userAgents = []string{
 }
 
 func GetRandomUserAgent() string {
-	if ua != nil {
-		return ua.GetRandom()
+	if len(onlineUserAgentList) > 0 {
+		return onlineUserAgentList[rand.Intn(len(onlineUserAgentList))]
 	}
-
-	source := rand.NewSource(time.Now().UnixNano())
-	rand1 := rand.New(source)
-	return userAgents[rand1.Intn(len(userAgents))]
+	return UserAgentList[rand.Intn(len(UserAgentList))]
 }
