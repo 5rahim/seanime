@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.7.0
+
+- ✨ Updated design
+- ✨ Command palette (Experimental)
+  - Quickly browse, search, perform actions, with more options to come
+  - Allows navigation with keyboard only #46
+- ✨ Preview cards
+  - Preview an anime/manga by right-clicking on a media card
+- ✨ Library: Filtering options #210
+  - Filter to see only anime with unseen episodes and manga with unread chapters #175 (Works if chapters are cached)
+  - New sorting options: Aired recently, Highest unwatched count, ...
+- ✨ New UI Settings
+  - 'Continue watching' sorting, card customization
+  - Show unseen count for anime cards #209
+- ⚡️ Torrent/Debrid streaming: 'Auto play next episode' now works with manually selected batches #211
+  - This works only if the user did not select the file manually
+- ⚡️ Server: Reduced memory usage, improved performance
+- ⚡️ Discord Rich Presence now works with online & media streaming
+- ⚡️ 'Continue watching' UI setting options, defaults to 'Aired recently'
+  - BREAKING: Manga unread count badge needs to be reactivated in settings
+- ⚡️ Torrent streaming: Slow seeding mode #200
+- ⚡️ Debrid streaming: Auto-select file option
+- ⚡️ Quick action menu #197
+  - Open preview cards, more options to come
+- ⚡️ Revamped Settings page
+- ⚡️ Anime library: Improved Direct Play performance
+- ⚡️ Quickly add media to AniList from its card
+- 🦺 Torrent streaming: Fixed auto-selected file from batches not being downloaded #215
+  - Fixed piece prioritization
+- 🦺 Debrid streaming: Fixed streaming shows with no AniDB mapping 
+- 🦺 Anime library: 'Remove empty directories' now works for other library folders
+- 🦺 Anime library: Download destination check now takes all library paths into account
+- 🦺 Online streaming: Fixed 'auto next' not playing the last episode
+- 🦺 Server: Fixed empty user agent header leading to some failed requests 
+- 🦺 Anime library: Ignore AppleDouble files on macOS #208
+- 🦺 Manga: Fixed synonyms not being taken into account for auto matching
+- 🦺 Manga: Fixed genre link opening anime in advanced search
+- 🦺 Extension Playground: Fixed anime torrent provider search input empty value
+- 🦺 Continuity: Ignore watch history above a certain threshold
+- 🦺 Online streaming: Fixed selecting highest quality by default
+- 🦺 Fixed Auto Downloader queuing same items
+- 🦺 Manga: Fixed pagination when filtering by language/scanlator #217
+- 🦺 Manga: Fixed page layout overflowing on mobile
+- 🦺 Torrent streaming: Fixed incorrect download/upload speeds
+- 🦺 Anime library: Fixed special episode sorting
+- 🏗️ Server: Migrated API from Fiber (FastHTTP) to Echo (HTTP)
+- 🏗 External media players: Increased retries when streaming
+- 🏗 Torrent streaming: Serve stream from main server
+- 🏗 Integrated player: Merged both online & media streaming players
+  - BREAKING: Auto play, Auto next, Auto skip player settings have been reset to 'off'
+- 🏗 Renaming and Removals
+  - Scanner: Renamed 'matching data' checkbox
+  - Torrent/Debrid streaming: Renamed 'Manually select file' to 'Auto select file'
+  - Removed 'Use legacy episode cards' option
+  - 'Fluid' media page header layout is now the default
+- ⬆️ Migrated to Go 1.23.5
+- ⬆️ Updated dependencies
+
 ## v2.6.2
 
 - ⚡️ Advanced search: Maintain search params during navigation #195
