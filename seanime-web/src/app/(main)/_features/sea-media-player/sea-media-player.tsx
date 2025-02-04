@@ -51,7 +51,7 @@ import Image from "next/image"
 import React from "react"
 
 export type SeaMediaPlayerProps = {
-    url?: string
+    url?: string | { src: string, type: string }
     poster?: string
     isLoading?: boolean
     isPlaybackError?: boolean

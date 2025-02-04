@@ -97,6 +97,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 		}
 	})
 
+	e.Use(headMethodMiddleware)
+
 	h := &Handler{App: app}
 
 	e.GET("/events", h.webSocketEventHandler)
@@ -364,6 +366,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/mediastream/subs/*", h.HandleMediastreamGetSubtitles)
 	v1.GET("/mediastream/att/*", h.HandleMediastreamGetAttachments)
 	v1.GET("/mediastream/direct", h.HandleMediastreamDirectPlay)
+	v1.HEAD("/mediastream/direct", h.HandleMediastreamDirectPlay)
 	v1.GET("/mediastream/file/*", h.HandleMediastreamFile)
 
 	//
@@ -455,4 +458,28 @@ func (h *Handler) RespondWithData(c echo.Context, data interface{}) error {
 
 func (h *Handler) RespondWithError(c echo.Context, err error) error {
 	return c.JSON(500, NewErrorResponse(err))
+}
+
+func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if c.Request().Method == http.MethodHead {
+			// Set the method to GET temporarily to reuse the handler
+			c.Request().Method = http.MethodGet
+
+			defer func() {
+				c.Request().Method = http.MethodHead
+			}() // Restore method after
+
+			// Call the next handler and then clear the response body
+			if err := next(c); err != nil {
+				if err.Error() == echo.ErrMethodNotAllowed.Error() {
+					return c.NoContent(http.StatusOK)
+				}
+
+				return err
+			}
+		}
+
+		return next(c)
+	}
 }
