@@ -7,7 +7,7 @@
 <h1 align="center"><b>Seanime</b></h1>
 
 <p align="center">
-<img src="docs/images/github-banner-10.png" alt="preview" width="100%"/>
+<img src="docs/images/4/github-banner-sq.png" alt="preview" width="100%"/>
 </p>
 
 <p align="center">
@@ -106,54 +106,42 @@ Development and testing might require additional configuration.
 
 ### Watching
 
-<img src="docs/images/v2/rec_anime.gif" alt="preview" width="100%"/>
+<img src="docs/images/4/rec-anime-watching_02.gif" alt="preview" width="100%"/>
 
 ### Downloading
 
-<img src="docs/images/v2/rec_anime-download_02.gif" alt="preview" width="100%"/>
+<img src="https://i.postimg.cc/RVpFYqYb/img-2025-02-02-17-31-41.gif" alt="preview" width="100%"/>
 
 ### Manga
 
-<img src="docs/images/v2/rec_manga.gif" alt="preview" width="100%"/>
+<img src="docs/images/4/manga-reader_01--sq.jpg" alt="preview" width="100%"/>
+
+### Torrent streaming
+
+<img src="docs/images/4/rec-torrentstream.gif" alt="preview" width="100%"/>
+
+### Debrid streaming
+
+<img src="docs/images/4/rec-debridstream.gif" alt="preview" width="100%"/>
 
 <details>
 <summary><b>View more</b></summary>
 
-### Torrent streaming
-
-<img src="docs/images/v2/rec_torrent-streaming.gif" alt="preview" width="100%"/>
-
-### Media streaming / Transcoding
-
-<img src="docs/images/v2/rec_mediastream.gif" alt="preview" width="100%"/>
-<p align="center">
-<img src="docs/images/2/rec_media_streaming-phone-01.gif" alt="preview" width="200px"/>
-</p>
-
-### Schedule
-
-<img src="docs/images/v2/schedule_01--squashed.jpg" alt="preview" width="100%"/>
-
 ### Online streaming
 
-<img src="https://i.postimg.cc/tT1k3Bz2/img-2024-11-02-12-32-52-2x.png" alt="preview" width="100%"/>
+<img src="docs/images/4/online-streaming--sq.jpg" alt="preview" width="100%"/>
 
 ### Detailed library view
 
-<img src="docs/images/v2/my-library_02--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/4/detailed-library-view--sq.jpg" alt="preview" width="100%"/>
 
 ### Discover
 
-<img src="docs/images/v2/discover_02--squashed.jpg" alt="preview" width="100%"/>
-<img src="docs/images/v2/discover_03--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/4/discover_02--sq.jpg" alt="preview" width="100%"/>
 
 ### AniList integration
 
 <img src="docs/images/v2/anilist_01--squashed.jpg" alt="preview" width="100%"/>
-
-### UI customization
-
-<img src="docs/images/v2/customization_01--squashed.jpg" alt="preview" width="100%"/>
 
 </details>
 

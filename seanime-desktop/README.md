@@ -8,7 +8,7 @@
 Desktop app for Seanime. Embeds server and web interface.
 </p>
 
-<img src="../docs/images/v2/desktop_02.png" alt="preview" width="100%"/>
+<img src="../docs/images/4/anime-entry-torrent-stream--sq.jpg" alt="preview" width="100%"/>
 
 ---
 
