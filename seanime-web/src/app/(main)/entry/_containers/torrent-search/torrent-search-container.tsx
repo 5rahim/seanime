@@ -337,6 +337,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             selectedTorrents={selectedTorrents}
                                             onToggleTorrent={handleToggleTorrent}
                                             debridInstantAvailability={debridInstantAvailability}
+                                            type={type}
                                         />
                                     </>
                                 )}
