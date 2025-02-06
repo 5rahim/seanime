@@ -2,6 +2,7 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { websocketAtom, WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { TauriRestartServerPrompt } from "@/app/(main)/_tauri/tauri-restart-server-prompt"
 import { __openDrawersAtom } from "@/components/ui/drawer"
+import { logger } from "@/lib/helpers/debug"
 import { atom, useAtomValue } from "jotai"
 import { useAtom, useSetAtom } from "jotai/react"
 import React from "react"
@@ -33,6 +34,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
 
     const [, setClientId] = useAtom(clientIdAtom)
     React.useEffect(() => {
+        logger("WebsocketProvider").info("Seanime-Client-Id", cookies["Seanime-Client-Id"])
         if (cookies["Seanime-Client-Id"]) {
             setClientId(cookies["Seanime-Client-Id"])
         }
@@ -41,14 +43,25 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
 
     useEffectOnce(() => {
         function connectWebSocket() {
-            const newSocket = new WebSocket(`${document.location.protocol == "https:"
-                ? "wss"
-                : "ws"}://${getServerBaseUrl(true)}/events?id=${cookies["Seanime-Client-Id"] || uuidv4()}`)
+            const wsUrl = `${document.location.protocol == "https:" ? "wss" : "ws"}://${getServerBaseUrl(true)}/events`
+            const clientId = cookies["Seanime-Client-Id"] || uuidv4()
+
+            const newSocket = new WebSocket(`${wsUrl}?id=${clientId}`)
 
             newSocket.addEventListener("open", () => {
                 console.log("WebSocket connection opened")
                 setIsConnected(true)
                 setConnectionErrorCount(0)
+
+                // Set cookie if it doesn't exist
+                if (!cookies["Seanime-Client-Id"]) {
+                    setCookie("Seanime-Client-Id", clientId, {
+                        path: "/",
+                        sameSite: "lax",
+                        secure: false,
+                        maxAge: 24 * 60 * 60, // 24 hours
+                    })
+                }
             })
 
             newSocket.addEventListener("close", () => {
