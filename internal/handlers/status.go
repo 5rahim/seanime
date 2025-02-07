@@ -119,29 +119,26 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 	}
 
 	filename := c.Param("*")
+	if filepath.Base(filename) != filename {
+		return h.RespondWithError(c, fmt.Errorf("invalid filename"))
+	}
+
 	fp := util.NormalizePath(filepath.Join(h.App.Config.Logs.Dir, filename))
 
-	fileContent := ""
-	filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() {
-			return nil
-		}
+	if filepath.Ext(fp) != ".log" {
+		return h.RespondWithError(c, fmt.Errorf("unsupported file extension"))
+	}
 
-		if filepath.Ext(path) != ".log" {
-			return nil
-		}
+	if _, err := os.Stat(fp); err != nil {
+		return h.RespondWithError(c, err)
+	}
 
-		if util.NormalizePath(path) == fp {
-			contentB, err := os.ReadFile(fp)
-			if err != nil {
-				return err
-			}
-			fileContent = string(contentB)
-		}
-		return nil
-	})
+	contentB, err := os.ReadFile(fp)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
 
-	return h.RespondWithData(c, fileContent)
+	return h.RespondWithData(c, string(contentB))
 }
 
 var newestLogFilename = ""
@@ -250,40 +247,32 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	var logFiles []string
-
-	// Find all seanime- log files
-	err := filepath.WalkDir(h.App.Config.Logs.Dir, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-
-		filename := filepath.Base(path)
-		if !strings.HasPrefix(strings.ToLower(filename), "seanime-") || filepath.Ext(path) != ".log" {
-			return nil
-		}
-
-		logFiles = append(logFiles, path)
-		return nil
-	})
-
+	dirEntries, err := os.ReadDir(h.App.Config.Logs.Dir)
 	if err != nil {
 		return h.RespondWithError(c, err)
+	}
+
+	var logFiles []string
+	for _, entry := range dirEntries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if filepath.Ext(name) != ".log" || !strings.HasPrefix(strings.ToLower(name), "seanime-") {
+			continue
+		}
+		logFiles = append(logFiles, filepath.Join(h.App.Config.Logs.Dir, name))
 	}
 
 	if len(logFiles) == 0 {
 		return h.RespondWithData(c, "")
 	}
 
-	// Sort filenames in descending order (newest first)
+	// Sort files in descending order based on filename
 	slices.SortFunc(logFiles, func(a, b string) int {
 		return strings.Compare(filepath.Base(b), filepath.Base(a))
 	})
 
-	// Get the first (newest) file
 	latestLogFile := logFiles[0]
 
 	contentB, err := os.ReadFile(latestLogFile)
