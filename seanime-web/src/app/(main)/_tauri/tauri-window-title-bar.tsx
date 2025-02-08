@@ -41,7 +41,7 @@ export function TauriWindowTitleBar(props: TauriWindowTitleBarProps) {
 
 
         if (platform() === "macos") {
-            ev?.preventDefault()
+            // ev?.preventDefault()
             if (!document.fullscreenElement) {
                 getCurrentWebviewWindow().setTitleBarStyle("overlay").then()
                 setDisplayDragRegion(true)

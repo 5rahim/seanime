@@ -7,7 +7,7 @@ use constants::MAIN_WINDOW_LABEL;
 use std::sync::{Arc, Mutex};
 #[cfg(target_os = "macos")]
 use tauri::utils::TitleBarStyle;
-use tauri::{Listener, Manager};
+use tauri::{Emitter, Listener, Manager};
 use tauri_plugin_os;
 
 pub fn run() {
@@ -89,12 +89,28 @@ pub fn run() {
             });
 
             let app_handle_1 = app.handle().clone();
+            let main_window_clone = main_window.clone();
             main_window.listen("macos-activation-policy-accessory", move |_| {
                 println!("EVENT macos-activation-policy-accessory");
                 #[cfg(target_os = "macos")]
-                app_handle_1
-                    .set_activation_policy(tauri::ActivationPolicy::Accessory)
-                    .unwrap();
+                {
+                    if let Err(e) = app_handle_1.set_activation_policy(tauri::ActivationPolicy::Accessory) {
+                        eprintln!("Failed to set activation policy to accessory: {}", e);
+                    } else {
+                        if let Err(e) = main_window_clone.show() {
+                            eprintln!("Failed to show main window: {}", e);
+                        }
+                        if let Err(e) = main_window_clone.set_fullscreen(true) {
+                            eprintln!("Failed to set fullscreen: {}", e);
+                        } else {
+                            std::thread::sleep(std::time::Duration::from_millis(150));
+                            if let Err(e) = main_window_clone.set_focus() {
+                                eprintln!("Failed to set focus after fullscreen: {}", e);
+                            }
+                            main_window_clone.emit("macos-activation-policy-accessory-done", "").unwrap();
+                        }
+                    }
+                }
             });
 
             // main_window.on_window_event()

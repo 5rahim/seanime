@@ -4,6 +4,7 @@ import { useCancelDiscordActivity, useSetDiscordAnimeActivity } from "@/api/hook
 
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
 import { useSkipData } from "@/app/(main)/_features/sea-media-player/aniskip"
+import { useFullscreenHandler } from "@/app/(main)/_features/sea-media-player/macos-tauri-fullscreen"
 import { SeaMediaPlayerPlaybackSubmenu } from "@/app/(main)/_features/sea-media-player/sea-media-player-components"
 import {
     __seaMediaPlayer_scopedCurrentProgressAtom,
@@ -438,126 +439,131 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         return () => remove("media-player-controls")
     }, [url])
 
+    const { onMediaEnterFullscreenRequest } = useFullscreenHandler(playerRef)
+
     return (
-        <div className="aspect-video relative w-full self-start mx-auto">
-            {isPlaybackError ? (
-                <LuffyError title="Playback Error" />
-            ) : (!!url && !isLoading) ? (
-                <MediaPlayer
-                    streamType="on-demand"
-                    playsInline
-                    ref={playerRef}
-                    autoPlay={autoPlay}
-                    crossOrigin
-                    src={url}
-                    poster={poster}
-                    aspectRatio="16/9"
-                    controlsDelay={discreteControls ? 500 : undefined}
-                    className={cn(discreteControls && "discrete-controls")}
-                    onProviderChange={onProviderChange}
-                    onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
-                        if (isFullscreen) {
-                            // Store the currently focused element
-                            lastFocusedElementRef.current = document.activeElement as HTMLElement
-                        } else {
-                            // Restore focus
-                            setTimeout(() => {
-                                lastFocusedElementRef.current?.focus()
-                            }, 100)
-                        }
-                    }}
-                    onProviderSetup={onProviderSetup}
-                    volume={volume}
-                    onVolumeChange={detail => setVolume(detail.volume)}
-                    onTimeUpdate={onTimeUpdate}
-                    onDurationChange={onDurationChange}
-                    onCanPlay={onCanPlay}
-                    onEnded={onEnded}
-                    muted={muted}
-                    onMediaMuteRequest={() => setMuted(true)}
-                    onMediaUnmuteRequest={() => setMuted(false)}
-                >
-                    <MediaProvider>
-                        {tracks.map((track, index) => (
-                            <Track key={`track-${index}`} {...track} />
-                        ))}
-                        {/*{chapters?.length > 0 ? chapters.map((chapter, index) => (*/}
-                        {/*    <Track kind="chapters" key={`chapter-${index}`} {...chapter} />*/}
-                        {/*)) : cues.length > 0 ? cues.map((cue, index) => (*/}
-                        {/*    <Track kind="chapters" key={`cue-${index}`} {...cue} />*/}
-                        {/*)) : null}*/}
-                    </MediaProvider>
-                    <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
-                        <div>
-                            {showSkipIntroButton && (
-                                <Button intent="white" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
-                                    Skip opening
-                                </Button>
-                            )}
-                        </div>
-                        <div>
-                            {showSkipEndingButton && (
-                                <Button intent="white" size="sm" onClick={onSkipOutro} loading={autoSkipIntroOutro}>
-                                    Skip ending
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                    <DefaultVideoLayout
-                        icons={vidstackLayoutIcons}
-                        slots={{
-                            ...videoLayoutSlots,
-                            settingsMenuEndItems: <>
-                                {settingsItems}
-                                <SeaMediaPlayerPlaybackSubmenu />
-                            </>,
-                            // centerControlsGroupStart: <div>
-                            //     {onGoToPreviousEpisode && (
-                            //         <IconButton
-                            //             intent="white-basic"
-                            //             size="lg"
-                            //             onClick={onGoToPreviousEpisode}
-                            //             aria-label="Previous Episode"
-                            //             icon={<LuArrowLeft className="size-12" />}
-                            //         />
-                            //     )}
-                            // </div>,
-                            // centerControlsGroupEnd: <div className="flex items-center justify-center gap-2">
-                            //     {onGoToNextEpisode && (
-                            //         <IconButton
-                            //             intent="white-basic"
-                            //             size="lg"
-                            //             onClick={onGoToNextEpisode}
-                            //             aria-label="Next Episode"
-                            //             icon={<LuArrowRight className="size-12" />}
-                            //         />
-                            //     )}
-                            // </div>
+        <>
+            <div className="aspect-video relative w-full self-start mx-auto">
+                {isPlaybackError ? (
+                    <LuffyError title="Playback Error" />
+                ) : (!!url && !isLoading) ? (
+                    <MediaPlayer
+                        streamType="on-demand"
+                        playsInline
+                        ref={playerRef}
+                        autoPlay={autoPlay}
+                        crossOrigin
+                        src={url}
+                        poster={poster}
+                        aspectRatio="16/9"
+                        controlsDelay={discreteControls ? 500 : undefined}
+                        className={cn(discreteControls && "discrete-controls")}
+                        onProviderChange={onProviderChange}
+                        onMediaEnterFullscreenRequest={onMediaEnterFullscreenRequest}
+                        onFullscreenChange={(isFullscreen: boolean, event: MediaFullscreenChangeEvent) => {
+                            if (isFullscreen) {
+                                // Store the currently focused element
+                                lastFocusedElementRef.current = document.activeElement as HTMLElement
+                            } else {
+                                // Restore focus
+                                setTimeout(() => {
+                                    lastFocusedElementRef.current?.focus()
+                                }, 100)
+                            }
                         }}
-                    />
-                </MediaPlayer>
-            ) : (
-                <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
-                    <LoadingSpinner
-                        spinner={
-                            <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
-                                <Image
-                                    src="/logo_2.png"
-                                    alt="Loading..."
-                                    priority
-                                    fill
-                                    className="animate-pulse"
-                                />
+                        onProviderSetup={onProviderSetup}
+                        volume={volume}
+                        onVolumeChange={detail => setVolume(detail.volume)}
+                        onTimeUpdate={onTimeUpdate}
+                        onDurationChange={onDurationChange}
+                        onCanPlay={onCanPlay}
+                        onEnded={onEnded}
+                        muted={muted}
+                        onMediaMuteRequest={() => setMuted(true)}
+                        onMediaUnmuteRequest={() => setMuted(false)}
+                    >
+                        <MediaProvider>
+                            {tracks.map((track, index) => (
+                                <Track key={`track-${index}`} {...track} />
+                            ))}
+                            {/*{chapters?.length > 0 ? chapters.map((chapter, index) => (*/}
+                            {/*    <Track kind="chapters" key={`chapter-${index}`} {...chapter} />*/}
+                            {/*)) : cues.length > 0 ? cues.map((cue, index) => (*/}
+                            {/*    <Track kind="chapters" key={`cue-${index}`} {...cue} />*/}
+                            {/*)) : null}*/}
+                        </MediaProvider>
+                        <div className="absolute bottom-24 px-4 w-full justify-between flex items-center">
+                            <div>
+                                {showSkipIntroButton && (
+                                    <Button intent="white" size="sm" onClick={onSkipIntro} loading={autoSkipIntroOutro}>
+                                        Skip opening
+                                    </Button>
+                                )}
                             </div>
-                        }
-                    />
-                    <div className="text-center text-xs lg:text-sm">
-                        {loadingText ?? <>
-                            <p>Loading...</p>
-                        </>}
-                    </div>
-                </Skeleton>
-            )}
-        </div>
+                            <div>
+                                {showSkipEndingButton && (
+                                    <Button intent="white" size="sm" onClick={onSkipOutro} loading={autoSkipIntroOutro}>
+                                        Skip ending
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                        <DefaultVideoLayout
+                            icons={vidstackLayoutIcons}
+                            slots={{
+                                ...videoLayoutSlots,
+                                settingsMenuEndItems: <>
+                                    {settingsItems}
+                                    <SeaMediaPlayerPlaybackSubmenu />
+                                </>,
+                                // centerControlsGroupStart: <div>
+                                //     {onGoToPreviousEpisode && (
+                                //         <IconButton
+                                //             intent="white-basic"
+                                //             size="lg"
+                                //             onClick={onGoToPreviousEpisode}
+                                //             aria-label="Previous Episode"
+                                //             icon={<LuArrowLeft className="size-12" />}
+                                //         />
+                                //     )}
+                                // </div>,
+                                // centerControlsGroupEnd: <div className="flex items-center justify-center gap-2">
+                                //     {onGoToNextEpisode && (
+                                //         <IconButton
+                                //             intent="white-basic"
+                                //             size="lg"
+                                //             onClick={onGoToNextEpisode}
+                                //             aria-label="Next Episode"
+                                //             icon={<LuArrowRight className="size-12" />}
+                                //         />
+                                //     )}
+                                // </div>
+                            }}
+                        />
+                    </MediaPlayer>
+                ) : (
+                    <Skeleton className="w-full h-full absolute flex justify-center items-center flex-col space-y-4">
+                        <LoadingSpinner
+                            spinner={
+                                <div className="w-16 h-16 lg:w-[100px] lg:h-[100px] relative">
+                                    <Image
+                                        src="/logo_2.png"
+                                        alt="Loading..."
+                                        priority
+                                        fill
+                                        className="animate-pulse"
+                                    />
+                                </div>
+                            }
+                        />
+                        <div className="text-center text-xs lg:text-sm">
+                            {loadingText ?? <>
+                                <p>Loading...</p>
+                            </>}
+                        </div>
+                    </Skeleton>
+                )}
+            </div>
+        </>
     )
 }
