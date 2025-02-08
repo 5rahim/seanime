@@ -26,7 +26,7 @@ export function SeaCommandActions() {
                             })
                         }}
                     >
-                        Copy current logs
+                        Copy current server logs
                         <CommandShortcut>Enter</CommandShortcut>
                     </CommandItem>
                 </CommandGroup>

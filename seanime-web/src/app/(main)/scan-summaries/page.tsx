@@ -93,7 +93,9 @@ export default function Page() {
                                         <h5>Media scanned</h5>
 
                                         <div className="space-y-4 divide-y">
-                                            {selectedSummary?.groups?.map(group => !!group?.files?.length ? (
+                                            {selectedSummary?.groups?.sort((a, b) => a.mediaTitle?.localeCompare(b.mediaTitle,
+                                                undefined,
+                                                { numeric: true })).map(group => !!group?.files?.length ? (
                                                 <div className="space-y-4 pt-4" key={group.id}>
                                                     <div className="flex gap-2">
 

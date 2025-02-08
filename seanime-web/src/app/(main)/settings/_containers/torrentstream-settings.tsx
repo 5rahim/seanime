@@ -100,7 +100,7 @@ export function TorrentstreamSettings(props: TorrentstreamSettingsProps) {
                         side="right"
                         name="includeInLibrary"
                         label="Include in library"
-                        help="Shows that are currently being watched but haven't been downloaded will default to the torrent streaming view and appear in your library."
+                        help="Shows that are currently being watched but haven't been downloaded will default to the streaming view and appear in your library."
                     />
                 </SettingsCard>
 

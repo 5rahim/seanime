@@ -144,7 +144,7 @@ export function useTorrentStreamAutoplay() {
             setInfo(null)
         }
 
-        toast.info("Requesting next torrent")
+        toast.info("Requesting next episode")
     }
 
 
@@ -197,7 +197,7 @@ export function useDebridStreamAutoplay() {
             setInfo(null)
         }
 
-        toast.info("Requesting next torrent")
+        toast.info("Requesting next episode")
     }
 
 

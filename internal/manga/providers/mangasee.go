@@ -49,7 +49,7 @@ func NewMangasee(logger *zerolog.Logger) *Mangasee {
 	}
 	c.Transport = util.AddCloudFlareByPass(c.Transport)
 	return &Mangasee{
-		Url:       "https://mangasee123.com",
+		Url:       "https://weebcentral.com",
 		Client:    c,
 		UserAgent: util.GetRandomUserAgent(),
 		logger:    logger,

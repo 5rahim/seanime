@@ -54,10 +54,10 @@ export function LogsSettings(props: LogsSettingsProps) {
 
                 <div className="pb-3">
                     <Button
-                        intent="white"
+                        intent="white-subtle"
                         onClick={handleCopyLatestLogs}
                     >
-                        Copy current logs
+                        Copy current server logs
                     </Button>
                 </div>
 

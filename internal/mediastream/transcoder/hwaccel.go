@@ -1,8 +1,9 @@
 package transcoder
 
 import (
-	"github.com/goccy/go-json"
 	"runtime"
+
+	"github.com/goccy/go-json"
 )
 
 type (

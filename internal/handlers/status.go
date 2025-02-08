@@ -120,21 +120,25 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 
 	filename := c.Param("*")
 	if filepath.Base(filename) != filename {
+		h.App.Logger.Error().Msg("handlers: Invalid filename")
 		return h.RespondWithError(c, fmt.Errorf("invalid filename"))
 	}
 
 	fp := util.NormalizePath(filepath.Join(h.App.Config.Logs.Dir, filename))
 
 	if filepath.Ext(fp) != ".log" {
+		h.App.Logger.Error().Msg("handlers: Unsupported file extension")
 		return h.RespondWithError(c, fmt.Errorf("unsupported file extension"))
 	}
 
 	if _, err := os.Stat(fp); err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to stat log file")
 		return h.RespondWithError(c, err)
 	}
 
 	contentB, err := os.ReadFile(fp)
 	if err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to read log file")
 		return h.RespondWithError(c, err)
 	}
 
@@ -249,6 +253,7 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 
 	dirEntries, err := os.ReadDir(h.App.Config.Logs.Dir)
 	if err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to read log directory")
 		return h.RespondWithError(c, err)
 	}
 
@@ -265,11 +270,13 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 	}
 
 	if len(logFiles) == 0 {
+		h.App.Logger.Warn().Msg("handlers: No log files found")
 		return h.RespondWithData(c, "")
 	}
 
 	// Sort files in descending order based on filename
 	slices.SortFunc(logFiles, func(a, b string) int {
+		h.App.Logger.Info().Msgf("handlers: Sorting log files: %s, %s", filepath.Base(a), filepath.Base(b))
 		return strings.Compare(filepath.Base(b), filepath.Base(a))
 	})
 
@@ -277,6 +284,7 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 
 	contentB, err := os.ReadFile(latestLogFile)
 	if err != nil {
+		h.App.Logger.Error().Err(err).Msg("handlers: Failed to read latest log file")
 		return h.RespondWithError(c, err)
 	}
 

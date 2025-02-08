@@ -405,6 +405,7 @@ export default function Page() {
 
                                         <SettingsCard>
                                             <Field.Switch
+                                                side="right"
                                                 name="enableOnlinestream"
                                                 label="Enable"
                                                 help="Watch anime episodes from online sources."
@@ -416,7 +417,7 @@ export default function Page() {
                                                 side="right"
                                                 name="includeOnlineStreamingInLibrary"
                                                 label="Include in library"
-                                                help="Shows that are currently being watched but haven't been downloaded will default to the online streaming view and appear in your library."
+                                                help="Shows that are currently being watched but haven't been downloaded will default to the streaming view and appear in your library."
                                             />
                                         </SettingsCard>
 

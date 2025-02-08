@@ -121,7 +121,7 @@ export function DebridSettings(props: DebridSettingsProps) {
                                 side="right"
                                 name="includeDebridStreamInLibrary"
                                 label="Include in library"
-                                help="Shows that are currently being watched but haven't been downloaded will default to the debrid streaming view and appear in your library."
+                                help="Shows that are currently being watched but haven't been downloaded will default to the streaming view and appear in your library."
                             />
                         </SettingsCard>
 
