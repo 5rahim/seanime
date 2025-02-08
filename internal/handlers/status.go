@@ -124,7 +124,7 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 		return h.RespondWithError(c, fmt.Errorf("invalid filename"))
 	}
 
-	fp := util.NormalizePath(filepath.Join(h.App.Config.Logs.Dir, filename))
+	fp := filepath.Join(h.App.Config.Logs.Dir, filename)
 
 	if filepath.Ext(fp) != ".log" {
 		h.App.Logger.Error().Msg("handlers: Unsupported file extension")
