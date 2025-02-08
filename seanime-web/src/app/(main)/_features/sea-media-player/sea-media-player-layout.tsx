@@ -58,7 +58,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
     const scrollTimeoutRef = React.useRef<NodeJS.Timeout>()
 
     React.useEffect(() => {
-        if (!episodeListContainerRef.current || width <= 1024 || !progress.currentEpisodeNumber) return
+        if (!episodeListContainerRef.current || width <= 1536 || !progress.currentEpisodeNumber) return
 
         // Clear any existing timeout
         if (scrollTimeoutRef.current) {
@@ -105,7 +105,7 @@ export function SeaMediaPlayerLayout(props: SeaMediaPlayerLayoutProps) {
             <div className="flex flex-col lg:flex-row gap-2 w-full justify-between">
                 {!hideBackButton && <div className="flex w-full gap-4 items-center relative">
                     <SeaLink href={`/entry?id=${mediaId}`}>
-                        <IconButton icon={<AiOutlineArrowLeft />} rounded intent="white-outline" size="md" />
+                        <IconButton icon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="sm" />
                     </SeaLink>
                     <h3 className="max-w-full lg:max-w-[50%] text-ellipsis truncate">{title}</h3>
                 </div>}

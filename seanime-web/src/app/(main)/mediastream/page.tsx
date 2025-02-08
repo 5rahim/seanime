@@ -128,13 +128,14 @@ export default function Page() {
                             <Modal
                                 title="Playback"
                                 trigger={
-                                    <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-outline">
+                                    <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-basic" size="sm">
                                         Playback info
                                     </Button>
                                 }
+                                contentClass="sm:rounded-3xl"
                             >
                                 <div className="space-y-2">
-                                    <p className="line-clamp-2 tracking-wide text-sm text-[--muted] break-all">
+                                    <p className="tracking-wide text-sm text-[--muted] break-all">
                                         {mediaContainer?.mediaInfo?.path}
                                     </p>
                                     {isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec || "") ? <Alert
@@ -193,7 +194,7 @@ export default function Page() {
                                                 Switch to transcoding
                                             </Button>
                                             {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted] text-sm italic opacity-50">
-                                                Disable 'auto switch to direct play' if you want to switch to transcoding
+                                                Disable 'prefer transcoding' in the media streaminng settings if you want to switch to transcoding
                                             </p>}
                                         </div>}
 
