@@ -132,7 +132,7 @@ func (h *Handler) HandleGetLogContent(c echo.Context) error {
 	}
 
 	if _, err := os.Stat(fp); err != nil {
-		h.App.Logger.Error().Err(err).Msg("handlers: Failed to stat log file")
+		h.App.Logger.Error().Err(err).Msg("handlers: Stat error")
 		return h.RespondWithError(c, err)
 	}
 
@@ -276,7 +276,6 @@ func (h *Handler) HandleGetLatestLogContent(c echo.Context) error {
 
 	// Sort files in descending order based on filename
 	slices.SortFunc(logFiles, func(a, b string) int {
-		h.App.Logger.Info().Msgf("handlers: Sorting log files: %s, %s", filepath.Base(a), filepath.Base(b))
 		return strings.Compare(filepath.Base(b), filepath.Base(a))
 	})
 

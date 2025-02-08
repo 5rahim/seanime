@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.7.2
+
+- 🦺 Fixed error alert regression
+- 🦺 Anime library: Fixed downloading to library root #231
+- 🦺 Fixed getting log file contents on Linux
+- 🏗️ Use library for 'copy to clipboard' feature
+
 ## v2.7.1
 
 - ⚡️ Transcoding: Support for Apple VideoToolbox hardware acceleration

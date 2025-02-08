@@ -78,6 +78,7 @@
     "collect.js": "^4.36.1",
     "colord": "^2.9.3",
     "concurrently": "^8.2.2",
+    "copy-to-clipboard": "^3.3.3",
     "date-fns": "^3.6.0",
     "domelementtype": "^2.3.0",
     "domhandler": "^5.0.3",

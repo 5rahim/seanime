@@ -55,9 +55,6 @@ export function useServerMutation<R = void, V = void>(
     return useMutation<R | undefined, SeaError, V>({
         onError: error => {
             console.log("Mutation error", error)
-            if (!!error.message) {
-                return toast.error(`Unknown mutation error: ${error.message}`)
-            }
             toast.error(_handleSeaError(error.response?.data))
         },
         mutationFn: async (variables) => {

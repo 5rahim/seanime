@@ -1,3 +1,6 @@
+import copy from "copy-to-clipboard"
+
+
 export function openTab(url: string) {
     if (process.env.NEXT_PUBLIC_PLATFORM === "desktop") {
         const { open } = require("@tauri-apps/plugin-shell")
@@ -12,6 +15,6 @@ export async function copyToClipboard(text: string) {
         const { writeText } = require("@tauri-apps/plugin-clipboard-manager")
         await writeText(text)
     } else {
-        await navigator.clipboard.writeText(text)
+        copy(text)
     }
 }

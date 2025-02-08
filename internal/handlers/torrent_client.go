@@ -121,14 +121,14 @@ func (h *Handler) HandleTorrentClientDownload(c echo.Context) error {
 	}
 
 	// Check that the destination path is a library path
-	libraryPaths, err := h.App.Database.GetAllLibraryPathsFromSettings()
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-	isInLibrary := util.IsSubdirectoryOfAny(libraryPaths, b.Destination)
-	if !isInLibrary {
-		return h.RespondWithError(c, errors.New("destination path is not a library path"))
-	}
+	//libraryPaths, err := h.App.Database.GetAllLibraryPathsFromSettings()
+	//if err != nil {
+	//	return h.RespondWithError(c, err)
+	//}
+	//isInLibrary := util.IsSubdirectoryOfAny(libraryPaths, b.Destination)
+	//if !isInLibrary {
+	//	return h.RespondWithError(c, errors.New("destination path is not a library path"))
+	//}
 
 	// try to start torrent client if it's not running
 	ok := h.App.TorrentClientRepository.Start()
