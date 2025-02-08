@@ -2,6 +2,7 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import { DeleteLogs_Variables } from "@/api/generated/endpoint.types"
 import { API_ENDPOINTS } from "@/api/generated/endpoints"
 import { Status } from "@/api/generated/types"
+import { copyToClipboard } from "@/lib/helpers/browser"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -41,7 +42,6 @@ export function useDeleteLogs() {
     })
 }
 
-
 export function useGetLatestLogContent() {
     const qc = useQueryClient()
     return useServerMutation<string>({
@@ -50,8 +50,14 @@ export function useGetLatestLogContent() {
         mutationKey: [API_ENDPOINTS.STATUS.GetLatestLogContent.key],
         onSuccess: async data => {
             if (!data) return toast.error("Couldn't fetch logs")
-            await navigator.clipboard.writeText(data)
-            toast.success("Copied to clipboard")
+            try {
+                await copyToClipboard(data)
+                toast.success("Copied to clipboard")
+            }
+            catch (err: any) {
+                console.error("Clipboard write error:", err)
+                toast.error("Failed to copy logs: " + err.message)
+            }
         },
     })
 }

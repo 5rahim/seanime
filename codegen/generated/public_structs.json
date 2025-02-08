@@ -41273,16 +41273,6 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "UAFake",
-        "jsonName": "UAFake",
-        "goType": "uaFake.UserAgent",
-        "typescriptType": "UserAgent",
-        "usedStructName": "uaFake.UserAgent",
-        "required": false,
-        "public": true,
-        "comments": []
       }
     ],
     "comments": []
@@ -42673,10 +42663,10 @@
     "comments": []
   },
   {
-    "filepath": "../internal/manga/providers/mangasee.go",
-    "filename": "mangasee.go",
-    "name": "Mangasee",
-    "formattedName": "Manga_Mangasee",
+    "filepath": "../internal/manga/providers/weebcentral.go",
+    "filename": "weebcentral.go",
+    "name": "WeebCentral",
+    "formattedName": "Manga_WeebCentral",
     "package": "manga_providers",
     "fields": [
       {
@@ -42715,163 +42705,6 @@
         "usedStructName": "zerolog.Logger",
         "required": false,
         "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/manga/providers/mangasee.go",
-    "filename": "mangasee.go",
-    "name": "MangaseeResultItem",
-    "formattedName": "Manga_MangaseeResultItem",
-    "package": "manga_providers",
-    "fields": [
-      {
-        "name": "S",
-        "jsonName": "s",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Title"
-        ]
-      },
-      {
-        "name": "I",
-        "jsonName": "i",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Slug"
-        ]
-      },
-      {
-        "name": "G",
-        "jsonName": "g",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Genres"
-        ]
-      },
-      {
-        "name": "A",
-        "jsonName": "a",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Synonyms"
-        ]
-      },
-      {
-        "name": "AL",
-        "jsonName": "al",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": [
-          " Synonyms"
-        ]
-      },
-      {
-        "name": "PS",
-        "jsonName": "ps",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Ongoing"
-        ]
-      },
-      {
-        "name": "O",
-        "jsonName": "o",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SS",
-        "jsonName": "ss",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "T",
-        "jsonName": "t",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "V",
-        "jsonName": "v",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "VM",
-        "jsonName": "vm",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Y",
-        "jsonName": "y",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "L",
-        "jsonName": "l",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "LT",
-        "jsonName": "lt",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "H",
-        "jsonName": "h",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
         "comments": []
       }
     ],
@@ -55701,6 +55534,40 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "lastSpeedCheck",
+        "jsonName": "lastSpeedCheck",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Track the last time we checked speeds"
+        ]
+      },
+      {
+        "name": "lastBytesCompleted",
+        "jsonName": "lastBytesCompleted",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Track the last bytes completed"
+        ]
+      },
+      {
+        "name": "lastBytesWrittenData",
+        "jsonName": "lastBytesWrittenData",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Track the last bytes written data"
+        ]
       }
     ],
     "comments": []

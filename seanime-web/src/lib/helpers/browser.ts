@@ -6,3 +6,12 @@ export function openTab(url: string) {
         window.open(url, "_blank")
     }
 }
+
+export async function copyToClipboard(text: string) {
+    if (process.env.NEXT_PUBLIC_PLATFORM === "desktop") {
+        const { writeText } = require("@tauri-apps/plugin-clipboard-manager")
+        await writeText(text)
+    } else {
+        await navigator.clipboard.writeText(text)
+    }
+}

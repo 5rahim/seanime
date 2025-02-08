@@ -2,8 +2,9 @@ package transcoder
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"path/filepath"
+
+	"github.com/rs/zerolog"
 )
 
 type VideoStream struct {
@@ -53,8 +54,11 @@ func (vs *VideoStream) getTranscodeArgs(segments string) []string {
 		args = append(args,
 			"-c:v", "copy",
 		)
+		vs.logger.Debug().Msg("videostream: Transcoding to original quality")
 		return args
 	}
+
+	vs.logger.Debug().Interface("hwaccelArgs", vs.settings.HwAccel).Msg("videostream: Hardware Acceleration")
 
 	args = append(args, vs.settings.HwAccel.EncodeFlags...)
 	width := int32(float64(vs.quality.Height()) / float64(vs.file.Info.Video.Height) * float64(vs.file.Info.Video.Width))
@@ -68,7 +72,7 @@ func (vs *VideoStream) getTranscodeArgs(segments string) []string {
 		"-b:v", fmt.Sprint(vs.quality.AverageBitrate()),
 		"-maxrate", fmt.Sprint(vs.quality.MaxBitrate()),
 	)
-	if vs.settings.HwAccel.Name != "custom" {
+	if vs.settings.HwAccel.WithForcedIdr {
 		// Force segments to be split exactly on keyframes (only works when transcoding)
 		// forced-idr is needed to force keyframes to be an idr-frame (by default it can be any i frames)
 		// without this option, some hardware encoders uses others i-frames and the -f segment can't cut at them.
@@ -80,6 +84,8 @@ func (vs *VideoStream) getTranscodeArgs(segments string) []string {
 		// make ffmpeg globally less buggy
 		"-strict", "-2",
 	)
+
+	vs.logger.Debug().Interface("args", args).Msgf("videostream: Transcoding to %s quality", vs.quality)
 
 	return args
 }

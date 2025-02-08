@@ -10,13 +10,15 @@ import { episodeCardCarouselItemClass } from "@/components/shared/classnames"
 import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
+import { useDebounce } from "@/hooks/use-debounce"
 import { anilist_animeIsSingleEpisode } from "@/lib/helpers/media"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
+import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai/index"
 import { useAtom, useSetAtom } from "jotai/react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import React, { useDeferredValue } from "react"
+import React from "react"
 import { seaCommand_compareMediaTitles } from "../../_features/sea-command/utils"
 
 export const __libraryHeaderEpisodeAtom = atom<Anime_Episode | null>(null)
@@ -37,14 +39,27 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
 
     const [episodeRefs, setEpisodeRefs] = React.useState<React.RefObject<any>[]>([])
     const [inViewEpisodes, setInViewEpisodes] = React.useState<any>([])
-    const debouncedInViewEpisodes = useDeferredValue(inViewEpisodes)
+    const debouncedInViewEpisodes = useDebounce(inViewEpisodes, 500)
 
     const debounceTimeout = React.useRef<NodeJS.Timeout | null>(null)
+
+    const { width } = useWindowSize()
+    const numberOfDisplayedEpisodesRef = React.useRef(0)
+
+    React.useEffect(() => {
+        numberOfDisplayedEpisodesRef.current = 0
+    }, [width])
 
     // Create refs for each episode
     React.useEffect(() => {
         setEpisodeRefs(episodes.map(() => React.createRef()))
     }, [episodes])
+
+    React.useEffect(() => {
+        if (numberOfDisplayedEpisodesRef.current === 0) {
+            numberOfDisplayedEpisodesRef.current = inViewEpisodes.length
+        }
+    }, [inViewEpisodes, numberOfDisplayedEpisodesRef.current])
 
     // Observe each episode
     React.useEffect(() => {
@@ -76,6 +91,8 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
         }
     }, [episodeRefs])
 
+    const prevSelectedEpisodeRef = React.useRef<Anime_Episode | null>(null)
+
     // Set header image when new episode is in view
     React.useEffect(() => {
         if (debounceTimeout.current) {
@@ -84,13 +101,28 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
 
         debounceTimeout.current = setTimeout(() => {
             if (inViewEpisodes.length > 0) {
-                const randomIndex = inViewEpisodes[Math.floor(Math.random() * inViewEpisodes.length)]
-                const episode = episodes[randomIndex]
+                if (inViewEpisodes.length !== numberOfDisplayedEpisodesRef.current) {
+                    return
+                }
+
+                let episode: Anime_Episode | null = null
+                let attempts = 0
+                let availableIndices = Array.from({ length: inViewEpisodes.length }, (_, i) => i)
+                let idx = availableIndices[Math.floor(Math.random() * availableIndices.length)]
+                episode = episodes[inViewEpisodes[idx]]
+
+                if (episode?.baseAnime?.id === prevSelectedEpisodeRef.current?.baseAnime?.id) {
+                    availableIndices = availableIndices.filter(i => i !== idx)
+                    idx = availableIndices[Math.floor(Math.random() * availableIndices.length)]
+                    episode = episodes[inViewEpisodes[idx]]
+                }
+
                 if (episode) {
                     setHeaderImage({
                         bannerImage: episode.baseAnime?.bannerImage || null,
                         episodeImage: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge || null,
                     })
+                    prevSelectedEpisodeRef.current = episode
                 }
             }
         }, 500)
@@ -99,7 +131,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                 clearTimeout(debounceTimeout.current)
             }
         }
-    }, [debouncedInViewEpisodes, episodes])
+    }, [inViewEpisodes, episodes])
 
     const { setPlayNext } = usePlayNext()
 
@@ -110,7 +142,7 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
         inject("continue-watching", {
             items: episodes.map(episode => ({
                 data: episode,
-                id: `${episode.type}-${episode.localFile?.path || ""}-${episode.episodeNumber}`,
+                id: `${episode.localFile?.path || ""}-${episode.episodeNumber}`,
                 value: `${episode.episodeNumber}`,
                 heading: "Continue Watching",
                 priority: 100,

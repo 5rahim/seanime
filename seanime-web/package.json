@@ -50,6 +50,7 @@
     "@tanstack/react-query-devtools": "^5.66.0",
     "@tanstack/react-table": "^8.20.6",
     "@tauri-apps/api": "v2.2.0",
+    "@tauri-apps/plugin-clipboard-manager": "^2.2.1",
     "@tauri-apps/plugin-os": "^2.2.0",
     "@tauri-apps/plugin-process": "^2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",

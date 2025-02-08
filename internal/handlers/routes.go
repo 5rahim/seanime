@@ -23,8 +23,9 @@ type Handler struct {
 func InitRoutes(app *core.App, e *echo.Echo) {
 	// CORS middleware
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{"Origin", "Content-Type", "Accept"},
+		AllowOrigins:     []string{"*"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Cookie"},
+		AllowCredentials: true,
 	}))
 
 	lechoLogger := lecho.From(*app.Logger)
@@ -82,6 +83,10 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 				newCookie.Value = u
 				newCookie.HttpOnly = false // Make the cookie accessible via JS
 				newCookie.Expires = time.Now().Add(24 * time.Hour)
+				newCookie.Path = "/"
+				newCookie.Domain = ""
+				newCookie.SameSite = http.SameSiteDefaultMode
+				newCookie.Secure = false
 
 				// Set the cookie
 				c.SetCookie(newCookie)
@@ -96,6 +101,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 			return next(c)
 		}
 	})
+
+	e.Use(headMethodMiddleware)
 
 	h := &Handler{App: app}
 
@@ -364,6 +371,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1.GET("/mediastream/subs/*", h.HandleMediastreamGetSubtitles)
 	v1.GET("/mediastream/att/*", h.HandleMediastreamGetAttachments)
 	v1.GET("/mediastream/direct", h.HandleMediastreamDirectPlay)
+	v1.HEAD("/mediastream/direct", h.HandleMediastreamDirectPlay)
 	v1.GET("/mediastream/file/*", h.HandleMediastreamFile)
 
 	//
@@ -455,4 +463,28 @@ func (h *Handler) RespondWithData(c echo.Context, data interface{}) error {
 
 func (h *Handler) RespondWithError(c echo.Context, err error) error {
 	return c.JSON(500, NewErrorResponse(err))
+}
+
+func headMethodMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if c.Request().Method == http.MethodHead {
+			// Set the method to GET temporarily to reuse the handler
+			c.Request().Method = http.MethodGet
+
+			defer func() {
+				c.Request().Method = http.MethodHead
+			}() // Restore method after
+
+			// Call the next handler and then clear the response body
+			if err := next(c); err != nil {
+				if err.Error() == echo.ErrMethodNotAllowed.Error() {
+					return c.NoContent(http.StatusOK)
+				}
+
+				return err
+			}
+		}
+
+		return next(c)
+	}
 }

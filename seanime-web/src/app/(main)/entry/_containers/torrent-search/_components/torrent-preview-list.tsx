@@ -5,6 +5,7 @@ import {
     TorrentSeedersBadge,
 } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-item-badges"
 import { TorrentPreviewItem } from "@/app/(main)/entry/_containers/torrent-search/_components/torrent-preview-item"
+import { TorrentSelectionType } from "@/app/(main)/entry/_containers/torrent-search/torrent-search-drawer"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,6 +20,7 @@ type TorrentPreviewList = {
     isLoading: boolean
     selectedTorrents: HibikeTorrent_AnimeTorrent[]
     onToggleTorrent: (t: HibikeTorrent_AnimeTorrent) => void
+    type: TorrentSelectionType
 }
 
 export const TorrentPreviewList = React.memo((
@@ -29,6 +31,7 @@ export const TorrentPreviewList = React.memo((
         selectedTorrents,
         onToggleTorrent,
         debridInstantAvailability,
+        type,
     }: TorrentPreviewList) => {
 
     if (isLoading) return <div className="space-y-2">
@@ -78,7 +81,7 @@ export const TorrentPreviewList = React.memo((
                                 </Badge>
                             )}
                             <TorrentResolutionBadge resolution={item.torrent.resolution} />
-                            {(!!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
+                            {((type === "download" || type === "debrid-stream-select" || type === "debrid-stream-select-file") && !!item.torrent.infoHash && debridInstantAvailability[item.torrent.infoHash]) && (
                                 <TorrentDebridInstantAvailabilityBadge />
                             )}
                             <TorrentSeedersBadge seeders={item.torrent.seeders} />

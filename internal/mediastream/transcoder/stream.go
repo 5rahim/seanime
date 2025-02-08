@@ -5,9 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
 	"io"
 	"math"
 	"os"
@@ -18,6 +15,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 )
 
 type Flags int32
@@ -480,6 +481,14 @@ func (ts *Stream) run(start int32) error {
 		outpath,
 	)
 
+	// Added logging for ffmpeg command and hardware transcoding state
+	streamLogger.Trace().Msgf("transcoder: ffmpeg command: %s %s", ts.settings.FfmpegPath, strings.Join(args, " "))
+	if len(ts.settings.HwAccel.DecodeFlags) > 0 {
+		streamLogger.Trace().Msgf("transcoder: Hardware transcoding enabled with flags: %v", ts.settings.HwAccel.DecodeFlags)
+	} else {
+		streamLogger.Trace().Msg("transcoder: Hardware transcoding not enabled")
+	}
+
 	cmd := util.NewCmdCtx(context.Background(), ts.settings.FfmpegPath, args...)
 	streamLogger.Trace().Msgf("transcoder: Executing ffmpeg for segments %d-%d of %s", start, end, ts.kind)
 
@@ -586,6 +595,15 @@ func (ts *Stream) run(start int32) error {
 	go func() {
 		err := cmd.Wait()
 		var exitErr *exec.ExitError
+		// Check if hardware acceleration was attempted and if stderr indicates a failure to use it
+		if len(ts.settings.HwAccel.DecodeFlags) > 0 {
+			lowerOutput := strings.ToLower(stderr.String())
+			if strings.Contains(lowerOutput, "failed") &&
+				(strings.Contains(lowerOutput, "hwaccel") || strings.Contains(lowerOutput, "vaapi") || strings.Contains(lowerOutput, "cuvid") || strings.Contains(lowerOutput, "vdpau")) {
+				streamLogger.Warn().Int("eid", encoderId).Msg("transcoder: ffmpeg failed to use hardware acceleration settings; falling back to CPU")
+			}
+		}
+
 		if errors.As(err, &exitErr) && exitErr.ExitCode() == 255 {
 			streamLogger.Trace().Int("eid", encoderId).Msgf("transcoder: ffmpeg process was terminated")
 		} else if err != nil {

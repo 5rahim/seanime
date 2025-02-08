@@ -2,13 +2,14 @@ package transcoder
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"os"
 	"path"
 	"path/filepath"
 	"seanime/internal/mediastream/videofile"
 	"seanime/internal/util/result"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type (

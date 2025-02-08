@@ -63,7 +63,37 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                 Current client: {serverStatus?.clientDevice || "N/A"}, {serverStatus?.clientPlatform || "N/A"}.
             </p>
 
+            {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
+                <Alert
+                    intent="alert" description={<>
+                    External player link is not set. <Button
+                    intent="white-link" className="h-5 px-1" onClick={() => {
+                    setTab("external-player-link")
+                }}
+                >Set external player link</Button>
+                </>}
+                />
+            )}
+
             <SettingsCard title="Downloaded media" description="Player to use for downloaded media.">
+
+                {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
+                    <Alert
+                        intent="info" description={<>
+                        Using <span className="font-semibold">{(serverStatus?.mediastreamSettings?.transcodeEnabled && activeOnDevice)
+                        ? "integrated player (media streaming)"
+                        : "desktop media player"}</span> for downloaded media.
+                    </>}
+                    />
+                )}
+                {(downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink && !!externalPlayerLink) && (
+                    <Alert
+                        intent="info" description={<>
+                        Using <span className="font-semibold">external player link</span> for downloaded media.
+                    </>}
+                    />
+                )}
+
                 <RadioGroup
                     // label="Downloaded media"
                     // help="Player to use for downloaded media."
@@ -104,38 +134,18 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                             />
                         </div>
                     </div>}
-
-                    {(downloadedMediaPlayback === PlaybackDownloadedMedia.Default) && (
-                        <Alert
-                            intent="success" description={<>
-                            Using <span className="font-semibold">{(serverStatus?.mediastreamSettings?.transcodeEnabled && activeOnDevice)
-                            ? "integrated player (media streaming)"
-                            : "desktop media player"}</span> for downloaded media.
-                        </>}
-                        />
-                    )}
-                    {(!externalPlayerLink && (downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink || torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)) && (
-                        <Alert
-                            intent="alert" description={<>
-                            External player link is not set. <Button
-                            intent="white-link" className="h-5 px-1" onClick={() => {
-                            setTab("external-player-link")
-                        }}
-                        >Set external player link</Button>
-                        </>}
-                        />
-                    )}
-                    {(downloadedMediaPlayback === PlaybackDownloadedMedia.ExternalPlayerLink && !!externalPlayerLink) && (
-                        <Alert
-                            intent="success" description={<>
-                            Using <span className="font-semibold">external player link</span> for downloaded media.
-                        </>}
-                        />
-                    )}
                 </>
             </SettingsCard>
 
             <SettingsCard title="Torrent/Debrid streaming" description="Player to use for torrent and debrid streaming.">
+
+                <Alert
+                    intent="info" description={<>
+                    Using <span className="font-semibold">{(torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)
+                    ? "external player link"
+                    : "desktop media player"}</span> for torrent/debrid streaming.
+                </>}
+                />
 
                 <RadioGroup
                     // name="-"
@@ -160,13 +170,6 @@ export function PlaybackSettings(props: PlaybackSettingsProps) {
                     itemLabelClass="font-medium flex flex-col items-center data-[state=checked]:text-[--brand] cursor-pointer w-full"
                 />
 
-                <Alert
-                    intent="success" description={<>
-                    Using <span className="font-semibold">{(torrentStreamingPlayback === PlaybackTorrentStreaming.ExternalPlayerLink)
-                    ? "external player link"
-                    : "desktop media player"}</span> for torrent/debrid streaming.
-                </>}
-                />
             </SettingsCard>
 
             <p className="italic text-sm text-[--muted]">

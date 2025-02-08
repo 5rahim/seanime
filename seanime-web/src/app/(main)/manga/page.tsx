@@ -39,8 +39,9 @@ export default function Page() {
                     <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
                     <div
                         className={cn(
-                            "h-28",
-                            ts.hideTopNavbar && "h-40",
+                            process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "h-28",
+                            (process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && ts.hideTopNavbar) && "h-40",
+                            process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "h-40",
                         )}
                     ></div>
                 </>

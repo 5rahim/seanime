@@ -128,21 +128,22 @@ export default function Page() {
                             <Modal
                                 title="Playback"
                                 trigger={
-                                    <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-outline">
+                                    <Button leftIcon={<BiInfoCircle />} className="rounded-full" intent="gray-basic" size="sm">
                                         Playback info
                                     </Button>
                                 }
+                                contentClass="sm:rounded-3xl"
                             >
                                 <div className="space-y-2">
-                                    <p className="line-clamp-1 text-[--muted]">
+                                    <p className="tracking-wide text-sm text-[--muted] break-all">
                                         {mediaContainer?.mediaInfo?.path}
                                     </p>
                                     {isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec || "") ? <Alert
                                         intent="success"
-                                        description="File video and audio codecs are compatible with this client"
+                                        description="File video and audio codecs are compatible with this client. Direct play is recommended."
                                     /> : <Alert
-                                        intent="alert"
-                                        description="File video and audio codecs are not compatible with this client"
+                                        intent="warning"
+                                        description="File video and audio codecs are not compatible with this client. Transcoding is needed."
                                     />}
 
                                     <p>
@@ -186,19 +187,19 @@ export default function Page() {
                                     {(mediaContainer?.streamType === "direct") &&
                                         <div className="space-y-2">
                                             <Button
-                                                intent="alert-outline"
+                                                intent="primary-subtle"
                                                 onClick={() => setStreamType("transcode")}
                                                 disabled={!disabledAutoSwitchToDirectPlay}
                                             >
                                                 Switch to transcoding
                                             </Button>
-                                            {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted]">
-                                                Disable 'auto switch to direct play' if you need to switch to transcoding
+                                            {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted] text-sm italic opacity-50">
+                                                Enable 'prefer transcoding' in the media streaming settings if you want to switch to transcoding
                                             </p>}
                                         </div>}
 
                                     {(mediaContainer?.streamType === "transcode" && isCodecSupported(mediaContainer?.mediaInfo?.mimeCodec || "")) &&
-                                        <Button intent="alert-outline" onClick={() => setStreamType("direct")}>
+                                        <Button intent="success-subtle" onClick={() => setStreamType("direct")}>
                                             Switch to direct play
                                         </Button>}
                                 </div>
@@ -224,7 +225,11 @@ export default function Page() {
                     </>}
                     mediaPlayer={
                         <SeaMediaPlayer
-                            url={url}
+                            url={mediaContainer?.streamType === "direct" ? {
+                                src: url || "",
+                                type: mediaContainer?.mediaInfo?.extension === "mp4" ? "video/mp4" :
+                                    mediaContainer?.mediaInfo?.extension === "avi" ? "video/x-msvideo" : "video/webm",
+                            } : url}
                             isPlaybackError={isError}
                             isLoading={isMediaContainerLoading}
                             playerRef={playerRef}
@@ -242,6 +247,7 @@ export default function Page() {
                                 kind: "subtitles",
                                 default: sub.isDefault || (!subtitles.some(n => n.isDefault) && sub.language?.startsWith("en")),
                             }))}
+                            mediaInfoDuration={mediaContainer?.mediaInfo?.duration}
                             loadingText={<>
                                 <p>Extracting video metadata...</p>
                                 <p>This might take a while.</p>

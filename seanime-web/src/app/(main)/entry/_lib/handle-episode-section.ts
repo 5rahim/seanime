@@ -29,7 +29,7 @@ export function useHandleEpisodeSection(props: { entry: Anime_Entry }) {
     const ncEpisodes = React.useMemo(() => {
         return (entry.episodes?.filter(ep => ep.type === "nc" && !!ep.localFile?.path) ?? []).sort((a,
             b,
-        ) => a.localFile!.path!.localeCompare(b.localFile!.path!))
+        ) => a.localFile!.path!.localeCompare(b.localFile!.path!, undefined, { numeric: true }))
     }, [entry.episodes])
 
     const hasInvalidEpisodes = React.useMemo(() => {

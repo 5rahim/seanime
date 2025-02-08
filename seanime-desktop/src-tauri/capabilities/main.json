@@ -65,6 +65,12 @@
     "updater:allow-download",
     "updater:allow-download-and-install",
     "updater:allow-install",
+    "clipboard-manager:allow-clear",
+    "clipboard-manager:allow-write-text",
+    "clipboard-manager:allow-write-html",
+    "clipboard-manager:allow-write-image",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-read-image",
     {
       "identifier": "shell:allow-execute",
       "allow": [

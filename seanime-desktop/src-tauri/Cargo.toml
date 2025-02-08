@@ -26,6 +26,7 @@ strip-ansi-escapes = "0.2.1"
 tokio = "1.43.0"
 tauri-plugin-decorum = "1.1.1"
 tauri-plugin-os = "2.2.0"
+tauri-plugin-clipboard-manager = "2.0.0-beta.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"

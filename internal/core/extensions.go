@@ -64,16 +64,16 @@ func (a *App) LoadBuiltInExtensions() {
 	}, manga_providers.NewMangapill(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:          "mangasee",
-		Name:        "Mangasee",
+		ID:          "weebcentral",
+		Name:        "WeebCentral",
 		Version:     "",
 		ManifestURI: "builtin",
 		Language:    extension.LanguageGo,
 		Type:        extension.TypeMangaProvider,
 		Author:      "Seanime",
 		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangasee.png",
-	}, manga_providers.NewMangasee(a.Logger))
+		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/weebcentral.png",
+	}, manga_providers.NewWeebCentral(a.Logger))
 
 	a.ExtensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "mangadex",

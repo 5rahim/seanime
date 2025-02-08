@@ -26,11 +26,11 @@ export function AnimeEntryCardUnwatchedBadge(props: AnimeEntryCardUnwatchedBadge
     if (!showAnimeUnwatchedCount) return null
 
     const progressTotal = anilist_getCurrentEpisodes(media)
-    const unwatched = progressTotal - (progress || 0)
+    const unwatched = progressTotal - (progress ?? 0)
 
-    const unwatchedFromLibrary = libraryData?.unwatchedCount || 0
+    const unwatchedFromLibrary = libraryData?.unwatchedCount ?? 0
 
-    const unwatchedCount = unwatchedFromLibrary || unwatched
+    const unwatchedCount = unwatchedFromLibrary ?? unwatched
 
     if (unwatchedCount <= 0) return null
 
