@@ -1,13 +1,14 @@
 package manga_providers
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/util"
 	"testing"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestMangasee_Search(t *testing.T) {
+func TestWeebCentral_Search(t *testing.T) {
 
 	tests := []struct {
 		name  string
@@ -23,16 +24,16 @@ func TestMangasee_Search(t *testing.T) {
 		},
 	}
 
-	mangasee := NewMangasee(util.NewLogger())
+	weebcentral := NewWeebCentral(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			searchRes, err := mangasee.Search(hibikemanga.SearchOptions{
+			searchRes, err := weebcentral.Search(hibikemanga.SearchOptions{
 				Query: tt.query,
 			})
-			if assert.NoError(t, err, "mangasee.Search() error") {
+			if assert.NoError(t, err, "weebcentral.Search() error") {
 				assert.NotEmpty(t, searchRes, "search result is empty")
 
 				for _, res := range searchRes {
@@ -53,7 +54,7 @@ func TestMangasee_Search(t *testing.T) {
 
 }
 
-func TestMangasee_FindChapters(t *testing.T) {
+func TestWeebCentral_FindChapters(t *testing.T) {
 
 	tests := []struct {
 		name    string
@@ -62,24 +63,24 @@ func TestMangasee_FindChapters(t *testing.T) {
 	}{
 		{
 			name:    "One Piece",
-			id:      "One-Piece",
+			id:      "01J76XY7E9FNDZ1DBBM6PBJPFK",
 			atLeast: 1100,
 		},
 		{
 			name:    "Jujutsu Kaisen",
-			id:      "Jujutsu-Kaisen",
+			id:      "01J76XYCERXE60T7FKXVCCAQ0H",
 			atLeast: 250,
 		},
 	}
 
-	mangasee := NewMangasee(util.NewLogger())
+	weebcentral := NewWeebCentral(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			chapters, err := mangasee.FindChapters(tt.id)
-			if assert.NoError(t, err, "mangasee.FindChapters() error") {
+			chapters, err := weebcentral.FindChapters(tt.id)
+			if assert.NoError(t, err, "weebcentral.FindChapters() error") {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
@@ -102,7 +103,7 @@ func TestMangasee_FindChapters(t *testing.T) {
 
 }
 
-func TestMangasee_FindChapterPages(t *testing.T) {
+func TestWeebCentral_FindChapterPages(t *testing.T) {
 
 	tests := []struct {
 		name  string
@@ -111,19 +112,24 @@ func TestMangasee_FindChapterPages(t *testing.T) {
 	}{
 		{
 			name:  "One Piece",
-			id:    "One-Piece",
+			id:    "01J76XY7E9FNDZ1DBBM6PBJPFK",
 			index: 1110,
+		},
+		{
+			name:  "Jujutsu Kaisen",
+			id:    "01J76XYCERXE60T7FKXVCCAQ0H",
+			index: 0,
 		},
 	}
 
-	mangasee := NewMangasee(util.NewLogger())
+	weebcentral := NewWeebCentral(util.NewLogger())
 
 	for _, tt := range tests {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			chapters, err := mangasee.FindChapters(tt.id)
-			if assert.NoError(t, err, "mangasee.FindChapters() error") {
+			chapters, err := weebcentral.FindChapters(tt.id)
+			if assert.NoError(t, err, "weebcentral.FindChapters() error") {
 
 				assert.NotEmpty(t, chapters, "chapters is empty")
 
@@ -136,8 +142,8 @@ func TestMangasee_FindChapterPages(t *testing.T) {
 				}
 
 				if assert.NotNil(t, chapterInfo, "chapter not found") {
-					pages, err := mangasee.FindChapterPages(chapterInfo.ID)
-					if assert.NoError(t, err, "mangasee.FindChapterPages() error") {
+					pages, err := weebcentral.FindChapterPages(chapterInfo.ID)
+					if assert.NoError(t, err, "weebcentral.FindChapterPages() error") {
 						assert.NotEmpty(t, pages, "pages is empty")
 
 						for _, page := range pages {

@@ -62,18 +62,6 @@ func GetMockExtensionRepository(t *testing.T) *Repository {
 	}, manga_providers.NewMangapill(logger))
 
 	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
-		ID:          "mangasee",
-		Name:        "Mangasee",
-		Version:     "",
-		ManifestURI: "builtin",
-		Language:    extension.LanguageGo,
-		Type:        extension.TypeMangaProvider,
-		Author:      "Seanime",
-		Lang:        "en",
-		Icon:        "https://raw.githubusercontent.com/5rahim/hibike/main/icons/mangasee.png",
-	}, manga_providers.NewMangasee(logger))
-
-	extensionRepository.LoadBuiltInMangaProviderExtension(extension.Extension{
 		ID:          "mangadex",
 		Name:        "Mangadex",
 		Version:     "",
