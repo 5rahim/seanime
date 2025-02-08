@@ -102,7 +102,7 @@ Development and testing might require additional configuration.
 
 ### Scanning
 
-<img src="docs/images/v2/rec_scanning.gif" alt="preview" width="100%"/>
+<img src="docs/images/4/rec-scanning.gif" alt="preview" width="100%"/>
 
 ### Watching
 
@@ -131,17 +131,13 @@ Development and testing might require additional configuration.
 
 <img src="docs/images/4/online-streaming--sq.jpg" alt="preview" width="100%"/>
 
-### Detailed library view
-
-<img src="docs/images/4/detailed-library-view--sq.jpg" alt="preview" width="100%"/>
-
 ### Discover
 
 <img src="docs/images/4/discover_02--sq.jpg" alt="preview" width="100%"/>
 
 ### AniList integration
 
-<img src="docs/images/v2/anilist_01--squashed.jpg" alt="preview" width="100%"/>
+<img src="docs/images/4/anilist_01--sq.jpg" alt="preview" width="100%"/>
 
 </details>
 

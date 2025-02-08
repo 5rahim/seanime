@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.7.1
+
+- ⚡️ Transcoding: Support for Apple VideoToolbox hardware acceleration
+- ⚡️ Manga: New built-in extension
+- 🦺 Fixed hardware acceleration regression
+- 🦺 Fixed client cookie regression causing external player links to fail
+- 🦺 Fixed Direct Play regression #224
+- 🦺 Anime library: Fixed selecting multiple episodes to download at once #223
+- 🦺 Desktop: Fixed copy to clipboard
+- 🦺 Fixed UI inconsistencies
+- 🏗️ Extensions: Removed non-working manga extension
+- 🏗️ Improved logging in some areas
+- 🏗️ Desktop: Refactored macOS fullscreen
+
 ## v2.7.0
 
 - ✨ Updated design
