@@ -27,6 +27,7 @@ const MEDIASTREAM_HW_ACCEL_OPTIONS = [
     { label: "NVIDIA (NVENC)", value: "nvidia" },
     { label: "Intel (QSV)", value: "qsv" },
     { label: "VAAPI", value: "vaapi" },
+    { label: "Apple VideoToolbox", value: "videotoolbox" },
     { label: "Custom", value: "custom" },
 ]
 

@@ -29,7 +29,7 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			name = "disabled"
 		}
 		customHwAccelSettings.Name = "custom"
-	} else if opts.CustomSettings != "" {
+	} else if opts.CustomSettings == "" && name == "custom" {
 		name = "disabled"
 	}
 
@@ -60,7 +60,8 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			},
 			// we could put :force_original_aspect_ratio=decrease:force_divisible_by=2 here but we already calculate a correct width and
 			// aspect ratio in our code so there is no need.
-			ScaleFilter: "scale=%d:%d",
+			ScaleFilter:   "scale=%d:%d",
+			WithForcedIdr: true,
 		}
 	case "vaapi":
 		return HwAccelSettings{
@@ -88,7 +89,8 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 			//   convert whatever to nv12 on GPU // scale_vaapi doesn't support passthrough option, so it has to make a copy
 			// }
 			// See https://www.reddit.com/r/ffmpeg/comments/1bqn60w/hardware_accelerated_decoding_without_hwdownload/ for more info
-			ScaleFilter: "format=nv12|vaapi,hwupload,scale_vaapi=%d:%d:format=nv12",
+			ScaleFilter:   "format=nv12|vaapi,hwupload,scale_vaapi=%d:%d:format=nv12",
+			WithForcedIdr: true,
 		}
 	case "qsv", "intel":
 		return HwAccelSettings{
@@ -103,7 +105,8 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 				"-preset", preset,
 			},
 			// see note on ScaleFilter of the vaapi HwAccel, this is the same filter but adapted to qsv
-			ScaleFilter: "format=nv12|qsv,hwupload,scale_qsv=%d:%d:format=nv12",
+			ScaleFilter:   "format=nv12|qsv,hwupload,scale_qsv=%d:%d:format=nv12",
+			WithForcedIdr: true,
 		}
 	case "nvidia":
 		return HwAccelSettings{
@@ -121,7 +124,21 @@ func GetHardwareAccelSettings(opts HwAccelOptions) HwAccelSettings {
 				"-no-scenecut", "1",
 			},
 			// see note on ScaleFilter of the vaapi HwAccel, this is the same filter but adapted to cuda
-			ScaleFilter: "format=nv12|cuda,hwupload,scale_cuda=%d:%d:format=nv12",
+			ScaleFilter:   "format=nv12|cuda,hwupload,scale_cuda=%d:%d:format=nv12",
+			WithForcedIdr: true,
+		}
+	case "videotoolbox":
+		return HwAccelSettings{
+			Name: "videotoolbox",
+			DecodeFlags: []string{
+				"-hwaccel", "videotoolbox",
+			},
+			EncodeFlags: []string{
+				"-c:v", "h264_videotoolbox",
+				"-profile:v", "main",
+			},
+			ScaleFilter:   "scale=%d:%d",
+			WithForcedIdr: true,
 		}
 	case "custom":
 		return customHwAccelSettings

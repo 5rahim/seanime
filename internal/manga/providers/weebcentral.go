@@ -239,7 +239,7 @@ func (w *WeebCentral) FindChapters(mangaId string) ([]*hibikemanga.ChapterDetail
 
 	slices.Reverse(chapters)
 
-	for i, _ := range chapters {
+	for i := range chapters {
 		chapters[i].Index = uint(i)
 	}
 

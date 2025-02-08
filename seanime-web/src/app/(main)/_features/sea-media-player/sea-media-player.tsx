@@ -69,6 +69,7 @@ export type SeaMediaPlayerProps = {
     loadingText?: React.ReactNode
     onGoToNextEpisode: () => void
     onGoToPreviousEpisode?: () => void
+    mediaInfoDuration?: number
 }
 
 type ChapterProps = {
@@ -97,6 +98,7 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         onGoToNextEpisode,
         onGoToPreviousEpisode,
         settingsItems,
+        mediaInfoDuration,
     } = props
 
     const serverStatus = useServerStatus()
@@ -104,6 +106,15 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
     const [duration, setDuration] = React.useState(0)
 
     const { media, progress } = useSeaMediaPlayer()
+
+    const [trueDuration, setTrueDuration] = React.useState(0)
+    React.useEffect(() => {
+        if (!mediaInfoDuration) return
+        const durationFixed = mediaInfoDuration || 0
+        if (durationFixed) {
+            setTrueDuration(durationFixed)
+        }
+    }, [mediaInfoDuration])
 
     const [progressItem, setProgressItem] = useAtom(__seaMediaPlayer_scopedProgressItemAtom) // scoped
 
@@ -206,6 +217,9 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
         }
         checkTimeRef.current = 0
 
+        // Use trueDuration if available, otherwise fallback to the dynamic duration
+        const effectiveDuration = trueDuration || duration
+
         if (
             media &&
             // valid episode number
@@ -213,8 +227,8 @@ export function SeaMediaPlayer(props: SeaMediaPlayerProps) {
             progress.currentEpisodeNumber > 0 &&
             // progress wasn't updated
             (!progressItem || progress.currentEpisodeNumber > progressItem.episodeNumber) &&
-            // video is almost complete
-            duration > 0 && (detail.currentTime / duration) >= 0.8 &&
+            // video is almost complete using the fixed duration
+            effectiveDuration > 0 && (detail.currentTime / effectiveDuration) >= 0.8 &&
             // episode number greater than progress
             progress.currentEpisodeNumber > (currentProgress ?? 0)
         ) {

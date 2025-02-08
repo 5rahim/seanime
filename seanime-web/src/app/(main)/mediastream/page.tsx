@@ -194,7 +194,7 @@ export default function Page() {
                                                 Switch to transcoding
                                             </Button>
                                             {!disabledAutoSwitchToDirectPlay && <p className="text-[--muted] text-sm italic opacity-50">
-                                                Disable 'prefer transcoding' in the media streaminng settings if you want to switch to transcoding
+                                                Enable 'prefer transcoding' in the media streaming settings if you want to switch to transcoding
                                             </p>}
                                         </div>}
 
@@ -247,6 +247,7 @@ export default function Page() {
                                 kind: "subtitles",
                                 default: sub.isDefault || (!subtitles.some(n => n.isDefault) && sub.language?.startsWith("en")),
                             }))}
+                            mediaInfoDuration={mediaContainer?.mediaInfo?.duration}
                             loadingText={<>
                                 <p>Extracting video metadata...</p>
                                 <p>This might take a while.</p>

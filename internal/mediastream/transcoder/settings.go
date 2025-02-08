@@ -11,8 +11,9 @@ func GetEnvOr(env string, def string) string {
 }
 
 type HwAccelSettings struct {
-	Name        string   `json:"name"`
-	DecodeFlags []string `json:"decodeFlags"`
-	EncodeFlags []string `json:"encodeFlags"`
-	ScaleFilter string   `json:"scaleFilter"`
+	Name          string   `json:"name"`
+	DecodeFlags   []string `json:"decodeFlags"`
+	EncodeFlags   []string `json:"encodeFlags"`
+	ScaleFilter   string   `json:"scaleFilter"`
+	WithForcedIdr bool     `json:"removeForcedIdr"`
 }
