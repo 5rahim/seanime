@@ -40,6 +40,7 @@ type Status struct {
 	Updating              bool                          `json:"updating"`         // If true, a new screen will be displayed
 	IsDesktopSidecar      bool                          `json:"isDesktopSidecar"` // The server is running as a desktop sidecar
 	FeatureFlags          core.FeatureFlags             `json:"featureFlags"`
+	AnilistDataLoaded     bool                          `json:"anilistDataLoaded"`
 }
 
 var clientInfoCache = result.NewResultMap[string, util.ClientInfo]()
@@ -93,6 +94,7 @@ func (h *Handler) NewStatus(c echo.Context) *Status {
 		Updating:              false,
 		IsDesktopSidecar:      h.App.IsDesktopSidecar,
 		FeatureFlags:          h.App.FeatureFlags,
+		AnilistDataLoaded:     h.App.AnilistDataLoaded,
 	}
 }
 

@@ -1,6 +1,8 @@
 package events
 
 const (
+	AnilistDataLoaded = "anilist-data-loaded" // The anilist data has been loaded
+
 	EventScanProgress               = "scan-progress"                      // Progress of the scan
 	EventScanStatus                 = "scan-status"                        // Status text of the scan
 	RefreshedAnilistAnimeCollection = "refreshed-anilist-anime-collection" // The anilist collection has been refreshed

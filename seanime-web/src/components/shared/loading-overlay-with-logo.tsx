@@ -4,7 +4,7 @@ import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import Image from "next/image"
 import React from "react"
 
-export function LoadingOverlayWithLogo({ refetch }: { refetch?: () => void }) {
+export function LoadingOverlayWithLogo({ refetch, title }: { refetch?: () => void, title?: string }) {
     return <LoadingOverlay showSpinner={false}>
         <Image
             src="/logo_2.png"
@@ -14,7 +14,7 @@ export function LoadingOverlayWithLogo({ refetch }: { refetch?: () => void }) {
             height={180}
             className="animate-pulse"
         />
-        <TextGenerateEffect className="text-lg mt-2 text-[--muted] animate-pulse" words={"S e a n i m e"} />
+        <TextGenerateEffect className="text-lg mt-2 text-[--muted] animate-pulse" words={title ?? "S e a n i m e"} />
 
         {(process.env.NEXT_PUBLIC_PLATFORM === "desktop" && !!refetch) && (
             <Button

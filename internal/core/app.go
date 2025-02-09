@@ -104,6 +104,7 @@ type (
 		previousVersion    string
 		moduleMu           sync.Mutex
 		HookManager        *hook.HookManager
+		AnilistDataLoaded  bool // Whether the Anilist data from the first request has been fetched
 	}
 )
 

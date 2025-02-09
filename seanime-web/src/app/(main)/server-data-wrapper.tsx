@@ -7,10 +7,13 @@ import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { defineSchema, Field, Form } from "@/components/ui/form"
+import { logger } from "@/lib/helpers/debug"
 import { ANILIST_OAUTH_URL, ANILIST_PIN_URL } from "@/lib/server/config"
+import { WSEvents } from "@/lib/server/ws-events"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import React from "react"
+import { useWebsocketMessageListener } from "./_hooks/handle-websockets"
 
 type ServerDataWrapperProps = {
     host: string
@@ -38,11 +41,38 @@ export function ServerDataWrapper(props: ServerDataWrapperProps) {
         }
     }, [_serverStatus])
 
+    useWebsocketMessageListener({
+        type: WSEvents.ANILIST_DATA_LOADED,
+        onMessage: () => {
+            logger("Data Wrapper").info("Anilist data loaded, refetching server status")
+            refetch()
+        },
+    })
+
+    // Refetch the server status every 2 seconds if anilistDataLoaded is false
+    // This is a fallback to the websocket
+    const intervalId = React.useRef<NodeJS.Timeout | null>(null)
+    React.useEffect(() => {
+        if (!serverStatus?.anilistDataLoaded) {
+            intervalId.current = setInterval(() => {
+                logger("Data Wrapper").info("Refetching server status")
+                refetch()
+            }, 2000)
+        }
+        return () => {
+            logger("Data Wrapper").info("Clearing interval")
+            if (intervalId.current) {
+                clearInterval(intervalId.current)
+                intervalId.current = null
+            }
+        }
+    }, [serverStatus?.anilistDataLoaded])
 
     /**
      * If the server status is loading or doesn't exist, show the loading overlay
      */
     if (isLoading || !serverStatus) return <LoadingOverlayWithLogo />
+    if (!serverStatus?.anilistDataLoaded) return <LoadingOverlayWithLogo title="L o a d i n g" />
 
     /**
      * If the pathname is /auth/callback, show the callback page

@@ -51,11 +51,8 @@ func (a *App) GetRawAnimeCollection(bypassCache bool) (*anilist.AnimeCollection,
 	return a.AnilistPlatform.GetRawAnimeCollection(bypassCache)
 }
 
-var AnimeCollectionCacheId = 0
-
 // RefreshAnimeCollection queries Anilist for the user's collection
 func (a *App) RefreshAnimeCollection() (*anilist.AnimeCollection, error) {
-	AnimeCollectionCacheId++
 	ret, err := a.AnilistPlatform.RefreshAnimeCollection()
 
 	if err != nil {
