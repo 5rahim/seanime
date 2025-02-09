@@ -170,6 +170,8 @@ func (r *Repository) downloadFile(ctx context.Context, tId string, downloadUrl s
 		return false
 	}
 
+	_ = os.MkdirAll(destination, os.ModePerm)
+
 	// Download the files to a temporary folder
 	tmpDirPath, err := os.MkdirTemp(destination, ".tmp-")
 	if err != nil {
