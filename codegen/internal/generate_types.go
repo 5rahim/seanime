@@ -17,10 +17,6 @@ const (
 
 // Structs that are not directly referenced by the API routes but are needed for the Typescript file.
 var additionalStructNames = []string{
-	"vendor_hibike_manga.ChapterDetails",
-	"vendor_hibike_manga.ChapterPage",
-	"vendor_hibike_torrent.AnimeTorrent",
-	"vendor_hibike_torrent.AnimeTorrentProviderType",
 	"torrentstream.TorrentLoadingStatus",
 	"torrentstream.TorrentStatus",
 	"debrid_client.StreamState",

@@ -17,9 +17,7 @@ const (
 	space                           = "    "
 )
 
-var additionalStructNamesForEndpoints = []string{
-	"vendor_hibike_torrent.AnimeTorrent",
-}
+var additionalStructNamesForEndpoints = []string{}
 
 func GenerateTypescriptEndpointsFile(handlersJsonPath string, structsJsonPath string, outDir string) []string {
 	handlers := LoadHandlers(handlersJsonPath)

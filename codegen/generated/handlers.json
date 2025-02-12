@@ -4347,7 +4347,7 @@
       "\t@summary returns search results for a manual search.",
       "\t@desc Returns search results for a manual search.",
       "\t@route /api/v1/manga/search [POST]",
-      "\t@returns []vendor_hibike_manga.SearchResult",
+      "\t@returns []hibikemanga.SearchResult",
       ""
     ],
     "filepath": "internal/handlers/manga.go",
@@ -4382,8 +4382,8 @@
           "descriptions": []
         }
       ],
-      "returns": "[]vendor_hibike_manga.SearchResult",
-      "returnGoType": "vendor_hibike_manga.SearchResult",
+      "returns": "[]hibikemanga.SearchResult",
+      "returnGoType": "hibikemanga.SearchResult",
       "returnTypescriptType": "Array\u003cHibikeManga_SearchResult\u003e"
     }
   },
@@ -5515,7 +5515,7 @@
       "\t@summary returns search results for a manual search.",
       "\t@desc Returns search results for a manual search.",
       "\t@route /api/v1/onlinestream/search [POST]",
-      "\t@returns []vendor_hibike_onlinestream.SearchResult",
+      "\t@returns []hibikeonlinestream.SearchResult",
       ""
     ],
     "filepath": "internal/handlers/onlinestream.go",
@@ -5559,8 +5559,8 @@
           "descriptions": []
         }
       ],
-      "returns": "[]vendor_hibike_onlinestream.SearchResult",
-      "returnGoType": "vendor_hibike_onlinestream.SearchResult",
+      "returns": "[]hibikeonlinestream.SearchResult",
+      "returnGoType": "hibikeonlinestream.SearchResult",
       "returnTypescriptType": "Array\u003cHibikeOnlinestream_SearchResult\u003e"
     }
   },

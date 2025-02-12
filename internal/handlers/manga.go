@@ -426,7 +426,7 @@ func (h *Handler) HandleUpdateMangaProgress(c echo.Context) error {
 //	@summary returns search results for a manual search.
 //	@desc Returns search results for a manual search.
 //	@route /api/v1/manga/search [POST]
-//	@returns []vendor_hibike_manga.SearchResult
+//	@returns []hibikemanga.SearchResult
 func (h *Handler) HandleMangaManualSearch(c echo.Context) error {
 
 	type body struct {

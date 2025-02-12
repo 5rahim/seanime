@@ -56,7 +56,7 @@ type Extension struct {
 	Payload string `json:"payload"`
 	// PayloadURI is the URI to the extension payload.
 	// It can be used as an alternative to the Payload field.
-	PayloadURI string `json:"payloadURI"`
+	PayloadURI string `json:"payloadURI,omitempty"`
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

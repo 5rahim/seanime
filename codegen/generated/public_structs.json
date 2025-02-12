@@ -31772,7 +31772,7 @@
         "jsonName": "payloadURI",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       }

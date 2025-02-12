@@ -2043,6 +2043,7 @@ export type Extension_Extension = {
     scopes?: Array<string>
     userConfig?: Extension_UserConfig
     payload: string
+    payloadURI?: string
 }
 
 /**
@@ -2087,7 +2088,7 @@ export type Extension_SavedUserConfig = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider"
+export type Extension_Type = "anime-torrent-provider" | "manga-provider" | "onlinestream-provider" | "plugin"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2368,6 +2369,144 @@ export type Status = {
     isDesktopSidecar: boolean
     featureFlags?: INTERNAL_FeatureFlags
     anilistDataLoaded: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hibikemanga
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/hibike/manga/types.go
+ * - Filename: types.go
+ * - Package: hibikemanga
+ */
+export type HibikeManga_ChapterDetails = {
+    provider: string
+    id: string
+    url: string
+    title: string
+    chapter: string
+    index: number
+    scanlator?: string
+    language?: string
+    rating?: number
+    updatedAt?: string
+}
+
+/**
+ * - Filepath: internal/extension/hibike/manga/types.go
+ * - Filename: types.go
+ * - Package: hibikemanga
+ */
+export type HibikeManga_ChapterPage = {
+    provider: string
+    url: string
+    index: number
+    headers?: Record<string, string>
+}
+
+/**
+ * - Filepath: internal/extension/hibike/manga/types.go
+ * - Filename: types.go
+ * - Package: hibikemanga
+ */
+export type HibikeManga_SearchResult = {
+    provider: string
+    id: string
+    title: string
+    synonyms?: Array<string>
+    year?: number
+    image?: string
+    searchRating?: number
+}
+
+/**
+ * - Filepath: internal/extension/hibike/manga/types.go
+ * - Filename: types.go
+ * - Package: hibikemanga
+ */
+export type HibikeManga_Settings = {
+    supportsMultiScanlator: boolean
+    supportsMultiLanguage: boolean
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hibikeonlinestream
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/hibike/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: hibikeonlinestream
+ */
+export type HibikeOnlinestream_SearchResult = {
+    id: string
+    title: string
+    url: string
+    subOrDub: HibikeOnlinestream_SubOrDub
+}
+
+/**
+ * - Filepath: internal/extension/hibike/onlinestream/types.go
+ * - Filename: types.go
+ * - Package: hibikeonlinestream
+ */
+export type HibikeOnlinestream_SubOrDub = "sub" | "dub" | "both"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hibiketorrent
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_AnimeProviderSettings = {
+    canSmartSearch: boolean
+    smartSearchFilters?: Array<HibikeTorrent_AnimeProviderSmartSearchFilter>
+    supportsAdult: boolean
+    type: HibikeTorrent_AnimeProviderType
+}
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_AnimeProviderSmartSearchFilter = "batch" | "episodeNumber" | "resolution" | "query" | "bestReleases"
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_AnimeProviderType = "main" | "special"
+
+/**
+ * - Filepath: internal/extension/hibike/torrent/types.go
+ * - Filename: types.go
+ * - Package: hibiketorrent
+ */
+export type HibikeTorrent_AnimeTorrent = {
+    provider?: string
+    name: string
+    date: string
+    size: number
+    formattedSize: string
+    seeders: number
+    leechers: number
+    downloadCount: number
+    link: string
+    downloadUrl: string
+    magnetLink?: string
+    infoHash?: string
+    resolution?: string
+    isBatch?: boolean
+    episodeNumber?: number
+    releaseGroup?: string
+    isBestRelease: boolean
+    confirmed: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3351,144 +3490,6 @@ export type Updater_Update = {
     release?: Updater_Release
     current_version?: string
     type: string
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VendorHibikeManga
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/extension/vendoring/manga/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_manga
- */
-export type HibikeManga_ChapterDetails = {
-    provider: string
-    id: string
-    url: string
-    title: string
-    chapter: string
-    index: number
-    scanlator?: string
-    language?: string
-    rating?: number
-    updatedAt?: string
-}
-
-/**
- * - Filepath: internal/extension/vendoring/manga/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_manga
- */
-export type HibikeManga_ChapterPage = {
-    provider: string
-    url: string
-    index: number
-    headers?: Record<string, string>
-}
-
-/**
- * - Filepath: internal/extension/vendoring/manga/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_manga
- */
-export type HibikeManga_SearchResult = {
-    provider: string
-    id: string
-    title: string
-    synonyms?: Array<string>
-    year?: number
-    image?: string
-    searchRating?: number
-}
-
-/**
- * - Filepath: internal/extension/vendoring/manga/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_manga
- */
-export type HibikeManga_Settings = {
-    supportsMultiScanlator: boolean
-    supportsMultiLanguage: boolean
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VendorHibikeOnlinestream
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/extension/vendoring/onlinestream/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_onlinestream
- */
-export type HibikeOnlinestream_SearchResult = {
-    id: string
-    title: string
-    url: string
-    subOrDub: HibikeOnlinestream_SubOrDub
-}
-
-/**
- * - Filepath: internal/extension/vendoring/onlinestream/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_onlinestream
- */
-export type HibikeOnlinestream_SubOrDub = "sub" | "dub" | "both"
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VendorHibikeTorrent
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/extension/vendoring/torrent/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_torrent
- */
-export type HibikeTorrent_AnimeProviderSettings = {
-    canSmartSearch: boolean
-    smartSearchFilters?: Array<HibikeTorrent_AnimeProviderSmartSearchFilter>
-    supportsAdult: boolean
-    type: HibikeTorrent_AnimeProviderType
-}
-
-/**
- * - Filepath: internal/extension/vendoring/torrent/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_torrent
- */
-export type HibikeTorrent_AnimeProviderSmartSearchFilter = "batch" | "episodeNumber" | "resolution" | "query" | "bestReleases"
-
-/**
- * - Filepath: internal/extension/vendoring/torrent/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_torrent
- */
-export type HibikeTorrent_AnimeProviderType = "main" | "special"
-
-/**
- * - Filepath: internal/extension/vendoring/torrent/types.go
- * - Filename: types.go
- * - Package: vendor_hibike_torrent
- */
-export type HibikeTorrent_AnimeTorrent = {
-    provider?: string
-    name: string
-    date: string
-    size: number
-    formattedSize: string
-    seeders: number
-    leechers: number
-    downloadCount: number
-    link: string
-    downloadUrl: string
-    magnetLink?: string
-    infoHash?: string
-    resolution?: string
-    isBatch?: boolean
-    episodeNumber?: number
-    releaseGroup?: string
-    isBestRelease: boolean
-    confirmed: boolean
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
