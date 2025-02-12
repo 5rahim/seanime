@@ -90,7 +90,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		extensionDir:       opts.ExtensionDir,
 		wsEventManager:     opts.WSEventManager,
 		gojaExtensions:     result.NewResultMap[string, GojaExtension](),
-		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger, 5),
+		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger, 20),
 		extensionBank:      extension.NewUnifiedBank(),
 		invalidExtensions:  result.NewResultMap[string, *extension.InvalidExtension](),
 		fileCacher:         opts.FileCacher,
