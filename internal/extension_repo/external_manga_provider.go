@@ -13,8 +13,6 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 	defer util.HandlePanicInModuleWithError("extension_repo/loadExternalMangaExtension", &err)
 
 	switch ext.Language {
-	case extension.LanguageGo:
-		err = r.loadExternalMangaExtensionGo(ext)
 	case extension.LanguageJavascript:
 		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageJavascript)
 	case extension.LanguageTypescript:
@@ -26,19 +24,6 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 	}
 
 	return
-}
-
-func (r *Repository) loadExternalMangaExtensionGo(ext *extension.Extension) error {
-
-	provider, err := NewYaegiMangaProvider(r.yaegiInterp, ext, r.logger)
-	if err != nil {
-		return err
-	}
-
-	// Add the extension to the map
-	retExt := extension.NewMangaProviderExtension(ext, provider)
-	r.extensionBank.Set(ext.ID, retExt)
-	return nil
 }
 
 func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {

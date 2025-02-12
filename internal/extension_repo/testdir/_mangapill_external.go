@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/5rahim/hibike/pkg/util/bypass"
 	"github.com/5rahim/hibike/pkg/util/common"
 	"github.com/5rahim/hibike/pkg/util/similarity"

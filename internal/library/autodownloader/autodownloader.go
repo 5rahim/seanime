@@ -22,12 +22,12 @@ import (
 	"time"
 
 	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/adrg/strutil/metrics"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/sourcegraph/conc/pool"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 const (

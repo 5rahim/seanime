@@ -1,4 +1,4 @@
-package vendor_hibike_torrent
+package hibiketorrent
 
 // Resolutions represent resolution filters available to the user.
 var Resolutions = []string{"1080", "720", "540", "480"}

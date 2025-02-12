@@ -14,6 +14,7 @@ const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
 	TypeMangaProvider        Type = "manga-provider"
 	TypeOnlinestreamProvider Type = "onlinestream-provider"
+	TypePlugin               Type = "plugin"
 )
 
 const (
@@ -53,6 +54,9 @@ type Extension struct {
 	UserConfig *UserConfig `json:"userConfig,omitempty"`
 	// Payload is the content of the extension.
 	Payload string `json:"payload"`
+	// PayloadURI is the URI to the extension payload.
+	// It can be used as an alternative to the Payload field.
+	PayloadURI string `json:"payloadURI"`
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +73,7 @@ type BaseExtension interface {
 	GetDescription() string
 	GetAuthor() string
 	GetPayload() string
+	GetPayloadURI() string
 	GetLang() string
 	GetIcon() string
 	GetWebsite() string
@@ -92,6 +97,7 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Icon:        ext.GetIcon(),
 		Website:     ext.GetWebsite(),
 		Payload:     ext.GetPayload(),
+		PayloadURI:  ext.GetPayloadURI(),
 	}
 }
 

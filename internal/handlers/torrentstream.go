@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"errors"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/labstack/echo/v4"
 	lop "github.com/samber/lo/parallel"
 	"net/http"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/models"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"seanime/internal/torrentstream"
 	"strconv"

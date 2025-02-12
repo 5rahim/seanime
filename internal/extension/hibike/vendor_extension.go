@@ -1,4 +1,4 @@
-package vendor_hibike_extension
+package hibikextension
 
 type (
 	SelectOption struct {

@@ -1,12 +1,12 @@
 package extension_repo_test
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/extension"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/extension_repo"
 	"seanime/internal/util"
 	"testing"

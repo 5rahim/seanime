@@ -1,9 +1,9 @@
 package nyaa
 
 import (
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"

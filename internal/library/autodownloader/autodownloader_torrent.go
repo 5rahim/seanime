@@ -3,8 +3,8 @@ package autodownloader
 import (
 	"errors"
 	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/samber/lo"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/anime"
 	"sync"
 )

@@ -1,17 +1,15 @@
 package extension_repo
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
-	"github.com/traefik/yaegi/interp"
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
-	"seanime/internal/extension/vendoring/manga"
-	"seanime/internal/extension/vendoring/torrent"
+	"seanime/internal/extension/hibike/manga"
+	"seanime/internal/extension/hibike/onlinestream"
+	"seanime/internal/extension/hibike/torrent"
+	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 )
@@ -24,11 +22,11 @@ type (
 		wsEventManager events.WSEventManagerInterface
 		// Absolute path to the directory containing all extensions
 		extensionDir string
-		// Yaegi interpreter for Go extensions
-		yaegiInterp *interp.Interpreter
 		// Store all active Goja VMs
 		// - When reloading extensions, all VMs are interrupted
 		gojaExtensions *result.Map[string, GojaExtension]
+
+		gojaRuntimeManager *goja_runtime.Manager
 		// Extension bank
 		// - When reloading extensions, external extensions are removed & re-added
 		extensionBank *extension.UnifiedBank
@@ -53,10 +51,10 @@ type (
 	}
 
 	MangaProviderExtensionItem struct {
-		ID       string                       `json:"id"`
-		Name     string                       `json:"name"`
-		Lang     string                       `json:"lang"` // ISO 639-1 language code
-		Settings vendor_hibike_manga.Settings `json:"settings"`
+		ID       string               `json:"id"`
+		Name     string               `json:"name"`
+		Lang     string               `json:"lang"` // ISO 639-1 language code
+		Settings hibikemanga.Settings `json:"settings"`
 	}
 
 	OnlinestreamProviderExtensionItem struct {
@@ -68,10 +66,10 @@ type (
 	}
 
 	AnimeTorrentProviderExtensionItem struct {
-		ID       string                                      `json:"id"`
-		Name     string                                      `json:"name"`
-		Lang     string                                      `json:"lang"` // ISO 639-1 language code
-		Settings vendor_hibike_torrent.AnimeProviderSettings `json:"settings"`
+		ID       string                              `json:"id"`
+		Name     string                              `json:"name"`
+		Lang     string                              `json:"lang"` // ISO 639-1 language code
+		Settings hibiketorrent.AnimeProviderSettings `json:"settings"`
 	}
 )
 
@@ -88,16 +86,15 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 	_ = os.MkdirAll(opts.ExtensionDir, os.ModePerm)
 
 	ret := &Repository{
-		logger:            opts.Logger,
-		extensionDir:      opts.ExtensionDir,
-		wsEventManager:    opts.WSEventManager,
-		gojaExtensions:    result.NewResultMap[string, GojaExtension](),
-		extensionBank:     extension.NewUnifiedBank(),
-		invalidExtensions: result.NewResultMap[string, *extension.InvalidExtension](),
-		fileCacher:        opts.FileCacher,
+		logger:             opts.Logger,
+		extensionDir:       opts.ExtensionDir,
+		wsEventManager:     opts.WSEventManager,
+		gojaExtensions:     result.NewResultMap[string, GojaExtension](),
+		gojaRuntimeManager: goja_runtime.NewManager(opts.Logger, 5),
+		extensionBank:      extension.NewUnifiedBank(),
+		invalidExtensions:  result.NewResultMap[string, *extension.InvalidExtension](),
+		fileCacher:         opts.FileCacher,
 	}
-
-	ret.loadYaegiInterpreter()
 
 	return ret
 }
@@ -153,13 +150,10 @@ func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.MangaProviderExtension) bool {
 		ret = append(ret, &MangaProviderExtensionItem{
-			ID:   ext.GetID(),
-			Name: ext.GetName(),
-			Lang: extension.GetExtensionLang(ext.GetLang()),
-			Settings: vendor_hibike_manga.Settings{
-				SupportsMultiScanlator: ext.GetProvider().GetSettings().SupportsMultiScanlator,
-				SupportsMultiLanguage:  ext.GetProvider().GetSettings().SupportsMultiLanguage,
-			},
+			ID:       ext.GetID(),
+			Name:     ext.GetName(),
+			Lang:     extension.GetExtensionLang(ext.GetLang()),
+			Settings: ext.GetProvider().GetSettings(),
 		})
 		return true
 	})
@@ -192,12 +186,12 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
 			Lang: extension.GetExtensionLang(ext.GetLang()),
-			Settings: vendor_hibike_torrent.AnimeProviderSettings{
-				Type:           vendor_hibike_torrent.AnimeProviderType(ext.GetProvider().GetSettings().Type),
+			Settings: hibiketorrent.AnimeProviderSettings{
+				Type:           ext.GetProvider().GetSettings().Type,
 				CanSmartSearch: ext.GetProvider().GetSettings().CanSmartSearch,
 				SupportsAdult:  ext.GetProvider().GetSettings().SupportsAdult,
-				SmartSearchFilters: lo.Map(ext.GetProvider().GetSettings().SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) vendor_hibike_torrent.AnimeProviderSmartSearchFilter {
-					return vendor_hibike_torrent.AnimeProviderSmartSearchFilter(value)
+				SmartSearchFilters: lo.Map(ext.GetProvider().GetSettings().SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) hibiketorrent.AnimeProviderSmartSearchFilter {
+					return value
 				}),
 			},
 		})

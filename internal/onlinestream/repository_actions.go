@@ -3,8 +3,8 @@ package onlinestream
 import (
 	"errors"
 	"fmt"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"seanime/internal/extension"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/onlinestream/providers"
 	"seanime/internal/util/comparison"
 	"strings"

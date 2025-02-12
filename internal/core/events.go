@@ -1,11 +1,12 @@
-package hook
+package core
 
 import (
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 )
 
 type AnimeLibraryCollectionRequestEvent struct {
-	Event
+	hook.Event
 
 	LibraryCollection *anime.LibraryCollection
 }
@@ -20,6 +21,6 @@ type AnimeLibraryCollectionRequestEvent struct {
 	})
 **/
 
-func (m *HookManager) OnRequestAnimeLibraryCollection() *Hook[*AnimeLibraryCollectionRequestEvent] {
-	return m.onRequestAnimeLibraryCollection
-}
+// func (a *App) OnRequestAnimeLibraryCollection() *hook.Hook[*AnimeLibraryCollectionRequestEvent] {
+// 	return a.HookManager.onRequestAnimeLibraryCollection
+// }

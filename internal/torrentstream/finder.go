@@ -10,9 +10,9 @@ import (
 	"slices"
 	"time"
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/anacrolix/torrent"
 	"github.com/samber/lo"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 var (

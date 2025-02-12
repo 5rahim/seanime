@@ -6,8 +6,9 @@ import "github.com/rs/zerolog"
 type HookManager struct {
 	logger *zerolog.Logger
 
-	// Anime Library
-	onRequestAnimeLibraryCollection *Hook[*AnimeLibraryCollectionRequestEvent]
+	// AniList Platform
+	onGetBaseAnime      *Hook[Resolver]
+	onGetBaseAnimeError *Hook[Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -21,5 +22,5 @@ func NewHookManager(opts NewHookManagerOptions) *HookManager {
 }
 
 func (m *HookManager) initHooks() {
-	m.onRequestAnimeLibraryCollection = &Hook[*AnimeLibraryCollectionRequestEvent]{}
+	m.initAniListPlatformHooks()
 }

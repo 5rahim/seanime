@@ -4,8 +4,8 @@ import (
 	"seanime/internal/util"
 	"testing"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/stretchr/testify/assert"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 func TestWeebCentral_Search(t *testing.T) {

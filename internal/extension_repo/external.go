@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -14,6 +14,8 @@ import (
 	"seanime/internal/util"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,6 +55,17 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 		return nil, fmt.Errorf("failed to parse extension manifest, %w", err)
 	}
 
+	// Before sanity check, fetch the payload if needed
+	if ext.PayloadURI != "" {
+		r.logger.Debug().Str("id", ext.ID).Msg("extensions: Downloading payload")
+		payloadFromURI, err := r.downloadPayload(ext.PayloadURI)
+		if err != nil {
+			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to download payload")
+			return nil, fmt.Errorf("failed to download payload, %w", err)
+		}
+		ext.Payload = payloadFromURI
+	}
+
 	// Check manifest
 	if err = manifestSanityCheck(&ext); err != nil {
 		r.logger.Error().Err(err).Str("uri", manifestURI).Msg("extensions: Failed sanity check")
@@ -62,6 +75,36 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 	return &ext, nil
 }
 
+func (r *Repository) downloadPayload(uri string) (string, error) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to create HTTP request, %w", err)
+	}
+
+	// Download the payload
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to download payload, %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the payload
+	payload, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read payload, %w", err)
+	}
+
+	return string(payload), nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Install external extension
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type ExtensionInstallResponse struct {
@@ -126,6 +169,8 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Uninstall external extension
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) UninstallExternalExtension(id string) error {
 
@@ -161,6 +206,8 @@ func (r *Repository) UninstallExternalExtension(id string) error {
 	return nil
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Check for updates
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // checkForUpdates checks all extensions for updates by querying their respective repositories.
@@ -216,6 +263,8 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 	return
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Update extension code
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // UpdateExtensionCode updates the code of an external application

@@ -1,8 +1,8 @@
 package torrentstream
 
 import (
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"seanime/internal/database/db_bridge"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 )
 

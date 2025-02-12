@@ -3,7 +3,6 @@ package onlinestream_providers
 import (
 	"cmp"
 	"fmt"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/goccy/go-json"
 	"github.com/gocolly/colly"
@@ -11,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	onlinestream_sources "seanime/internal/onlinestream/sources"
 	"seanime/internal/util"
 	"sort"

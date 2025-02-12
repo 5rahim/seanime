@@ -19,7 +19,7 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 // WeebCentral implements the manga provider for WeebCentral

@@ -2,6 +2,9 @@ package extension_repo
 
 import (
 	"errors"
+	"seanime/internal/extension"
+	goja_bindings "seanime/internal/goja/goja_bindings"
+
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	gojabuffer "github.com/dop251/goja_nodejs/buffer"
@@ -9,8 +12,6 @@ import (
 	gojaurl "github.com/dop251/goja_nodejs/url"
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/rs/zerolog"
-	"seanime/internal/extension"
-	"seanime/internal/extension_repo/goja_bindings"
 )
 
 // GojaExtension is stored in the repository extension map, giving access to the VMs.

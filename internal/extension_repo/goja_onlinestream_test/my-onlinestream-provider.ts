@@ -1,6 +1,6 @@
 /// <reference path="./onlinestream-provider.d.ts" />
-/// <reference path="../goja_bindings/doc.d.ts" />
-/// <reference path="../goja_bindings/crypto.d.ts" />
+/// <reference path="../../goja/goja_bindings/js/doc.d.ts" />
+/// <reference path="../../goja/goja_bindings/js/crypto.d.ts" />
 
 class ProviderN {
 

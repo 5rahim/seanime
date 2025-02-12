@@ -14,8 +14,6 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 	defer util.HandlePanicInModuleWithError("extension_repo/loadExternalOnlinestreamProviderExtension", &err)
 
 	switch ext.Language {
-	case extension.LanguageGo:
-		err = r.loadExternalOnlinestreamProviderExtensionGo(ext)
 	case extension.LanguageJavascript:
 		err = r.loadExternalOnlinestreamExtensionJS(ext, extension.LanguageJavascript)
 	case extension.LanguageTypescript:
@@ -29,19 +27,6 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 	}
 
 	return
-}
-
-func (r *Repository) loadExternalOnlinestreamProviderExtensionGo(ext *extension.Extension) error {
-
-	provider, err := NewYaegiOnlinestreamProvider(r.yaegiInterp, ext, r.logger)
-	if err != nil {
-		return err
-	}
-
-	// Add the extension to the map
-	retExt := extension.NewOnlinestreamProviderExtension(ext, provider)
-	r.extensionBank.Set(ext.ID, retExt)
-	return nil
 }
 
 func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extension, language extension.Language) error {

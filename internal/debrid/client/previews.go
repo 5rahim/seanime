@@ -3,9 +3,9 @@ package debrid_client
 import (
 	"fmt"
 	"github.com/5rahim/habari"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"seanime/internal/api/anilist"
 	"seanime/internal/debrid/debrid"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"sync"

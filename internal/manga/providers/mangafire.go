@@ -2,11 +2,11 @@ package manga_providers
 
 import (
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/gocolly/colly"
 	"github.com/rs/zerolog"
 	"net/http"
 	"net/url"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"strings"

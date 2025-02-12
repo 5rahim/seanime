@@ -11,8 +11,8 @@ import (
 	"slices"
 	"strconv"
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/samber/lo"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.CompleteAnime, episodeNumber int) (selectedTorrent *hibiketorrent.AnimeTorrent, fileId string, err error) {

@@ -2,11 +2,11 @@ package sync
 
 import (
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/rs/zerolog"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/library/anime"
 	"seanime/internal/manga"
 	"slices"

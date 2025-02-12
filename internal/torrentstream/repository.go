@@ -2,7 +2,6 @@ package torrentstream
 
 import (
 	"errors"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 	"net/http"
@@ -13,6 +12,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"

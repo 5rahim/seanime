@@ -2,9 +2,10 @@ package goja_bindings
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
-	"strings"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +36,7 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 	defer func() {
 		if r := recover(); r != nil {
 			c.logger.Error().Msgf("extension: Panic from console: %v", r)
-			ret = func(call goja.FunctionCall) goja.Value {
+			ret = func(_ goja.FunctionCall) goja.Value {
 				return goja.Undefined()
 			}
 		}

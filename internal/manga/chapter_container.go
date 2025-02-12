@@ -17,7 +17,7 @@ import (
 
 	"github.com/samber/lo"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type (

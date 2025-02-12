@@ -3,14 +3,15 @@ package anilist_platform
 import (
 	"context"
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 type (
@@ -134,9 +135,13 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	ap.logger.Trace().Msg("anilist platform: Fetching anime")
 	ret, err := ap.anilistClient.BaseAnimeByID(context.Background(), &mediaID)
 	if err != nil {
+
 		return nil, err
 	}
-	return ret.GetMedia(), nil
+
+	media := ret.GetMedia()
+
+	return media, nil
 }
 
 func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error) {
@@ -145,6 +150,7 @@ func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error
 	if err != nil {
 		return nil, err
 	}
+
 	return ret.GetMedia(), nil
 }
 

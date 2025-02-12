@@ -2,12 +2,12 @@ package torrentstream
 
 import (
 	"fmt"
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/anacrolix/torrent"
 	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"strconv"

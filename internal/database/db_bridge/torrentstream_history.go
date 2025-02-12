@@ -1,10 +1,10 @@
 package db_bridge
 
 import (
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	"github.com/goccy/go-json"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 func GetTorrentstreamHistory(db *db.Database, mId int) (*hibiketorrent.AnimeTorrent, error) {

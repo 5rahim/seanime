@@ -4,7 +4,7 @@ package mediaplayer_testdir
 //	"fmt"
 //	"strings"
 //
-//	hibikemediaplayer "github.com/5rahim/hibike/pkg/extension/mediaplayer"
+//	hibikemediaplayer "seanime/internal/extension/hibike/mediaplayer"
 //)
 //
 //type (

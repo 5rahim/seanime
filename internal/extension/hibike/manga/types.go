@@ -1,4 +1,4 @@
-package vendor_hibike_manga
+package hibikemanga
 
 type (
 	Provider interface {

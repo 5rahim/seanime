@@ -3,7 +3,6 @@ package chapter_downloader
 import (
 	"bytes"
 	"fmt"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 	_ "golang.org/x/image/bmp"  // Register BMP format
@@ -18,6 +17,7 @@ import (
 	"path/filepath"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"strconv"

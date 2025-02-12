@@ -2,13 +2,14 @@ package extension_repo
 
 import (
 	"fmt"
-	"github.com/dop251/goja"
-	"github.com/rs/zerolog"
 	"seanime/internal/extension"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	"github.com/dop251/goja"
+	"github.com/rs/zerolog"
+
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type (

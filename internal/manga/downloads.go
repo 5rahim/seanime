@@ -2,11 +2,11 @@ package manga
 
 import (
 	"cmp"
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
 	"github.com/goccy/go-json"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 	"seanime/internal/manga/downloader"
 	"slices"
 )

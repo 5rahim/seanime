@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	hibiketorrent "github.com/5rahim/hibike/pkg/extension/torrent"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 const (

@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	torrent "github.com/5rahim/hibike/pkg/extension/torrent"
 	bypass "github.com/5rahim/hibike/pkg/util/bypass"
 	"github.com/rs/zerolog"
+	torrent "seanime/internal/extension/hibike/torrent"
 )
 
 type (

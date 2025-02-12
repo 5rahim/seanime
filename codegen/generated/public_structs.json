@@ -26220,6 +26220,29 @@
     "comments": []
   },
   {
+    "filepath": "../internal/core/events.go",
+    "filename": "events.go",
+    "name": "AnimeLibraryCollectionRequestEvent",
+    "formattedName": "INTERNAL_AnimeLibraryCollectionRequestEvent",
+    "package": "core",
+    "fields": [
+      {
+        "name": "LibraryCollection",
+        "jsonName": "LibraryCollection",
+        "goType": "anime.LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook.Event"
+    ]
+  },
+  {
     "filepath": "../internal/core/feature_flags.go",
     "filename": "feature_flags.go",
     "name": "FeatureFlags",
@@ -31566,7 +31589,8 @@
       "declaredValues": [
         "\"anime-torrent-provider\"",
         "\"manga-provider\"",
-        "\"onlinestream-provider\""
+        "\"onlinestream-provider\"",
+        "\"plugin\""
       ]
     },
     "comments": []
@@ -31737,6 +31761,15 @@
       {
         "name": "Payload",
         "jsonName": "payload",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PayloadURI",
+        "jsonName": "payloadURI",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -31992,101 +32025,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/manga_provider.go",
-    "filename": "manga_provider.go",
-    "name": "MangaProviderExtensionImpl",
-    "formattedName": "Extension_MangaProviderExtensionImpl",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "ext",
-        "jsonName": "ext",
-        "goType": "Extension",
-        "typescriptType": "Extension_Extension",
-        "usedStructName": "extension.Extension",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "provider",
-        "jsonName": "provider",
-        "goType": "hibikemanga.Provider",
-        "typescriptType": "HibikeManga_Provider",
-        "usedStructName": "hibikemanga.Provider",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/onlinestream_provider.go",
-    "filename": "onlinestream_provider.go",
-    "name": "OnlinestreamProviderExtensionImpl",
-    "formattedName": "Extension_OnlinestreamProviderExtensionImpl",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "ext",
-        "jsonName": "ext",
-        "goType": "Extension",
-        "typescriptType": "Extension_Extension",
-        "usedStructName": "extension.Extension",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "provider",
-        "jsonName": "provider",
-        "goType": "hibikeonlinestream.Provider",
-        "typescriptType": "HibikeOnlinestream_Provider",
-        "usedStructName": "hibikeonlinestream.Provider",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/torrent_provider.go",
-    "filename": "torrent_provider.go",
-    "name": "AnimeTorrentProviderExtensionImpl",
-    "formattedName": "Extension_AnimeTorrentProviderExtensionImpl",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "ext",
-        "jsonName": "ext",
-        "goType": "Extension",
-        "typescriptType": "Extension_Extension",
-        "usedStructName": "extension.Extension",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "provider",
-        "jsonName": "provider",
-        "goType": "hibiketorrent.AnimeProvider",
-        "typescriptType": "HibikeTorrent_AnimeProvider",
-        "usedStructName": "hibiketorrent.AnimeProvider",
-        "required": false,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filepath": "../internal/extension/hibike/manga/types.go",
     "filename": "types.go",
     "name": "Settings",
     "formattedName": "HibikeManga_Settings",
-    "package": "vendor_hibike_manga",
+    "package": "hibikemanga",
     "fields": [
       {
         "name": "SupportsMultiScanlator",
@@ -32110,11 +32053,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filepath": "../internal/extension/hibike/manga/types.go",
     "filename": "types.go",
     "name": "SearchOptions",
     "formattedName": "HibikeManga_SearchOptions",
-    "package": "vendor_hibike_manga",
+    "package": "hibikemanga",
     "fields": [
       {
         "name": "Query",
@@ -32138,11 +32081,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filepath": "../internal/extension/hibike/manga/types.go",
     "filename": "types.go",
     "name": "SearchResult",
     "formattedName": "HibikeManga_SearchResult",
-    "package": "vendor_hibike_manga",
+    "package": "hibikemanga",
     "fields": [
       {
         "name": "Provider",
@@ -32211,11 +32154,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filepath": "../internal/extension/hibike/manga/types.go",
     "filename": "types.go",
     "name": "ChapterDetails",
     "formattedName": "HibikeManga_ChapterDetails",
-    "package": "vendor_hibike_manga",
+    "package": "hibikemanga",
     "fields": [
       {
         "name": "Provider",
@@ -32311,11 +32254,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/manga/types.go",
+    "filepath": "../internal/extension/hibike/manga/types.go",
     "filename": "types.go",
     "name": "ChapterPage",
     "formattedName": "HibikeManga_ChapterPage",
-    "package": "vendor_hibike_manga",
+    "package": "hibikemanga",
     "fields": [
       {
         "name": "Provider",
@@ -32357,11 +32300,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "SearchOptions",
     "formattedName": "HibikeOnlinestream_SearchOptions",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "Query",
@@ -32394,11 +32337,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "Settings",
     "formattedName": "HibikeOnlinestream_Settings",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "EpisodeServers",
@@ -32422,11 +32365,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "SearchResult",
     "formattedName": "HibikeOnlinestream_SearchResult",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "ID",
@@ -32460,7 +32403,7 @@
         "jsonName": "subOrDub",
         "goType": "SubOrDub",
         "typescriptType": "HibikeOnlinestream_SubOrDub",
-        "usedStructName": "vendor_hibike_onlinestream.SubOrDub",
+        "usedStructName": "hibikeonlinestream.SubOrDub",
         "required": true,
         "public": true,
         "comments": []
@@ -32469,11 +32412,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "EpisodeDetails",
     "formattedName": "HibikeOnlinestream_EpisodeDetails",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "Provider",
@@ -32524,11 +32467,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "EpisodeServer",
     "formattedName": "HibikeOnlinestream_EpisodeServer",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "Provider",
@@ -32562,7 +32505,7 @@
         "jsonName": "videoSources",
         "goType": "[]VideoSource",
         "typescriptType": "Array\u003cHibikeOnlinestream_VideoSource\u003e",
-        "usedStructName": "vendor_hibike_onlinestream.VideoSource",
+        "usedStructName": "hibikeonlinestream.VideoSource",
         "required": false,
         "public": true,
         "comments": []
@@ -32571,11 +32514,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "SubOrDub",
     "formattedName": "HibikeOnlinestream_SubOrDub",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -32589,11 +32532,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSourceType",
     "formattedName": "HibikeOnlinestream_VideoSourceType",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -32606,11 +32549,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSource",
     "formattedName": "HibikeOnlinestream_VideoSource",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "URL",
@@ -32626,7 +32569,7 @@
         "jsonName": "type",
         "goType": "VideoSourceType",
         "typescriptType": "HibikeOnlinestream_VideoSourceType",
-        "usedStructName": "vendor_hibike_onlinestream.VideoSourceType",
+        "usedStructName": "hibikeonlinestream.VideoSourceType",
         "required": true,
         "public": true,
         "comments": []
@@ -32645,7 +32588,7 @@
         "jsonName": "subtitles",
         "goType": "[]VideoSubtitle",
         "typescriptType": "Array\u003cHibikeOnlinestream_VideoSubtitle\u003e",
-        "usedStructName": "vendor_hibike_onlinestream.VideoSubtitle",
+        "usedStructName": "hibikeonlinestream.VideoSubtitle",
         "required": false,
         "public": true,
         "comments": []
@@ -32654,11 +32597,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/onlinestream/types.go",
+    "filepath": "../internal/extension/hibike/onlinestream/types.go",
     "filename": "types.go",
     "name": "VideoSubtitle",
     "formattedName": "HibikeOnlinestream_VideoSubtitle",
-    "package": "vendor_hibike_onlinestream",
+    "package": "hibikeonlinestream",
     "fields": [
       {
         "name": "ID",
@@ -32700,11 +32643,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "AnimeProviderType",
     "formattedName": "HibikeTorrent_AnimeProviderType",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -32717,11 +32660,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "AnimeProviderSmartSearchFilter",
     "formattedName": "HibikeTorrent_AnimeProviderSmartSearchFilter",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [],
     "aliasOf": {
       "goType": "string",
@@ -32737,11 +32680,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "AnimeProviderSettings",
     "formattedName": "HibikeTorrent_AnimeProviderSettings",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [
       {
         "name": "CanSmartSearch",
@@ -32757,7 +32700,7 @@
         "jsonName": "smartSearchFilters",
         "goType": "[]AnimeProviderSmartSearchFilter",
         "typescriptType": "Array\u003cHibikeTorrent_AnimeProviderSmartSearchFilter\u003e",
-        "usedStructName": "vendor_hibike_torrent.AnimeProviderSmartSearchFilter",
+        "usedStructName": "hibiketorrent.AnimeProviderSmartSearchFilter",
         "required": false,
         "public": true,
         "comments": []
@@ -32776,7 +32719,7 @@
         "jsonName": "type",
         "goType": "AnimeProviderType",
         "typescriptType": "HibikeTorrent_AnimeProviderType",
-        "usedStructName": "vendor_hibike_torrent.AnimeProviderType",
+        "usedStructName": "hibiketorrent.AnimeProviderType",
         "required": true,
         "public": true,
         "comments": []
@@ -32785,11 +32728,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "Media",
     "formattedName": "HibikeTorrent_Media",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [
       {
         "name": "ID",
@@ -32886,7 +32829,7 @@
         "jsonName": "startDate",
         "goType": "FuzzyDate",
         "typescriptType": "HibikeTorrent_FuzzyDate",
-        "usedStructName": "vendor_hibike_torrent.FuzzyDate",
+        "usedStructName": "hibiketorrent.FuzzyDate",
         "required": false,
         "public": true,
         "comments": []
@@ -32895,11 +32838,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "FuzzyDate",
     "formattedName": "HibikeTorrent_FuzzyDate",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [
       {
         "name": "Year",
@@ -32932,18 +32875,18 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "AnimeSearchOptions",
     "formattedName": "HibikeTorrent_AnimeSearchOptions",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [
       {
         "name": "Media",
         "jsonName": "media",
         "goType": "Media",
         "typescriptType": "HibikeTorrent_Media",
-        "usedStructName": "vendor_hibike_torrent.Media",
+        "usedStructName": "hibiketorrent.Media",
         "required": true,
         "public": true,
         "comments": []
@@ -32961,18 +32904,18 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "AnimeSmartSearchOptions",
     "formattedName": "HibikeTorrent_AnimeSmartSearchOptions",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [
       {
         "name": "Media",
         "jsonName": "media",
         "goType": "Media",
         "typescriptType": "HibikeTorrent_Media",
-        "usedStructName": "vendor_hibike_torrent.Media",
+        "usedStructName": "hibiketorrent.Media",
         "required": true,
         "public": true,
         "comments": []
@@ -33044,11 +32987,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/torrent/types.go",
+    "filepath": "../internal/extension/hibike/torrent/types.go",
     "filename": "types.go",
     "name": "AnimeTorrent",
     "formattedName": "HibikeTorrent_AnimeTorrent",
-    "package": "vendor_hibike_torrent",
+    "package": "hibiketorrent",
     "fields": [
       {
         "name": "Provider",
@@ -33216,11 +33159,11 @@
     "comments": []
   },
   {
-    "filepath": "../internal/extension/vendoring/vendor_extension.go",
+    "filepath": "../internal/extension/hibike/vendor_extension.go",
     "filename": "vendor_extension.go",
     "name": "SelectOption",
-    "formattedName": "HibikeExtension_SelectOption",
-    "package": "vendor_hibike_extension",
+    "formattedName": "SelectOption",
+    "package": "hibikextension",
     "fields": [
       {
         "name": "Value",
@@ -33238,6 +33181,96 @@
         "typescriptType": "string",
         "required": true,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/manga_provider.go",
+    "filename": "manga_provider.go",
+    "name": "MangaProviderExtensionImpl",
+    "formattedName": "Extension_MangaProviderExtensionImpl",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "hibikemanga.Provider",
+        "typescriptType": "HibikeManga_Provider",
+        "usedStructName": "hibikemanga.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/onlinestream_provider.go",
+    "filename": "onlinestream_provider.go",
+    "name": "OnlinestreamProviderExtensionImpl",
+    "formattedName": "Extension_OnlinestreamProviderExtensionImpl",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "hibikeonlinestream.Provider",
+        "typescriptType": "HibikeOnlinestream_Provider",
+        "usedStructName": "hibikeonlinestream.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/torrent_provider.go",
+    "filename": "torrent_provider.go",
+    "name": "AnimeTorrentProviderExtensionImpl",
+    "formattedName": "Extension_AnimeTorrentProviderExtensionImpl",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "provider",
+        "jsonName": "provider",
+        "goType": "hibiketorrent.AnimeProvider",
+        "typescriptType": "HibikeTorrent_AnimeProvider",
+        "usedStructName": "hibiketorrent.AnimeProvider",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -33472,6 +33505,57 @@
     ]
   },
   {
+    "filepath": "../internal/extension_repo/goja_plugin.go",
+    "filename": "goja_plugin.go",
+    "name": "GojaPlugin",
+    "formattedName": "ExtensionRepo_GojaPlugin",
+    "package": "extension_repo",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "extension_repo.gojaExtensionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/extension_repo/goja_runtime_pool.go",
+    "filename": "goja_runtime_pool.go",
+    "name": "RuntimePool",
+    "formattedName": "ExtensionRepo_RuntimePool",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "pool",
+        "jsonName": "pool",
+        "goType": "sync.Pool",
+        "typescriptType": "Sync_Pool",
+        "usedStructName": "sync.Pool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "maxSize",
+        "jsonName": "maxSize",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
     "name": "Repository",
@@ -33518,20 +33602,20 @@
         "comments": []
       },
       {
-        "name": "yaegiInterp",
-        "jsonName": "yaegiInterp",
-        "goType": "interp.Interpreter",
-        "typescriptType": "Interpreter",
-        "usedStructName": "interp.Interpreter",
+        "name": "gojaExtensions",
+        "jsonName": "gojaExtensions",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": []
       },
       {
-        "name": "gojaExtensions",
-        "jsonName": "gojaExtensions",
-        "goType": "",
-        "typescriptType": "any",
+        "name": "gojaRuntimeManager",
+        "jsonName": "gojaRuntimeManager",
+        "goType": "goja_runtime.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "goja_runtime.Manager",
         "required": false,
         "public": false,
         "comments": []
@@ -33684,9 +33768,9 @@
       {
         "name": "Settings",
         "jsonName": "settings",
-        "goType": "vendor_hibike_manga.Settings",
+        "goType": "hibikemanga.Settings",
         "typescriptType": "HibikeManga_Settings",
-        "usedStructName": "vendor_hibike_manga.Settings",
+        "usedStructName": "hibikemanga.Settings",
         "required": false,
         "public": true,
         "comments": []
@@ -33790,9 +33874,9 @@
       {
         "name": "Settings",
         "jsonName": "settings",
-        "goType": "vendor_hibike_torrent.AnimeProviderSettings",
+        "goType": "hibiketorrent.AnimeProviderSettings",
         "typescriptType": "HibikeTorrent_AnimeProviderSettings",
-        "usedStructName": "vendor_hibike_torrent.AnimeProviderSettings",
+        "usedStructName": "hibiketorrent.AnimeProviderSettings",
         "required": false,
         "public": true,
         "comments": []
@@ -34146,6 +34230,125 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/goja/goja_runtime/goja_runtime_manager.go",
+    "filename": "goja_runtime_manager.go",
+    "name": "Manager",
+    "formattedName": "Manager",
+    "package": "goja_runtime",
+    "fields": [
+      {
+        "name": "pools",
+        "jsonName": "pools",
+        "goType": "map[string]Pool",
+        "typescriptType": "Record\u003cstring, Pool\u003e",
+        "usedStructName": "goja_runtime.Pool",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Map of extension ID to pool"
+        ]
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "maxPerExt",
+        "jsonName": "maxPerExt",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/goja/goja_runtime/goja_runtime_manager.go",
+    "filename": "goja_runtime_manager.go",
+    "name": "Pool",
+    "formattedName": "Pool",
+    "package": "goja_runtime",
+    "fields": [
+      {
+        "name": "runtimes",
+        "jsonName": "runtimes",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "initFn",
+        "jsonName": "initFn",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "active",
+        "jsonName": "active",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "maxSize",
+        "jsonName": "maxSize",
+        "goType": "int32",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "metrics",
+        "jsonName": "metrics",
+        "goType": "metrics",
+        "typescriptType": "metrics",
+        "usedStructName": "goja_runtime.metrics",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Pool represents a pool of Goja runtimes for a specific extension"
+    ]
   },
   {
     "filepath": "../internal/handlers/directory_selector.go",
@@ -34887,29 +35090,6 @@
     ]
   },
   {
-    "filepath": "../internal/hook/events.go",
-    "filename": "events.go",
-    "name": "AnimeLibraryCollectionRequestEvent",
-    "formattedName": "AnimeLibraryCollectionRequestEvent",
-    "package": "hook",
-    "fields": [
-      {
-        "name": "LibraryCollection",
-        "jsonName": "LibraryCollection",
-        "goType": "anime.LibraryCollection",
-        "typescriptType": "Anime_LibraryCollection",
-        "usedStructName": "anime.LibraryCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "hook.Event"
-    ]
-  },
-  {
     "filepath": "../internal/hook/hook.go",
     "filename": "hook.go",
     "name": "Handler",
@@ -35017,8 +35197,17 @@
         "comments": []
       },
       {
-        "name": "onRequestAnimeLibraryCollection",
-        "jsonName": "onRequestAnimeLibraryCollection",
+        "name": "onGetBaseAnime",
+        "jsonName": "onGetBaseAnime",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetBaseAnimeError",
+        "jsonName": "onGetBaseAnimeError",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -35049,6 +35238,28 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/hook/tagged.go",
+    "filename": "tagged.go",
+    "name": "TaggedHook",
+    "formattedName": "TaggedHook",
+    "package": "hook",
+    "fields": [
+      {
+        "name": "tags",
+        "jsonName": "tags",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " TaggedHook defines a proxy hook which register handlers that are triggered only",
+      " if the TaggedHook.tags are empty or includes at least one of the event data tag(s)."
+    ]
   },
   {
     "filepath": "../internal/library/anime/autodownloader_rule.go",
@@ -47444,6 +47655,52 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/events.go",
+    "filename": "events.go",
+    "name": "GetBaseAnimeEvent",
+    "formattedName": "GetBaseAnimeEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "Anime",
+        "jsonName": "Anime",
+        "goType": "anilist.BaseAnime",
+        "typescriptType": "AL_BaseAnime",
+        "usedStructName": "anilist.BaseAnime",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/events.go",
+    "filename": "events.go",
+    "name": "GetBaseAnimeErrorEvent",
+    "formattedName": "GetBaseAnimeErrorEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "Error",
+        "jsonName": "Error",
+        "goType": "error",
+        "typescriptType": "error",
+        "usedStructName": "anilist_platform.error",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook.Event"
+    ]
   },
   {
     "filepath": "../internal/platforms/local_platform/local_platform.go",

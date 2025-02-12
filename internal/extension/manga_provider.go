@@ -1,7 +1,7 @@
 package extension
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikemanga "seanime/internal/extension/hibike/manga"
 )
 
 type MangaProviderExtension interface {
@@ -83,4 +83,8 @@ func (m *MangaProviderExtensionImpl) GetScopes() []string {
 
 func (m *MangaProviderExtensionImpl) GetUserConfig() *UserConfig {
 	return m.ext.UserConfig
+}
+
+func (m *MangaProviderExtensionImpl) GetPayloadURI() string {
+	return m.ext.PayloadURI
 }

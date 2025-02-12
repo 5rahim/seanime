@@ -29,9 +29,9 @@ func SliceStrTo(slice string, idx int) (ret string, ok bool) {
 }
 
 // Contains checks if a string slice contains a specific string
-func Contains(slice []string, str string) bool {
+func Contains[T comparable](slice []T, item T) bool {
 	for _, s := range slice {
-		if s == str {
+		if s == item {
 			return true
 		}
 	}
