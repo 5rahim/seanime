@@ -3,9 +3,6 @@ package extension_playground
 import (
 	"bytes"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -22,15 +19,22 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+
+	goja_runtime "seanime/internal/goja/goja_runtime"
 )
 
 type (
 	PlaygroundRepository struct {
-		logger           *zerolog.Logger
-		platform         platform.Platform
-		baseAnimeCache   *result.Cache[int, *anilist.BaseAnime]
-		baseMangaCache   *result.Cache[int, *anilist.BaseManga]
-		metadataProvider metadata.Provider
+		logger             *zerolog.Logger
+		platform           platform.Platform
+		baseAnimeCache     *result.Cache[int, *anilist.BaseAnime]
+		baseMangaCache     *result.Cache[int, *anilist.BaseManga]
+		metadataProvider   metadata.Provider
+		gojaRuntimeManager *goja_runtime.Manager
 	}
 
 	RunPlaygroundCodeResponse struct {
@@ -49,11 +53,12 @@ type (
 
 func NewPlaygroundRepository(logger *zerolog.Logger, platform platform.Platform, metadataProvider metadata.Provider) *PlaygroundRepository {
 	return &PlaygroundRepository{
-		logger:           logger,
-		platform:         platform,
-		metadataProvider: metadataProvider,
-		baseAnimeCache:   result.NewCache[int, *anilist.BaseAnime](),
-		baseMangaCache:   result.NewCache[int, *anilist.BaseManga](),
+		logger:             logger,
+		platform:           platform,
+		metadataProvider:   metadataProvider,
+		baseAnimeCache:     result.NewCache[int, *anilist.BaseAnime](),
+		baseMangaCache:     result.NewCache[int, *anilist.BaseManga](),
+		gojaRuntimeManager: goja_runtime.NewManager(logger, 10),
 	}
 }
 
@@ -219,7 +224,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaAnimeTorrentProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
 		if err != nil {
 			return nil, err
 		}
@@ -334,7 +339,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaMangaProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}
@@ -409,7 +414,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 	case extension.LanguageGo:
 	//...
 	case extension.LanguageJavascript, extension.LanguageTypescript:
-		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, logger.logger)
+		_, provider, err := extension_repo.NewGojaOnlinestreamProvider(ext, params.Language, logger.logger, r.gojaRuntimeManager)
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}

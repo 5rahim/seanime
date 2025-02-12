@@ -30,14 +30,10 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 }
 
 func (r *Repository) loadExternalOnlinestreamExtensionJS(ext *extension.Extension, language extension.Language) error {
-
-	provider, gojaExt, err := NewGojaOnlinestreamProvider(ext, language, r.logger)
+	provider, _, err := NewGojaOnlinestreamProvider(ext, language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
-
-	// Add the goja extension pointer to the map
-	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
 	retExt := extension.NewOnlinestreamProviderExtension(ext, provider)

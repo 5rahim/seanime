@@ -1,7 +1,7 @@
 package extension_repo
 
 import (
-	"errors"
+	"fmt"
 	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
 
@@ -18,87 +18,82 @@ import (
 // Current use: Kill the VM when the extension is unloaded.
 type GojaExtension interface {
 	GetVM() *goja.Runtime
+	PutVM(*goja.Runtime)
 }
 
 // SetupGojaExtensionVM creates a new JavaScript VM with the extension source code loaded
-func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (*goja.Runtime, error) {
-	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM for external manga provider")
-
-	vm, err := CreateJSVM(logger)
-	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to create javascript VM")
-		return nil, err
-	}
+func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (func() (*goja.Runtime, error), error) {
+	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM")
 
 	source := ext.Payload
-
 	if language == extension.LanguageTypescript {
+		var err error
 		source, err = JSVMTypescriptToJS(ext.Payload)
 		if err != nil {
-			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript to javascript")
+			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
 			return nil, err
 		}
 	}
 
-	// Run the program on the VM
-	_, err = vm.RunString(source)
+	// Compile the program once, to be reused by all VMs
+	program, err := goja.Compile("", source, false)
 	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to run javascript code")
-		return nil, err
+		return nil, fmt.Errorf("compilation failed: %w", err)
 	}
 
-	return vm, nil
-}
+	return func() (*goja.Runtime, error) {
+		vm := goja.New()
+		vm.SetParserOptions(parser.WithDisableSourceMaps)
 
-// CreateJSVM creates a new JavaScript VM for SetupGojaExtensionVM
-func CreateJSVM(logger *zerolog.Logger) (*goja.Runtime, error) {
+		registry := new(gojarequire.Registry)
+		registry.Enable(vm)
 
-	vm := goja.New()
-	vm.SetParserOptions(parser.WithDisableSourceMaps)
+		bindings := []struct {
+			name string
+			fn   func(*goja.Runtime) error
+		}{
+			{"url", func(vm *goja.Runtime) error { gojaurl.Enable(vm); return nil }},
+			{"buffer", func(vm *goja.Runtime) error { gojabuffer.Enable(vm); return nil }},
+			{"fetch", goja_bindings.BindFetch},
+			{"console", func(vm *goja.Runtime) error { return goja_bindings.BindConsole(vm, logger) }},
+			{"formData", goja_bindings.BindFormData},
+			{"document", goja_bindings.BindDocument},
+			{"crypto", goja_bindings.BindCrypto},
+			{"torrentUtils", goja_bindings.BindTorrentUtils},
+		}
 
-	registry := new(gojarequire.Registry)
-	registry.Enable(vm)
+		for _, binding := range bindings {
+			if err := binding.fn(vm); err != nil {
+				return nil, fmt.Errorf("failed to bind %s: %w", binding.name, err)
+			}
+		}
 
-	gojaurl.Enable(vm)
-	gojabuffer.Enable(vm)
-	err := goja_bindings.BindFetch(vm)
-	if err != nil {
-		return nil, err
-	}
-	err = goja_bindings.BindConsole(vm, logger)
-	if err != nil {
-		return nil, err
-	}
-	err = goja_bindings.BindFormData(vm)
-	if err != nil {
-		return nil, err
-	}
-	err = goja_bindings.BindDocument(vm)
-	if err != nil {
-		return nil, err
-	}
-	err = goja_bindings.BindCrypto(vm)
-	if err != nil {
-		return nil, err
-	}
-	err = goja_bindings.BindTorrentUtils(vm)
-	if err != nil {
-		return nil, err
-	}
+		_, err := vm.RunProgram(program)
+		if err != nil {
+			return nil, fmt.Errorf("failed to run program: %w", err)
+		}
 
-	return vm, nil
+		return vm, nil
+	}, nil
 }
 
 func JSVMTypescriptToJS(ts string) (string, error) {
-	scriptJSTransform := api.Transform(ts, api.TransformOptions{
-		Target: api.ES2018,
-		Loader: api.LoaderTS,
-		Format: api.FormatDefault,
+	result := api.Transform(ts, api.TransformOptions{
+		Target:           api.ES2018,
+		Loader:           api.LoaderTS,
+		Format:           api.FormatDefault,
+		MinifyWhitespace: true,
+		MinifySyntax:     true,
+		Sourcemap:        api.SourceMapNone,
 	})
 
-	if scriptJSTransform.Errors != nil && len(scriptJSTransform.Errors) > 0 {
-		return "", errors.New(scriptJSTransform.Errors[0].Text)
+	if len(result.Errors) > 0 {
+		var errMsgs []string
+		for _, err := range result.Errors {
+			errMsgs = append(errMsgs, err.Text)
+		}
+		return "", fmt.Errorf("typescript compilation errors: %v", errMsgs)
 	}
 
-	return string(scriptJSTransform.Code), nil
+	return string(result.Code), nil
 }

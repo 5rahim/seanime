@@ -1,60 +1,67 @@
 package extension_repo_test
 
 import (
+	"context"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/dop251/goja"
-	"github.com/stretchr/testify/require"
 	"os"
+	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
+	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/util"
 	"testing"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/dop251/goja"
+	"github.com/stretchr/testify/require"
 )
 
-func TestGojaDocument(t *testing.T) {
-
-	// VM
-	vm, err := extension_repo.CreateJSVM(util.NewLogger())
+func setupTestVM(t *testing.T) *goja.Runtime {
+	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
+	pool, err := runtimeManager.GetOrCreatePool("test", func() (*goja.Runtime, error) {
+		initFn, err := extension_repo.SetupGojaExtensionVM(nil, extension.LanguageTypescript, util.NewLogger())
+		if err != nil {
+			return nil, err
+		}
+		return initFn()
+	})
 	require.NoError(t, err)
+
+	vm, err := pool.Get(context.Background())
+	require.NoError(t, err)
+	return vm
+}
+
+func TestGojaDocument(t *testing.T) {
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
 
 	tests := []struct {
 		entry string
 	}{
-		{
-			entry: "./goja_bindings/goja_doc_test/doc-example.ts",
-		},
-		{
-			entry: "./goja_bindings/goja_doc_test/doc-example-2.ts",
-		},
+		{entry: "./goja_bindings/goja_doc_test/doc-example.ts"},
+		{entry: "./goja_bindings/goja_doc_test/doc-example-2.ts"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.entry, func(t *testing.T) {
 			fileB, err := os.ReadFile(tt.entry)
-			if err != nil {
-				t.Fatal(err)
-			}
+			require.NoError(t, err)
 
 			now := time.Now()
 
-			// Convert the typescript to javascript
 			source, err := extension_repo.JSVMTypescriptToJS(string(fileB))
 			require.NoError(t, err)
 
-			// Run the program on the VM
 			_, err = vm.RunString(source)
 			require.NoError(t, err)
 
-			_, err = vm.RunString(`function NewProvider() {
-    return new Provider()
-}`)
+			_, err = vm.RunString(`function NewProvider() { return new Provider() }`)
 			require.NoError(t, err)
 
 			newProviderFunc, ok := goja.AssertFunction(vm.Get("NewProvider"))
 			require.True(t, ok)
 
-			// Create the provider
 			classObjVal, err := newProviderFunc(goja.Undefined())
 			require.NoError(t, err)
 
@@ -81,16 +88,13 @@ func TestGojaDocument(t *testing.T) {
 			fmt.Println(time.Since(now).Seconds())
 		})
 	}
-
 }
 
 func TestGojaFormData(t *testing.T) {
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
 
-	// VM
-	vm, err := extension_repo.CreateJSVM(util.NewLogger())
-	require.NoError(t, err)
-
-	_, err = vm.RunString(`
+	_, err := vm.RunString(`
 var fd = new FormData();
 fd.append("name", "John Doe");
 fd.append("age", 30);
@@ -115,16 +119,13 @@ console.log("Content-Type:", contentType);
 console.log("Buffer:", buffer);
 	`)
 	require.NoError(t, err)
-
 }
 
 func TestGojaFormDataAndFetch(t *testing.T) {
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
 
-	// VM
-	vm, err := extension_repo.CreateJSVM(util.NewLogger())
-	require.NoError(t, err)
-
-	_, err = vm.RunString(`
+	_, err := vm.RunString(`
 async function run() {
 	const formData = new FormData();
 	formData.append("username", "John");
@@ -162,11 +163,9 @@ async function run() {
 	`)
 	require.NoError(t, err)
 
-	// Get the function
 	runFunc, ok := goja.AssertFunction(vm.Get("run"))
 	require.True(t, ok)
 
-	// Call the function
 	ret, err := runFunc(goja.Undefined())
 	require.NoError(t, err)
 
@@ -185,25 +184,19 @@ async function run() {
 }
 
 func TestGojaCrypto(t *testing.T) {
-
-	// VM
-	vm, err := extension_repo.CreateJSVM(util.NewLogger())
-	require.NoError(t, err)
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
 
 	filepath := "./goja_bindings/goja_crypto_test/crypto-example.ts"
 	fileB, err := os.ReadFile(filepath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	_, err = vm.RunString(string(fileB))
 	require.NoError(t, err)
 
-	// Get the function
 	runFunc, ok := goja.AssertFunction(vm.Get("run"))
 	require.True(t, ok)
 
-	// Call the function
 	ret, err := runFunc(goja.Undefined())
 	require.NoError(t, err)
 
@@ -220,25 +213,19 @@ func TestGojaCrypto(t *testing.T) {
 }
 
 func TestGojaTorrentUtils(t *testing.T) {
-
-	// VM
-	vm, err := extension_repo.CreateJSVM(util.NewLogger())
-	require.NoError(t, err)
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
 
 	filepath := "./goja_bindings/goja_torrent_test/torrent-utils-example.ts"
 	fileB, err := os.ReadFile(filepath)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 
 	_, err = vm.RunString(string(fileB))
 	require.NoError(t, err)
 
-	// Get the function
 	runFunc, ok := goja.AssertFunction(vm.Get("run"))
 	require.True(t, ok)
 
-	// Call the function
 	ret, err := runFunc(goja.Undefined())
 	require.NoError(t, err)
 

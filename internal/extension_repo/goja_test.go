@@ -1,18 +1,21 @@
 package extension_repo_test
 
 import (
-	"github.com/davecgh/go-spew/spew"
-	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
 	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
 	"seanime/internal/extension_repo"
+	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGojaWithExtension(t *testing.T) {
+	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
 	// Get the script
 	filepath := "./goja_manga_test/my-manga-provider.ts"
 	fileB, err := os.ReadFile(filepath)
@@ -33,7 +36,7 @@ func TestGojaWithExtension(t *testing.T) {
 	}
 
 	// Create the provider
-	provider, _, err := extension_repo.NewGojaMangaProvider(ext, ext.Language, util.NewLogger())
+	provider, _, err := extension_repo.NewGojaMangaProvider(ext, ext.Language, util.NewLogger(), runtimeManager)
 	require.NoError(t, err)
 
 	// Test the search function
@@ -78,6 +81,7 @@ func TestGojaWithExtension(t *testing.T) {
 }
 
 func TestGojaOnlinestreamExtension(t *testing.T) {
+	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
 	// Get the script
 	filepath := "./goja_onlinestream_test/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
@@ -98,7 +102,7 @@ func TestGojaOnlinestreamExtension(t *testing.T) {
 	}
 
 	// Create the provider
-	provider, _, err := extension_repo.NewGojaOnlinestreamProvider(ext, ext.Language, util.NewLogger())
+	provider, _, err := extension_repo.NewGojaOnlinestreamProvider(ext, ext.Language, util.NewLogger(), runtimeManager)
 	require.NoError(t, err)
 
 	// Test the search function
@@ -121,6 +125,7 @@ func TestGojaOnlinestreamExtension(t *testing.T) {
 }
 
 func TestGojaOnlinestreamExtension2(t *testing.T) {
+	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
 	// Get the script
 	filepath := "./goja_onlinestream_test/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
@@ -141,7 +146,7 @@ func TestGojaOnlinestreamExtension2(t *testing.T) {
 	}
 
 	// Create the provider
-	provider, _, err := extension_repo.NewGojaOnlinestreamProvider(ext, ext.Language, util.NewLogger())
+	provider, _, err := extension_repo.NewGojaOnlinestreamProvider(ext, ext.Language, util.NewLogger(), runtimeManager)
 	require.NoError(t, err)
 	// Find first episode server
 	server, err := provider.FindEpisodeServer(&hibikeonlinestream.EpisodeDetails{

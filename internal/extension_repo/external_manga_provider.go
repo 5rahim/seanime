@@ -27,14 +27,10 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 }
 
 func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {
-
-	provider, gojaExt, err := NewGojaMangaProvider(ext, language, r.logger)
+	provider, _, err := NewGojaMangaProvider(ext, language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
-
-	// Add the goja extension pointer to the map
-	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	// Add the extension to the map
 	retExt := extension.NewMangaProviderExtension(ext, provider)

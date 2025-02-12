@@ -85,33 +85,41 @@ func NewPool(maxSize int32, initFn func() (*goja.Runtime, error), logger *zerolo
 
 // Get gets a runtime from the pool or creates a new one
 func (p *Pool) Get(ctx context.Context) (*goja.Runtime, error) {
+	// If an idle runtime exists, use it.
 	select {
 	case runtime := <-p.runtimes:
 		p.metrics.reused.Add(1)
 		atomic.AddInt32(&p.active, 1)
 		return runtime, nil
 	default:
-		if atomic.LoadInt32(&p.active) >= p.maxSize {
-			// Wait for a runtime with timeout
-			select {
-			case runtime := <-p.runtimes:
-				p.metrics.reused.Add(1)
-				atomic.AddInt32(&p.active, 1)
-				return runtime, nil
-			case <-ctx.Done():
-				p.metrics.timeouts.Add(1)
-				return nil, ctx.Err()
+		// Try to reserve a spot for a new runtime atomically.
+		for {
+			cur := atomic.LoadInt32(&p.active)
+			if cur >= p.maxSize {
+				// Wait for an idle runtime to become available.
+				select {
+				case runtime := <-p.runtimes:
+					p.metrics.reused.Add(1)
+					atomic.AddInt32(&p.active, 1)
+					return runtime, nil
+				case <-ctx.Done():
+					p.metrics.timeouts.Add(1)
+					return nil, ctx.Err()
+				}
+			}
+			// Attempt to reserve a slot.
+			if atomic.CompareAndSwapInt32(&p.active, cur, cur+1) {
+				break
 			}
 		}
-
-		// Create new runtime
+		// Create a new runtime.
 		runtime, err := p.initFn()
 		if err != nil {
 			p.metrics.errors.Add(1)
+			atomic.AddInt32(&p.active, -1)
 			return nil, err
 		}
 		p.metrics.created.Add(1)
-		atomic.AddInt32(&p.active, 1)
 		return runtime, nil
 	}
 }
@@ -138,5 +146,32 @@ func (p *Pool) Cleanup() {
 	close(p.runtimes)
 	for runtime := range p.runtimes {
 		runtime.ClearInterrupt()
+	}
+}
+
+// Stats returns the pool's metrics.
+func (p *Pool) Stats() map[string]int64 {
+	return map[string]int64{
+		"created":  p.metrics.created.Load(),
+		"reused":   p.metrics.reused.Load(),
+		"errors":   p.metrics.errors.Load(),
+		"timeouts": p.metrics.timeouts.Load(),
+	}
+}
+
+// PrintMetrics logs metrics for each extension pool managed by the Manager.
+func (m *Manager) PrintMetrics() {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	for extID, pool := range m.pools {
+		stats := pool.Stats()
+		m.logger.Info().
+			Str("extension", extID).
+			Int64("created", stats["created"]).
+			Int64("reused", stats["reused"]).
+			Int64("errors", stats["errors"]).
+			Int64("timeouts", stats["timeouts"]).
+			Msg("VM Pool Metrics")
 	}
 }
