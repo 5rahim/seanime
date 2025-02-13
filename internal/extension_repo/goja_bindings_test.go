@@ -18,10 +18,10 @@ import (
 
 func setupTestVM(t *testing.T) *goja.Runtime {
 	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
-	pool, err := runtimeManager.GetOrCreatePool(func() (*goja.Runtime, error) {
+	pool, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
 		initFn, err := extension_repo.SetupGojaExtensionVM(nil, extension.LanguageTypescript, util.NewLogger())
 		if err != nil {
-			return nil, err
+			return nil
 		}
 		return initFn()
 	})

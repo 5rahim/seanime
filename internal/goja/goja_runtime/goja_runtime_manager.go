@@ -24,11 +24,19 @@ func NewManager(logger *zerolog.Logger, size int32) *Manager {
 }
 
 // GetOrCreatePool returns the shared pool.
-func (m *Manager) GetOrCreatePool(initFn func() (*goja.Runtime, error)) (*Pool, error) {
+func (m *Manager) GetOrCreatePool(initFn func() *goja.Runtime) (*Pool, error) {
 	if m.pool == nil {
 		m.pool = newPool(m.size, initFn, m.logger)
 	}
 	return m.pool, nil
+}
+
+func (m *Manager) Run(ctx context.Context, fn func(*goja.Runtime) error) error {
+	runtime, err := m.pool.Get(ctx)
+	if err != nil {
+		return err
+	}
+	return fn(runtime)
 }
 
 func (m *Manager) PrintMetrics() {
@@ -39,14 +47,13 @@ func (m *Manager) PrintMetrics() {
 	m.logger.Trace().
 		Int64("created", stats["created"]).
 		Int64("reused", stats["reused"]).
-		Int64("errors", stats["errors"]).
 		Int64("timeouts", stats["timeouts"]).
 		Msg("goja runtime: VM Pool Metrics")
 }
 
 type Pool struct {
 	sp      sync.Pool
-	factory func() (*goja.Runtime, error)
+	factory func() *goja.Runtime
 	logger  *zerolog.Logger
 	size    int32
 	metrics metrics
@@ -56,12 +63,11 @@ type Pool struct {
 type metrics struct {
 	created  atomic.Int64
 	reused   atomic.Int64
-	errors   atomic.Int64
 	timeouts atomic.Int64
 }
 
 // newPool creates a new Pool using sync.Pool, pre-warming it with size items.
-func newPool(size int32, initFn func() (*goja.Runtime, error), logger *zerolog.Logger) *Pool {
+func newPool(size int32, initFn func() *goja.Runtime, logger *zerolog.Logger) *Pool {
 	p := &Pool{
 		factory: initFn,
 		logger:  logger,
@@ -69,23 +75,13 @@ func newPool(size int32, initFn func() (*goja.Runtime, error), logger *zerolog.L
 	}
 
 	p.sp.New = func() interface{} {
-		runtime, err := initFn()
-		if err != nil {
-			p.metrics.errors.Add(1)
-			logger.Error().Err(err).Msg("goja runtime: Failed to create new runtime")
-			return nil
-		}
+		runtime := initFn()
 		p.metrics.created.Add(1)
 		return runtime
 	}
 
 	for i := int32(0); i < size; i++ {
-		r, err := initFn()
-		if err != nil {
-			p.metrics.errors.Add(1)
-			logger.Error().Err(err).Msg("goja runtime: Failed to prewarm runtime")
-			continue
-		}
+		r := initFn()
 		p.sp.Put(r)
 		p.metrics.created.Add(1)
 	}
@@ -104,11 +100,7 @@ func (p *Pool) Get(ctx context.Context) (*goja.Runtime, error) {
 			return nil, ctx.Err()
 		default:
 		}
-		runtime, err := p.factory()
-		if err != nil {
-			p.metrics.errors.Add(1)
-			return nil, err
-		}
+		runtime := p.factory()
 		p.metrics.created.Add(1)
 		return runtime, nil
 	}
@@ -130,7 +122,6 @@ func (p *Pool) Stats() map[string]int64 {
 	return map[string]int64{
 		"created":  p.metrics.created.Load(),
 		"reused":   p.metrics.reused.Load(),
-		"errors":   p.metrics.errors.Load(),
 		"timeouts": p.metrics.timeouts.Load(),
 	}
 }
