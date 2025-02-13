@@ -1,6 +1,8 @@
 package extension_repo
 
 import (
+	"runtime"
+	"seanime/internal/hook_event"
 	"testing"
 
 	"seanime/internal/api/anilist"
@@ -140,3 +142,266 @@ func TestNewGojaPlugin(t *testing.T) {
 // 		t.Error("Expected hook function for OnGetBaseAnime to be defined in the runtime")
 // 	}
 // }
+
+func BenchmarkHookInvocation(b *testing.B) {
+	logger := util.NewLogger()
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+
+	// Dummy extension payload that registers a hook
+	payload := `
+		function init() {
+			$app.onGetBaseAnime(function(e) { 
+				e.next();
+			});
+		}
+		init();  // Call init immediately
+	`
+	ext := &extension.Extension{
+		ID:      "dummy-hook-benchmark",
+		Payload: payload,
+	}
+
+	// Initialize the plugin, which will bind the hook
+	plugin, err := NewGojaPlugin(ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	if err != nil {
+		b.Fatal(err)
+	}
+	_ = plugin // keep the plugin reference alive
+
+	title := "Test Anime"
+	// Create a dummy anime event that we'll reuse
+	dummyEvent := &hook_event.GetBaseAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// Add a parallel version to see how it performs under concurrent load
+func BenchmarkHookInvocationParallel(b *testing.B) {
+	logger := util.NewLogger()
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+
+	payload := `
+		function init() {
+			$app.onGetBaseAnime(function(e) { 
+				e.next();
+			});
+		}
+		init();
+	`
+
+	// Create a runtime manager with a pool size matching GOMAXPROCS
+	runtimeManager := goja_runtime.NewManager(logger, int32(runtime.GOMAXPROCS(0)))
+
+	// Initialize the plugin with the runtime manager
+	plugin, err := NewGojaPlugin(
+		&extension.Extension{
+			ID:      "dummy-hook-benchmark",
+			Payload: payload,
+		},
+		extension.LanguageJavascript,
+		logger,
+		runtimeManager,
+		hm,
+	)
+	if err != nil {
+		b.Fatal(err)
+	}
+	_ = plugin
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			title := "Test Anime"
+			event := &hook_event.GetBaseAnimeEvent{
+				Anime: &anilist.BaseAnime{
+					ID: 1234,
+					Title: &anilist.BaseAnime_Title{
+						English: &title,
+					},
+				},
+			}
+			if err := hm.OnGetBaseAnime().Trigger(event); err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
+// BenchmarkBaselineNoHook measures the baseline performance without any hooks
+func BenchmarkBaselineNoHook(b *testing.B) {
+	title := "Test Anime"
+	dummyEvent := &hook_event.GetBaseAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = dummyEvent.Next()
+	}
+}
+
+// BenchmarkHookEmpty measures performance with an empty hook that just calls next()
+func BenchmarkHookEmpty(b *testing.B) {
+	logger := util.NewLogger()
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+
+	payload := `
+		function init() {
+			$app.onGetBaseAnime(function(e) { 
+				e.next();
+			});
+		}
+		init();
+	`
+	ext := &extension.Extension{
+		ID:      "dummy-hook-benchmark",
+		Payload: payload,
+	}
+
+	plugin, err := NewGojaPlugin(ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	if err != nil {
+		b.Fatal(err)
+	}
+	_ = plugin
+
+	title := "Test Anime"
+	dummyEvent := &hook_event.GetBaseAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkHookWithWork measures performance with a hook that does some actual work
+func BenchmarkHookWithWork(b *testing.B) {
+	logger := util.NewLogger()
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+
+	payload := `
+		function init() {
+			$app.onGetBaseAnime(function(e) { 
+				// Do some work
+				if (e.anime.id === 1234) {
+					e.anime.id = 5678;
+					e.anime.title.english = "Modified Title";
+					e.anime.idMal = 9012;
+				}
+				e.next();
+			});
+		}
+		init();
+	`
+	ext := &extension.Extension{
+		ID:      "dummy-hook-benchmark",
+		Payload: payload,
+	}
+
+	plugin, err := NewGojaPlugin(ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	if err != nil {
+		b.Fatal(err)
+	}
+	_ = plugin
+
+	title := "Test Anime"
+	dummyEvent := &hook_event.GetBaseAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+// BenchmarkHookParallel measures parallel performance with a hook that does some work
+func BenchmarkHookParallel(b *testing.B) {
+	logger := util.NewLogger()
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+
+	payload := `
+		function init() {
+			$app.onGetBaseAnime(function(e) { 
+				// Do some work
+				if (e.anime.id === 1234) {
+					e.anime.id = 5678;
+					e.anime.title.english = "Modified Title";
+					e.anime.idMal = 9012;
+				}
+				e.next();
+			});
+		}
+		init();
+	`
+
+	// Create a runtime manager with a pool size matching GOMAXPROCS
+	runtimeManager := goja_runtime.NewManager(logger, int32(runtime.GOMAXPROCS(0)))
+
+	// Initialize the plugin with the runtime manager
+	plugin, err := NewGojaPlugin(
+		&extension.Extension{
+			ID:      "dummy-hook-benchmark",
+			Payload: payload,
+		},
+		extension.LanguageJavascript,
+		logger,
+		runtimeManager,
+		hm,
+	)
+	if err != nil {
+		b.Fatal(err)
+	}
+	_ = plugin
+
+	title := "Test Anime"
+	dummyEvent := &hook_event.GetBaseAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
