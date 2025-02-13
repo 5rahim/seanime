@@ -1,6 +1,7 @@
 package extension_repo
 
 import (
+	"encoding/json"
 	"fmt"
 	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
@@ -77,6 +78,31 @@ func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language,
 	}, nil
 }
 
+func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
+	registry := new(gojarequire.Registry)
+	registry.Enable(vm)
+
+	bindings := []struct {
+		name string
+		fn   func(*goja.Runtime) error
+	}{
+		{"url", func(vm *goja.Runtime) error { gojaurl.Enable(vm); return nil }},
+		{"buffer", func(vm *goja.Runtime) error { gojabuffer.Enable(vm); return nil }},
+		{"fetch", goja_bindings.BindFetch},
+		{"console", func(vm *goja.Runtime) error { return goja_bindings.BindConsole(vm, logger) }},
+		{"formData", goja_bindings.BindFormData},
+		{"document", goja_bindings.BindDocument},
+		{"crypto", goja_bindings.BindCrypto},
+		{"torrentUtils", goja_bindings.BindTorrentUtils},
+	}
+
+	for _, binding := range bindings {
+		if err := binding.fn(vm); err != nil {
+			logger.Error().Err(err).Str("name", binding.name).Msg("failed to bind")
+		}
+	}
+}
+
 func JSVMTypescriptToJS(ts string) (string, error) {
 	result := api.Transform(ts, api.TransformOptions{
 		Target:           api.ES2018,
@@ -96,4 +122,21 @@ func JSVMTypescriptToJS(ts string) (string, error) {
 	}
 
 	return string(result.Code), nil
+}
+
+// structToMap converts a struct to "JSON-like" map for Goja extensions
+func structToMap(obj interface{}) map[string]interface{} {
+	// Convert the struct to a map
+	jsonData, err := json.Marshal(obj)
+	if err != nil {
+		return nil
+	}
+
+	var data map[string]interface{}
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		return nil
+	}
+
+	return data
 }

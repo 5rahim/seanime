@@ -1,26 +1,14 @@
 package hook
 
-func (m *HookManager) initAniListPlatformHooks() {
+func (m *HookManagerImpl) initAniListPlatformHooks() {
 	m.onGetBaseAnime = &Hook[Resolver]{}
 	m.onGetBaseAnimeError = &Hook[Resolver]{}
 }
 
-func (m *HookManager) OnGetBaseAnime() *Hook[Resolver] {
+func (m *HookManagerImpl) OnGetBaseAnime() *Hook[Resolver] {
 	return m.onGetBaseAnime
 }
 
-func (m *HookManager) OnGetBaseAnimeError() *Hook[Resolver] {
+func (m *HookManagerImpl) OnGetBaseAnimeError() *Hook[Resolver] {
 	return m.onGetBaseAnimeError
-}
-
-func (m *HookManager) BindAniListPlatformHooks() {
-	m.onGetBaseAnime.BindFunc(func(e Resolver) error {
-		// plugin code execution goes here
-		return e.Next()
-	})
-
-	m.onGetBaseAnimeError.BindFunc(func(e Resolver) error {
-		// plugin code execution goes here
-		return e.Next()
-	})
 }

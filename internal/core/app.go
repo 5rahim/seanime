@@ -103,7 +103,7 @@ type (
 		account            *models.Account
 		previousVersion    string
 		moduleMu           sync.Mutex
-		HookManager        *hook.HookManager
+		HookManager        hook.HookManager
 		AnilistDataLoaded  bool // Whether the Anilist data from the first request has been fetched
 	}
 )
@@ -117,6 +117,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	logger.Info().Msgf("app: OS: %s", runtime.GOOS)
 	logger.Info().Msgf("app: Arch: %s", runtime.GOARCH)
 	logger.Info().Msgf("app: Processor count: %d", runtime.NumCPU())
+
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 
 	previousVersion := constants.Version
 
@@ -201,7 +203,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:       database,
 	})
 
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger, hookManager)
 
 	// Platforms
 	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
@@ -250,8 +252,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		WSEventManager: wsEventManager,
 		FileCacher:     fileCacher,
 	})
-
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)
 

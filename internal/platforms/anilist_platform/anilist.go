@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
@@ -25,10 +26,11 @@ type (
 		rawMangaCollection   mo.Option[*anilist.MangaCollection]
 		isOffline            bool
 		localPlatformEnabled bool
+		hookManager          hook.HookManager
 	}
 )
 
-func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) platform.Platform {
+func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger, hookManager hook.HookManager) platform.Platform {
 	ap := &AnilistPlatform{
 		anilistClient:      anilistClient,
 		logger:             logger,
@@ -37,6 +39,7 @@ func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Log
 		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
 		mangaCollection:    mo.None[*anilist.MangaCollection](),
 		rawMangaCollection: mo.None[*anilist.MangaCollection](),
+		hookManager:        hookManager,
 	}
 
 	return ap
@@ -140,6 +143,13 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	}
 
 	media := ret.GetMedia()
+
+	err = ap.hookManager.OnGetBaseAnime().Trigger(&GetBaseAnimeEvent{
+		Anime: media,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return media, nil
 }
