@@ -8,6 +8,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension_repo"
+	"seanime/internal/hook"
 	"seanime/internal/manga"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -25,7 +26,8 @@ func GetMockManager(t *testing.T, db *db.Database) Manager {
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistClient := anilist.NewMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hm)
 
 	localDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline")
 	assetsDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets")

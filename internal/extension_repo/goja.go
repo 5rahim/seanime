@@ -46,28 +46,7 @@ func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language,
 		vm := goja.New()
 		vm.SetParserOptions(parser.WithDisableSourceMaps)
 
-		registry := new(gojarequire.Registry)
-		registry.Enable(vm)
-
-		bindings := []struct {
-			name string
-			fn   func(*goja.Runtime) error
-		}{
-			{"url", func(vm *goja.Runtime) error { gojaurl.Enable(vm); return nil }},
-			{"buffer", func(vm *goja.Runtime) error { gojabuffer.Enable(vm); return nil }},
-			{"fetch", goja_bindings.BindFetch},
-			{"console", func(vm *goja.Runtime) error { return goja_bindings.BindConsole(vm, logger) }},
-			{"formData", goja_bindings.BindFormData},
-			{"document", goja_bindings.BindDocument},
-			{"crypto", goja_bindings.BindCrypto},
-			{"torrentUtils", goja_bindings.BindTorrentUtils},
-		}
-
-		for _, binding := range bindings {
-			if err := binding.fn(vm); err != nil {
-				return nil, fmt.Errorf("failed to bind %s: %w", binding.name, err)
-			}
-		}
+		ShareBinds(vm, logger)
 
 		_, err := vm.RunProgram(program)
 		if err != nil {

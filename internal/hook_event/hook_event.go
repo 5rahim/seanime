@@ -1,13 +1,12 @@
-package hook
+package hook_event
 
 // Resolver defines a common interface for a Hook event (see [Event]).
 type Resolver interface {
 	// Next triggers the next handler in the hook's chain (if any).
 	Next() error
 
-	// note: kept only for the generic interface; may get removed in the future
-	nextFunc() func() error
-	setNextFunc(f func() error)
+	NextFunc() func() error
+	SetNextFunc(f func() error)
 }
 
 var _ Resolver = (*Event)(nil)
@@ -34,12 +33,12 @@ func (e *Event) Next() error {
 	return nil
 }
 
-// nextFunc returns the function that Next calls.
-func (e *Event) nextFunc() func() error {
+// NextFunc returns the function that Next calls.
+func (e *Event) NextFunc() func() error {
 	return e.next
 }
 
-// setNextFunc sets the function that Next calls.
-func (e *Event) setNextFunc(f func() error) {
+// SetNextFunc sets the function that Next calls.
+func (e *Event) SetNextFunc(f func() error) {
 	e.next = f
 }

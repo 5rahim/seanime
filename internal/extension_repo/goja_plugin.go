@@ -1,29 +1,71 @@
 package extension_repo
 
 import (
-	"context"
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
+	"seanime/internal/util"
 	"slices"
 	"strings"
 
 	"github.com/dop251/goja"
+	"github.com/dop251/goja/parser"
 	"github.com/rs/zerolog"
 )
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Anime Torrent provider
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (r *Repository) loadPluginExtension(ext *extension.Extension, hm hook.HookManager) (err error) {
+	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
+
+	switch ext.Language {
+	case extension.LanguageJavascript:
+		err = r.loadPluginExtensionJS(ext, extension.LanguageJavascript, hm)
+	case extension.LanguageTypescript:
+		err = r.loadPluginExtensionJS(ext, extension.LanguageTypescript, hm)
+	default:
+		err = fmt.Errorf("unsupported language: %v", ext.Language)
+	}
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (r *Repository) loadPluginExtensionJS(ext *extension.Extension, language extension.Language, hm hook.HookManager) error {
+	_, err := NewGojaPlugin(ext, language, r.logger, r.gojaRuntimeManager, hm)
+	if err != nil {
+		return err
+	}
+
+	// Add the extension to the map
+	retExt := extension.NewPluginExtension(ext)
+	r.extensionBank.Set(ext.ID, retExt)
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Plugin
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 type GojaPlugin struct {
 	ext            *extension.Extension
+	logger         *zerolog.Logger
 	pool           *goja_runtime.Pool
 	runtimeManager *goja_runtime.Manager
 }
 
 func NewGojaPlugin(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.HookManager) (*GojaPlugin, error) {
-	initFn := func() (*goja.Runtime, error) {
-		vm := goja.New()
-		ShareBinds(vm, logger)
-		return vm, nil
+	initFn, err := SetupGojaPluginExtensionVM(ext, language, logger, hm)
+	if err != nil {
+		return nil, err
 	}
 
 	pool, err := runtimeManager.GetOrCreatePool(initFn)
@@ -31,31 +73,68 @@ func NewGojaPlugin(ext *extension.Extension, language extension.Language, logger
 		return nil, err
 	}
 
-	loader := goja.New()
-	ShareBinds(loader, logger)
-	hooksBinds(hm, loader, pool)
-
-	_, err = loader.RunString(ext.Payload)
-	if err != nil {
-		logger.Error().Err(err).Msg("Error init")
-		return nil, err
-	}
-
-	p := &GojaPlugin{
+	return &GojaPlugin{
 		ext:            ext,
+		logger:         logger,
 		pool:           pool,
 		runtimeManager: runtimeManager,
-	}
-
-	return p, nil
+	}, nil
 }
 
-// hooksBinds adds wrapped "on*" hook methods by reflecting on the hook manager
-func hooksBinds(app hook.HookManager, loader *goja.Runtime, executors *goja_runtime.Pool) {
+// SetupGojaPluginExtensionVM creates a new JavaScript VM with the plugin source code loaded
+func SetupGojaPluginExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, hm hook.HookManager) (func() (*goja.Runtime, error), error) {
+	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM")
+
+	source := ext.Payload
+	if language == extension.LanguageTypescript {
+		var err error
+		source, err = JSVMTypescriptToJS(ext.Payload)
+		if err != nil {
+			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
+			return nil, err
+		}
+	}
+
+	// Compile the program once, to be reused by all VMs
+	program, err := goja.Compile("", source, false)
+	if err != nil {
+		return nil, fmt.Errorf("compilation failed: %w", err)
+	}
+
+	return func() (*goja.Runtime, error) {
+		vm := goja.New()
+		vm.SetParserOptions(parser.WithDisableSourceMaps)
+
+		ShareBinds(vm, logger)
+		BindHooks(vm, hm)
+		_, err := vm.RunProgram(program)
+		if err != nil {
+			return nil, fmt.Errorf("failed to run program: %w", err)
+		}
+
+		// Call init() if defined to trigger initialization and subscribe hooks
+		if initFunc := vm.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
+			_, err = vm.RunString("init();")
+			if err != nil {
+				return nil, fmt.Errorf("failed to call init: %w", err)
+			}
+		}
+
+		return vm, nil
+	}, nil
+}
+
+type PluginContext struct {
+	HookManager hook.HookManager
+}
+
+func BindHooks(vm *goja.Runtime, hm hook.HookManager) {
 	fm := FieldMapper{}
 
-	appType := reflect.TypeOf(app)
-	appValue := reflect.ValueOf(app)
+	ctxObj := vm.NewObject()
+
+	appType := reflect.TypeOf(hm)
+	appValue := reflect.ValueOf(hm)
 	totalMethods := appType.NumMethod()
 	excludeHooks := []string{"OnServe"}
 
@@ -67,11 +146,11 @@ func hooksBinds(app hook.HookManager, loader *goja.Runtime, executors *goja_runt
 
 		jsName := fm.MethodName(appType, method)
 
-		// register the hook to the loader
-		loader.Set(jsName, func(callback string, tags ...string) {
-			// overwrite the global $app with the hook scoped instance
-			callback = `function(e) { $app = e.app; return (` + callback + `).call(undefined, e) }`
-			pr := goja.MustCompile("", "{("+callback+").apply(undefined, __args)}", true)
+		hookWrapper := func(callback goja.Value, tags ...string) {
+			callbackStr := callback.String()
+			compiledCallback := "function(e) { $app = e.app; return (" + callbackStr + ").call(undefined, e); }"
+			//			compiledCallback := "function(e) { if(!e.next && typeof e.Next === 'function') { e.next = e.Next; } $app = e.app; return (" + callbackStr + ").call(undefined, e); }"
+			pr := goja.MustCompile("", "{("+compiledCallback+").apply(undefined, __args)}", true)
 
 			tagsAsValues := make([]reflect.Value, len(tags))
 			for i, tag := range tags {
@@ -86,34 +165,35 @@ func hooksBinds(app hook.HookManager, loader *goja.Runtime, executors *goja_runt
 			handler := reflect.MakeFunc(handlerType, func(args []reflect.Value) (results []reflect.Value) {
 				handlerArgs := make([]any, len(args))
 				for i, arg := range args {
-					handlerArgs[i] = arg.Interface()
+					//util.Spew(arg.Interface())
+					//handlerArgs[i] = arg.Interface()
+					n := convertArg(vm, arg)
+					//util.Spew(n)
+					handlerArgs[i] = n
 				}
 
-				vm, err := executors.Get(context.Background())
-				if err != nil {
-					return []reflect.Value{reflect.ValueOf(err)}
-				}
-				err = func(executor *goja.Runtime) error {
-					executor.Set("$app", goja.Undefined())
-					executor.Set("__args", handlerArgs)
-					res, err := executor.RunProgram(pr)
-					executor.Set("__args", goja.Undefined())
-					if res != nil {
-						if resErr, ok := res.Export().(error); ok {
-							return resErr
-						}
-					}
-					return normalizeException(err)
-				}(vm)
-				executors.Put(vm)
+				vm.Set("$app", goja.Undefined())
+				vm.Set("__args", handlerArgs)
+				_, err := vm.RunProgram(pr)
+				vm.Set("__args", goja.Undefined())
 
 				return []reflect.Value{reflect.ValueOf(&err).Elem()}
 			})
 
 			// register the wrapped hook handler
 			hookBindFunc.Call([]reflect.Value{handler})
-		})
+		}
+
+		// set the hook under its original name
+		ctxObj.Set(jsName, hookWrapper)
+		// also set the hook with a lower-case initial (e.g., onGetBaseAnime) if not already the same
+		lowerJsName := strings.ToLower(jsName[0:1]) + jsName[1:]
+		if lowerJsName != jsName {
+			ctxObj.Set(lowerJsName, hookWrapper)
+		}
 	}
+
+	vm.Set("$app", ctxObj)
 }
 
 ////
@@ -142,4 +222,152 @@ func normalizeException(err error) error {
 	}
 
 	return err
+}
+
+func mapStructToJSObject(vm *goja.Runtime, value interface{}) *goja.Object {
+	v := reflect.ValueOf(value)
+	if v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return vm.NewObject()
+		}
+		v = v.Elem()
+	}
+	t := v.Type()
+	obj := vm.NewObject()
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.PkgPath != "" { // unexported
+			continue
+		}
+		var fieldName string
+		tag := field.Tag.Get("json")
+		if tag != "" {
+			parts := strings.Split(tag, ",")
+			if parts[0] != "" && parts[0] != "-" {
+				fieldName = parts[0]
+			} else {
+				fieldName = convertGoToJSName(field.Name)
+			}
+		} else {
+			fieldName = convertGoToJSName(field.Name)
+		}
+
+		fieldVal := v.Field(i)
+		if fieldVal.CanSet() {
+			// Create live getter/setter to reflect changes back to the Go struct
+			iCopy := i // capture loop variable
+			getter := vm.ToValue(func(call goja.FunctionCall) goja.Value {
+				return vm.ToValue(convertArg(vm, v.Field(iCopy)))
+			})
+			setter := vm.ToValue(func(call goja.FunctionCall) goja.Value {
+				if len(call.Arguments) > 0 {
+					newVal := call.Arguments[0]
+					exported := newVal.Export()
+					field := v.Field(iCopy)
+					newGoVal := reflect.ValueOf(exported)
+
+					// Handle pointer types
+					if field.Kind() == reflect.Ptr {
+						if newGoVal.Type().AssignableTo(field.Type().Elem()) {
+							// Create new pointer and set value
+							newPtr := reflect.New(field.Type().Elem())
+							newPtr.Elem().Set(newGoVal)
+							field.Set(newPtr)
+						} else if newGoVal.Type().ConvertibleTo(field.Type().Elem()) {
+							// Create new pointer and set converted value
+							newPtr := reflect.New(field.Type().Elem())
+							newPtr.Elem().Set(newGoVal.Convert(field.Type().Elem()))
+							field.Set(newPtr)
+						}
+					} else if newGoVal.Type().AssignableTo(field.Type()) {
+						field.Set(newGoVal)
+					} else if newGoVal.Type().ConvertibleTo(field.Type()) {
+						field.Set(newGoVal.Convert(field.Type()))
+					}
+				}
+				return goja.Undefined()
+			})
+			obj.DefineAccessorProperty(fieldName, getter, setter, goja.Flag(1), goja.Flag(1))
+		} else {
+			obj.Set(fieldName, convertArg(vm, fieldVal))
+		}
+	}
+
+	// Attempt to fetch the 'Next' method from both pointer and value
+	method := reflect.ValueOf(value).MethodByName("Next")
+	if !method.IsValid() {
+		method = v.MethodByName("Next")
+	}
+
+	if method.IsValid() {
+		nextFn := func(call goja.FunctionCall) goja.Value {
+			results := method.Call(nil)
+			if len(results) > 0 {
+				return vm.ToValue(results[0].Interface())
+			}
+			return goja.Undefined()
+		}
+		obj.Set("next", vm.ToValue(nextFn))
+		obj.Set("Next", vm.ToValue(nextFn))
+	}
+
+	// Attach a custom toString method to return formatted representation
+	obj.Set("toString", vm.ToValue(func(call goja.FunctionCall) goja.Value {
+		bs, err := json.Marshal(value)
+		if err != nil {
+			return vm.ToValue(fmt.Sprintf("%+v", value))
+		}
+		return vm.ToValue(string(bs))
+	}))
+
+	return obj
+}
+
+func convertArg(vm *goja.Runtime, arg reflect.Value) interface{} {
+	if !arg.IsValid() {
+		return nil
+	}
+
+	// Handle pointer types recursively
+	if arg.Kind() == reflect.Ptr {
+		if arg.IsNil() {
+			return nil
+		}
+		if arg.Elem().Kind() == reflect.Struct {
+			return mapStructToJSObject(vm, arg.Interface())
+		}
+		return convertArg(vm, arg.Elem())
+	}
+
+	// Handle struct types as JS objects
+	if arg.Kind() == reflect.Struct {
+		return mapStructToJSObject(vm, arg.Interface())
+	}
+
+	// Handle slices and arrays recursively
+	if arg.Kind() == reflect.Slice || arg.Kind() == reflect.Array {
+		n := arg.Len()
+		result := make([]interface{}, n)
+		for i := 0; i < n; i++ {
+			result[i] = convertArg(vm, arg.Index(i))
+		}
+		return vm.ToValue(result)
+	}
+
+	// Handle maps
+	if arg.Kind() == reflect.Map {
+		obj := vm.NewObject()
+		iter := arg.MapRange()
+		for iter.Next() {
+			k := iter.Key()
+			v := iter.Value()
+			if k.Kind() == reflect.String {
+				obj.Set(k.String(), convertArg(vm, v))
+			}
+		}
+		return obj
+	}
+
+	// Convert primitive types
+	return vm.ToValue(arg.Interface())
 }

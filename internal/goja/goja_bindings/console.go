@@ -2,9 +2,10 @@ package goja_bindings
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
-	"strings"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,11 +14,13 @@ import (
 
 type console struct {
 	logger *zerolog.Logger
+	vm     *goja.Runtime
 }
 
 func BindConsole(vm *goja.Runtime, logger *zerolog.Logger) error {
 	c := &console{
 		logger: logger,
+		vm:     vm,
 	}
 	consoleObj := vm.NewObject()
 	consoleObj.Set("log", c.logFunc("log"))
@@ -44,6 +47,20 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 	return func(call goja.FunctionCall) goja.Value {
 		var ret []string
 		for _, arg := range call.Arguments {
+			if obj, ok := arg.(*goja.Object); ok {
+				if hasOwnPropFn, ok := goja.AssertFunction(obj.Get("hasOwnProperty")); ok {
+					if retVal, err := hasOwnPropFn(obj, c.vm.ToValue("toString")); err == nil && retVal.ToBoolean() {
+						tsVal := obj.Get("toString")
+						if fn, ok := goja.AssertFunction(tsVal); ok {
+							strVal, err := fn(obj)
+							if err == nil {
+								ret = append(ret, strVal.String())
+								continue
+							}
+						}
+					}
+				}
+			}
 			switch v := arg.Export().(type) {
 			case nil:
 				ret = append(ret, "undefined")
@@ -60,19 +77,11 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 			case []byte:
 				ret = append(ret, fmt.Sprintf("ArrayBuffer(%d) [%s]", len(v), strings.Trim(fmt.Sprint(v), "[]")))
 			case map[string]interface{}:
-				// Check toString method
-				//if toStringI, ok := v["toString"]; ok {
-				//	if toString, ok := toStringI.(func(call goja.FunctionCall) goja.Value); ok {
-				//		ret = append(ret, toString(goja.FunctionCall{Arguments: nil}).String())
-				//		break
-				//	}
-				//}
 				ret = append(ret, fmt.Sprintf("%+v", v))
 			default:
 				ret = append(ret, fmt.Sprintf("%+v", v))
 			}
 		}
-
 		switch t {
 		case "log", "warn", "info", "debug":
 			c.logger.Debug().Msgf("extension: [console.%s] %s", t, strings.Join(ret, " "))

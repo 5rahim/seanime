@@ -5,6 +5,7 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
+	"seanime/internal/hook_event"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
@@ -144,7 +145,7 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 
 	media := ret.GetMedia()
 
-	err = ap.hookManager.OnGetBaseAnime().Trigger(&GetBaseAnimeEvent{
+	err = ap.hookManager.OnGetBaseAnime().Trigger(&hook_event.GetBaseAnimeEvent{
 		Anime: media,
 	})
 	if err != nil {
