@@ -39,6 +39,10 @@ func (m *Manager) Run(ctx context.Context, fn func(*goja.Runtime) error) error {
 	return fn(runtime)
 }
 
+func (m *Manager) GetLogger() *zerolog.Logger {
+	return m.logger
+}
+
 func (m *Manager) PrintMetrics() {
 	if m.pool == nil {
 		return

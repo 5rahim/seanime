@@ -79,6 +79,62 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	}
 }
 
+// PluginBinds adds plugin-specific bindings like $ctx to the VM
+func PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
+	// Create cache object
+	cacheObj := vm.NewObject()
+	cacheStore := make(map[string]interface{})
+
+	cacheObj.Set("set", func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) < 2 {
+			panic(vm.ToValue("TypeError: cache.set requires key and value arguments"))
+		}
+		key := call.Argument(0).String()
+		value := call.Argument(1).Export()
+		cacheStore[key] = value
+		return goja.Undefined()
+	})
+
+	cacheObj.Set("get", func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) < 1 {
+			panic(vm.ToValue("TypeError: cache.get requires a key argument"))
+		}
+		key := call.Argument(0).String()
+		if value, exists := cacheStore[key]; exists {
+			return vm.ToValue(value)
+		}
+		return goja.Undefined()
+	})
+
+	cacheObj.Set("has", func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) < 1 {
+			panic(vm.ToValue("TypeError: cache.has requires a key argument"))
+		}
+		key := call.Argument(0).String()
+		_, exists := cacheStore[key]
+		return vm.ToValue(exists)
+	})
+
+	cacheObj.Set("delete", func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) < 1 {
+			panic(vm.ToValue("TypeError: cache.delete requires a key argument"))
+		}
+		key := call.Argument(0).String()
+		delete(cacheStore, key)
+		return goja.Undefined()
+	})
+
+	cacheObj.Set("clear", func(call goja.FunctionCall) goja.Value {
+		cacheStore = make(map[string]interface{})
+		return goja.Undefined()
+	})
+
+	// Create $ctx object and add cache to it
+	ctxObj := vm.NewObject()
+	ctxObj.Set("cache", cacheObj)
+	vm.Set("$ctx", ctxObj)
+}
+
 func JSVMTypescriptToJS(ts string) (string, error) {
 	result := api.Transform(ts, api.TransformOptions{
 		Target:           api.ES2018,

@@ -63,32 +63,38 @@ type GojaPlugin struct {
 }
 
 func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.HookManager) *goja.Runtime {
-	runtime := goja.New()
-	ShareBinds(runtime, logger)
-	BindHooks(runtime, hm, runtimeManager)
+	loader := goja.New()
+	// Add bindings to the loader
+	ShareBinds(loader, logger)
+	// PluginBinds(loader, logger)
+	// Bind hooks to the loader
+	BindHooks(loader, hm, runtimeManager)
 
 	// Preinitialize the runtime pool so that runtimeManager.pool is not nil
 	if _, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
 		rt := goja.New()
 		ShareBinds(rt, logger)
+		PluginBinds(rt, logger)
 		return rt
 	}); err != nil {
 		logger.Error().Err(err).Msg("failed to initialize runtime pool")
 	}
 
-	return runtime
+	return loader
 }
 
 func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.HookManager) (*GojaPlugin, error) {
 	pool, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
+		PluginBinds(runtime, logger)
 		return runtime
 	})
 	if err != nil {
 		return nil, err
 	}
 
+	// Load the extension payload
 	_, err = loader.RunString(ext.Payload)
 	if err != nil {
 		return nil, err
@@ -110,51 +116,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 	}, nil
 }
 
-// SetupGojaPluginExtensionVM creates a new JavaScript VM with the plugin source code loaded
-// func SetupGojaPluginExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.HookManager) (func() (*goja.Runtime, error), error) {
-// 	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM")
-
-// 	source := ext.Payload
-// 	if language == extension.LanguageTypescript {
-// 		var err error
-// 		source, err = JSVMTypescriptToJS(ext.Payload)
-// 		if err != nil {
-// 			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
-// 			return nil, err
-// 		}
-// 	}
-
-// 	// Compile the program once, to be reused by all VMs
-// 	program, err := goja.Compile("", source, false)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("compilation failed: %w", err)
-// 	}
-
-// 	return func() (*goja.Runtime, error) {
-// 		vm := goja.New()
-// 		vm.SetParserOptions(parser.WithDisableSourceMaps)
-
-// 		ShareBinds(vm, logger)
-// 		BindHooks(vm, hm, runtimeManager)
-// 		_, err := vm.RunProgram(program)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("failed to run program: %w", err)
-// 		}
-
-// 		// Call init() if defined to trigger initialization and subscribe hooks
-// 		if initFunc := vm.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
-// 			_, err = vm.RunString("init();")
-// 			if err != nil {
-// 				return nil, fmt.Errorf("failed to call init: %w", err)
-// 			}
-// 		}
-
-// 		return vm, nil
-// 	}, nil
-// }
-
 type PluginContext struct {
-	HookManager hook.HookManager
 }
 
 func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_runtime.Manager) {
@@ -165,6 +127,8 @@ func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_r
 	totalMethods := appType.NumMethod()
 	excludeHooks := []string{"OnServe"}
 
+	appObj := loader.NewObject()
+
 	for i := 0; i < totalMethods; i++ {
 		method := appType.Method(i)
 		if !strings.HasPrefix(method.Name, "On") || slices.Contains(excludeHooks, method.Name) {
@@ -173,7 +137,7 @@ func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_r
 
 		jsName := fm.MethodName(appType, method)
 
-		loader.Set(jsName, func(callback string, tags ...string) {
+		appObj.Set(jsName, func(callback string, tags ...string) {
 			callback = `function(e) { $app = e.app; return (` + callback + `).call(undefined, e); }`
 			pr := goja.MustCompile("", "{("+callback+").apply(undefined, __args)}", true)
 
@@ -190,6 +154,8 @@ func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_r
 			handler := reflect.MakeFunc(handlerType, func(args []reflect.Value) (results []reflect.Value) {
 				handlerArgs := make([]any, len(args))
 
+				// Run the handler in a isolated "executor" runtime to allow for concurrency
+				// This runtime has shared bindings and plugin bindings
 				err := runtimeManager.Run(context.Background(), func(executor *goja.Runtime) error {
 					for i, arg := range args {
 						handlerArgs[i] = convertArg(executor, arg)
@@ -218,66 +184,8 @@ func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_r
 		})
 	}
 
-	/////
-
-	// for i := 0; i < totalMethods; i++ {
-	// 	method := appType.Method(i)
-	// 	if !strings.HasPrefix(method.Name, "On") || slices.Contains(excludeHooks, method.Name) {
-	// 		continue // not a hook or excluded
-	// 	}
-
-	// 	jsName := fm.MethodName(appType, method)
-
-	// 	hookWrapper := func(callback goja.Value, tags ...string) {
-	// 		callbackStr := callback.String()
-	// 		compiledCallback := "function(e) { $app = e.app; return (" + callbackStr + ").call(undefined, e); }"
-	// 		//			compiledCallback := "function(e) { if(!e.next && typeof e.Next === 'function') { e.next = e.Next; } $app = e.app; return (" + callbackStr + ").call(undefined, e); }"
-	// 		pr := goja.MustCompile("", "{("+compiledCallback+").apply(undefined, __args)}", true)
-
-	// 		tagsAsValues := make([]reflect.Value, len(tags))
-	// 		for i, tag := range tags {
-	// 			tagsAsValues[i] = reflect.ValueOf(tag)
-	// 		}
-
-	// 		hookInstance := appValue.MethodByName(method.Name).Call(tagsAsValues)[0]
-	// 		hookBindFunc := hookInstance.MethodByName("BindFunc")
-
-	// 		handlerType := hookBindFunc.Type().In(0)
-
-	// 		handler := reflect.MakeFunc(handlerType, func(args []reflect.Value) (results []reflect.Value) {
-	// 			handlerArgs := make([]any, len(args))
-	// 			for i, arg := range args {
-	// 				//util.Spew(arg.Interface())
-	// 				//handlerArgs[i] = arg.Interface()
-	// 				n := convertArg(vm, arg)
-	// 				//util.Spew(n)
-	// 				handlerArgs[i] = n
-	// 			}
-
-	// 			vm.Set("$app", goja.Undefined())
-	// 			vm.Set("__args", handlerArgs)
-	// 			_, err := vm.RunProgram(pr)
-	// 			vm.Set("__args", goja.Undefined())
-
-	// 			return []reflect.Value{reflect.ValueOf(&err).Elem()}
-	// 		})
-
-	// 		// register the wrapped hook handler
-	// 		hookBindFunc.Call([]reflect.Value{handler})
-	// 	}
-
-	// 	// set the hook under its original name
-	// 	ctxObj.Set(jsName, hookWrapper)
-	// 	// also set the hook with a lower-case initial (e.g., onGetBaseAnime) if not already the same
-	// 	lowerJsName := strings.ToLower(jsName[0:1]) + jsName[1:]
-	// 	if lowerJsName != jsName {
-	// 		ctxObj.Set(lowerJsName, hookWrapper)
-	// 	}
-	// }
-
+	loader.Set("$app", appObj)
 }
-
-////
 
 // normalizeException checks if the provided error is a goja.Exception
 // and attempts to return its underlying Go error.
