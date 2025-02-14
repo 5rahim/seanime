@@ -5,7 +5,6 @@ go 1.23.5
 require (
 	fyne.io/systray v1.11.0
 	github.com/5rahim/habari v0.1.3
-	github.com/5rahim/hibike v0.5.1
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/PuerkitoBio/goquery v1.10.0
@@ -44,7 +43,6 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
-	github.com/traefik/yaegi v0.16.1
 	github.com/xfrr/goffmpeg v1.0.0
 	github.com/ziflex/lecho/v3 v3.7.0
 	golang.org/x/crypto v0.31.0
@@ -59,7 +57,6 @@ require (
 
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
-	github.com/EDDYCJY/fake-useragent v0.2.0 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect

@@ -1,23 +1,29 @@
 package scanner
 
 import (
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewMediaFetcher(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 	metadataProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -110,7 +116,11 @@ func TestNewMediaFetcher(t *testing.T) {
 func TestNewEnhancedMediaFetcher(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 	metaProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()
@@ -189,7 +199,11 @@ func TestNewEnhancedMediaFetcher(t *testing.T) {
 func TestFetchMediaFromLocalFiles(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 	metaProvider := metadata.GetMockProvider(t)
 	completeAnimeCache := anilist.NewCompleteAnimeCache()
 	anilistRateLimiter := limiter.NewAnilistLimiter()

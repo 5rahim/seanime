@@ -1,15 +1,17 @@
 package extension_playground
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGojaAnimeTorrentProvider(t *testing.T) {
@@ -19,7 +21,10 @@ func TestGojaAnimeTorrentProvider(t *testing.T) {
 	logger := util.NewLogger()
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 	metadataProvider := metadata.GetMockProvider(t)
 
 	repo := NewPlaygroundRepository(logger, platform, metadataProvider)

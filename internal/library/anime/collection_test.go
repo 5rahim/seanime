@@ -1,23 +1,28 @@
 package anime
 
 import (
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewLibraryCollection(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
-
+	logger := util.NewLogger()
 	metadataProvider := metadata.GetMockProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 

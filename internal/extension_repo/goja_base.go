@@ -80,6 +80,8 @@ func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName strin
 	return result, nil
 }
 
+// unmarshalValue unmarshals a Goja value to a target interface
+// This is used to convert the result of a method call to a struct
 func (g *gojaProviderBase) unmarshalValue(value goja.Value, target interface{}) error {
 	if value == nil {
 		return fmt.Errorf("cannot unmarshal nil value")
@@ -97,6 +99,7 @@ func (g *gojaProviderBase) unmarshalValue(value goja.Value, target interface{}) 
 	return json.Unmarshal(data, target)
 }
 
+// waitForPromise waits for a promise to resolve and returns the result
 func (g *gojaProviderBase) waitForPromise(value goja.Value) (goja.Value, error) {
 	if value == nil {
 		return nil, fmt.Errorf("cannot wait for nil promise")

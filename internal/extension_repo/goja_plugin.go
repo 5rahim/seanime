@@ -2,7 +2,6 @@ package extension_repo
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"seanime/internal/extension"
@@ -157,8 +156,10 @@ func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_r
 				// Run the handler in a isolated "executor" runtime to allow for concurrency
 				// This runtime has shared bindings and plugin bindings
 				err := runtimeManager.Run(context.Background(), func(executor *goja.Runtime) error {
+					executor.SetFieldNameMapper(fm)
 					for i, arg := range args {
-						handlerArgs[i] = convertArg(executor, arg)
+						// handlerArgs[i] = convertArg(executor, arg)
+						handlerArgs[i] = arg.Interface()
 					}
 					executor.Set("$app", goja.Undefined())
 					executor.Set("__args", handlerArgs)
@@ -211,152 +212,4 @@ func normalizeException(err error) error {
 	}
 
 	return err
-}
-
-func mapStructToJSObject(vm *goja.Runtime, value interface{}) *goja.Object {
-	v := reflect.ValueOf(value)
-	if v.Kind() == reflect.Ptr {
-		if v.IsNil() {
-			return vm.NewObject()
-		}
-		v = v.Elem()
-	}
-	t := v.Type()
-	obj := vm.NewObject()
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		if field.PkgPath != "" { // unexported
-			continue
-		}
-		var fieldName string
-		tag := field.Tag.Get("json")
-		if tag != "" {
-			parts := strings.Split(tag, ",")
-			if parts[0] != "" && parts[0] != "-" {
-				fieldName = parts[0]
-			} else {
-				fieldName = convertGoToJSName(field.Name)
-			}
-		} else {
-			fieldName = convertGoToJSName(field.Name)
-		}
-
-		fieldVal := v.Field(i)
-		if fieldVal.CanSet() {
-			// Create live getter/setter to reflect changes back to the Go struct
-			iCopy := i // capture loop variable
-			getter := vm.ToValue(func(call goja.FunctionCall) goja.Value {
-				return vm.ToValue(convertArg(vm, v.Field(iCopy)))
-			})
-			setter := vm.ToValue(func(call goja.FunctionCall) goja.Value {
-				if len(call.Arguments) > 0 {
-					newVal := call.Arguments[0]
-					exported := newVal.Export()
-					field := v.Field(iCopy)
-					newGoVal := reflect.ValueOf(exported)
-
-					// Handle pointer types
-					if field.Kind() == reflect.Ptr {
-						if newGoVal.Type().AssignableTo(field.Type().Elem()) {
-							// Create new pointer and set value
-							newPtr := reflect.New(field.Type().Elem())
-							newPtr.Elem().Set(newGoVal)
-							field.Set(newPtr)
-						} else if newGoVal.Type().ConvertibleTo(field.Type().Elem()) {
-							// Create new pointer and set converted value
-							newPtr := reflect.New(field.Type().Elem())
-							newPtr.Elem().Set(newGoVal.Convert(field.Type().Elem()))
-							field.Set(newPtr)
-						}
-					} else if newGoVal.Type().AssignableTo(field.Type()) {
-						field.Set(newGoVal)
-					} else if newGoVal.Type().ConvertibleTo(field.Type()) {
-						field.Set(newGoVal.Convert(field.Type()))
-					}
-				}
-				return goja.Undefined()
-			})
-			obj.DefineAccessorProperty(fieldName, getter, setter, goja.Flag(1), goja.Flag(1))
-		} else {
-			obj.Set(fieldName, convertArg(vm, fieldVal))
-		}
-	}
-
-	// Attempt to fetch the 'Next' method from both pointer and value
-	method := reflect.ValueOf(value).MethodByName("Next")
-	if !method.IsValid() {
-		method = v.MethodByName("Next")
-	}
-
-	if method.IsValid() {
-		nextFn := func(call goja.FunctionCall) goja.Value {
-			results := method.Call(nil)
-			if len(results) > 0 {
-				return vm.ToValue(results[0].Interface())
-			}
-			return goja.Undefined()
-		}
-		obj.Set("next", vm.ToValue(nextFn))
-		obj.Set("Next", vm.ToValue(nextFn))
-	}
-
-	// Attach a custom toString method to return formatted representation
-	obj.Set("toString", vm.ToValue(func(call goja.FunctionCall) goja.Value {
-		bs, err := json.Marshal(value)
-		if err != nil {
-			return vm.ToValue(fmt.Sprintf("%+v", value))
-		}
-		return vm.ToValue(string(bs))
-	}))
-
-	return obj
-}
-
-func convertArg(vm *goja.Runtime, arg reflect.Value) interface{} {
-	if !arg.IsValid() {
-		return nil
-	}
-
-	// Handle pointer types recursively
-	if arg.Kind() == reflect.Ptr {
-		if arg.IsNil() {
-			return nil
-		}
-		if arg.Elem().Kind() == reflect.Struct {
-			return mapStructToJSObject(vm, arg.Interface())
-		}
-		return convertArg(vm, arg.Elem())
-	}
-
-	// Handle struct types as JS objects
-	if arg.Kind() == reflect.Struct {
-		return mapStructToJSObject(vm, arg.Interface())
-	}
-
-	// Handle slices and arrays recursively
-	if arg.Kind() == reflect.Slice || arg.Kind() == reflect.Array {
-		n := arg.Len()
-		result := make([]interface{}, n)
-		for i := 0; i < n; i++ {
-			result[i] = convertArg(vm, arg.Index(i))
-		}
-		return vm.ToValue(result)
-	}
-
-	// Handle maps
-	if arg.Kind() == reflect.Map {
-		obj := vm.NewObject()
-		iter := arg.MapRange()
-		for iter.Next() {
-			k := iter.Key()
-			v := iter.Value()
-			if k.Kind() == reflect.String {
-				obj.Set(k.String(), convertArg(vm, v))
-			}
-		}
-		return obj
-	}
-
-	// Convert primitive types
-	return vm.ToValue(arg.Interface())
 }

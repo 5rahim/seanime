@@ -2,6 +2,7 @@ package extension_repo
 
 import (
 	"runtime"
+	"seanime/internal/test_utils"
 	"testing"
 
 	"seanime/internal/api/anilist"
@@ -14,24 +15,41 @@ import (
 )
 
 func TestNewGojaPlugin(t *testing.T) {
+	test_utils.SetTwoLevelDeep()
+	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	payload := `
 	function init() {
 		console.log("init called");
 		$app.onGetBaseAnime((e) => {
+			//console.log($ctx)
 			console.log("$app.onGetBaseAnime fired")
 			if(e.anime.id === 178022) {
+				//console.log(e.anime)
+				//let mutableAnime = $mutable(e.anime)
+				//mutableAnime.id = 22;
+				//mutableAnime.idMal = 22;
+				////mutableAnime.title.set(undefined)
+				//mutableAnime.title.set({ "english": "The One Piece is Real" })
+				//mutableAnime.synonyms[0] = "The One Piece is Real"
+				//mutableAnime.synonyms.set(["The One Piece is Real"])
+				//console.log(mutableAnime.toJSON())
+				//mutableAnime.replace(e.anime)
+
 				e.anime.id = 22;
 				e.anime.idMal = 22;
-				e.anime.title.english = "The One Piece is Real";
+				e.anime.idMal = 22;
+				$replace(e.anime.title, { "english": "The One Piece is Real" })
+				$replace(e.anime.synonyms, ["The One Piece is Real"])
+				e.anime.synonyms[0] = "The One Piece is Real"
 			}
 
 			// Store a value
-			$ctx.cache.set("myKey", 42);
+			//$ctx.store.set("myKey", 42);
 
 			// Retrieve it later in another hook
-			const value = $ctx.cache.get("myKey"); // 42
-			console.log(value)
+			//const value = $ctx.store.get("myKey"); // 42
+			//console.log(value)
 
 			e.next();
 		});
@@ -39,10 +57,13 @@ func TestNewGojaPlugin(t *testing.T) {
 		$app.onGetBaseAnime((e) => {
 			console.log("$app.onGetBaseAnime(2) fired")
 			console.log(e.anime.id)
+			console.log(e.anime.idMal)
+			console.log(e.anime.synonyms[0])
+			console.log(e.anime.title)
 
 			// Check if exists
-			const value = $ctx.cache.get("myKey"); // 42
-			console.log(value)
+			//const value = $ctx.store.get("myKey"); // 42
+			//console.log(value)
 		});
 	}
 	`
@@ -58,7 +79,6 @@ func TestNewGojaPlugin(t *testing.T) {
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewAnilistClient(""), logger, hm)
-	anilistPlatform.SetAnilistClient(anilist.NewAnilistClient(""))
 
 	// Use a single runtimeManager for both loader and plugin
 	manager := goja_runtime.NewManager(logger, 15)
@@ -75,14 +95,15 @@ func TestNewGojaPlugin(t *testing.T) {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}
 
-	util.Spew(m.GetTitleSafe())
+	util.Spew(m.Title)
+	util.Spew(m.Synonyms)
 
 	m, err = anilistPlatform.GetAnime(177709)
 	if err != nil {
 		t.Fatalf("GetAnime returned error: %v", err)
 	}
 
-	util.Spew(m.GetTitleSafe())
+	util.Spew(m.Title)
 
 }
 

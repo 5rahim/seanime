@@ -3,8 +3,10 @@ package manga
 import (
 	"context"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -13,7 +15,11 @@ func TestNewCollection(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, nil)
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 
 	mangaCollection, err := anilistClient.MangaCollection(context.Background(), &test_utils.ConfigData.Provider.AnilistUsername)
 	if err != nil {

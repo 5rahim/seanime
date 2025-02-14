@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/dop251/goja"
+	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
 )
 
@@ -79,7 +80,12 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 			case map[string]interface{}:
 				ret = append(ret, fmt.Sprintf("%+v", v))
 			default:
-				ret = append(ret, fmt.Sprintf("%+v", v))
+				bs, err := json.Marshal(v)
+				if err != nil {
+					ret = append(ret, fmt.Sprintf("%+v", v))
+				} else {
+					ret = append(ret, string(bs))
+				}
 			}
 		}
 		switch t {

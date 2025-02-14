@@ -1,23 +1,29 @@
 package animetosho
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSmartSearch(t *testing.T) {
 	test_utils.InitTestProvider(t, test_utils.Anilist())
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 
 	toshoPlatform := NewProvider(util.NewLogger())
 

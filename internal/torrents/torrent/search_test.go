@@ -2,6 +2,7 @@ package torrent
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -12,7 +13,11 @@ func TestSmartSearch(t *testing.T) {
 	test_utils.InitTestProvider(t)
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 
 	repo := getTestRepo(t)
 

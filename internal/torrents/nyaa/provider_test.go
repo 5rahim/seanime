@@ -1,13 +1,15 @@
 package nyaa
 
 import (
-	"github.com/stretchr/testify/require"
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestSearch(t *testing.T) {
@@ -28,7 +30,11 @@ func TestSmartSearch(t *testing.T) {
 
 	anilistLimiter := limiter.NewAnilistLimiter()
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	logger := util.NewLogger()
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 
 	nyaaProvider := NewProvider(util.NewLogger())
 

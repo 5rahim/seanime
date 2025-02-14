@@ -3,6 +3,7 @@ package scanner
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
@@ -17,7 +18,10 @@ func TestFileHydrator_HydrateMetadata(t *testing.T) {
 	logger := util.NewLogger()
 	metadataProvider := metadata.GetMockProvider(t)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, util.NewLogger())
+	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
+		Logger: logger,
+	})
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
 	animeCollection, err := anilistPlatform.GetAnimeCollectionWithRelations()
 	if err != nil {
 		t.Fatal("expected result, got error:", err.Error())
