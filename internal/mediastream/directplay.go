@@ -16,7 +16,9 @@ import (
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) ServeEchoFile(c echo.Context, filePath string, clientId string) error {
-	filePath, _ = url.QueryUnescape(filePath)
+	unescapedFilePath := filePath
+	filePath, _ = url.PathUnescape(filePath)
+	r.logger.Trace().Str("filepath", filePath).Str("payload", unescapedFilePath).Msg("mediastream: Served file")
 	return c.File(filePath)
 }
 
