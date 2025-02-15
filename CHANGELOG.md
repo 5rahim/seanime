@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.7.3
+
+- ⚡️ External player link: Option to encode file path to Base64 
+- 🦺 Desktop: Fixed startup failing due to long AniList request #232
+- 🦺 Debrid: Fixed downloading to non-existant destination #237
+- 🦺 Anime library: Fixed external player link not working due to incorrect un-escaping #240
+- 🦺 Small UI fixes
+- 🏗️ Server: Support serving Base64 encoded file paths
+
 ## v2.7.2
 
 - 🦺 Fixed error alert regression
