@@ -1,10 +1,11 @@
-package anime
+package anime_test
 
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/library/anime"
 	"seanime/internal/test_utils"
 	"testing"
 )
@@ -22,7 +23,7 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 
 	tests := []struct {
 		name                             string
-		localFiles                       []*LocalFile
+		localFiles                       []*anime.LocalFile
 		mediaId                          int
 		currentProgress                  int
 		status                           anilist.MediaListStatus
@@ -91,7 +92,7 @@ func TestNewEntryDownloadInfo(t *testing.T) {
 
 			anilistEntry, _ := animeCollection.GetListEntryFromAnimeId(tt.mediaId)
 
-			info, err := NewEntryDownloadInfo(&NewEntryDownloadInfoOptions{
+			info, err := anime.NewEntryDownloadInfo(&anime.NewEntryDownloadInfoOptions{
 				LocalFiles:       tt.localFiles,
 				Progress:         &tt.currentProgress,
 				Status:           &tt.status,

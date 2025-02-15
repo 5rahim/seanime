@@ -1,31 +1,32 @@
-package anime
+package anime_test
 
 import (
 	"cmp"
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/library/anime"
 	"slices"
 	"testing"
 )
 
 func TestLocalFileWrapperEntry(t *testing.T) {
 
-	lfs := MockHydratedLocalFiles(
-		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/One Piece/One Piece - %ep.mkv", 21, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{MetadataEpisode: 1070, MetadataAniDbEpisode: "1070", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 1071, MetadataAniDbEpisode: "1071", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 1072, MetadataAniDbEpisode: "1072", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 1073, MetadataAniDbEpisode: "1073", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 1074, MetadataAniDbEpisode: "1074", MetadataType: LocalFileTypeMain},
+	lfs := anime.MockHydratedLocalFiles(
+		anime.MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/One Piece/One Piece - %ep.mkv", 21, []anime.MockHydratedLocalFileWrapperOptionsMetadata{
+			{MetadataEpisode: 1070, MetadataAniDbEpisode: "1070", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 1071, MetadataAniDbEpisode: "1071", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 1072, MetadataAniDbEpisode: "1072", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 1073, MetadataAniDbEpisode: "1073", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 1074, MetadataAniDbEpisode: "1074", MetadataType: anime.LocalFileTypeMain},
 		}),
-		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Blue Lock/Blue Lock - %ep.mkv", 22222, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: LocalFileTypeMain},
+		anime.MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Blue Lock/Blue Lock - %ep.mkv", 22222, []anime.MockHydratedLocalFileWrapperOptionsMetadata{
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 3, MetadataAniDbEpisode: "3", MetadataType: anime.LocalFileTypeMain},
 		}),
-		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{MetadataEpisode: 0, MetadataAniDbEpisode: "S1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+		anime.MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656, []anime.MockHydratedLocalFileWrapperOptionsMetadata{
+			{MetadataEpisode: 0, MetadataAniDbEpisode: "S1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: anime.LocalFileTypeMain},
 		}),
 	)
 
@@ -52,7 +53,7 @@ func TestLocalFileWrapperEntry(t *testing.T) {
 		},
 	}
 
-	lfw := NewLocalFileWrapper(lfs)
+	lfw := anime.NewLocalFileWrapper(lfs)
 
 	// Not empty
 	if assert.Greater(t, len(lfw.GetLocalEntries()), 0) {
@@ -99,16 +100,16 @@ func TestLocalFileWrapperEntry(t *testing.T) {
 
 func TestLocalFileWrapperEntryProgressNumber(t *testing.T) {
 
-	lfs := MockHydratedLocalFiles(
-		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{MetadataEpisode: 0, MetadataAniDbEpisode: "S1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+	lfs := anime.MockHydratedLocalFiles(
+		anime.MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656, []anime.MockHydratedLocalFileWrapperOptionsMetadata{
+			{MetadataEpisode: 0, MetadataAniDbEpisode: "S1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "2", MetadataType: anime.LocalFileTypeMain},
 		}),
-		MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656_2, []MockHydratedLocalFileWrapperOptionsMetadata{
-			{MetadataEpisode: 1, MetadataAniDbEpisode: "S1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 2, MetadataAniDbEpisode: "1", MetadataType: LocalFileTypeMain},
-			{MetadataEpisode: 3, MetadataAniDbEpisode: "2", MetadataType: LocalFileTypeMain},
+		anime.MockGenerateHydratedLocalFileGroupOptions("/mnt/anime/", "/mnt/anime/Kimi ni Todoke/Kimi ni Todoke - %ep.mkv", 9656_2, []anime.MockHydratedLocalFileWrapperOptionsMetadata{
+			{MetadataEpisode: 1, MetadataAniDbEpisode: "S1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 2, MetadataAniDbEpisode: "1", MetadataType: anime.LocalFileTypeMain},
+			{MetadataEpisode: 3, MetadataAniDbEpisode: "2", MetadataType: anime.LocalFileTypeMain},
 		}),
 	)
 
@@ -138,7 +139,7 @@ func TestLocalFileWrapperEntryProgressNumber(t *testing.T) {
 		},
 	}
 
-	lfw := NewLocalFileWrapper(lfs)
+	lfw := anime.NewLocalFileWrapper(lfs)
 
 	// Not empty
 	if assert.Greater(t, len(lfw.GetLocalEntries()), 0) {
@@ -173,7 +174,7 @@ func TestLocalFileWrapperEntryProgressNumber(t *testing.T) {
 						}
 					}
 
-					slices.SortStableFunc(mainLfs, func(i *LocalFile, j *LocalFile) int {
+					slices.SortStableFunc(mainLfs, func(i *anime.LocalFile, j *anime.LocalFile) int {
 						return cmp.Compare(i.GetEpisodeNumber(), j.GetEpisodeNumber())
 					})
 					for idx, lf := range mainLfs {

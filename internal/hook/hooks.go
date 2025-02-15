@@ -8,6 +8,7 @@ import (
 
 // Manager manages all hooks in the application
 type Manager interface {
+	// AniList events
 	OnGetAnime() *Hook[*hook_event.GetAnimeEvent]
 	OnGetAnimeDetails() *Hook[*hook_event.GetAnimeDetailsEvent]
 	OnGetManga() *Hook[*hook_event.GetMangaEvent]
@@ -23,11 +24,16 @@ type Manager interface {
 	OnPostUpdateEntryProgress() *Hook[*hook_event.PostUpdateEntryProgressEvent]
 	OnPreUpdateEntryRepeat() *Hook[*hook_event.PreUpdateEntryRepeatEvent]
 	OnPostUpdateEntryRepeat() *Hook[*hook_event.PostUpdateEntryRepeatEvent]
+	// Anime library events
+	OnPreGetAnimeEntry() *Hook[*hook_event.PreGetAnimeEntryEvent]
+	OnAnimeEntry() *Hook[*hook_event.AnimeEntryEvent]
+	OnAnimeEntryFillerHydration() *Hook[*hook_event.AnimeEntryFillerHydrationEvent]
+	OnAnimeEntryError() *Hook[*hook_event.AnimeEntryErrorEvent]
 }
 
 type ManagerImpl struct {
 	logger *zerolog.Logger
-
+	// AniList events
 	onGetAnime                *Hook[*hook_event.GetAnimeEvent]
 	onGetAnimeDetails         *Hook[*hook_event.GetAnimeDetailsEvent]
 	onGetManga                *Hook[*hook_event.GetMangaEvent]
@@ -43,6 +49,11 @@ type ManagerImpl struct {
 	onPostUpdateEntryProgress *Hook[*hook_event.PostUpdateEntryProgressEvent]
 	onPreUpdateEntryRepeat    *Hook[*hook_event.PreUpdateEntryRepeatEvent]
 	onPostUpdateEntryRepeat   *Hook[*hook_event.PostUpdateEntryRepeatEvent]
+	// Anime library events
+	onPreGetAnimeEntry          *Hook[*hook_event.PreGetAnimeEntryEvent]
+	onAnimeEntry                *Hook[*hook_event.AnimeEntryEvent]
+	onAnimeEntryFillerHydration *Hook[*hook_event.AnimeEntryFillerHydrationEvent]
+	onAnimeEntryError           *Hook[*hook_event.AnimeEntryErrorEvent]
 }
 
 type NewHookManagerOptions struct {
@@ -60,6 +71,7 @@ func NewHookManager(opts NewHookManagerOptions) Manager {
 }
 
 func (m *ManagerImpl) initHooks() {
+	// AniList events
 	m.onGetAnime = &Hook[*hook_event.GetAnimeEvent]{}
 	m.onGetAnimeDetails = &Hook[*hook_event.GetAnimeDetailsEvent]{}
 	m.onGetManga = &Hook[*hook_event.GetMangaEvent]{}
@@ -75,6 +87,11 @@ func (m *ManagerImpl) initHooks() {
 	m.onPostUpdateEntryProgress = &Hook[*hook_event.PostUpdateEntryProgressEvent]{}
 	m.onPreUpdateEntryRepeat = &Hook[*hook_event.PreUpdateEntryRepeatEvent]{}
 	m.onPostUpdateEntryRepeat = &Hook[*hook_event.PostUpdateEntryRepeatEvent]{}
+	// Anime library events
+	m.onPreGetAnimeEntry = &Hook[*hook_event.PreGetAnimeEntryEvent]{}
+	m.onAnimeEntry = &Hook[*hook_event.AnimeEntryEvent]{}
+	m.onAnimeEntryFillerHydration = &Hook[*hook_event.AnimeEntryFillerHydrationEvent]{}
+	m.onAnimeEntryError = &Hook[*hook_event.AnimeEntryErrorEvent]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[*hook_event.GetAnimeEvent] {
@@ -135,4 +152,20 @@ func (m *ManagerImpl) OnPreUpdateEntryRepeat() *Hook[*hook_event.PreUpdateEntryR
 
 func (m *ManagerImpl) OnPostUpdateEntryRepeat() *Hook[*hook_event.PostUpdateEntryRepeatEvent] {
 	return m.onPostUpdateEntryRepeat
+}
+
+func (m *ManagerImpl) OnPreGetAnimeEntry() *Hook[*hook_event.PreGetAnimeEntryEvent] {
+	return m.onPreGetAnimeEntry
+}
+
+func (m *ManagerImpl) OnAnimeEntry() *Hook[*hook_event.AnimeEntryEvent] {
+	return m.onAnimeEntry
+}
+
+func (m *ManagerImpl) OnAnimeEntryFillerHydration() *Hook[*hook_event.AnimeEntryFillerHydrationEvent] {
+	return m.onAnimeEntryFillerHydration
+}
+
+func (m *ManagerImpl) OnAnimeEntryError() *Hook[*hook_event.AnimeEntryErrorEvent] {
+	return m.onAnimeEntryError
 }

@@ -72,11 +72,11 @@ func (h *Hook[T]) Bind(handler *Handler[T]) string {
 		handler.Id = generateHookId()
 
 		// ensure that it doesn't exist
-	DUPLICATE_CHECK:
+	DuplicateCheck:
 		for _, existing := range h.handlers {
 			if existing.Id == handler.Id {
 				handler.Id = generateHookId()
-				goto DUPLICATE_CHECK
+				goto DuplicateCheck
 			}
 		}
 	} else {

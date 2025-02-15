@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/hook_event"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
@@ -56,6 +57,15 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		return h.RespondWithError(c, errors.New("anime collection not found"))
 	}
 
+	preEvent := new(hook_event.PreGetAnimeEntryEvent)
+	preEvent.MediaId = &mId
+	preEvent.LocalFiles = lfs
+	preEvent.AnimeCollection = animeCollection
+	err = h.App.HookManager.OnPreGetAnimeEntry().Trigger(preEvent)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
 	// Create a new media entry
 	entry, err := anime.NewEntry(&anime.NewEntryOptions{
 		MediaId:          mId,
@@ -65,12 +75,35 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		MetadataProvider: h.App.MetadataProvider,
 	})
 	if err != nil {
+		errEvent := &hook_event.AnimeEntryErrorEvent{PreGetAnimeEntryEvent: *preEvent, Error: err}
+		hookErr := h.App.HookManager.OnAnimeEntryError().Trigger(errEvent)
+		if hookErr != nil {
+			return h.RespondWithError(c, errors.Join(err, hookErr))
+		}
 		return h.RespondWithError(c, err)
 	}
 
-	h.App.FillerManager.HydrateFillerData(entry)
+	event := new(hook_event.AnimeEntryEvent)
+	event.Entry = entry
+	err = h.App.HookManager.OnAnimeEntry().Trigger(event)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
 
-	return h.RespondWithData(c, entry)
+	fillerEvent := new(hook_event.AnimeEntryFillerHydrationEvent)
+	fillerEvent.Entry = event.Entry
+	fillerEvent.SkipDefault = lo.ToPtr(true)
+	err = h.App.HookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent, func(event hook_event.AnimeEntryFillerHydrationEvent) error {
+		if event.SkipDefault == nil || !*event.SkipDefault {
+			h.App.FillerManager.HydrateFillerData(event.Entry)
+		}
+		return nil
+	})
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, event.Entry)
 }
 
 //----------------------------------------------------------------------------------------------------------------------

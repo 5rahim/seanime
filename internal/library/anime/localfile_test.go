@@ -1,7 +1,8 @@
-package anime
+package anime_test
 
 import (
 	"github.com/stretchr/testify/assert"
+	"seanime/internal/library/anime"
 	"testing"
 )
 
@@ -35,7 +36,7 @@ func TestNewLocalFile(t *testing.T) {
 
 	for _, tt := range tests {
 
-		lf := NewLocalFile(tt.path, tt.libraryPath)
+		lf := anime.NewLocalFile(tt.path, tt.libraryPath)
 
 		if assert.NotNil(t, lf) {
 			assert.Equal(t, tt.expectedNbFolders, len(lf.ParsedFolderData))

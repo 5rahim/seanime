@@ -302,6 +302,11 @@ func (r *Repository) LoadPlugins() {
 				}
 				e.next();
 			});
+
+			$app.onAnimeEntry((e) => {
+				$replace(e.entry.episodes, [])
+				$replace(e.entry.localFiles, [])
+			});
 		}
 		`,
 	}
