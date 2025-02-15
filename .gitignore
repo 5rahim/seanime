@@ -5,6 +5,7 @@ logs/
 testdata/
 .vscode
 .cursor
+.DS_Store
 
 Dockerfile
 Dockerfile.dev
