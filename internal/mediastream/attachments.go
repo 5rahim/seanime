@@ -68,7 +68,7 @@ func (r *Repository) ServeEchoExtractedAttachments(c echo.Context) error {
 		return errors.New("could not find subtitles")
 	}
 
-	subFilePath, _ = url.QueryUnescape(subFilePath)
+	subFilePath, _ = url.PathUnescape(subFilePath)
 
 	return c.File(filepath.Join(retPath, subFilePath))
 }

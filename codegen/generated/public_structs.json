@@ -25660,6 +25660,17 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AnilistDataLoaded",
+        "jsonName": "AnilistDataLoaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Whether the Anilist data from the first request has been fetched"
+        ]
       }
     ],
     "comments": []
@@ -34827,6 +34838,15 @@
         "typescriptType": "INTERNAL_FeatureFlags",
         "usedStructName": "core.FeatureFlags",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnilistDataLoaded",
+        "jsonName": "anilistDataLoaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -45516,6 +45536,15 @@
         "jsonName": "scaleFilter",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithForcedIdr",
+        "jsonName": "removeForcedIdr",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []

@@ -5,6 +5,7 @@ import { SettingsSubmitButton } from "@/app/(main)/settings/_components/settings
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Alert } from "@/components/ui/alert"
 import { Field } from "@/components/ui/form"
+import { Switch } from "@/components/ui/switch"
 import { TextInput } from "@/components/ui/text-input"
 import { getDefaultMpcSocket } from "@/lib/server/settings"
 import React from "react"
@@ -159,7 +160,7 @@ export function MediaplayerSettings(props: MediaplayerSettingsProps) {
 
 export function ExternalPlayerLinkSettings() {
 
-    const { externalPlayerLink, setExternalPlayerLink } = useExternalPlayerLink()
+    const { externalPlayerLink, setExternalPlayerLink, encodePath, setEncodePath } = useExternalPlayerLink()
 
     return (
         <>
@@ -185,6 +186,17 @@ export function ExternalPlayerLinkSettings() {
                     placeholder="Example: outplayer://{url}"
                     value={externalPlayerLink}
                     onValueChange={setExternalPlayerLink}
+                />
+            </SettingsCard>
+
+            <SettingsCard>
+                <Switch
+                    side="right"
+                    name="encodePath"
+                    label="Encode file path in URL (library only)"
+                    help="If enabled, the file path will be base64 encoded in the URL to avoid issues with special characters."
+                    value={encodePath}
+                    onValueChange={setEncodePath}
                 />
             </SettingsCard>
 

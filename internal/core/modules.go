@@ -7,6 +7,7 @@ import (
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
+	"seanime/internal/events"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
 	"seanime/internal/library/fillermanager"
@@ -536,17 +537,20 @@ func (a *App) InitOrRefreshAnilistData() {
 	a.account = acc
 	a.Logger.Info().Msg("app: Authenticated to AniList")
 
-	_, err = a.RefreshAnimeCollection()
-	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist anime collection")
-		return
-	}
+	go func() {
+		_, err = a.RefreshAnimeCollection()
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist anime collection")
+		}
 
-	_, err = a.RefreshMangaCollection()
-	if err != nil {
-		a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist manga collection")
-		return
-	}
+		a.AnilistDataLoaded = true
+		a.WSEventManager.SendEvent(events.AnilistDataLoaded, nil)
+
+		_, err = a.RefreshMangaCollection()
+		if err != nil {
+			a.Logger.Error().Err(err).Msg("app: Failed to fetch Anilist manga collection")
+		}
+	}()
 
 	go func(username string) {
 		a.DiscordPresence.SetUsername(username)

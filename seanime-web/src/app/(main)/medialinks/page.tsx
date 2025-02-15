@@ -34,7 +34,14 @@ export default function Page() {
 
     const { mutate: startManualTracking, isPending: isStarting } = usePlaybackStartManualTracking()
 
-    const { externalPlayerLink } = useExternalPlayerLink()
+    const { externalPlayerLink, encodePath } = useExternalPlayerLink()
+
+    function encodeFilePath(filePath: string) {
+        if (encodePath) {
+            return Buffer.from(filePath).toString("base64")
+        }
+        return encodeURIComponent(filePath)
+    }
 
     React.useEffect(() => {
         // On mount, when the anime entry is loaded, and the file path is set, play the media file
@@ -60,7 +67,7 @@ export default function Page() {
             }
 
             // Send video to external player
-            const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(filePath)
+            const urlToSend = getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeFilePath(filePath)
             logger("MEDIALINKS").info("Opening external player", externalPlayerLink, "URL", urlToSend)
 
             openTab(getExternalPlayerURL(externalPlayerLink, urlToSend))
