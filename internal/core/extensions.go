@@ -2,8 +2,8 @@ package core
 
 import (
 	"seanime/internal/extension"
-	"seanime/internal/manga/providers"
-	"seanime/internal/onlinestream/providers"
+	manga_providers "seanime/internal/manga/providers"
+	onlinestream_providers "seanime/internal/onlinestream/providers"
 	"seanime/internal/torrents/animetosho"
 	"seanime/internal/torrents/nyaa"
 	"seanime/internal/torrents/seadex"

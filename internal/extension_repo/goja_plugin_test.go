@@ -17,53 +17,26 @@ import (
 func TestNewGojaPlugin(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
-
 	payload := `
 	function init() {
-		console.log("init called");
-		$app.onGetBaseAnime((e) => {
-			//console.log($ctx)
-			console.log("$app.onGetBaseAnime fired")
-			if(e.anime.id === 178022) {
-				//console.log(e.anime)
-				//let mutableAnime = $mutable(e.anime)
-				//mutableAnime.id = 22;
-				//mutableAnime.idMal = 22;
-				////mutableAnime.title.set(undefined)
-				//mutableAnime.title.set({ "english": "The One Piece is Real" })
-				//mutableAnime.synonyms[0] = "The One Piece is Real"
-				//mutableAnime.synonyms.set(["The One Piece is Real"])
-				//console.log(mutableAnime.toJSON())
-				//mutableAnime.replace(e.anime)
 
-				e.anime.id = 22;
-				e.anime.idMal = 22;
-				e.anime.idMal = 22;
+		$app.onGetAnime((e) => {
+
+			if(e.anime.id === 178022) {
+				e.anime.id = 21;
 				$replace(e.anime.title, { "english": "The One Piece is Real" })
 				$replace(e.anime.synonyms, ["The One Piece is Real"])
-				e.anime.synonyms[0] = "The One Piece is Real"
+				e.anime.synonyms[0] = "The One Piece"
 			}
-
-			// Store a value
-			//$ctx.store.set("myKey", 42);
-
-			// Retrieve it later in another hook
-			//const value = $ctx.store.get("myKey"); // 42
-			//console.log(value)
 
 			e.next();
 		});
 
-		$app.onGetBaseAnime((e) => {
-			console.log("$app.onGetBaseAnime(2) fired")
+		$app.onGetAnime((e) => {
+			console.log("$app.onGetAnime(2) fired")
 			console.log(e.anime.id)
-			console.log(e.anime.idMal)
 			console.log(e.anime.synonyms[0])
 			console.log(e.anime.title)
-
-			// Check if exists
-			//const value = $ctx.store.get("myKey"); // 42
-			//console.log(value)
 		});
 	}
 	`
@@ -126,7 +99,7 @@ func BenchmarkHookInvocation(b *testing.B) {
 	// Dummy extension payload that registers a hook
 	payload := `
 		function init() {
-			$app.onGetBaseAnime(function(e) {
+			$app.onGetAnime(function(e) {
 				e.next();
 			});
 		}
@@ -147,7 +120,7 @@ func BenchmarkHookInvocation(b *testing.B) {
 
 	title := "Test Anime"
 	// Create a dummy anime event that we'll reuse
-	dummyEvent := &hook_event.GetBaseAnimeEvent{
+	dummyEvent := &hook_event.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -158,7 +131,7 @@ func BenchmarkHookInvocation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 		//b.ReportMetric(b.Elapsed().Seconds(), "s/op")
@@ -174,7 +147,7 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 	// Dummy extension payload that registers a hook
 	payload := `
 		function init() {
-			$app.onGetBaseAnimeError(function(e) {
+			$app.onGetAnimeError(function(e) {
 				e.next();
 			});
 		}
@@ -195,7 +168,7 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 
 	title := "Test Anime"
 	// Create a dummy anime event that we'll reuse
-	dummyEvent := &hook_event.GetBaseAnimeEvent{
+	dummyEvent := &hook_event.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -206,7 +179,7 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -220,7 +193,7 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 
 	payload := `
 		function init() {
-			$app.onGetBaseAnime(function(e) {
+			$app.onGetAnime(function(e) {
 				e.next();
 			});
 		}
@@ -254,7 +227,7 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			title := "Test Anime"
-			event := &hook_event.GetBaseAnimeEvent{
+			event := &hook_event.GetAnimeEvent{
 				Anime: &anilist.BaseAnime{
 					ID: 1234,
 					Title: &anilist.BaseAnime_Title{
@@ -262,7 +235,7 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 					},
 				},
 			}
-			if err := hm.OnGetBaseAnime().Trigger(event); err != nil {
+			if err := hm.OnGetAnime().Trigger(event); err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -276,7 +249,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 
 	payload := `
 		function init() {
-			$app.onGetBaseAnimeError(function(e) {
+			$app.onGetAnimeError(function(e) {
 				e.next();
 			});
 		}
@@ -309,7 +282,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			title := "Test Anime"
-			event := &hook_event.GetBaseAnimeEvent{
+			event := &hook_event.GetAnimeEvent{
 				Anime: &anilist.BaseAnime{
 					ID: 1234,
 					Title: &anilist.BaseAnime_Title{
@@ -317,7 +290,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 					},
 				},
 			}
-			if err := hm.OnGetBaseAnime().Trigger(event); err != nil {
+			if err := hm.OnGetAnime().Trigger(event); err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -328,7 +301,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 func BenchmarkBaselineNoHook(b *testing.B) {
 	b.ReportAllocs()
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetBaseAnimeEvent{
+	dummyEvent := &hook_event.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -351,7 +324,7 @@ func BenchmarkHookWithWork(b *testing.B) {
 
 	payload := `
 		function init() {
-			$app.onGetBaseAnime(function(e) {
+			$app.onGetAnime(function(e) {
 				// Do some work
 				if (e.anime.id === 1234) {
 					e.anime.id = 5678;
@@ -376,7 +349,7 @@ func BenchmarkHookWithWork(b *testing.B) {
 	_ = plugin
 
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetBaseAnimeEvent{
+	dummyEvent := &hook_event.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -387,7 +360,7 @@ func BenchmarkHookWithWork(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -401,7 +374,7 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 
 	payload := `
 		function init() {
-			$app.onGetBaseAnime(function(e) {
+			$app.onGetAnime(function(e) {
 				// Do some work
 				if (e.anime.id === 1234) {
 					e.anime.id = 5678;
@@ -439,7 +412,7 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 	_ = plugin
 
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetBaseAnimeEvent{
+	dummyEvent := &hook_event.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -451,7 +424,7 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+			if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -465,7 +438,7 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 
 	payload := `
 		function init() {
-			$app.onGetBaseAnimeError(function(e) {
+			$app.onGetAnimeError(function(e) {
 				// Do some work
 				if (e.anime.id === 1234) {
 					e.anime.id = 5678;
@@ -490,7 +463,7 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	_ = plugin
 
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetBaseAnimeEvent{
+	dummyEvent := &hook_event.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -501,7 +474,7 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetBaseAnime().Trigger(dummyEvent); err != nil {
+		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 	}

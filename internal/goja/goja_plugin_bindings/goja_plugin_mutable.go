@@ -201,7 +201,7 @@ func BindMutable(vm *goja.Runtime) {
 		return goja.Undefined()
 	}))
 
-	vm.Set("deepClone", vm.ToValue(func(call goja.FunctionCall) goja.Value {
+	vm.Set("$clone", vm.ToValue(func(call goja.FunctionCall) goja.Value {
 		if len(call.Arguments) == 0 {
 			return goja.Undefined()
 		}

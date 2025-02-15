@@ -2,9 +2,6 @@ package anime
 
 import (
 	"cmp"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
@@ -12,6 +9,10 @@ import (
 	"seanime/internal/util"
 	"slices"
 	"sort"
+
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (

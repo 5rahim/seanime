@@ -1,17 +1,19 @@
 package extension_repo
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"os"
 	"seanime/internal/events"
 	"seanime/internal/extension"
-	"seanime/internal/extension/hibike/manga"
-	"seanime/internal/extension/hibike/onlinestream"
-	"seanime/internal/extension/hibike/torrent"
+	hibikemanga "seanime/internal/extension/hibike/manga"
+	hibikeonlinestream "seanime/internal/extension/hibike/onlinestream"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/goja/goja_runtime"
+	"seanime/internal/hook"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type (
@@ -32,6 +34,8 @@ type (
 		extensionBank *extension.UnifiedBank
 
 		invalidExtensions *result.Map[string, *extension.InvalidExtension]
+
+		hookManager hook.Manager
 	}
 
 	AllExtensions struct {
@@ -78,6 +82,7 @@ type NewRepositoryOptions struct {
 	ExtensionDir   string
 	WSEventManager events.WSEventManagerInterface
 	FileCacher     *filecache.Cacher
+	HookManager    hook.Manager
 }
 
 func NewRepository(opts *NewRepositoryOptions) *Repository {
@@ -94,6 +99,7 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		extensionBank:      extension.NewUnifiedBank(),
 		invalidExtensions:  result.NewResultMap[string, *extension.InvalidExtension](),
 		fileCacher:         opts.FileCacher,
+		hookManager:        opts.HookManager,
 	}
 
 	return ret
@@ -266,3 +272,43 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (r *Repository) LoadPlugins() {
+
+	loader := NewGojaPluginLoader(r.logger, r.gojaRuntimeManager, r.hookManager)
+
+	testExt := &extension.Extension{
+		ID:       "test-plugin",
+		Language: extension.LanguageTypescript,
+		Payload: `
+		function init() {
+
+			$app.onGetAnimeCollection((e) => {
+				// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
+				for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+					for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+						$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
+					}
+				}
+				e.next();
+			});
+
+			$app.onGetRawAnimeCollection((e) => {
+				//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
+				for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+					for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+						$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
+					}
+				}
+				e.next();
+			});
+		}
+		`,
+	}
+
+	err := r.loadPluginExtension(loader, testExt, r.hookManager)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("extensions: Failed to load test extension")
+	}
+
+}

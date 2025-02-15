@@ -2,12 +2,13 @@ package anime
 
 import (
 	"errors"
-	"github.com/samber/lo"
-	"github.com/sourcegraph/conc/pool"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/platforms/platform"
 	"sort"
+
+	"github.com/samber/lo"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type (

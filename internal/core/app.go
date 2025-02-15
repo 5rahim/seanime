@@ -10,8 +10,8 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
-	debrid_client "seanime/internal/debrid/client"
-	discordrpc_presence "seanime/internal/discordrpc/presence"
+	"seanime/internal/debrid/client"
+	"seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
@@ -103,7 +103,7 @@ type (
 		account            *models.Account
 		previousVersion    string
 		moduleMu           sync.Mutex
-		HookManager        hook.HookManager
+		HookManager        hook.Manager
 		AnilistDataLoaded  bool // Whether the Anilist data from the first request has been fetched
 	}
 )
@@ -184,6 +184,16 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		logger.Fatal().Err(err).Msgf("app: Failed to initialize file cacher")
 	}
 
+	// Extension Repository
+	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
+		Logger:         logger,
+		ExtensionDir:   cfg.Extensions.Dir,
+		WSEventManager: wsEventManager,
+		FileCacher:     fileCacher,
+		HookManager:    hookManager,
+	})
+	extensionRepository.LoadPlugins()
+
 	// Metadata Provider
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
 		Logger:     logger,
@@ -243,14 +253,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		MetadataProvider: activeMetadataProvider,
 		Platform:         activePlatform,
 		Database:         database,
-	})
-
-	// Extension Repository
-	extensionRepository := extension_repo.NewRepository(&extension_repo.NewRepositoryOptions{
-		Logger:         logger,
-		ExtensionDir:   cfg.Extensions.Dir,
-		WSEventManager: wsEventManager,
-		FileCacher:     fileCacher,
 	})
 
 	extensionPlaygroundRepository := extension_playground.NewPlaygroundRepository(logger, activePlatform, activeMetadataProvider)

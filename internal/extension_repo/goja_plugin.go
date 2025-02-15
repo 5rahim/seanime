@@ -19,7 +19,7 @@ import (
 // Anime Torrent provider
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Extension, hm hook.HookManager) (err error) {
+func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Extension, hm hook.Manager) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
 
 	switch ext.Language {
@@ -38,7 +38,7 @@ func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Ex
 	return
 }
 
-func (r *Repository) loadPluginExtensionJS(loader *goja.Runtime, ext *extension.Extension, language extension.Language, hm hook.HookManager) error {
+func (r *Repository) loadPluginExtensionJS(loader *goja.Runtime, ext *extension.Extension, language extension.Language, hm hook.Manager) error {
 	_, err := NewGojaPlugin(loader, ext, language, r.logger, r.gojaRuntimeManager, hm)
 	if err != nil {
 		return err
@@ -61,7 +61,7 @@ type GojaPlugin struct {
 	runtimeManager *goja_runtime.Manager
 }
 
-func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.HookManager) *goja.Runtime {
+func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.Manager) *goja.Runtime {
 	loader := goja.New()
 	// Add bindings to the loader
 	ShareBinds(loader, logger)
@@ -82,7 +82,9 @@ func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Ma
 	return loader
 }
 
-func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.HookManager) (*GojaPlugin, error) {
+func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.Manager) (*GojaPlugin, error) {
+	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
+
 	pool, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
@@ -105,6 +107,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 		if err != nil {
 			return nil, fmt.Errorf("failed to run init: %w", err)
 		}
+		logger.Debug().Str("id", ext.ID).Msg("extensions: Plugin initialized")
 	}
 
 	return &GojaPlugin{
@@ -118,7 +121,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 type PluginContext struct {
 }
 
-func BindHooks(loader *goja.Runtime, hm hook.HookManager, runtimeManager *goja_runtime.Manager) {
+func BindHooks(loader *goja.Runtime, hm hook.Manager, runtimeManager *goja_runtime.Manager) {
 	fm := FieldMapper{}
 
 	appType := reflect.TypeOf(hm)
