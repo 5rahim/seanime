@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"seanime/internal/events"
+	"seanime/internal/util"
 
 	"github.com/labstack/echo/v4"
 )
@@ -15,8 +16,21 @@ import (
 // Direct
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) ServeEchoFile(c echo.Context, filePath string, clientId string) error {
-	filePath, _ = url.QueryUnescape(filePath)
+func (r *Repository) ServeEchoFile(c echo.Context, rawFilePath string, clientId string) error {
+	// Unescape the file path, ignore errors
+	filePath, _ := url.PathUnescape(rawFilePath)
+
+	// If the file path is base64 encoded, decode it
+	if util.IsBase64(rawFilePath) {
+		var err error
+		filePath, err = util.Base64DecodeStr(rawFilePath)
+		if err != nil {
+			// this shouldn't happen, but just in case IsBase64 is wrong
+			filePath, _ = url.PathUnescape(rawFilePath)
+		}
+	}
+
+	r.logger.Trace().Str("filepath", filePath).Str("payload", rawFilePath).Msg("mediastream: Served file")
 	return c.File(filePath)
 }
 

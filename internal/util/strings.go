@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"path/filepath"
@@ -134,6 +135,53 @@ func Pluralize(count int, singular, plural string) string {
 	return plural
 }
 
+// NormalizePath normalizes a path by converting it to lowercase and replacing backslashes with forward slashes
+// Warning: Do not use the returned string for anything filesystem related, only for comparison
 func NormalizePath(path string) (ret string) {
 	return strings.ToLower(filepath.ToSlash(path))
+}
+
+func Base64EncodeStr(str string) string {
+	return base64.StdEncoding.EncodeToString([]byte(str))
+}
+
+func Base64DecodeStr(str string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(str)
+	if err != nil {
+		return "", err
+	}
+	return string(decoded), nil
+}
+
+func IsBase64(s string) bool {
+	// 1. Check if string is empty
+	if len(s) == 0 {
+		return false
+	}
+
+	// 2. Check if length is valid (must be multiple of 4)
+	if len(s)%4 != 0 {
+		return false
+	}
+
+	// 3. Check for valid padding
+	padding := strings.Count(s, "=")
+	if padding > 2 {
+		return false
+	}
+
+	// 4. Check if padding is at the end only
+	if padding > 0 && !strings.HasSuffix(s, strings.Repeat("=", padding)) {
+		return false
+	}
+
+	// 5. Check if string contains only valid base64 characters
+	validChars := regexp.MustCompile("^[A-Za-z0-9+/]*=*$")
+	if !validChars.MatchString(s) {
+		return false
+	}
+
+	// 6. Try to decode - this is the final verification
+	_, err := base64.StdEncoding.DecodeString(s)
+	return err == nil
 }
