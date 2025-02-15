@@ -1,6 +1,7 @@
 import { getServerBaseUrl } from "@/api/client/server-url"
 import { AL_BaseAnime, Anime_Episode, Anime_LocalFileType } from "@/api/generated/types"
 import { useUpdateLocalFileData } from "@/api/hooks/localfiles.hooks"
+import { useExternalPlayerLink } from "@/app/(main)/_atoms/playback.atoms"
 import { EpisodeGridItem } from "@/app/(main)/_features/anime/_components/episode-grid-item"
 import { IconButton } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
@@ -36,6 +37,15 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
 
     const { updateLocalFile, isPending } = useUpdateLocalFileData(media.id)
     const [_, copyToClipboard] = useCopyToClipboard()
+
+    const { encodePath } = useExternalPlayerLink()
+
+    function encodeFilePath(filePath: string) {
+        if (encodePath) {
+            return Buffer.from(filePath).toString("base64")
+        }
+        return encodeURIComponent(filePath)
+    }
 
     return (
         <EpisodeItemIsolation.Provider>
@@ -80,7 +90,7 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                         <MetadataModalButton />
                         {episode.localFile && <DropdownMenuItem
                             onClick={() => {
-                                copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeURIComponent(episode.localFile!.path))
+                                copyToClipboard(getServerBaseUrl() + "/api/v1/mediastream/file/" + encodeFilePath(episode.localFile!.path))
                                 toast.info("Stream URL copied")
                             }}
                         >

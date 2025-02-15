@@ -2,10 +2,11 @@ package mpchc
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
 	"io"
 	"net/http"
 	neturl "net/url"
+
+	"github.com/rs/zerolog"
 )
 
 type MpcHc struct {
@@ -33,6 +34,7 @@ func (api *MpcHc) Execute(command int, data map[string]interface{}) (string, err
 
 	response, err := http.Get(url)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to execute command")
 		return "", err
 	}
 	defer response.Body.Close()
@@ -60,9 +62,11 @@ func (api *MpcHc) Execute(command int, data map[string]interface{}) (string, err
 // OpenAndPlay opens a video file in MPC.
 func (api *MpcHc) OpenAndPlay(filePath string) (string, error) {
 	url := fmt.Sprintf("%s/browser.html?path=%s", api.url(), neturl.PathEscape(filePath))
+	api.Logger.Trace().Str("url", url).Msg("mpc hc: Opening and playing")
 
 	response, err := http.Get(url)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to connect to MPC")
 		return "", err
 	}
 	defer response.Body.Close()
@@ -71,6 +75,7 @@ func (api *MpcHc) OpenAndPlay(filePath string) (string, error) {
 	statusCode := response.StatusCode
 	if !((statusCode >= 200) && (statusCode <= 299)) {
 		err = fmt.Errorf("http error code: %d\n", statusCode)
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to open and play")
 		return "", err
 	}
 
@@ -78,6 +83,7 @@ func (api *MpcHc) OpenAndPlay(filePath string) (string, error) {
 	byteArr, readErr := io.ReadAll(response.Body)
 	if readErr != nil {
 		err = fmt.Errorf("error reading response: %s\n", readErr)
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to open and play")
 		return "", err
 	}
 
@@ -93,6 +99,7 @@ func (api *MpcHc) GetVariables() (*Variables, error) {
 
 	response, err := http.Get(url)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to get variables")
 		return &Variables{}, err
 	}
 	defer response.Body.Close()
@@ -101,6 +108,7 @@ func (api *MpcHc) GetVariables() (*Variables, error) {
 	statusCode := response.StatusCode
 	if !((statusCode >= 200) && (statusCode <= 299)) {
 		err = fmt.Errorf("http error code: %d\n", statusCode)
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to get variables")
 		return &Variables{}, err
 	}
 
@@ -108,6 +116,7 @@ func (api *MpcHc) GetVariables() (*Variables, error) {
 	byteArr, readErr := io.ReadAll(response.Body)
 	if readErr != nil {
 		err = fmt.Errorf("error reading response: %s\n", readErr)
+		api.Logger.Error().Err(err).Msg("mpc hc: Failed to get variables")
 		return &Variables{}, err
 	}
 
