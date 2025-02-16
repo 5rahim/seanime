@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.7.4
+
+- 🚑️ Fixed infinite loading screen when launching app for the first time
+- ⚡️ External player link: Option to encode file path to Base64 (v2.7.3) 
+- 🦺 Desktop: Fixed startup failing due to long AniList request (v2.7.3) 
+- 🦺 Debrid: Fixed downloading to nonexistent destination (v2.7.3) 
+- 🦺 Anime library: Fixed external player link not working due to incorrect un-escaping (v2.7.3) 
+- 🦺 Small UI fixes (v2.7.3) 
+- 🏗️ Server: Support serving Base64 encoded file paths (v2.7.3) 
+
 ## v2.7.3
 
 - ⚡️ External player link: Option to encode file path to Base64 
