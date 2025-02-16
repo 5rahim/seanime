@@ -19,14 +19,14 @@ import (
 // Anime Torrent provider
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Extension, hm hook.Manager) (err error) {
+func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Extension) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
 
 	switch ext.Language {
 	case extension.LanguageJavascript:
-		err = r.loadPluginExtensionJS(loader, ext, extension.LanguageJavascript, hm)
+		err = r.loadPluginExtensionJS(loader, ext, extension.LanguageJavascript)
 	case extension.LanguageTypescript:
-		err = r.loadPluginExtensionJS(loader, ext, extension.LanguageTypescript, hm)
+		err = r.loadPluginExtensionJS(loader, ext, extension.LanguageTypescript)
 	default:
 		err = fmt.Errorf("unsupported language: %v", ext.Language)
 	}
@@ -38,8 +38,8 @@ func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Ex
 	return
 }
 
-func (r *Repository) loadPluginExtensionJS(loader *goja.Runtime, ext *extension.Extension, language extension.Language, hm hook.Manager) error {
-	_, err := NewGojaPlugin(loader, ext, language, r.logger, r.gojaRuntimeManager, hm)
+func (r *Repository) loadPluginExtensionJS(loader *goja.Runtime, ext *extension.Extension, language extension.Language) error {
+	_, err := NewGojaPlugin(loader, ext, language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
@@ -61,13 +61,13 @@ type GojaPlugin struct {
 	runtimeManager *goja_runtime.Manager
 }
 
-func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.Manager) *goja.Runtime {
+func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
 	loader := goja.New()
 	// Add bindings to the loader
 	ShareBinds(loader, logger)
 	// PluginBinds(loader, logger)
 	// Bind hooks to the loader
-	BindHooks(loader, hm, runtimeManager)
+	BindHooks(loader, runtimeManager)
 
 	// Preinitialize the runtime pool so that runtimeManager.pool is not nil
 	if _, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
@@ -82,7 +82,7 @@ func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Ma
 	return loader
 }
 
-func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager, hm hook.Manager) (*GojaPlugin, error) {
+func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*GojaPlugin, error) {
 	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
 
 	pool, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
@@ -121,11 +121,11 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 type PluginContext struct {
 }
 
-func BindHooks(loader *goja.Runtime, hm hook.Manager, runtimeManager *goja_runtime.Manager) {
+func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
 	fm := FieldMapper{}
 
-	appType := reflect.TypeOf(hm)
-	appValue := reflect.ValueOf(hm)
+	appType := reflect.TypeOf(hook.GlobalHookManager)
+	appValue := reflect.ValueOf(hook.GlobalHookManager)
 	totalMethods := appType.NumMethod()
 	excludeHooks := []string{"OnServe"}
 

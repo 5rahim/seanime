@@ -1,19 +1,19 @@
 package sync
 
 import (
-	"github.com/stretchr/testify/require"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension_repo"
-	"seanime/internal/hook"
 	"seanime/internal/manga"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func GetMockManager(t *testing.T, db *db.Database) Manager {
@@ -26,8 +26,7 @@ func GetMockManager(t *testing.T, db *db.Database) Manager {
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistClient := anilist.NewMockAnilistClient()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hm)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	localDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline")
 	assetsDir := filepath.Join(test_utils.ConfigData.Path.DataDir, "offline", "assets")

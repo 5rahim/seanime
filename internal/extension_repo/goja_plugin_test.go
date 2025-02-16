@@ -1,17 +1,14 @@
 package extension_repo
 
 import (
-	"runtime"
-	"seanime/internal/test_utils"
-	"testing"
-
 	"seanime/internal/api/anilist"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
-	"seanime/internal/hook_event"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/test_utils"
 	"seanime/internal/util"
+	"testing"
 )
 
 func TestNewGojaPlugin(t *testing.T) {
@@ -49,16 +46,13 @@ func TestNewGojaPlugin(t *testing.T) {
 	lang := extension.Language("typescript")
 
 	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewAnilistClient(""), logger, hm)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewAnilistClient(""), logger)
 
-	// Use a single runtimeManager for both loader and plugin
 	manager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, manager, hm)
+	loader := NewGojaPluginLoader(logger, manager)
 
-	// Here the plugin is being initialized using the same manager
-	_, err := NewGojaPlugin(loader, ext, lang, logger, manager, hm)
+	_, err := NewGojaPlugin(loader, ext, lang, logger, manager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}
@@ -84,10 +78,10 @@ func BenchmarkAllHooks(b *testing.B) {
 	b.Run("BaselineNoHook", BenchmarkBaselineNoHook)
 	b.Run("HookInvocation", BenchmarkHookInvocation)
 	b.Run("HookInvocationParallel", BenchmarkHookInvocationParallel)
+	b.Run("HookInvocationWithWork", BenchmarkHookInvocationWithWork)
+	b.Run("HookInvocationWithWorkParallel", BenchmarkHookInvocationWithWorkParallel)
 	b.Run("NoHookInvocation", BenchmarkNoHookInvocation)
 	b.Run("NoHookInvocationParallel", BenchmarkNoHookInvocationParallel)
-	b.Run("HookWithWork", BenchmarkHookWithWork)
-	b.Run("HookWithWorkParallel", BenchmarkHookWithWorkParallel)
 	b.Run("NoHookInvocationWithWork", BenchmarkNoHookInvocationWithWork)
 }
 
@@ -109,10 +103,11 @@ func BenchmarkHookInvocation(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
+	runtimeManager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
 
 	// Initialize the plugin, which will bind the hook
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -120,7 +115,7 @@ func BenchmarkHookInvocation(b *testing.B) {
 
 	title := "Test Anime"
 	// Create a dummy anime event that we'll reuse
-	dummyEvent := &hook_event.GetAnimeEvent{
+	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -147,7 +142,7 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 	// Dummy extension payload that registers a hook
 	payload := `
 		function init() {
-			$app.onGetAnimeError(function(e) {
+			$app.onMissingEpisodes(function(e) {
 				e.next();
 			});
 		}
@@ -157,10 +152,11 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
+	runtimeManager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
 
 	// Initialize the plugin, which will bind the hook
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -168,7 +164,7 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 
 	title := "Test Anime"
 	// Create a dummy anime event that we'll reuse
-	dummyEvent := &hook_event.GetAnimeEvent{
+	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -204,10 +200,8 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
-
-	// Create a runtime manager with a pool size matching GOMAXPROCS
-	runtimeManager := goja_runtime.NewManager(logger, int32(runtime.GOMAXPROCS(0)))
+	runtimeManager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
 
 	// Initialize the plugin with the runtime manager
 	plugin, err := NewGojaPlugin(
@@ -216,25 +210,25 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 		extension.LanguageJavascript,
 		logger,
 		runtimeManager,
-		hm,
 	)
 	if err != nil {
 		b.Fatal(err)
 	}
 	_ = plugin
 
+	title := "Test Anime"
+	event := &anilist_platform.GetAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			title := "Test Anime"
-			event := &hook_event.GetAnimeEvent{
-				Anime: &anilist.BaseAnime{
-					ID: 1234,
-					Title: &anilist.BaseAnime_Title{
-						English: &title,
-					},
-				},
-			}
 			if err := hm.OnGetAnime().Trigger(event); err != nil {
 				b.Fatal(err)
 			}
@@ -249,7 +243,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 
 	payload := `
 		function init() {
-			$app.onGetAnimeError(function(e) {
+			$app.onMissingEpisodes(function(e) {
 				e.next();
 			});
 		}
@@ -260,9 +254,8 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
-
-	runtimeManager := goja_runtime.NewManager(logger, int32(runtime.GOMAXPROCS(0)))
+	runtimeManager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
 
 	// Initialize the plugin with the runtime manager
 	plugin, err := NewGojaPlugin(
@@ -271,25 +264,25 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 		extension.LanguageJavascript,
 		logger,
 		runtimeManager,
-		hm,
 	)
 	if err != nil {
 		b.Fatal(err)
 	}
 	_ = plugin
 
+	title := "Test Anime"
+	event := &anilist_platform.GetAnimeEvent{
+		Anime: &anilist.BaseAnime{
+			ID: 1234,
+			Title: &anilist.BaseAnime_Title{
+				English: &title,
+			},
+		},
+	}
+
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			title := "Test Anime"
-			event := &hook_event.GetAnimeEvent{
-				Anime: &anilist.BaseAnime{
-					ID: 1234,
-					Title: &anilist.BaseAnime_Title{
-						English: &title,
-					},
-				},
-			}
 			if err := hm.OnGetAnime().Trigger(event); err != nil {
 				b.Fatal(err)
 			}
@@ -301,7 +294,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 func BenchmarkBaselineNoHook(b *testing.B) {
 	b.ReportAllocs()
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetAnimeEvent{
+	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -316,8 +309,8 @@ func BenchmarkBaselineNoHook(b *testing.B) {
 	}
 }
 
-// BenchmarkHookWithWork measures performance with a hook that does some actual work
-func BenchmarkHookWithWork(b *testing.B) {
+// BenchmarkHookInvocationWithWork measures performance with a hook that does some actual work
+func BenchmarkHookInvocationWithWork(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
@@ -340,16 +333,17 @@ func BenchmarkHookWithWork(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
+	runtimeManager := goja_runtime.NewManager(logger, 15)
 
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
 	if err != nil {
 		b.Fatal(err)
 	}
 	_ = plugin
 
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetAnimeEvent{
+	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -367,10 +361,9 @@ func BenchmarkHookWithWork(b *testing.B) {
 }
 
 // BenchmarkHookParallel measures parallel performance with a hook that does some work
-func BenchmarkHookWithWorkParallel(b *testing.B) {
+func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 
 	payload := `
 		function init() {
@@ -384,7 +377,6 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 				e.next();
 			});
 		}
-		init();
 	`
 
 	ext := &extension.Extension{
@@ -392,10 +384,8 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
-
-	// Create a runtime manager with a pool size matching GOMAXPROCS
-	runtimeManager := goja_runtime.NewManager(logger, int32(runtime.GOMAXPROCS(0)))
+	runtimeManager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
 
 	// Initialize the plugin with the runtime manager
 	plugin, err := NewGojaPlugin(
@@ -404,7 +394,6 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 		extension.LanguageJavascript,
 		logger,
 		runtimeManager,
-		hm,
 	)
 	if err != nil {
 		b.Fatal(err)
@@ -412,7 +401,7 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 	_ = plugin
 
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetAnimeEvent{
+	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -424,7 +413,7 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
+			if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -434,11 +423,10 @@ func BenchmarkHookWithWorkParallel(b *testing.B) {
 func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 
 	payload := `
 		function init() {
-			$app.onGetAnimeError(function(e) {
+			$app.onMissingEpisodes(function(e) {
 				// Do some work
 				if (e.anime.id === 1234) {
 					e.anime.id = 5678;
@@ -454,16 +442,17 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 		Payload: payload,
 	}
 
-	loader := NewGojaPluginLoader(logger, goja_runtime.NewManager(logger, 1), hm)
+	runtimeManager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, runtimeManager)
 
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, goja_runtime.NewManager(logger, 1), hm)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
 	if err != nil {
 		b.Fatal(err)
 	}
 	_ = plugin
 
 	title := "Test Anime"
-	dummyEvent := &hook_event.GetAnimeEvent{
+	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
 			Title: &anilist.BaseAnime_Title{
@@ -474,7 +463,7 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
+		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 	}

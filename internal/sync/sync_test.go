@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db"
-	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -21,10 +20,7 @@ func testSetupManager(t *testing.T) (Manager, *anilist.AnimeCollection, *anilist
 	logger := util.NewLogger()
 
 	anilistClient := anilist.NewAnilistClient(test_utils.ConfigData.Provider.AnilistJwt)
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	anilistPlatform.SetUsername(test_utils.ConfigData.Provider.AnilistUsername)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
 	require.NoError(t, err)

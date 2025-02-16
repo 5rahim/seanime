@@ -5,7 +5,6 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
-	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -30,11 +29,8 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 
 	filecacher, err := filecache.NewCacher(t.TempDir())
 	require.NoError(t, err)
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
 	anilistClient := anilist.TestGetMockAnilistClient()
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
 	require.NoError(t, err)
 	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{

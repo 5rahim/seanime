@@ -56,7 +56,9 @@ func (h *Handler) HandleGetLibraryCollection(c echo.Context) error {
 	}
 
 	// Hydrate total library size
-	libraryCollection.Stats.TotalSize = humanize.Bytes(h.App.TotalLibrarySize)
+	if libraryCollection != nil && libraryCollection.Stats != nil {
+		libraryCollection.Stats.TotalSize = humanize.Bytes(h.App.TotalLibrarySize)
+	}
 
 	return h.RespondWithData(c, libraryCollection)
 }

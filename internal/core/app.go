@@ -10,8 +10,8 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/database/models"
-	"seanime/internal/debrid/client"
-	"seanime/internal/discordrpc/presence"
+	debrid_client "seanime/internal/debrid/client"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
@@ -119,6 +119,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	logger.Info().Msgf("app: Processor count: %d", runtime.NumCPU())
 
 	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hookManager)
 
 	previousVersion := constants.Version
 
@@ -213,7 +214,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		Database:       database,
 	})
 
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 
 	// Platforms
 	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{

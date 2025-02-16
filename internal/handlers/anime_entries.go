@@ -8,7 +8,8 @@ import (
 	"runtime"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
-	"seanime/internal/hook_event"
+	"seanime/internal/hook"
+	"seanime/internal/hook_resolver"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
@@ -19,11 +20,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/labstack/echo/v4"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"gorm.io/gorm"
-
-	"github.com/labstack/echo/v4"
 )
 
 // HandleGetAnimeEntry
@@ -57,15 +57,6 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		return h.RespondWithError(c, errors.New("anime collection not found"))
 	}
 
-	preEvent := new(hook_event.PreGetAnimeEntryEvent)
-	preEvent.MediaId = &mId
-	preEvent.LocalFiles = lfs
-	preEvent.AnimeCollection = animeCollection
-	err = h.App.HookManager.OnPreGetAnimeEntry().Trigger(preEvent)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
 	// Create a new media entry
 	entry, err := anime.NewEntry(&anime.NewEntryOptions{
 		MediaId:          mId,
@@ -75,27 +66,16 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		MetadataProvider: h.App.MetadataProvider,
 	})
 	if err != nil {
-		errEvent := &hook_event.AnimeEntryErrorEvent{PreGetAnimeEntryEvent: *preEvent, Error: err}
-		hookErr := h.App.HookManager.OnAnimeEntryError().Trigger(errEvent)
-		if hookErr != nil {
-			return h.RespondWithError(c, errors.Join(err, hookErr))
-		}
 		return h.RespondWithError(c, err)
 	}
 
-	event := new(hook_event.AnimeEntryEvent)
-	event.Entry = entry
-	err = h.App.HookManager.OnAnimeEntry().Trigger(event)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	fillerEvent := new(hook_event.AnimeEntryFillerHydrationEvent)
-	fillerEvent.Entry = event.Entry
-	fillerEvent.SkipDefault = lo.ToPtr(true)
-	err = h.App.HookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent, func(event hook_event.AnimeEntryFillerHydrationEvent) error {
-		if event.SkipDefault == nil || !*event.SkipDefault {
-			h.App.FillerManager.HydrateFillerData(event.Entry)
+	fillerEvent := new(anime.AnimeEntryFillerHydrationEvent)
+	fillerEvent.Entry = entry
+	fillerEvent.SkipDefault = lo.ToPtr(false)
+	err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent, func(resolver hook_resolver.Resolver) error {
+		e := resolver.(*anime.AnimeEntryFillerHydrationEvent)
+		if e.SkipDefault == nil || !*e.SkipDefault {
+			h.App.FillerManager.HydrateFillerData(e.Entry)
 		}
 		return nil
 	})
@@ -103,7 +83,7 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	return h.RespondWithData(c, event.Entry)
+	return h.RespondWithData(c, entry)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -417,16 +397,23 @@ func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 		return true
 	})
 
-	// Add the hydrated local files to the slice
-	lfs = append(lfs, selectedLfs...)
+	event := new(anime.AnimeEntryManualMatchBeforeSaveEvent)
+	event.MediaId = b.MediaId
+	event.Paths = b.Paths
+	event.MatchedLocalFiles = selectedLfs
+	return hook.GlobalHookManager.OnAnimeEntryManualMatchBeforeSave().Trigger(event, func(resolver hook_resolver.Resolver) error {
+		e := resolver.(*anime.AnimeEntryManualMatchBeforeSaveEvent)
+		// Add the hydrated local files to the slice
+		lfs = append(lfs, e.MatchedLocalFiles...)
 
-	// Update the local files
-	retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
+		// Update the local files
+		retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
+		if err != nil {
+			return h.RespondWithError(c, err)
+		}
 
-	return h.RespondWithData(c, retLfs)
+		return h.RespondWithData(c, retLfs)
+	})
 
 }
 
@@ -466,7 +453,14 @@ func (h *Handler) HandleGetMissingEpisodes(c echo.Context) error {
 		MetadataProvider: h.App.MetadataProvider,
 	})
 
-	return h.RespondWithData(c, missingEps)
+	event := new(anime.MissingEpisodesEvent)
+	event.MissingEpisodes = missingEps
+	err = hook.GlobalHookManager.OnMissingEpisodes().Trigger(event)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, event.MissingEpisodes)
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -6,7 +6,6 @@ import (
 	"seanime/internal/continuity"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
-	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
@@ -17,8 +16,7 @@ func GetMockRepository(t *testing.T, db *db.Database) *Repository {
 	logger := util.NewLogger()
 	wsEventManager := events.NewWSEventManager(logger)
 	anilistClient := anilist.TestGetMockAnilistClient()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hm)
+	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metadataProvider := metadata.GetMockProvider(t)
 	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		WSEventManager: wsEventManager,

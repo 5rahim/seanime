@@ -1,7 +1,8 @@
-package hook_event
+package anilist_platform
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook_resolver"
 )
 
 /////////////////////////////
@@ -9,52 +10,52 @@ import (
 /////////////////////////////
 
 type GetAnimeEvent struct {
-	Event
+	hook_resolver.Event
 	Anime *anilist.BaseAnime `json:"anime"`
 }
 
 type GetAnimeDetailsEvent struct {
-	Event
+	hook_resolver.Event
 	Anime *anilist.AnimeDetailsById_Media `json:"anime"`
 }
 
 type GetMangaEvent struct {
-	Event
+	hook_resolver.Event
 	Manga *anilist.BaseManga `json:"manga"`
 }
 
 type GetMangaDetailsEvent struct {
-	Event
+	hook_resolver.Event
 	Manga *anilist.MangaDetailsById_Media `json:"manga"`
 }
 
 type GetAnimeCollectionEvent struct {
-	Event
+	hook_resolver.Event
 	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
 }
 
 type GetMangaCollectionEvent struct {
-	Event
+	hook_resolver.Event
 	MangaCollection *anilist.MangaCollection `json:"mangaCollection"`
 }
 
 type GetRawAnimeCollectionEvent struct {
-	Event
+	hook_resolver.Event
 	AnimeCollection *anilist.AnimeCollection `json:"animeCollection"`
 }
 
 type GetRawMangaCollectionEvent struct {
-	Event
+	hook_resolver.Event
 	MangaCollection *anilist.MangaCollection `json:"mangaCollection"`
 }
 
 type GetStudioDetailsEvent struct {
-	Event
+	hook_resolver.Event
 	Studio *anilist.StudioDetails `json:"studio"`
 }
 
 type PreUpdateEntryEvent struct {
-	Event
+	hook_resolver.Event
 	MediaID     *int                     `json:"mediaId"`
 	Status      *anilist.MediaListStatus `json:"status"`
 	ScoreRaw    *int                     `json:"scoreRaw"`
@@ -64,12 +65,12 @@ type PreUpdateEntryEvent struct {
 }
 
 type PostUpdateEntryEvent struct {
-	Event
+	hook_resolver.Event
 	MediaID *int `json:"mediaId"`
 }
 
 type PreUpdateEntryProgressEvent struct {
-	Event
+	hook_resolver.Event
 	// When true, Seanime's default logic for updating the progress will be overridden
 	// This means the status will not be updated and the progress will not be clamped
 	SkipDefault *bool `json:"skipDefault"`
@@ -81,17 +82,17 @@ type PreUpdateEntryProgressEvent struct {
 }
 
 type PostUpdateEntryProgressEvent struct {
-	Event
+	hook_resolver.Event
 	MediaID *int `json:"mediaId"`
 }
 
 type PreUpdateEntryRepeatEvent struct {
-	Event
+	hook_resolver.Event
 	MediaID *int `json:"mediaId"`
 	Repeat  *int `json:"repeat"`
 }
 
 type PostUpdateEntryRepeatEvent struct {
-	Event
+	hook_resolver.Event
 	MediaID *int `json:"mediaId"`
 }

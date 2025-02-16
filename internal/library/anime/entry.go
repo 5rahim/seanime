@@ -4,6 +4,8 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/platform"
 	"sort"
 
@@ -64,6 +66,19 @@ type (
 //   - CurrentEpisodeCount: Current episode count
 func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 
+	optsEvent := new(AnimeEntryRequestedEvent)
+	optsEvent.MediaId = opts.MediaId
+	optsEvent.LocalFiles = opts.LocalFiles
+	optsEvent.AnimeCollection = opts.AnimeCollection
+
+	err := hook.GlobalHookManager.OnAnimeEntryRequested().Trigger(optsEvent)
+	if err != nil {
+		return nil, err
+	}
+	opts.MediaId = optsEvent.MediaId
+	opts.LocalFiles = optsEvent.LocalFiles
+	opts.AnimeCollection = optsEvent.AnimeCollection
+
 	if opts.AnimeCollection == nil ||
 		opts.Platform == nil {
 		return nil, errors.New("missing arguments when creating media entry")
@@ -93,7 +108,13 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 		}
 		entry.Media = fetchedMedia
 	} else {
-		entry.Media = anilistEntry.Media
+		animeEvent := new(anilist_platform.GetAnimeEvent)
+		animeEvent.Anime = anilistEntry.Media
+		err := hook.GlobalHookManager.OnGetAnime().Trigger(animeEvent)
+		if err != nil {
+			return nil, err
+		}
+		entry.Media = animeEvent.Anime
 	}
 
 	entry.CurrentEpisodeCount = entry.Media.GetCurrentEpisodeCount()
@@ -137,7 +158,8 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 			return nil, err
 		}
 
-		return &Entry{
+		event := new(AnimeEntryEvent)
+		event.Entry = &Entry{
 			MediaId:             simpleAnimeEntry.MediaId,
 			Media:               simpleAnimeEntry.Media,
 			EntryListData:       simpleAnimeEntry.EntryListData,
@@ -148,7 +170,13 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 			LocalFiles:          simpleAnimeEntry.LocalFiles,
 			AnidbId:             0,
 			CurrentEpisodeCount: simpleAnimeEntry.CurrentEpisodeCount,
-		}, nil
+		}
+		err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+
+		return event.Entry, nil
 		// +--------------- End
 
 	}
@@ -174,8 +202,14 @@ func NewEntry(opts *NewEntryOptions) (*Entry, error) {
 	// Create episode entities
 	entry.hydrateEntryEpisodeData(anilistEntry, animeMetadata, opts.MetadataProvider)
 
-	return entry, nil
+	event := new(AnimeEntryEvent)
+	event.Entry = entry
+	err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
 
+	return event.Entry, nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------

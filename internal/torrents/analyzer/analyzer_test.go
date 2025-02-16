@@ -3,7 +3,6 @@ package torrent_analyzer
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
-	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -18,10 +17,7 @@ func TestSelectFilesFromSeason(t *testing.T) {
 
 	logger := util.NewLogger()
 	anilistClient := anilist.TestGetMockAnilistClient()
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metadataProvider := metadata.GetMockProvider(t)
 
 	tests := []struct {

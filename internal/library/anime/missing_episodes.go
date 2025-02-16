@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/util/limiter"
 	"sort"
 	"time"
@@ -28,6 +29,18 @@ type (
 )
 
 func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
+
+	optsEvent := new(MissingEpisodesRequestedEvent)
+	optsEvent.AnimeCollection = opts.AnimeCollection
+	optsEvent.LocalFiles = opts.LocalFiles
+	optsEvent.SilencedMediaIds = opts.SilencedMediaIds
+	err := hook.GlobalHookManager.OnMissingEpisodesRequested().Trigger(optsEvent)
+	if err != nil {
+		return nil
+	}
+	opts.AnimeCollection = optsEvent.AnimeCollection
+	opts.LocalFiles = optsEvent.LocalFiles
+	opts.SilencedMediaIds = optsEvent.SilencedMediaIds
 
 	missing := new(MissingEpisodes)
 	rateLimiter := limiter.NewLimiter(time.Second, 20)
@@ -117,6 +130,12 @@ func NewMissingEpisodes(opts *NewMissingEpisodesOptions) *MissingEpisodes {
 		return lo.Contains(opts.SilencedMediaIds, item.BaseAnime.ID)
 	})
 
-	return missing
+	event := new(MissingEpisodesEvent)
+	event.MissingEpisodes = missing
+	err = hook.GlobalHookManager.OnMissingEpisodes().Trigger(event)
+	if err != nil {
+		return nil
+	}
 
+	return event.MissingEpisodes
 }

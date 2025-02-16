@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"strconv"
 	"sync"
@@ -26,6 +27,16 @@ type (
 )
 
 func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOptions) {
+
+	optsEvent := new(anime.AnimeLibraryStreamCollectionRequestedEvent)
+	optsEvent.AnimeCollection = opts.AnimeCollection
+	optsEvent.LibraryCollection = opts.LibraryCollection
+	err := hook.GlobalHookManager.OnAnimeLibraryStreamCollectionRequested().Trigger(optsEvent)
+	if err != nil {
+		return
+	}
+	opts.AnimeCollection = optsEvent.AnimeCollection
+	opts.LibraryCollection = optsEvent.LibraryCollection
 
 	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched
@@ -184,9 +195,18 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 		return
 	}
 
-	opts.LibraryCollection.Stream = &anime.StreamCollection{
+	sc := &anime.StreamCollection{
 		ContinueWatchingList: ret.ContinueWatchingList,
 		Anime:                ret.Anime,
 		ListData:             ret.ListData,
 	}
+
+	event := new(anime.AnimeLibraryStreamCollectionEvent)
+	event.StreamCollection = sc
+	err = hook.GlobalHookManager.OnAnimeLibraryStreamCollection().Trigger(event)
+	if err != nil {
+		return
+	}
+
+	opts.LibraryCollection.Stream = event.StreamCollection
 }

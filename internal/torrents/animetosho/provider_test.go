@@ -4,7 +4,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
-	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -20,10 +19,7 @@ func TestSmartSearch(t *testing.T) {
 
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	toshoPlatform := NewProvider(util.NewLogger())
 

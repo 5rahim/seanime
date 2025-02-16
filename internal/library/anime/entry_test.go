@@ -3,7 +3,6 @@ package anime_test
 import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
-	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
@@ -72,10 +71,7 @@ func TestNewAnimeEntry(t *testing.T) {
 	}
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	animeCollection, err := anilistPlatform.GetAnimeCollection(false)
 	if err != nil {
 		t.Fatal(err)

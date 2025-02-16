@@ -10,6 +10,8 @@ import (
 	debrid_client "seanime/internal/debrid/client"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/notifier"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -27,7 +29,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/sourcegraph/conc/pool"
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 const (
@@ -98,6 +99,12 @@ func New(opts *NewAutoDownloaderOptions) *AutoDownloader {
 // If the AutoDownloader is active, it will stop it if the settings are disabled.
 func (ad *AutoDownloader) SetSettings(settings *models.AutoDownloaderSettings, provider string) {
 	defer util.HandlePanicInModuleThen("autodownloader/SetSettings", func() {})
+
+	event := &AutoDownloaderSettingsUpdatedEvent{
+		Settings: settings,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderSettingsUpdated().Trigger(event)
+	settings = event.Settings
 
 	if ad == nil {
 		return

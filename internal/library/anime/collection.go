@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"slices"
@@ -93,8 +94,14 @@ type (
 
 // NewLibraryCollection creates a new LibraryCollection.
 func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollection, err error) {
-
 	defer util.HandlePanicInModuleWithError("entities/collection/NewLibraryCollection", &err)
+
+	optsEvent := new(AnimeLibraryCollectionRequestedEvent)
+	optsEvent.AnimeCollection = opts.AnimeCollection
+	optsEvent.LocalFiles = opts.LocalFiles
+	hook.GlobalHookManager.OnAnimeLibraryCollectionRequested().Trigger(optsEvent)
+	opts.AnimeCollection = optsEvent.AnimeCollection
+	opts.LocalFiles = optsEvent.LocalFiles
 
 	// Get lists from collection
 	aniLists := opts.AnimeCollection.GetMediaListCollection().GetLists()
@@ -130,6 +137,11 @@ func NewLibraryCollection(opts *NewLibraryCollectionOptions) (lc *LibraryCollect
 	})
 
 	lc.hydrateUnmatchedGroups()
+
+	event := new(AnimeLibraryCollectionEvent)
+	event.LibraryCollection = lc
+	hook.GlobalHookManager.OnAnimeLibraryCollection().Trigger(event)
+	lc = event.LibraryCollection
 
 	return
 }

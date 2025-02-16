@@ -1,7 +1,8 @@
 package hook
 
 import (
-	"seanime/internal/hook_event"
+	"seanime/internal/hook_resolver"
+	"seanime/internal/util"
 
 	"github.com/rs/zerolog"
 )
@@ -9,55 +10,103 @@ import (
 // Manager manages all hooks in the application
 type Manager interface {
 	// AniList events
-	OnGetAnime() *Hook[*hook_event.GetAnimeEvent]
-	OnGetAnimeDetails() *Hook[*hook_event.GetAnimeDetailsEvent]
-	OnGetManga() *Hook[*hook_event.GetMangaEvent]
-	OnGetMangaDetails() *Hook[*hook_event.GetMangaDetailsEvent]
-	OnGetAnimeCollection() *Hook[*hook_event.GetAnimeCollectionEvent]
-	OnGetMangaCollection() *Hook[*hook_event.GetMangaCollectionEvent]
-	OnGetRawAnimeCollection() *Hook[*hook_event.GetRawAnimeCollectionEvent]
-	OnGetRawMangaCollection() *Hook[*hook_event.GetRawMangaCollectionEvent]
-	OnGetStudioDetails() *Hook[*hook_event.GetStudioDetailsEvent]
-	OnPreUpdateEntry() *Hook[*hook_event.PreUpdateEntryEvent]
-	OnPostUpdateEntry() *Hook[*hook_event.PostUpdateEntryEvent]
-	OnPreUpdateEntryProgress() *Hook[*hook_event.PreUpdateEntryProgressEvent]
-	OnPostUpdateEntryProgress() *Hook[*hook_event.PostUpdateEntryProgressEvent]
-	OnPreUpdateEntryRepeat() *Hook[*hook_event.PreUpdateEntryRepeatEvent]
-	OnPostUpdateEntryRepeat() *Hook[*hook_event.PostUpdateEntryRepeatEvent]
+	OnGetAnime() *Hook[hook_resolver.Resolver]
+	OnGetAnimeDetails() *Hook[hook_resolver.Resolver]
+	OnGetManga() *Hook[hook_resolver.Resolver]
+	OnGetMangaDetails() *Hook[hook_resolver.Resolver]
+	OnGetAnimeCollection() *Hook[hook_resolver.Resolver]
+	OnGetMangaCollection() *Hook[hook_resolver.Resolver]
+	OnGetRawAnimeCollection() *Hook[hook_resolver.Resolver]
+	OnGetRawMangaCollection() *Hook[hook_resolver.Resolver]
+	OnGetStudioDetails() *Hook[hook_resolver.Resolver]
+	OnPreUpdateEntry() *Hook[hook_resolver.Resolver]
+	OnPostUpdateEntry() *Hook[hook_resolver.Resolver]
+	OnPreUpdateEntryProgress() *Hook[hook_resolver.Resolver]
+	OnPostUpdateEntryProgress() *Hook[hook_resolver.Resolver]
+	OnPreUpdateEntryRepeat() *Hook[hook_resolver.Resolver]
+	OnPostUpdateEntryRepeat() *Hook[hook_resolver.Resolver]
+
 	// Anime library events
-	OnPreGetAnimeEntry() *Hook[*hook_event.PreGetAnimeEntryEvent]
-	OnAnimeEntry() *Hook[*hook_event.AnimeEntryEvent]
-	OnAnimeEntryFillerHydration() *Hook[*hook_event.AnimeEntryFillerHydrationEvent]
-	OnAnimeEntryError() *Hook[*hook_event.AnimeEntryErrorEvent]
+	OnAnimeEntryRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeEntry() *Hook[hook_resolver.Resolver]
+
+	OnAnimeEntryFillerHydration() *Hook[hook_resolver.Resolver]
+
+	OnAnimeEntryLibraryDataRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeEntryLibraryData() *Hook[hook_resolver.Resolver]
+
+	OnAnimeEntryManualMatchBeforeSave() *Hook[hook_resolver.Resolver]
+
+	OnMissingEpisodesRequested() *Hook[hook_resolver.Resolver]
+	OnMissingEpisodes() *Hook[hook_resolver.Resolver]
+
+	// Anime library collection events
+	OnAnimeLibraryCollectionRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeLibraryCollection() *Hook[hook_resolver.Resolver]
+
+	OnAnimeLibraryStreamCollectionRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeLibraryStreamCollection() *Hook[hook_resolver.Resolver]
+
+	// Auto Downloader events
+	OnAutoDownloaderQueueOrDownloadTorrent() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderTorrentMatched() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderRuleVerifyMatch() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderRunStarted() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderRunCompleted() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderSettingsUpdated() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
 	logger *zerolog.Logger
 	// AniList events
-	onGetAnime                *Hook[*hook_event.GetAnimeEvent]
-	onGetAnimeDetails         *Hook[*hook_event.GetAnimeDetailsEvent]
-	onGetManga                *Hook[*hook_event.GetMangaEvent]
-	onGetMangaDetails         *Hook[*hook_event.GetMangaDetailsEvent]
-	onGetAnimeCollection      *Hook[*hook_event.GetAnimeCollectionEvent]
-	onGetMangaCollection      *Hook[*hook_event.GetMangaCollectionEvent]
-	onGetRawAnimeCollection   *Hook[*hook_event.GetRawAnimeCollectionEvent]
-	onGetRawMangaCollection   *Hook[*hook_event.GetRawMangaCollectionEvent]
-	onGetStudioDetails        *Hook[*hook_event.GetStudioDetailsEvent]
-	onPreUpdateEntry          *Hook[*hook_event.PreUpdateEntryEvent]
-	onPostUpdateEntry         *Hook[*hook_event.PostUpdateEntryEvent]
-	onPreUpdateEntryProgress  *Hook[*hook_event.PreUpdateEntryProgressEvent]
-	onPostUpdateEntryProgress *Hook[*hook_event.PostUpdateEntryProgressEvent]
-	onPreUpdateEntryRepeat    *Hook[*hook_event.PreUpdateEntryRepeatEvent]
-	onPostUpdateEntryRepeat   *Hook[*hook_event.PostUpdateEntryRepeatEvent]
+	onGetAnime                *Hook[hook_resolver.Resolver]
+	onGetAnimeDetails         *Hook[hook_resolver.Resolver]
+	onGetManga                *Hook[hook_resolver.Resolver]
+	onGetMangaDetails         *Hook[hook_resolver.Resolver]
+	onGetAnimeCollection      *Hook[hook_resolver.Resolver]
+	onGetMangaCollection      *Hook[hook_resolver.Resolver]
+	onGetRawAnimeCollection   *Hook[hook_resolver.Resolver]
+	onGetRawMangaCollection   *Hook[hook_resolver.Resolver]
+	onGetStudioDetails        *Hook[hook_resolver.Resolver]
+	onPreUpdateEntry          *Hook[hook_resolver.Resolver]
+	onPostUpdateEntry         *Hook[hook_resolver.Resolver]
+	onPreUpdateEntryProgress  *Hook[hook_resolver.Resolver]
+	onPostUpdateEntryProgress *Hook[hook_resolver.Resolver]
+	onPreUpdateEntryRepeat    *Hook[hook_resolver.Resolver]
+	onPostUpdateEntryRepeat   *Hook[hook_resolver.Resolver]
 	// Anime library events
-	onPreGetAnimeEntry          *Hook[*hook_event.PreGetAnimeEntryEvent]
-	onAnimeEntry                *Hook[*hook_event.AnimeEntryEvent]
-	onAnimeEntryFillerHydration *Hook[*hook_event.AnimeEntryFillerHydrationEvent]
-	onAnimeEntryError           *Hook[*hook_event.AnimeEntryErrorEvent]
+	onAnimeEntryRequested             *Hook[hook_resolver.Resolver]
+	onAnimeEntry                      *Hook[hook_resolver.Resolver]
+	onAnimeEntryFillerHydration       *Hook[hook_resolver.Resolver]
+	onAnimeEntryLibraryDataRequested  *Hook[hook_resolver.Resolver]
+	onAnimeEntryLibraryData           *Hook[hook_resolver.Resolver]
+	onAnimeEntryManualMatchBeforeSave *Hook[hook_resolver.Resolver]
+	onMissingEpisodesRequested        *Hook[hook_resolver.Resolver]
+	onMissingEpisodes                 *Hook[hook_resolver.Resolver]
+	// Anime library collection events
+	onAnimeLibraryCollectionRequested       *Hook[hook_resolver.Resolver]
+	onAnimeLibraryCollection                *Hook[hook_resolver.Resolver]
+	onAnimeLibraryStreamCollectionRequested *Hook[hook_resolver.Resolver]
+	onAnimeLibraryStreamCollection          *Hook[hook_resolver.Resolver]
+	// Auto Downloader events
+	onAutoDownloaderQueueOrDownloadTorrent *Hook[hook_resolver.Resolver]
+	onAutoDownloaderTorrentMatched         *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRuleVerifyMatch        *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRunStarted             *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRunCompleted           *Hook[hook_resolver.Resolver]
+	onAutoDownloaderSettingsUpdated        *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
 	Logger *zerolog.Logger
+}
+
+var GlobalHookManager Manager = NewHookManager(NewHookManagerOptions{
+	Logger: util.NewLogger(),
+})
+
+func SetGlobalHookManager(manager Manager) {
+	GlobalHookManager = manager
 }
 
 func NewHookManager(opts NewHookManagerOptions) Manager {
@@ -72,100 +121,277 @@ func NewHookManager(opts NewHookManagerOptions) Manager {
 
 func (m *ManagerImpl) initHooks() {
 	// AniList events
-	m.onGetAnime = &Hook[*hook_event.GetAnimeEvent]{}
-	m.onGetAnimeDetails = &Hook[*hook_event.GetAnimeDetailsEvent]{}
-	m.onGetManga = &Hook[*hook_event.GetMangaEvent]{}
-	m.onGetMangaDetails = &Hook[*hook_event.GetMangaDetailsEvent]{}
-	m.onGetAnimeCollection = &Hook[*hook_event.GetAnimeCollectionEvent]{}
-	m.onGetMangaCollection = &Hook[*hook_event.GetMangaCollectionEvent]{}
-	m.onGetRawAnimeCollection = &Hook[*hook_event.GetRawAnimeCollectionEvent]{}
-	m.onGetRawMangaCollection = &Hook[*hook_event.GetRawMangaCollectionEvent]{}
-	m.onGetStudioDetails = &Hook[*hook_event.GetStudioDetailsEvent]{}
-	m.onPreUpdateEntry = &Hook[*hook_event.PreUpdateEntryEvent]{}
-	m.onPostUpdateEntry = &Hook[*hook_event.PostUpdateEntryEvent]{}
-	m.onPreUpdateEntryProgress = &Hook[*hook_event.PreUpdateEntryProgressEvent]{}
-	m.onPostUpdateEntryProgress = &Hook[*hook_event.PostUpdateEntryProgressEvent]{}
-	m.onPreUpdateEntryRepeat = &Hook[*hook_event.PreUpdateEntryRepeatEvent]{}
-	m.onPostUpdateEntryRepeat = &Hook[*hook_event.PostUpdateEntryRepeatEvent]{}
+	m.onGetAnime = &Hook[hook_resolver.Resolver]{}
+	m.onGetAnimeDetails = &Hook[hook_resolver.Resolver]{}
+	m.onGetManga = &Hook[hook_resolver.Resolver]{}
+	m.onGetMangaDetails = &Hook[hook_resolver.Resolver]{}
+	m.onGetAnimeCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetMangaCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetRawAnimeCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetRawMangaCollection = &Hook[hook_resolver.Resolver]{}
+	m.onGetStudioDetails = &Hook[hook_resolver.Resolver]{}
+	m.onPreUpdateEntry = &Hook[hook_resolver.Resolver]{}
+	m.onPostUpdateEntry = &Hook[hook_resolver.Resolver]{}
+	m.onPreUpdateEntryProgress = &Hook[hook_resolver.Resolver]{}
+	m.onPostUpdateEntryProgress = &Hook[hook_resolver.Resolver]{}
+	m.onPreUpdateEntryRepeat = &Hook[hook_resolver.Resolver]{}
+	m.onPostUpdateEntryRepeat = &Hook[hook_resolver.Resolver]{}
 	// Anime library events
-	m.onPreGetAnimeEntry = &Hook[*hook_event.PreGetAnimeEntryEvent]{}
-	m.onAnimeEntry = &Hook[*hook_event.AnimeEntryEvent]{}
-	m.onAnimeEntryFillerHydration = &Hook[*hook_event.AnimeEntryFillerHydrationEvent]{}
-	m.onAnimeEntryError = &Hook[*hook_event.AnimeEntryErrorEvent]{}
+	m.onAnimeEntryRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEntry = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEntryFillerHydration = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEntryLibraryDataRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEntryLibraryData = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEntryManualMatchBeforeSave = &Hook[hook_resolver.Resolver]{}
+	m.onMissingEpisodesRequested = &Hook[hook_resolver.Resolver]{}
+	m.onMissingEpisodes = &Hook[hook_resolver.Resolver]{}
+	// Anime library collection events
+	m.onAnimeLibraryCollectionRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeLibraryCollection = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeLibraryStreamCollectionRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeLibraryStreamCollection = &Hook[hook_resolver.Resolver]{}
+	// Auto Downloader events
+	m.onAutoDownloaderQueueOrDownloadTorrent = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderTorrentMatched = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderRuleVerifyMatch = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderRunStarted = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderRunCompleted = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderSettingsUpdated = &Hook[hook_resolver.Resolver]{}
 }
 
-func (m *ManagerImpl) OnGetAnime() *Hook[*hook_event.GetAnimeEvent] {
+func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetAnime
 }
 
-func (m *ManagerImpl) OnGetAnimeDetails() *Hook[*hook_event.GetAnimeDetailsEvent] {
+func (m *ManagerImpl) OnGetAnimeDetails() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetAnimeDetails
 }
 
-func (m *ManagerImpl) OnGetManga() *Hook[*hook_event.GetMangaEvent] {
+func (m *ManagerImpl) OnGetManga() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetManga
 }
 
-func (m *ManagerImpl) OnGetMangaDetails() *Hook[*hook_event.GetMangaDetailsEvent] {
+func (m *ManagerImpl) OnGetMangaDetails() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetMangaDetails
 }
 
-func (m *ManagerImpl) OnGetAnimeCollection() *Hook[*hook_event.GetAnimeCollectionEvent] {
+func (m *ManagerImpl) OnGetAnimeCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetAnimeCollection
 }
 
-func (m *ManagerImpl) OnGetMangaCollection() *Hook[*hook_event.GetMangaCollectionEvent] {
+func (m *ManagerImpl) OnGetMangaCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetMangaCollection
 }
 
-func (m *ManagerImpl) OnGetRawAnimeCollection() *Hook[*hook_event.GetRawAnimeCollectionEvent] {
+func (m *ManagerImpl) OnGetRawAnimeCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetRawAnimeCollection
 }
 
-func (m *ManagerImpl) OnGetRawMangaCollection() *Hook[*hook_event.GetRawMangaCollectionEvent] {
+func (m *ManagerImpl) OnGetRawMangaCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetRawMangaCollection
 }
 
-func (m *ManagerImpl) OnGetStudioDetails() *Hook[*hook_event.GetStudioDetailsEvent] {
+func (m *ManagerImpl) OnGetStudioDetails() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onGetStudioDetails
 }
 
-func (m *ManagerImpl) OnPreUpdateEntry() *Hook[*hook_event.PreUpdateEntryEvent] {
+func (m *ManagerImpl) OnPreUpdateEntry() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onPreUpdateEntry
 }
 
-func (m *ManagerImpl) OnPostUpdateEntry() *Hook[*hook_event.PostUpdateEntryEvent] {
+func (m *ManagerImpl) OnPostUpdateEntry() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onPostUpdateEntry
 }
 
-func (m *ManagerImpl) OnPreUpdateEntryProgress() *Hook[*hook_event.PreUpdateEntryProgressEvent] {
+func (m *ManagerImpl) OnPreUpdateEntryProgress() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onPreUpdateEntryProgress
 }
 
-func (m *ManagerImpl) OnPostUpdateEntryProgress() *Hook[*hook_event.PostUpdateEntryProgressEvent] {
+func (m *ManagerImpl) OnPostUpdateEntryProgress() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onPostUpdateEntryProgress
 }
 
-func (m *ManagerImpl) OnPreUpdateEntryRepeat() *Hook[*hook_event.PreUpdateEntryRepeatEvent] {
+func (m *ManagerImpl) OnPreUpdateEntryRepeat() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onPreUpdateEntryRepeat
 }
 
-func (m *ManagerImpl) OnPostUpdateEntryRepeat() *Hook[*hook_event.PostUpdateEntryRepeatEvent] {
+func (m *ManagerImpl) OnPostUpdateEntryRepeat() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onPostUpdateEntryRepeat
 }
 
-func (m *ManagerImpl) OnPreGetAnimeEntry() *Hook[*hook_event.PreGetAnimeEntryEvent] {
-	return m.onPreGetAnimeEntry
+// Anime entry events
+
+func (m *ManagerImpl) OnAnimeEntryRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEntryRequested
 }
 
-func (m *ManagerImpl) OnAnimeEntry() *Hook[*hook_event.AnimeEntryEvent] {
+func (m *ManagerImpl) OnAnimeEntry() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onAnimeEntry
 }
 
-func (m *ManagerImpl) OnAnimeEntryFillerHydration() *Hook[*hook_event.AnimeEntryFillerHydrationEvent] {
+func (m *ManagerImpl) OnAnimeEntryFillerHydration() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
 	return m.onAnimeEntryFillerHydration
 }
 
-func (m *ManagerImpl) OnAnimeEntryError() *Hook[*hook_event.AnimeEntryErrorEvent] {
-	return m.onAnimeEntryError
+func (m *ManagerImpl) OnAnimeEntryLibraryDataRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEntryLibraryDataRequested
+}
+
+func (m *ManagerImpl) OnAnimeEntryLibraryData() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEntryLibraryData
+}
+
+func (m *ManagerImpl) OnAnimeEntryManualMatchBeforeSave() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEntryManualMatchBeforeSave
+}
+
+func (m *ManagerImpl) OnMissingEpisodesRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMissingEpisodesRequested
+}
+
+func (m *ManagerImpl) OnMissingEpisodes() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMissingEpisodes
+}
+
+// Anime library collection events
+
+func (m *ManagerImpl) OnAnimeLibraryCollectionRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeLibraryCollectionRequested
+}
+
+func (m *ManagerImpl) OnAnimeLibraryStreamCollectionRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeLibraryStreamCollectionRequested
+}
+
+func (m *ManagerImpl) OnAnimeLibraryCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeLibraryCollection
+}
+
+func (m *ManagerImpl) OnAnimeLibraryStreamCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeLibraryStreamCollection
+}
+
+// Auto Downloader events
+
+func (m *ManagerImpl) OnAutoDownloaderQueueOrDownloadTorrent() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderQueueOrDownloadTorrent
+}
+
+func (m *ManagerImpl) OnAutoDownloaderTorrentMatched() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderTorrentMatched
+}
+
+func (m *ManagerImpl) OnAutoDownloaderRuleVerifyMatch() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderRuleVerifyMatch
+}
+
+func (m *ManagerImpl) OnAutoDownloaderRunStarted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderRunStarted
+}
+
+func (m *ManagerImpl) OnAutoDownloaderRunCompleted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderRunCompleted
+}
+
+func (m *ManagerImpl) OnAutoDownloaderSettingsUpdated() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderSettingsUpdated
 }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
-	"seanime/internal/hook_event"
+	"seanime/internal/hook_resolver"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
@@ -27,11 +27,10 @@ type (
 		rawMangaCollection   mo.Option[*anilist.MangaCollection]
 		isOffline            bool
 		localPlatformEnabled bool
-		hookManager          hook.Manager
 	}
 )
 
-func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger, hookManager hook.Manager) platform.Platform {
+func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Logger) platform.Platform {
 	ap := &AnilistPlatform{
 		anilistClient:      anilistClient,
 		logger:             logger,
@@ -40,7 +39,6 @@ func NewAnilistPlatform(anilistClient anilist.AnilistClient, logger *zerolog.Log
 		rawAnimeCollection: mo.None[*anilist.AnimeCollection](),
 		mangaCollection:    mo.None[*anilist.MangaCollection](),
 		rawMangaCollection: mo.None[*anilist.MangaCollection](),
-		hookManager:        hookManager,
 	}
 
 	return ap
@@ -65,7 +63,7 @@ func (ap *AnilistPlatform) SetAnilistClient(client anilist.AnilistClient) {
 func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListStatus, scoreRaw *int, progress *int, startedAt *anilist.FuzzyDateInput, completedAt *anilist.FuzzyDateInput) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry")
 
-	event := new(hook_event.PreUpdateEntryEvent)
+	event := new(PreUpdateEntryEvent)
 	event.MediaID = &mediaID
 	event.Status = status
 	event.ScoreRaw = scoreRaw
@@ -73,7 +71,8 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 	event.StartedAt = startedAt
 	event.CompletedAt = completedAt
 
-	err := ap.hookManager.OnPreUpdateEntry().Trigger(event, func(e *hook_event.PreUpdateEntryEvent) error {
+	err := hook.GlobalHookManager.OnPreUpdateEntry().Trigger(event, func(resolver hook_resolver.Resolver) error {
+		e := resolver.(*PreUpdateEntryEvent)
 		_, err := ap.anilistClient.UpdateMediaListEntry(context.Background(), e.MediaID, e.Status, e.ScoreRaw, e.Progress, e.StartedAt, e.CompletedAt)
 		if err != nil {
 			return err
@@ -84,10 +83,10 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 		return err
 	}
 
-	postEvent := new(hook_event.PostUpdateEntryEvent)
+	postEvent := new(PostUpdateEntryEvent)
 	postEvent.MediaID = &mediaID
 
-	err = ap.hookManager.OnPostUpdateEntry().Trigger(postEvent)
+	err = hook.GlobalHookManager.OnPostUpdateEntry().Trigger(postEvent)
 
 	return nil
 }
@@ -95,14 +94,15 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalCount *int) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry progress")
 
-	event := new(hook_event.PreUpdateEntryProgressEvent)
+	event := new(PreUpdateEntryProgressEvent)
 	event.MediaID = &mediaID
 	event.Progress = &progress
 	event.TotalCount = totalCount
 	event.Status = lo.ToPtr(anilist.MediaListStatusCurrent)
 	event.SkipDefault = lo.ToPtr(false)
 
-	err := ap.hookManager.OnPreUpdateEntryProgress().Trigger(event, func(e *hook_event.PreUpdateEntryProgressEvent) error {
+	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event, func(resolver hook_resolver.Resolver) error {
+		e := resolver.(*PreUpdateEntryProgressEvent)
 		if e.SkipDefault == nil || !*e.SkipDefault {
 			realTotalCount := 0
 			if totalCount != nil && *totalCount > 0 {
@@ -150,10 +150,10 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalC
 		return err
 	}
 
-	postEvent := new(hook_event.PostUpdateEntryProgressEvent)
+	postEvent := new(PostUpdateEntryProgressEvent)
 	postEvent.MediaID = &mediaID
 
-	err = ap.hookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
+	err = hook.GlobalHookManager.OnPostUpdateEntryProgress().Trigger(postEvent)
 	if err != nil {
 		return err
 	}
@@ -164,12 +164,13 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalC
 func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 	ap.logger.Trace().Msg("anilist platform: Updating entry repeat")
 
-	event := new(hook_event.PreUpdateEntryRepeatEvent)
+	event := new(PreUpdateEntryRepeatEvent)
 	event.MediaID = &mediaID
 	event.Repeat = &repeat
 
-	err := ap.hookManager.OnPreUpdateEntryRepeat().Trigger(event, func(e *hook_event.PreUpdateEntryRepeatEvent) error {
-		_, err := ap.anilistClient.UpdateMediaListEntryRepeat(context.Background(), &mediaID, &repeat)
+	err := hook.GlobalHookManager.OnPreUpdateEntryRepeat().Trigger(event, func(resolver hook_resolver.Resolver) error {
+		e := resolver.(*PreUpdateEntryRepeatEvent)
+		_, err := ap.anilistClient.UpdateMediaListEntryRepeat(context.Background(), e.MediaID, e.Repeat)
 		if err != nil {
 			return err
 		}
@@ -179,10 +180,10 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 		return err
 	}
 
-	postEvent := new(hook_event.PostUpdateEntryRepeatEvent)
+	postEvent := new(PostUpdateEntryRepeatEvent)
 	postEvent.MediaID = &mediaID
 
-	err = ap.hookManager.OnPostUpdateEntryRepeat().Trigger(postEvent)
+	err = hook.GlobalHookManager.OnPostUpdateEntryRepeat().Trigger(postEvent)
 	if err != nil {
 		return err
 	}
@@ -210,10 +211,10 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 
 	media := ret.GetMedia()
 
-	event := new(hook_event.GetAnimeEvent)
+	event := new(GetAnimeEvent)
 	event.Anime = media
 
-	err = ap.hookManager.OnGetAnime().Trigger(event)
+	err = hook.GlobalHookManager.OnGetAnime().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -230,10 +231,10 @@ func (ap *AnilistPlatform) GetAnimeByMalID(malID int) (*anilist.BaseAnime, error
 
 	media := ret.GetMedia()
 
-	event := new(hook_event.GetAnimeEvent)
+	event := new(GetAnimeEvent)
 	event.Anime = media
 
-	err = ap.hookManager.OnGetAnime().Trigger(event)
+	err = hook.GlobalHookManager.OnGetAnime().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -250,10 +251,10 @@ func (ap *AnilistPlatform) GetAnimeDetails(mediaID int) (*anilist.AnimeDetailsBy
 
 	media := ret.GetMedia()
 
-	event := new(hook_event.GetAnimeDetailsEvent)
+	event := new(GetAnimeDetailsEvent)
 	event.Anime = media
 
-	err = ap.hookManager.OnGetAnimeDetails().Trigger(event)
+	err = hook.GlobalHookManager.OnGetAnimeDetails().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -279,10 +280,10 @@ func (ap *AnilistPlatform) GetManga(mediaID int) (*anilist.BaseManga, error) {
 
 	media := ret.GetMedia()
 
-	event := new(hook_event.GetMangaEvent)
+	event := new(GetMangaEvent)
 	event.Manga = media
 
-	err = ap.hookManager.OnGetManga().Trigger(event)
+	err = hook.GlobalHookManager.OnGetManga().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -313,10 +314,10 @@ func (ap *AnilistPlatform) GetAnimeCollection(bypassCache bool) (*anilist.AnimeC
 		return nil, err
 	}
 
-	event := new(hook_event.GetAnimeCollectionEvent)
+	event := new(GetAnimeCollectionEvent)
 	event.AnimeCollection = ap.animeCollection.MustGet()
 
-	err = ap.hookManager.OnGetAnimeCollection().Trigger(event)
+	err = hook.GlobalHookManager.OnGetAnimeCollection().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -338,10 +339,10 @@ func (ap *AnilistPlatform) GetRawAnimeCollection(bypassCache bool) (*anilist.Ani
 		return nil, err
 	}
 
-	event := new(hook_event.GetRawAnimeCollectionEvent)
+	event := new(GetRawAnimeCollectionEvent)
 	event.AnimeCollection = ap.rawAnimeCollection.MustGet()
 
-	err = ap.hookManager.OnGetRawAnimeCollection().Trigger(event)
+	err = hook.GlobalHookManager.OnGetRawAnimeCollection().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -359,10 +360,10 @@ func (ap *AnilistPlatform) RefreshAnimeCollection() (*anilist.AnimeCollection, e
 		return nil, err
 	}
 
-	event := new(hook_event.GetAnimeCollectionEvent)
+	event := new(GetAnimeCollectionEvent)
 	event.AnimeCollection = ap.animeCollection.MustGet()
 
-	err = ap.hookManager.OnGetAnimeCollection().Trigger(event)
+	err = hook.GlobalHookManager.OnGetAnimeCollection().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -431,10 +432,10 @@ func (ap *AnilistPlatform) GetMangaCollection(bypassCache bool) (*anilist.MangaC
 		return nil, err
 	}
 
-	event := new(hook_event.GetMangaCollectionEvent)
+	event := new(GetMangaCollectionEvent)
 	event.MangaCollection = ap.mangaCollection.MustGet()
 
-	err = ap.hookManager.OnGetMangaCollection().Trigger(event)
+	err = hook.GlobalHookManager.OnGetMangaCollection().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -459,10 +460,10 @@ func (ap *AnilistPlatform) GetRawMangaCollection(bypassCache bool) (*anilist.Man
 		return nil, err
 	}
 
-	event := new(hook_event.GetRawMangaCollectionEvent)
+	event := new(GetRawMangaCollectionEvent)
 	event.MangaCollection = ap.rawMangaCollection.MustGet()
 
-	err = ap.hookManager.OnGetRawMangaCollection().Trigger(event)
+	err = hook.GlobalHookManager.OnGetRawMangaCollection().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -480,10 +481,10 @@ func (ap *AnilistPlatform) RefreshMangaCollection() (*anilist.MangaCollection, e
 		return nil, err
 	}
 
-	event := new(hook_event.GetMangaCollectionEvent)
+	event := new(GetMangaCollectionEvent)
 	event.MangaCollection = ap.mangaCollection.MustGet()
 
-	err = ap.hookManager.OnGetMangaCollection().Trigger(event)
+	err = hook.GlobalHookManager.OnGetMangaCollection().Trigger(event)
 	if err != nil {
 		return nil, err
 	}
@@ -563,10 +564,10 @@ func (ap *AnilistPlatform) GetStudioDetails(studioID int) (*anilist.StudioDetail
 		return nil, err
 	}
 
-	event := new(hook_event.GetStudioDetailsEvent)
+	event := new(GetStudioDetailsEvent)
 	event.Studio = ret
 
-	err = ap.hookManager.OnGetStudioDetails().Trigger(event)
+	err = hook.GlobalHookManager.OnGetStudioDetails().Trigger(event)
 	if err != nil {
 		return nil, err
 	}

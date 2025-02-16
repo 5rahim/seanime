@@ -1,4 +1,4 @@
-package hook_event
+package hook_resolver
 
 // Resolver defines a common interface for a Hook event (see [Event]).
 type Resolver interface {

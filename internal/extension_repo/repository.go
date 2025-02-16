@@ -275,7 +275,7 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 
 func (r *Repository) LoadPlugins() {
 
-	loader := NewGojaPluginLoader(r.logger, r.gojaRuntimeManager, r.hookManager)
+	loader := NewGojaPluginLoader(r.logger, r.gojaRuntimeManager)
 
 	testExt := &extension.Extension{
 		ID:       "test-plugin",
@@ -303,15 +303,21 @@ func (r *Repository) LoadPlugins() {
 				e.next();
 			});
 
-			$app.onAnimeEntry((e) => {
-				$replace(e.entry.episodes, [])
-				$replace(e.entry.localFiles, [])
-			});
+			// $app.onAnimeEntryLibraryDataRequest((e) => {
+			// 	$replace(e.options.entryLocalFiles, [])
+			// 	e.next();
+			// });
+
+			// $app.OnAnimeEntryRequest((e) => {
+			// 	e.mediaId = 21;
+			// 	e.next();
+			// });
+			
 		}
 		`,
 	}
 
-	err := r.loadPluginExtension(loader, testExt, r.hookManager)
+	err := r.loadPluginExtension(loader, testExt)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("extensions: Failed to load test extension")
 	}

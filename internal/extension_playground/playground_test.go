@@ -5,7 +5,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
-	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -21,10 +20,7 @@ func TestGojaAnimeTorrentProvider(t *testing.T) {
 	logger := util.NewLogger()
 
 	anilistClient := anilist.TestGetMockAnilistClient()
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
-	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	platform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 	metadataProvider := metadata.GetMockProvider(t)
 
 	repo := NewPlaygroundRepository(logger, platform, metadataProvider)

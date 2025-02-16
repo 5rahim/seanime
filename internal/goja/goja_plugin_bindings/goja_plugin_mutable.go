@@ -3,8 +3,9 @@ package goja_plugin_bindings
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dop251/goja"
 	"reflect"
+
+	"github.com/dop251/goja"
 )
 
 func BindMutable(vm *goja.Runtime) {
@@ -148,7 +149,8 @@ func BindMutable(vm *goja.Runtime) {
 			target := call.Arguments[0].Export()
 			targetVal := reflect.ValueOf(target)
 			if targetVal.Kind() != reflect.Ptr {
-				panic(vm.NewTypeError("Target must be a pointer"))
+				// panic(vm.NewTypeError("Target must be a pointer"))
+				return goja.Undefined()
 			}
 
 			// Create a new instance of the target type and unmarshal into it
@@ -184,7 +186,8 @@ func BindMutable(vm *goja.Runtime) {
 		// Get the reflect.Value of the target pointer
 		targetVal := reflect.ValueOf(target)
 		if targetVal.Kind() != reflect.Ptr {
-			panic(vm.NewTypeError("Target must be a pointer"))
+			// panic(vm.NewTypeError("Target must be a pointer"))
+			return goja.Undefined()
 		}
 
 		// Create a new instance of the target type

@@ -3,7 +3,6 @@ package nyaa
 import (
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
-	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
@@ -31,10 +30,7 @@ func TestSmartSearch(t *testing.T) {
 	anilistLimiter := limiter.NewAnilistLimiter()
 	anilistClient := anilist.TestGetMockAnilistClient()
 	logger := util.NewLogger()
-	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{
-		Logger: logger,
-	})
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger, hookManager)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
 
 	nyaaProvider := NewProvider(util.NewLogger())
 
