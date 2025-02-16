@@ -523,10 +523,12 @@ func (a *App) InitOrRefreshAnilistData() {
 
 	acc, err := a.Database.GetAccount()
 	if err != nil {
+		a.AnilistDataLoaded = true
 		return
 	}
 
 	if acc.Token == "" || acc.Username == "" {
+		a.AnilistDataLoaded = true
 		return
 	}
 
