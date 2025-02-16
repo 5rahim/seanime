@@ -15,16 +15,18 @@ type gojaProviderBase struct {
 	ext            *extension.Extension
 	logger         *zerolog.Logger
 	pool           *goja_runtime.Pool
+	program        *goja.Program
+	source         string
 	runtimeManager *goja_runtime.Manager
 }
 
 func initializeProviderBase(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*gojaProviderBase, error) {
-	initFn, err := SetupGojaExtensionVM(ext, language, logger)
+	initFn, pr, err := SetupGojaExtensionVM(ext, language, logger)
 	if err != nil {
 		return nil, err
 	}
 
-	pool, err := runtimeManager.GetOrCreatePool(initFn)
+	pool, err := runtimeManager.GetOrCreateBasePool(initFn)
 	if err != nil {
 		return nil, err
 	}
@@ -33,6 +35,8 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		ext:            ext,
 		logger:         logger,
 		pool:           pool,
+		program:        pr,
+		source:         ext.Payload,
 		runtimeManager: runtimeManager,
 	}, nil
 }
@@ -44,22 +48,29 @@ func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName strin
 
 	vm, err := g.pool.Get(ctx)
 	if err != nil {
+		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to get VM")
 		return nil, fmt.Errorf("failed to get VM: %w", err)
 	}
 	defer g.pool.Put(vm)
 
+	_, _ = vm.RunProgram(g.program)
+
 	// Create a new instance of the Provider class
 	providerInstance, err := vm.RunString("new Provider()")
 	if err != nil {
+		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to create Provider instance")
 		return nil, fmt.Errorf("failed to create Provider instance: %w", err)
 	}
+
 	if providerInstance == nil {
-		return nil, fmt.Errorf("Provider constructor returned nil")
+		g.logger.Error().Str("id", g.ext.ID).Msg("extension: Provider constructor returned nil")
+		return nil, fmt.Errorf("provider constructor returned nil")
 	}
 
 	// Get the method from the instance
 	method, ok := goja.AssertFunction(providerInstance.ToObject(vm).Get(methodName))
 	if !ok {
+		g.logger.Error().Str("id", g.ext.ID).Str("method", methodName).Msg("extension: Method not found or not a function")
 		return nil, fmt.Errorf("method %s not found or not a function", methodName)
 	}
 
@@ -72,10 +83,11 @@ func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName strin
 	// Call the method
 	result, err := method(providerInstance, gojaArgs...)
 	if err != nil {
+		g.logger.Error().Err(err).Str("id", g.ext.ID).Str("method", methodName).Msg("extension: Method execution failed")
 		return nil, fmt.Errorf("method %s execution failed: %w", methodName, err)
 	}
 
-	g.runtimeManager.PrintMetrics()
+	g.runtimeManager.PrintBasePoolMetrics()
 
 	return result, nil
 }

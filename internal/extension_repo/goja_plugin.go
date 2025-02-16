@@ -69,8 +69,8 @@ func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Ma
 	// Bind hooks to the loader
 	BindHooks(loader, runtimeManager)
 
-	// Preinitialize the runtime pool so that runtimeManager.pool is not nil
-	if _, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
+	// Pre-initialize the runtime pool so that runtimeManager.pool is not nil
+	if _, err := runtimeManager.GetOrCreatePluginPool(func() *goja.Runtime {
 		rt := goja.New()
 		ShareBinds(rt, logger)
 		PluginBinds(rt, logger)
@@ -85,7 +85,17 @@ func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Ma
 func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*GojaPlugin, error) {
 	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
 
-	pool, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
+	source := ext.Payload
+	if language == extension.LanguageTypescript {
+		var err error
+		source, err = JSVMTypescriptToJS(ext.Payload)
+		if err != nil {
+			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
+			return nil, err
+		}
+	}
+
+	pool, err := runtimeManager.GetOrCreatePluginPool(func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
 		PluginBinds(runtime, logger)
@@ -96,7 +106,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 	}
 
 	// Load the extension payload
-	_, err = loader.RunString(ext.Payload)
+	_, err = loader.RunString(source)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +137,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
 	appType := reflect.TypeOf(hook.GlobalHookManager)
 	appValue := reflect.ValueOf(hook.GlobalHookManager)
 	totalMethods := appType.NumMethod()
-	excludeHooks := []string{"OnServe"}
+	excludeHooks := []string{"OnServe", ""}
 
 	appObj := loader.NewObject()
 
@@ -140,7 +150,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
 		jsName := fm.MethodName(appType, method)
 
 		appObj.Set(jsName, func(callback string, tags ...string) {
-			callback = `function(e) { $app = e.app; return (` + callback + `).call(undefined, e); }`
+			callback = `function(e) { $ctx = e.ctx; return (` + callback + `).call(undefined, e); }`
 			pr := goja.MustCompile("", "{("+callback+").apply(undefined, __args)}", true)
 
 			tagsAsValues := make([]reflect.Value, len(tags))
@@ -156,7 +166,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
 			handler := reflect.MakeFunc(handlerType, func(args []reflect.Value) (results []reflect.Value) {
 				handlerArgs := make([]any, len(args))
 
-				// Run the handler in a isolated "executor" runtime to allow for concurrency
+				// Run the handler in an isolated "executor" runtime to allow for concurrency
 				// This runtime has shared bindings and plugin bindings
 				err := runtimeManager.Run(context.Background(), func(executor *goja.Runtime) error {
 					executor.SetFieldNameMapper(fm)
@@ -164,7 +174,8 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
 						// handlerArgs[i] = convertArg(executor, arg)
 						handlerArgs[i] = arg.Interface()
 					}
-					executor.Set("$app", goja.Undefined())
+					// Create a VM-scoped "global" variable $ctx, it will set to the AppContext struct passed by an event
+					executor.Set("$ctx", goja.Undefined())
 					executor.Set("__args", handlerArgs)
 					res, err := executor.RunProgram(pr)
 					executor.Set("__args", goja.Undefined())

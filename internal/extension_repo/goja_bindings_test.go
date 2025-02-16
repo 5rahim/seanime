@@ -1,34 +1,24 @@
 package extension_repo_test
 
 import (
-	"context"
 	"fmt"
 	"os"
-	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
-	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/util"
 	"testing"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/dop251/goja"
+	"github.com/dop251/goja/parser"
 	"github.com/stretchr/testify/require"
 )
 
 func setupTestVM(t *testing.T) *goja.Runtime {
-	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
-	pool, err := runtimeManager.GetOrCreatePool(func() *goja.Runtime {
-		initFn, err := extension_repo.SetupGojaExtensionVM(nil, extension.LanguageTypescript, util.NewLogger())
-		if err != nil {
-			return nil
-		}
-		return initFn()
-	})
-	require.NoError(t, err)
-
-	vm, err := pool.Get(context.Background())
-	require.NoError(t, err)
+	vm := goja.New()
+	vm.SetParserOptions(parser.WithDisableSourceMaps)
+	// Bind the shared bindings
+	extension_repo.ShareBinds(vm, util.NewLogger())
 	return vm
 }
 

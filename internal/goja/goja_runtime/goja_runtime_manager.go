@@ -11,9 +11,10 @@ import (
 
 // Manager manages a shared pool of Goja runtimes for all extensions.
 type Manager struct {
-	pool   *Pool
-	logger *zerolog.Logger
-	size   int32
+	pluginPool *Pool
+	basePool   *Pool
+	logger     *zerolog.Logger
+	size       int32
 }
 
 func NewManager(logger *zerolog.Logger, size int32) *Manager {
@@ -23,16 +24,32 @@ func NewManager(logger *zerolog.Logger, size int32) *Manager {
 	}
 }
 
-// GetOrCreatePool returns the shared pool.
-func (m *Manager) GetOrCreatePool(initFn func() *goja.Runtime) (*Pool, error) {
-	if m.pool == nil {
-		m.pool = newPool(m.size, initFn, m.logger)
+// GetOrCreatePluginPool returns the shared pool.
+func (m *Manager) GetOrCreatePluginPool(initFn func() *goja.Runtime) (*Pool, error) {
+	if m.pluginPool == nil {
+		m.pluginPool = newPool(m.size, initFn, m.logger)
 	}
-	return m.pool, nil
+	return m.pluginPool, nil
+}
+
+// GetOrCreateBasePool returns the shared base pool.
+func (m *Manager) GetOrCreateBasePool(initFn func() *goja.Runtime) (*Pool, error) {
+	if m.basePool == nil {
+		m.basePool = newPool(m.size, initFn, m.logger)
+	}
+	return m.basePool, nil
 }
 
 func (m *Manager) Run(ctx context.Context, fn func(*goja.Runtime) error) error {
-	runtime, err := m.pool.Get(ctx)
+	runtime, err := m.pluginPool.Get(ctx)
+	if err != nil {
+		return err
+	}
+	return fn(runtime)
+}
+
+func (m *Manager) RunBase(ctx context.Context, fn func(*goja.Runtime) error) error {
+	runtime, err := m.basePool.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -43,16 +60,28 @@ func (m *Manager) GetLogger() *zerolog.Logger {
 	return m.logger
 }
 
-func (m *Manager) PrintMetrics() {
-	if m.pool == nil {
+func (m *Manager) PrintPluginPoolMetrics() {
+	if m.pluginPool == nil {
 		return
 	}
-	stats := m.pool.Stats()
+	stats := m.pluginPool.Stats()
 	m.logger.Trace().
 		Int64("created", stats["created"]).
 		Int64("reused", stats["reused"]).
 		Int64("timeouts", stats["timeouts"]).
 		Msg("goja runtime: VM Pool Metrics")
+}
+
+func (m *Manager) PrintBasePoolMetrics() {
+	if m.basePool == nil {
+		return
+	}
+	stats := m.basePool.Stats()
+	m.logger.Trace().
+		Int64("created", stats["created"]).
+		Int64("reused", stats["reused"]).
+		Int64("timeouts", stats["timeouts"]).
+		Msg("goja runtime: Base VM Pool Metrics")
 }
 
 type Pool struct {

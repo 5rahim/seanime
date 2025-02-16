@@ -283,25 +283,25 @@ func (r *Repository) LoadPlugins() {
 		Payload: `
 		function init() {
 
-			$app.onGetAnimeCollection((e) => {
-				// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
-				for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-					for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-						$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
-					}
-				}
-				e.next();
-			});
-
-			$app.onGetRawAnimeCollection((e) => {
-				//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
-				for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-					for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-						$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
-					}
-				}
-				e.next();
-			});
+			//$app.onGetAnimeCollection((e) => {
+			//	// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
+			//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+			//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+			//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
+			//		}
+			//	}
+			//	e.next();
+			//});
+			//
+			//$app.onGetRawAnimeCollection((e) => {
+			//	//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
+			//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+			//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+			//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
+			//		}
+			//	}
+			//	e.next();
+			//});
 
 			// $app.onAnimeEntryLibraryDataRequest((e) => {
 			// 	$replace(e.options.entryLocalFiles, [])

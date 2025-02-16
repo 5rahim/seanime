@@ -24,7 +24,7 @@ type GojaExtension interface {
 }
 
 // SetupGojaExtensionVM creates a new JavaScript VM with the extension source code loaded
-func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (func() *goja.Runtime, error) {
+func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (func() *goja.Runtime, *goja.Program, error) {
 	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM")
 
 	source := ext.Payload
@@ -33,26 +33,26 @@ func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language,
 		source, err = JSVMTypescriptToJS(ext.Payload)
 		if err != nil {
 			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
-			return nil, err
+			return nil, nil, err
 		}
 	}
+
+	ext.Payload = source
 
 	// Compile the program once, to be reused by all VMs
 	program, err := goja.Compile("", source, false)
 	if err != nil {
-		return nil, fmt.Errorf("compilation failed: %w", err)
+		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to compile program")
+		return nil, nil, fmt.Errorf("compilation failed: %w", err)
 	}
 
 	return func() *goja.Runtime {
 		vm := goja.New()
 		vm.SetParserOptions(parser.WithDisableSourceMaps)
-
+		// Bind the shared bindings
 		ShareBinds(vm, logger)
-
-		vm.RunProgram(program)
-
 		return vm
-	}, nil
+	}, program, nil
 }
 
 // ShareBinds binds the shared bindings to the VM

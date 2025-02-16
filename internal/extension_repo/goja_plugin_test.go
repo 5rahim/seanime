@@ -5,6 +5,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
+	"seanime/internal/hook_context"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
@@ -18,16 +19,45 @@ func TestNewGojaPluginContext(t *testing.T) {
 	function init() {
 
 		$app.onGetAnime((e) => {
-			console.log($app)
-			if(e.anime.id === 178022) {
-				e.anime.id = 21;
-				$replace(e.anime.title, { "english": "The One Piece is Real" })
-				$replace(e.anime.synonyms, ["The One Piece is Real"])
-				e.anime.synonyms[0] = "The One Piece"
-			}
+
+			$ctx.store().set("anime", e.anime);
 
 			e.next();
 		});
+
+		$app.onGetAnime((e) => {
+			$ctx.store().set("value", 42);
+
+			console.log("Hook 2", $ctx.store().get("value"));
+
+			e.next();
+		});
+
+		$app.command.register({
+			onNavigate: async (ctx) => {
+				console.log("page", ctx.page)
+				if (ctx.page === "anime-entry") {
+					
+					const anime = $ctx.store().get("anime");
+
+					ctx.setItems(prev => [
+						{
+							id: anime.id,
+							label: anime.title.english,
+							detail: anime.status,
+							onSelect: () => {
+								$ctx.store().set("anime", anime);
+								ctx.navigate("anime-detail");
+							},
+						},
+					])
+
+				}
+			},
+			onRenderItems: async (ctx) => {
+				
+			},
+		})
 	}
 	`
 
@@ -36,16 +66,16 @@ func TestNewGojaPluginContext(t *testing.T) {
 		Payload: payload,
 	}
 
-	lang := extension.Language("typescript")
-
 	logger := util.NewLogger()
 
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
 
 	manager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(logger, manager)
+	appContext := hook_context.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
-	_, err := NewGojaPlugin(loader, ext, lang, logger, manager)
+	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}
@@ -99,16 +129,14 @@ func TestNewGojaPlugin(t *testing.T) {
 		Payload: payload,
 	}
 
-	lang := extension.Language("typescript")
-
 	logger := util.NewLogger()
 
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewAnilistClient(""), logger)
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
 
 	manager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(logger, manager)
 
-	_, err := NewGojaPlugin(loader, ext, lang, logger, manager)
+	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}
