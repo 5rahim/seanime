@@ -11,6 +11,62 @@ import (
 	"testing"
 )
 
+func TestNewGojaPluginContext(t *testing.T) {
+	test_utils.SetTwoLevelDeep()
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+	payload := `
+	function init() {
+
+		$app.onGetAnime((e) => {
+			console.log($app)
+			if(e.anime.id === 178022) {
+				e.anime.id = 21;
+				$replace(e.anime.title, { "english": "The One Piece is Real" })
+				$replace(e.anime.synonyms, ["The One Piece is Real"])
+				e.anime.synonyms[0] = "The One Piece"
+			}
+
+			e.next();
+		});
+	}
+	`
+
+	ext := &extension.Extension{
+		ID:      "dummy-plugin",
+		Payload: payload,
+	}
+
+	lang := extension.Language("typescript")
+
+	logger := util.NewLogger()
+
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
+
+	manager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(logger, manager)
+
+	_, err := NewGojaPlugin(loader, ext, lang, logger, manager)
+	if err != nil {
+		t.Fatalf("NewGojaPlugin returned error: %v", err)
+	}
+
+	m, err := anilistPlatform.GetAnime(178022)
+	if err != nil {
+		t.Fatalf("GetAnime returned error: %v", err)
+	}
+
+	util.Spew(m.Title)
+	util.Spew(m.Synonyms)
+
+	m, err = anilistPlatform.GetAnime(177709)
+	if err != nil {
+		t.Fatalf("GetAnime returned error: %v", err)
+	}
+
+	util.Spew(m.Title)
+
+}
+
 func TestNewGojaPlugin(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())

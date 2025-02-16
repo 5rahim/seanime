@@ -2,6 +2,7 @@ package anilist_platform
 
 import (
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook_context"
 	"seanime/internal/hook_resolver"
 )
 
@@ -11,6 +12,7 @@ import (
 
 type GetAnimeEvent struct {
 	hook_resolver.Event
+	Ctx   hook_context.AppContext
 	Anime *anilist.BaseAnime `json:"anime"`
 }
 

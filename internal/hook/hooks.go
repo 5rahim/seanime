@@ -1,6 +1,7 @@
 package hook
 
 import (
+	"seanime/internal/hook_context"
 	"seanime/internal/hook_resolver"
 	"seanime/internal/util"
 
@@ -9,6 +10,8 @@ import (
 
 // Manager manages all hooks in the application
 type Manager interface {
+	setAppContext(hook_context.AppContext)
+	AppContext() hook_context.AppContext
 	// AniList events
 	OnGetAnime() *Hook[hook_resolver.Resolver]
 	OnGetAnimeDetails() *Hook[hook_resolver.Resolver]
@@ -57,7 +60,8 @@ type Manager interface {
 }
 
 type ManagerImpl struct {
-	logger *zerolog.Logger
+	logger     *zerolog.Logger
+	appContext hook_context.AppContext
 	// AniList events
 	onGetAnime                *Hook[hook_resolver.Resolver]
 	onGetAnimeDetails         *Hook[hook_resolver.Resolver]
@@ -101,7 +105,7 @@ type NewHookManagerOptions struct {
 	Logger *zerolog.Logger
 }
 
-var GlobalHookManager Manager = NewHookManager(NewHookManagerOptions{
+var GlobalHookManager = NewHookManager(NewHookManagerOptions{
 	Logger: util.NewLogger(),
 })
 
@@ -109,14 +113,29 @@ func SetGlobalHookManager(manager Manager) {
 	GlobalHookManager = manager
 }
 
+func SetGlobalHookManagerAppContext(appContext hook_context.AppContext) {
+	if GlobalHookManager != nil {
+		GlobalHookManager.setAppContext(appContext)
+	}
+}
+
 func NewHookManager(opts NewHookManagerOptions) Manager {
 	ret := &ManagerImpl{
-		logger: opts.Logger,
+		logger:     opts.Logger,
+		appContext: nil,
 	}
 
 	ret.initHooks()
 
 	return ret
+}
+
+func (m *ManagerImpl) AppContext() hook_context.AppContext {
+	return m.appContext
+}
+
+func (m *ManagerImpl) setAppContext(appContext hook_context.AppContext) {
+	m.appContext = appContext
 }
 
 func (m *ManagerImpl) initHooks() {
