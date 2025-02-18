@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -14,6 +15,14 @@ var (
 		},
 	}
 )
+
+type WebsocketClientEventType string
+
+type WebsocketClientEvent struct {
+	ClientID string                   `json:"clientId"`
+	Type     WebsocketClientEventType `json:"type"`
+	Payload  interface{}              `json:"payload"`
+}
 
 // webSocketEventHandler creates a new websocket handler for real-time event communication
 func (h *Handler) webSocketEventHandler(c echo.Context) error {
@@ -34,7 +43,7 @@ func (h *Handler) webSocketEventHandler(c echo.Context) error {
 	h.App.Logger.Debug().Str("id", id).Msg("ws: Client connected")
 
 	for {
-		messageType, msg, err := ws.ReadMessage()
+		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 				h.App.Logger.Debug().Str("id", id).Msg("ws: Client disconnected")
@@ -45,14 +54,30 @@ func (h *Handler) webSocketEventHandler(c echo.Context) error {
 			break
 		}
 
-		h.App.Logger.Debug().Msgf("ws: message received: %+v", msg)
-
-		// Echo the message back
-		if err = ws.WriteMessage(messageType, msg); err != nil {
-			h.App.Logger.Err(err).Msg("ws: Failed to send message")
-			break
+		event, err := UnmarshalWebsocketClientEvent(msg)
+		if err != nil {
+			h.App.Logger.Error().Err(err).Msg("ws: Failed to unmarshal message sent from webview")
+			continue
 		}
+
+		h.HandleWebviewEvents(event)
+
+		// h.App.Logger.Debug().Msgf("ws: message received: %+v", msg)
+
+		// // Echo the message back
+		// if err = ws.WriteMessage(messageType, msg); err != nil {
+		// 	h.App.Logger.Err(err).Msg("ws: Failed to send message")
+		// 	break
+		// }
 	}
 
 	return nil
+}
+
+func UnmarshalWebsocketClientEvent(msg []byte) (*WebsocketClientEvent, error) {
+	var event WebsocketClientEvent
+	if err := json.Unmarshal(msg, &event); err != nil {
+		return nil, err
+	}
+	return &event, nil
 }

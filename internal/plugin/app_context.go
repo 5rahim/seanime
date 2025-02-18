@@ -1,4 +1,4 @@
-package hook_context
+package plugin
 
 type AppContext interface {
 	Store() *Store[string, any]
@@ -10,7 +10,7 @@ type AppContextImpl struct {
 
 func NewAppContext() AppContext {
 	appCtx := &AppContextImpl{
-		store: New[string, any](nil),
+		store: NewStore[string, any](nil),
 	}
 
 	return appCtx

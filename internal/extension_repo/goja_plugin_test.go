@@ -5,8 +5,8 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
-	"seanime/internal/hook_context"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/plugin"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -20,44 +20,116 @@ func TestNewGojaPluginContext(t *testing.T) {
 
 		$app.onGetAnime((e) => {
 
-			$ctx.store().set("anime", e.anime);
+			$store.set("anime", e.anime);
+			$store.set("value", 42);
 
 			e.next();
 		});
 
 		$app.onGetAnime((e) => {
-			$ctx.store().set("value", 42);
 
-			console.log("Hook 2", $ctx.store().get("value"));
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
 
 			e.next();
 		});
 
-		$app.command.register({
-			onNavigate: async (ctx) => {
-				console.log("page", ctx.page)
-				if (ctx.page === "anime-entry") {
-					
-					const anime = $ctx.store().get("anime");
+		$app.onGetAnime((e) => {
 
-					ctx.setItems(prev => [
-						{
-							id: anime.id,
-							label: anime.title.english,
-							detail: anime.status,
-							onSelect: () => {
-								$ctx.store().set("anime", anime);
-								ctx.navigate("anime-detail");
-							},
-						},
-					])
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
 
-				}
-			},
-			onRenderItems: async (ctx) => {
-				
-			},
-		})
+			e.next();
+		});
+
+		$app.onGetAnime((e) => {
+
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
+
+			e.next();
+		});
+
+		$app.onGetAnime((e) => {
+
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
+
+			e.next();
+		});
+		$app.onGetAnime((e) => {
+
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
+
+			e.next();
+		});
+		$app.onGetAnime((e) => {
+
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
+
+			e.next();
+		});
+		$app.onGetAnime((e) => {
+
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
+
+			e.next();
+		});
+		$app.onGetAnime((e) => {
+
+			console.log("Hook 2, value", $store.get("value"));
+			console.log("Hook 2, value 2", $store.get("value2"));
+
+			e.next();
+		});
+
+		// $ui.registerTray(() => {
+			
+		// 	const trayBuilder = $ctx.webview().newTrayBuilder();
+
+		// 	const subscriptionBroker = $ctx.webview().newSubscriptionBroker();
+
+		// 	subscriptionBroker.subscribe(subscriptionBroker.ANIME_LIBRARY_PAGE_VIEWED, (e) => {
+		// 		trayBuilder.setItems(e.media.map((m) => {
+		// 			return trayBuilder.newItem({
+		// 				id: m.id,
+		// 				label: m.title.english,
+		// 				detail: m.status,
+		// 				onSelect: () => {
+		// 					$ctx.webview().navigate("anime-entry", { id: m.id });
+		// 				},
+		// 			})
+		// 		}))
+		// 	})
+		
+
+		// 	trayBuilder.build();
+
+		// })
+
+		// $app.createTray((tray) => {
+
+		// 	let items = []
+		// 	tray.items(items)
+
+		// 	$ctx.webview().onAnimeLibrary((e) => {
+		// 		items = [
+		// 			tray.item({
+		// 				id: e.anime.id,
+		// 				label: e.anime.title.english,
+		// 				detail: e.anime.status,
+		// 				onSelect: () => {
+		// 					$ctx.webview().navigate("anime-entry", { id: e.anime.id });
+		// 				},
+		// 			})
+		// 		]
+		// 		tray.items(items)
+		// 	})
+
+		// })
 	}
 	`
 
@@ -71,8 +143,8 @@ func TestNewGojaPluginContext(t *testing.T) {
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
 
 	manager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, manager)
-	appContext := hook_context.NewAppContext()
+	loader := NewGojaPluginLoader(ext, logger, manager)
+	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
 	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
@@ -94,6 +166,8 @@ func TestNewGojaPluginContext(t *testing.T) {
 	}
 
 	util.Spew(m.Title)
+
+	manager.PrintPluginPoolMetrics(ext.ID)
 
 }
 
@@ -134,7 +208,9 @@ func TestNewGojaPlugin(t *testing.T) {
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
 
 	manager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, manager)
+	loader := NewGojaPluginLoader(ext, logger, manager)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
 	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
 	if err != nil {
@@ -156,6 +232,8 @@ func TestNewGojaPlugin(t *testing.T) {
 
 	util.Spew(m.Title)
 
+	manager.PrintPluginPoolMetrics(ext.ID)
+
 }
 
 func BenchmarkAllHooks(b *testing.B) {
@@ -173,6 +251,9 @@ func BenchmarkHookInvocation(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
 	// Dummy extension payload that registers a hook
 	payload := `
@@ -188,7 +269,7 @@ func BenchmarkHookInvocation(b *testing.B) {
 	}
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
 	// Initialize the plugin, which will bind the hook
 	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
@@ -216,12 +297,17 @@ func BenchmarkHookInvocation(b *testing.B) {
 		//b.ReportMetric(b.Elapsed().Seconds(), "s/op")
 	}
 
+	runtimeManager.PrintPluginPoolMetrics(ext.ID)
+
 }
 
 func BenchmarkNoHookInvocation(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
 	// Dummy extension payload that registers a hook
 	payload := `
@@ -237,7 +323,7 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 	}
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
 	// Initialize the plugin, which will bind the hook
 	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
@@ -263,6 +349,8 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	runtimeManager.PrintPluginPoolMetrics(ext.ID)
 }
 
 // Add a parallel version to see how it performs under concurrent load
@@ -270,6 +358,9 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
 	payload := `
 		function init() {
@@ -285,7 +376,7 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 	}
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
 	// Initialize the plugin with the runtime manager
 	plugin, err := NewGojaPlugin(
@@ -318,12 +409,17 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 			}
 		}
 	})
+
+	runtimeManager.PrintPluginPoolMetrics(ext.ID)
 }
 
 func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
 	payload := `
 		function init() {
@@ -339,7 +435,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	}
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
 	// Initialize the plugin with the runtime manager
 	plugin, err := NewGojaPlugin(
@@ -398,6 +494,9 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
 
 	payload := `
 		function init() {
@@ -419,7 +518,7 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
 
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
 	if err != nil {
 		b.Fatal(err)
@@ -449,6 +548,11 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
+
 	payload := `
 		function init() {
 			$app.onGetAnime(function(e) {
@@ -469,7 +573,7 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 	}
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
 	// Initialize the plugin with the runtime manager
 	plugin, err := NewGojaPlugin(
@@ -508,6 +612,11 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	b.ReportAllocs()
 	logger := util.NewLogger()
 
+	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+	hook.SetGlobalHookManager(hm)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
+
 	payload := `
 		function init() {
 			$app.onMissingEpisodes(function(e) {
@@ -527,7 +636,7 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	}
 
 	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(logger, runtimeManager)
+	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
 	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
 	if err != nil {
@@ -551,4 +660,6 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	runtimeManager.PrintPluginPoolMetrics(ext.ID)
 }

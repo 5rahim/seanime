@@ -1,4 +1,4 @@
-package hook_context
+package plugin
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ type Store[K comparable, T any] struct {
 }
 
 // New creates a new Store[T] instance with a shallow copy of the provided data (if any).
-func New[K comparable, T any](data map[K]T) *Store[K, T] {
+func NewStore[K comparable, T any](data map[K]T) *Store[K, T] {
 	s := &Store[K, T]{}
 
 	s.Reset(data)

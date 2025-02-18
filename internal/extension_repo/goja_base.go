@@ -8,6 +8,7 @@ import (
 	"seanime/internal/goja/goja_runtime"
 
 	"github.com/dop251/goja"
+	"github.com/dop251/goja/parser"
 	"github.com/rs/zerolog"
 )
 
@@ -21,9 +22,35 @@ type gojaProviderBase struct {
 }
 
 func initializeProviderBase(ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*gojaProviderBase, error) {
-	initFn, pr, err := SetupGojaExtensionVM(ext, language, logger)
+	// initFn, pr, err := SetupGojaExtensionVM(ext, language, logger)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	source := ext.Payload
+	if language == extension.LanguageTypescript {
+		var err error
+		source, err = JSVMTypescriptToJS(ext.Payload)
+		if err != nil {
+			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
+			return nil, err
+		}
+	}
+
+	ext.Payload = source
+
+	// Compile the program once, to be reused by all VMs
+	program, err := goja.Compile("", source, false)
 	if err != nil {
-		return nil, err
+		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to compile program")
+		return nil, fmt.Errorf("compilation failed: %w", err)
+	}
+
+	initFn := func() *goja.Runtime {
+		vm := goja.New()
+		vm.SetParserOptions(parser.WithDisableSourceMaps)
+		// Bind the shared bindings
+		ShareBinds(vm, logger)
+		return vm
 	}
 
 	pool, err := runtimeManager.GetOrCreateBasePool(initFn)
@@ -35,7 +62,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		ext:            ext,
 		logger:         logger,
 		pool:           pool,
-		program:        pr,
+		program:        program,
 		source:         ext.Payload,
 		runtimeManager: runtimeManager,
 	}, nil
@@ -53,7 +80,12 @@ func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName strin
 	}
 	defer g.pool.Put(vm)
 
-	_, _ = vm.RunProgram(g.program)
+	// Run the pre-compiled program
+	_, err = vm.RunProgram(g.program)
+	if err != nil {
+		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to run program")
+		return nil, fmt.Errorf("failed to run program: %w", err)
+	}
 
 	// Create a new instance of the Provider class
 	providerInstance, err := vm.RunString("new Provider()")
@@ -87,7 +119,7 @@ func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName strin
 		return nil, fmt.Errorf("method %s execution failed: %w", methodName, err)
 	}
 
-	g.runtimeManager.PrintBasePoolMetrics()
+	// g.runtimeManager.PrintBasePoolMetrics()
 
 	return result, nil
 }

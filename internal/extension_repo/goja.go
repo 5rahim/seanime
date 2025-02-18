@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
-	goja_plugin_bindings "seanime/internal/goja/goja_plugin_bindings"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
@@ -80,11 +79,6 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 			logger.Error().Err(err).Str("name", binding.name).Msg("failed to bind")
 		}
 	}
-}
-
-// PluginBinds adds plugin-specific bindings like $ctx to the VM
-func PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
-	goja_plugin_bindings.BindMutable(vm)
 }
 
 // JSVMTypescriptToJS converts typescript to javascript

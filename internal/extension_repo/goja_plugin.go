@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"reflect"
 	"seanime/internal/extension"
+	"seanime/internal/goja/goja_plugin_bindings"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
+	"seanime/internal/plugin"
 	"seanime/internal/util"
 	"slices"
 	"strings"
@@ -16,30 +18,15 @@ import (
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Anime Torrent provider
+//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) loadPluginExtension(loader *goja.Runtime, ext *extension.Extension) (err error) {
+func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
 
-	switch ext.Language {
-	case extension.LanguageJavascript:
-		err = r.loadPluginExtensionJS(loader, ext, extension.LanguageJavascript)
-	case extension.LanguageTypescript:
-		err = r.loadPluginExtensionJS(loader, ext, extension.LanguageTypescript)
-	default:
-		err = fmt.Errorf("unsupported language: %v", ext.Language)
-	}
+	loader := NewGojaPluginLoader(ext, r.logger, r.gojaRuntimeManager)
 
-	if err != nil {
-		return
-	}
-
-	return
-}
-
-func (r *Repository) loadPluginExtensionJS(loader *goja.Runtime, ext *extension.Extension, language extension.Language) error {
-	_, err := NewGojaPlugin(loader, ext, language, r.logger, r.gojaRuntimeManager)
+	_, err = NewGojaPlugin(loader, ext, ext.Language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
@@ -47,7 +34,8 @@ func (r *Repository) loadPluginExtensionJS(loader *goja.Runtime, ext *extension.
 	// Add the extension to the map
 	retExt := extension.NewPluginExtension(ext)
 	r.extensionBank.Set(ext.ID, retExt)
-	return nil
+
+	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,31 +47,54 @@ type GojaPlugin struct {
 	logger         *zerolog.Logger
 	pool           *goja_runtime.Pool
 	runtimeManager *goja_runtime.Manager
+	store          *plugin.Store[string, any]
 }
 
-func NewGojaPluginLoader(logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
+func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
 	loader := goja.New()
-	// Add bindings to the loader
 	ShareBinds(loader, logger)
-	// PluginBinds(loader, logger)
-	// Bind hooks to the loader
-	BindHooks(loader, runtimeManager)
 
-	// Pre-initialize the runtime pool so that runtimeManager.pool is not nil
-	if _, err := runtimeManager.GetOrCreatePluginPool(func() *goja.Runtime {
-		rt := goja.New()
-		ShareBinds(rt, logger)
-		PluginBinds(rt, logger)
-		return rt
-	}); err != nil {
-		logger.Error().Err(err).Msg("failed to initialize runtime pool")
-	}
+	// Bind hooks to the loader
+	BindHooks(loader, runtimeManager, ext)
 
 	return loader
 }
 
+// PluginBinds adds plugin-specific bindings like $ctx to the VM
+func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
+	// Bind the app context
+	vm.Set("$ctx", hook.GlobalHookManager.AppContext())
+
+	// Create a new object for the store
+	storeObj := vm.NewObject()
+	storeObj.Set("get", p.store.Get)
+	storeObj.Set("set", p.store.Set)
+	storeObj.Set("length", p.store.Length)
+	storeObj.Set("remove", p.store.Remove)
+	storeObj.Set("removeAll", p.store.RemoveAll)
+	storeObj.Set("getAll", p.store.GetAll)
+	storeObj.Set("has", p.store.Has)
+	storeObj.Set("getOrSet", p.store.GetOrSet)
+	storeObj.Set("setIfLessThanLimit", p.store.SetIfLessThanLimit)
+	storeObj.Set("unmarshalJSON", p.store.UnmarshalJSON)
+	storeObj.Set("marshalJSON", p.store.MarshalJSON)
+	storeObj.Set("reset", p.store.Reset)
+	storeObj.Set("values", p.store.Values)
+	vm.Set("$store", storeObj)
+
+	// Bind mutable bindings
+	goja_plugin_bindings.BindMutable(vm)
+}
+
 func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*GojaPlugin, error) {
 	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
+
+	p := &GojaPlugin{
+		ext:            ext,
+		logger:         logger,
+		runtimeManager: runtimeManager,
+		store:          plugin.NewStore[string, any](nil),
+	}
 
 	source := ext.Payload
 	if language == extension.LanguageTypescript {
@@ -95,10 +106,10 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 		}
 	}
 
-	pool, err := runtimeManager.GetOrCreatePluginPool(func() *goja.Runtime {
+	pool, err := runtimeManager.GetOrCreatePluginPool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
-		PluginBinds(runtime, logger)
+		p.PluginBinds(runtime, logger)
 		return runtime
 	})
 	if err != nil {
@@ -120,67 +131,98 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 		logger.Debug().Str("id", ext.ID).Msg("extensions: Plugin initialized")
 	}
 
-	return &GojaPlugin{
-		ext:            ext,
-		logger:         logger,
-		pool:           pool,
-		runtimeManager: runtimeManager,
-	}, nil
+	p.pool = pool
+
+	return p, nil
 }
 
 type PluginContext struct {
 }
 
-func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
+// BindHooks sets up hooks for the Goja runtime
+func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *extension.Extension) {
+	// Create a FieldMapper instance for method name mapping
 	fm := FieldMapper{}
 
+	// Get the type of the global hook manager
 	appType := reflect.TypeOf(hook.GlobalHookManager)
+	// Get the value of the global hook manager
 	appValue := reflect.ValueOf(hook.GlobalHookManager)
+	// Get the total number of methods in the global hook manager
+	// i.e. OnGetAnime, OnGetAnimeDetails, etc.
 	totalMethods := appType.NumMethod()
+	// Define methods to exclude from binding
 	excludeHooks := []string{"OnServe", ""}
 
+	// Create a new JavaScript object to hold the hooks ($app)
 	appObj := loader.NewObject()
 
+	// Iterate through all methods of the global hook manager
+	// i.e. OnGetAnime, OnGetAnimeDetails, etc.
 	for i := 0; i < totalMethods; i++ {
+		// Get the method at the current index
 		method := appType.Method(i)
+
+		// Check that the method name starts with "On" and is not excluded
 		if !strings.HasPrefix(method.Name, "On") || slices.Contains(excludeHooks, method.Name) {
-			continue // not a hook or excluded
+			continue // Skip to the next method if not a hook or excluded
 		}
 
+		// Map the method name to a JavaScript-friendly name
+		// e.g. OnGetAnime -> onGetAnime
 		jsName := fm.MethodName(appType, method)
 
+		// Set the method on the app object with a callback function
+		// e.g. $app.onGetAnime(callback, "tag1", "tag2")
 		appObj.Set(jsName, func(callback string, tags ...string) {
-			callback = `function(e) { $ctx = e.ctx; return (` + callback + `).call(undefined, e); }`
+			// Create a wrapper JavaScript function that calls the provided callback
+			// This is necessary because the callback will be called with the provided tags
+			callback = `function(e) { return (` + callback + `).call(undefined, e); }`
+			// Compile the callback into a Goja program
 			pr := goja.MustCompile("", "{("+callback+").apply(undefined, __args)}", true)
 
+			// Prepare the tags as reflect.Values for method invocation
 			tagsAsValues := make([]reflect.Value, len(tags))
 			for i, tag := range tags {
 				tagsAsValues[i] = reflect.ValueOf(tag)
 			}
 
+			// Get the hook function from the global hook manager and invokes it with the provided tags
+			// The invokation returns a hook instance
+			// i.e. OnTaggedHook(tags...) -> TaggedHook / OnHook() -> Hook
 			hookInstance := appValue.MethodByName(method.Name).Call(tagsAsValues)[0]
+
+			// Get the BindFunc method from the hook instance
 			hookBindFunc := hookInstance.MethodByName("BindFunc")
 
+			// Get the expected handler type for the hook
+			// i.e. func(e *hook_resolver.Resolver) error
 			handlerType := hookBindFunc.Type().In(0)
 
+			// Create a new handler function for the hook
+			// - returns a new handler of the given handlerType that wraps the function
 			handler := reflect.MakeFunc(handlerType, func(args []reflect.Value) (results []reflect.Value) {
+				// Prepare arguments for the handler
 				handlerArgs := make([]any, len(args))
 
-				// Run the handler in an isolated "executor" runtime to allow for concurrency
-				// This runtime has shared bindings and plugin bindings
-				err := runtimeManager.Run(context.Background(), func(executor *goja.Runtime) error {
+				// Run the handler in an isolated "executor" runtime for concurrency
+				err := runtimeManager.Run(context.Background(), ext.ID, func(executor *goja.Runtime) error {
+					// Set the field name mapper for the executor
 					executor.SetFieldNameMapper(fm)
+					// Convert each argument (event property) to the appropriate type
 					for i, arg := range args {
-						// handlerArgs[i] = convertArg(executor, arg)
 						handlerArgs[i] = arg.Interface()
 					}
-					// Create a VM-scoped "global" variable $ctx, it will set to the AppContext struct passed by an event
-					executor.Set("$ctx", goja.Undefined())
+					// Set the global variable $ctx in the executor
+					executor.Set("$ctx", hook.GlobalHookManager.AppContext())
 					executor.Set("__args", handlerArgs)
+					// Execute the handler program
 					res, err := executor.RunProgram(pr)
+					// Clear the __args variable for this executor
 					executor.Set("__args", goja.Undefined())
+					// executor.Set("$ctx", goja.Undefined())
 
-					// (legacy) check for returned Go error value
+					// Check for returned Go error value
 					if res != nil {
 						if resErr, ok := res.Export().(error); ok {
 							return resErr
@@ -190,15 +232,17 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager) {
 					return normalizeException(err)
 				})
 
+				// Return the error as a reflect.Value
 				return []reflect.Value{reflect.ValueOf(&err).Elem()}
 			})
 
-			// register the wrapped hook handler
+			// Register the wrapped hook handler
 			hookBindFunc.Call([]reflect.Value{handler})
 
 		})
 	}
 
+	// Set the $app object in the loader for JavaScript access
 	loader.Set("$app", appObj)
 }
 

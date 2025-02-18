@@ -212,7 +212,6 @@ func (ap *AnilistPlatform) GetAnime(mediaID int) (*anilist.BaseAnime, error) {
 	media := ret.GetMedia()
 
 	event := new(GetAnimeEvent)
-	event.Ctx = hook.GlobalHookManager.AppContext()
 	event.Anime = media
 
 	err = hook.GlobalHookManager.OnGetAnime().Trigger(event)

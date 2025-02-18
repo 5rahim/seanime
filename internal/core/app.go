@@ -16,7 +16,6 @@ import (
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
 	"seanime/internal/hook"
-	"seanime/internal/hook_context"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/autodownloader"
 	"seanime/internal/library/autoscanner"
@@ -33,6 +32,7 @@ import (
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/local_platform"
 	"seanime/internal/platforms/platform"
+	"seanime/internal/plugin"
 	"seanime/internal/report"
 	sync2 "seanime/internal/sync"
 	"seanime/internal/torrent_clients/torrent_client"
@@ -303,8 +303,8 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		HookManager: hookManager,
 	}
 
-	hookAppContext := hook_context.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(hookAppContext)
+	pluginAppContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(pluginAppContext)
 
 	// Perform necessary migrations if the version has changed
 	app.runMigrations()

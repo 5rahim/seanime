@@ -1,46 +1,39 @@
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
+import { clientIdAtom } from "@/app/websocket-provider"
+import { logger } from "@/lib/helpers/debug"
 import { SeaWebsocketEvent } from "@/lib/server/queries.types"
 import { WSEvents } from "@/lib/server/ws-events"
+import { useAtom } from "jotai"
 import { useContext, useEffect } from "react"
+import useUpdateEffect from "react-use/lib/useUpdateEffect"
 
 export function useWebsocketSender() {
     const socket = useContext(WebSocketContext)
+    const [clientId] = useAtom(clientIdAtom)
 
-    const send = (message: string) => {
+
+    function sendMessage<TData>(data: SeaWebsocketEvent<TData>) {
         if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(message)
+            socket.send(JSON.stringify({ ...data, clientId: clientId }))
+        } else {
+            logger("Websocket").error(`Socket is not open, cannot send ${data.type}`)
         }
     }
 
     return {
-        send,
+        sendMessage,
     }
-
 }
 
-export type WebSocketListener<TData = any> = {
-    onMessage: (data: TData) => void
+export function useWebsocketSendEffect<TData>(data: SeaWebsocketEvent<TData>, ...deps: any[]) {
+    const { sendMessage } = useWebsocketSender()
+
+    useUpdateEffect(() => {
+        sendMessage(data)
+    }, [...deps])
 }
 
-export function useWebsocketListener<TData = any>({ onMessage }: WebSocketListener<TData>) {
-    const socket = useContext(WebSocketContext)
-
-    useEffect(() => {
-        if (socket) {
-            const messageHandler = (event: MessageEvent) => {
-                onMessage(event.data)
-            }
-
-            socket.addEventListener("message", messageHandler)
-
-            return () => {
-                socket.removeEventListener("message", messageHandler)
-            }
-        }
-    }, [socket, onMessage])
-
-    return null
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export type WebSocketMessageListener<TData> = {
     type: WSEvents | string
@@ -60,7 +53,7 @@ export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }
                     }
                 }
                 catch (e) {
-
+                    logger("Websocket").error("Error parsing message", e)
                 }
             }
 

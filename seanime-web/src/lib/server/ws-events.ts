@@ -35,3 +35,7 @@ export const enum WSEvents {
     DEBRID_STREAM_STATE = "debrid-stream-state",
     CHECK_FOR_UPDATES = "check-for-updates",
 }
+
+export const enum WebviewEvents {
+    ANIME_ENTRY_PAGE_VIEWED = "anime-entry-page-viewed",
+}

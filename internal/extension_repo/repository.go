@@ -275,8 +275,6 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 
 func (r *Repository) LoadPlugins() {
 
-	loader := NewGojaPluginLoader(r.logger, r.gojaRuntimeManager)
-
 	testExt := &extension.Extension{
 		ID:       "test-plugin",
 		Language: extension.LanguageTypescript,
@@ -317,7 +315,7 @@ func (r *Repository) LoadPlugins() {
 		`,
 	}
 
-	err := r.loadPluginExtension(loader, testExt)
+	err := r.loadPluginExtension(testExt)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("extensions: Failed to load test extension")
 	}
