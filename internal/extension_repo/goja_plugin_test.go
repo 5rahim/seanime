@@ -10,7 +10,101 @@ import (
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
+	"time"
 )
+
+func TestNewGojaPluginUI(t *testing.T) {
+	test_utils.SetTwoLevelDeep()
+	test_utils.InitTestProvider(t, test_utils.Anilist())
+	payload := `
+	function init() {
+
+		$app.onGetAnime(async (e) => {
+
+			$store.set("anime", e.anime);
+			$store.set("value", 42);
+
+			console.log("onGetAnime fired", $store.get("value"));
+
+			e.next();
+		});
+
+		$ui.register((ctx) => {
+			ctx.sleep(2000)
+			const tray = ctx.newTray();
+
+			const text = ctx.state("Hello, world!");
+
+			const button = !!text ? tray.button({ label: "Click me", onClick: "my-action" }) : null;
+
+			console.log($store.get("value"));
+
+			ctx.setTimeout(() => {
+				console.log("Getting anime from hook", $store.get("anime"));
+				text.set(p => "");
+				tray.mount();
+			}, 1000);
+
+			// Will be called once when the webview is loaded
+			tray.render(() => tray.flex({
+				items: [
+					tray.text(text.get()),
+					button,
+					!!text.length ? tray.button({ label: text.get(), onClick: "my-action" }) : null
+				]
+			}))
+
+			tray.mount();
+
+			ctx.sleep(6000);
+		});
+
+		// 	ctx.webview.addEventListener(ctx.webview.events.ANIME_LIBRARY_PAGE_VIEWED, (e) => {
+		// 		setMedia(e.media);
+		// 	});
+
+		// 	ctx.store.addEventListener("anime", (e) => {
+		// 		setState(e.anime.title.english);
+		// 	});
+
+	}
+	`
+
+	ext := &extension.Extension{
+		ID:      "dummy-plugin",
+		Payload: payload,
+	}
+
+	logger := util.NewLogger()
+
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
+
+	manager := goja_runtime.NewManager(logger, 15)
+	loader := NewGojaPluginLoader(ext, logger, manager)
+	appContext := plugin.NewAppContext()
+	hook.SetGlobalHookManagerAppContext(appContext)
+
+	go func() {
+		time.Sleep(time.Second)
+		_, err := anilistPlatform.GetAnime(178022)
+		if err != nil {
+			t.Errorf("GetAnime returned error: %v", err)
+		}
+
+		_, err = anilistPlatform.GetAnime(177709)
+		if err != nil {
+			t.Errorf("GetAnime returned error: %v", err)
+		}
+	}()
+
+	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
+	if err != nil {
+		t.Fatalf("NewGojaPlugin returned error: %v", err)
+	}
+
+	manager.PrintPluginPoolMetrics(ext.ID)
+	time.Sleep(10 * time.Second)
+}
 
 func TestNewGojaPluginContext(t *testing.T) {
 	test_utils.SetTwoLevelDeep()
@@ -34,102 +128,6 @@ func TestNewGojaPluginContext(t *testing.T) {
 			e.next();
 		});
 
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-		$app.onGetAnime((e) => {
-
-			console.log("Hook 2, value", $store.get("value"));
-			console.log("Hook 2, value 2", $store.get("value2"));
-
-			e.next();
-		});
-
-		// $ui.registerTray(() => {
-			
-		// 	const trayBuilder = $ctx.webview().newTrayBuilder();
-
-		// 	const subscriptionBroker = $ctx.webview().newSubscriptionBroker();
-
-		// 	subscriptionBroker.subscribe(subscriptionBroker.ANIME_LIBRARY_PAGE_VIEWED, (e) => {
-		// 		trayBuilder.setItems(e.media.map((m) => {
-		// 			return trayBuilder.newItem({
-		// 				id: m.id,
-		// 				label: m.title.english,
-		// 				detail: m.status,
-		// 				onSelect: () => {
-		// 					$ctx.webview().navigate("anime-entry", { id: m.id });
-		// 				},
-		// 			})
-		// 		}))
-		// 	})
-		
-
-		// 	trayBuilder.build();
-
-		// })
-
-		// $app.createTray((tray) => {
-
-		// 	let items = []
-		// 	tray.items(items)
-
-		// 	$ctx.webview().onAnimeLibrary((e) => {
-		// 		items = [
-		// 			tray.item({
-		// 				id: e.anime.id,
-		// 				label: e.anime.title.english,
-		// 				detail: e.anime.status,
-		// 				onSelect: () => {
-		// 					$ctx.webview().navigate("anime-entry", { id: e.anime.id });
-		// 				},
-		// 			})
-		// 		]
-		// 		tray.items(items)
-		// 	})
-
-		// })
 	}
 	`
 
@@ -541,6 +539,8 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	runtimeManager.PrintPluginPoolMetrics(ext.ID)
 }
 
 // BenchmarkHookParallel measures parallel performance with a hook that does some work
@@ -606,6 +606,8 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 			}
 		}
 	})
+
+	runtimeManager.PrintPluginPoolMetrics(ext.ID)
 }
 
 func BenchmarkNoHookInvocationWithWork(b *testing.B) {

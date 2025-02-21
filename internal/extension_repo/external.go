@@ -341,7 +341,7 @@ func (r *Repository) killGojaVMs() {
 	r.gojaExtensions.Range(func(key string, ext GojaExtension) bool {
 		defer util.HandlePanicInModuleThen(fmt.Sprintf("extension_repo/killGojaVMs/%s", key), func() {})
 
-		ext.GetVM().ClearInterrupt()
+		ext.ClearInterrupt()
 		return true
 	})
 
@@ -517,7 +517,7 @@ func (r *Repository) reloadExtension(id string) {
 		if key != id {
 			return true
 		}
-		ext.GetVM().ClearInterrupt()
+		// ext.ClearInterrupt()
 		r.logger.Trace().Str("id", id).Msg("extensions: Killed extension JS VM")
 		return false
 	})

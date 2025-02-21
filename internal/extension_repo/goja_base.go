@@ -172,11 +172,10 @@ func (g *gojaProviderBase) waitForPromise(value goja.Value) (goja.Value, error) 
 	return value, nil
 }
 
-func (g *gojaProviderBase) GetVM() *goja.Runtime {
-	vm, _ := g.pool.Get(context.Background())
-	return vm
-}
-
 func (g *gojaProviderBase) PutVM(vm *goja.Runtime) {
 	g.pool.Put(vm)
+}
+
+func (g *gojaProviderBase) ClearInterrupt() {
+	// no-op
 }

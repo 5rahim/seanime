@@ -18,8 +18,8 @@ import (
 // GojaExtension is stored in the repository extension map, giving access to the VMs.
 // Current use: Kill the VM when the extension is unloaded.
 type GojaExtension interface {
-	GetVM() *goja.Runtime
 	PutVM(*goja.Runtime)
+	ClearInterrupt()
 }
 
 // SetupGojaExtensionVM creates a new JavaScript VM with the extension source code loaded

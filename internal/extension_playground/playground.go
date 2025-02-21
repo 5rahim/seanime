@@ -228,7 +228,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeAnimeTorrentProvider(ext *extens
 		if err != nil {
 			return nil, err
 		}
-		defer provider.GetVM().ClearInterrupt()
+		// defer provider.GetVM().ClearInterrupt()
 
 		// Run the code
 		switch params.Function {
@@ -343,7 +343,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeMangaProvider(ext *extension.Ext
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}
-		defer provider.GetVM().ClearInterrupt()
+		// defer provider.GetVM().ClearInterrupt()
 
 		// Run the code
 		switch params.Function {
@@ -418,7 +418,7 @@ func (r *PlaygroundRepository) runPlaygroundCodeOnlinestreamProvider(ext *extens
 		if err != nil {
 			return newPlaygroundResponse(logger, err), nil
 		}
-		defer provider.GetVM().ClearInterrupt()
+		// defer provider.GetVM().ClearInterrupt()
 
 		// Run the code
 		switch params.Function {

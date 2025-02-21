@@ -415,3 +415,13 @@ type DebridTorrentItem struct {
 	Provider      string `gorm:"column:provider" json:"provider"`
 	MediaId       int    `gorm:"column:media_id" json:"mediaId"`
 }
+
+// +---------------------+
+// |       Plugin        |
+// +---------------------+
+
+type PluginData struct {
+	BaseModel
+	PluginID string `gorm:"column:plugin_id" json:"pluginId"`
+	Data     []byte `gorm:"column:data" json:"data"`
+}

@@ -9,11 +9,13 @@ import (
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/plugin"
+	plugin_ui "seanime/internal/plugin/ui"
 	"seanime/internal/util"
 	"slices"
 	"strings"
 
 	"github.com/dop251/goja"
+	"github.com/dop251/goja/parser"
 	"github.com/rs/zerolog"
 )
 
@@ -40,7 +42,7 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Plugin
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	/////////////////////
 
 type GojaPlugin struct {
 	ext            *extension.Extension
@@ -48,6 +50,7 @@ type GojaPlugin struct {
 	pool           *goja_runtime.Pool
 	runtimeManager *goja_runtime.Manager
 	store          *plugin.Store[string, any]
+	ui             *plugin_ui.UI
 }
 
 func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
@@ -60,11 +63,28 @@ func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runti
 	return loader
 }
 
+func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
+	p.pool.Put(vm)
+}
+
+func (p *GojaPlugin) ClearInterrupt() {
+	// no-op
+	p.ui.GetVM().ClearInterrupt()
+}
+
 // PluginBinds adds plugin-specific bindings like $ctx to the VM
 func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind the app context
 	vm.Set("$ctx", hook.GlobalHookManager.AppContext())
 
+	// Bind the store
+	p.BindStore(vm)
+
+	// Bind mutable bindings
+	goja_plugin_bindings.BindMutable(vm)
+}
+
+func (p *GojaPlugin) BindStore(vm *goja.Runtime) {
 	// Create a new object for the store
 	storeObj := vm.NewObject()
 	storeObj.Set("get", p.store.Get)
@@ -81,9 +101,6 @@ func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	storeObj.Set("reset", p.store.Reset)
 	storeObj.Set("values", p.store.Values)
 	vm.Set("$store", storeObj)
-
-	// Bind mutable bindings
-	goja_plugin_bindings.BindMutable(vm)
 }
 
 func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*GojaPlugin, error) {
@@ -96,6 +113,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 		store:          plugin.NewStore[string, any](nil),
 	}
 
+	// Convert the payload to JavaScript if necessary
 	source := ext.Payload
 	if language == extension.LanguageTypescript {
 		var err error
@@ -106,6 +124,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 		}
 	}
 
+	// Create a new pool for the plugin
 	pool, err := runtimeManager.GetOrCreatePluginPool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
@@ -116,7 +135,26 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 		return nil, err
 	}
 
-	// Load the extension payload
+	//////// UI
+
+	// Create a new VM for the UI
+	// We only need one VM for the UI because it is registered once and there's no need to be thread safe
+	uiVM := goja.New()
+	fm := FieldMapper{}
+	uiVM.SetParserOptions(parser.WithDisableSourceMaps)
+	uiVM.SetFieldNameMapper(fm)
+	ShareBinds(uiVM, logger)
+	// Bind the store to the UI VM
+	p.BindStore(uiVM)
+	// Create a new UI instance
+	p.ui = plugin_ui.NewUI(logger, uiVM)
+
+	////////
+
+	// Bind the UI API to the loader so the plugin can register a new UI
+	BindUI(loader, p.ui)
+
+	// Load the extension payload in the loader runtime
 	_, err = loader.RunString(source)
 	if err != nil {
 		return nil, err
@@ -136,7 +174,13 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 	return p, nil
 }
 
-type PluginContext struct {
+func BindUI(loader *goja.Runtime, ui *plugin_ui.UI) {
+	// Create a new object for the UI
+	uiObj := loader.NewObject()
+	// Set the register method on the UI object
+	uiObj.Set("register", ui.Register)
+	// Set the UI object in the loader
+	loader.Set("$ui", uiObj)
 }
 
 // BindHooks sets up hooks for the Goja runtime
@@ -176,7 +220,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *
 		// e.g. $app.onGetAnime(callback, "tag1", "tag2")
 		appObj.Set(jsName, func(callback string, tags ...string) {
 			// Create a wrapper JavaScript function that calls the provided callback
-			// This is necessary because the callback will be called with the provided tags
+			// This is necessary because the callback will be called with the provided args
 			callback = `function(e) { return (` + callback + `).call(undefined, e); }`
 			// Compile the callback into a Goja program
 			pr := goja.MustCompile("", "{("+callback+").apply(undefined, __args)}", true)
