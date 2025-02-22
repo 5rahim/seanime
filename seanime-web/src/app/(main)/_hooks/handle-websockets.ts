@@ -11,7 +11,6 @@ export function useWebsocketSender() {
     const socket = useContext(WebSocketContext)
     const [clientId] = useAtom(clientIdAtom)
 
-
     function sendMessage<TData>(data: SeaWebsocketEvent<TData>) {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ ...data, clientId: clientId }))

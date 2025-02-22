@@ -8,6 +8,7 @@ import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { LibraryWatcher } from "@/app/(main)/_features/library-watcher/library-watcher"
 import { MediaPreviewModal } from "@/app/(main)/_features/media/_containers/media-preview-modal"
 import { MainSidebar } from "@/app/(main)/_features/navigation/main-sidebar"
+import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { SeaCommand } from "@/app/(main)/_features/sea-command/sea-command"
@@ -63,6 +64,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <IssueReport />
             <ErrorExplainer />
             <SeaCommand />
+            <PluginManager />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

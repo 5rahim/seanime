@@ -2,6 +2,7 @@ package plugin_ui
 
 import (
 	"seanime/internal/events"
+	"seanime/internal/util"
 	"sync"
 
 	"github.com/dop251/goja"
@@ -16,13 +17,12 @@ type UI struct {
 	vm             *goja.Runtime // VM executing the UI
 	logger         *zerolog.Logger
 	wsEventManager events.WSEventManagerInterface
-	subscriber     *events.ClientEventSubscriber
 }
 
 func (u *UI) ClearInterrupt() {
 	u.vm.ClearInterrupt()
 	u.context.scheduler.Stop()
-	if u.subscriber != nil {
+	if u.context.wsSubscriber != nil {
 		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.extensionID)
 	}
 }
@@ -49,7 +49,35 @@ func (u *UI) Register(callback string) {
 	// pr := goja.MustCompile("", "{("+callback+").apply(undefined, __ctx)}", true)
 
 	// Subscribe the plugin to client events
-	u.subscriber = u.wsEventManager.SubscribeToClientEvents("plugin-" + u.extensionID)
+	u.context.wsSubscriber = u.wsEventManager.SubscribeToClientEvents("plugin-" + u.extensionID)
+
+	// Listen for client events and send them to the event listeners
+	go func() {
+		for event := range u.context.wsSubscriber.Channel {
+			//u.logger.Trace().Msgf("Received event %s", event.Type)
+			if event.Type == events.PluginEvent {
+				//u.logger.Trace().Msgf("Dispatching event %s to all listeners", event.Type)
+				u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
+					util.SpewMany("Event to listeners", event.Payload)
+					if payload, ok := event.Payload.(map[string]interface{}); ok {
+						clientEvent := NewClientPluginEvent(payload)
+						//u.logger.Trace().Msgf("Dispatching event %s to listener %s with payload %+v", event.Type, key, payload)
+						// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listener
+						if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.extensionID {
+							//u.logger.Trace().Msgf("Dispatching event %s to listener %s with payload %+v", event.Type, key, payload)
+							listener.Channel <- clientEvent
+						}
+					}
+					return true
+				})
+			}
+		}
+		// Close the listener channels when the subscriber is closed
+		u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
+			close(listener.Channel)
+			return true
+		})
+	}()
 
 	contextObj := u.vm.NewObject()
 	_ = contextObj.Set("newTray", u.context.jsNewTray)
@@ -62,6 +90,12 @@ func (u *UI) Register(callback string) {
 		return u.vm.ToValue(u.context.jsFetch(call))
 	})
 	_ = u.vm.Set("__ctx", contextObj)
+
+	// Webview object
+	webviewObj := u.vm.NewObject()
+	_ = contextObj.Set("webview", webviewObj)
+
+	u.context.screenManager.bind(u.vm, contextObj)
 
 	// Execute the callback
 	_, err := u.vm.RunString(`(` + callback + `).call(undefined, __ctx)`)

@@ -176,5 +176,9 @@ func (m *WSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscrib
 }
 
 func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
+	subscriber, ok := m.clientEventSubscribers.Get(id)
+	if ok {
+		close(subscriber.Channel)
+	}
 	m.clientEventSubscribers.Delete(id)
 }

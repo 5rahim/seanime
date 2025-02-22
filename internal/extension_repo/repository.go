@@ -281,6 +281,26 @@ func (r *Repository) LoadPlugins() {
 		Payload: `
 		function init() {
 
+			$ui.register((ctx) => {
+				const tray = ctx.newTray();
+
+				let currentPathname = ctx.state("");
+
+				ctx.screen.onNavigate((e) => {
+					console.log("screen changed", e);
+					currentPathname.set(e.pathname);
+				});
+
+				ctx.screen.onNavigate((e) => {
+					console.log("screen changed", e);
+					currentPathname.set(e.pathname);
+				});
+
+				ctx.effect(() => {
+					console.log("currentPathname changed", currentPathname.get());
+				}, [currentPathname]);
+			})
+
 			//$app.onGetAnimeCollection((e) => {
 			//	// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
 			//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {

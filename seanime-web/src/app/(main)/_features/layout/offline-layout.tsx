@@ -1,6 +1,7 @@
 import { ErrorExplainer } from "@/app/(main)/_features/error-explainer/error-explainer"
 import { IssueReport } from "@/app/(main)/_features/issue-report/issue-report"
 import { OfflineSidebar } from "@/app/(main)/_features/navigation/offline-sidebar"
+import { PluginManager } from "@/app/(main)/_features/plugin/plugin-manager"
 import { ManualProgressTracking } from "@/app/(main)/_features/progress-tracking/manual-progress-tracking"
 import { PlaybackManagerProgressTracking } from "@/app/(main)/_features/progress-tracking/playback-manager-progress-tracking"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
@@ -54,6 +55,7 @@ export function OfflineLayout(props: OfflineLayoutProps) {
             <ManualProgressTracking />
             <IssueReport />
             <ErrorExplainer />
+            <PluginManager />
 
             <AppSidebarProvider>
                 <AppLayout withSidebar sidebarSize="slim">

@@ -2,6 +2,10 @@ package events
 
 type WebsocketClientEventType string
 
+const (
+	PluginEvent WebsocketClientEventType = "plugin"
+)
+
 type WebsocketClientEvent struct {
 	ClientID string                   `json:"clientId"`
 	Type     WebsocketClientEventType `json:"type"`

@@ -16,6 +16,7 @@ type Job struct {
 }
 
 // Scheduler handles all VM operations in a single goroutine
+// Any goroutine that needs to execute a VM operation must schedule it
 type Scheduler struct {
 	jobQueue chan *Job
 	ctx      context.Context
@@ -57,7 +58,7 @@ func (s *Scheduler) Stop() {
 }
 
 // Schedule adds a job to the queue and waits for its completion
-func (s *Scheduler) Schedule(fn func() error, isFast bool) error {
+func (s *Scheduler) Schedule(fn func() error) error {
 	resultCh := make(chan error, 1)
 	job := &Job{
 		fn:       fn,
@@ -73,14 +74,11 @@ func (s *Scheduler) Schedule(fn func() error, isFast bool) error {
 }
 
 // ScheduleCallback schedules a Goja function call
-// Automatically detects if it's a fast job based on presence of async operations
-func (s *Scheduler) ScheduleCallback(fn *goja.Callable) error {
-	// For now, treat all callbacks as fast jobs since we can't reliably detect
-	// if they contain async operations without parsing the AST
+func (s *Scheduler) ScheduleCallback(fn *goja.Callable, args ...goja.Value) error {
 	return s.Schedule(func() error {
-		_, err := (*fn)(goja.Undefined())
+		_, err := (*fn)(goja.Undefined(), args...)
 		return err
-	}, true)
+	})
 }
 
 // ScheduleWithTimeout schedules a job with a timeout

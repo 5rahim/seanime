@@ -1,11 +1,11 @@
 package plugin_ui
 
 type WebviewManager struct {
-	context *Context
+	ctx *Context
 }
 
-func NewWebviewManager(context *Context) *WebviewManager {
+func NewWebviewManager(ctx *Context) *WebviewManager {
 	return &WebviewManager{
-		context: context,
+		ctx: ctx,
 	}
 }

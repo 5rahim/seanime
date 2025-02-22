@@ -143,7 +143,7 @@ func (c *Context) jsFetch(call goja.FunctionCall) *goja.Promise {
 			if err := c.scheduler.Schedule(func() error {
 				reject(c.vm.ToValue(result.err.Error()))
 				return nil
-			}, false); err != nil {
+			}); err != nil {
 				c.logger.Error().Err(err).Msg("error scheduling fetch reject")
 			}
 			return
@@ -151,7 +151,7 @@ func (c *Context) jsFetch(call goja.FunctionCall) *goja.Promise {
 		if err := c.scheduler.Schedule(func() error {
 			resolve(result.response.toGojaObject(c.vm))
 			return nil
-		}, false); err != nil {
+		}); err != nil {
 			c.logger.Error().Err(err).Msg("error scheduling fetch resolve")
 		}
 	}()

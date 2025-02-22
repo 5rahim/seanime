@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"seanime/internal/events"
 	"seanime/internal/util/result"
 	"sync"
 	"time"
@@ -20,14 +21,20 @@ type Context struct {
 	stateSubscribers []chan *State
 	scheduler        *Scheduler
 	mu               sync.RWMutex
-	asyncLock        sync.Mutex // protects VM calls from async effects
-
-	webviewManager *WebviewManager
+	wsSubscriber     *events.ClientEventSubscriber
+	eventListeners   *result.Map[string, *EventListener] // Event listeners added
+	webviewManager   *WebviewManager
+	screenManager    *ScreenManager
 }
 
 type State struct {
 	ID    string
 	Value goja.Value
+}
+
+type EventListener struct {
+	ID      string
+	Channel chan *ClientPluginEvent // Channel for the event payload
 }
 
 func NewContext(logger *zerolog.Logger, vm *goja.Runtime) *Context {
@@ -36,12 +43,24 @@ func NewContext(logger *zerolog.Logger, vm *goja.Runtime) *Context {
 		vm:               vm,
 		states:           result.NewResultMap[string, *State](),
 		stateSubscribers: make([]chan *State, 0),
+		eventListeners:   result.NewResultMap[string, *EventListener](),
 		scheduler:        NewScheduler(),
 	}
 
 	ret.webviewManager = NewWebviewManager(ret)
+	ret.screenManager = NewScreenManager(ret)
 
 	return ret
+}
+
+func (c *Context) RegisterEventListener() *EventListener {
+	id := uuid.New().String()
+	listener := &EventListener{
+		ID:      id,
+		Channel: make(chan *ClientPluginEvent),
+	}
+	c.eventListeners.Set(id, listener)
+	return listener
 }
 
 func (c *Context) PrintState() {
@@ -333,7 +352,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 								if err := c.scheduler.Schedule(func() error {
 									_, err := (*effectFn)(goja.Undefined())
 									return err
-								}, true); err != nil {
+								}); err != nil {
 									c.logger.Error().Err(err).Msg("error running effect")
 								}
 							}
