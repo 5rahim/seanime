@@ -2,6 +2,8 @@ package plugin_ui
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"seanime/internal/util/result"
 	"sync"
 	"time"
@@ -12,11 +14,15 @@ import (
 )
 
 type Context struct {
-	logger *zerolog.Logger
-	vm     *goja.Runtime
-	states *result.Map[string, *State]
+	logger           *zerolog.Logger
+	vm               *goja.Runtime
+	states           *result.Map[string, *State]
+	stateSubscribers []chan *State
+	scheduler        *Scheduler
+	mu               sync.RWMutex
+	asyncLock        sync.Mutex // protects VM calls from async effects
 
-	mu sync.RWMutex
+	webviewManager *WebviewManager
 }
 
 type State struct {
@@ -26,10 +32,14 @@ type State struct {
 
 func NewContext(logger *zerolog.Logger, vm *goja.Runtime) *Context {
 	ret := &Context{
-		logger: logger,
-		vm:     vm,
-		states: result.NewResultMap[string, *State](),
+		logger:           logger,
+		vm:               vm,
+		states:           result.NewResultMap[string, *State](),
+		stateSubscribers: make([]chan *State, 0),
+		scheduler:        NewScheduler(),
 	}
+
+	ret.webviewManager = NewWebviewManager(ret)
 
 	return ret
 }
@@ -79,23 +89,21 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 			arg := call.Argument(0)
 			// e.g. state.set(prev => prev + "!!!")
 			if callback, ok := goja.AssertFunction(arg); ok {
-				// Get the current state
 				prevState, ok := c.states.Get(id)
 				if ok {
-					// Call the callback with the current state
 					newVal, _ := callback(goja.Undefined(), prevState.Value)
-					// Set the new state
 					c.states.Set(id, &State{
 						ID:    id,
 						Value: newVal,
 					})
+					c.publishStateUpdate(id)
 				}
 			} else {
-				// Set the new state
 				c.states.Set(id, &State{
 					ID:    id,
 					Value: arg,
 				})
+				c.publishStateUpdate(id)
 			}
 		}
 		return goja.Undefined()
@@ -127,7 +135,6 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 	if err != nil {
 		panic(err)
 	}
-	// Use single assignment from AssertFunction
 	jsDynamicDefFunc, ok := goja.AssertFunction(jsDynamicDefFuncValue)
 	if !ok {
 		panic("dynamic definition is not a function")
@@ -136,6 +143,11 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 	jsDynamicState, err := jsDynamicDefFunc(goja.Undefined(), stateObj, jsGetStateVal, jsSetStateVal)
 	if err != nil {
 		panic(err)
+	}
+
+	// Attach hidden state ID for subscription
+	if obj, ok := jsDynamicState.(*goja.Object); ok {
+		_ = obj.Set("__stateId", id)
 	}
 
 	return jsDynamicState
@@ -168,23 +180,23 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	go func() {
+	go func(fn goja.Callable) {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(time.Duration(delay) * time.Millisecond):
-			fn(goja.Undefined())
+			if err := c.scheduler.ScheduleCallback(&fn); err != nil {
+				c.logger.Error().Err(err).Msg("error running timeout callback")
+			}
 		}
-	}()
+	}(fn)
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
 		return goja.Undefined()
 	}
 
-	cancelFuncVal := c.vm.ToValue(cancelFunc)
-
-	return cancelFuncVal
+	return c.vm.ToValue(cancelFunc)
 }
 
 // jsSetInterval
@@ -213,25 +225,25 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
+	go func(fn goja.Callable) {
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-time.After(time.Duration(delay) * time.Millisecond):
-				fn(goja.Undefined())
+				if err := c.scheduler.ScheduleCallback(&fn); err != nil {
+					c.logger.Error().Err(err).Msg("error running interval callback")
+				}
 			}
 		}
-	}()
+	}(fn)
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
 		return goja.Undefined()
 	}
 
-	cancelFuncVal := c.vm.ToValue(cancelFunc)
-
-	return cancelFuncVal
+	return c.vm.ToValue(cancelFunc)
 }
 
 // jsSleep
@@ -252,4 +264,124 @@ func (c *Context) jsSleep(call goja.FunctionCall) goja.Value {
 	time.Sleep(time.Duration(delay) * time.Millisecond)
 
 	return goja.Undefined()
+}
+
+// jsEffect
+//
+//	Example:
+//	const text = ctx.state("Hello, world!");
+//	ctx.effect(() => {
+//		console.log("Text changed");
+//	}, [text]);
+//	text.set("Hello, world!"); // This will not trigger the effect
+//	text.set("Hello, world! 2"); // This will trigger the effect
+func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 2 {
+		panic(c.vm.NewTypeError("effect requires a function and an array of dependencies"))
+	}
+
+	effectFn, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		panic(c.vm.NewTypeError("first argument to effect must be a function"))
+	}
+
+	depsObj, ok := call.Argument(1).(*goja.Object)
+	if !ok {
+		panic(c.vm.NewTypeError("second argument to effect must be an array"))
+	}
+
+	// Prepare dependencies and their old values
+	lengthVal := depsObj.Get("length")
+	depsLen := int(lengthVal.ToInteger())
+	deps := make([]*goja.Object, depsLen)
+	oldValues := make([]goja.Value, depsLen)
+	dropIDs := make([]string, depsLen) // to store state IDs of dependencies
+	for i := 0; i < depsLen; i++ {
+		depVal := depsObj.Get(fmt.Sprintf("%d", i))
+		depObj, ok := depVal.(*goja.Object)
+		if !ok {
+			panic(c.vm.NewTypeError("dependency is not an object"))
+		}
+		deps[i] = depObj
+		oldValues[i] = depObj.Get("value")
+
+		idVal := depObj.Get("__stateId")
+		exported := idVal.Export()
+		idStr, ok := exported.(string)
+		if !ok {
+			idStr = fmt.Sprintf("%v", exported)
+		}
+		dropIDs[i] = idStr
+	}
+
+	// Subscribe to state updates
+	subChan := c.subscribeStateUpdates()
+	ctxEffect, cancel := context.WithCancel(context.Background())
+	go func(effectFn *goja.Callable) {
+		for {
+			select {
+			case <-ctxEffect.Done():
+				return
+			case updatedState := <-subChan:
+				if effectFn != nil {
+					// Check if the updated state is one of our dependencies by matching __stateId
+					for i, depID := range dropIDs {
+						if depID == updatedState.ID {
+							newVal := deps[i].Get("value")
+							if !reflect.DeepEqual(oldValues[i].Export(), newVal.Export()) {
+								oldValues[i] = newVal
+								if err := c.scheduler.Schedule(func() error {
+									_, err := (*effectFn)(goja.Undefined())
+									return err
+								}, true); err != nil {
+									c.logger.Error().Err(err).Msg("error running effect")
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}(&effectFn)
+
+	cancelFunc := func(call goja.FunctionCall) goja.Value {
+		cancel()
+		return goja.Undefined()
+	}
+
+	return c.vm.ToValue(cancelFunc)
+}
+
+func (c *Context) subscribeStateUpdates() chan *State {
+	ch := make(chan *State, 10)
+	c.mu.Lock()
+	c.stateSubscribers = append(c.stateSubscribers, ch)
+	c.mu.Unlock()
+	return ch
+}
+
+func (c *Context) publishStateUpdate(id string) {
+	state, ok := c.states.Get(id)
+	if !ok {
+		return
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	for _, sub := range c.stateSubscribers {
+		select {
+		case sub <- state:
+		default:
+		}
+	}
+}
+
+func safeEffectCall(fn *goja.Callable) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic in effect: %v", r)
+		}
+	}()
+	fmt.Println("safeEffect", fn)
+	_, err = (*fn)(goja.Undefined())
+	return
 }

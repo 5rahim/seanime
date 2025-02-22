@@ -1,6 +1,12 @@
 package handlers
 
-func (h *Handler) HandleWebviewEvents(event *WebsocketClientEvent) {
+import "seanime/internal/events"
 
-	h.App.Logger.Debug().Msgf("ws: message received: %+v", event)
+func (h *Handler) HandleClientEvents(event *events.WebsocketClientEvent) {
+
+	//h.App.Logger.Debug().Msgf("ws: message received: %+v", event)
+
+	if h.App.WSEventManager != nil {
+		h.App.WSEventManager.OnClientEvent(event)
+	}
 }

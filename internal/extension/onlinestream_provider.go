@@ -77,8 +77,8 @@ func (m *OnlinestreamProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
 
-func (m *OnlinestreamProviderExtensionImpl) GetScopes() []string {
-	return m.ext.Scopes
+func (m *OnlinestreamProviderExtensionImpl) GetPermissions() []string {
+	return m.ext.Permissions
 }
 
 func (m *OnlinestreamProviderExtensionImpl) GetUserConfig() *UserConfig {

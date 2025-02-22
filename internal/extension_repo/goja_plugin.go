@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_plugin_bindings"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/plugin"
-	plugin_ui "seanime/internal/plugin/ui"
+	"seanime/internal/plugin/ui"
 	"seanime/internal/util"
 	"slices"
 	"strings"
@@ -20,7 +21,7 @@ import (
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+// Load Plugin
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
@@ -28,7 +29,7 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 
 	loader := NewGojaPluginLoader(ext, r.logger, r.gojaRuntimeManager)
 
-	_, err = NewGojaPlugin(loader, ext, ext.Language, r.logger, r.gojaRuntimeManager)
+	_, err = NewGojaPlugin(loader, ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}
@@ -42,7 +43,7 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Plugin
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	/////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type GojaPlugin struct {
 	ext            *extension.Extension
@@ -51,6 +52,14 @@ type GojaPlugin struct {
 	runtimeManager *goja_runtime.Manager
 	store          *plugin.Store[string, any]
 	ui             *plugin_ui.UI
+}
+
+func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
+	p.pool.Put(vm)
+}
+
+func (p *GojaPlugin) ClearInterrupt() {
+	p.ui.ClearInterrupt()
 }
 
 func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
@@ -63,19 +72,10 @@ func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runti
 	return loader
 }
 
-func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
-	p.pool.Put(vm)
-}
-
-func (p *GojaPlugin) ClearInterrupt() {
-	// no-op
-	p.ui.GetVM().ClearInterrupt()
-}
-
 // PluginBinds adds plugin-specific bindings like $ctx to the VM
 func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind the app context
-	vm.Set("$ctx", hook.GlobalHookManager.AppContext())
+	_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
 
 	// Bind the store
 	p.BindStore(vm)
@@ -87,23 +87,30 @@ func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 func (p *GojaPlugin) BindStore(vm *goja.Runtime) {
 	// Create a new object for the store
 	storeObj := vm.NewObject()
-	storeObj.Set("get", p.store.Get)
-	storeObj.Set("set", p.store.Set)
-	storeObj.Set("length", p.store.Length)
-	storeObj.Set("remove", p.store.Remove)
-	storeObj.Set("removeAll", p.store.RemoveAll)
-	storeObj.Set("getAll", p.store.GetAll)
-	storeObj.Set("has", p.store.Has)
-	storeObj.Set("getOrSet", p.store.GetOrSet)
-	storeObj.Set("setIfLessThanLimit", p.store.SetIfLessThanLimit)
-	storeObj.Set("unmarshalJSON", p.store.UnmarshalJSON)
-	storeObj.Set("marshalJSON", p.store.MarshalJSON)
-	storeObj.Set("reset", p.store.Reset)
-	storeObj.Set("values", p.store.Values)
-	vm.Set("$store", storeObj)
+	_ = storeObj.Set("get", p.store.Get)
+	_ = storeObj.Set("set", p.store.Set)
+	_ = storeObj.Set("length", p.store.Length)
+	_ = storeObj.Set("remove", p.store.Remove)
+	_ = storeObj.Set("removeAll", p.store.RemoveAll)
+	_ = storeObj.Set("getAll", p.store.GetAll)
+	_ = storeObj.Set("has", p.store.Has)
+	_ = storeObj.Set("getOrSet", p.store.GetOrSet)
+	_ = storeObj.Set("setIfLessThanLimit", p.store.SetIfLessThanLimit)
+	_ = storeObj.Set("unmarshalJSON", p.store.UnmarshalJSON)
+	_ = storeObj.Set("marshalJSON", p.store.MarshalJSON)
+	_ = storeObj.Set("reset", p.store.Reset)
+	_ = storeObj.Set("values", p.store.Values)
+	_ = vm.Set("$store", storeObj)
 }
 
-func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language extension.Language, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) (*GojaPlugin, error) {
+func NewGojaPlugin(
+	loader *goja.Runtime,
+	ext *extension.Extension,
+	language extension.Language,
+	logger *zerolog.Logger,
+	runtimeManager *goja_runtime.Manager,
+	wsEventManager events.WSEventManagerInterface,
+) (*GojaPlugin, error) {
 	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
 
 	p := &GojaPlugin{
@@ -147,7 +154,7 @@ func NewGojaPlugin(loader *goja.Runtime, ext *extension.Extension, language exte
 	// Bind the store to the UI VM
 	p.BindStore(uiVM)
 	// Create a new UI instance
-	p.ui = plugin_ui.NewUI(logger, uiVM)
+	p.ui = plugin_ui.NewUI(logger, uiVM, wsEventManager)
 
 	////////
 

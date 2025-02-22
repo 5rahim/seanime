@@ -3,28 +3,35 @@ package events
 import (
 	"os"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/rs/zerolog"
-
 	"github.com/gorilla/websocket"
+	"github.com/rs/zerolog"
 )
 
 type WSEventManagerInterface interface {
 	SendEvent(t string, payload interface{})
 	SendEventTo(clientId string, t string, payload interface{})
+	SubscribeToClientEvents(id string) *ClientEventSubscriber
+	UnsubscribeFromClientEvents(id string)
 }
 
 type (
 	// WSEventManager holds the websocket connection instance.
 	// It is attached to the App instance, so it is available to other handlers.
 	WSEventManager struct {
-		Conns            []*WSConn
-		Logger           *zerolog.Logger
-		hasHadConnection bool
-		mu               sync.Mutex
+		Conns                  []*WSConn
+		Logger                 *zerolog.Logger
+		hasHadConnection       bool
+		mu                     sync.Mutex
+		clientEventSubscribers *result.Map[string, *ClientEventSubscriber]
+	}
+
+	ClientEventSubscriber struct {
+		Channel chan *WebsocketClientEvent
 	}
 
 	WSConn struct {
@@ -41,8 +48,9 @@ type (
 // NewWSEventManager creates a new WSEventManager instance for App.
 func NewWSEventManager(logger *zerolog.Logger) *WSEventManager {
 	return &WSEventManager{
-		Logger: logger,
-		Conns:  make([]*WSConn, 0),
+		Logger:                 logger,
+		Conns:                  make([]*WSConn, 0),
+		clientEventSubscribers: result.NewResultMap[string, *ClientEventSubscriber](),
 	}
 }
 
@@ -150,4 +158,23 @@ func (m *WSEventManager) SendEventTo(clientId string, t string, payload interfac
 			})
 		}
 	}
+}
+
+func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
+	m.clientEventSubscribers.Range(func(key string, subscriber *ClientEventSubscriber) bool {
+		subscriber.Channel <- event
+		return true
+	})
+}
+
+func (m *WSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscriber {
+	subscriber := &ClientEventSubscriber{
+		Channel: make(chan *WebsocketClientEvent),
+	}
+	m.clientEventSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
+	m.clientEventSubscribers.Delete(id)
 }

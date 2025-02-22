@@ -48,10 +48,10 @@ type Extension struct {
 	// Set this to "multi" if the extension supports multiple languages.
 	// Defaults to "en".
 	Lang string `json:"lang"`
-	// List of authorization scopes required by the extension.
+	// List of permissions asked by the extension.
 	// The user must grant these permissions before the extension can be loaded.
-	Scopes     []string    `json:"scopes,omitempty"` // NOT IMPLEMENTED
-	UserConfig *UserConfig `json:"userConfig,omitempty"`
+	Permissions []string    `json:"permissions,omitempty"` // NOT IMPLEMENTED
+	UserConfig  *UserConfig `json:"userConfig,omitempty"`
 	// Payload is the content of the extension.
 	Payload string `json:"payload"`
 	// PayloadURI is the URI to the extension payload.
@@ -77,7 +77,7 @@ type BaseExtension interface {
 	GetLang() string
 	GetIcon() string
 	GetWebsite() string
-	GetScopes() []string
+	GetPermissions() []string
 	GetUserConfig() *UserConfig
 }
 
@@ -92,7 +92,7 @@ func ToExtensionData(ext BaseExtension) *Extension {
 		Type:        ext.GetType(),
 		Description: ext.GetDescription(),
 		Author:      ext.GetAuthor(),
-		Scopes:      ext.GetScopes(),
+		Permissions: ext.GetPermissions(),
 		UserConfig:  ext.GetUserConfig(),
 		Icon:        ext.GetIcon(),
 		Website:     ext.GetWebsite(),

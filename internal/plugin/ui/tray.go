@@ -1,8 +1,6 @@
 package plugin_ui
 
 import (
-	"fmt"
-	"seanime/internal/util"
 	"seanime/internal/util/result"
 
 	"github.com/dop251/goja"
@@ -40,11 +38,12 @@ func (c *Context) jsNewTray(goja.FunctionCall) goja.Value {
 
 	// Create a new tray object
 	trayObj := c.vm.NewObject()
-	trayObj.Set("render", tray.jsRender)
-	trayObj.Set("flex", tray.jsFlex)
-	trayObj.Set("text", tray.jsText)
-	trayObj.Set("button", tray.jsButton)
-	trayObj.Set("mount", tray.jsMount)
+	_ = trayObj.Set("render", tray.jsRender)
+	_ = trayObj.Set("flex", tray.jsFlex)
+	_ = trayObj.Set("text", tray.jsText)
+	_ = trayObj.Set("button", tray.jsButton)
+	_ = trayObj.Set("mount", tray.jsMount)
+	_ = trayObj.Set("update", tray.jsUpdate)
 	return trayObj
 }
 
@@ -165,8 +164,6 @@ func (t *Tray) jsButton(call goja.FunctionCall) goja.Value {
 //	tray.render(() => flex)
 func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 
-	fmt.Println(call.Argument(0).ExportType())
-
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
 		panic(t.context.vm.NewTypeError("render requires a function"))
@@ -178,16 +175,32 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 	return goja.Undefined()
 }
 
-// jsMount is a test function to see if the render function is working
+// jsUpdate takes the current state and schedules a re-render on the client
+//
+//	Example:
+//	tray.update()
+func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
+	// Get json from calling renderFunc
+	//value := t.renderFunc(call)
+	//structValue := value.Export()
+
+	//util.Spew(structValue)
+
+	t.context.PrintState()
+
+	return goja.Undefined()
+}
+
+// jsMount should be called once to mount the tray once the application loads
 //
 //	Example:
 //	tray.mount()
 func (t *Tray) jsMount(call goja.FunctionCall) goja.Value {
 	// Get json from calling renderFunc
-	value := t.renderFunc(call)
-	structValue := value.Export()
+	//value := t.renderFunc(call)
+	//structValue := value.Export()
 
-	util.Spew(structValue)
+	//util.Spew(structValue)
 
 	t.context.PrintState()
 

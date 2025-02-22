@@ -70,8 +70,8 @@ func (m *PluginExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
 
-func (m *PluginExtensionImpl) GetScopes() []string {
-	return m.ext.Scopes
+func (m *PluginExtensionImpl) GetPermissions() []string {
+	return m.ext.Permissions
 }
 
 func (m *PluginExtensionImpl) GetUserConfig() *UserConfig {

@@ -77,8 +77,8 @@ func (m *MangaProviderExtensionImpl) GetIcon() string {
 	return m.ext.Icon
 }
 
-func (m *MangaProviderExtensionImpl) GetScopes() []string {
-	return m.ext.Scopes
+func (m *MangaProviderExtensionImpl) GetPermissions() []string {
+	return m.ext.Permissions
 }
 
 func (m *MangaProviderExtensionImpl) GetUserConfig() *UserConfig {

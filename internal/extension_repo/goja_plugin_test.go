@@ -1,7 +1,11 @@
 package extension_repo
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"seanime/internal/api/anilist"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
@@ -14,9 +18,17 @@ import (
 )
 
 func TestNewGojaPluginUI(t *testing.T) {
+	// Create a test server
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		time.Sleep(2000 * time.Millisecond)
+		fmt.Fprint(w, `{"test": "data"}`)
+	}))
+	defer server.Close()
+
 	test_utils.SetTwoLevelDeep()
 	test_utils.InitTestProvider(t, test_utils.Anilist())
-	payload := `
+	payload := fmt.Sprintf(`
 	function init() {
 
 		$app.onGetAnime(async (e) => {
@@ -30,20 +42,36 @@ func TestNewGojaPluginUI(t *testing.T) {
 		});
 
 		$ui.register((ctx) => {
-			ctx.sleep(2000)
 			const tray = ctx.newTray();
 
 			const text = ctx.state("Hello, world!");
+			const text2 = ctx.state("Hello, world! 2");
 
 			const button = !!text ? tray.button({ label: "Click me", onClick: "my-action" }) : null;
 
-			console.log($store.get("value"));
-
 			ctx.setTimeout(() => {
-				console.log("Getting anime from hook", $store.get("anime"));
-				text.set(p => "");
+				text.set("");
 				tray.mount();
-			}, 1000);
+			}, 500);
+
+			let url = "%s";
+
+			ctx.effect(async () => {
+				console.log("Effect with fetch fired");
+				const [res, res2] = await Promise.all([
+					ctx.fetch(url),
+					ctx.fetch(url),
+				]);
+				console.log("Effect with fetch result", res.json());
+			}, [text]);
+
+			ctx.effect(() => {
+				console.log("Effect fired", text.get());
+			}, [text]);
+
+			ctx.effect(() => {
+				console.log("Effect fired", text.get());
+			}, [text]);
 
 			// Will be called once when the webview is loaded
 			tray.render(() => tray.flex({
@@ -55,8 +83,6 @@ func TestNewGojaPluginUI(t *testing.T) {
 			}))
 
 			tray.mount();
-
-			ctx.sleep(6000);
 		});
 
 		// 	ctx.webview.addEventListener(ctx.webview.events.ANIME_LIBRARY_PAGE_VIEWED, (e) => {
@@ -68,7 +94,7 @@ func TestNewGojaPluginUI(t *testing.T) {
 		// 	});
 
 	}
-	`
+	`, server.URL)
 
 	ext := &extension.Extension{
 		ID:      "dummy-plugin",
@@ -77,33 +103,36 @@ func TestNewGojaPluginUI(t *testing.T) {
 
 	logger := util.NewLogger()
 
+	wsEventManager := events.NewMockWSEventManager(logger)
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
+	_ = anilistPlatform
 
 	manager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, manager)
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
-	go func() {
-		time.Sleep(time.Second)
-		_, err := anilistPlatform.GetAnime(178022)
-		if err != nil {
-			t.Errorf("GetAnime returned error: %v", err)
-		}
+	//go func() {
+	//	time.Sleep(time.Second)
+	//	_, err := anilistPlatform.GetAnime(178022)
+	//	if err != nil {
+	//		t.Errorf("GetAnime returned error: %v", err)
+	//	}
+	//
+	//	_, err = anilistPlatform.GetAnime(177709)
+	//	if err != nil {
+	//		t.Errorf("GetAnime returned error: %v", err)
+	//	}
+	//}()
 
-		_, err = anilistPlatform.GetAnime(177709)
-		if err != nil {
-			t.Errorf("GetAnime returned error: %v", err)
-		}
-	}()
-
-	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
+	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}
 
 	manager.PrintPluginPoolMetrics(ext.ID)
-	time.Sleep(10 * time.Second)
+
+	time.Sleep(6 * time.Second)
 }
 
 func TestNewGojaPluginContext(t *testing.T) {
@@ -145,7 +174,8 @@ func TestNewGojaPluginContext(t *testing.T) {
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
-	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
+	wsEventManager := events.NewMockWSEventManager(logger)
+	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}
@@ -210,7 +240,8 @@ func TestNewGojaPlugin(t *testing.T) {
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
-	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager)
+	wsEventManager := events.NewMockWSEventManager(logger)
+	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}
@@ -269,8 +300,10 @@ func BenchmarkHookInvocation(b *testing.B) {
 	runtimeManager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
+	wsEventManager := events.NewMockWSEventManager(logger)
+
 	// Initialize the plugin, which will bind the hook
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -323,8 +356,9 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 	runtimeManager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
+	wsEventManager := events.NewMockWSEventManager(logger)
 	// Initialize the plugin, which will bind the hook
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -360,6 +394,8 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
+	wsEventManager := events.NewMockWSEventManager(logger)
+
 	payload := `
 		function init() {
 			$app.onGetAnime(function(e) {
@@ -383,6 +419,7 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 		extension.LanguageJavascript,
 		logger,
 		runtimeManager,
+		wsEventManager,
 	)
 	if err != nil {
 		b.Fatal(err)
@@ -419,6 +456,8 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
+	wsEventManager := events.NewMockWSEventManager(logger)
+
 	payload := `
 		function init() {
 			$app.onMissingEpisodes(function(e) {
@@ -442,6 +481,7 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 		extension.LanguageJavascript,
 		logger,
 		runtimeManager,
+		wsEventManager,
 	)
 	if err != nil {
 		b.Fatal(err)
@@ -517,7 +557,8 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 	runtimeManager := goja_runtime.NewManager(logger, 15)
 
 	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
+	wsEventManager := events.NewMockWSEventManager(logger)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -553,6 +594,8 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
+	wsEventManager := events.NewMockWSEventManager(logger)
+
 	payload := `
 		function init() {
 			$app.onGetAnime(function(e) {
@@ -582,6 +625,7 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 		extension.LanguageJavascript,
 		logger,
 		runtimeManager,
+		wsEventManager,
 	)
 	if err != nil {
 		b.Fatal(err)
@@ -619,6 +663,8 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	appContext := plugin.NewAppContext()
 	hook.SetGlobalHookManagerAppContext(appContext)
 
+	wsEventManager := events.NewMockWSEventManager(logger)
+
 	payload := `
 		function init() {
 			$app.onMissingEpisodes(function(e) {
@@ -640,7 +686,7 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	runtimeManager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
 
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager)
+	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
 	if err != nil {
 		b.Fatal(err)
 	}

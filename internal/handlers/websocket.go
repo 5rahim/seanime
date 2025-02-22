@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"seanime/internal/events"
 
 	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
@@ -15,14 +16,6 @@ var (
 		},
 	}
 )
-
-type WebsocketClientEventType string
-
-type WebsocketClientEvent struct {
-	ClientID string                   `json:"clientId"`
-	Type     WebsocketClientEventType `json:"type"`
-	Payload  interface{}              `json:"payload"`
-}
 
 // webSocketEventHandler creates a new websocket handler for real-time event communication
 func (h *Handler) webSocketEventHandler(c echo.Context) error {
@@ -60,7 +53,7 @@ func (h *Handler) webSocketEventHandler(c echo.Context) error {
 			continue
 		}
 
-		h.HandleWebviewEvents(event)
+		h.HandleClientEvents(event)
 
 		// h.App.Logger.Debug().Msgf("ws: message received: %+v", msg)
 
@@ -74,8 +67,8 @@ func (h *Handler) webSocketEventHandler(c echo.Context) error {
 	return nil
 }
 
-func UnmarshalWebsocketClientEvent(msg []byte) (*WebsocketClientEvent, error) {
-	var event WebsocketClientEvent
+func UnmarshalWebsocketClientEvent(msg []byte) (*events.WebsocketClientEvent, error) {
+	var event events.WebsocketClientEvent
 	if err := json.Unmarshal(msg, &event); err != nil {
 		return nil, err
 	}

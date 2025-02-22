@@ -1,5 +1,13 @@
 package events
 
+type WebsocketClientEventType string
+
+type WebsocketClientEvent struct {
+	ClientID string                   `json:"clientId"`
+	Type     WebsocketClientEventType `json:"type"`
+	Payload  interface{}              `json:"payload"`
+}
+
 const (
 	AnilistDataLoaded = "anilist-data-loaded" // The anilist data has been loaded
 
