@@ -78,13 +78,22 @@ func (g *gojaProviderBase) callClassMethod(ctx context.Context, methodName strin
 		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to get VM")
 		return nil, fmt.Errorf("failed to get VM: %w", err)
 	}
-	defer g.pool.Put(vm)
+	defer func() {
+		g.pool.Put(vm)
+	}()
 
-	// Run the pre-compiled program
-	_, err = vm.RunProgram(g.program)
+	// Ensure the Provider class is defined only once per VM
+	providerType, err := vm.RunString("typeof Provider")
 	if err != nil {
-		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to run program")
-		return nil, fmt.Errorf("failed to run program: %w", err)
+		g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to check Provider existence")
+		return nil, fmt.Errorf("failed to check Provider existence: %w", err)
+	}
+	if providerType.String() == "undefined" {
+		_, err = vm.RunProgram(g.program)
+		if err != nil {
+			g.logger.Error().Err(err).Str("id", g.ext.ID).Msg("extension: Failed to run program")
+			return nil, fmt.Errorf("failed to run program: %w", err)
+		}
 	}
 
 	// Create a new instance of the Provider class

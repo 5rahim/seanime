@@ -155,11 +155,12 @@ func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem
 	ret := make([]*MangaProviderExtensionItem, 0)
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.MangaProviderExtension) bool {
+		settings := ext.GetProvider().GetSettings()
 		ret = append(ret, &MangaProviderExtensionItem{
 			ID:       ext.GetID(),
 			Name:     ext.GetName(),
 			Lang:     extension.GetExtensionLang(ext.GetLang()),
-			Settings: ext.GetProvider().GetSettings(),
+			Settings: settings,
 		})
 		return true
 	})
@@ -171,12 +172,13 @@ func (r *Repository) ListOnlinestreamProviderExtensions() []*OnlinestreamProvide
 	ret := make([]*OnlinestreamProviderExtensionItem, 0)
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.OnlinestreamProviderExtension) bool {
+		settings := ext.GetProvider().GetSettings()
 		ret = append(ret, &OnlinestreamProviderExtensionItem{
 			ID:             ext.GetID(),
 			Name:           ext.GetName(),
 			Lang:           extension.GetExtensionLang(ext.GetLang()),
-			EpisodeServers: ext.GetProvider().GetSettings().EpisodeServers,
-			SupportsDub:    ext.GetProvider().GetSettings().SupportsDub,
+			EpisodeServers: settings.EpisodeServers,
+			SupportsDub:    settings.SupportsDub,
 		})
 		return true
 	})
@@ -188,15 +190,16 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 	ret := make([]*AnimeTorrentProviderExtensionItem, 0)
 
 	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.AnimeTorrentProviderExtension) bool {
+		settings := ext.GetProvider().GetSettings()
 		ret = append(ret, &AnimeTorrentProviderExtensionItem{
 			ID:   ext.GetID(),
 			Name: ext.GetName(),
 			Lang: extension.GetExtensionLang(ext.GetLang()),
 			Settings: hibiketorrent.AnimeProviderSettings{
-				Type:           ext.GetProvider().GetSettings().Type,
-				CanSmartSearch: ext.GetProvider().GetSettings().CanSmartSearch,
-				SupportsAdult:  ext.GetProvider().GetSettings().SupportsAdult,
-				SmartSearchFilters: lo.Map(ext.GetProvider().GetSettings().SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) hibiketorrent.AnimeProviderSmartSearchFilter {
+				Type:           settings.Type,
+				CanSmartSearch: settings.CanSmartSearch,
+				SupportsAdult:  settings.SupportsAdult,
+				SmartSearchFilters: lo.Map(settings.SmartSearchFilters, func(value hibiketorrent.AnimeProviderSmartSearchFilter, _ int) hibiketorrent.AnimeProviderSmartSearchFilter {
 					return value
 				}),
 			},
