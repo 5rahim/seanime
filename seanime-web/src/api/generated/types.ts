@@ -2040,7 +2040,7 @@ export type Extension_Extension = {
     /**
      * NOT IMPLEMENTED
      */
-    scopes?: Array<string>
+    permissions?: Array<string>
     userConfig?: Extension_UserConfig
     payload: string
     payloadURI?: string
@@ -2207,6 +2207,18 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
     lang: string
     episodeServers?: Array<string>
     supportsDub: boolean
+}
+
+/**
+ * - Filepath: internal/extension_repo/repository.go
+ * - Filename: repository.go
+ * - Package: extension_repo
+ */
+export type ExtensionRepo_TrayPluginExtensionItem = {
+    id: string
+    name: string
+    icon: string
+    isPinned: boolean
 }
 
 /**

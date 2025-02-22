@@ -75,6 +75,13 @@ type (
 		Lang     string                              `json:"lang"` // ISO 639-1 language code
 		Settings hibiketorrent.AnimeProviderSettings `json:"settings"`
 	}
+
+	TrayPluginExtensionItem struct {
+		ID       string `json:"id"`
+		Name     string `json:"name"`
+		Icon     string `json:"icon"`
+		IsPinned bool   `json:"isPinned"`
+	}
 )
 
 type NewRepositoryOptions struct {
@@ -101,6 +108,17 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		fileCacher:         opts.FileCacher,
 		hookManager:        opts.HookManager,
 	}
+
+	clientEventSubscriber := ret.wsEventManager.SubscribeToClientEvents("extension-repository")
+
+	go func() {
+		for event := range clientEventSubscriber.Channel {
+			switch event.Type {
+			case "tray:list":
+				ret.wsEventManager.SendEvent("tray:list", ret.ListTrayPluginExtensions())
+			}
+		}
+	}()
 
 	return ret
 }
@@ -150,6 +168,23 @@ func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension)
 // Lists
 // - Lists are used to display available options to the user based on the extensions installed
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (r *Repository) ListTrayPluginExtensions() []*TrayPluginExtensionItem {
+	ret := make([]*TrayPluginExtensionItem, 0)
+
+	// TODO: Figure out which plugin is a tray plugin and if it's pinned
+	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.PluginExtension) bool {
+		ret = append(ret, &TrayPluginExtensionItem{
+			ID:       ext.GetID(),
+			Name:     ext.GetName(),
+			Icon:     ext.GetIcon(),
+			IsPinned: true,
+		})
+		return true
+	})
+
+	return ret
+}
 
 func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem {
 	ret := make([]*MangaProviderExtensionItem, 0)
@@ -276,66 +311,86 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r *Repository) LoadPlugins() {
+func (r *Repository) loadPlugins() {
 
 	testExt := &extension.Extension{
 		ID:       "test-plugin",
 		Language: extension.LanguageTypescript,
 		Payload: `
-		function init() {
+			function init() {
+				$ui.register((ctx) => {
+					const tray = ctx.newTray();
 
-			$ui.register((ctx) => {
-				const tray = ctx.newTray();
+					let currentPathname = ctx.state("");
+					let count = ctx.state(0);
 
-				let currentPathname = ctx.state("");
+					ctx.screen.onNavigate((e) => {
+						console.log("screen changed", e);
+						currentPathname.set(e.pathname);
+					});
+					ctx.screen.onNavigate((e) => {
+						console.log("screen changed", e);
+						currentPathname.set(e.pathname);
+					});
+					ctx.effect(() => {
+						console.log("currentPathname changed", currentPathname.get());
+						//tray.update();
+					}, [currentPathname]);
 
-				ctx.screen.onNavigate((e) => {
-					console.log("screen changed", e);
-					currentPathname.set(e.pathname);
-				});
+					ctx.setInterval(() => {
+						count.set(count.get() + 1);
+						//tray.update();
+					}, 1000);
 
-				ctx.screen.onNavigate((e) => {
-					console.log("screen changed", e);
-					currentPathname.set(e.pathname);
-				});
+					tray.render(() => {
+						return tray.flex({
+							items: [
+								tray.text("Hello, world!"),
+								tray.text("Count: " + count.get()),
+								tray.text("Current Pathname: " + currentPathname.get()),
+							],
+						});
+					});
+				})
 
-				ctx.effect(() => {
-					console.log("currentPathname changed", currentPathname.get());
-				}, [currentPathname]);
-			})
-
-			//$app.onGetAnimeCollection((e) => {
-			//	// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
-			//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-			//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-			//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
-			//		}
-			//	}
-			//	e.next();
-			//});
-			//
-			//$app.onGetRawAnimeCollection((e) => {
-			//	//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
-			//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-			//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-			//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
-			//		}
-			//	}
-			//	e.next();
-			//});
-
-			// $app.onAnimeEntryLibraryDataRequest((e) => {
-			// 	$replace(e.options.entryLocalFiles, [])
-			// 	e.next();
-			// });
-
-			// $app.OnAnimeEntryRequest((e) => {
-			// 	e.mediaId = 21;
-			// 	e.next();
-			// });
-			
-		}
-		`,
+				//$app.onGetAnimeCollection((e) => {
+				//	// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
+				//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+				//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+				//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
+				//		}
+				//	}
+				//	e.next();
+				//});
+				//
+				//$app.onGetRawAnimeCollection((e) => {
+				//	//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
+				//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+				//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+				//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
+				//		}
+				//	}
+				//	e.next();
+				//});
+				// $app.onAnimeEntryLibraryDataRequest((e) => {
+				// 	$replace(e.options.entryLocalFiles, [])
+				// 	e.next();
+				// });
+				// $app.OnAnimeEntryRequest((e) => {
+				// 	e.mediaId = 21;
+				// 	e.next();
+				// });
+				
+			}
+			`,
+		Name:        "Test Plugin",
+		Version:     "1.0.0",
+		ManifestURI: "https://raw.githubusercontent.com/5rahim/seanime-extensions/refs/heads/main/anime-torrent-providers/basic-nyaa/basic-nyaa.json",
+		Type:        extension.TypePlugin,
+		Description: "Test Plugin",
+		Author:      "Test Author",
+		Permissions: []string{},
+		PayloadURI:  "",
 	}
 
 	err := r.loadPluginExtension(testExt)

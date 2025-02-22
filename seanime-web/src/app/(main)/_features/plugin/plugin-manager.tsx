@@ -3,22 +3,20 @@ import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 
 export function PluginManager() {
-    const { sendMessage } = useWebsocketSender()
+    const { sendPluginMessage } = useWebsocketSender()
 
     const pathname = usePathname()
 
     useEffect(() => {
-        sendMessage({
-            type: "plugin",
-            payload: {
-                type: "screenChanged",
-                payload: {
-                    pathname: pathname,
-                    query: window.location.search,
-                },
-            },
+        sendPluginMessage("screen:changed", {
+            pathname: pathname,
+            query: window.location.search,
         })
     }, [pathname])
+
+    useEffect(() => {
+        // sendPluginMessage("tray:render-all", {})
+    }, [])
 
     return null
 }

@@ -194,7 +194,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		FileCacher:     fileCacher,
 		HookManager:    hookManager,
 	})
-	extensionRepository.LoadPlugins()
+	go LoadExtensions(extensionRepository, logger)
 
 	// Metadata Provider
 	metadataProvider := metadata.NewProvider(&metadata.NewProviderImplOptions{
@@ -316,9 +316,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	app.InitOrRefreshModules()
 
 	// Load built-in extensions
-	app.LoadBuiltInExtensions()
-	// Load external extensions
-	app.LoadOrRefreshExternalExtensions()
+	app.AddExtensionBankToConsumers()
 
 	// Fetch Anilist collection and set account if not offline
 	if !app.IsOffline() {

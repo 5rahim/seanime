@@ -80,6 +80,11 @@ func (c *Context) bindJsFetch(obj *goja.Object) error {
 	})
 }
 
+// jsFetch
+//
+//	Example:
+//	const response = await ctx.fetch("https://api.example.com/data");
+//	console.log(response);
 func (c *Context) jsFetch(call goja.FunctionCall) *goja.Promise {
 	promise, resolve, reject := c.vm.NewPromise()
 

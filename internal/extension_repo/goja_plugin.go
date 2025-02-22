@@ -10,7 +10,7 @@ import (
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/plugin"
-	"seanime/internal/plugin/ui"
+	plugin_ui "seanime/internal/plugin/ui"
 	"seanime/internal/util"
 	"slices"
 	"strings"
@@ -154,7 +154,7 @@ func NewGojaPlugin(
 	// Bind the store to the UI VM
 	p.BindStore(uiVM)
 	// Create a new UI instance
-	p.ui = plugin_ui.NewUI(logger, uiVM, wsEventManager)
+	p.ui = plugin_ui.NewUI(ext.ID, logger, uiVM, wsEventManager)
 
 	////////
 

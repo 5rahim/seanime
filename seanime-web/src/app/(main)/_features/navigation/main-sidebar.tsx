@@ -37,6 +37,7 @@ import { IoCloudOfflineOutline, IoLibrary } from "react-icons/io5"
 import { PiArrowCircleLeftDuotone, PiArrowCircleRightDuotone, PiClockCounterClockwiseFill } from "react-icons/pi"
 import { SiAnilist } from "react-icons/si"
 import { TbWorldDownload } from "react-icons/tb"
+import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 /**
  * @description
@@ -261,6 +262,7 @@ export function MainSidebar() {
 
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
+                    <PluginSidebarTray />
                     {process.env.NEXT_PUBLIC_PLATFORM !== "desktop" ? <UpdateModal collapsed={isCollapsed} /> :
                         <TauriUpdateModal collapsed={isCollapsed} />}
                     <div>

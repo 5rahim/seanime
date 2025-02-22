@@ -2,6 +2,7 @@ package extension
 
 type PluginExtension interface {
 	BaseExtension
+	IsPlugin() bool
 }
 
 type PluginExtensionImpl struct {
@@ -14,9 +15,9 @@ func NewPluginExtension(ext *Extension) PluginExtension {
 	}
 }
 
-// func (m *PluginExtensionImpl) GetProvider() hibikemanga.Provider {
-// 	return m.provider
-// }
+func (m *PluginExtensionImpl) IsPlugin() bool {
+	return true
+}
 
 func (m *PluginExtensionImpl) GetExtension() *Extension {
 	return m.ext

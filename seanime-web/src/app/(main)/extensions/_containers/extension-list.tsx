@@ -15,6 +15,7 @@ import React from "react"
 import { BiDotsVerticalRounded } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
+import { LuPlug } from "react-icons/lu"
 import { PiBookFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { TbReload } from "react-icons/tb"
@@ -48,6 +49,9 @@ export function ExtensionList(props: ExtensionListProps) {
             !!allExtensions?.invalidExtensions?.find(n => n.id === extensionID)
     }
 
+    const pluginExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "plugin")
+    console.log(pluginExtensions)
+
     if (isLoading) return <LoadingSpinner />
 
     if (!allExtensions) return <LuffyError>
@@ -71,10 +75,10 @@ export function ExtensionList(props: ExtensionListProps) {
                         disabled={isLoading}
                         onClick={() => {
                             setCheckForUpdates(true)
-                            React.startTransition(() => {
-                                refetch()
-                                toast.info("Fetching updates")
-                            })
+                            toast.info("Fetching updates")
+                            // React.startTransition(() => {
+                            //     refetch()
+                            // })
                         }}
                     >
                         Check for updates
@@ -101,6 +105,24 @@ export function ExtensionList(props: ExtensionListProps) {
                     </DropdownMenu>
                 </div>
             </div>
+
+            {!!pluginExtensions?.length && (
+                <>
+                    <h3 className="flex gap-3 items-center"><LuPlug /> Plugins</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {pluginExtensions.map(extension => (
+                            <ExtensionCard
+                                key={extension.id}
+                                extension={extension}
+                                hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                                userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+
             <h3 className="flex gap-3 items-center"><RiFolderDownloadFill />Torrent</h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                 {orderExtensions(allExtensions.extensions).filter(n => n.type === "anime-torrent-provider").map(extension => (

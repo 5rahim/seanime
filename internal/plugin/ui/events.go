@@ -2,11 +2,61 @@ package plugin_ui
 
 import "github.com/goccy/go-json"
 
-// ClientPluginEvent is an event sent from the client
+type ClientEventType string
+
+const (
+	RenderTrayEvent           ClientEventType = "tray:render"            // Client wants to render the tray
+	RenderTraysEvent          ClientEventType = "tray:render-all"        // Client wants to render the tray
+	TrayHandlerTriggeredEvent ClientEventType = "tray:handler-triggered" // When a custom event registered by the tray is triggered
+	TrayFormSubmittedEvent    ClientEventType = "tray:form-submitted"    // When a form registered by the tray is submitted
+	ScreenChangedEvent        ClientEventType = "screen:changed"         // When the current screen changes
+)
+
+type RenderTrayEventPayload struct{}
+type RenderTraysEventPayload struct{}
+
+type TrayHandlerTriggeredEventPayload struct {
+	EventName string `json:"eventName"`
+}
+
+type TrayFormSubmittedEventPayload struct {
+	FormName string                 `json:"formName"`
+	Data     map[string]interface{} `json:"data"`
+}
+
+type ScreenChangedEventPayload struct {
+	Pathname string `json:"pathname"`
+	Query    string `json:"query"`
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+type ServerEventType string
+
+const (
+	TrayUpdatedEvent ServerEventType = "tray:updated" // When the trays are updated
+)
+
+type TrayUpdatedEventPayload struct {
+	Components interface{} `json:"components"`
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ClientPluginEvent is an event received from the client
 type ClientPluginEvent struct {
-	ExtensionID string      `json:"extensionId,omitempty"` // If not set, the event is sent to all plugins
-	Type        EventType   `json:"type"`
-	Payload     interface{} `json:"payload"`
+	// ExtensionID is the "sent to"
+	// If not set, the event is being sent to all plugins
+	ExtensionID string          `json:"extensionId,omitempty"`
+	Type        ClientEventType `json:"type"`
+	Payload     interface{}     `json:"payload"`
+}
+
+// ServerPluginEvent is an event sent to the client
+type ServerPluginEvent struct {
+	ExtensionID string          `json:"extensionId"` // Extension ID must be set
+	Type        ServerEventType `json:"type"`
+	Payload     interface{}     `json:"payload"`
 }
 
 func NewClientPluginEvent(data map[string]interface{}) *ClientPluginEvent {
@@ -27,7 +77,7 @@ func NewClientPluginEvent(data map[string]interface{}) *ClientPluginEvent {
 
 	return &ClientPluginEvent{
 		ExtensionID: extensionID,
-		Type:        EventType(eventType),
+		Type:        ClientEventType(eventType),
 		Payload:     payload,
 	}
 }
@@ -43,33 +93,9 @@ func (e *ClientPluginEvent) ParsePayload(ret interface{}) bool {
 	return true
 }
 
-func (e *ClientPluginEvent) ParsePayloadAs(t EventType, ret interface{}) bool {
+func (e *ClientPluginEvent) ParsePayloadAs(t ClientEventType, ret interface{}) bool {
 	if e.Type != t {
 		return false
 	}
 	return e.ParsePayload(ret)
-}
-
-type EventType string
-
-const (
-	TrayCustomEventTriggered EventType = "trayCustomEventTriggered" // When a custom event registered by the tray is triggered
-	TrayFormSubmitted        EventType = "trayFormSubmitted"        // When a form registered by the tray is submitted
-	ScreenChanged            EventType = "screenChanged"            // When the current screen changes
-)
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type TrayCustomEventPayload struct {
-	EventName string `json:"eventName"`
-}
-
-type TrayFormSubmittedPayload struct {
-	FormName string                 `json:"formName"`
-	Data     map[string]interface{} `json:"data"`
-}
-
-type ScreenChangedPayload struct {
-	Pathname string `json:"pathname"`
-	Query    string `json:"query"`
 }

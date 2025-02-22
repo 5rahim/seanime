@@ -25654,9 +25654,9 @@
       {
         "name": "HookManager",
         "jsonName": "HookManager",
-        "goType": "hook.HookManager",
-        "typescriptType": "HookManager",
-        "usedStructName": "hook.HookManager",
+        "goType": "hook.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "hook.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -26218,29 +26218,6 @@
     "package": "core",
     "fields": [],
     "comments": []
-  },
-  {
-    "filepath": "../internal/core/events.go",
-    "filename": "events.go",
-    "name": "AnimeLibraryCollectionRequestEvent",
-    "formattedName": "INTERNAL_AnimeLibraryCollectionRequestEvent",
-    "package": "core",
-    "fields": [
-      {
-        "name": "LibraryCollection",
-        "jsonName": "LibraryCollection",
-        "goType": "anime.LibraryCollection",
-        "typescriptType": "Anime_LibraryCollection",
-        "usedStructName": "anime.LibraryCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
-    "embeddedStructNames": [
-      "hook.Event"
-    ]
   },
   {
     "filepath": "../internal/core/feature_flags.go",
@@ -28531,6 +28508,37 @@
         "goType": "int",
         "typescriptType": "number",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "models.BaseModel"
+    ]
+  },
+  {
+    "filepath": "../internal/database/models/models.go",
+    "filename": "models.go",
+    "name": "PluginData",
+    "formattedName": "Models_PluginData",
+    "package": "models",
+    "fields": [
+      {
+        "name": "PluginID",
+        "jsonName": "pluginId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -31320,6 +31328,60 @@
     "comments": []
   },
   {
+    "filepath": "../internal/events/events.go",
+    "filename": "events.go",
+    "name": "WebsocketClientEventType",
+    "formattedName": "Events_WebsocketClientEventType",
+    "package": "events",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"plugin\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/events/events.go",
+    "filename": "events.go",
+    "name": "WebsocketClientEvent",
+    "formattedName": "Events_WebsocketClientEvent",
+    "package": "events",
+    "fields": [
+      {
+        "name": "ClientID",
+        "jsonName": "clientId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "WebsocketClientEventType",
+        "typescriptType": "Events_WebsocketClientEventType",
+        "usedStructName": "events.WebsocketClientEventType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/events/websocket.go",
     "filename": "websocket.go",
     "name": "WSEventManager",
@@ -31363,6 +31425,34 @@
         "usedStructName": "sync.Mutex",
         "required": false,
         "public": false,
+        "comments": []
+      },
+      {
+        "name": "clientEventSubscribers",
+        "jsonName": "clientEventSubscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/events/websocket.go",
+    "filename": "websocket.go",
+    "name": "ClientEventSubscriber",
+    "formattedName": "Events_ClientEventSubscriber",
+    "package": "events",
+    "fields": [
+      {
+        "name": "Channel",
+        "jsonName": "Channel",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],
@@ -31447,6 +31537,15 @@
         "goType": "zerolog.Logger",
         "typescriptType": "Logger",
         "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ClientEventSubscribers",
+        "jsonName": "ClientEventSubscribers",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": true,
         "comments": []
@@ -31738,8 +31837,8 @@
         "comments": []
       },
       {
-        "name": "Scopes",
-        "jsonName": "scopes",
+        "name": "Permissions",
+        "jsonName": "permissions",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -33247,6 +33346,26 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "PluginExtensionImpl",
+    "formattedName": "Extension_PluginExtensionImpl",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension/torrent_provider.go",
     "filename": "torrent_provider.go",
     "name": "AnimeTorrentProviderExtensionImpl",
@@ -33327,6 +33446,16 @@
         "goType": "metadata.Provider",
         "typescriptType": "Metadata_Provider",
         "usedStructName": "metadata.Provider",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "gojaRuntimeManager",
+        "jsonName": "gojaRuntimeManager",
+        "goType": "goja_runtime.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "goja_runtime.Manager",
         "required": false,
         "public": false,
         "comments": []
@@ -33477,7 +33606,7 @@
     "fields": [],
     "comments": [],
     "embeddedStructNames": [
-      "extension_repo.gojaExtensionImpl"
+      "extension_repo.gojaProviderBase"
     ]
   },
   {
@@ -33489,7 +33618,7 @@
     "fields": [],
     "comments": [],
     "embeddedStructNames": [
-      "extension_repo.gojaExtensionImpl"
+      "extension_repo.gojaProviderBase"
     ]
   },
   {
@@ -33501,7 +33630,7 @@
     "fields": [],
     "comments": [],
     "embeddedStructNames": [
-      "extension_repo.gojaExtensionImpl"
+      "extension_repo.gojaProviderBase"
     ]
   },
   {
@@ -33510,25 +33639,13 @@
     "name": "GojaPlugin",
     "formattedName": "ExtensionRepo_GojaPlugin",
     "package": "extension_repo",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "extension_repo.gojaExtensionImpl"
-    ]
-  },
-  {
-    "filepath": "../internal/extension_repo/goja_runtime_pool.go",
-    "filename": "goja_runtime_pool.go",
-    "name": "RuntimePool",
-    "formattedName": "ExtensionRepo_RuntimePool",
-    "package": "extension_repo",
     "fields": [
       {
-        "name": "pool",
-        "jsonName": "pool",
-        "goType": "sync.Pool",
-        "typescriptType": "Sync_Pool",
-        "usedStructName": "sync.Pool",
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "extension.Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
         "required": false,
         "public": false,
         "comments": []
@@ -33544,16 +33661,60 @@
         "comments": []
       },
       {
-        "name": "maxSize",
-        "jsonName": "maxSize",
-        "goType": "int",
-        "typescriptType": "number",
-        "required": true,
+        "name": "pool",
+        "jsonName": "pool",
+        "goType": "goja_runtime.Pool",
+        "typescriptType": "Pool",
+        "usedStructName": "goja_runtime.Pool",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "runtimeManager",
+        "jsonName": "runtimeManager",
+        "goType": "goja_runtime.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "goja_runtime.Manager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "store",
+        "jsonName": "store",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ui",
+        "jsonName": "ui",
+        "goType": "plugin_ui.UI",
+        "typescriptType": "UI",
+        "usedStructName": "plugin_ui.UI",
+        "required": false,
         "public": false,
         "comments": []
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/mapper.go",
+    "filename": "mapper.go",
+    "name": "FieldMapper",
+    "formattedName": "ExtensionRepo_FieldMapper",
+    "package": "extension_repo",
+    "fields": [],
+    "comments": [
+      " FieldMapper provides custom mapping between Go and JavaScript property names.",
+      "",
+      " It is similar to the builtin \"uncapFieldNameMapper\" but also converts",
+      " all uppercase identifiers to their lowercase equivalent (eg. \"GET\" -\u003e \"get\")."
+    ]
   },
   {
     "filepath": "../internal/extension_repo/repository.go",
@@ -33635,6 +33796,16 @@
         "jsonName": "invalidExtensions",
         "goType": "",
         "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "hookManager",
+        "jsonName": "hookManager",
+        "goType": "hook.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "hook.Manager",
         "required": false,
         "public": false,
         "comments": []
@@ -33887,6 +34058,52 @@
   {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
+    "name": "TrayPluginExtensionItem",
+    "formattedName": "ExtensionRepo_TrayPluginExtensionItem",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Icon",
+        "jsonName": "icon",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IsPinned",
+        "jsonName": "isPinned",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension_repo/repository.go",
+    "filename": "repository.go",
     "name": "NewRepositoryOptions",
     "formattedName": "ExtensionRepo_NewRepositoryOptions",
     "package": "extension_repo",
@@ -33926,6 +34143,16 @@
         "goType": "filecache.Cacher",
         "typescriptType": "Filecache_Cacher",
         "usedStructName": "filecache.Cacher",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HookManager",
+        "jsonName": "HookManager",
+        "goType": "hook.Manager",
+        "typescriptType": "Manager",
+        "usedStructName": "hook.Manager",
         "required": false,
         "public": true,
         "comments": []
@@ -34239,23 +34466,20 @@
     "package": "goja_runtime",
     "fields": [
       {
-        "name": "pools",
-        "jsonName": "pools",
-        "goType": "map[string]Pool",
-        "typescriptType": "Record\u003cstring, Pool\u003e",
-        "usedStructName": "goja_runtime.Pool",
+        "name": "pluginPools",
+        "jsonName": "pluginPools",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
-        "comments": [
-          " Map of extension ID to pool"
-        ]
+        "comments": []
       },
       {
-        "name": "mu",
-        "jsonName": "mu",
-        "goType": "sync.RWMutex",
-        "typescriptType": "Sync_RWMutex",
-        "usedStructName": "sync.RWMutex",
+        "name": "basePool",
+        "jsonName": "basePool",
+        "goType": "Pool",
+        "typescriptType": "Pool",
+        "usedStructName": "goja_runtime.Pool",
         "required": false,
         "public": false,
         "comments": []
@@ -34269,18 +34493,11 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "maxPerExt",
-        "jsonName": "maxPerExt",
-        "goType": "int32",
-        "typescriptType": "number",
-        "required": true,
-        "public": false,
-        "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " Manager manages a shared pool of Goja runtimes for all extensions."
+    ]
   },
   {
     "filepath": "../internal/goja/goja_runtime/goja_runtime_manager.go",
@@ -34290,17 +34507,18 @@
     "package": "goja_runtime",
     "fields": [
       {
-        "name": "runtimes",
-        "jsonName": "runtimes",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
+        "name": "sp",
+        "jsonName": "sp",
+        "goType": "sync.Pool",
+        "typescriptType": "Sync_Pool",
+        "usedStructName": "sync.Pool",
+        "required": false,
         "public": false,
         "comments": []
       },
       {
-        "name": "initFn",
-        "jsonName": "initFn",
+        "name": "factory",
+        "jsonName": "factory",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -34318,17 +34536,8 @@
         "comments": []
       },
       {
-        "name": "active",
-        "jsonName": "active",
-        "goType": "int32",
-        "typescriptType": "number",
-        "required": true,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "maxSize",
-        "jsonName": "maxSize",
+        "name": "size",
+        "jsonName": "size",
         "goType": "int32",
         "typescriptType": "number",
         "required": true,
@@ -34346,9 +34555,7 @@
         "comments": []
       }
     ],
-    "comments": [
-      " Pool represents a pool of Goja runtimes for a specific extension"
-    ]
+    "comments": []
   },
   {
     "filepath": "../internal/handlers/directory_selector.go",
@@ -35060,36 +35267,6 @@
     ]
   },
   {
-    "filepath": "../internal/hook/event.go",
-    "filename": "event.go",
-    "name": "Event",
-    "formattedName": "Event",
-    "package": "hook",
-    "fields": [
-      {
-        "name": "next",
-        "jsonName": "next",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": false,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " Event implements [Resolver] and it is intended to be used as a base",
-      " Hook event that you can embed in your custom typed event structs.",
-      "",
-      " Example:",
-      "",
-      "\ttype CustomEvent struct {",
-      "\t\thook.Event",
-      "",
-      "\t\tSomeField int",
-      "\t}"
-    ]
-  },
-  {
     "filepath": "../internal/hook/hook.go",
     "filename": "hook.go",
     "name": "Handler",
@@ -35182,8 +35359,8 @@
   {
     "filepath": "../internal/hook/hooks.go",
     "filename": "hooks.go",
-    "name": "HookManager",
-    "formattedName": "HookManager",
+    "name": "ManagerImpl",
+    "formattedName": "ManagerImpl",
     "package": "hook",
     "fields": [
       {
@@ -35197,8 +35374,18 @@
         "comments": []
       },
       {
-        "name": "onGetBaseAnime",
-        "jsonName": "onGetBaseAnime",
+        "name": "appContext",
+        "jsonName": "appContext",
+        "goType": "plugin.AppContext",
+        "typescriptType": "AppContext",
+        "usedStructName": "plugin.AppContext",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetAnime",
+        "jsonName": "onGetAnime",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -35206,8 +35393,287 @@
         "comments": []
       },
       {
-        "name": "onGetBaseAnimeError",
-        "jsonName": "onGetBaseAnimeError",
+        "name": "onGetAnimeDetails",
+        "jsonName": "onGetAnimeDetails",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetManga",
+        "jsonName": "onGetManga",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetMangaDetails",
+        "jsonName": "onGetMangaDetails",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetAnimeCollection",
+        "jsonName": "onGetAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetMangaCollection",
+        "jsonName": "onGetMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetRawAnimeCollection",
+        "jsonName": "onGetRawAnimeCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetRawMangaCollection",
+        "jsonName": "onGetRawMangaCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onGetStudioDetails",
+        "jsonName": "onGetStudioDetails",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPreUpdateEntry",
+        "jsonName": "onPreUpdateEntry",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPostUpdateEntry",
+        "jsonName": "onPostUpdateEntry",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPreUpdateEntryProgress",
+        "jsonName": "onPreUpdateEntryProgress",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPostUpdateEntryProgress",
+        "jsonName": "onPostUpdateEntryProgress",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPreUpdateEntryRepeat",
+        "jsonName": "onPreUpdateEntryRepeat",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPostUpdateEntryRepeat",
+        "jsonName": "onPostUpdateEntryRepeat",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEntryRequested",
+        "jsonName": "onAnimeEntryRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEntry",
+        "jsonName": "onAnimeEntry",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEntryFillerHydration",
+        "jsonName": "onAnimeEntryFillerHydration",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEntryLibraryDataRequested",
+        "jsonName": "onAnimeEntryLibraryDataRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEntryLibraryData",
+        "jsonName": "onAnimeEntryLibraryData",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEntryManualMatchBeforeSave",
+        "jsonName": "onAnimeEntryManualMatchBeforeSave",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMissingEpisodesRequested",
+        "jsonName": "onMissingEpisodesRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMissingEpisodes",
+        "jsonName": "onMissingEpisodes",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeLibraryCollectionRequested",
+        "jsonName": "onAnimeLibraryCollectionRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeLibraryCollection",
+        "jsonName": "onAnimeLibraryCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeLibraryStreamCollectionRequested",
+        "jsonName": "onAnimeLibraryStreamCollectionRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeLibraryStreamCollection",
+        "jsonName": "onAnimeLibraryStreamCollection",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderQueueOrDownloadTorrent",
+        "jsonName": "onAutoDownloaderQueueOrDownloadTorrent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderTorrentMatched",
+        "jsonName": "onAutoDownloaderTorrentMatched",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderRuleVerifyMatch",
+        "jsonName": "onAutoDownloaderRuleVerifyMatch",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderRunStarted",
+        "jsonName": "onAutoDownloaderRunStarted",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderRunCompleted",
+        "jsonName": "onAutoDownloaderRunCompleted",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderSettingsUpdated",
+        "jsonName": "onAutoDownloaderSettingsUpdated",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -35215,9 +35681,7 @@
         "comments": []
       }
     ],
-    "comments": [
-      " HookManager manages all hooks in the application"
-    ]
+    "comments": []
   },
   {
     "filepath": "../internal/hook/hooks.go",
@@ -35240,25 +35704,33 @@
     "comments": []
   },
   {
-    "filepath": "../internal/hook/tagged.go",
-    "filename": "tagged.go",
-    "name": "TaggedHook",
-    "formattedName": "TaggedHook",
-    "package": "hook",
+    "filepath": "../internal/hook_resolver/hook_resolver.go",
+    "filename": "hook_resolver.go",
+    "name": "Event",
+    "formattedName": "Event",
+    "package": "hook_resolver",
     "fields": [
       {
-        "name": "tags",
-        "jsonName": "tags",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
+        "name": "next",
+        "jsonName": "next",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": false,
         "comments": []
       }
     ],
     "comments": [
-      " TaggedHook defines a proxy hook which register handlers that are triggered only",
-      " if the TaggedHook.tags are empty or includes at least one of the event data tag(s)."
+      " Event implements [Resolver] and it is intended to be used as a base",
+      " Hook event that you can embed in your custom typed event structs.",
+      "",
+      " Example:",
+      "",
+      "\ttype CustomEvent struct {",
+      "\t\thook.Event",
+      "",
+      "\t\tSomeField int",
+      "\t}"
     ]
   },
   {
@@ -36886,6 +37358,399 @@
     "comments": []
   },
   {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEntryRequestedEvent",
+    "formattedName": "Anime_AnimeEntryRequestedEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEntryRequestedEvent is triggered when a new media entry is being created."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEntryEvent",
+    "formattedName": "Anime_AnimeEntryEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "Entry",
+        "typescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEntryEvent is triggered when the media entry is being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEntryFillerHydrationEvent",
+    "formattedName": "Anime_AnimeEntryFillerHydrationEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "SkipDefault",
+        "jsonName": "skipDefault",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "Entry",
+        "typescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEntryLibraryDataRequestedEvent",
+    "formattedName": "Anime_AnimeEntryLibraryDataRequestedEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "EntryLocalFiles",
+        "jsonName": "entryLocalFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CurrentProgress",
+        "jsonName": "currentProgress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEntryLibraryDataEvent",
+    "formattedName": "Anime_AnimeEntryLibraryDataEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "EntryLibraryData",
+        "jsonName": "entryLibraryData",
+        "goType": "EntryLibraryData",
+        "typescriptType": "Anime_EntryLibraryData",
+        "usedStructName": "anime.EntryLibraryData",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEntryLibraryDataEvent is triggered when the library data is being added to the media entry."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEntryManualMatchBeforeSaveEvent",
+    "formattedName": "Anime_AnimeEntryManualMatchBeforeSaveEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Paths",
+        "jsonName": "paths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MatchedLocalFiles",
+        "jsonName": "matchedLocalFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEntryManualMatchBeforeSaveEvent is triggered when the user manually matches local files to a media entry."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MissingEpisodesRequestedEvent",
+    "formattedName": "Anime_MissingEpisodesRequestedEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SilencedMediaIds",
+        "jsonName": "silencedMediaIds",
+        "goType": "[]int",
+        "typescriptType": "Array\u003cnumber\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for a media entry."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MissingEpisodesEvent",
+    "formattedName": "Anime_MissingEpisodesEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "MissingEpisodes",
+        "jsonName": "missingEpisodes",
+        "goType": "MissingEpisodes",
+        "typescriptType": "Anime_MissingEpisodes",
+        "usedStructName": "anime.MissingEpisodes",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeLibraryCollectionEvent",
+    "formattedName": "Anime_AnimeLibraryCollectionEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "LibraryCollection",
+        "jsonName": "libraryCollection",
+        "goType": "LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeLibraryStreamCollectionEvent",
+    "formattedName": "Anime_AnimeLibraryStreamCollectionEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "StreamCollection",
+        "jsonName": "streamCollection",
+        "goType": "StreamCollection",
+        "typescriptType": "Anime_StreamCollection",
+        "usedStructName": "anime.StreamCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeLibraryCollectionRequestedEvent",
+    "formattedName": "Anime_AnimeLibraryCollectionRequestedEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeLibraryStreamCollectionRequestedEvent",
+    "formattedName": "Anime_AnimeLibraryStreamCollectionRequestedEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LibraryCollection",
+        "jsonName": "libraryCollection",
+        "goType": "LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/library/anime/localfile.go",
     "filename": "localfile.go",
     "name": "LocalFileType",
@@ -37742,6 +38607,255 @@
     "comments": [],
     "embeddedStructNames": [
       "hibiketorrent.AnimeTorrent"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderQueueOrDownloadTorrentEvent",
+    "formattedName": "AutoDownloaderQueueOrDownloadTorrentEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "TorrentName",
+        "jsonName": "torrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Link",
+        "jsonName": "link",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hash",
+        "jsonName": "hash",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Magnet",
+        "jsonName": "magnet",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Downloaded",
+        "jsonName": "downloaded",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderQueueOrDownloadTorrentEvent is triggered when a torrent is added to the queue or downloaded"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderTorrentMatchedEvent",
+    "formattedName": "AutoDownloaderTorrentMatchedEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "TorrentName",
+        "jsonName": "torrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rule",
+        "jsonName": "rule",
+        "goType": "anime.AutoDownloaderRule",
+        "typescriptType": "Anime_AutoDownloaderRule",
+        "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Episode",
+        "jsonName": "episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderTorrentMatchedEvent is triggered when a torrent matches a rule"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderRuleVerifyMatchEvent",
+    "formattedName": "AutoDownloaderRuleVerifyMatchEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "TorrentName",
+        "jsonName": "torrentName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rule",
+        "jsonName": "rule",
+        "goType": "anime.AutoDownloaderRule",
+        "typescriptType": "Anime_AutoDownloaderRule",
+        "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ListEntry",
+        "jsonName": "listEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalEntry",
+        "jsonName": "localEntry",
+        "goType": "anime.LocalFileWrapperEntry",
+        "typescriptType": "Anime_LocalFileWrapperEntry",
+        "usedStructName": "anime.LocalFileWrapperEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderRuleVerifyMatchEvent is triggered when checking if a torrent matches a rule"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderRunStartedEvent",
+    "formattedName": "AutoDownloaderRunStartedEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "Rules",
+        "jsonName": "rules",
+        "goType": "[]anime.AutoDownloaderRule",
+        "typescriptType": "Array\u003cAnime_AutoDownloaderRule\u003e",
+        "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderRunStartedEvent is triggered when the autodownloader starts checking for new episodes"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderRunCompletedEvent",
+    "formattedName": "AutoDownloaderRunCompletedEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "TorrentsAdded",
+        "jsonName": "torrentsAdded",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderRunCompletedEvent is triggered when the autodownloader finishes checking for new episodes"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderSettingsUpdatedEvent",
+    "formattedName": "AutoDownloaderSettingsUpdatedEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "Settings",
+        "jsonName": "settings",
+        "goType": "models.AutoDownloaderSettings",
+        "typescriptType": "Models_AutoDownloaderSettings",
+        "usedStructName": "models.AutoDownloaderSettings",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderSettingsUpdatedEvent is triggered when the autodownloader settings are updated"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
     ]
   },
   {
@@ -47657,15 +48771,25 @@
     "comments": []
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/events.go",
-    "filename": "events.go",
-    "name": "GetBaseAnimeEvent",
-    "formattedName": "GetBaseAnimeEvent",
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetAnimeEvent",
+    "formattedName": "GetAnimeEvent",
     "package": "anilist_platform",
     "fields": [
       {
+        "name": "Ctx",
+        "jsonName": "Ctx",
+        "goType": "plugin.AppContext",
+        "typescriptType": "AppContext",
+        "usedStructName": "plugin.AppContext",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Anime",
-        "jsonName": "Anime",
+        "jsonName": "anime",
         "goType": "anilist.BaseAnime",
         "typescriptType": "AL_BaseAnime",
         "usedStructName": "anilist.BaseAnime",
@@ -47676,30 +48800,417 @@
     ],
     "comments": [],
     "embeddedStructNames": [
-      "hook.Event"
+      "hook_resolver.Event"
     ]
   },
   {
-    "filepath": "../internal/platforms/anilist_platform/events.go",
-    "filename": "events.go",
-    "name": "GetBaseAnimeErrorEvent",
-    "formattedName": "GetBaseAnimeErrorEvent",
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetAnimeDetailsEvent",
+    "formattedName": "GetAnimeDetailsEvent",
     "package": "anilist_platform",
     "fields": [
       {
-        "name": "Error",
-        "jsonName": "Error",
-        "goType": "error",
-        "typescriptType": "error",
-        "usedStructName": "anilist_platform.error",
-        "required": true,
+        "name": "Anime",
+        "jsonName": "anime",
+        "goType": "anilist.AnimeDetailsById_Media",
+        "typescriptType": "AL_AnimeDetailsById_Media",
+        "usedStructName": "anilist.AnimeDetailsById_Media",
+        "required": false,
         "public": true,
         "comments": []
       }
     ],
     "comments": [],
     "embeddedStructNames": [
-      "hook.Event"
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetMangaEvent",
+    "formattedName": "GetMangaEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "Manga",
+        "jsonName": "manga",
+        "goType": "anilist.BaseManga",
+        "typescriptType": "AL_BaseManga",
+        "usedStructName": "anilist.BaseManga",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetMangaDetailsEvent",
+    "formattedName": "GetMangaDetailsEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "Manga",
+        "jsonName": "manga",
+        "goType": "anilist.MangaDetailsById_Media",
+        "typescriptType": "AL_MangaDetailsById_Media",
+        "usedStructName": "anilist.MangaDetailsById_Media",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetAnimeCollectionEvent",
+    "formattedName": "GetAnimeCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetMangaCollectionEvent",
+    "formattedName": "GetMangaCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetRawAnimeCollectionEvent",
+    "formattedName": "GetRawAnimeCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetRawMangaCollectionEvent",
+    "formattedName": "GetRawMangaCollectionEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "GetStudioDetailsEvent",
+    "formattedName": "GetStudioDetailsEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "Studio",
+        "jsonName": "studio",
+        "goType": "anilist.StudioDetails",
+        "typescriptType": "AL_StudioDetails",
+        "usedStructName": "anilist.StudioDetails",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PreUpdateEntryEvent",
+    "formattedName": "PreUpdateEntryEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "anilist.MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ScoreRaw",
+        "jsonName": "scoreRaw",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartedAt",
+        "jsonName": "startedAt",
+        "goType": "anilist.FuzzyDateInput",
+        "typescriptType": "AL_FuzzyDateInput",
+        "usedStructName": "anilist.FuzzyDateInput",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CompletedAt",
+        "jsonName": "completedAt",
+        "goType": "anilist.FuzzyDateInput",
+        "typescriptType": "AL_FuzzyDateInput",
+        "usedStructName": "anilist.FuzzyDateInput",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PostUpdateEntryEvent",
+    "formattedName": "PostUpdateEntryEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PreUpdateEntryProgressEvent",
+    "formattedName": "PreUpdateEntryProgressEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "SkipDefault",
+        "jsonName": "skipDefault",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Progress",
+        "jsonName": "progress",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalCount",
+        "jsonName": "totalCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "anilist.MediaListStatus",
+        "typescriptType": "AL_MediaListStatus",
+        "usedStructName": "anilist.MediaListStatus",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PostUpdateEntryProgressEvent",
+    "formattedName": "PostUpdateEntryProgressEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PreUpdateEntryRepeatEvent",
+    "formattedName": "PreUpdateEntryRepeatEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Repeat",
+        "jsonName": "repeat",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/platforms/anilist_platform/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PostUpdateEntryRepeatEvent",
+    "formattedName": "PostUpdateEntryRepeatEvent",
+    "package": "anilist_platform",
+    "fields": [
+      {
+        "name": "MediaID",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
     ]
   },
   {
@@ -47744,6 +49255,840 @@
       " LocalPlatform used when offline.",
       " It provides the same API as the anilist_platform.AnilistPlatform but some methods are no-op."
     ]
+  },
+  {
+    "filepath": "../internal/plugin/app_context.go",
+    "filename": "app_context.go",
+    "name": "AppContextImpl",
+    "formattedName": "AppContextImpl",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "store",
+        "jsonName": "store",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/store.go",
+    "filename": "store.go",
+    "name": "Store",
+    "formattedName": "Store",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "data",
+        "jsonName": "data",
+        "goType": "map[K]T",
+        "typescriptType": "Record\u003cK, T\u003e",
+        "usedStructName": "plugin.T",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "deleted",
+        "jsonName": "deleted",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Store defines a concurrent safe in memory key-value data store."
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/context.go",
+    "filename": "context.go",
+    "name": "Context",
+    "formattedName": "Context",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "extensionID",
+        "jsonName": "extensionID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "states",
+        "jsonName": "states",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "stateSubscribers",
+        "jsonName": "stateSubscribers",
+        "goType": "[]",
+        "typescriptType": "Array\u003cany\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "Scheduler",
+        "typescriptType": "Scheduler",
+        "usedStructName": "plugin_ui.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsSubscriber",
+        "jsonName": "wsSubscriber",
+        "goType": "events.ClientEventSubscriber",
+        "typescriptType": "Events_ClientEventSubscriber",
+        "usedStructName": "events.ClientEventSubscriber",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "eventListeners",
+        "jsonName": "eventListeners",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Event listeners added"
+        ]
+      },
+      {
+        "name": "webviewManager",
+        "jsonName": "webviewManager",
+        "goType": "WebviewManager",
+        "typescriptType": "WebviewManager",
+        "usedStructName": "plugin_ui.WebviewManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "screenManager",
+        "jsonName": "screenManager",
+        "goType": "ScreenManager",
+        "typescriptType": "ScreenManager",
+        "usedStructName": "plugin_ui.ScreenManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trayManager",
+        "jsonName": "trayManager",
+        "goType": "TrayManager",
+        "typescriptType": "TrayManager",
+        "usedStructName": "plugin_ui.TrayManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/context.go",
+    "filename": "context.go",
+    "name": "State",
+    "formattedName": "State",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "Value",
+        "goType": "goja.Value",
+        "typescriptType": "Value",
+        "usedStructName": "goja.Value",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/context.go",
+    "filename": "context.go",
+    "name": "EventListener",
+    "formattedName": "EventListener",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Channel",
+        "jsonName": "Channel",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Channel for the event payload"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientEventType",
+    "formattedName": "ClientEventType",
+    "package": "plugin_ui",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"tray:render-all\"",
+        "\"tray:handler-triggered\"",
+        "\"tray:form-submitted\"",
+        "\"screen:changed\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "RenderTraysEventPayload",
+    "formattedName": "RenderTraysEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "TrayHandlerTriggeredEventPayload",
+    "formattedName": "TrayHandlerTriggeredEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "EventName",
+        "jsonName": "eventName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "TrayFormSubmittedEventPayload",
+    "formattedName": "TrayFormSubmittedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FormName",
+        "jsonName": "formName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ScreenChangedEventPayload",
+    "formattedName": "ScreenChangedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Pathname",
+        "jsonName": "pathname",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Query",
+        "jsonName": "query",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerEventType",
+    "formattedName": "ServerEventType",
+    "package": "plugin_ui",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"tray:updated\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "TrayUpdatedEventPayload",
+    "formattedName": "TrayUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientPluginEvent",
+    "formattedName": "ClientPluginEvent",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "ClientEventType",
+        "typescriptType": "ClientEventType",
+        "usedStructName": "plugin_ui.ClientEventType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ClientPluginEvent is an event received from the client"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerPluginEvent",
+    "formattedName": "ServerPluginEvent",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Extension ID must be set"
+        ]
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "ServerEventType",
+        "typescriptType": "ServerEventType",
+        "usedStructName": "plugin_ui.ServerEventType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Payload",
+        "jsonName": "payload",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ServerPluginEvent is an event sent to the client"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/scheduler.go",
+    "filename": "scheduler.go",
+    "name": "Job",
+    "formattedName": "Job",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "fn",
+        "jsonName": "fn",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "resultCh",
+        "jsonName": "resultCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Job represents a task to be executed in the VM"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/scheduler.go",
+    "filename": "scheduler.go",
+    "name": "Scheduler",
+    "formattedName": "Scheduler",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "jobQueue",
+        "jsonName": "jobQueue",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "context.Context",
+        "typescriptType": "Context",
+        "usedStructName": "context.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "cancel",
+        "jsonName": "cancel",
+        "goType": "context.CancelFunc",
+        "typescriptType": "CancelFunc",
+        "usedStructName": "context.CancelFunc",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wg",
+        "jsonName": "wg",
+        "goType": "sync.WaitGroup",
+        "typescriptType": "Sync_WaitGroup",
+        "usedStructName": "sync.WaitGroup",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Scheduler handles all VM operations in a single goroutine",
+      " Any goroutine that needs to execute a VM operation must schedule it"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/screen.go",
+    "filename": "screen.go",
+    "name": "ScreenManager",
+    "formattedName": "ScreenManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/tray.go",
+    "filename": "tray.go",
+    "name": "TrayManager",
+    "formattedName": "TrayManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tray",
+        "jsonName": "tray",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/tray.go",
+    "filename": "tray.go",
+    "name": "TrayRenderEvent",
+    "formattedName": "TrayRenderEvent",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/tray.go",
+    "filename": "tray.go",
+    "name": "Tray",
+    "formattedName": "Tray",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "renderFunc",
+        "jsonName": "renderFunc",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "trayManager",
+        "jsonName": "trayManager",
+        "goType": "TrayManager",
+        "typescriptType": "TrayManager",
+        "usedStructName": "plugin_ui.TrayManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/tray.go",
+    "filename": "tray.go",
+    "name": "ComponentType",
+    "formattedName": "ComponentType",
+    "package": "plugin_ui",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"button\"",
+        "\"input\"",
+        "\"flex\"",
+        "\"text\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/tray.go",
+    "filename": "tray.go",
+    "name": "Component",
+    "formattedName": "Component",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "ComponentType",
+        "typescriptType": "ComponentType",
+        "usedStructName": "plugin_ui.ComponentType",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Props",
+        "jsonName": "props",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Key",
+        "jsonName": "key",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/ui.go",
+    "filename": "ui.go",
+    "name": "UI",
+    "formattedName": "UI",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "extensionID",
+        "jsonName": "extensionID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "context",
+        "jsonName": "context",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": [
+          " VM executing the UI"
+        ]
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " UI registry, unique to a plugin and VM"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/webview.go",
+    "filename": "webview.go",
+    "name": "WebviewManager",
+    "formattedName": "WebviewManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/report/report.go",

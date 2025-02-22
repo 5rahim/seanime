@@ -1,7 +1,7 @@
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
 import { clientIdAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
-import { SeaWebsocketEvent } from "@/lib/server/queries.types"
+import { SeaWebsocketEvent, SeaWebsocketPluginEvent } from "@/lib/server/queries.types"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useAtom } from "jotai"
 import { useContext, useEffect } from "react"
@@ -21,6 +21,15 @@ export function useWebsocketSender() {
 
     return {
         sendMessage,
+        sendPluginMessage: (type: string, payload: any) => {
+            sendMessage({
+                type: "plugin",
+                payload: {
+                    type: type,
+                    payload: payload,
+                },
+            })
+        },
     }
 }
 
@@ -49,6 +58,43 @@ export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }
                     const parsed = JSON.parse(event.data) as SeaWebsocketEvent<TData>
                     if (!!parsed.type && parsed.type === type) {
                         onMessage(parsed.payload)
+                    }
+                }
+                catch (e) {
+                    logger("Websocket").error("Error parsing message", e)
+                }
+            }
+
+            socket.addEventListener("message", messageHandler)
+
+            return () => {
+                socket.removeEventListener("message", messageHandler)
+            }
+        }
+    }, [socket, onMessage])
+
+    return null
+}
+
+export type WebSocketPluginMessageListener<TData> = {
+    type: string
+    extensionId: string // If empty, get message from all plugins
+    onMessage: (data: TData) => void
+}
+
+export function useWebsocketPluginMessageListener<TData = unknown>({ type, extensionId, onMessage }: WebSocketPluginMessageListener<TData>) {
+    const socket = useContext(WebSocketContext)
+
+    useEffect(() => {
+        if (socket) {
+            const messageHandler = (event: MessageEvent) => {
+                try {
+                    const parsed = JSON.parse(event.data) as SeaWebsocketEvent<TData>
+                    if (!!parsed.type && parsed.type === "plugin") {
+                        const message = parsed.payload as SeaWebsocketPluginEvent<TData>
+                        if (message.type === type && (message.extensionId === extensionId || extensionId === "")) {
+                            onMessage(message.payload)
+                        }
                     }
                 }
                 catch (e) {

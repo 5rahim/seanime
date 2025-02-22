@@ -33,12 +33,15 @@ func (s *ScreenManager) bind(vm *goja.Runtime, ctxObj *goja.Object) {
 //	ctx.screen.onNavigate(onNavigate);
 func (s *ScreenManager) jsOnNavigate(callback goja.Callable) {
 	eventListener := s.ctx.RegisterEventListener()
-	var payload ScreenChangedPayload
+	var payload ScreenChangedEventPayload
 
-	go func(payload ScreenChangedPayload) {
+	go func(payload ScreenChangedEventPayload) {
 		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ScreenChanged, &payload) {
-				_ = s.ctx.scheduler.ScheduleCallback(&callback, s.ctx.vm.ToValue(payload))
+			if event.ParsePayloadAs(ScreenChangedEvent, &payload) {
+				_ = s.ctx.scheduler.Schedule(func() error {
+					_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
+					return err
+				})
 			}
 		}
 	}(payload)

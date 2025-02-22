@@ -15,16 +15,21 @@ import (
 )
 
 type Context struct {
-	logger           *zerolog.Logger
+	extensionID    string
+	logger         *zerolog.Logger
+	wsEventManager events.WSEventManagerInterface
+	mu             sync.RWMutex
+
 	vm               *goja.Runtime
 	states           *result.Map[string, *State]
 	stateSubscribers []chan *State
 	scheduler        *Scheduler
-	mu               sync.RWMutex
 	wsSubscriber     *events.ClientEventSubscriber
 	eventListeners   *result.Map[string, *EventListener] // Event listeners added
-	webviewManager   *WebviewManager
-	screenManager    *ScreenManager
+
+	webviewManager *WebviewManager
+	screenManager  *ScreenManager
+	trayManager    *TrayManager
 }
 
 type State struct {
@@ -37,16 +42,19 @@ type EventListener struct {
 	Channel chan *ClientPluginEvent // Channel for the event payload
 }
 
-func NewContext(logger *zerolog.Logger, vm *goja.Runtime) *Context {
+func NewContext(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *Context {
 	ret := &Context{
+		extensionID:      extensionID,
 		logger:           logger,
 		vm:               vm,
 		states:           result.NewResultMap[string, *State](),
 		stateSubscribers: make([]chan *State, 0),
 		eventListeners:   result.NewResultMap[string, *EventListener](),
 		scheduler:        NewScheduler(),
+		wsEventManager:   wsEventManager,
 	}
 
+	ret.trayManager = NewTrayManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.screenManager = NewScreenManager(ret)
 
@@ -61,6 +69,14 @@ func (c *Context) RegisterEventListener() *EventListener {
 	}
 	c.eventListeners.Set(id, listener)
 	return listener
+}
+
+func (c *Context) SendEventToClient(eventType ServerEventType, payload interface{}) {
+	c.wsEventManager.SendEvent(string(events.PluginEvent), &ServerPluginEvent{
+		ExtensionID: c.extensionID,
+		Type:        eventType,
+		Payload:     payload,
+	})
 }
 
 func (c *Context) PrintState() {
@@ -204,7 +220,10 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 		case <-ctx.Done():
 			return
 		case <-time.After(time.Duration(delay) * time.Millisecond):
-			if err := c.scheduler.ScheduleCallback(&fn); err != nil {
+			if err := c.scheduler.Schedule(func() error {
+				_, err := fn(goja.Undefined())
+				return err
+			}); err != nil {
 				c.logger.Error().Err(err).Msg("error running timeout callback")
 			}
 		}
@@ -250,7 +269,10 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 			case <-ctx.Done():
 				return
 			case <-time.After(time.Duration(delay) * time.Millisecond):
-				if err := c.scheduler.ScheduleCallback(&fn); err != nil {
+				if err := c.scheduler.Schedule(func() error {
+					_, err := fn(goja.Undefined())
+					return err
+				}); err != nil {
 					c.logger.Error().Err(err).Msg("error running interval callback")
 				}
 			}

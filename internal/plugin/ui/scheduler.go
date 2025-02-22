@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"sync"
 	"time"
-
-	"github.com/dop251/goja"
 )
 
 // Job represents a task to be executed in the VM
@@ -61,7 +59,14 @@ func (s *Scheduler) Stop() {
 func (s *Scheduler) Schedule(fn func() error) error {
 	resultCh := make(chan error, 1)
 	job := &Job{
-		fn:       fn,
+		fn: func() error {
+			defer func() {
+				if r := recover(); r != nil {
+					resultCh <- fmt.Errorf("panic: %v", r)
+				}
+			}()
+			return fn()
+		},
 		resultCh: resultCh,
 	}
 
@@ -71,14 +76,6 @@ func (s *Scheduler) Schedule(fn func() error) error {
 	case s.jobQueue <- job:
 		return <-resultCh
 	}
-}
-
-// ScheduleCallback schedules a Goja function call
-func (s *Scheduler) ScheduleCallback(fn *goja.Callable, args ...goja.Value) error {
-	return s.Schedule(func() error {
-		_, err := (*fn)(goja.Undefined(), args...)
-		return err
-	})
 }
 
 // ScheduleWithTimeout schedules a job with a timeout

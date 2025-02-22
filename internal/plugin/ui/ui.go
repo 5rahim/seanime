@@ -27,11 +27,13 @@ func (u *UI) ClearInterrupt() {
 	}
 }
 
-func NewUI(logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *UI {
+func NewUI(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *UI {
+	mLogger := logger.With().Str("id", extensionID).Logger()
 	return &UI{
-		context:        NewContext(logger, vm),
+		extensionID:    extensionID,
+		context:        NewContext(extensionID, &mLogger, vm, wsEventManager),
 		vm:             vm,
-		logger:         logger,
+		logger:         &mLogger,
 		wsEventManager: wsEventManager,
 	}
 }
@@ -56,20 +58,29 @@ func (u *UI) Register(callback string) {
 		for event := range u.context.wsSubscriber.Channel {
 			//u.logger.Trace().Msgf("Received event %s", event.Type)
 			if event.Type == events.PluginEvent {
-				//u.logger.Trace().Msgf("Dispatching event %s to all listeners", event.Type)
-				u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
-					util.SpewMany("Event to listeners", event.Payload)
-					if payload, ok := event.Payload.(map[string]interface{}); ok {
-						clientEvent := NewClientPluginEvent(payload)
-						//u.logger.Trace().Msgf("Dispatching event %s to listener %s with payload %+v", event.Type, key, payload)
-						// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listener
-						if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.extensionID {
-							//u.logger.Trace().Msgf("Dispatching event %s to listener %s with payload %+v", event.Type, key, payload)
-							listener.Channel <- clientEvent
+
+				if payload, ok := event.Payload.(map[string]interface{}); ok {
+					clientEvent := NewClientPluginEvent(payload)
+					if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.extensionID {
+
+						switch clientEvent.Type {
+						case RenderTraysEvent: // Client wants to render the trays
+							u.context.trayManager.renderTray()
+						case RenderTrayEvent: // Client wants to render the screen
+							u.context.trayManager.renderTray()
+						default:
+							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
+								util.SpewMany("Event to listeners", event.Payload)
+
+								// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listener
+								listener.Channel <- clientEvent
+								return true
+							})
 						}
 					}
-					return true
-				})
+
+				}
+
 			}
 		}
 		// Close the listener channels when the subscriber is closed
@@ -80,7 +91,9 @@ func (u *UI) Register(callback string) {
 	}()
 
 	contextObj := u.vm.NewObject()
-	_ = contextObj.Set("newTray", u.context.jsNewTray)
+
+	_ = contextObj.Set("newTray", u.context.trayManager.jsNewTray)
+
 	_ = contextObj.Set("state", u.context.jsState)
 	_ = contextObj.Set("setTimeout", u.context.jsSetTimeout)
 	_ = contextObj.Set("sleep", u.context.jsSleep)
@@ -89,6 +102,7 @@ func (u *UI) Register(callback string) {
 	_ = contextObj.Set("fetch", func(call goja.FunctionCall) goja.Value {
 		return u.vm.ToValue(u.context.jsFetch(call))
 	})
+
 	_ = u.vm.Set("__ctx", contextObj)
 
 	// Webview object

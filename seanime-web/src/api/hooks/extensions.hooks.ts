@@ -26,7 +26,7 @@ export function useGetAllExtensions(withUpdates: boolean) {
     return useServerQuery<ExtensionRepo_AllExtensions, GetAllExtensions_Variables>({
         endpoint: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.GetAllExtensions.methods[0],
-        queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetAllExtensions.key, withUpdates],
         data: {
             withUpdates: withUpdates,
         },

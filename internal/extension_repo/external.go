@@ -402,6 +402,9 @@ func (r *Repository) loadExternalExtensions() {
 		return
 	}
 
+	// FIXME
+	r.loadPlugins()
+
 	r.logger.Debug().Msg("extensions: Loaded external extensions")
 
 	r.wsEventManager.SendEvent(events.ExtensionsReloaded, nil)
@@ -442,6 +445,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 			Code:      extension.InvalidExtensionManifestError,
 			Extension: *ext,
 		})
+		r.logger.Error().Err(manifestError).Str("filepath", filePath).Msg("extensions: Failed to load extension, manifest error")
 		return
 	}
 
@@ -461,6 +465,7 @@ func (r *Repository) loadExternalExtension(filePath string) {
 			Code:      extension.InvalidExtensionUserConfigError,
 			Extension: *ext,
 		})
+		r.logger.Warn().Err(configErr).Str("id", invalidExtensionID).Msg("extensions: Failed to load user config")
 	}
 
 	// Load extension
@@ -489,8 +494,11 @@ func (r *Repository) loadExternalExtension(filePath string) {
 			Code:      extension.InvalidExtensionPayloadError,
 			Extension: *ext,
 		})
+		r.logger.Error().Err(loadingErr).Str("filepath", filePath).Msg("extensions: Failed to load extension")
 		return
 	}
+
+	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded external extension")
 
 	return
 }
