@@ -325,29 +325,65 @@ func (r *Repository) loadPlugins() {
 					let count = ctx.state(0);
 
 					ctx.screen.onNavigate((e) => {
-						console.log("screen changed", e);
 						currentPathname.set(e.pathname);
+						tray.update();
 					});
-					ctx.screen.onNavigate((e) => {
-						console.log("screen changed", e);
-						currentPathname.set(e.pathname);
-					});
-					ctx.effect(() => {
-						console.log("currentPathname changed", currentPathname.get());
-						//tray.update();
-					}, [currentPathname]);
 
 					ctx.setInterval(() => {
 						count.set(count.get() + 1);
-						//tray.update();
+						tray.update();
 					}, 1000);
 
+					const form = ctx.newForm("form-1");
+
+					form.onSubmit((data) => {
+						console.log("form submitted", data);
+						form.reset();
+						tray.update();
+					});
+
+					tray.onOpen(() => {
+						console.log("tray opened");
+					});
+
+					tray.onClose(() => {
+						console.log("tray closed");
+					});
+
 					tray.render(() => {
-						return tray.flex({
+						return tray.stack({
 							items: [
-								tray.text("Hello, world!"),
-								tray.text("Count: " + count.get()),
+								tray.div({
+									items: [
+										tray.text("Count: " + count.get(), { style: { textAlign: "center" } }),
+									],
+									style: {
+										width: "100%",
+										height: "50px",
+										backgroundColor: "#1e2c2e",
+										borderRadius: "10px",
+										justifyContent: "center",
+										alignItems: "center",
+										display: "flex",
+									},
+								}),
 								tray.text("Current Pathname: " + currentPathname.get()),
+								form.render({
+									fields: [
+										form.selectField({
+											label: "Favorite Color",
+											name: "favoriteColor",
+											options: [
+												{ label: "Red", value: "red" },
+												{ label: "Blue", value: "blue" },
+												{ label: "Green", value: "green" },
+											],
+										}),
+										form.submitButton({
+											label: "Submit",
+										}),
+									],
+								}),
 							],
 						});
 					});

@@ -2,46 +2,11 @@ package plugin_ui
 
 import "github.com/goccy/go-json"
 
+/////////////////////////////////////////////////////////////////////////////////////
+// Client to server
+/////////////////////////////////////////////////////////////////////////////////////
+
 type ClientEventType string
-
-const (
-	RenderTrayEvent           ClientEventType = "tray:render"            // Client wants to render the tray
-	RenderTraysEvent          ClientEventType = "tray:render-all"        // Client wants to render the tray
-	TrayHandlerTriggeredEvent ClientEventType = "tray:handler-triggered" // When a custom event registered by the tray is triggered
-	TrayFormSubmittedEvent    ClientEventType = "tray:form-submitted"    // When a form registered by the tray is submitted
-	ScreenChangedEvent        ClientEventType = "screen:changed"         // When the current screen changes
-)
-
-type RenderTrayEventPayload struct{}
-type RenderTraysEventPayload struct{}
-
-type TrayHandlerTriggeredEventPayload struct {
-	EventName string `json:"eventName"`
-}
-
-type TrayFormSubmittedEventPayload struct {
-	FormName string                 `json:"formName"`
-	Data     map[string]interface{} `json:"data"`
-}
-
-type ScreenChangedEventPayload struct {
-	Pathname string `json:"pathname"`
-	Query    string `json:"query"`
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-type ServerEventType string
-
-const (
-	TrayUpdatedEvent ServerEventType = "tray:updated" // When the trays are updated
-)
-
-type TrayUpdatedEventPayload struct {
-	Components interface{} `json:"components"`
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // ClientPluginEvent is an event received from the client
 type ClientPluginEvent struct {
@@ -52,12 +17,63 @@ type ClientPluginEvent struct {
 	Payload     interface{}     `json:"payload"`
 }
 
+const (
+	ClientRenderTrayEvent           ClientEventType = "tray:render"            // Client wants to render the tray
+	ClientRenderTraysEvent          ClientEventType = "tray:render-all"        // Client wants to render the tray
+	ClientTrayHandlerTriggeredEvent ClientEventType = "tray:handler-triggered" // When a custom event registered by the tray is triggered
+	ClientTrayOpenedEvent           ClientEventType = "tray:opened"            // When the tray is opened
+	ClientTrayClosedEvent           ClientEventType = "tray:closed"            // When the tray is closed
+	ClientFormSubmittedEvent        ClientEventType = "form:submitted"         // When the form registered by the tray is submitted
+	ClientScreenChangedEvent        ClientEventType = "screen:changed"         // When the current screen changes
+)
+
+type ClientRenderTrayEventPayload struct{}
+type ClientRenderTraysEventPayload struct{}
+type ClientTrayOpenedEventPayload struct{}
+type ClientTrayClosedEventPayload struct{}
+
+type ClientTrayHandlerTriggeredEventPayload struct {
+	EventName string `json:"eventName"`
+}
+
+type ClientFormSubmittedEventPayload struct {
+	FormName string                 `json:"formName"`
+	Data     map[string]interface{} `json:"data"`
+}
+
+type ClientScreenChangedEventPayload struct {
+	Pathname string `json:"pathname"`
+	Query    string `json:"query"`
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// Server to client
+/////////////////////////////////////////////////////////////////////////////////////
+
+type ServerEventType string
+
 // ServerPluginEvent is an event sent to the client
 type ServerPluginEvent struct {
 	ExtensionID string          `json:"extensionId"` // Extension ID must be set
 	Type        ServerEventType `json:"type"`
 	Payload     interface{}     `json:"payload"`
 }
+
+const (
+	ServerTrayUpdatedEvent ServerEventType = "tray:updated" // When the trays are updated
+	ServerFormResetEvent   ServerEventType = "form:reset"
+)
+
+type ServerTrayUpdatedEventPayload struct {
+	Components interface{} `json:"components"`
+}
+
+type ServerFormResetEventPayload struct {
+	FormName     string `json:"formName"`
+	FieldToReset string `json:"fieldToReset"` // If not set, the form will be reset
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func NewClientPluginEvent(data map[string]interface{}) *ClientPluginEvent {
 	extensionID, ok := data["extensionId"].(string)

@@ -2,7 +2,6 @@ package plugin_ui
 
 import (
 	"seanime/internal/events"
-	"seanime/internal/util"
 	"sync"
 
 	"github.com/dop251/goja"
@@ -61,19 +60,27 @@ func (u *UI) Register(callback string) {
 
 				if payload, ok := event.Payload.(map[string]interface{}); ok {
 					clientEvent := NewClientPluginEvent(payload)
+					// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listeners
 					if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.extensionID {
 
 						switch clientEvent.Type {
-						case RenderTraysEvent: // Client wants to render the trays
+						case ClientRenderTraysEvent: // Client wants to render the trays
 							u.context.trayManager.renderTray()
-						case RenderTrayEvent: // Client wants to render the screen
+						case ClientRenderTrayEvent: // Client wants to render the screen
 							u.context.trayManager.renderTray()
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
-								util.SpewMany("Event to listeners", event.Payload)
-
-								// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listener
-								listener.Channel <- clientEvent
+								//util.SpewMany("Event to listeners", event.Payload)
+								if len(listener.ListenTo) > 0 {
+									// Check if the event type is in the listener's list of event types
+									for _, eventType := range listener.ListenTo {
+										if eventType == clientEvent.Type {
+											listener.Channel <- clientEvent // Only send the event to the listener if the event type is in the list
+										}
+									}
+								} else {
+									listener.Channel <- clientEvent
+								}
 								return true
 							})
 						}
@@ -93,6 +100,7 @@ func (u *UI) Register(callback string) {
 	contextObj := u.vm.NewObject()
 
 	_ = contextObj.Set("newTray", u.context.trayManager.jsNewTray)
+	_ = contextObj.Set("newForm", u.context.formManager.jsNewForm)
 
 	_ = contextObj.Set("state", u.context.jsState)
 	_ = contextObj.Set("setTimeout", u.context.jsSetTimeout)

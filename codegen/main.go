@@ -1,10 +1,9 @@
-//go:generate go run main.go --skipHandlers=false --skipStructs=false --skipTypes=false
-
+//go:generate go run main.go --skipHandlers=false --skipStructs=false --skipTypes=false --skipPluginEvents=false
 package main
 
 import (
 	"flag"
-	"seanime/codegen/internal"
+	codegen "seanime/codegen/internal"
 )
 
 func main() {
@@ -17,6 +16,9 @@ func main() {
 
 	var skipTypes bool
 	flag.BoolVar(&skipTypes, "skipTypes", false, "Skip generating types")
+
+	var skipPluginEvents bool
+	flag.BoolVar(&skipPluginEvents, "skipPluginEvents", false, "Skip generating plugin events")
 
 	flag.Parse()
 
@@ -31,6 +33,10 @@ func main() {
 	if !skipTypes {
 		goStructStrs := codegen.GenerateTypescriptEndpointsFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated")
 		codegen.GenerateTypescriptFile("./generated/handlers.json", "./generated/public_structs.json", "../seanime-web/src/api/generated", goStructStrs)
+	}
+
+	if !skipPluginEvents {
+		codegen.GeneratePluginEventFile("../internal/plugin/ui/events.go", "../seanime-web/src/app/(main)/_features/plugin/generated")
 	}
 
 }

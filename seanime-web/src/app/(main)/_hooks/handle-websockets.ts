@@ -1,31 +1,43 @@
 import { WebSocketContext } from "@/app/(main)/_atoms/websocket.atoms"
-import { clientIdAtom } from "@/app/websocket-provider"
+import { clientIdAtom, websocketConnectedAtom } from "@/app/websocket-provider"
 import { logger } from "@/lib/helpers/debug"
 import { SeaWebsocketEvent, SeaWebsocketPluginEvent } from "@/lib/server/queries.types"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useAtom } from "jotai"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useRef } from "react"
 import useUpdateEffect from "react-use/lib/useUpdateEffect"
 
 export function useWebsocketSender() {
     const socket = useContext(WebSocketContext)
     const [clientId] = useAtom(clientIdAtom)
+    const [isConnected] = useAtom(websocketConnectedAtom)
+
+    const messageQueue = useRef<SeaWebsocketEvent<any>[]>([])
 
     function sendMessage<TData>(data: SeaWebsocketEvent<TData>) {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ ...data, clientId: clientId }))
         } else {
-            logger("Websocket").error(`Socket is not open, cannot send ${data.type}`)
+            messageQueue.current.push(data)
         }
     }
 
+    useEffect(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            messageQueue.current.splice(0).forEach(message => {
+                sendMessage(message)
+            })
+        }
+    }, [socket, isConnected])
+
     return {
         sendMessage,
-        sendPluginMessage: (type: string, payload: any) => {
+        sendPluginMessage: (type: string, payload: any, extensionId?: string) => {
             sendMessage({
                 type: "plugin",
                 payload: {
                     type: type,
+                    extensionId: extensionId,
                     payload: payload,
                 },
             })

@@ -49317,6 +49317,102 @@
     ]
   },
   {
+    "filepath": "../internal/plugin/ui/component_utils.go",
+    "filename": "component_utils.go",
+    "name": "ComponentProp",
+    "formattedName": "ComponentProp",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "Name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g. \"label\""
+        ]
+      },
+      {
+        "name": "Type",
+        "jsonName": "Type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " e.g. \"string\""
+        ]
+      },
+      {
+        "name": "Default",
+        "jsonName": "Default",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Is set if the prop is not provided, if not set and required is false, the prop will not be included in the component"
+        ]
+      },
+      {
+        "name": "Required",
+        "jsonName": "Required",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " If true an no default value is provided, the component will throw a type error"
+        ]
+      },
+      {
+        "name": "Validate",
+        "jsonName": "Validate",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Optional validation function"
+        ]
+      },
+      {
+        "name": "OptionalFirstArg",
+        "jsonName": "OptionalFirstArg",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": [
+          " If true, it can be the first argument to declaring the component as a shorthand (e.g. tray.button(\"Click me\") instead of tray.button({label: \"Click me\"}))"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/components.go",
+    "filename": "components.go",
+    "name": "ComponentManager",
+    "formattedName": "ComponentManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/plugin/ui/context.go",
     "filename": "context.go",
     "name": "Context",
@@ -49450,6 +49546,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "formManager",
+        "jsonName": "formManager",
+        "goType": "FormManager",
+        "typescriptType": "FormManager",
+        "usedStructName": "plugin_ui.FormManager",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -49524,131 +49630,15 @@
       "goType": "string",
       "typescriptType": "string",
       "declaredValues": [
+        "\"tray:render\"",
         "\"tray:render-all\"",
         "\"tray:handler-triggered\"",
-        "\"tray:form-submitted\"",
+        "\"tray:opened\"",
+        "\"tray:closed\"",
+        "\"form:submitted\"",
         "\"screen:changed\""
       ]
     },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "RenderTraysEventPayload",
-    "formattedName": "RenderTraysEventPayload",
-    "package": "plugin_ui",
-    "fields": [],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "TrayHandlerTriggeredEventPayload",
-    "formattedName": "TrayHandlerTriggeredEventPayload",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "EventName",
-        "jsonName": "eventName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "TrayFormSubmittedEventPayload",
-    "formattedName": "TrayFormSubmittedEventPayload",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "FormName",
-        "jsonName": "formName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Data",
-        "jsonName": "data",
-        "goType": "map[string]",
-        "typescriptType": "Record\u003cstring, any\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "ScreenChangedEventPayload",
-    "formattedName": "ScreenChangedEventPayload",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "Pathname",
-        "jsonName": "pathname",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Query",
-        "jsonName": "query",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "ServerEventType",
-    "formattedName": "ServerEventType",
-    "package": "plugin_ui",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"tray:updated\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/events.go",
-    "filename": "events.go",
-    "name": "TrayUpdatedEventPayload",
-    "formattedName": "TrayUpdatedEventPayload",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "Components",
-        "jsonName": "components",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
     "comments": []
   },
   {
@@ -49694,6 +49684,134 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientRenderTrayEventPayload",
+    "formattedName": "ClientRenderTrayEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientRenderTraysEventPayload",
+    "formattedName": "ClientRenderTraysEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientTrayOpenedEventPayload",
+    "formattedName": "ClientTrayOpenedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientTrayClosedEventPayload",
+    "formattedName": "ClientTrayClosedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientTrayHandlerTriggeredEventPayload",
+    "formattedName": "ClientTrayHandlerTriggeredEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "EventName",
+        "jsonName": "eventName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientFormSubmittedEventPayload",
+    "formattedName": "ClientFormSubmittedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FormName",
+        "jsonName": "formName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientScreenChangedEventPayload",
+    "formattedName": "ClientScreenChangedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Pathname",
+        "jsonName": "pathname",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Query",
+        "jsonName": "query",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerEventType",
+    "formattedName": "ServerEventType",
+    "package": "plugin_ui",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"tray:updated\"",
+        "\"form:reset\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerPluginEvent",
     "formattedName": "ServerPluginEvent",
     "package": "plugin_ui",
@@ -49732,6 +49850,272 @@
     "comments": [
       " ServerPluginEvent is an event sent to the client"
     ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerTrayUpdatedEventPayload",
+    "formattedName": "ServerTrayUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerFormResetEventPayload",
+    "formattedName": "ServerFormResetEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FormName",
+        "jsonName": "formName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FieldToReset",
+        "jsonName": "fieldToReset",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": [
+          " If not set, the form will be reset"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/form.go",
+    "filename": "form.go",
+    "name": "FormManager",
+    "formattedName": "FormManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/form.go",
+    "filename": "form.go",
+    "name": "FormField",
+    "formattedName": "FormField",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Placeholder",
+        "jsonName": "placeholder",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Options",
+        "jsonName": "options",
+        "goType": "[]FormFieldOption",
+        "typescriptType": "Array\u003cFormFieldOption\u003e",
+        "usedStructName": "plugin_ui.FormFieldOption",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Props",
+        "jsonName": "props",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/form.go",
+    "filename": "form.go",
+    "name": "FormFieldOption",
+    "formattedName": "FormFieldOption",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/form.go",
+    "filename": "form.go",
+    "name": "Form",
+    "formattedName": "Form",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Type",
+        "jsonName": "type",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Props",
+        "jsonName": "props",
+        "goType": "FormProps",
+        "typescriptType": "FormProps",
+        "usedStructName": "plugin_ui.FormProps",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "manager",
+        "jsonName": "manager",
+        "goType": "FormManager",
+        "typescriptType": "FormManager",
+        "usedStructName": "plugin_ui.FormManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/form.go",
+    "filename": "form.go",
+    "name": "FormProps",
+    "formattedName": "FormProps",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Name",
+        "jsonName": "name",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Fields",
+        "jsonName": "fields",
+        "goType": "[]FormField",
+        "typescriptType": "Array\u003cFormField\u003e",
+        "usedStructName": "plugin_ui.FormField",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/plugin/ui/scheduler.go",
@@ -49870,24 +50254,14 @@
         "required": true,
         "public": false,
         "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/tray.go",
-    "filename": "tray.go",
-    "name": "TrayRenderEvent",
-    "formattedName": "TrayRenderEvent",
-    "package": "plugin_ui",
-    "fields": [
+      },
       {
-        "name": "Components",
-        "jsonName": "components",
+        "name": "lastRenderedComponents",
+        "jsonName": "lastRenderedComponents",
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": true,
+        "public": false,
         "comments": []
       }
     ],
@@ -49900,15 +50274,6 @@
     "formattedName": "Tray",
     "package": "plugin_ui",
     "fields": [
-      {
-        "name": "components",
-        "jsonName": "components",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
       {
         "name": "renderFunc",
         "jsonName": "renderFunc",
@@ -49934,25 +50299,6 @@
   {
     "filepath": "../internal/plugin/ui/tray.go",
     "filename": "tray.go",
-    "name": "ComponentType",
-    "formattedName": "ComponentType",
-    "package": "plugin_ui",
-    "fields": [],
-    "aliasOf": {
-      "goType": "string",
-      "typescriptType": "string",
-      "declaredValues": [
-        "\"button\"",
-        "\"input\"",
-        "\"flex\"",
-        "\"text\""
-      ]
-    },
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/tray.go",
-    "filename": "tray.go",
     "name": "Component",
     "formattedName": "Component",
     "package": "plugin_ui",
@@ -49969,9 +50315,8 @@
       {
         "name": "Type",
         "jsonName": "type",
-        "goType": "ComponentType",
-        "typescriptType": "ComponentType",
-        "usedStructName": "plugin_ui.ComponentType",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []

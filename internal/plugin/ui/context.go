@@ -30,6 +30,7 @@ type Context struct {
 	webviewManager *WebviewManager
 	screenManager  *ScreenManager
 	trayManager    *TrayManager
+	formManager    *FormManager
 }
 
 type State struct {
@@ -38,8 +39,9 @@ type State struct {
 }
 
 type EventListener struct {
-	ID      string
-	Channel chan *ClientPluginEvent // Channel for the event payload
+	ID       string
+	ListenTo []ClientEventType       // Optional event type to listen for
+	Channel  chan *ClientPluginEvent // Channel for the event payload
 }
 
 func NewContext(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *Context {
@@ -57,15 +59,18 @@ func NewContext(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, ws
 	ret.trayManager = NewTrayManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.screenManager = NewScreenManager(ret)
+	ret.formManager = NewFormManager(ret)
 
 	return ret
 }
 
-func (c *Context) RegisterEventListener() *EventListener {
+// RegisterEventListener is used to register a new event listener in a Goja function
+func (c *Context) RegisterEventListener(events ...ClientEventType) *EventListener {
 	id := uuid.New().String()
 	listener := &EventListener{
-		ID:      id,
-		Channel: make(chan *ClientPluginEvent),
+		ID:       id,
+		ListenTo: events,
+		Channel:  make(chan *ClientPluginEvent),
 	}
 	c.eventListeners.Set(id, listener)
 	return listener

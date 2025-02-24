@@ -1,14 +1,16 @@
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
+import { usePluginSendScreenChangedEvent } from "./generated/plugin-events"
 
 export function PluginManager() {
+    const pathname = usePathname()
+    const { sendScreenChangedEvent } = usePluginSendScreenChangedEvent()
     const { sendPluginMessage } = useWebsocketSender()
 
-    const pathname = usePathname()
 
     useEffect(() => {
-        sendPluginMessage("screen:changed", {
+        sendScreenChangedEvent({
             pathname: pathname,
             query: window.location.search,
         })
@@ -18,5 +20,5 @@ export function PluginManager() {
         // sendPluginMessage("tray:render-all", {})
     }, [])
 
-    return null
+    return <></>
 }

@@ -1,41 +1,28 @@
 "use client"
 
+import {
+    PluginButton,
+    PluginDiv,
+    PluginFlex,
+    PluginForm,
+    PluginInput,
+    PluginStack,
+    PluginText,
+} from "@/app/(main)/_features/plugin/components/registry-components"
 import type React from "react"
 import { createContext, useContext } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 // Create and initialize the registry
 export const registry: ComponentRegistry = new Map([
-    ["flex", Flex],
-    ["text", Text],
+    ["flex", PluginFlex],
+    ["text", PluginText],
+    ["div", PluginDiv],
+    ["stack", PluginStack],
+    ["input", PluginInput],
+    ["button", PluginButton],
+    ["form", PluginForm],
 ] as any)
-
-interface FlexProps {
-    items?: any[]
-    direction?: "row" | "column"
-    gap?: number
-    className?: string
-}
-
-export function Flex({ items = [], direction = "row", gap = 4, className = "" }: FlexProps) {
-    return (
-        <div
-            className="flex flex-col gap-1"
-            style={{ gap: `${gap * 0.25}rem` }}
-        >
-            {items && items.length > 0 && <RenderPluginComponents data={items} />}
-        </div>
-    )
-}
-
-interface TextProps {
-    text: string
-    className?: string
-}
-
-export function Text({ text, className = "" }: TextProps) {
-    return <p className="">{text}</p>
-}
 
 
 ////////////////////////////
@@ -68,7 +55,7 @@ export function RenderPluginComponents({ data, fallback: Fallback = DefaultFallb
         return (
             <>
                 {data.map((component) => (
-                    <RenderPluginComponents key={component.id} data={component} fallback={Fallback} />
+                    <RenderPluginComponents key={component.key || component.id} data={component} fallback={Fallback} />
                 ))}
             </>
         )
@@ -84,7 +71,7 @@ export function RenderPluginComponents({ data, fallback: Fallback = DefaultFallb
     // Render component with error boundary
     return (
         <ErrorBoundary FallbackComponent={ErrorFallbackComponent}>
-            <Component {...data.props} />
+            <Component key={data.id} {...data.props} />
         </ErrorBoundary>
     )
 }

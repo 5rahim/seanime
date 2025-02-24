@@ -11,7 +11,7 @@ import { LuShapes } from "react-icons/lu"
 export const __plugin_trayItemsAtom = atom<ExtensionRepo_TrayPluginExtensionItem[]>([])
 
 export function PluginSidebarTray() {
-    const { sendMessage, sendPluginMessage } = useWebsocketSender()
+    const { sendMessage } = useWebsocketSender()
 
     const [trayItems, setTrayItems] = useAtom(__plugin_trayItemsAtom)
 
@@ -48,6 +48,7 @@ export function PluginSidebarTray() {
                     intent="gray-basic"
                     size="sm"
                     icon={<LuShapes />}
+                    className="rounded-full"
                 />
             </div>
         </>
