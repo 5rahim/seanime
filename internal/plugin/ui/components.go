@@ -2,6 +2,8 @@ package plugin_ui
 
 import "github.com/dop251/goja"
 
+// ComponentManager is used to register components.
+// Any higher-order UI system must use this to register components. (Tray)
 type ComponentManager struct {
 	ctx *Context
 }

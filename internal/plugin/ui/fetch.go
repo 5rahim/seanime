@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	maxConcurrentRequests = 50
+	maxConcurrentRequests = 10
 	defaultTimeout        = 35 * time.Second
 )
 
@@ -62,8 +62,7 @@ func (fr *fetchResponse) toGojaObject(vm *goja.Runtime) *goja.Object {
 }
 
 var (
-	fetchSem = make(chan struct{}, maxConcurrentRequests)
-	client   = &http.Client{
+	client = &http.Client{
 		Timeout:   defaultTimeout,
 		Transport: util.AddCloudFlareByPass(http.DefaultTransport),
 	}
@@ -116,8 +115,8 @@ func (c *Context) jsFetch(call goja.FunctionCall) *goja.Promise {
 		}()
 
 		// Acquire semaphore
-		fetchSem <- struct{}{}
-		defer func() { <-fetchSem }()
+		c.fetchSem <- struct{}{}
+		defer func() { <-c.fetchSem }()
 
 		// Create request
 		req, err := createRequest(urlArg, options)

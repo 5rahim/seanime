@@ -62,6 +62,7 @@ type ServerPluginEvent struct {
 const (
 	ServerTrayUpdatedEvent ServerEventType = "tray:updated" // When the trays are updated
 	ServerFormResetEvent   ServerEventType = "form:reset"
+	ServerFatalErrorEvent  ServerEventType = "fatal-error" // When the UI encounters a fatal error
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -71,6 +72,10 @@ type ServerTrayUpdatedEventPayload struct {
 type ServerFormResetEventPayload struct {
 	FormName     string `json:"formName"`
 	FieldToReset string `json:"fieldToReset"` // If not set, the form will be reset
+}
+
+type ServerFatalErrorEventPayload struct {
+	Error string `json:"error"`
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

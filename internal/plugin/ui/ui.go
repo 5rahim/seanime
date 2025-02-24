@@ -3,9 +3,17 @@ package plugin_ui
 import (
 	"seanime/internal/events"
 	"sync"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
+)
+
+const (
+	MAX_EXCEPTIONS                 = 5               // Maximum number of exceptions that can be thrown before the UI is interrupted
+	MAX_EFFECT_CALLBACKS           = 100             // Maximum number of effects that can be scheduled before the UI is interrupted
+	RESET_EFFECT_CALLBACK_INTERVAL = 1 * time.Second // After this interval, the UI will reset the effect callstack
+	MAX_CONCURRENT_FETCH_REQUESTS  = 10              // Maximum number of concurrent fetch requests
 )
 
 // UI registry, unique to a plugin and VM
@@ -19,6 +27,9 @@ type UI struct {
 }
 
 func (u *UI) ClearInterrupt() {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+
 	u.vm.ClearInterrupt()
 	u.context.scheduler.Stop()
 	if u.context.wsSubscriber != nil {
@@ -28,13 +39,14 @@ func (u *UI) ClearInterrupt() {
 
 func NewUI(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *UI {
 	mLogger := logger.With().Str("id", extensionID).Logger()
-	return &UI{
+	ui := &UI{
 		extensionID:    extensionID,
-		context:        NewContext(extensionID, &mLogger, vm, wsEventManager),
 		vm:             vm,
 		logger:         &mLogger,
 		wsEventManager: wsEventManager,
 	}
+	ui.context = NewContext(ui, extensionID, &mLogger, vm, wsEventManager)
+	return ui
 }
 
 // Register a UI
@@ -87,9 +99,9 @@ func (u *UI) Register(callback string) {
 					}
 
 				}
-
 			}
 		}
+		u.logger.Warn().Msg("plugin: Unsubscribed from client events")
 		// Close the listener channels when the subscriber is closed
 		u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
 			close(listener.Channel)
@@ -113,16 +125,17 @@ func (u *UI) Register(callback string) {
 
 	_ = u.vm.Set("__ctx", contextObj)
 
-	// Webview object
+	// Webview (UNUSED)
 	webviewObj := u.vm.NewObject()
 	_ = contextObj.Set("webview", webviewObj)
 
+	// Screen
 	u.context.screenManager.bind(u.vm, contextObj)
 
 	// Execute the callback
 	_, err := u.vm.RunString(`(` + callback + `).call(undefined, __ctx)`)
 	if err != nil {
-		u.logger.Error().Err(err).Msg("Failed to run UI callback")
+		u.logger.Error().Err(err).Msg("plugin: Failed to register UI")
 		return
 	}
 }

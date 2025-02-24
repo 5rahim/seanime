@@ -197,7 +197,18 @@ func validateType(expectedType string) func(interface{}) error {
 	}
 }
 
-func componentDiff(old, new interface{}) interface{} {
+// componentDiff compares two component trees and returns a new component tree that preserves the ID of old components that did not change.
+// It also recursively handles props and items arrays.
+//
+// This allows for partially granular updates on the React UI.
+// Important: This does not handle component removal, addition, reordering or type changes.
+func componentDiff(old, new interface{}) (ret interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			ret = new
+		}
+	}()
+
 	if old == nil || new == nil {
 		return new
 	}

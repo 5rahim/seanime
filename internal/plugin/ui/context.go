@@ -14,23 +14,31 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Context manages the entire plugin UI during its lifecycle
 type Context struct {
+	ui *UI
+
 	extensionID    string
 	logger         *zerolog.Logger
 	wsEventManager events.WSEventManagerInterface
-	mu             sync.RWMutex
+
+	mu       sync.RWMutex
+	fetchSem chan struct{} // Semaphore for concurrent fetch requests
 
 	vm               *goja.Runtime
 	states           *result.Map[string, *State]
 	stateSubscribers []chan *State
-	scheduler        *Scheduler
+	scheduler        *Scheduler // Schedule VM executions concurrently and execute them in order.
 	wsSubscriber     *events.ClientEventSubscriber
-	eventListeners   *result.Map[string, *EventListener] // Event listeners added
+	eventListeners   *result.Map[string, *EventListener] // Event listeners registered by plugin functions
 
-	webviewManager *WebviewManager
-	screenManager  *ScreenManager
-	trayManager    *TrayManager
-	formManager    *FormManager
+	exceptionCount  int            // Number of exceptions that have occurred
+	effectCallbacks map[string]int // Keep track of the number of time an effect (key: ID) has been called
+
+	webviewManager *WebviewManager // UNUSED
+	screenManager  *ScreenManager  // Listen for screen events, send screen actions
+	trayManager    *TrayManager    // Register and manage tray
+	formManager    *FormManager    // Register and manage forms
 }
 
 type State struct {
@@ -38,23 +46,29 @@ type State struct {
 	Value goja.Value
 }
 
+// EventListener is a struct that contains the event type to listen for, and the channel for the event payload
+// - It is registered by plugin functions
+// - It is used to listen for events from the client
 type EventListener struct {
 	ID       string
 	ListenTo []ClientEventType       // Optional event type to listen for
 	Channel  chan *ClientPluginEvent // Channel for the event payload
 }
 
-func NewContext(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *Context {
+func NewContext(ui *UI, extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *Context {
 	ret := &Context{
+		ui:               ui,
 		extensionID:      extensionID,
 		logger:           logger,
 		vm:               vm,
 		states:           result.NewResultMap[string, *State](),
+		fetchSem:         make(chan struct{}, MAX_CONCURRENT_FETCH_REQUESTS),
 		stateSubscribers: make([]chan *State, 0),
 		eventListeners:   result.NewResultMap[string, *EventListener](),
-		scheduler:        NewScheduler(),
 		wsEventManager:   wsEventManager,
 	}
+
+	ret.scheduler = NewScheduler(ret)
 
 	ret.trayManager = NewTrayManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
@@ -76,6 +90,8 @@ func (c *Context) RegisterEventListener(events ...ClientEventType) *EventListene
 	return listener
 }
 
+// SendEventToClient sends an event to the client
+// It always passes the extension ID
 func (c *Context) SendEventToClient(eventType ServerEventType, payload interface{}) {
 	c.wsEventManager.SendEvent(string(events.PluginEvent), &ServerPluginEvent{
 		ExtensionID: c.extensionID,
@@ -84,6 +100,7 @@ func (c *Context) SendEventToClient(eventType ServerEventType, payload interface
 	})
 }
 
+// PrintState prints all states to the logger
 func (c *Context) PrintState() {
 	c.states.Range(func(key string, state *State) bool {
 		c.logger.Info().Msgf("State %s = %+v", key, state.Value)
@@ -91,7 +108,45 @@ func (c *Context) PrintState() {
 	})
 }
 
-// jsState
+// HandleTypeError interrupts the UI the first time we encounter a type error.
+// Interrupting early is better to catch wrong usage of the API.
+func (c *Context) HandleTypeError(msg string) {
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
+
+	c.logger.Error().Err(fmt.Errorf(msg)).Msg("plugin: Type error, interrupting UI")
+	c.fatalError(fmt.Errorf(msg))
+	// panic(c.vm.NewTypeError(msg))
+}
+
+// HandleException interrupts the UI after a certain number of exceptions have occurred.
+// As opposed to HandleTypeError, this is more-so for unexpected errors and not wrong usage of the API.
+func (c *Context) HandleException(err error) {
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
+
+	c.exceptionCount++
+	if c.exceptionCount >= MAX_EXCEPTIONS {
+		c.logger.Error().Err(err).Msg("plugin: Too many errors, interrupting UI")
+		c.fatalError(err)
+	}
+}
+
+func (c *Context) fatalError(err error) {
+	c.logger.Error().Err(err).Msg("plugin: Fatal error, interrupting UI")
+	if err != nil {
+		c.SendEventToClient(ServerFatalErrorEvent, ServerFatalErrorEventPayload{
+			Error: err.Error(),
+		})
+	} else {
+		c.SendEventToClient(ServerFatalErrorEvent, ServerFatalErrorEventPayload{
+			Error: "The plugin has encountered a fatal error. It has been terminated.",
+		})
+	}
+	c.ui.ClearInterrupt()
+}
+
+// jsState is used to create a new state object
 //
 //	Example:
 //	const text = ctx.state("Hello, world!");
@@ -173,16 +228,16 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 	return obj;
 })`)
 	if err != nil {
-		panic(err)
+		c.HandleTypeError(err.Error())
 	}
 	jsDynamicDefFunc, ok := goja.AssertFunction(jsDynamicDefFuncValue)
 	if !ok {
-		panic("dynamic definition is not a function")
+		c.HandleTypeError("dynamic definition is not a function")
 	}
 
 	jsDynamicState, err := jsDynamicDefFunc(goja.Undefined(), stateObj, jsGetStateVal, jsSetStateVal)
 	if err != nil {
-		panic(err)
+		c.HandleTypeError(err.Error())
 	}
 
 	// Attach hidden state ID for subscription
@@ -202,7 +257,7 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 //	cancel(); // cancels the timeout
 func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) != 2 {
-		panic(c.vm.NewTypeError("setTimeout requires a function and a delay"))
+		c.HandleTypeError("setTimeout requires a function and a delay")
 	}
 
 	fnValue := call.Argument(0)
@@ -210,12 +265,12 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 
 	fn, ok := goja.AssertFunction(fnValue)
 	if !ok {
-		panic(c.vm.NewTypeError("setTimeout requires a function"))
+		c.HandleTypeError("setTimeout requires a function")
 	}
 
 	delay, ok := delayValue.Export().(int64)
 	if !ok {
-		panic(c.vm.NewTypeError("delay must be a number"))
+		c.HandleTypeError("delay must be a number")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -229,7 +284,7 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 				_, err := fn(goja.Undefined())
 				return err
 			}); err != nil {
-				c.logger.Error().Err(err).Msg("error running timeout callback")
+				c.logger.Error().Err(err).Msg("plugin: Error running timeout callback")
 			}
 		}
 	}(fn)
@@ -251,7 +306,7 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 //	cancel(); // cancels the interval
 func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 2 {
-		panic(c.vm.NewTypeError("setInterval requires a function and a delay"))
+		c.HandleTypeError("setInterval requires a function and a delay")
 	}
 
 	fnValue := call.Argument(0)
@@ -259,12 +314,12 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 
 	fn, ok := goja.AssertFunction(fnValue)
 	if !ok {
-		panic(c.vm.NewTypeError("setInterval requires a function"))
+		c.HandleTypeError("setInterval requires a function")
 	}
 
 	delay, ok := delayValue.Export().(int64)
 	if !ok {
-		panic(c.vm.NewTypeError("delay must be a number"))
+		c.HandleTypeError("delay must be a number")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -278,7 +333,7 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 					_, err := fn(goja.Undefined())
 					return err
 				}); err != nil {
-					c.logger.Error().Err(err).Msg("error running interval callback")
+					c.logger.Error().Err(err).Msg("plugin: Error running interval callback")
 				}
 			}
 		}
@@ -298,13 +353,13 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 //	ctx.sleep(1000);
 func (c *Context) jsSleep(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(c.vm.NewTypeError("sleep requires a delay"))
+		c.HandleTypeError("sleep requires a delay")
 	}
 
 	delayValue := call.Argument(0)
 	delay, ok := delayValue.Export().(int64)
 	if !ok {
-		panic(c.vm.NewTypeError("delay must be a number"))
+		c.HandleTypeError("delay must be a number")
 	}
 
 	time.Sleep(time.Duration(delay) * time.Millisecond)
@@ -323,17 +378,17 @@ func (c *Context) jsSleep(call goja.FunctionCall) goja.Value {
 //	text.set("Hello, world! 2"); // This will trigger the effect
 func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 2 {
-		panic(c.vm.NewTypeError("effect requires a function and an array of dependencies"))
+		c.HandleTypeError("effect requires a function and an array of dependencies")
 	}
 
 	effectFn, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		panic(c.vm.NewTypeError("first argument to effect must be a function"))
+		c.HandleTypeError("first argument to effect must be a function")
 	}
 
 	depsObj, ok := call.Argument(1).(*goja.Object)
 	if !ok {
-		panic(c.vm.NewTypeError("second argument to effect must be an array"))
+		c.HandleTypeError("second argument to effect must be an array")
 	}
 
 	// Prepare dependencies and their old values
@@ -346,7 +401,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		depVal := depsObj.Get(fmt.Sprintf("%d", i))
 		depObj, ok := depVal.(*goja.Object)
 		if !ok {
-			panic(c.vm.NewTypeError("dependency is not an object"))
+			c.HandleTypeError("dependency is not an object")
 		}
 		deps[i] = depObj
 		oldValues[i] = depObj.Get("value")
@@ -380,7 +435,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 									_, err := (*effectFn)(goja.Undefined())
 									return err
 								}); err != nil {
-									c.logger.Error().Err(err).Msg("error running effect")
+									c.logger.Error().Err(err).Msg("plugin: Error running effect")
 								}
 							}
 						}

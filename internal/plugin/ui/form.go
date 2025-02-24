@@ -51,7 +51,7 @@ type FormProps struct {
 func (f *FormManager) jsNewForm(call goja.FunctionCall) goja.Value {
 	name, ok := call.Argument(0).Export().(string)
 	if !ok {
-		panic(f.ctx.vm.NewTypeError("newForm requires a name"))
+		f.ctx.HandleTypeError("newForm requires a name")
 	}
 
 	form := &Form{
@@ -82,12 +82,12 @@ func (f *FormManager) jsNewForm(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsRender(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("render requires a config object"))
+		f.manager.ctx.HandleTypeError("render requires a config object")
 	}
 
 	config, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("render requires a config object"))
+		f.manager.ctx.HandleTypeError("render requires a config object")
 	}
 
 	if fields, ok := config["fields"].([]interface{}); ok {
@@ -104,12 +104,12 @@ func (f *Form) jsRender(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsOnSubmit(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("onSubmit requires a callback function"))
+		f.manager.ctx.HandleTypeError("onSubmit requires a callback function")
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("onSubmit requires a callback function"))
+		f.manager.ctx.HandleTypeError("onSubmit requires a callback function")
 	}
 
 	eventListener := f.manager.ctx.RegisterEventListener()
@@ -139,7 +139,7 @@ func (f *Form) jsReset(call goja.FunctionCall) goja.Value {
 		var ok bool
 		fieldToReset, ok = call.Argument(0).Export().(string)
 		if !ok {
-			panic(f.manager.ctx.vm.NewTypeError("reset requires a field name"))
+			f.manager.ctx.HandleTypeError("reset requires a field name")
 		}
 	}
 
@@ -157,7 +157,7 @@ func (f *Form) createField(fieldType string, props map[string]interface{}) goja.
 	if ok {
 		name, ok = nameRaw.(string)
 		if !ok {
-			panic(f.manager.ctx.vm.NewTypeError("name must be a string"))
+			f.manager.ctx.HandleTypeError("name must be a string")
 		}
 	}
 	label := ""
@@ -165,14 +165,14 @@ func (f *Form) createField(fieldType string, props map[string]interface{}) goja.
 	if ok {
 		label, ok = labelRaw.(string)
 		if !ok {
-			panic(f.manager.ctx.vm.NewTypeError("label must be a string"))
+			f.manager.ctx.HandleTypeError("label must be a string")
 		}
 	}
 	placeholder, ok := props["placeholder"]
 	if ok {
 		placeholder, ok = placeholder.(string)
 		if !ok {
-			panic(f.manager.ctx.vm.NewTypeError("placeholder must be a string"))
+			f.manager.ctx.HandleTypeError("placeholder must be a string")
 		}
 	}
 	field := FormField{
@@ -203,12 +203,12 @@ func (f *Form) createField(fieldType string, props map[string]interface{}) goja.
 
 func (f *Form) jsInputField(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("inputField requires a config object"))
+		f.manager.ctx.HandleTypeError("inputField requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("inputField requires a config object"))
+		f.manager.ctx.HandleTypeError("inputField requires a config object")
 	}
 
 	return f.createField("input", props)
@@ -216,12 +216,12 @@ func (f *Form) jsInputField(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsNumberField(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("numberField requires a config object"))
+		f.manager.ctx.HandleTypeError("numberField requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("numberField requires a config object"))
+		f.manager.ctx.HandleTypeError("numberField requires a config object")
 	}
 
 	return f.createField("number", props)
@@ -229,12 +229,12 @@ func (f *Form) jsNumberField(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsSelectField(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("selectField requires a config object"))
+		f.manager.ctx.HandleTypeError("selectField requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("selectField requires a config object"))
+		f.manager.ctx.HandleTypeError("selectField requires a config object")
 	}
 
 	return f.createField("select", props)
@@ -242,12 +242,12 @@ func (f *Form) jsSelectField(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsCheckboxField(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("checkboxField requires a config object"))
+		f.manager.ctx.HandleTypeError("checkboxField requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("checkboxField requires a config object"))
+		f.manager.ctx.HandleTypeError("checkboxField requires a config object")
 	}
 
 	return f.createField("checkbox", props)
@@ -255,12 +255,12 @@ func (f *Form) jsCheckboxField(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsRadioField(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("radioField requires a config object"))
+		f.manager.ctx.HandleTypeError("radioField requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("radioField requires a config object"))
+		f.manager.ctx.HandleTypeError("radioField requires a config object")
 	}
 
 	return f.createField("radio", props)
@@ -268,12 +268,12 @@ func (f *Form) jsRadioField(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsDateField(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("dateField requires a config object"))
+		f.manager.ctx.HandleTypeError("dateField requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("dateField requires a config object"))
+		f.manager.ctx.HandleTypeError("dateField requires a config object")
 	}
 
 	return f.createField("date", props)
@@ -281,12 +281,12 @@ func (f *Form) jsDateField(call goja.FunctionCall) goja.Value {
 
 func (f *Form) jsSubmitButton(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(f.manager.ctx.vm.NewTypeError("submitButton requires a config object"))
+		f.manager.ctx.HandleTypeError("submitButton requires a config object")
 	}
 
 	props, ok := call.Argument(0).Export().(map[string]interface{})
 	if !ok {
-		panic(f.manager.ctx.vm.NewTypeError("submitButton requires a config object"))
+		f.manager.ctx.HandleTypeError("submitButton requires a config object")
 	}
 
 	return f.createField("submit", props)

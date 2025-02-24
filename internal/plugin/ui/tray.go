@@ -1,13 +1,18 @@
 package plugin_ui
 
 import (
+	"sync"
+	"time"
+
 	"github.com/dop251/goja"
 	"github.com/samber/mo"
 )
 
 type TrayManager struct {
-	ctx  *Context
-	tray mo.Option[*Tray]
+	ctx           *Context
+	tray          mo.Option[*Tray]
+	lastUpdatedAt time.Time
+	updateMutex   sync.Mutex
 	// Store the last rendered component tree for diffing
 	lastRenderedComponents interface{}
 }
@@ -21,14 +26,25 @@ func NewTrayManager(ctx *Context) *TrayManager {
 
 // renderTray is called when the client wants to render the tray
 func (t *TrayManager) renderTray() {
+	t.updateMutex.Lock()
+	defer t.updateMutex.Unlock()
+
 	tray, registered := t.tray.Get()
 	if !registered {
 		return
 	}
 
+	// Limit the number of updates to 1 per second
+	if time.Since(t.lastUpdatedAt) < time.Second*1 {
+		return
+	}
+
+	t.lastUpdatedAt = time.Now()
+
 	newComponents, err := renderComponents(tray.renderFunc, t.lastRenderedComponents)
 	if err != nil {
 		t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render tray")
+		t.ctx.HandleException(err)
 		return
 	}
 
@@ -99,7 +115,7 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
-		panic(t.trayManager.ctx.vm.NewTypeError("render requires a function"))
+		t.trayManager.ctx.HandleTypeError("render requires a function")
 	}
 
 	// Set the render function
@@ -125,12 +141,12 @@ func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
 //	})
 func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(t.trayManager.ctx.vm.NewTypeError("onOpen requires a callback function"))
+		t.trayManager.ctx.HandleTypeError("onOpen requires a callback function")
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		panic(t.trayManager.ctx.vm.NewTypeError("onOpen requires a callback function"))
+		t.trayManager.ctx.HandleTypeError("onOpen requires a callback function")
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayOpenedEvent)
@@ -143,7 +159,7 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(payload))
 					return err
 				}); err != nil {
-					t.trayManager.ctx.logger.Error().Err(err).Msg("error running tray open callback")
+					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray open callback")
 				}
 			}
 		}
@@ -159,12 +175,12 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 //	})
 func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		panic(t.trayManager.ctx.vm.NewTypeError("onClose requires a callback function"))
+		t.trayManager.ctx.HandleTypeError("onClose requires a callback function")
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		panic(t.trayManager.ctx.vm.NewTypeError("onClose requires a callback function"))
+		t.trayManager.ctx.HandleTypeError("onClose requires a callback function")
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClosedEvent)
@@ -177,7 +193,7 @@ func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(payload))
 					return err
 				}); err != nil {
-					t.trayManager.ctx.logger.Error().Err(err).Msg("error running tray close callback")
+					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray close callback")
 				}
 			}
 		}

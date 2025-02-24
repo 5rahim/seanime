@@ -13,20 +13,22 @@ type Job struct {
 	resultCh chan error
 }
 
-// Scheduler handles all VM operations in a single goroutine
-// Any goroutine that needs to execute a VM operation must schedule it
+// Scheduler handles all VM operations added concurrently in a single goroutine
+// Any goroutine that needs to execute a VM operation must schedule it because the UI VM isn't thread safe
 type Scheduler struct {
 	jobQueue chan *Job
 	ctx      context.Context
+	context  *Context
 	cancel   context.CancelFunc
 	wg       sync.WaitGroup
 }
 
-func NewScheduler() *Scheduler {
+func NewScheduler(uiCtx *Context) *Scheduler {
 	ctx, cancel := context.WithCancel(context.Background())
 	s := &Scheduler{
 		jobQueue: make(chan *Job, 100),
 		ctx:      ctx,
+		context:  uiCtx,
 		cancel:   cancel,
 	}
 
@@ -45,6 +47,9 @@ func (s *Scheduler) start() {
 			case job := <-s.jobQueue:
 				err := job.fn()
 				job.resultCh <- err
+				if err != nil {
+					s.context.HandleException(err)
+				}
 			}
 		}
 	}()

@@ -330,6 +330,7 @@ func (r *Repository) loadPlugins() {
 					});
 
 					ctx.setInterval(() => {
+						// throw new Error("test error");
 						count.set(count.get() + 1);
 						tray.update();
 					}, 1000);
@@ -342,9 +343,10 @@ func (r *Repository) loadPlugins() {
 						tray.update();
 					});
 
-					tray.onOpen(() => {
-						console.log("tray opened");
-					});
+					// tray.onOpen(() => {
+					// 	console.log("tray opened");
+					// });
+					tray.onOpen();
 
 					tray.onClose(() => {
 						console.log("tray closed");
