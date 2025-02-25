@@ -34,8 +34,8 @@ func (t *TrayManager) renderTray() {
 		return
 	}
 
-	// Limit the number of updates to 1 per second
-	if time.Since(t.lastUpdatedAt) < time.Second*1 {
+	// Rate limit updates
+	if time.Since(t.lastUpdatedAt) < time.Millisecond*200 {
 		return
 	}
 
@@ -92,16 +92,17 @@ func (t *TrayManager) jsNewTray(goja.FunctionCall) goja.Value {
 	// Create a new tray object
 	trayObj := t.ctx.vm.NewObject()
 	_ = trayObj.Set("render", tray.jsRender)
+	_ = trayObj.Set("update", tray.jsUpdate)
+	_ = trayObj.Set("onOpen", tray.jsOnOpen)
+	_ = trayObj.Set("onClose", tray.jsOnClose)
+
 	_ = trayObj.Set("div", cm.jsDiv)
 	_ = trayObj.Set("flex", cm.jsFlex)
 	_ = trayObj.Set("stack", cm.jsStack)
 	_ = trayObj.Set("text", cm.jsText)
 	_ = trayObj.Set("button", cm.jsButton)
 	_ = trayObj.Set("input", cm.jsInput)
-	_ = trayObj.Set("update", tray.jsUpdate)
-	_ = trayObj.Set("onOpen", tray.jsOnOpen)
-	_ = trayObj.Set("onClose", tray.jsOnClose)
-
+	_ = trayObj.Set("registerFieldRef", cm.jsRegisterFieldRef)
 	return trayObj
 }
 

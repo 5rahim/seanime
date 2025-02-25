@@ -3,17 +3,16 @@ package plugin_ui
 import (
 	"seanime/internal/events"
 	"sync"
-	"time"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
 )
 
 const (
-	MAX_EXCEPTIONS                 = 5               // Maximum number of exceptions that can be thrown before the UI is interrupted
-	MAX_EFFECT_CALLBACKS           = 100             // Maximum number of effects that can be scheduled before the UI is interrupted
-	RESET_EFFECT_CALLBACK_INTERVAL = 1 * time.Second // After this interval, the UI will reset the effect callstack
-	MAX_CONCURRENT_FETCH_REQUESTS  = 10              // Maximum number of concurrent fetch requests
+	MAX_EXCEPTIONS                = 5    // Maximum number of exceptions that can be thrown before the UI is interrupted
+	MAX_CONCURRENT_FETCH_REQUESTS = 10   // Maximum number of concurrent fetch requests
+	MAX_EFFECT_CALLS_PER_WINDOW   = 100  // Maximum number of effect calls allowed in time window
+	EFFECT_TIME_WINDOW            = 1000 // Time window in milliseconds to track effect calls
 )
 
 // UI registry, unique to a plugin and VM
@@ -111,19 +110,7 @@ func (u *UI) Register(callback string) {
 
 	contextObj := u.vm.NewObject()
 
-	_ = contextObj.Set("newTray", u.context.trayManager.jsNewTray)
-	_ = contextObj.Set("newForm", u.context.formManager.jsNewForm)
-
-	_ = contextObj.Set("state", u.context.jsState)
-	_ = contextObj.Set("setTimeout", u.context.jsSetTimeout)
-	_ = contextObj.Set("sleep", u.context.jsSleep)
-	_ = contextObj.Set("setInterval", u.context.jsSetInterval)
-	_ = contextObj.Set("effect", u.context.jsEffect)
-	_ = contextObj.Set("fetch", func(call goja.FunctionCall) goja.Value {
-		return u.vm.ToValue(u.context.jsFetch(call))
-	})
-
-	_ = u.vm.Set("__ctx", contextObj)
+	u.context.bind(u.vm, contextObj)
 
 	// Webview (UNUSED)
 	webviewObj := u.vm.NewObject()

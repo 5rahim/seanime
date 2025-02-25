@@ -32,13 +32,15 @@ type Context struct {
 	wsSubscriber     *events.ClientEventSubscriber
 	eventListeners   *result.Map[string, *EventListener] // Event listeners registered by plugin functions
 
-	exceptionCount  int            // Number of exceptions that have occurred
-	effectCallbacks map[string]int // Keep track of the number of time an effect (key: ID) has been called
+	exceptionCount int                    // Number of exceptions that have occurred
+	effectStack    map[string]bool        // Track currently executing effects to prevent infinite loops
+	effectCalls    map[string][]time.Time // Track effect calls within time window
 
 	webviewManager *WebviewManager // UNUSED
 	screenManager  *ScreenManager  // Listen for screen events, send screen actions
 	trayManager    *TrayManager    // Register and manage tray
 	formManager    *FormManager    // Register and manage forms
+	toastManager   *ToastManager   // Register and manage toasts
 }
 
 type State struct {
@@ -66,6 +68,8 @@ func NewContext(ui *UI, extensionID string, logger *zerolog.Logger, vm *goja.Run
 		stateSubscribers: make([]chan *State, 0),
 		eventListeners:   result.NewResultMap[string, *EventListener](),
 		wsEventManager:   wsEventManager,
+		effectStack:      make(map[string]bool),
+		effectCalls:      make(map[string][]time.Time),
 	}
 
 	ret.scheduler = NewScheduler(ret)
@@ -74,8 +78,27 @@ func NewContext(ui *UI, extensionID string, logger *zerolog.Logger, vm *goja.Run
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.screenManager = NewScreenManager(ret)
 	ret.formManager = NewFormManager(ret)
+	ret.toastManager = NewToastManager(ret)
 
 	return ret
+}
+
+func (c *Context) bind(vm *goja.Runtime, obj *goja.Object) {
+	_ = obj.Set("newTray", c.trayManager.jsNewTray)
+	_ = obj.Set("newForm", c.formManager.jsNewForm)
+	c.toastManager.BindToast(obj)
+
+	_ = obj.Set("state", c.jsState)
+	_ = obj.Set("setTimeout", c.jsSetTimeout)
+	_ = obj.Set("sleep", c.jsSleep)
+	_ = obj.Set("setInterval", c.jsSetInterval)
+	_ = obj.Set("effect", c.jsEffect)
+	_ = obj.Set("fetch", func(call goja.FunctionCall) goja.Value {
+		return c.vm.ToValue(c.jsFetch(call))
+	})
+	_ = obj.Set("registerEventHandler", c.jsRegisterEventHandler)
+
+	_ = vm.Set("__ctx", obj)
 }
 
 // RegisterEventListener is used to register a new event listener in a Goja function
@@ -145,6 +168,8 @@ func (c *Context) fatalError(err error) {
 	}
 	c.ui.ClearInterrupt()
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // jsState is used to create a new state object
 //
@@ -391,9 +416,26 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		c.HandleTypeError("second argument to effect must be an array")
 	}
 
+	// Generate unique ID for this effect
+	effectID := uuid.New().String()
+
 	// Prepare dependencies and their old values
 	lengthVal := depsObj.Get("length")
 	depsLen := int(lengthVal.ToInteger())
+
+	// If dependency array is empty, execute effect once and return
+	if depsLen == 0 {
+		if err := c.scheduler.Schedule(func() error {
+			_, err := effectFn(goja.Undefined())
+			return err
+		}); err != nil {
+			c.logger.Error().Err(err).Msg("plugin: Error running effect")
+		}
+		return c.vm.ToValue(func(call goja.FunctionCall) goja.Value {
+			return goja.Undefined()
+		})
+	}
+
 	deps := make([]*goja.Object, depsLen)
 	oldValues := make([]goja.Value, depsLen)
 	dropIDs := make([]string, depsLen) // to store state IDs of dependencies
@@ -431,8 +473,34 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 							newVal := deps[i].Get("value")
 							if !reflect.DeepEqual(oldValues[i].Export(), newVal.Export()) {
 								oldValues[i] = newVal
+
+								// Check for infinite loops
+								c.mu.Lock()
+								if c.effectStack[effectID] {
+									c.logger.Warn().Msgf("Detected potential infinite loop in effect %s, skipping execution", effectID)
+									c.mu.Unlock()
+									continue
+								}
+
+								// Clean up old calls and check rate
+								c.cleanupOldEffectCalls(effectID)
+								callsInWindow := len(c.effectCalls[effectID])
+								if callsInWindow >= MAX_EFFECT_CALLS_PER_WINDOW {
+									c.mu.Unlock()
+									c.fatalError(fmt.Errorf("effect %s exceeded rate limit with %d calls in %dms window", effectID, callsInWindow, EFFECT_TIME_WINDOW))
+									return
+								}
+
+								// Track this call
+								c.effectStack[effectID] = true
+								c.effectCalls[effectID] = append(c.effectCalls[effectID], time.Now())
+								c.mu.Unlock()
+
 								if err := c.scheduler.Schedule(func() error {
 									_, err := (*effectFn)(goja.Undefined())
+									c.mu.Lock()
+									c.effectStack[effectID] = false
+									c.mu.Unlock()
 									return err
 								}); err != nil {
 									c.logger.Error().Err(err).Msg("plugin: Error running effect")
@@ -447,11 +515,56 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
+		c.mu.Lock()
+		delete(c.effectCalls, effectID)
+		delete(c.effectStack, effectID)
+		c.mu.Unlock()
 		return goja.Undefined()
 	}
 
 	return c.vm.ToValue(cancelFunc)
 }
+
+// jsRegisterEventHandler
+//
+//	Example:
+//	ctx.registerEventHandler("button-clicked", (e) => {
+//		console.log("Button clicked", e);
+//	});
+func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 2 {
+		c.HandleTypeError("registerEventHandler requires a handler name and a function")
+	}
+
+	handlerName := call.Argument(0).String()
+	handlerCallback, ok := goja.AssertFunction(call.Argument(1))
+	if !ok {
+		c.HandleTypeError("second argument to registerEventHandler must be a function")
+	}
+
+	eventListener := c.RegisterEventListener(ClientEventHandlerTriggeredEvent)
+	payload := ClientEventHandlerTriggeredEventPayload{}
+
+	go func() {
+		for event := range eventListener.Channel {
+			if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) {
+				if payload.HandlerName == handlerName {
+					if err := c.scheduler.Schedule(func() error {
+						// Trigger the callback with the event payload
+						_, err := handlerCallback(goja.Undefined(), c.vm.ToValue(payload.Event))
+						return err
+					}); err != nil {
+						c.logger.Error().Err(err).Str("handlerName", handlerName).Msg("plugin: Error running event handler")
+					}
+				}
+			}
+		}
+	}()
+
+	return goja.Undefined()
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (c *Context) subscribeStateUpdates() chan *State {
 	ch := make(chan *State, 10)
@@ -485,4 +598,18 @@ func safeEffectCall(fn *goja.Callable) (err error) {
 	fmt.Println("safeEffect", fn)
 	_, err = (*fn)(goja.Undefined())
 	return
+}
+
+func (c *Context) cleanupOldEffectCalls(effectID string) {
+	now := time.Now()
+	window := time.Duration(EFFECT_TIME_WINDOW) * time.Millisecond
+	var validCalls []time.Time
+
+	for _, t := range c.effectCalls[effectID] {
+		if now.Sub(t) <= window {
+			validCalls = append(validCalls, t)
+		}
+	}
+
+	c.effectCalls[effectID] = validCalls
 }

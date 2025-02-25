@@ -1,19 +1,23 @@
+// This file is auto-generated. Do not edit.
 import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useCallback } from "react"
 
 export enum PluginClientEvents {
     TrayRender = "tray:render",
     TrayRenderAll = "tray:render-all",
-    TrayHandlerTriggered = "tray:handler-triggered",
     TrayOpened = "tray:opened",
     TrayClosed = "tray:closed",
     FormSubmitted = "form:submitted",
     ScreenChanged = "screen:changed",
+    HandlerTriggered = "handler:triggered",
+    FieldRefSendValue = "field-ref:send-value",
 }
 
 export enum PluginServerEvents {
     TrayUpdated = "tray:updated",
     FormReset = "form:reset",
+    FormSetValues = "form:set-values",
+    FieldRefSetValue = "field-ref:set-value",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -45,22 +49,6 @@ export function usePluginSendTrayRenderAllEvent() {
 
     return {
         sendTrayRenderAllEvent,
-    }
-}
-
-export type Plugin_Client_TrayHandlerTriggeredEventPayload = {
-    eventName: string
-}
-
-export function usePluginSendTrayHandlerTriggeredEvent() {
-    const { sendPluginMessage } = useWebsocketSender()
-
-    const sendTrayHandlerTriggeredEvent = useCallback((payload: Plugin_Client_TrayHandlerTriggeredEventPayload, extensionID?: string) => {
-        sendPluginMessage(PluginClientEvents.TrayHandlerTriggered, payload, extensionID)
-    }, [])
-
-    return {
-        sendTrayHandlerTriggeredEvent,
     }
 }
 
@@ -126,6 +114,40 @@ export function usePluginSendScreenChangedEvent() {
     }
 }
 
+export type Plugin_Client_HandlerTriggeredEventPayload = {
+    handlerName: string
+    event: Record<string, any>
+}
+
+export function usePluginSendHandlerTriggeredEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendHandlerTriggeredEvent = useCallback((payload: Plugin_Client_HandlerTriggeredEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.HandlerTriggered, payload, extensionID)
+    }, [])
+
+    return {
+        sendHandlerTriggeredEvent,
+    }
+}
+
+export type Plugin_Client_FieldRefSendValueEventPayload = {
+    fieldRef: string
+    value: any
+}
+
+export function usePluginSendFieldRefSendValueEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendFieldRefSendValueEvent = useCallback((payload: Plugin_Client_FieldRefSendValueEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.FieldRefSendValue, payload, extensionID)
+    }, [])
+
+    return {
+        sendFieldRefSendValueEvent,
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -151,6 +173,32 @@ export function usePluginListenFormResetEvent(cb: (payload: Plugin_Server_FormRe
     return useWebsocketPluginMessageListener<Plugin_Server_FormResetEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.FormReset,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_FormSetValuesEventPayload = {
+    formName: string
+    data: Record<string, any>
+}
+
+export function usePluginListenFormSetValuesEvent(cb: (payload: Plugin_Server_FormSetValuesEventPayload) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_FormSetValuesEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.FormSetValues,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_FieldRefSetValueEventPayload = {
+    fieldRef: string
+    value: any
+}
+
+export function usePluginListenFieldRefSetValueEvent(cb: (payload: Plugin_Server_FieldRefSetValueEventPayload) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_FieldRefSetValueEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.FieldRefSetValue,
         onMessage: cb,
     })
 }

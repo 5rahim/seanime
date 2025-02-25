@@ -18,13 +18,14 @@ type ClientPluginEvent struct {
 }
 
 const (
-	ClientRenderTrayEvent           ClientEventType = "tray:render"            // Client wants to render the tray
-	ClientRenderTraysEvent          ClientEventType = "tray:render-all"        // Client wants to render the tray
-	ClientTrayHandlerTriggeredEvent ClientEventType = "tray:handler-triggered" // When a custom event registered by the tray is triggered
-	ClientTrayOpenedEvent           ClientEventType = "tray:opened"            // When the tray is opened
-	ClientTrayClosedEvent           ClientEventType = "tray:closed"            // When the tray is closed
-	ClientFormSubmittedEvent        ClientEventType = "form:submitted"         // When the form registered by the tray is submitted
-	ClientScreenChangedEvent        ClientEventType = "screen:changed"         // When the current screen changes
+	ClientRenderTrayEvent            ClientEventType = "tray:render"          // Client wants to render the tray
+	ClientRenderTraysEvent           ClientEventType = "tray:render-all"      // Client wants to render the tray
+	ClientTrayOpenedEvent            ClientEventType = "tray:opened"          // When the tray is opened
+	ClientTrayClosedEvent            ClientEventType = "tray:closed"          // When the tray is closed
+	ClientFormSubmittedEvent         ClientEventType = "form:submitted"       // When the form registered by the tray is submitted
+	ClientScreenChangedEvent         ClientEventType = "screen:changed"       // When the current screen changes
+	ClientEventHandlerTriggeredEvent ClientEventType = "handler:triggered"    // When a custom event registered by the plugin is triggered
+	ClientFieldRefSendValueEvent     ClientEventType = "field-ref:send-value" // When the client sends the value of a field that has a ref
 )
 
 type ClientRenderTrayEventPayload struct{}
@@ -32,8 +33,9 @@ type ClientRenderTraysEventPayload struct{}
 type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
 
-type ClientTrayHandlerTriggeredEventPayload struct {
-	EventName string `json:"eventName"`
+type ClientEventHandlerTriggeredEventPayload struct {
+	HandlerName string                 `json:"handlerName"`
+	Event       map[string]interface{} `json:"event"`
 }
 
 type ClientFormSubmittedEventPayload struct {
@@ -44,6 +46,11 @@ type ClientFormSubmittedEventPayload struct {
 type ClientScreenChangedEventPayload struct {
 	Pathname string `json:"pathname"`
 	Query    string `json:"query"`
+}
+
+type ClientFieldRefSendValueEventPayload struct {
+	FieldRef string      `json:"fieldRef"`
+	Value    interface{} `json:"value"`
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -60,9 +67,11 @@ type ServerPluginEvent struct {
 }
 
 const (
-	ServerTrayUpdatedEvent ServerEventType = "tray:updated" // When the trays are updated
-	ServerFormResetEvent   ServerEventType = "form:reset"
-	ServerFatalErrorEvent  ServerEventType = "fatal-error" // When the UI encounters a fatal error
+	ServerTrayUpdatedEvent      ServerEventType = "tray:updated" // When the trays are updated
+	ServerFormResetEvent        ServerEventType = "form:reset"
+	ServerFormSetValuesEvent    ServerEventType = "form:set-values"
+	ServerFieldRefSetValueEvent ServerEventType = "field-ref:set-value" // Set the value of a field (not in a form)
+	ServerFatalErrorEvent       ServerEventType = "fatal-error"         // When the UI encounters a fatal error
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -72,6 +81,20 @@ type ServerTrayUpdatedEventPayload struct {
 type ServerFormResetEventPayload struct {
 	FormName     string `json:"formName"`
 	FieldToReset string `json:"fieldToReset"` // If not set, the form will be reset
+}
+
+type ServerFormSetValuesEventPayload struct {
+	FormName string                 `json:"formName"`
+	Data     map[string]interface{} `json:"data"`
+}
+
+type ServerFieldRefSetValueEventPayload struct {
+	FieldRef string      `json:"fieldRef"`
+	Value    interface{} `json:"value"`
+}
+
+type ServerFieldRefGetValueEventPayload struct {
+	FieldRef string `json:"fieldRef"`
 }
 
 type ServerFatalErrorEventPayload struct {

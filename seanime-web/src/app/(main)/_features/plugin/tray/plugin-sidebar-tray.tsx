@@ -1,5 +1,5 @@
 import { ExtensionRepo_TrayPluginExtensionItem } from "@/api/generated/types"
-import { TrayPlugin } from "@/app/(main)/_features/plugin/tray/tray-plugin"
+import { PluginTray } from "@/app/(main)/_features/plugin/tray/plugin-tray"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
@@ -41,7 +41,7 @@ export function PluginSidebarTray() {
             >
 
                 {trayItems.filter(n => n.isPinned).map((trayItem, index) => (
-                    <TrayPlugin extensionID={trayItem.id} key={index} />
+                    <PluginTray extensionID={trayItem.id} key={index} />
                 ))}
 
                 <IconButton

@@ -75,8 +75,11 @@ func (f *FormManager) jsNewForm(call goja.FunctionCall) goja.Value {
 	formObj.Set("checkboxField", form.jsCheckboxField)
 	formObj.Set("radioField", form.jsRadioField)
 	formObj.Set("dateField", form.jsDateField)
+	formObj.Set("switchField", form.jsSwitchField)
 	formObj.Set("submitButton", form.jsSubmitButton)
 	formObj.Set("reset", form.jsReset)
+	formObj.Set("setValues", form.jsSetValues)
+
 	return formObj
 }
 
@@ -146,6 +149,24 @@ func (f *Form) jsReset(call goja.FunctionCall) goja.Value {
 	f.manager.ctx.SendEventToClient(ServerFormResetEvent, ServerFormResetEventPayload{
 		FormName:     f.Name,
 		FieldToReset: fieldToReset,
+	})
+
+	return goja.Undefined()
+}
+
+func (f *Form) jsSetValues(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		f.manager.ctx.HandleTypeError("setValues requires a config object")
+	}
+
+	props, ok := call.Argument(0).Export().(map[string]interface{})
+	if !ok {
+		f.manager.ctx.HandleTypeError("setValues requires a config object")
+	}
+
+	f.manager.ctx.SendEventToClient(ServerFormSetValuesEvent, ServerFormSetValuesEventPayload{
+		FormName: f.Name,
+		Data:     props,
 	})
 
 	return goja.Undefined()
@@ -251,6 +272,19 @@ func (f *Form) jsCheckboxField(call goja.FunctionCall) goja.Value {
 	}
 
 	return f.createField("checkbox", props)
+}
+
+func (f *Form) jsSwitchField(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		f.manager.ctx.HandleTypeError("switchField requires a config object")
+	}
+
+	props, ok := call.Argument(0).Export().(map[string]interface{})
+	if !ok {
+		f.manager.ctx.HandleTypeError("switchField requires a config object")
+	}
+
+	return f.createField("switch", props)
 }
 
 func (f *Form) jsRadioField(call goja.FunctionCall) goja.Value {

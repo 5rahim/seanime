@@ -343,18 +343,49 @@ func (r *Repository) loadPlugins() {
 						tray.update();
 					});
 
-					// tray.onOpen(() => {
-					// 	console.log("tray opened");
-					// });
-					tray.onOpen();
+					tray.onOpen(() => {
+						console.log("tray opened");
+					});
+					// tray.onOpen();
 
 					tray.onClose(() => {
 						console.log("tray closed");
 					});
 
+					ctx.effect(() => {
+						console.log("effect fired only once");
+					}, []);
+
+					ctx.registerEventHandler("button-clicked", (e) => {
+						console.log("button clicked", e);
+						form.setValues({
+							anilistId: 21,
+							animeTitle: "One Piece",
+							isDub: true,
+							animeType: "tv",
+							favoriteColor: "green",
+						});
+					});
+
+					const searchFieldRef = tray.registerFieldRef("search");
+
+					ctx.registerEventHandler("search-clicked", (e) => {
+						const searchValue = searchFieldRef.current;
+						searchFieldRef.setValue("Loading...");
+						ctx.setTimeout(() => {
+							searchFieldRef.setValue("");
+							ctx.toast.info(searchValue);
+						}, 1000);
+					});
+
 					tray.render(() => {
 						return tray.stack({
 							items: [
+								tray.input({
+									fieldRef: "search",
+									placeholder: "Search anime...",
+								}),
+								tray.button("Search", { onClick: "search-clicked" }),
 								tray.div({
 									items: [
 										tray.text("Count: " + count.get(), { style: { textAlign: "center" } }),
@@ -370,15 +401,43 @@ func (r *Repository) loadPlugins() {
 									},
 								}),
 								tray.text("Current Pathname: " + currentPathname.get()),
+								tray.button("Click me", { onClick: "button-clicked" }),
 								form.render({
 									fields: [
 										form.selectField({
 											label: "Favorite Color",
 											name: "favoriteColor",
+											value: "red",
 											options: [
 												{ label: "Red", value: "red" },
 												{ label: "Blue", value: "blue" },
 												{ label: "Green", value: "green" },
+											],
+										}),
+										form.numberField({
+											label: "AniList ID",
+											name: "anilistId",
+											value: 21,
+										}),
+										form.inputField({
+											label: "Anime title",
+											name: "animeTitle",
+											value: "One Piece",
+										}),
+										form.switchField({
+											label: "Is Dub",
+											name: "isDub",
+											value: true,
+										}),
+										form.radioField({
+											label: "Anime type",
+											name: "animeType",
+											value: "tv",
+											options: [
+												{ label: "TV", value: "tv" },
+												{ label: "Movie", value: "movie" },
+												{ label: "OVA", value: "ova" },
+												{ label: "Special", value: "special" },
 											],
 										}),
 										form.submitButton({

@@ -49408,9 +49408,21 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "fieldRefCount",
+        "jsonName": "fieldRefCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
-    "comments": []
+    "comments": [
+      " ComponentManager is used to register components.",
+      " Any higher-order UI system must use this to register components. (Tray)"
+    ]
   },
   {
     "filepath": "../internal/plugin/ui/context.go",
@@ -49419,6 +49431,16 @@
     "formattedName": "Context",
     "package": "plugin_ui",
     "fields": [
+      {
+        "name": "ui",
+        "jsonName": "ui",
+        "goType": "UI",
+        "typescriptType": "UI",
+        "usedStructName": "plugin_ui.UI",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
       {
         "name": "extensionID",
         "jsonName": "extensionID",
@@ -49459,6 +49481,17 @@
         "comments": []
       },
       {
+        "name": "fetchSem",
+        "jsonName": "fetchSem",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Semaphore for concurrent fetch requests"
+        ]
+      },
+      {
         "name": "vm",
         "jsonName": "vm",
         "goType": "goja.Runtime",
@@ -49494,7 +49527,9 @@
         "usedStructName": "plugin_ui.Scheduler",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " Schedule VM executions concurrently and execute them in order."
+        ]
       },
       {
         "name": "wsSubscriber",
@@ -49514,7 +49549,41 @@
         "required": false,
         "public": false,
         "comments": [
-          " Event listeners added"
+          " Event listeners registered by plugin functions"
+        ]
+      },
+      {
+        "name": "exceptionCount",
+        "jsonName": "exceptionCount",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": [
+          " Number of exceptions that have occurred"
+        ]
+      },
+      {
+        "name": "effectStack",
+        "jsonName": "effectStack",
+        "goType": "map[string]bool",
+        "typescriptType": "Record\u003cstring, boolean\u003e",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Track currently executing effects to prevent infinite loops"
+        ]
+      },
+      {
+        "name": "effectCalls",
+        "jsonName": "effectCalls",
+        "goType": "map[string][]time.Time",
+        "typescriptType": "Record\u003cstring, Array\u003cstring\u003e\u003e",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Track effect calls within time window"
         ]
       },
       {
@@ -49525,7 +49594,9 @@
         "usedStructName": "plugin_ui.WebviewManager",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " UNUSED"
+        ]
       },
       {
         "name": "screenManager",
@@ -49535,7 +49606,9 @@
         "usedStructName": "plugin_ui.ScreenManager",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " Listen for screen events, send screen actions"
+        ]
       },
       {
         "name": "trayManager",
@@ -49545,7 +49618,9 @@
         "usedStructName": "plugin_ui.TrayManager",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " Register and manage tray"
+        ]
       },
       {
         "name": "formManager",
@@ -49555,10 +49630,14 @@
         "usedStructName": "plugin_ui.FormManager",
         "required": false,
         "public": false,
-        "comments": []
+        "comments": [
+          " Register and manage forms"
+        ]
       }
     ],
-    "comments": []
+    "comments": [
+      " Context manages the entire plugin UI during its lifecycle"
+    ]
   },
   {
     "filepath": "../internal/plugin/ui/context.go",
@@ -49606,6 +49685,18 @@
         "comments": []
       },
       {
+        "name": "ListenTo",
+        "jsonName": "ListenTo",
+        "goType": "[]ClientEventType",
+        "typescriptType": "Array\u003cClientEventType\u003e",
+        "usedStructName": "plugin_ui.ClientEventType",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Optional event type to listen for"
+        ]
+      },
+      {
         "name": "Channel",
         "jsonName": "Channel",
         "goType": "",
@@ -49617,7 +49708,11 @@
         ]
       }
     ],
-    "comments": []
+    "comments": [
+      " EventListener is a struct that contains the event type to listen for, and the channel for the event payload",
+      " - It is registered by plugin functions",
+      " - It is used to listen for events from the client"
+    ]
   },
   {
     "filepath": "../internal/plugin/ui/events.go",
@@ -49632,11 +49727,12 @@
       "declaredValues": [
         "\"tray:render\"",
         "\"tray:render-all\"",
-        "\"tray:handler-triggered\"",
         "\"tray:opened\"",
         "\"tray:closed\"",
         "\"form:submitted\"",
-        "\"screen:changed\""
+        "\"screen:changed\"",
+        "\"handler:triggered\"",
+        "\"field-ref:send-value\""
       ]
     },
     "comments": []
@@ -49720,16 +49816,25 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
-    "name": "ClientTrayHandlerTriggeredEventPayload",
-    "formattedName": "ClientTrayHandlerTriggeredEventPayload",
+    "name": "ClientEventHandlerTriggeredEventPayload",
+    "formattedName": "ClientEventHandlerTriggeredEventPayload",
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "EventName",
-        "jsonName": "eventName",
+        "name": "HandlerName",
+        "jsonName": "handlerName",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Event",
+        "jsonName": "event",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -49795,6 +49900,34 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientFieldRefSendValueEventPayload",
+    "formattedName": "ClientFieldRefSendValueEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FieldRef",
+        "jsonName": "fieldRef",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerEventType",
     "formattedName": "ServerEventType",
     "package": "plugin_ui",
@@ -49804,7 +49937,10 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"tray:updated\"",
-        "\"form:reset\""
+        "\"form:reset\"",
+        "\"form:set-values\"",
+        "\"field-ref:set-value\"",
+        "\"fatal-error\""
       ]
     },
     "comments": []
@@ -49896,6 +50032,100 @@
         "comments": [
           " If not set, the form will be reset"
         ]
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerFormSetValuesEventPayload",
+    "formattedName": "ServerFormSetValuesEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FormName",
+        "jsonName": "formName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Data",
+        "jsonName": "data",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerFieldRefSetValueEventPayload",
+    "formattedName": "ServerFieldRefSetValueEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FieldRef",
+        "jsonName": "fieldRef",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerFieldRefGetValueEventPayload",
+    "formattedName": "ServerFieldRefGetValueEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "FieldRef",
+        "jsonName": "fieldRef",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerFatalErrorEventPayload",
+    "formattedName": "ServerFatalErrorEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -50174,6 +50404,16 @@
         "comments": []
       },
       {
+        "name": "context",
+        "jsonName": "context",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "cancel",
         "jsonName": "cancel",
         "goType": "context.CancelFunc",
@@ -50195,8 +50435,8 @@
       }
     ],
     "comments": [
-      " Scheduler handles all VM operations in a single goroutine",
-      " Any goroutine that needs to execute a VM operation must schedule it"
+      " Scheduler handles all VM operations added concurrently in a single goroutine",
+      " Any goroutine that needs to execute a VM operation must schedule it because the UI VM isn't thread safe"
     ]
   },
   {
@@ -50252,6 +50492,26 @@
         "goType": "",
         "typescriptType": "any",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastUpdatedAt",
+        "jsonName": "lastUpdatedAt",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateMutex",
+        "jsonName": "updateMutex",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
         "public": false,
         "comments": []
       },

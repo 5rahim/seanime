@@ -33,7 +33,8 @@ func GeneratePluginEventFile(inFilePath string, outDir string) {
 	defer outFile.Close()
 
 	// Write imports
-	outFile.WriteString(`import { useCallback } from "react"
+	outFile.WriteString(`// This file is auto-generated. Do not edit.
+import { useCallback } from "react"
 import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 
 `)
