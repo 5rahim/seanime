@@ -10,7 +10,6 @@ import (
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
-	"seanime/internal/plugin"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
 	"testing"
@@ -109,8 +108,6 @@ func TestNewGojaPluginUI(t *testing.T) {
 
 	manager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, manager)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	//go func() {
 	//	time.Sleep(time.Second)
@@ -171,8 +168,6 @@ func TestNewGojaPluginContext(t *testing.T) {
 
 	manager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, manager)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
@@ -237,8 +232,6 @@ func TestNewGojaPlugin(t *testing.T) {
 
 	manager := goja_runtime.NewManager(logger, 15)
 	loader := NewGojaPluginLoader(ext, logger, manager)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
@@ -281,8 +274,6 @@ func BenchmarkHookInvocation(b *testing.B) {
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	// Dummy extension payload that registers a hook
 	payload := `
@@ -337,8 +328,6 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	// Dummy extension payload that registers a hook
 	payload := `
@@ -391,8 +380,6 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 
@@ -453,8 +440,6 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 
@@ -533,8 +518,6 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 	logger := util.NewLogger()
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	payload := `
 		function init() {
@@ -591,8 +574,6 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 
@@ -660,8 +641,6 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 
 	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hm)
-	appContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(appContext)
 
 	wsEventManager := events.NewMockWSEventManager(logger)
 

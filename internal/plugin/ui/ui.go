@@ -1,7 +1,9 @@
 package plugin_ui
 
 import (
+	"seanime/internal/database/db"
 	"seanime/internal/events"
+	"seanime/internal/plugin"
 	"sync"
 
 	"github.com/dop251/goja"
@@ -9,10 +11,10 @@ import (
 )
 
 const (
-	MAX_EXCEPTIONS                = 5    // Maximum number of exceptions that can be thrown before the UI is interrupted
-	MAX_CONCURRENT_FETCH_REQUESTS = 10   // Maximum number of concurrent fetch requests
-	MAX_EFFECT_CALLS_PER_WINDOW   = 100  // Maximum number of effect calls allowed in time window
-	EFFECT_TIME_WINDOW            = 1000 // Time window in milliseconds to track effect calls
+	MaxExceptions              = 5    // Maximum number of exceptions that can be thrown before the UI is interrupted
+	MaxConcurrentFetchRequests = 10   // Maximum number of concurrent fetch requests
+	MaxEffectCallsPerWindow    = 100  // Maximum number of effect calls allowed in time window
+	EffectTimeWindow           = 1000 // Time window in milliseconds to track effect calls
 )
 
 // UI registry, unique to a plugin and VM
@@ -23,6 +25,7 @@ type UI struct {
 	vm             *goja.Runtime // VM executing the UI
 	logger         *zerolog.Logger
 	wsEventManager events.WSEventManagerInterface
+	appContext     plugin.AppContext
 }
 
 func (u *UI) ClearInterrupt() {
@@ -36,15 +39,24 @@ func (u *UI) ClearInterrupt() {
 	}
 }
 
-func NewUI(extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *UI {
-	mLogger := logger.With().Str("id", extensionID).Logger()
+type NewUIOptions struct {
+	ExtensionID string
+	Logger      *zerolog.Logger
+	VM          *goja.Runtime
+	WSManager   events.WSEventManagerInterface
+	Database    *db.Database
+}
+
+func NewUI(options NewUIOptions) *UI {
+	mLogger := options.Logger.With().Str("id", options.ExtensionID).Logger()
 	ui := &UI{
-		extensionID:    extensionID,
-		vm:             vm,
+		extensionID:    options.ExtensionID,
+		vm:             options.VM,
 		logger:         &mLogger,
-		wsEventManager: wsEventManager,
+		wsEventManager: options.WSManager,
+		appContext:     plugin.GlobalAppContext, // Get the app context from the global hook manager
 	}
-	ui.context = NewContext(ui, extensionID, &mLogger, vm, wsEventManager)
+	ui.context = NewContext(ui)
 	return ui
 }
 

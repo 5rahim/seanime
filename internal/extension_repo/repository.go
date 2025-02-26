@@ -9,6 +9,7 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
+	"seanime/internal/plugin"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 
@@ -36,6 +37,8 @@ type (
 		invalidExtensions *result.Map[string, *extension.InvalidExtension]
 
 		hookManager hook.Manager
+
+		appContext *plugin.AppContext
 	}
 
 	AllExtensions struct {

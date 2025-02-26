@@ -2,16 +2,17 @@ package db
 
 import (
 	"fmt"
-	"github.com/glebarez/sqlite"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
-	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
 	"log"
 	"os"
 	"path/filepath"
 	"seanime/internal/database/models"
 	"time"
+
+	"github.com/glebarez/sqlite"
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
+	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 type Database struct {
@@ -89,6 +90,7 @@ func migrateTables(db *gorm.DB) error {
 		&models.OnlinestreamMapping{},
 		&models.DebridSettings{},
 		&models.DebridTorrentItem{},
+		&models.PluginData{},
 		//&models.MangaChapterContainer{},
 	)
 	if err != nil {

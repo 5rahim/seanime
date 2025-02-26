@@ -57,17 +57,17 @@ type EventListener struct {
 	Channel  chan *ClientPluginEvent // Channel for the event payload
 }
 
-func NewContext(ui *UI, extensionID string, logger *zerolog.Logger, vm *goja.Runtime, wsEventManager events.WSEventManagerInterface) *Context {
+func NewContext(ui *UI) *Context {
 	ret := &Context{
 		ui:               ui,
-		extensionID:      extensionID,
-		logger:           logger,
-		vm:               vm,
+		extensionID:      ui.extensionID,
+		logger:           ui.logger,
+		vm:               ui.vm,
 		states:           result.NewResultMap[string, *State](),
-		fetchSem:         make(chan struct{}, MAX_CONCURRENT_FETCH_REQUESTS),
+		fetchSem:         make(chan struct{}, MaxConcurrentFetchRequests),
 		stateSubscribers: make([]chan *State, 0),
 		eventListeners:   result.NewResultMap[string, *EventListener](),
-		wsEventManager:   wsEventManager,
+		wsEventManager:   ui.wsEventManager,
 		effectStack:      make(map[string]bool),
 		effectCalls:      make(map[string][]time.Time),
 	}
@@ -149,7 +149,7 @@ func (c *Context) HandleException(err error) {
 	// defer c.mu.Unlock()
 
 	c.exceptionCount++
-	if c.exceptionCount >= MAX_EXCEPTIONS {
+	if c.exceptionCount >= MaxExceptions {
 		c.logger.Error().Err(err).Msg("plugin: Too many errors, interrupting UI")
 		c.fatalError(err)
 	}
@@ -485,9 +485,9 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 								// Clean up old calls and check rate
 								c.cleanupOldEffectCalls(effectID)
 								callsInWindow := len(c.effectCalls[effectID])
-								if callsInWindow >= MAX_EFFECT_CALLS_PER_WINDOW {
+								if callsInWindow >= MaxEffectCallsPerWindow {
 									c.mu.Unlock()
-									c.fatalError(fmt.Errorf("effect %s exceeded rate limit with %d calls in %dms window", effectID, callsInWindow, EFFECT_TIME_WINDOW))
+									c.fatalError(fmt.Errorf("effect %s exceeded rate limit with %d calls in %dms window", effectID, callsInWindow, EffectTimeWindow))
 									return
 								}
 
@@ -602,7 +602,7 @@ func safeEffectCall(fn *goja.Callable) (err error) {
 
 func (c *Context) cleanupOldEffectCalls(effectID string) {
 	now := time.Now()
-	window := time.Duration(EFFECT_TIME_WINDOW) * time.Millisecond
+	window := time.Duration(EffectTimeWindow) * time.Millisecond
 	var validCalls []time.Time
 
 	for _, t := range c.effectCalls[effectID] {

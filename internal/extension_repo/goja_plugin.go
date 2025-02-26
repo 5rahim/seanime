@@ -75,7 +75,7 @@ func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runti
 // PluginBinds adds plugin-specific bindings like $ctx to the VM
 func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind the app context
-	_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
+	//_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
 
 	// Bind the store
 	p.BindStore(vm)
@@ -154,7 +154,12 @@ func NewGojaPlugin(
 	// Bind the store to the UI VM
 	p.BindStore(uiVM)
 	// Create a new UI instance
-	p.ui = plugin_ui.NewUI(ext.ID, logger, uiVM, wsEventManager)
+	p.ui = plugin_ui.NewUI(plugin_ui.NewUIOptions{
+		ExtensionID: ext.ID,
+		Logger:      logger,
+		VM:          uiVM,
+		WSManager:   wsEventManager,
+	})
 
 	////////
 
@@ -265,7 +270,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *
 						handlerArgs[i] = arg.Interface()
 					}
 					// Set the global variable $ctx in the executor
-					executor.Set("$ctx", hook.GlobalHookManager.AppContext())
+					//executor.Set("$ctx", hook.GlobalHookManager.AppContext())
 					executor.Set("__args", handlerArgs)
 					// Execute the handler program
 					res, err := executor.RunProgram(pr)

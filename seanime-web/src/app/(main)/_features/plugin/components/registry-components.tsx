@@ -69,7 +69,7 @@ export function PluginInput(props: InputProps) {
     const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
-    const debouncedValue = useDebounce(value, 1000)
+    const debouncedValue = useDebounce(value, 200)
 
     useEffect(() => {
         if (props.onChange) {

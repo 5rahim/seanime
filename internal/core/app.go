@@ -167,6 +167,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	database.TrimScanSummaryEntries()   // ran in goroutine
 	database.TrimTorrentstreamHistory() // ran in goroutine
 
+	plugin.GlobalAppContext.SetModules(plugin.AppContextModules{
+		Database: database,
+	})
+
 	// Get token from stored account or return empty string
 	anilistToken := database.GetAnilistToken()
 
@@ -216,6 +220,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	})
 
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
+
+	plugin.GlobalAppContext.SetModules(plugin.AppContextModules{
+		AnilistPlatform: anilistPlatform,
+	})
 
 	// Platforms
 	syncManager, err := sync2.NewManager(&sync2.NewManagerOptions{
@@ -302,9 +310,6 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 		moduleMu:    sync.Mutex{},
 		HookManager: hookManager,
 	}
-
-	pluginAppContext := plugin.NewAppContext()
-	hook.SetGlobalHookManagerAppContext(pluginAppContext)
 
 	// Perform necessary migrations if the version has changed
 	app.runMigrations()

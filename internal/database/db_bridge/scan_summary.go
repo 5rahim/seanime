@@ -1,13 +1,14 @@
 package db_bridge
 
 import (
-	"github.com/goccy/go-json"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/library/summary"
+
+	"github.com/goccy/go-json"
 )
 
-func GetScanSummaries(database *db.Database) ([]*db.ScanSummaryItem, error) {
+func GetScanSummaries(database *db.Database) ([]*summary.ScanSummaryItem, error) {
 	var res []*models.ScanSummary
 	err := database.Gorm().Find(&res).Error
 	if err != nil {
@@ -15,14 +16,14 @@ func GetScanSummaries(database *db.Database) ([]*db.ScanSummaryItem, error) {
 	}
 
 	// Unmarshal the data
-	var items []*db.ScanSummaryItem
+	var items []*summary.ScanSummaryItem
 	for _, r := range res {
 		smBytes := r.Value
 		var sm summary.ScanSummary
 		if err := json.Unmarshal(smBytes, &sm); err != nil {
 			return nil, err
 		}
-		items = append(items, &db.ScanSummaryItem{
+		items = append(items, &summary.ScanSummaryItem{
 			CreatedAt:   r.CreatedAt,
 			ScanSummary: &sm,
 		})

@@ -2,9 +2,11 @@ package summary
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"seanime/internal/api/anilist"
 	"seanime/internal/library/anime"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -63,6 +65,11 @@ type (
 		MediaTitle          string             `json:"mediaTitle"`
 		MediaImage          string             `json:"mediaImage"`
 		MediaIsInCollection bool               `json:"mediaIsInCollection"` // Whether the media is in the user's AniList collection
+	}
+
+	ScanSummaryItem struct { // Database item
+		CreatedAt   time.Time    `json:"createdAt"`
+		ScanSummary *ScanSummary `json:"scanSummary"`
 	}
 )
 
