@@ -88,9 +88,15 @@ func (u *UI) Register(callback string) {
 
 						switch clientEvent.Type {
 						case ClientRenderTraysEvent: // Client wants to render the trays
-							u.context.trayManager.renderTray()
-						case ClientRenderTrayEvent: // Client wants to render the screen
-							u.context.trayManager.renderTray()
+							u.context.scheduler.ScheduleAsync(func() error {
+								u.context.trayManager.renderTrayUnscheduled()
+								return nil
+							})
+						case ClientRenderTrayEvent: // Client wants to render the tray
+							u.context.scheduler.ScheduleAsync(func() error {
+								u.context.trayManager.renderTrayUnscheduled()
+								return nil
+							})
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
 								//util.SpewMany("Event to listeners", event.Payload)

@@ -317,134 +317,85 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 func (r *Repository) loadPlugins() {
 
 	testExt := &extension.Extension{
-		ID:       "test-plugin",
-		Language: extension.LanguageTypescript,
+		ID:          "test-plugin",
+		Language:    extension.LanguageTypescript,
+		Permissions: []string{string(PluginPermissionStorage)},
 		Payload: `
 			function init() {
 				$ui.register((ctx) => {
 					const tray = ctx.newTray();
 
-					let currentPathname = ctx.state("");
-					let count = ctx.state(0);
+					const currentMediaId = ctx.state(0);
+					const storageBackgroundImage = ctx.state("");
+					
+					const form = ctx.newForm("form")
+					const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
 
 					ctx.screen.onNavigate((e) => {
-						currentPathname.set(e.pathname);
+						if (e.pathname === "/entry" && !!e.query) {
+							const id = parseInt(e.query.replace("?id=", ""));
+							currentMediaId.set(id);
+						} else {
+							currentMediaId.set(0);
+						}
 						tray.update();
 					});
-
-					ctx.setInterval(() => {
-						// throw new Error("test error");
-						count.set(count.get() + 1);
-						tray.update();
-					}, 1000);
-
-					const form = ctx.newForm("form-1");
-
-					form.onSubmit((data) => {
-						console.log("form submitted", data);
-						form.reset();
-						tray.update();
-					});
-
-					tray.onOpen(() => {
-						console.log("tray opened");
-					});
-					// tray.onOpen();
-
-					tray.onClose(() => {
-						console.log("tray closed");
-					});
+					
+					function setFormValues(backgroundImage) {
+						form.setValues({
+							customBannerImage: backgroundImage || "",
+						});
+					}
+					
+					const fetchBackgroundImage = () => {
+						const backgroundImage = $storage.get('backgroundImages.' + currentMediaId.get());
+						if (backgroundImage) {
+							storageBackgroundImage.set(backgroundImage);
+							setFormValues(backgroundImage);
+							customBannerImageRef.setValue(backgroundImage);
+						} else {
+							storageBackgroundImage.set("");
+							customBannerImageRef.setValue("");
+						}
+					}
 
 					ctx.effect(() => {
-						console.log("effect fired only once");
-					}, []);
+						fetchBackgroundImage();
+						tray.update();
+					}, [currentMediaId]);
 
-					ctx.registerEventHandler("button-clicked", (e) => {
-						console.log("button clicked", e);
-						form.setValues({
-							anilistId: 21,
-							animeTitle: "One Piece",
-							isDub: true,
-							animeType: "tv",
-							favoriteColor: "green",
-						});
+
+					fetchBackgroundImage()
+
+					form.onSubmit((data) => {
+						$storage.set('backgroundImages.' + currentMediaId.get(), data.customBannerImage);
+						ctx.toast.success("Background image saved");
+						fetchBackgroundImage();
+						tray.update();
 					});
 
-					const searchFieldRef = tray.registerFieldRef("search");
-
-					ctx.registerEventHandler("search-clicked", (e) => {
-						const searchValue = searchFieldRef.current;
-						searchFieldRef.setValue("Loading...");
-						ctx.setTimeout(() => {
-							searchFieldRef.setValue("");
-							ctx.toast.info(searchValue);
-						}, 1000);
+					ctx.registerEventHandler("saveBackgroundImage", () => {
+						ctx.toast.info("Setting background image to " + customBannerImageRef.current);
+						$storage.set('backgroundImages.' + currentMediaId.get(), customBannerImageRef.current);
+						ctx.toast.success("Background image saved");
+						fetchBackgroundImage();
+						tray.update();
 					});
 
 					tray.render(() => {
 						return tray.stack({
 							items: [
-								tray.input({
-									fieldRef: "search",
-									placeholder: "Search anime...",
-								}),
-								tray.button("Search", { onClick: "search-clicked" }),
-								tray.div({
+								tray.text("Keys: " + JSON.stringify($storage.get("backgroundImages"))),
+								currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
 									items: [
-										tray.text("Count: " + count.get(), { style: { textAlign: "center" } }),
-									],
-									style: {
-										width: "100%",
-										height: "50px",
-										backgroundColor: "#1e2c2e",
-										borderRadius: "10px",
-										justifyContent: "center",
-										alignItems: "center",
-										display: "flex",
-									},
-								}),
-								tray.text("Current Pathname: " + currentPathname.get()),
-								tray.button("Click me", { onClick: "button-clicked" }),
-								form.render({
-									fields: [
-										form.selectField({
-											label: "Favorite Color",
-											name: "favoriteColor",
-											value: "red",
-											options: [
-												{ label: "Red", value: "red" },
-												{ label: "Blue", value: "blue" },
-												{ label: "Green", value: "green" },
+										tray.text("Current media ID: " + currentMediaId.get()),
+										tray.input({ fieldRef: "customBannerImageRef", value: storageBackgroundImage.get() }),
+										tray.button({ label: "Save", onClick: "saveBackgroundImage" }),
+										form.render({
+											fields: [
+												form.inputField({ name: "customBannerImage", label: "Custom banner image", value: storageBackgroundImage.get() }),
+												form.submitButton({ label: "Save" }),
 											],
-										}),
-										form.numberField({
-											label: "AniList ID",
-											name: "anilistId",
-											value: 21,
-										}),
-										form.inputField({
-											label: "Anime title",
-											name: "animeTitle",
-											value: "One Piece",
-										}),
-										form.switchField({
-											label: "Is Dub",
-											name: "isDub",
-											value: true,
-										}),
-										form.radioField({
-											label: "Anime type",
-											name: "animeType",
-											value: "tv",
-											options: [
-												{ label: "TV", value: "tv" },
-												{ label: "Movie", value: "movie" },
-												{ label: "OVA", value: "ova" },
-												{ label: "Special", value: "special" },
-											],
-										}),
-										form.submitButton({
-											label: "Submit",
 										}),
 									],
 								}),
@@ -453,25 +404,47 @@ func (r *Repository) loadPlugins() {
 					});
 				})
 
-				//$app.onGetAnimeCollection((e) => {
-				//	// console.log("onGetAnimeCollection fired", e.animeCollection.mediaListCollection)
-				//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-				//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-				//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
-				//		}
-				//	}
-				//	e.next();
-				//});
-				//
-				//$app.onGetRawAnimeCollection((e) => {
-				//	//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
-				//	for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-				//		for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-				//			$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.title, { "userPreferred": "The One Piece is Real", "english": "The One Piece is Real" })
-				//		}
-				//	}
-				//	e.next();
-				//});
+				// $app.onAnimeEntry((e) => {
+				// 	const mediaId = e.entry.mediaId;
+				// 	const bannerImage = $storage.get('backgroundImages')[mediaId.toString()] || "";
+				// 	console.log("onAnimeEntry", e.entry.mediaId, bannerImage);
+				// 	console.log("storage", $storage.get('backgroundImages'));
+				// 	if (!!bannerImage) {
+				// 		$replace(e.entry.media.bannerImage, bannerImage);
+				// 		console.log("replaced banner image", e.entry.media.bannerImage);
+				// 	}
+					
+				// });
+
+				$app.onGetAnimeCollection((e) => {
+					const bannerImages = $storage.get('backgroundImages');
+					for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+						for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+							const mediaId = e.animeCollection.mediaListCollection.lists[i].entries[j].media.id;
+							const bannerImage = bannerImages[mediaId.toString()] || "";
+							if (!!bannerImage) {
+								$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.bannerImage, bannerImage);
+							}
+						}
+					}
+					e.next();
+				});
+				
+				$app.onGetRawAnimeCollection((e) => {
+					const bannerImages = $storage.get('backgroundImages');
+					//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
+					for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
+						for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
+							const mediaId = e.animeCollection.mediaListCollection.lists[i].entries[j].media.id;
+							const bannerImage = bannerImages[mediaId.toString()] || "";
+							if (!!bannerImage) {
+								$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.bannerImage, bannerImage);
+							}
+						}
+					}
+					e.next();
+				});
+
 				// $app.onAnimeEntryLibraryDataRequest((e) => {
 				// 	$replace(e.options.entryLocalFiles, [])
 				// 	e.next();
@@ -489,7 +462,6 @@ func (r *Repository) loadPlugins() {
 		Type:        extension.TypePlugin,
 		Description: "Test Plugin",
 		Author:      "Test Author",
-		Permissions: []string{},
 		PayloadURI:  "",
 	}
 

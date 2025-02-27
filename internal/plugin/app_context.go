@@ -2,16 +2,21 @@ package plugin
 
 import (
 	"seanime/internal/database/db"
+	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
 
+	"github.com/dop251/goja"
+	"github.com/rs/zerolog"
 	"github.com/samber/mo"
 )
 
 type AppContextModules struct {
-	Database        *db.Database
-	AnilistPlatform platform.Platform
-	PlaybackManager *playbackmanager.PlaybackManager
+	Database                        *db.Database
+	AnilistPlatform                 platform.Platform
+	PlaybackManager                 *playbackmanager.PlaybackManager
+	OnRefreshAnilistAnimeCollection func()
+	OnRefreshAnilistMangaCollection func()
 }
 
 // AppContext contains all the modules that are available to the plugin.
@@ -21,6 +26,8 @@ type AppContext interface {
 	PlaybackManager() mo.Option[*playbackmanager.PlaybackManager]
 	AnilistPlatform() mo.Option[platform.Platform]
 	SetModules(AppContextModules)
+
+	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 }
 
 var GlobalAppContext = NewAppContext()
@@ -31,6 +38,9 @@ type AppContextImpl struct {
 	database        mo.Option[*db.Database]
 	playbackManager mo.Option[*playbackmanager.PlaybackManager]
 	anilistPlatform mo.Option[platform.Platform]
+
+	onRefreshAnilistAnimeCollection mo.Option[func()]
+	onRefreshAnilistMangaCollection mo.Option[func()]
 }
 
 func NewAppContext() AppContext {
@@ -67,5 +77,13 @@ func (a *AppContextImpl) SetModules(modules AppContextModules) {
 
 	if modules.AnilistPlatform != nil {
 		a.anilistPlatform = mo.Some(modules.AnilistPlatform)
+	}
+
+	if modules.OnRefreshAnilistAnimeCollection != nil {
+		a.onRefreshAnilistAnimeCollection = mo.Some(modules.OnRefreshAnilistAnimeCollection)
+	}
+
+	if modules.OnRefreshAnilistMangaCollection != nil {
+		a.onRefreshAnilistMangaCollection = mo.Some(modules.OnRefreshAnilistMangaCollection)
 	}
 }

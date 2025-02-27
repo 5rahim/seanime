@@ -38,8 +38,11 @@ func (s *ScreenManager) jsOnNavigate(callback goja.Callable) {
 	go func(payload ClientScreenChangedEventPayload) {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientScreenChangedEvent, &payload) {
-				_ = s.ctx.scheduler.Schedule(func() error {
+				s.ctx.scheduler.ScheduleAsync(func() error {
 					_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
+					if err != nil {
+						s.ctx.logger.Error().Err(err).Msg("error running screen navigation callback")
+					}
 					return err
 				})
 			}

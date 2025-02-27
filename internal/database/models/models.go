@@ -422,6 +422,6 @@ type DebridTorrentItem struct {
 
 type PluginData struct {
 	BaseModel
-	PluginID string `gorm:"column:plugin_id" json:"pluginId"`
+	PluginID string `gorm:"column:plugin_id;index" json:"pluginId"`
 	Data     []byte `gorm:"column:data" json:"data"`
 }

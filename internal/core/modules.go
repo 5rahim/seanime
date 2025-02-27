@@ -19,6 +19,7 @@ import (
 	"seanime/internal/mediaplayers/vlc"
 	"seanime/internal/mediastream"
 	"seanime/internal/notifier"
+	"seanime/internal/plugin"
 	"seanime/internal/torrent_clients/qbittorrent"
 	"seanime/internal/torrent_clients/torrent_client"
 	"seanime/internal/torrent_clients/transmission"
@@ -36,6 +37,15 @@ func (a *App) initModulesOnce() {
 	a.SyncManager.SetRefreshAnilistCollectionsFunc(func() {
 		_, _ = a.RefreshAnimeCollection()
 		_, _ = a.RefreshMangaCollection()
+	})
+
+	plugin.GlobalAppContext.SetModules(plugin.AppContextModules{
+		OnRefreshAnilistAnimeCollection: func() {
+			_, _ = a.RefreshAnimeCollection()
+		},
+		OnRefreshAnilistMangaCollection: func() {
+			_, _ = a.RefreshMangaCollection()
+		},
 	})
 
 	// +---------------------+

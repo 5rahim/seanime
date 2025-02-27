@@ -13,19 +13,21 @@ type TrayManager struct {
 	tray          mo.Option[*Tray]
 	lastUpdatedAt time.Time
 	updateMutex   sync.Mutex
-	// Store the last rendered component tree for diffing
-	lastRenderedComponents interface{}
+
+	componentManager *ComponentManager
 }
 
 func NewTrayManager(ctx *Context) *TrayManager {
 	return &TrayManager{
-		ctx:  ctx,
-		tray: mo.None[*Tray](),
+		ctx:              ctx,
+		tray:             mo.None[*Tray](),
+		componentManager: &ComponentManager{ctx: ctx},
 	}
 }
 
-// renderTray is called when the client wants to render the tray
-func (t *TrayManager) renderTray() {
+// renderTrayUnscheduled renders the new component tree.
+// This function is unsafe because it is not thread-safe and should be scheduled.
+func (t *TrayManager) renderTrayUnscheduled() {
 	t.updateMutex.Lock()
 	defer t.updateMutex.Unlock()
 
@@ -41,15 +43,12 @@ func (t *TrayManager) renderTray() {
 
 	t.lastUpdatedAt = time.Now()
 
-	newComponents, err := renderComponents(tray.renderFunc, t.lastRenderedComponents)
+	newComponents, err := t.componentManager.renderComponents(tray.renderFunc)
 	if err != nil {
 		t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render tray")
 		t.ctx.HandleException(err)
 		return
 	}
-
-	// Store for next render
-	t.lastRenderedComponents = newComponents
 
 	// Send the JSON value to the client
 	t.ctx.SendEventToClient(ServerTrayUpdatedEvent, ServerTrayUpdatedEventPayload{
@@ -85,10 +84,6 @@ func (t *TrayManager) jsNewTray(goja.FunctionCall) goja.Value {
 
 	t.tray = mo.Some(tray)
 
-	cm := &ComponentManager{
-		ctx: t.ctx,
-	}
-
 	// Create a new tray object
 	trayObj := t.ctx.vm.NewObject()
 	_ = trayObj.Set("render", tray.jsRender)
@@ -96,13 +91,13 @@ func (t *TrayManager) jsNewTray(goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("onOpen", tray.jsOnOpen)
 	_ = trayObj.Set("onClose", tray.jsOnClose)
 
-	_ = trayObj.Set("div", cm.jsDiv)
-	_ = trayObj.Set("flex", cm.jsFlex)
-	_ = trayObj.Set("stack", cm.jsStack)
-	_ = trayObj.Set("text", cm.jsText)
-	_ = trayObj.Set("button", cm.jsButton)
-	_ = trayObj.Set("input", cm.jsInput)
-	_ = trayObj.Set("registerFieldRef", cm.jsRegisterFieldRef)
+	_ = trayObj.Set("div", t.componentManager.jsDiv)
+	_ = trayObj.Set("flex", t.componentManager.jsFlex)
+	_ = trayObj.Set("stack", t.componentManager.jsStack)
+	_ = trayObj.Set("text", t.componentManager.jsText)
+	_ = trayObj.Set("button", t.componentManager.jsButton)
+	_ = trayObj.Set("input", t.componentManager.jsInput)
+
 	return trayObj
 }
 
@@ -125,12 +120,15 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 	return goja.Undefined()
 }
 
-// jsUpdate takes the current state and schedules a re-render on the client
+// jsUpdate schedules a re-render on the client
 //
 //	Example:
 //	tray.update()
 func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
-	t.trayManager.renderTray()
+	t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
+		t.trayManager.renderTrayUnscheduled()
+		return nil
+	})
 	return goja.Undefined()
 }
 
@@ -156,12 +154,13 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 	go func() {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientTrayOpenedEvent, &payload) {
-				if err := t.trayManager.ctx.scheduler.Schedule(func() error {
+				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
 					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(payload))
+					if err != nil {
+						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray open callback")
+					}
 					return err
-				}); err != nil {
-					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray open callback")
-				}
+				})
 			}
 		}
 	}()
@@ -190,12 +189,13 @@ func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 	go func() {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientTrayClosedEvent, &payload) {
-				if err := t.trayManager.ctx.scheduler.Schedule(func() error {
+				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
 					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(payload))
+					if err != nil {
+						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray close callback")
+					}
 					return err
-				}); err != nil {
-					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray close callback")
-				}
+				})
 			}
 		}
 	}()

@@ -9,23 +9,27 @@ import (
 	"github.com/google/uuid"
 )
 
-func renderComponents(renderFunc func(goja.FunctionCall) goja.Value, lastRenderedComponents interface{}) (interface{}, error) {
+func (c *ComponentManager) renderComponents(renderFunc func(goja.FunctionCall) goja.Value) (interface{}, error) {
 	if renderFunc == nil {
 		return nil, errors.New("render function is not set")
 	}
 
 	// Get new components
-	newComponents := getComponentsData(renderFunc)
+	newComponents := c.getComponentsData(renderFunc)
 
 	// If we have previous components, perform diffing
-	if lastRenderedComponents != nil {
-		newComponents = componentDiff(lastRenderedComponents, newComponents)
+	if c.lastRenderedComponents != nil {
+		newComponents = c.componentDiff(c.lastRenderedComponents, newComponents)
 	}
+
+	// Store the new components for next render
+	c.lastRenderedComponents = newComponents
 
 	return newComponents, nil
 }
 
-func getComponentsData(renderFunc func(goja.FunctionCall) goja.Value) interface{} {
+// getComponentsData calls the render function and returns the current state of the component tree
+func (c *ComponentManager) getComponentsData(renderFunc func(goja.FunctionCall) goja.Value) interface{} {
 	// Call the render function
 	value := renderFunc(goja.FunctionCall{})
 
@@ -200,11 +204,11 @@ func validateType(expectedType string) func(interface{}) error {
 // componentDiff compares two component trees and returns a new component tree that preserves the ID of old components that did not change.
 // It also recursively handles props and items arrays.
 //
-// This allows for partially granular updates on the React UI.
-// Important: This does not handle component removal, addition, reordering or type changes.
-func componentDiff(old, new interface{}) (ret interface{}) {
+// This is important to preserve state between renders in React.
+func (c *ComponentManager) componentDiff(old, new interface{}) (ret interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
+			// If a panic occurs, return the new component tree
 			ret = new
 		}
 	}()
@@ -230,14 +234,14 @@ func componentDiff(old, new interface{}) (ret interface{}) {
 							// Special handling for items array in props
 							if oldItems, ok := oldProps["items"].([]interface{}); ok {
 								if newItems, ok := newProps["items"].([]interface{}); ok {
-									newProps["items"] = componentDiff(oldItems, newItems)
+									newProps["items"] = c.componentDiff(oldItems, newItems)
 								}
 							}
 							// Handle other props
 							for k, v := range newProps {
 								if k != "items" { // Skip items as we already handled it
 									if oldV, exists := oldProps[k]; exists {
-										newProps[k] = componentDiff(oldV, v)
+										newProps[k] = c.componentDiff(oldV, v)
 									}
 								}
 							}
@@ -275,7 +279,7 @@ func componentDiff(old, new interface{}) (ret interface{}) {
 					if key, ok := newMap["key"].(string); ok && key != "" {
 						if oldComp, exists := oldKeyMap[key]; exists {
 							// Found a match by key
-							result[i] = componentDiff(oldComp, newComp)
+							result[i] = c.componentDiff(oldComp, newComp)
 							matched = true
 							// t.ctx.logger.Debug().
 							// 	Str("key", key).
@@ -302,7 +306,7 @@ func componentDiff(old, new interface{}) (ret interface{}) {
 					}
 
 					if oldType != "" && oldType == newType {
-						result[i] = componentDiff(oldComp, newComp)
+						result[i] = c.componentDiff(oldComp, newComp)
 						matched = true
 						// t.ctx.logger.Debug().
 						// 	Str("type", oldType).

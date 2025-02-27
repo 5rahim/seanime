@@ -11,6 +11,7 @@ import (
 type Job struct {
 	fn       func() error
 	resultCh chan error
+	async    bool // Flag to indicate if the job is async (doesn't need to wait for result)
 }
 
 // Scheduler handles all VM operations added concurrently in a single goroutine
@@ -21,12 +22,15 @@ type Scheduler struct {
 	context  *Context
 	cancel   context.CancelFunc
 	wg       sync.WaitGroup
+	// Track the currently executing job to detect nested scheduling
+	currentJob     *Job
+	currentJobLock sync.Mutex
 }
 
 func NewScheduler(uiCtx *Context) *Scheduler {
 	ctx, cancel := context.WithCancel(context.Background())
 	s := &Scheduler{
-		jobQueue: make(chan *Job, 100),
+		jobQueue: make(chan *Job, 9999),
 		ctx:      ctx,
 		context:  uiCtx,
 		cancel:   cancel,
@@ -45,8 +49,23 @@ func (s *Scheduler) start() {
 			case <-s.ctx.Done():
 				return
 			case job := <-s.jobQueue:
+				// Set the current job before execution
+				s.currentJobLock.Lock()
+				s.currentJob = job
+				s.currentJobLock.Unlock()
+
 				err := job.fn()
-				job.resultCh <- err
+
+				// Clear the current job after execution
+				s.currentJobLock.Lock()
+				s.currentJob = nil
+				s.currentJobLock.Unlock()
+
+				// Only send result if the job is not async
+				if !job.async {
+					job.resultCh <- err
+				}
+
 				if err != nil {
 					s.context.HandleException(err)
 				}
@@ -73,8 +92,34 @@ func (s *Scheduler) Schedule(fn func() error) error {
 			return fn()
 		},
 		resultCh: resultCh,
+		async:    false,
 	}
 
+	// Check if we're already in a job execution context
+	s.currentJobLock.Lock()
+	isNestedCall := s.currentJob != nil && !s.currentJob.async
+	s.currentJobLock.Unlock()
+
+	// If this is a nested call from a synchronous job, we need to be careful
+	// We can't execute directly because the VM isn't thread-safe
+	// Instead, we'll queue it and use a separate goroutine to wait for the result
+	if isNestedCall {
+		// Queue the job
+		select {
+		case <-s.ctx.Done():
+			return fmt.Errorf("scheduler stopped")
+		case s.jobQueue <- job:
+			// Create a separate goroutine to wait for the result
+			// This prevents deadlock while still ensuring the job runs in the scheduler
+			resultCh2 := make(chan error, 1)
+			go func() {
+				resultCh2 <- <-resultCh
+			}()
+			return <-resultCh2
+		}
+	}
+
+	// Otherwise, queue the job normally
 	select {
 	case <-s.ctx.Done():
 		return fmt.Errorf("scheduler stopped")
@@ -83,12 +128,76 @@ func (s *Scheduler) Schedule(fn func() error) error {
 	}
 }
 
+// ScheduleAsync adds a job to the queue without waiting for completion
+// This is useful for fire-and-forget operations or when a job needs to schedule another job
+func (s *Scheduler) ScheduleAsync(fn func() error) {
+	job := &Job{
+		fn: func() error {
+			defer func() {
+				if r := recover(); r != nil {
+					s.context.HandleException(fmt.Errorf("panic in async job: %v", r))
+				}
+			}()
+			return fn()
+		},
+		resultCh: nil, // No result channel needed
+		async:    true,
+	}
+
+	// Queue the job without blocking
+	select {
+	case <-s.ctx.Done():
+		// Scheduler is stopped, just ignore
+		return
+	case s.jobQueue <- job:
+		// Job queued successfully
+		return
+	default:
+		// Queue is full, log an error
+		s.context.HandleException(fmt.Errorf("async job queue is full"))
+	}
+}
+
 // ScheduleWithTimeout schedules a job with a timeout
 func (s *Scheduler) ScheduleWithTimeout(fn func() error, timeout time.Duration) error {
 	resultCh := make(chan error, 1)
 	job := &Job{
-		fn:       fn,
+		fn: func() error {
+			defer func() {
+				if r := recover(); r != nil {
+					resultCh <- fmt.Errorf("panic: %v", r)
+				}
+			}()
+			return fn()
+		},
 		resultCh: resultCh,
+		async:    false,
+	}
+
+	// Check if we're already in a job execution context
+	s.currentJobLock.Lock()
+	isNestedCall := s.currentJob != nil && !s.currentJob.async
+	s.currentJobLock.Unlock()
+
+	// If this is a nested call from a synchronous job, handle it specially
+	if isNestedCall {
+		// Queue the job
+		select {
+		case <-s.ctx.Done():
+			return fmt.Errorf("scheduler stopped")
+		case s.jobQueue <- job:
+			// Create a separate goroutine to wait for the result with timeout
+			resultCh2 := make(chan error, 1)
+			go func() {
+				select {
+				case err := <-resultCh:
+					resultCh2 <- err
+				case <-time.After(timeout):
+					resultCh2 <- fmt.Errorf("operation timed out")
+				}
+			}()
+			return <-resultCh2
+		}
 	}
 
 	select {

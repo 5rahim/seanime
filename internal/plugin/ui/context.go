@@ -32,6 +32,7 @@ type Context struct {
 	wsSubscriber     *events.ClientEventSubscriber
 	eventListeners   *result.Map[string, *EventListener] // Event listeners registered by plugin functions
 
+	fieldRefCount  int                    // Number of field refs registered
 	exceptionCount int                    // Number of exceptions that have occurred
 	effectStack    map[string]bool        // Track currently executing effects to prevent infinite loops
 	effectCalls    map[string][]time.Time // Track effect calls within time window
@@ -97,6 +98,7 @@ func (c *Context) bind(vm *goja.Runtime, obj *goja.Object) {
 		return c.vm.ToValue(c.jsFetch(call))
 	})
 	_ = obj.Set("registerEventHandler", c.jsRegisterEventHandler)
+	_ = obj.Set("registerFieldRef", c.jsRegisterFieldRef)
 
 	_ = vm.Set("__ctx", obj)
 }
@@ -305,12 +307,10 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 		case <-ctx.Done():
 			return
 		case <-time.After(time.Duration(delay) * time.Millisecond):
-			if err := c.scheduler.Schedule(func() error {
+			c.scheduler.ScheduleAsync(func() error {
 				_, err := fn(goja.Undefined())
 				return err
-			}); err != nil {
-				c.logger.Error().Err(err).Msg("plugin: Error running timeout callback")
-			}
+			})
 		}
 	}(fn)
 
@@ -354,12 +354,10 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 			case <-ctx.Done():
 				return
 			case <-time.After(time.Duration(delay) * time.Millisecond):
-				if err := c.scheduler.Schedule(func() error {
+				c.scheduler.ScheduleAsync(func() error {
 					_, err := fn(goja.Undefined())
 					return err
-				}); err != nil {
-					c.logger.Error().Err(err).Msg("plugin: Error running interval callback")
-				}
+				})
 			}
 		}
 	}(fn)
@@ -425,12 +423,10 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 
 	// If dependency array is empty, execute effect once and return
 	if depsLen == 0 {
-		if err := c.scheduler.Schedule(func() error {
+		c.scheduler.ScheduleAsync(func() error {
 			_, err := effectFn(goja.Undefined())
 			return err
-		}); err != nil {
-			c.logger.Error().Err(err).Msg("plugin: Error running effect")
-		}
+		})
 		return c.vm.ToValue(func(call goja.FunctionCall) goja.Value {
 			return goja.Undefined()
 		})
@@ -496,15 +492,13 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 								c.effectCalls[effectID] = append(c.effectCalls[effectID], time.Now())
 								c.mu.Unlock()
 
-								if err := c.scheduler.Schedule(func() error {
+								c.scheduler.ScheduleAsync(func() error {
 									_, err := (*effectFn)(goja.Undefined())
 									c.mu.Lock()
 									c.effectStack[effectID] = false
 									c.mu.Unlock()
 									return err
-								}); err != nil {
-									c.logger.Error().Err(err).Msg("plugin: Error running effect")
-								}
+								})
 							}
 						}
 					}
@@ -548,20 +542,93 @@ func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
 	go func() {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) {
+				// Check if the handler name matches
 				if payload.HandlerName == handlerName {
-					if err := c.scheduler.Schedule(func() error {
+					c.scheduler.ScheduleAsync(func() error {
 						// Trigger the callback with the event payload
 						_, err := handlerCallback(goja.Undefined(), c.vm.ToValue(payload.Event))
 						return err
-					}); err != nil {
-						c.logger.Error().Err(err).Str("handlerName", handlerName).Msg("plugin: Error running event handler")
-					}
+					})
 				}
 			}
 		}
 	}()
 
 	return goja.Undefined()
+}
+
+// jsRegisterFieldRef allows to dynamically handle the value of a field outside the rendering context
+//
+//	Example:
+//	const fieldRef = ctx.registerFieldRef("my-field")
+//	fieldRef.setValue("Hello World!") // Triggers an immediate update on the client
+//	fieldRef.current // "Hello World!"
+//
+//	tray.render(() => tray.input({ fieldRef: "my-field" }))
+func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
+	fieldRefObj := c.vm.NewObject()
+
+	if c.fieldRefCount >= MAX_FIELD_REFS {
+		c.HandleTypeError("Too many field refs registered")
+		return goja.Undefined()
+	}
+
+	c.fieldRefCount++
+
+	var valueRef interface{}
+
+	fieldRefName, ok := call.Argument(0).Export().(string)
+	if !ok {
+		c.HandleTypeError("registerFieldRef requires a field name")
+	}
+
+	fieldRefObj.Set("setValue", func(call goja.FunctionCall) goja.Value {
+		value := call.Argument(0).Export()
+		if value == nil {
+			c.HandleTypeError("setValue requires a value")
+		}
+
+		c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{
+			FieldRef: fieldRefName,
+			Value:    value,
+		})
+
+		valueRef = value
+		fieldRefObj.Set("current", value)
+
+		return goja.Undefined()
+	})
+
+	valueRef = nil
+	fieldRefObj.Set("current", goja.Undefined())
+
+	// Listen for changes from the client
+	eventListener := c.RegisterEventListener(ClientFieldRefSendValueEvent, ClientRenderTrayEvent)
+	payload := ClientFieldRefSendValueEventPayload{}
+	renderPayload := ClientRenderTrayEventPayload{}
+	go func() {
+		for event := range eventListener.Channel {
+			if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) {
+				if payload.Value != nil {
+					// Schedule the update of the object
+					c.scheduler.ScheduleAsync(func() error {
+						fieldRefObj.Set("current", payload.Value)
+						return nil
+					})
+				}
+			}
+			// Check if the client is requesting a render
+			// If it is, we send the current value to the client
+			if event.ParsePayloadAs(ClientRenderTrayEvent, &renderPayload) {
+				c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{
+					FieldRef: fieldRefName,
+					Value:    valueRef,
+				})
+			}
+		}
+	}()
+
+	return fieldRefObj
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -587,17 +654,6 @@ func (c *Context) publishStateUpdate(id string) {
 		default:
 		}
 	}
-}
-
-func safeEffectCall(fn *goja.Callable) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic in effect: %v", r)
-		}
-	}()
-	fmt.Println("safeEffect", fn)
-	_, err = (*fn)(goja.Undefined())
-	return
 }
 
 func (c *Context) cleanupOldEffectCalls(effectID string) {

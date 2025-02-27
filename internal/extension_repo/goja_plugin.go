@@ -20,6 +20,17 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type PluginPermission string
+
+const (
+	PluginPermissionStorage             PluginPermission = "storage"              // Allows the plugin to store its own data
+	PluginPermissionDatabase            PluginPermission = "database"             // Allows the plugin to use the database
+	PluginPermissionPlayback            PluginPermission = "playback"             // Allows the plugin to use the playback manager
+	PluginPermissionAnilist             PluginPermission = "anilist"              // Allows the plugin to use the Anilist client
+	PluginPermissionFilesystemLocal     PluginPermission = "filesystem:local"     // Allow the plugin to access/write its own direcotry
+	PluginPermissionFilesystemLibraries PluginPermission = "filesystem:libraries" // Allow the plugin to access/write your library directories
+)
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Load Plugin
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,36 +83,7 @@ func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runti
 	return loader
 }
 
-// PluginBinds adds plugin-specific bindings like $ctx to the VM
-func (p *GojaPlugin) PluginBinds(vm *goja.Runtime, logger *zerolog.Logger) {
-	// Bind the app context
-	//_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
-
-	// Bind the store
-	p.BindStore(vm)
-
-	// Bind mutable bindings
-	goja_plugin_bindings.BindMutable(vm)
-}
-
-func (p *GojaPlugin) BindStore(vm *goja.Runtime) {
-	// Create a new object for the store
-	storeObj := vm.NewObject()
-	_ = storeObj.Set("get", p.store.Get)
-	_ = storeObj.Set("set", p.store.Set)
-	_ = storeObj.Set("length", p.store.Length)
-	_ = storeObj.Set("remove", p.store.Remove)
-	_ = storeObj.Set("removeAll", p.store.RemoveAll)
-	_ = storeObj.Set("getAll", p.store.GetAll)
-	_ = storeObj.Set("has", p.store.Has)
-	_ = storeObj.Set("getOrSet", p.store.GetOrSet)
-	_ = storeObj.Set("setIfLessThanLimit", p.store.SetIfLessThanLimit)
-	_ = storeObj.Set("unmarshalJSON", p.store.UnmarshalJSON)
-	_ = storeObj.Set("marshalJSON", p.store.MarshalJSON)
-	_ = storeObj.Set("reset", p.store.Reset)
-	_ = storeObj.Set("values", p.store.Values)
-	_ = vm.Set("$store", storeObj)
-}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func NewGojaPlugin(
 	loader *goja.Runtime,
@@ -135,7 +117,7 @@ func NewGojaPlugin(
 	pool, err := runtimeManager.GetOrCreatePluginPool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
-		p.PluginBinds(runtime, logger)
+		p.BindPluginAPIs(runtime, logger)
 		return runtime
 	})
 	if err != nil {
@@ -152,7 +134,7 @@ func NewGojaPlugin(
 	uiVM.SetFieldNameMapper(fm)
 	ShareBinds(uiVM, logger)
 	// Bind the store to the UI VM
-	p.BindStore(uiVM)
+	p.BindPluginAPIs(uiVM, logger)
 	// Create a new UI instance
 	p.ui = plugin_ui.NewUI(plugin_ui.NewUIOptions{
 		ExtensionID: ext.ID,
@@ -164,7 +146,14 @@ func NewGojaPlugin(
 	////////
 
 	// Bind the UI API to the loader so the plugin can register a new UI
-	BindUI(loader, p.ui)
+	// Create a new object for the UI
+	uiObj := loader.NewObject()
+	// Set the register method on the UI object
+	uiObj.Set("register", p.ui.Register)
+	// Set the UI object in the loader
+	loader.Set("$ui", uiObj)
+
+	////////
 
 	// Load the extension payload in the loader runtime
 	_, err = loader.RunString(source)
@@ -186,14 +175,48 @@ func NewGojaPlugin(
 	return p, nil
 }
 
-func BindUI(loader *goja.Runtime, ui *plugin_ui.UI) {
-	// Create a new object for the UI
-	uiObj := loader.NewObject()
-	// Set the register method on the UI object
-	uiObj.Set("register", ui.Register)
-	// Set the UI object in the loader
-	loader.Set("$ui", uiObj)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// BindPluginAPIs adds plugin-specific APIs
+func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
+	// Bind the app context
+	//_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
+
+	// Bind the store
+	p.bindStore(vm)
+	// Bind mutable bindings
+	goja_plugin_bindings.BindMutable(vm)
+
+	for _, permission := range p.ext.Permissions {
+		switch permission {
+		case string(PluginPermissionStorage):
+			plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
+		}
+	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (p *GojaPlugin) bindStore(vm *goja.Runtime) {
+	// Create a new object for the store
+	storeObj := vm.NewObject()
+	_ = storeObj.Set("get", p.store.Get)
+	_ = storeObj.Set("set", p.store.Set)
+	_ = storeObj.Set("length", p.store.Length)
+	_ = storeObj.Set("remove", p.store.Remove)
+	_ = storeObj.Set("removeAll", p.store.RemoveAll)
+	_ = storeObj.Set("getAll", p.store.GetAll)
+	_ = storeObj.Set("has", p.store.Has)
+	_ = storeObj.Set("getOrSet", p.store.GetOrSet)
+	_ = storeObj.Set("setIfLessThanLimit", p.store.SetIfLessThanLimit)
+	_ = storeObj.Set("unmarshalJSON", p.store.UnmarshalJSON)
+	_ = storeObj.Set("marshalJSON", p.store.MarshalJSON)
+	_ = storeObj.Set("reset", p.store.Reset)
+	_ = storeObj.Set("values", p.store.Values)
+	_ = vm.Set("$store", storeObj)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // BindHooks sets up hooks for the Goja runtime
 func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *extension.Extension) {
@@ -326,4 +349,14 @@ func normalizeException(err error) error {
 	}
 
 	return err
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (p *PluginPermission) String() string {
+	return string(*p)
+}
+
+func (p *PluginPermission) Is(str string) bool {
+	return strings.EqualFold(string(*p), str)
 }

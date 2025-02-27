@@ -122,12 +122,13 @@ func (f *Form) jsOnSubmit(call goja.FunctionCall) goja.Value {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientFormSubmittedEvent, &payload) {
 				if payload.FormName == f.Name {
-					if err := f.manager.ctx.scheduler.Schedule(func() error {
+					f.manager.ctx.scheduler.ScheduleAsync(func() error {
 						_, err := callback(goja.Undefined(), f.manager.ctx.vm.ToValue(payload.Data))
+						if err != nil {
+							f.manager.ctx.logger.Error().Err(err).Msg("error running form submit callback")
+						}
 						return err
-					}); err != nil {
-						f.manager.ctx.logger.Error().Err(err).Msg("error running form submit callback")
-					}
+					})
 				}
 			}
 		}

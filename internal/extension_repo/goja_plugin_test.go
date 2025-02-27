@@ -41,56 +41,26 @@ func TestNewGojaPluginUI(t *testing.T) {
 		});
 
 		$ui.register((ctx) => {
-			const tray = ctx.newTray();
+			console.log("%s");
+			console.log("this is the start");
 
-			const text = ctx.state("Hello, world!");
-			const text2 = ctx.state("Hello, world! 2");
-
-			const button = !!text ? tray.button({ label: "Click me", onClick: "my-action" }) : null;
-
-			ctx.setTimeout(() => {
-				text.set("");
-				tray.mount();
-			}, 500);
-
-			let url = "%s";
-
-			ctx.effect(async () => {
-				console.log("Effect with fetch fired");
-				const [res, res2] = await Promise.all([
-					ctx.fetch(url),
-					ctx.fetch(url),
-				]);
-				console.log("Effect with fetch result", res.json());
-			}, [text]);
+			const count = ctx.state(0)
 
 			ctx.effect(() => {
-				console.log("Effect fired", text.get());
-			}, [text]);
+				console.log("running effect that takes 1s")
+				ctx.setTimeout(() => {
+					console.log("1s elapsed since first effect called")
+				}, 1000)
+			}, [count])
 
 			ctx.effect(() => {
-				console.log("Effect fired", text.get());
-			}, [text]);
+				console.log("running effect that runs fast ran second")
+			}, [count])
 
-			// Will be called once when the webview is loaded
-			tray.render(() => tray.flex({
-				items: [
-					tray.text(text.get()),
-					button,
-					!!text.length ? tray.button({ label: text.get(), onClick: "my-action" }) : null
-				]
-			}))
+			count.set(p => p+1)
 
-			tray.mount();
+			console.log("this is the end");
 		});
-
-		// 	ctx.webview.addEventListener(ctx.webview.events.ANIME_LIBRARY_PAGE_VIEWED, (e) => {
-		// 		setMedia(e.media);
-		// 	});
-
-		// 	ctx.store.addEventListener("anime", (e) => {
-		// 		setState(e.anime.title.english);
-		// 	});
 
 	}
 	`, server.URL)
