@@ -32,6 +32,7 @@ func (fr *fetchResponse) toGojaObject(vm *goja.Runtime) *goja.Object {
 	obj := vm.NewObject()
 	_ = obj.Set("status", fr.response.StatusCode)
 	_ = obj.Set("statusText", fr.response.Status)
+	_ = obj.Set("method", fr.response.Request.Method)
 	_ = obj.Set("ok", fr.response.StatusCode >= 200 && fr.response.StatusCode < 300)
 	_ = obj.Set("url", fr.response.Request.URL.String())
 

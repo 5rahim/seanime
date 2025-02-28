@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"context"
+	"seanime/internal/api/anilist"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 
@@ -19,14 +21,14 @@ type Anilist struct {
 // Permissions needed: anilist
 func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension) {
 	anilistLogger := logger.With().Str("id", ext.ID).Logger()
-	anilist := &Anilist{
+	al := &Anilist{
 		ctx:    a,
 		ext:    ext,
 		logger: &anilistLogger,
 	}
 	anilistObj := vm.NewObject()
-	_ = anilistObj.Set("refreshAnimeCollection", anilist.RefreshAnimeCollection)
-	_ = anilistObj.Set("refreshMangaCollection", anilist.RefreshMangaCollection)
+	_ = anilistObj.Set("refreshAnimeCollection", al.RefreshAnimeCollection)
+	_ = anilistObj.Set("refreshMangaCollection", al.RefreshMangaCollection)
 
 	// Bind anilist platform
 	anilistPlatform, ok := a.anilistPlatform.Get()
@@ -48,9 +50,18 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 		_ = anilistObj.Set("getStudioDetails", anilistPlatform.GetStudioDetails)
 
 		anilistClient := anilistPlatform.GetAnilistClient()
-		_ = anilistObj.Set("listAnime", anilistClient.ListAnime)
-		_ = anilistObj.Set("listManga", anilistClient.ListManga)
-		_ = anilistObj.Set("listRecentAnime", anilistClient.ListRecentAnime)
+		_ = anilistObj.Set("listAnime", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, season *anilist.MediaSeason, seasonYear *int, format *anilist.MediaFormat, isAdult *bool) (*anilist.ListAnime, error) {
+			return anilistClient.ListAnime(context.Background(), page, search, perPage, sort, status, genres, averageScoreGreater, season, seasonYear, format, isAdult)
+		})
+		_ = anilistObj.Set("listManga", func(page *int, search *string, perPage *int, sort []*anilist.MediaSort, status []*anilist.MediaStatus, genres []*string, averageScoreGreater *int, startDateGreater *string, startDateLesser *string, format *anilist.MediaFormat, countryOfOrigin *string, isAdult *bool) (*anilist.ListManga, error) {
+			return anilistClient.ListManga(context.Background(), page, search, perPage, sort, status, genres, averageScoreGreater, startDateGreater, startDateLesser, format, countryOfOrigin, isAdult)
+		})
+		_ = anilistObj.Set("listRecentAnime", func(page *int, perPage *int, airingAtGreater *int, airingAtLesser *int, notYetAired *bool) (*anilist.ListRecentAnime, error) {
+			return anilistClient.ListRecentAnime(context.Background(), page, perPage, airingAtGreater, airingAtLesser, notYetAired)
+		})
+		_ = anilistObj.Set("customQuery", func(body map[string]interface{}, token string) (interface{}, error) {
+			return anilist.CustomQuery(body, a.logger, token)
+		})
 
 	}
 

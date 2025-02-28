@@ -1,10 +1,15 @@
 package extension_repo
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"reflect"
 	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
+	"seanime/internal/plugin"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
@@ -13,6 +18,7 @@ import (
 	gojaurl "github.com/dop251/goja_nodejs/url"
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/rs/zerolog"
+	"github.com/spf13/cast"
 )
 
 // GojaExtension is stored in the repository extension map, giving access to the VMs.
@@ -54,6 +60,8 @@ func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language,
 	}, program, nil
 }
 
+var cachedArrayOfTypes = plugin.NewStore[reflect.Type, reflect.Type](nil)
+
 // ShareBinds binds the shared bindings to the VM
 // This is called once per VM
 func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
@@ -79,6 +87,77 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 			logger.Error().Err(err).Str("name", binding.name).Msg("failed to bind")
 		}
 	}
+
+	vm.Set("toString", func(raw any, maxReaderBytes int) (string, error) {
+		switch v := raw.(type) {
+		case io.Reader:
+			if maxReaderBytes == 0 {
+				maxReaderBytes = 32 << 20 // 32 MB
+			}
+
+			limitReader := io.LimitReader(v, int64(maxReaderBytes))
+
+			bodyBytes, readErr := io.ReadAll(limitReader)
+			if readErr != nil {
+				return "", readErr
+			}
+
+			return string(bodyBytes), nil
+		default:
+			str, err := cast.ToStringE(v)
+			if err == nil {
+				return str, nil
+			}
+
+			// as a last attempt try to json encode the value
+			rawBytes, _ := json.Marshal(raw)
+
+			return string(rawBytes), nil
+		}
+	})
+
+	vm.Set("sleep", func(milliseconds int64) {
+		time.Sleep(time.Duration(milliseconds) * time.Millisecond)
+	})
+
+	vm.Set("arrayOf", func(model any) any {
+		mt := reflect.TypeOf(model)
+		st := cachedArrayOfTypes.GetOrSet(mt, func() reflect.Type {
+			return reflect.SliceOf(mt)
+		})
+
+		return reflect.New(st).Elem().Addr().Interface()
+	})
+
+	vm.Set("unmarshal", func(data, dst any) error {
+		raw, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+
+		return json.Unmarshal(raw, &dst)
+	})
+
+	vm.Set("Context", func(call goja.ConstructorCall) *goja.Object {
+		var instance context.Context
+
+		oldCtx, ok := call.Argument(0).Export().(context.Context)
+		if ok {
+			instance = oldCtx
+		} else {
+			instance = context.Background()
+		}
+
+		key := call.Argument(1).Export()
+		if key != nil {
+			instance = context.WithValue(instance, key, call.Argument(2).Export())
+		}
+
+		instanceValue := vm.ToValue(instance).(*goja.Object)
+		instanceValue.SetPrototype(call.This.Prototype())
+
+		return instanceValue
+	})
 }
 
 // JSVMTypescriptToJS converts typescript to javascript

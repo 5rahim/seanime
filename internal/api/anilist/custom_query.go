@@ -5,13 +5,22 @@ import (
 	"compress/gzip"
 	"errors"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"net/http"
 	"seanime/internal/util"
 	"strconv"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
 )
+
+func CustomQuery(body map[string]interface{}, logger *zerolog.Logger, token string) (data interface{}, err error) {
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	return customQuery(bodyBytes, logger, token)
+}
 
 func customQuery(body []byte, logger *zerolog.Logger, token ...string) (data interface{}, err error) {
 
