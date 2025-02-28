@@ -1,8 +1,14 @@
 package plugin
 
+// Source: PocketBase
+
 import (
 	"encoding/json"
+	goja_util "seanime/internal/util/goja"
+	"seanime/internal/util/result"
 	"sync"
+
+	"github.com/dop251/goja"
 )
 
 // @todo remove after https://github.com/golang/go/issues/20135
@@ -10,19 +16,75 @@ const ShrinkThreshold = 200 // the number is arbitrary chosen
 
 // Store defines a concurrent safe in memory key-value data store.
 type Store[K comparable, T any] struct {
-	data    map[K]T
-	mu      sync.RWMutex
-	deleted int64
+	data           map[K]T
+	mu             sync.RWMutex
+	keySubscribers *result.Map[K, []*StoreKeySubscriber[K, T]]
+	deleted        int64
+}
+
+type StoreKeySubscriber[K comparable, T any] struct {
+	Key     K
+	Channel chan T
 }
 
 // New creates a new Store[T] instance with a shallow copy of the provided data (if any).
 func NewStore[K comparable, T any](data map[K]T) *Store[K, T] {
-	s := &Store[K, T]{}
+	s := &Store[K, T]{
+		data:           make(map[K]T),
+		keySubscribers: result.NewResultMap[K, []*StoreKeySubscriber[K, T]](),
+		deleted:        0,
+	}
 
 	s.Reset(data)
 
 	return s
 }
+
+func (s *Store[K, T]) Stop() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.keySubscribers.Range(func(key K, subscribers []*StoreKeySubscriber[K, T]) bool {
+		for _, subscriber := range subscribers {
+			close(subscriber.Channel)
+		}
+		return true
+	})
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+// BindWatch binds the watch method to the store object in the runtime.
+func (s *Store[K, T]) BindWatch(storeObj *goja.Object, vm *goja.Runtime, scheduler *goja_util.Scheduler) {
+
+	//	Example:
+	//	store.watch("key", (value) => {
+	//		console.log(value)
+	//	})
+	_ = storeObj.Set("watch", func(key K, callback goja.Callable) goja.Value {
+		// Create a new subscriber
+		subscriber := &StoreKeySubscriber[K, T]{
+			Key:     key,
+			Channel: make(chan T),
+		}
+		s.keySubscribers.Set(key, []*StoreKeySubscriber[K, T]{subscriber})
+
+		// Listen for changes
+		go func() {
+			for value := range subscriber.Channel {
+				// Schedule the callback when the value changes
+				scheduler.ScheduleAsync(func() error {
+					callback(goja.Undefined(), vm.ToValue(value))
+					return nil
+				})
+			}
+		}()
+
+		return goja.Undefined()
+	})
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Reset clears the store and replaces the store data with a
 // shallow copy of the provided newData.
@@ -146,6 +208,9 @@ func (s *Store[K, T]) Set(key K, value T) {
 	}
 
 	s.data[key] = value
+
+	// Notify subscribers
+	go s.notifySubscribers(key, value)
 }
 
 // GetOrSet retrieves a single existing value for the provided key
@@ -163,6 +228,10 @@ func (s *Store[K, T]) GetOrSet(key K, setFunc func() T) T {
 			s.data = make(map[K]T)
 		}
 		s.data[key] = v
+
+		// Notify subscribers
+		go s.notifySubscribers(key, v)
+
 		s.mu.Unlock()
 	}
 
@@ -193,6 +262,9 @@ func (s *Store[K, T]) SetIfLessThanLimit(key K, value T, maxAllowedElements int)
 	// add/overwrite item
 	s.data[key] = value
 
+	// Notify subscribers
+	go s.notifySubscribers(key, value)
+
 	return true
 }
 
@@ -215,6 +287,9 @@ func (s *Store[K, T]) UnmarshalJSON(data []byte) error {
 
 	for k, v := range raw {
 		s.data[k] = v
+
+		// Notify subscribers
+		go s.notifySubscribers(k, v)
 	}
 
 	return nil
@@ -224,4 +299,18 @@ func (s *Store[K, T]) UnmarshalJSON(data []byte) error {
 // store data into valid JSON.
 func (s *Store[K, T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.GetAll())
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (s *Store[K, T]) notifySubscribers(key K, value T) {
+	s.keySubscribers.Range(func(subscriberKey K, subscribers []*StoreKeySubscriber[K, T]) bool {
+		if subscriberKey != key {
+			return true
+		}
+		for _, subscriber := range subscribers {
+			subscriber.Channel <- value
+		}
+		return true
+	})
 }

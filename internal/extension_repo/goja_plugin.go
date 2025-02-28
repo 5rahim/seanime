@@ -6,29 +6,18 @@ import (
 	"reflect"
 	"seanime/internal/events"
 	"seanime/internal/extension"
-	"seanime/internal/goja/goja_plugin_bindings"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/plugin"
 	plugin_ui "seanime/internal/plugin/ui"
 	"seanime/internal/util"
+	goja_util "seanime/internal/util/goja"
 	"slices"
 	"strings"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	"github.com/rs/zerolog"
-)
-
-type PluginPermission string
-
-const (
-	PluginPermissionStorage             PluginPermission = "storage"              // Allows the plugin to store its own data
-	PluginPermissionDatabase            PluginPermission = "database"             // Allows the plugin to use the database
-	PluginPermissionPlayback            PluginPermission = "playback"             // Allows the plugin to use the playback manager
-	PluginPermissionAnilist             PluginPermission = "anilist"              // Allows the plugin to use the Anilist client
-	PluginPermissionFilesystemLocal     PluginPermission = "filesystem:local"     // Allow the plugin to access/write its own direcotry
-	PluginPermissionFilesystemLibraries PluginPermission = "filesystem:libraries" // Allow the plugin to access/write your library directories
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,14 +52,18 @@ type GojaPlugin struct {
 	runtimeManager *goja_runtime.Manager
 	store          *plugin.Store[string, any]
 	ui             *plugin_ui.UI
+	scheduler      *goja_util.Scheduler
 }
 
 func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
 	p.pool.Put(vm)
 }
 
+// ClearInterrupt stops the UI VM and other modules.
+// It is called when the extension is unloaded.
 func (p *GojaPlugin) ClearInterrupt() {
 	p.ui.ClearInterrupt()
+	p.store.Stop()
 }
 
 func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
@@ -100,6 +93,8 @@ func NewGojaPlugin(
 		logger:         logger,
 		runtimeManager: runtimeManager,
 		store:          plugin.NewStore[string, any](nil),
+		scheduler:      goja_util.NewScheduler(),
+		ui:             nil,
 	}
 
 	// Convert the payload to JavaScript if necessary
@@ -137,10 +132,11 @@ func NewGojaPlugin(
 	p.BindPluginAPIs(uiVM, logger)
 	// Create a new UI instance
 	p.ui = plugin_ui.NewUI(plugin_ui.NewUIOptions{
-		ExtensionID: ext.ID,
-		Logger:      logger,
-		VM:          uiVM,
-		WSManager:   wsEventManager,
+		Extension: ext,
+		Logger:    logger,
+		VM:        uiVM,
+		WSManager: wsEventManager,
+		Scheduler: p.scheduler,
 	})
 
 	////////
@@ -185,12 +181,23 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind the store
 	p.bindStore(vm)
 	// Bind mutable bindings
-	goja_plugin_bindings.BindMutable(vm)
+	goja_util.BindMutable(vm)
 
-	for _, permission := range p.ext.Permissions {
-		switch permission {
-		case string(PluginPermissionStorage):
-			plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
+	// Bind permission-specific APIs
+	if p.ext.Plugin != nil {
+		for _, permission := range p.ext.Plugin.Permissions {
+			switch permission.String() {
+			case extension.PluginPermissionStorage.String():
+				plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
+			case extension.PluginPermissionAnilist.String():
+				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext)
+			case extension.PluginPermissionDatabase.String():
+				plugin.GlobalAppContext.BindDatabase(vm, logger, p.ext)
+			case extension.PluginPermissionOS.String():
+				plugin.GlobalAppContext.BindOS(vm, logger, p.ext)
+				plugin.GlobalAppContext.BindFilepath(vm, logger, p.ext)
+				plugin.GlobalAppContext.BindFilesystem(vm, logger, p.ext)
+			}
 		}
 	}
 }
@@ -213,6 +220,7 @@ func (p *GojaPlugin) bindStore(vm *goja.Runtime) {
 	_ = storeObj.Set("marshalJSON", p.store.MarshalJSON)
 	_ = storeObj.Set("reset", p.store.Reset)
 	_ = storeObj.Set("values", p.store.Values)
+	p.store.BindWatch(storeObj, vm, p.scheduler)
 	_ = vm.Set("$store", storeObj)
 }
 
@@ -352,11 +360,3 @@ func normalizeException(err error) error {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (p *PluginPermission) String() string {
-	return string(*p)
-}
-
-func (p *PluginPermission) Is(str string) bool {
-	return strings.EqualFold(string(*p), str)
-}

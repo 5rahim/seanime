@@ -3,7 +3,6 @@ import { useGetAnimeEntry } from "@/api/hooks/anime_entries.hooks"
 import { MediaEntryCharactersSection } from "@/app/(main)/_features/media/_components/media-entry-characters-section"
 import { MediaEntryPageLoadingDisplay } from "@/app/(main)/_features/media/_components/media-entry-page-loading-display"
 import { useSeaCommandInject } from "@/app/(main)/_features/sea-command/use-inject"
-import { useWebsocketSendEffect } from "@/app/(main)/_hooks/handle-websockets"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { MetaSection } from "@/app/(main)/entry/_components/meta-section"
 import { RelationsRecommendationsSection } from "@/app/(main)/entry/_components/relations-recommendations-section"
@@ -13,7 +12,6 @@ import { __torrentSearch_drawerIsOpenAtom, TorrentSearchDrawer } from "@/app/(ma
 import { TorrentStreamPage } from "@/app/(main)/entry/_containers/torrent-stream/torrent-stream-page"
 import { OnlinestreamPage } from "@/app/(main)/onlinestream/_containers/onlinestream-page"
 import { PageWrapper } from "@/components/shared/page-wrapper"
-import { WebviewEvents } from "@/lib/server/ws-events"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import { AnimatePresence } from "framer-motion"
 import { atom } from "jotai"
@@ -79,12 +77,12 @@ export function AnimeEntryPage() {
         }
     }, [animeEntry])
 
-    useWebsocketSendEffect({
-        type: WebviewEvents.ANIME_ENTRY_PAGE_VIEWED,
-        payload: {
-            animeEntry,
-        },
-    }, animeEntry)
+    // useWebsocketSendEffect({
+    //     type: WebviewEvents.ANIME_ENTRY_PAGE_VIEWED,
+    //     payload: {
+    //         animeEntry,
+    //     },
+    // }, animeEntry)
 
     const switchedView = React.useRef(false)
     React.useLayoutEffect(() => {

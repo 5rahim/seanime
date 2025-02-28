@@ -25,9 +25,9 @@ func NewTrayManager(ctx *Context) *TrayManager {
 	}
 }
 
-// renderTrayUnscheduled renders the new component tree.
+// renderTrayScheduled renders the new component tree.
 // This function is unsafe because it is not thread-safe and should be scheduled.
-func (t *TrayManager) renderTrayUnscheduled() {
+func (t *TrayManager) renderTrayScheduled() {
 	t.updateMutex.Lock()
 	defer t.updateMutex.Unlock()
 
@@ -43,16 +43,21 @@ func (t *TrayManager) renderTrayUnscheduled() {
 
 	t.lastUpdatedAt = time.Now()
 
-	newComponents, err := t.componentManager.renderComponents(tray.renderFunc)
-	if err != nil {
-		t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render tray")
-		t.ctx.HandleException(err)
-		return
-	}
+	t.ctx.scheduler.ScheduleAsync(func() error {
+		// t.ctx.logger.Trace().Msg("plugin: Rendering tray")
+		newComponents, err := t.componentManager.renderComponents(tray.renderFunc)
+		if err != nil {
+			t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render tray")
+			t.ctx.HandleException(err)
+			return nil
+		}
 
-	// Send the JSON value to the client
-	t.ctx.SendEventToClient(ServerTrayUpdatedEvent, ServerTrayUpdatedEventPayload{
-		Components: newComponents,
+		// t.ctx.logger.Trace().Msg("plugin: Sending tray update to client")
+		// Send the JSON value to the client
+		t.ctx.SendEventToClient(ServerTrayUpdatedEvent, ServerTrayUpdatedEventPayload{
+			Components: newComponents,
+		})
+		return nil
 	})
 }
 
@@ -97,6 +102,10 @@ func (t *TrayManager) jsNewTray(goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("text", t.componentManager.jsText)
 	_ = trayObj.Set("button", t.componentManager.jsButton)
 	_ = trayObj.Set("input", t.componentManager.jsInput)
+	_ = trayObj.Set("radioGroup", t.componentManager.jsRadioGroup)
+	_ = trayObj.Set("switch", t.componentManager.jsSwitch)
+	_ = trayObj.Set("checkbox", t.componentManager.jsCheckbox)
+	_ = trayObj.Set("select", t.componentManager.jsSelect)
 
 	return trayObj
 }
@@ -125,10 +134,7 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 //	Example:
 //	tray.update()
 func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
-	t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
-		t.trayManager.renderTrayUnscheduled()
-		return nil
-	})
+	t.trayManager.renderTrayScheduled()
 	return goja.Undefined()
 }
 

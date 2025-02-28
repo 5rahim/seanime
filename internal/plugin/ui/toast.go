@@ -16,12 +16,13 @@ func NewToastManager(ctx *Context) *ToastManager {
 	}
 }
 
-func (t *ToastManager) BindToast(contextObj *goja.Object) {
-	toastObj := t.ctx.vm.NewObject()
+func (t *ToastManager) bind(vm *goja.Runtime, contextObj *goja.Object) {
+	toastObj := vm.NewObject()
 	_ = toastObj.Set("success", t.jsToastSuccess)
 	_ = toastObj.Set("error", t.jsToastError)
 	_ = toastObj.Set("info", t.jsToastInfo)
 	_ = toastObj.Set("warning", t.jsToastWarning)
+
 	_ = contextObj.Set("toast", toastObj)
 }
 

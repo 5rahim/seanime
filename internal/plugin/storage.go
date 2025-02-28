@@ -13,8 +13,9 @@ import (
 )
 
 type Storage struct {
-	ctx *AppContextImpl
-	ext *extension.Extension
+	ctx    *AppContextImpl
+	ext    *extension.Extension
+	logger *zerolog.Logger
 }
 
 var (
@@ -25,9 +26,11 @@ var (
 // Permissions need to be checked by the caller.
 // Permissions needed: storage
 func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension) {
+	storageLogger := logger.With().Str("id", ext.ID).Logger()
 	storage := &Storage{
-		ctx: a,
-		ext: ext,
+		ctx:    a,
+		ext:    ext,
+		logger: &storageLogger,
 	}
 	storageObj := vm.NewObject()
 	_ = storageObj.Set("get", storage.Get)
@@ -295,6 +298,7 @@ func getAllKeys(data map[string]interface{}, prefix string) []string {
 }
 
 func (s *Storage) Delete(key string) error {
+	s.logger.Trace().Msgf("plugin: Deleting key %s", key)
 	pluginData, err := s.getPluginData(false)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -316,6 +320,7 @@ func (s *Storage) Delete(key string) error {
 }
 
 func (s *Storage) Drop() error {
+	s.logger.Trace().Msg("plugin: Dropping storage")
 	db, err := s.getDB()
 	if err != nil {
 		return err
@@ -325,6 +330,7 @@ func (s *Storage) Drop() error {
 }
 
 func (s *Storage) Clear() error {
+	s.logger.Trace().Msg("plugin: Clearing storage")
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
 		return err
@@ -369,6 +375,7 @@ func (s *Storage) Has(key string) (bool, error) {
 }
 
 func (s *Storage) Get(key string) (interface{}, error) {
+	s.logger.Trace().Msgf("plugin: Getting key %s", key)
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
 		return nil, err
@@ -383,6 +390,7 @@ func (s *Storage) Get(key string) (interface{}, error) {
 }
 
 func (s *Storage) Set(key string, value interface{}) error {
+	s.logger.Trace().Msgf("plugin: Setting key %s", key)
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
 		return err

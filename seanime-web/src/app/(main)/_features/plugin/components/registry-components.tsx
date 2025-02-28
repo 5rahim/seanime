@@ -113,6 +113,187 @@ export function PluginInput(props: InputProps) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+interface SelectProps {
+    options: Array<{
+        label: string
+        value: string
+    }>
+    id?: string
+    label?: string
+    onChange?: string
+    fieldRef?: string
+    style?: React.CSSProperties
+    value?: string
+}
+
+export function PluginSelect(props: SelectProps) {
+    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
+    const [value, setValue] = React.useState(props.value)
+    const debouncedValue = useDebounce(value, 200)
+
+    useEffect(() => {
+        if (props.onChange) {
+            sendHandlerTriggeredEvent({
+                handlerName: props.onChange,
+                event: { value: debouncedValue },
+            })
+        }
+        if (props.fieldRef) {
+            sendFieldRefSendValueEvent({
+                fieldRef: props.fieldRef,
+                value: debouncedValue,
+            })
+        }
+    }, [debouncedValue])
+
+    return (
+        <Select
+            id={props.id}
+            label={props.label}
+            style={props.style}
+            options={props.options}
+            value={value}
+            onValueChange={(value) => setValue(value)}
+        />
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface CheckboxProps {
+    label?: string
+    id?: string
+    style?: React.CSSProperties
+    value?: boolean
+    onChange?: string
+    fieldRef?: string
+}
+
+export function PluginCheckbox(props: CheckboxProps) {
+    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
+    const [value, setValue] = React.useState(props.value)
+    const debouncedValue = useDebounce(value, 200)
+
+    useEffect(() => {
+        if (props.onChange) {
+            sendHandlerTriggeredEvent({
+                handlerName: props.onChange,
+                event: { value: value },
+            })
+        }
+        if (props.fieldRef) {
+            sendFieldRefSendValueEvent({
+                fieldRef: props.fieldRef,
+                value: value,
+            })
+        }
+    }, [debouncedValue])
+
+    return (
+        <Checkbox
+            id={props.id}
+            label={props.label}
+            style={props.style}
+            value={value}
+            onValueChange={(value) => typeof value === "boolean" && setValue(value)}
+        />
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface SwitchProps {
+    label?: string
+    id?: string
+    style?: React.CSSProperties
+    value?: boolean
+    onChange?: string
+    fieldRef?: string
+}
+
+export function PluginSwitch(props: SwitchProps) {
+    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
+    const [value, setValue] = React.useState(props.value)
+    const debouncedValue = useDebounce(value, 200)
+
+    useEffect(() => {
+        if (props.onChange) {
+            sendHandlerTriggeredEvent({
+                handlerName: props.onChange,
+                event: { value: value },
+            })
+        }
+        if (props.fieldRef) {
+            sendFieldRefSendValueEvent({
+                fieldRef: props.fieldRef,
+                value: value,
+            })
+        }
+    }, [debouncedValue])
+
+    return (
+        <Switch
+            id={props.id}
+            label={props.label}
+            style={props.style}
+            value={value}
+            onValueChange={(value) => typeof value === "boolean" && setValue(value)}
+        />
+    )
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+interface RadioGroupProps {
+    options: Array<{
+        label: string
+        value: string
+    }>
+    id?: string
+    label?: string
+    onChange?: string
+    fieldRef?: string
+    style?: React.CSSProperties
+    value?: string
+}
+
+export function PluginRadioGroup(props: RadioGroupProps) {
+    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
+    const [value, setValue] = React.useState(props.value)
+    const debouncedValue = useDebounce(value, 200)
+
+    useEffect(() => {
+        if (props.onChange) {
+            sendHandlerTriggeredEvent({
+                handlerName: props.onChange,
+                event: { value: value },
+            })
+        }
+        if (props.fieldRef) {
+            sendFieldRefSendValueEvent({
+                fieldRef: props.fieldRef,
+                value: value,
+            })
+        }
+    }, [debouncedValue])
+
+    return (
+        <RadioGroup
+            id={props.id}
+            label={props.label}
+            options={props.options}
+            value={value}
+            onValueChange={(value) => setValue(value)}
+        />
+    )
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 interface FlexProps {
     items?: any[]
     direction?: "row" | "column"

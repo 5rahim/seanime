@@ -317,9 +317,11 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 func (r *Repository) loadPlugins() {
 
 	testExt := &extension.Extension{
-		ID:          "test-plugin",
-		Language:    extension.LanguageTypescript,
-		Permissions: []string{string(PluginPermissionStorage)},
+		ID:       "test-plugin",
+		Language: extension.LanguageTypescript,
+		Plugin: &extension.PluginManifest{
+			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionOS},
+		},
 		Payload: `
 			function init() {
 				$ui.register((ctx) => {
@@ -330,16 +332,6 @@ func (r *Repository) loadPlugins() {
 					
 					const form = ctx.newForm("form")
 					const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
-
-					ctx.screen.onNavigate((e) => {
-						if (e.pathname === "/entry" && !!e.query) {
-							const id = parseInt(e.query.replace("?id=", ""));
-							currentMediaId.set(id);
-						} else {
-							currentMediaId.set(0);
-						}
-						tray.update();
-					});
 					
 					function setFormValues(backgroundImage) {
 						form.setValues({
@@ -356,22 +348,40 @@ func (r *Repository) loadPlugins() {
 						} else {
 							storageBackgroundImage.set("");
 							customBannerImageRef.setValue("");
+							form.reset();
 						}
 					}
 
 					ctx.effect(() => {
+						console.log("media ID changed, fetching background image and updating tray");
 						fetchBackgroundImage();
+
+						console.log("updating tray");
 						tray.update();
 					}, [currentMediaId]);
 
 
 					fetchBackgroundImage()
 
+					ctx.screen.onNavigate((e) => {
+						console.log("screen navigated", e);
+						if (e.pathname === "/entry" && !!e.query) {
+							const id = parseInt(e.query.replace("?id=", ""));
+							currentMediaId.set(id);
+						} else {
+							currentMediaId.set(0);
+						}
+
+						console.log("updating tray");
+						tray.update();
+					});
+
 					form.onSubmit((data) => {
 						$storage.set('backgroundImages.' + currentMediaId.get(), data.customBannerImage);
 						ctx.toast.success("Background image saved");
 						fetchBackgroundImage();
 						tray.update();
+						$anilist.refreshAnimeCollection();
 					});
 
 					ctx.registerEventHandler("saveBackgroundImage", () => {
@@ -380,6 +390,7 @@ func (r *Repository) loadPlugins() {
 						ctx.toast.success("Background image saved");
 						fetchBackgroundImage();
 						tray.update();
+						$anilist.refreshAnimeCollection();
 					});
 
 					tray.render(() => {

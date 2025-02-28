@@ -1,5 +1,7 @@
 package extension
 
+import "strings"
+
 type Consumer interface {
 	InitExtensionBank(bank *UnifiedBank)
 }
@@ -9,6 +11,8 @@ type Consumer interface {
 type Type string
 
 type Language string
+
+type PluginPermission string
 
 const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
@@ -21,6 +25,14 @@ const (
 	LanguageJavascript Language = "javascript"
 	LanguageTypescript Language = "typescript"
 	LanguageGo         Language = "go"
+)
+
+var (
+	PluginPermissionStorage  PluginPermission = "storage"  // Allows the plugin to store its own data
+	PluginPermissionDatabase PluginPermission = "database" // Allows the plugin to use the database
+	PluginPermissionPlayback PluginPermission = "playback" // Allows the plugin to use the playback manager
+	PluginPermissionAnilist  PluginPermission = "anilist"  // Allows the plugin to use the Anilist client
+	PluginPermissionOS       PluginPermission = "os"       // Allows the plugin to use the OS/Filesystem/Filepath functions
 )
 
 type Extension struct {
@@ -57,6 +69,12 @@ type Extension struct {
 	// PayloadURI is the URI to the extension payload.
 	// It can be used as an alternative to the Payload field.
 	PayloadURI string `json:"payloadURI,omitempty"`
+	// Plugin is the manifest of the extension if it is a plugin.
+	Plugin *PluginManifest `json:"plugin,omitempty"`
+}
+
+type PluginManifest struct {
+	Permissions []PluginPermission `json:"permissions,omitempty"`
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,3 +200,11 @@ type (
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (p *PluginPermission) String() string {
+	return string(*p)
+}
+
+func (p *PluginPermission) Is(str string) bool {
+	return strings.EqualFold(string(*p), str)
+}

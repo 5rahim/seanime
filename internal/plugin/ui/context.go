@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"reflect"
 	"seanime/internal/events"
+	"seanime/internal/extension"
+	goja_util "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"sync"
 	"time"
@@ -18,7 +20,7 @@ import (
 type Context struct {
 	ui *UI
 
-	extensionID    string
+	ext            *extension.Extension
 	logger         *zerolog.Logger
 	wsEventManager events.WSEventManagerInterface
 
@@ -28,7 +30,7 @@ type Context struct {
 	vm               *goja.Runtime
 	states           *result.Map[string, *State]
 	stateSubscribers []chan *State
-	scheduler        *Scheduler // Schedule VM executions concurrently and execute them in order.
+	scheduler        *goja_util.Scheduler // Schedule VM executions concurrently and execute them in order.
 	wsSubscriber     *events.ClientEventSubscriber
 	eventListeners   *result.Map[string, *EventListener] // Event listeners registered by plugin functions
 
@@ -49,9 +51,7 @@ type State struct {
 	Value goja.Value
 }
 
-// EventListener is a struct that contains the event type to listen for, and the channel for the event payload
-// - It is registered by plugin functions
-// - It is used to listen for events from the client
+// EventListener is used by Goja methods to listen for events from the client
 type EventListener struct {
 	ID       string
 	ListenTo []ClientEventType       // Optional event type to listen for
@@ -61,7 +61,7 @@ type EventListener struct {
 func NewContext(ui *UI) *Context {
 	ret := &Context{
 		ui:               ui,
-		extensionID:      ui.extensionID,
+		ext:              ui.ext,
 		logger:           ui.logger,
 		vm:               ui.vm,
 		states:           result.NewResultMap[string, *State](),
@@ -73,7 +73,7 @@ func NewContext(ui *UI) *Context {
 		effectCalls:      make(map[string][]time.Time),
 	}
 
-	ret.scheduler = NewScheduler(ret)
+	ret.scheduler = ui.scheduler
 
 	ret.trayManager = NewTrayManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
@@ -84,10 +84,11 @@ func NewContext(ui *UI) *Context {
 	return ret
 }
 
-func (c *Context) bind(vm *goja.Runtime, obj *goja.Object) {
+func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
+	obj := vm.NewObject()
+
 	_ = obj.Set("newTray", c.trayManager.jsNewTray)
 	_ = obj.Set("newForm", c.formManager.jsNewForm)
-	c.toastManager.BindToast(obj)
 
 	_ = obj.Set("state", c.jsState)
 	_ = obj.Set("setTimeout", c.jsSetTimeout)
@@ -99,6 +100,11 @@ func (c *Context) bind(vm *goja.Runtime, obj *goja.Object) {
 	})
 	_ = obj.Set("registerEventHandler", c.jsRegisterEventHandler)
 	_ = obj.Set("registerFieldRef", c.jsRegisterFieldRef)
+
+	// Bind screen manager
+	c.screenManager.bind(vm, obj)
+	// Bind toast manager
+	c.toastManager.bind(vm, obj)
 
 	_ = vm.Set("__ctx", obj)
 }
@@ -119,7 +125,7 @@ func (c *Context) RegisterEventListener(events ...ClientEventType) *EventListene
 // It always passes the extension ID
 func (c *Context) SendEventToClient(eventType ServerEventType, payload interface{}) {
 	c.wsEventManager.SendEvent(string(events.PluginEvent), &ServerPluginEvent{
-		ExtensionID: c.extensionID,
+		ExtensionID: c.ext.ID,
 		Type:        eventType,
 		Payload:     payload,
 	})
@@ -165,9 +171,12 @@ func (c *Context) fatalError(err error) {
 		})
 	} else {
 		c.SendEventToClient(ServerFatalErrorEvent, ServerFatalErrorEventPayload{
-			Error: "The plugin has encountered a fatal error. It has been terminated.",
+			Error: fmt.Sprintf("plugin '%s' has encountered a fatal error and has been terminated.", c.ext.Name),
 		})
 	}
+
+	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("Plugin: '%s' has encountered a fatal error and has been terminated.", c.ext.Name))
+
 	c.ui.ClearInterrupt()
 }
 
@@ -410,8 +419,15 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 	}
 
 	depsObj, ok := call.Argument(1).(*goja.Object)
+	// If no dependencies, execute effect once and return
 	if !ok {
-		c.HandleTypeError("second argument to effect must be an array")
+		c.scheduler.ScheduleAsync(func() error {
+			_, err := effectFn(goja.Undefined())
+			return err
+		})
+		return c.vm.ToValue(func(call goja.FunctionCall) goja.Value {
+			return goja.Undefined()
+		})
 	}
 
 	// Generate unique ID for this effect

@@ -39,7 +39,7 @@ func (a *App) initModulesOnce() {
 		_, _ = a.RefreshMangaCollection()
 	})
 
-	plugin.GlobalAppContext.SetModules(plugin.AppContextModules{
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		OnRefreshAnilistAnimeCollection: func() {
 			_, _ = a.RefreshAnimeCollection()
 		},

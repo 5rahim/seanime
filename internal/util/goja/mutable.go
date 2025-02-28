@@ -1,4 +1,4 @@
-package goja_plugin_bindings
+package goja_util
 
 import (
 	"encoding/json"

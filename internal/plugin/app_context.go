@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"seanime/internal/database/db"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/platform"
@@ -15,19 +16,36 @@ type AppContextModules struct {
 	Database                        *db.Database
 	AnilistPlatform                 platform.Platform
 	PlaybackManager                 *playbackmanager.PlaybackManager
+	WSEventManager                  events.WSEventManagerInterface
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
 }
 
-// AppContext contains all the modules that are available to the plugin.
-// It is used to bind JS APIs to the Goja runtimes.
+// AppContext allows plugins to interact with core modules.
+// It binds JS APIs to the Goja runtimes for that purpose.
 type AppContext interface {
+	// SetModulesPartial sets modules if they are not nil
+	SetModulesPartial(AppContextModules)
+	// SetLogger sets the logger for the context
+	SetLogger(logger *zerolog.Logger)
+
 	Database() mo.Option[*db.Database]
 	PlaybackManager() mo.Option[*playbackmanager.PlaybackManager]
 	AnilistPlatform() mo.Option[platform.Platform]
-	SetModules(AppContextModules)
+	WSEventManager() mo.Option[events.WSEventManagerInterface]
 
+	// BindStorage binds $storage to the Goja runtime
 	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	// BindAnilist binds $anilist to the Goja runtime
+	BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	// BindDatabase binds $database to the Goja runtime
+	BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	// BindFilepath binds $filepath to the Goja runtime
+	BindFilepath(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	// BindOS binds $os to the Goja runtime
+	BindOS(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	// BindFilesystem binds $filesystem to the Goja runtime
+	BindFilesystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 }
 
 var GlobalAppContext = NewAppContext()
@@ -35,6 +53,9 @@ var GlobalAppContext = NewAppContext()
 ////////////////////////////////////////////////////////////////////////////
 
 type AppContextImpl struct {
+	logger *zerolog.Logger
+
+	wsEventManager  mo.Option[events.WSEventManagerInterface]
 	database        mo.Option[*db.Database]
 	playbackManager mo.Option[*playbackmanager.PlaybackManager]
 	anilistPlatform mo.Option[platform.Platform]
@@ -44,13 +65,19 @@ type AppContextImpl struct {
 }
 
 func NewAppContext() AppContext {
+	nopLogger := zerolog.Nop()
 	appCtx := &AppContextImpl{
+		logger:          &nopLogger,
 		database:        mo.None[*db.Database](),
 		playbackManager: mo.None[*playbackmanager.PlaybackManager](),
 		anilistPlatform: mo.None[platform.Platform](),
 	}
 
 	return appCtx
+}
+
+func (a *AppContextImpl) SetLogger(logger *zerolog.Logger) {
+	a.logger = logger
 }
 
 func (a *AppContextImpl) Database() mo.Option[*db.Database] {
@@ -65,8 +92,11 @@ func (a *AppContextImpl) AnilistPlatform() mo.Option[platform.Platform] {
 	return a.anilistPlatform
 }
 
-// SetModules sets modules individually if they are not nil
-func (a *AppContextImpl) SetModules(modules AppContextModules) {
+func (a *AppContextImpl) WSEventManager() mo.Option[events.WSEventManagerInterface] {
+	return a.wsEventManager
+}
+
+func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 	if modules.Database != nil {
 		a.database = mo.Some(modules.Database)
 	}
@@ -85,5 +115,9 @@ func (a *AppContextImpl) SetModules(modules AppContextModules) {
 
 	if modules.OnRefreshAnilistMangaCollection != nil {
 		a.onRefreshAnilistMangaCollection = mo.Some(modules.OnRefreshAnilistMangaCollection)
+	}
+
+	if modules.WSEventManager != nil {
+		a.wsEventManager = mo.Some(modules.WSEventManager)
 	}
 }

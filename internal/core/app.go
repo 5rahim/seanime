@@ -121,6 +121,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	hookManager := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
 	hook.SetGlobalHookManager(hookManager)
+	plugin.GlobalAppContext.SetLogger(logger)
 
 	previousVersion := constants.Version
 
@@ -167,7 +168,7 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	database.TrimScanSummaryEntries()   // ran in goroutine
 	database.TrimTorrentstreamHistory() // ran in goroutine
 
-	plugin.GlobalAppContext.SetModules(plugin.AppContextModules{
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		Database: database,
 	})
 
@@ -221,8 +222,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 
 	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistCW, logger)
 
-	plugin.GlobalAppContext.SetModules(plugin.AppContextModules{
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		AnilistPlatform: anilistPlatform,
+		WSEventManager:  wsEventManager,
 	})
 
 	// Platforms

@@ -3,7 +3,9 @@ package plugin_ui
 import (
 	"seanime/internal/database/db"
 	"seanime/internal/events"
+	"seanime/internal/extension"
 	"seanime/internal/plugin"
+	goja_util "seanime/internal/util/goja"
 	"sync"
 
 	"github.com/dop251/goja"
@@ -19,13 +21,14 @@ const (
 
 // UI registry, unique to a plugin and VM
 type UI struct {
-	extensionID    string
+	ext            *extension.Extension
 	context        *Context
 	mu             sync.RWMutex
 	vm             *goja.Runtime // VM executing the UI
 	logger         *zerolog.Logger
 	wsEventManager events.WSEventManagerInterface
 	appContext     plugin.AppContext
+	scheduler      *goja_util.Scheduler
 }
 
 func (u *UI) ClearInterrupt() {
@@ -35,28 +38,34 @@ func (u *UI) ClearInterrupt() {
 	u.vm.ClearInterrupt()
 	u.context.scheduler.Stop()
 	if u.context.wsSubscriber != nil {
-		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.extensionID)
+		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.ext.ID)
 	}
 }
 
 type NewUIOptions struct {
-	ExtensionID string
-	Logger      *zerolog.Logger
-	VM          *goja.Runtime
-	WSManager   events.WSEventManagerInterface
-	Database    *db.Database
+	Logger    *zerolog.Logger
+	VM        *goja.Runtime
+	WSManager events.WSEventManagerInterface
+	Database  *db.Database
+	Scheduler *goja_util.Scheduler
+	Extension *extension.Extension
 }
 
 func NewUI(options NewUIOptions) *UI {
-	mLogger := options.Logger.With().Str("id", options.ExtensionID).Logger()
+	mLogger := options.Logger.With().Str("id", options.Extension.ID).Logger()
 	ui := &UI{
-		extensionID:    options.ExtensionID,
+		ext:            options.Extension,
 		vm:             options.VM,
 		logger:         &mLogger,
 		wsEventManager: options.WSManager,
 		appContext:     plugin.GlobalAppContext, // Get the app context from the global hook manager
+		scheduler:      options.Scheduler,
 	}
 	ui.context = NewContext(ui)
+	ui.context.scheduler.SetOnException(func(err error) {
+		ui.context.HandleException(err)
+	})
+
 	return ui
 }
 
@@ -73,7 +82,7 @@ func (u *UI) Register(callback string) {
 	// pr := goja.MustCompile("", "{("+callback+").apply(undefined, __ctx)}", true)
 
 	// Subscribe the plugin to client events
-	u.context.wsSubscriber = u.wsEventManager.SubscribeToClientEvents("plugin-" + u.extensionID)
+	u.context.wsSubscriber = u.wsEventManager.SubscribeToClientEvents("plugin-" + u.ext.ID)
 
 	// Listen for client events and send them to the event listeners
 	go func() {
@@ -84,19 +93,13 @@ func (u *UI) Register(callback string) {
 				if payload, ok := event.Payload.(map[string]interface{}); ok {
 					clientEvent := NewClientPluginEvent(payload)
 					// If the extension ID is not set, or the extension ID is the same as the current plugin, send the event to the listeners
-					if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.extensionID {
+					if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.ext.ID {
 
 						switch clientEvent.Type {
 						case ClientRenderTraysEvent: // Client wants to render the trays
-							u.context.scheduler.ScheduleAsync(func() error {
-								u.context.trayManager.renderTrayUnscheduled()
-								return nil
-							})
+							u.context.trayManager.renderTrayScheduled()
 						case ClientRenderTrayEvent: // Client wants to render the tray
-							u.context.scheduler.ScheduleAsync(func() error {
-								u.context.trayManager.renderTrayUnscheduled()
-								return nil
-							})
+							u.context.trayManager.renderTrayScheduled()
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
 								//util.SpewMany("Event to listeners", event.Payload)
@@ -126,16 +129,7 @@ func (u *UI) Register(callback string) {
 		})
 	}()
 
-	contextObj := u.vm.NewObject()
-
-	u.context.bind(u.vm, contextObj)
-
-	// Webview (UNUSED)
-	webviewObj := u.vm.NewObject()
-	_ = contextObj.Set("webview", webviewObj)
-
-	// Screen
-	u.context.screenManager.bind(u.vm, contextObj)
+	u.context.createAndBindContextObject(u.vm)
 
 	// Execute the callback
 	_, err := u.vm.RunString(`(` + callback + `).call(undefined, __ctx)`)

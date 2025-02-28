@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"errors"
+	"seanime/internal/util"
 	"testing"
 
 	"github.com/dop251/goja"
@@ -39,4 +40,17 @@ func TestDivideFunction(t *testing.T) {
 	`)
 	assert.NoError(t, err)
 	assert.Equal(t, "GoError: division by zero", result.Export())
+}
+
+func multipleReturns() (int, string, float64) {
+	return 42, "hello", 3.14
+}
+
+func TestMultipleReturns(t *testing.T) {
+	vm := goja.New()
+	vm.Set("multiReturn", multipleReturns)
+
+	v, err := vm.RunString("multiReturn();")
+	assert.NoError(t, err)
+	util.Spew(v.Export())
 }
