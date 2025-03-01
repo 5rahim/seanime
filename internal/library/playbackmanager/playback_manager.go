@@ -14,6 +14,7 @@ import (
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -99,6 +100,22 @@ type (
 
 		isOffline       bool
 		animeCollection mo.Option[*anilist.AnimeCollection]
+
+		playbackStatusSubscribers *result.Map[string, *PlaybackStatusSubscriber]
+	}
+
+	PlaybackStatusSubscriber struct {
+		PlaybackStateCh  chan PlaybackState
+		PlaybackStatusCh chan mediaplayer.PlaybackStatus
+		VideoStartedCh   chan string
+		VideoStoppedCh   chan string
+		VideoCompletedCh chan string
+
+		StreamStateCh     chan PlaybackState
+		StreamStatusCh    chan mediaplayer.PlaybackStatus
+		StreamStartedCh   chan string
+		StreamStoppedCh   chan string
+		StreamCompletedCh chan string
 	}
 
 	PlaybackStateType string
@@ -498,4 +515,40 @@ func (pm *PlaybackManager) checkOrLoadAnimeCollection() (err error) {
 		pm.animeCollection = mo.Some(collection)
 	}
 	return nil
+}
+
+func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusSubscriber {
+	subscriber := &PlaybackStatusSubscriber{
+		PlaybackStateCh:  make(chan PlaybackState),
+		PlaybackStatusCh: make(chan mediaplayer.PlaybackStatus),
+		VideoStartedCh:   make(chan string),
+		VideoStoppedCh:   make(chan string),
+		VideoCompletedCh: make(chan string),
+
+		StreamStateCh:     make(chan PlaybackState),
+		StreamStatusCh:    make(chan mediaplayer.PlaybackStatus),
+		StreamStartedCh:   make(chan string),
+		StreamStoppedCh:   make(chan string),
+		StreamCompletedCh: make(chan string),
+	}
+	pm.playbackStatusSubscribers.Set(id, subscriber)
+	return subscriber
+}
+
+func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
+	subscriber, ok := pm.playbackStatusSubscribers.Get(id)
+	if !ok {
+		return
+	}
+	close(subscriber.PlaybackStateCh)
+	close(subscriber.PlaybackStatusCh)
+	close(subscriber.VideoStartedCh)
+	close(subscriber.VideoStoppedCh)
+	close(subscriber.VideoCompletedCh)
+	close(subscriber.StreamStateCh)
+	close(subscriber.StreamStatusCh)
+	close(subscriber.StreamStartedCh)
+	close(subscriber.StreamStoppedCh)
+	close(subscriber.StreamCompletedCh)
+	pm.playbackStatusSubscribers.Delete(id)
 }

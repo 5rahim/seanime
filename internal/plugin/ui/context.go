@@ -39,6 +39,11 @@ type Context struct {
 	effectStack    map[string]bool        // Track currently executing effects to prevent infinite loops
 	effectCalls    map[string][]time.Time // Track effect calls within time window
 
+	// State update batching
+	updateBatchMu       sync.Mutex
+	pendingStateUpdates map[string]struct{} // Set of state IDs with pending updates
+	updateBatchTimer    *time.Timer         // Timer for flushing batched updates
+
 	webviewManager *WebviewManager // UNUSED
 	screenManager  *ScreenManager  // Listen for screen events, send screen actions
 	trayManager    *TrayManager    // Register and manage tray
@@ -60,20 +65,23 @@ type EventListener struct {
 
 func NewContext(ui *UI) *Context {
 	ret := &Context{
-		ui:               ui,
-		ext:              ui.ext,
-		logger:           ui.logger,
-		vm:               ui.vm,
-		states:           result.NewResultMap[string, *State](),
-		fetchSem:         make(chan struct{}, MaxConcurrentFetchRequests),
-		stateSubscribers: make([]chan *State, 0),
-		eventListeners:   result.NewResultMap[string, *EventListener](),
-		wsEventManager:   ui.wsEventManager,
-		effectStack:      make(map[string]bool),
-		effectCalls:      make(map[string][]time.Time),
+		ui:                  ui,
+		ext:                 ui.ext,
+		logger:              ui.logger,
+		vm:                  ui.vm,
+		states:              result.NewResultMap[string, *State](),
+		fetchSem:            make(chan struct{}, MaxConcurrentFetchRequests),
+		stateSubscribers:    make([]chan *State, 0),
+		eventListeners:      result.NewResultMap[string, *EventListener](),
+		wsEventManager:      ui.wsEventManager,
+		effectStack:         make(map[string]bool),
+		effectCalls:         make(map[string][]time.Time),
+		pendingStateUpdates: make(map[string]struct{}),
 	}
 
 	ret.scheduler = ui.scheduler
+	ret.updateBatchTimer = time.AfterFunc(time.Duration(StateUpdateBatchInterval)*time.Millisecond, ret.flushStateUpdates)
+	ret.updateBatchTimer.Stop() // Start in stopped state
 
 	ret.trayManager = NewTrayManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
@@ -92,7 +100,6 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 
 	_ = obj.Set("state", c.jsState)
 	_ = obj.Set("setTimeout", c.jsSetTimeout)
-	_ = obj.Set("sleep", c.jsSleep)
 	_ = obj.Set("setInterval", c.jsSetInterval)
 	_ = obj.Set("effect", c.jsEffect)
 	_ = obj.Set("fetch", func(call goja.FunctionCall) goja.Value {
@@ -227,14 +234,14 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 						ID:    id,
 						Value: newVal,
 					})
-					c.publishStateUpdate(id)
+					c.queueStateUpdate(id)
 				}
 			} else {
 				c.states.Set(id, &State{
 					ID:    id,
 					Value: arg,
 				})
-				c.publishStateUpdate(id)
+				c.queueStateUpdate(id)
 			}
 		}
 		return goja.Undefined()
@@ -377,26 +384,6 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 	}
 
 	return c.vm.ToValue(cancelFunc)
-}
-
-// jsSleep
-//
-//	Example:
-//	ctx.sleep(1000);
-func (c *Context) jsSleep(call goja.FunctionCall) goja.Value {
-	if len(call.Arguments) < 1 {
-		c.HandleTypeError("sleep requires a delay")
-	}
-
-	delayValue := call.Argument(0)
-	delay, ok := delayValue.Export().(int64)
-	if !ok {
-		c.HandleTypeError("delay must be a number")
-	}
-
-	time.Sleep(time.Duration(delay) * time.Millisecond)
-
-	return goja.Undefined()
 }
 
 // jsEffect
@@ -684,4 +671,55 @@ func (c *Context) cleanupOldEffectCalls(effectID string) {
 	}
 
 	c.effectCalls[effectID] = validCalls
+}
+
+// queueStateUpdate adds a state update to the batch queue
+func (c *Context) queueStateUpdate(id string) {
+	c.updateBatchMu.Lock()
+	defer c.updateBatchMu.Unlock()
+
+	// Add to pending updates
+	c.pendingStateUpdates[id] = struct{}{}
+
+	// Start the timer if it's not running
+	if !c.updateBatchTimer.Stop() {
+		select {
+		case <-c.updateBatchTimer.C:
+			// Timer already fired, drain the channel
+		default:
+			// Timer was already stopped
+		}
+	}
+	c.updateBatchTimer.Reset(time.Duration(StateUpdateBatchInterval) * time.Millisecond)
+}
+
+// flushStateUpdates processes all pending state updates
+func (c *Context) flushStateUpdates() {
+	c.updateBatchMu.Lock()
+
+	// Get all pending updates
+	pendingUpdates := make([]string, 0, len(c.pendingStateUpdates))
+	for id := range c.pendingStateUpdates {
+		pendingUpdates = append(pendingUpdates, id)
+	}
+
+	// Clear the pending updates
+	c.pendingStateUpdates = make(map[string]struct{})
+
+	c.updateBatchMu.Unlock()
+
+	// Process all updates
+	for _, id := range pendingUpdates {
+		c.publishStateUpdate(id)
+	}
+}
+
+// Cleanup stops the update batch timer and performs any necessary cleanup
+func (c *Context) Cleanup() {
+	if c.updateBatchTimer != nil {
+		c.updateBatchTimer.Stop()
+	}
+
+	// Flush any remaining updates
+	c.flushStateUpdates()
 }

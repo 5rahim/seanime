@@ -201,6 +201,11 @@ func (a *App) initModulesOnce() {
 		Database:           a.Database,
 	})
 
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		MediaPlayerRepository: a.MediaPlayerRepository,
+		PlaybackManager:       a.PlaybackManager,
+	})
+
 }
 
 // InitOrRefreshModules will initialize or refresh modules that depend on settings.

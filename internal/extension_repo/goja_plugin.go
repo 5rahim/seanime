@@ -187,16 +187,18 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	if p.ext.Plugin != nil {
 		for _, permission := range p.ext.Plugin.Permissions {
 			switch permission.String() {
-			case extension.PluginPermissionStorage.String():
+			case extension.PluginPermissionStorage.String(): // Storage
 				plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
-			case extension.PluginPermissionAnilist.String():
+			case extension.PluginPermissionAnilist.String(): // Anilist
 				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext)
-			case extension.PluginPermissionDatabase.String():
+			case extension.PluginPermissionDatabase.String(): // Database
 				plugin.GlobalAppContext.BindDatabase(vm, logger, p.ext)
-			case extension.PluginPermissionOS.String():
+			case extension.PluginPermissionOS.String(): // OS
 				plugin.GlobalAppContext.BindOS(vm, logger, p.ext)
 				plugin.GlobalAppContext.BindFilepath(vm, logger, p.ext)
 				plugin.GlobalAppContext.BindFilesystem(vm, logger, p.ext)
+			case extension.PluginPermissionPlayback.String(): // Playback
+				plugin.GlobalAppContext.BindPlayback(vm, logger, p.ext, p.scheduler)
 			}
 		}
 	}

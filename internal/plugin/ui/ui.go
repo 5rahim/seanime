@@ -17,6 +17,7 @@ const (
 	MaxConcurrentFetchRequests = 10   // Maximum number of concurrent fetch requests
 	MaxEffectCallsPerWindow    = 100  // Maximum number of effect calls allowed in time window
 	EffectTimeWindow           = 1000 // Time window in milliseconds to track effect calls
+	StateUpdateBatchInterval   = 10   // Time in milliseconds to batch state updates
 )
 
 // UI registry, unique to a plugin and VM
@@ -39,6 +40,11 @@ func (u *UI) ClearInterrupt() {
 	u.context.scheduler.Stop()
 	if u.context.wsSubscriber != nil {
 		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.ext.ID)
+	}
+
+	// Clean up the context
+	if u.context != nil {
+		u.context.Cleanup()
 	}
 }
 

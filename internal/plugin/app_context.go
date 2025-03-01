@@ -5,7 +5,9 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
+	goja_util "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -16,6 +18,7 @@ type AppContextModules struct {
 	Database                        *db.Database
 	AnilistPlatform                 platform.Platform
 	PlaybackManager                 *playbackmanager.PlaybackManager
+	MediaPlayerRepository           *mediaplayer.Repository
 	WSEventManager                  events.WSEventManagerInterface
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
@@ -31,6 +34,7 @@ type AppContext interface {
 
 	Database() mo.Option[*db.Database]
 	PlaybackManager() mo.Option[*playbackmanager.PlaybackManager]
+	MediaPlayerRepository() mo.Option[*mediaplayer.Repository]
 	AnilistPlatform() mo.Option[platform.Platform]
 	WSEventManager() mo.Option[events.WSEventManagerInterface]
 
@@ -46,6 +50,8 @@ type AppContext interface {
 	BindOS(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindFilesystem binds $filesystem to the Goja runtime
 	BindFilesystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	// BindPlayback binds $playback to the Goja runtime
+	BindPlayback(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 }
 
 var GlobalAppContext = NewAppContext()
@@ -58,6 +64,7 @@ type AppContextImpl struct {
 	wsEventManager  mo.Option[events.WSEventManagerInterface]
 	database        mo.Option[*db.Database]
 	playbackManager mo.Option[*playbackmanager.PlaybackManager]
+	mediaplayerRepo mo.Option[*mediaplayer.Repository]
 	anilistPlatform mo.Option[platform.Platform]
 
 	onRefreshAnilistAnimeCollection mo.Option[func()]
@@ -70,6 +77,7 @@ func NewAppContext() AppContext {
 		logger:          &nopLogger,
 		database:        mo.None[*db.Database](),
 		playbackManager: mo.None[*playbackmanager.PlaybackManager](),
+		mediaplayerRepo: mo.None[*mediaplayer.Repository](),
 		anilistPlatform: mo.None[platform.Platform](),
 	}
 
@@ -86,6 +94,10 @@ func (a *AppContextImpl) Database() mo.Option[*db.Database] {
 
 func (a *AppContextImpl) PlaybackManager() mo.Option[*playbackmanager.PlaybackManager] {
 	return a.playbackManager
+}
+
+func (a *AppContextImpl) MediaPlayerRepository() mo.Option[*mediaplayer.Repository] {
+	return a.mediaplayerRepo
 }
 
 func (a *AppContextImpl) AnilistPlatform() mo.Option[platform.Platform] {

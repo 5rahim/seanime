@@ -349,7 +349,6 @@ func (r *Repository) loadPlugins() {
 						fetchBackgroundImage();
 
 						console.log("updating tray");
-						tray.update();
 					}, [currentMediaId]);
 
 
@@ -365,7 +364,6 @@ func (r *Repository) loadPlugins() {
 						}
 
 						console.log("updating tray");
-						tray.update();
 					});
 
 					ctx.registerEventHandler("saveBackgroundImage", () => {
@@ -373,13 +371,11 @@ func (r *Repository) loadPlugins() {
 						$storage.set('backgroundImages.' + currentMediaId.get(), customBannerImageRef.current);
 						ctx.toast.success("Background image saved");
 						fetchBackgroundImage();
-						tray.update();
 						$anilist.refreshAnimeCollection();
 					});
 
 					$store.watch("mediaIds", (mId) => {
 						mediaIds.set(p => [...p, mId]);
-						tray.update();
 					});
 
 					ctx.registerEventHandler("button-clicked", () => {
