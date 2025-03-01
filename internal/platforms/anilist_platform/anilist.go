@@ -3,14 +3,15 @@ package anilist_platform
 import (
 	"context"
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 type (
@@ -351,6 +352,26 @@ func (ap *AnilistPlatform) refreshMangaCollection() error {
 	collection.MediaListCollection.Lists = lo.Filter(collection.MediaListCollection.Lists, func(list *anilist.MangaCollection_MediaListCollection_Lists, _ int) bool {
 		return list.Status != nil
 	})
+
+	// Remove Novels from both collections
+	for _, list := range collection.MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			if entry.GetMedia().GetFormat() != nil && *entry.GetMedia().GetFormat() == anilist.MediaFormatNovel {
+				list.Entries = lo.Filter(list.Entries, func(e *anilist.MangaCollection_MediaListCollection_Lists_Entries, _ int) bool {
+					return *e.GetMedia().GetFormat() != anilist.MediaFormatNovel
+				})
+			}
+		}
+	}
+	for _, list := range ap.rawMangaCollection.MustGet().MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			if entry.GetMedia().GetFormat() != nil && *entry.GetMedia().GetFormat() == anilist.MediaFormatNovel {
+				list.Entries = lo.Filter(list.Entries, func(e *anilist.MangaCollection_MediaListCollection_Lists_Entries, _ int) bool {
+					return *e.GetMedia().GetFormat() != anilist.MediaFormatNovel
+				})
+			}
+		}
+	}
 
 	// Save the collection to App
 	ap.mangaCollection = mo.Some(collection)
