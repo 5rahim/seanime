@@ -31,6 +31,10 @@ export const enum TorrentStreamState {
 export const __torrentstream__loadingStateAtom = atom<Torrentstream_TorrentLoadingStatusState | null>(null)
 export const __torrentstream__stateAtom = atom<TorrentStreamState>(TorrentStreamState.Stopped)
 
+// uncomment for testing
+// export const __torrentstream__loadingStateAtom = atom<Torrentstream_TorrentLoadingStatusState | null>("SEARCHING_TORRENTS")
+// export const __torrentstream__stateAtom = atom<TorrentStreamState>(TorrentStreamState.Loaded)
+
 export function TorrentStreamOverlay() {
 
     const [loadingState, setLoadingState] = useAtom(__torrentstream__loadingStateAtom)
@@ -129,8 +133,8 @@ export function TorrentStreamOverlay() {
                 {!mediaPlayerStartedPlaying && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
                     <ProgressBar size="xs" isIndeterminate />
                 </div>}
-                <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
-                    <div className="bg-gray-950 flex-wrap rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-3 items-center text-sm lg:text-base">
+                <div className="fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
+                    <div className="bg-gray-950 flex-wrap rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-3 items-center text-sm lg:text-base pointer-events-auto">
 
                         <span
                             className={cn("text-green-300",
@@ -174,8 +178,8 @@ export function TorrentStreamOverlay() {
             <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
                 <ProgressBar size="xs" isIndeterminate />
             </div>
-            <div className="fixed left-0 top-8 w-full flex justify-center z-[100]">
-                <div className="bg-gray-950 rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-2 items-center text-sm lg:text-base">
+            <div className="fixed left-0 top-8 w-full flex justify-center z-[100] pointer-events-none">
+                <div className="bg-gray-950 rounded-full border lg:max-w-[50%] w-fit h-14 px-6 flex gap-2 items-center text-sm lg:text-base pointer-events-auto">
                     <Spinner className="w-4 h-4" />
                     <div className="truncate max-w-[500px]">
                         {loadingState === "SEARCHING_TORRENTS" ? "Selecting file..." : ""}
