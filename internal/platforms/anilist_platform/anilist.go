@@ -516,6 +516,26 @@ func (ap *AnilistPlatform) refreshMangaCollection() error {
 		return list.Status != nil
 	})
 
+	// Remove Novels from both collections
+	for _, list := range collection.MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			if entry.GetMedia().GetFormat() != nil && *entry.GetMedia().GetFormat() == anilist.MediaFormatNovel {
+				list.Entries = lo.Filter(list.Entries, func(e *anilist.MangaCollection_MediaListCollection_Lists_Entries, _ int) bool {
+					return *e.GetMedia().GetFormat() != anilist.MediaFormatNovel
+				})
+			}
+		}
+	}
+	for _, list := range ap.rawMangaCollection.MustGet().MediaListCollection.Lists {
+		for _, entry := range list.Entries {
+			if entry.GetMedia().GetFormat() != nil && *entry.GetMedia().GetFormat() == anilist.MediaFormatNovel {
+				list.Entries = lo.Filter(list.Entries, func(e *anilist.MangaCollection_MediaListCollection_Lists_Entries, _ int) bool {
+					return *e.GetMedia().GetFormat() != anilist.MediaFormatNovel
+				})
+			}
+		}
+	}
+
 	// Save the collection to App
 	ap.mangaCollection = mo.Some(collection)
 

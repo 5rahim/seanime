@@ -1,11 +1,10 @@
 package torrentstream
 
 import (
-	"context"
-	"github.com/anacrolix/torrent"
-	"net"
 	"net/http"
 	"time"
+
+	"github.com/anacrolix/torrent"
 )
 
 type (
@@ -17,27 +16,27 @@ type (
 	}
 )
 
-// ref: torrserver
-func dnsResolve() {
-	addrs, _ := net.LookupHost("www.google.com")
-	if len(addrs) == 0 {
-		//fmt.Println("Check dns failed", addrs, err)
-
-		fn := func(ctx context.Context, network, address string) (net.Conn, error) {
-			d := net.Dialer{}
-			return d.DialContext(ctx, "udp", "1.1.1.1:53")
-		}
-
-		net.DefaultResolver = &net.Resolver{
-			Dial: fn,
-		}
-
-		addrs, _ = net.LookupHost("www.google.com")
-		//fmt.Println("Check cloudflare dns", addrs, err)
-	} else {
-		//fmt.Println("Check dns OK", addrs, err)
-	}
-}
+//// ref: torrserver
+//func dnsResolve() {
+//	addrs, _ := net.LookupHost("www.google.com")
+//	if len(addrs) == 0 {
+//		//fmt.Println("Check dns failed", addrs, err)
+//
+//		fn := func(ctx context.Context, network, address string) (net.Conn, error) {
+//			d := net.Dialer{}
+//			return d.DialContext(ctx, "udp", "1.1.1.1:53")
+//		}
+//
+//		net.DefaultResolver = &net.Resolver{
+//			Dial: fn,
+//		}
+//
+//		addrs, _ = net.LookupHost("www.google.com")
+//		//fmt.Println("Check cloudflare dns", addrs, err)
+//	} else {
+//		//fmt.Println("Check dns OK", addrs, err)
+//	}
+//}
 
 // newServerManager is called once during the lifetime of the application.
 func newServerManager(repository *Repository) *serverManager {
@@ -45,7 +44,7 @@ func newServerManager(repository *Repository) *serverManager {
 		repository: repository,
 	}
 
-	dnsResolve()
+	//dnsResolve()
 
 	return ret
 }
