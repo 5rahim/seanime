@@ -269,6 +269,13 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	}
 	rules = _filteredRules
 
+	// Event
+	event := &AutoDownloaderRunStartedEvent{
+		Rules: rules,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderRunStarted().Trigger(event)
+	rules = event.Rules
+
 	// If there are no rules, return
 	if len(rules) == 0 {
 		ad.logger.Debug().Msg("autodownloader: No rules found")
@@ -290,6 +297,13 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 		ad.logger.Error().Err(err).Msg("autodownloader: Failed to get latest torrents")
 		return
 	}
+
+	// Event
+	fetchedEvent := &AutoDownloaderTorrentsFetchedEvent{
+		Torrents: torrents,
+	}
+	_ = hook.GlobalHookManager.OnAutoDownloaderTorrentsFetched().Trigger(fetchedEvent)
+	torrents = fetchedEvent.Torrents
 
 	// Get existing torrents
 	existingTorrents := make([]*torrent_client.Torrent, 0)
@@ -345,6 +359,22 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				}
 
 				episode, ok := ad.torrentFollowsRule(t, rule, listEntry, localEntry, items)
+				event := &AutoDownloaderMatchVerifiedEvent{
+					Torrent:    t,
+					Rule:       rule,
+					ListEntry:  listEntry,
+					LocalEntry: localEntry,
+					Episode:    episode,
+					Ok:         ok,
+				}
+				_ = hook.GlobalHookManager.OnAutoDownloaderMatchVerified().Trigger(event)
+				t = event.Torrent
+				rule = event.Rule
+				listEntry = event.ListEntry
+				localEntry = event.LocalEntry
+				episode = event.Episode
+				ok = event.Ok
+
 				if ok {
 					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
 						torrent: t,

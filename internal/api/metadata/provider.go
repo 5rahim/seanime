@@ -2,15 +2,17 @@ package metadata
 
 import (
 	"fmt"
-	"github.com/rs/zerolog"
-	"github.com/samber/mo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
 	"seanime/internal/api/tvdb"
+	"seanime/internal/hook"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 type (
@@ -48,15 +50,9 @@ func (p *ProviderImpl) GetCache() *result.Cache[string, *AnimeMetadata] {
 
 // GetAnimeMetadata fetches anime metadata from api.ani.zip.
 func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeMetadata, err error) {
-
 	ret, ok := p.animeMetadataCache.Get(GetAnimeMetadataCacheKey(platform, mId))
 	if ok {
 		return ret, nil
-	}
-
-	anizipMedia, err := anizip.FetchAniZipMediaC(string(platform), mId, p.anizipCache)
-	if err != nil || anizipMedia == nil {
-		return nil, err
 	}
 
 	ret = &AnimeMetadata{
@@ -65,6 +61,26 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 		EpisodeCount: 0,
 		SpecialCount: 0,
 		Mappings:     &AnimeMappings{},
+	}
+
+	// Invoke AnimeMetadataRequested hook
+	reqEvent := &AnimeMetadataRequestedEvent{
+		MediaId:               mId,
+		OverrideAnimeMetadata: ret,
+	}
+	err = hook.GlobalHookManager.OnAnimeMetadataRequested().Trigger(reqEvent)
+	if err != nil {
+		return nil, err
+	}
+	mId = reqEvent.MediaId
+
+	if reqEvent.Override != nil && *reqEvent.Override {
+		return reqEvent.OverrideAnimeMetadata, nil
+	}
+
+	anizipMedia, err := anizip.FetchAniZipMediaC(string(platform), mId, p.anizipCache)
+	if err != nil || anizipMedia == nil {
+		return nil, err
 	}
 
 	ret.Titles = anizipMedia.Titles
@@ -110,6 +126,17 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 		}
 		ret.Episodes[key] = em
 	}
+
+	event := &AnimeMetadataEvent{
+		MediaId:       mId,
+		AnimeMetadata: ret,
+	}
+	err = hook.GlobalHookManager.OnAnimeMetadataEvent().Trigger(event)
+	if err != nil {
+		return nil, err
+	}
+	ret = event.AnimeMetadata
+	mId = event.MediaId
 
 	p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), ret, 1*time.Hour)
 

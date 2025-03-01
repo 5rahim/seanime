@@ -84,13 +84,13 @@ func (c *Context) jsFetch(call goja.FunctionCall) *goja.Promise {
 
 	// Input validation
 	if len(call.Arguments) < 1 {
-		reject(c.vm.ToValue("TypeError: fetch requires at least 1 argument"))
+		_ = reject(c.vm.ToValue("TypeError: fetch requires at least 1 argument"))
 		return promise
 	}
 
 	urlArg, ok := call.Argument(0).Export().(string)
 	if !ok {
-		reject(c.vm.ToValue("TypeError: URL parameter must be a string"))
+		_ = reject(c.vm.ToValue("TypeError: URL parameter must be a string"))
 		return promise
 	}
 
@@ -140,13 +140,13 @@ func (c *Context) jsFetch(call goja.FunctionCall) *goja.Promise {
 		result := <-resultCh
 		if result.err != nil {
 			c.scheduler.ScheduleAsync(func() error {
-				reject(c.vm.ToValue(result.err.Error()))
+				_ = reject(c.vm.ToValue(result.err.Error()))
 				return nil
 			})
 			return
 		}
 		c.scheduler.ScheduleAsync(func() error {
-			resolve(result.response.toGojaObject(c.vm))
+			_ = resolve(result.response.toGojaObject(c.vm))
 			return nil
 		})
 	}()

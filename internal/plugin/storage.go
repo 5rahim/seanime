@@ -5,6 +5,7 @@ import (
 	"errors"
 	"seanime/internal/database/models"
 	"seanime/internal/extension"
+	"seanime/internal/util/result"
 	"strings"
 
 	"github.com/dop251/goja"
@@ -12,10 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// Storage is used to store data for an extension.
+// A new instance is created for each extension.
 type Storage struct {
-	ctx    *AppContextImpl
-	ext    *extension.Extension
-	logger *zerolog.Logger
+	ctx             *AppContextImpl
+	ext             *extension.Extension
+	logger          *zerolog.Logger
+	pluginDataCache *result.Map[string, *models.PluginData] // Cache to avoid repeated database calls
+	keyDataCache    *result.Map[string, interface{}]        // Cache to avoid repeated database calls
 }
 
 var (
@@ -28,9 +33,11 @@ var (
 func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension) {
 	storageLogger := logger.With().Str("id", ext.ID).Logger()
 	storage := &Storage{
-		ctx:    a,
-		ext:    ext,
-		logger: &storageLogger,
+		ctx:             a,
+		ext:             ext,
+		logger:          &storageLogger,
+		pluginDataCache: result.NewResultMap[string, *models.PluginData](),
+		keyDataCache:    result.NewResultMap[string, interface{}](),
 	}
 	storageObj := vm.NewObject()
 	_ = storageObj.Set("get", storage.Get)
@@ -55,6 +62,11 @@ func (s *Storage) getDB() (*gorm.DB, error) {
 // getPluginData retrieves the plugin data from the database
 // If createIfNotExists is true, it will create an empty record if none exists
 func (s *Storage) getPluginData(createIfNotExists bool) (*models.PluginData, error) {
+	// Check cache first
+	if cachedData, ok := s.pluginDataCache.Get(s.ext.ID); ok {
+		return cachedData, nil
+	}
+
 	db, err := s.getDB()
 	if err != nil {
 		return nil, err
@@ -79,11 +91,15 @@ func (s *Storage) getPluginData(createIfNotExists bool) (*models.PluginData, err
 				return nil, err
 			}
 
+			// Cache the new plugin data
+			s.pluginDataCache.Set(s.ext.ID, newPluginData)
 			return newPluginData, nil
 		}
 		return nil, err
 	}
 
+	// Cache the plugin data
+	s.pluginDataCache.Set(s.ext.ID, pluginData)
 	return pluginData, nil
 }
 
@@ -110,7 +126,19 @@ func (s *Storage) saveDataMap(pluginData *models.PluginData, data map[string]int
 		return err
 	}
 
-	return db.Save(pluginData).Error
+	err = db.Save(pluginData).Error
+	if err != nil {
+		return err
+	}
+
+	// Update the cache
+	s.pluginDataCache.Set(s.ext.ID, pluginData)
+
+	// Don't clear the key data cache here as it would invalidate
+	// recently set values. Individual operations (Delete, Clear, Drop)
+	// will handle their own cache invalidation as needed.
+
+	return nil
 }
 
 // getNestedValue retrieves a value from a nested map using dot notation
@@ -299,6 +327,10 @@ func getAllKeys(data map[string]interface{}, prefix string) []string {
 
 func (s *Storage) Delete(key string) error {
 	s.logger.Trace().Msgf("plugin: Deleting key %s", key)
+
+	// Remove from key cache
+	s.keyDataCache.Delete(key)
+
 	pluginData, err := s.getPluginData(false)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -321,6 +353,11 @@ func (s *Storage) Delete(key string) error {
 
 func (s *Storage) Drop() error {
 	s.logger.Trace().Msg("plugin: Dropping storage")
+
+	// Clear caches
+	s.pluginDataCache.Clear()
+	s.keyDataCache.Clear()
+
 	db, err := s.getDB()
 	if err != nil {
 		return err
@@ -331,6 +368,10 @@ func (s *Storage) Drop() error {
 
 func (s *Storage) Clear() error {
 	s.logger.Trace().Msg("plugin: Clearing storage")
+
+	// Clear key cache
+	s.keyDataCache.Clear()
+
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
 		return err
@@ -358,6 +399,11 @@ func (s *Storage) Keys() ([]string, error) {
 }
 
 func (s *Storage) Has(key string) (bool, error) {
+	// Check key cache first
+	if s.keyDataCache.Has(key) {
+		return true, nil
+	}
+
 	pluginData, err := s.getPluginData(false)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -371,11 +417,27 @@ func (s *Storage) Has(key string) (bool, error) {
 		return false, err
 	}
 
-	return hasNestedKey(data, key), nil
+	exists := hasNestedKey(data, key)
+
+	// If key exists, we can also cache its value for future Get calls
+	if exists {
+		value := getNestedValue(data, key)
+		if value != nil {
+			s.keyDataCache.Set(key, value)
+		}
+	}
+
+	return exists, nil
 }
 
 func (s *Storage) Get(key string) (interface{}, error) {
 	s.logger.Trace().Msgf("plugin: Getting key %s", key)
+
+	// Check key cache first
+	if cachedValue, ok := s.keyDataCache.Get(key); ok {
+		return cachedValue, nil
+	}
+
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
 		return nil, err
@@ -386,7 +448,14 @@ func (s *Storage) Get(key string) (interface{}, error) {
 		return nil, err
 	}
 
-	return getNestedValue(data, key), nil
+	value := getNestedValue(data, key)
+
+	// Cache the value
+	if value != nil {
+		s.keyDataCache.Set(key, value)
+	}
+
+	return value, nil
 }
 
 func (s *Storage) Set(key string, value interface{}) error {
@@ -402,6 +471,9 @@ func (s *Storage) Set(key string, value interface{}) error {
 	}
 
 	setNestedValue(data, key, value)
+
+	// Update key cache
+	s.keyDataCache.Set(key, value)
 
 	return s.saveDataMap(pluginData, data)
 }

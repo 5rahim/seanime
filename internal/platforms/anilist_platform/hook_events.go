@@ -62,6 +62,7 @@ type PreUpdateEntryEvent struct {
 	Progress    *int                     `json:"progress"`
 	StartedAt   *anilist.FuzzyDateInput  `json:"startedAt"`
 	CompletedAt *anilist.FuzzyDateInput  `json:"completedAt"`
+	Override    *bool                    `json:"override"`
 }
 
 type PostUpdateEntryEvent struct {
@@ -73,10 +74,11 @@ type PreUpdateEntryProgressEvent struct {
 	hook_resolver.Event
 	// When true, Seanime's default logic for updating the progress will be overridden
 	// This means the status will not be updated and the progress will not be clamped
-	SkipDefault *bool `json:"skipDefault"`
-	MediaID     *int  `json:"mediaId"`
-	Progress    *int  `json:"progress"`
-	TotalCount  *int  `json:"totalCount"`
+	OverrideProcessing *bool `json:"overrideProcessing"`
+	Override           *bool `json:"override"`
+	MediaID            *int  `json:"mediaId"`
+	Progress           *int  `json:"progress"`
+	TotalCount         *int  `json:"totalCount"`
 	// Defaults to anilist.MediaListStatusCurrent
 	Status *anilist.MediaListStatus `json:"status"`
 }
@@ -88,8 +90,9 @@ type PostUpdateEntryProgressEvent struct {
 
 type PreUpdateEntryRepeatEvent struct {
 	hook_resolver.Event
-	MediaID *int `json:"mediaId"`
-	Repeat  *int `json:"repeat"`
+	MediaID  *int  `json:"mediaId"`
+	Repeat   *int  `json:"repeat"`
+	Override *bool `json:"override"`
 }
 
 type PostUpdateEntryRepeatEvent struct {

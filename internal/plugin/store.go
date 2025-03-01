@@ -15,6 +15,7 @@ import (
 const ShrinkThreshold = 200 // the number is arbitrary chosen
 
 // Store defines a concurrent safe in memory key-value data store.
+// A new instance is created for each extension.
 type Store[K comparable, T any] struct {
 	data           map[K]T
 	mu             sync.RWMutex
@@ -40,6 +41,7 @@ func NewStore[K comparable, T any](data map[K]T) *Store[K, T] {
 	return s
 }
 
+// Stop closes all subscriber goroutines.
 func (s *Store[K, T]) Stop() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -50,12 +52,31 @@ func (s *Store[K, T]) Stop() {
 		}
 		return true
 	})
+	s.keySubscribers.Clear()
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+func (s *Store[K, T]) Bind(vm *goja.Runtime, scheduler *goja_util.Scheduler) {
+	// Create a new object for the store
+	storeObj := vm.NewObject()
+	_ = storeObj.Set("get", s.Get)
+	_ = storeObj.Set("set", s.Set)
+	_ = storeObj.Set("length", s.Length)
+	_ = storeObj.Set("remove", s.Remove)
+	_ = storeObj.Set("removeAll", s.RemoveAll)
+	_ = storeObj.Set("getAll", s.GetAll)
+	_ = storeObj.Set("has", s.Has)
+	_ = storeObj.Set("getOrSet", s.GetOrSet)
+	_ = storeObj.Set("setIfLessThanLimit", s.SetIfLessThanLimit)
+	_ = storeObj.Set("unmarshalJSON", s.UnmarshalJSON)
+	_ = storeObj.Set("marshalJSON", s.MarshalJSON)
+	_ = storeObj.Set("reset", s.Reset)
+	_ = storeObj.Set("values", s.Values)
+	s.bindWatch(storeObj, vm, scheduler)
+	_ = vm.Set("$store", storeObj)
+}
 
 // BindWatch binds the watch method to the store object in the runtime.
-func (s *Store[K, T]) BindWatch(storeObj *goja.Object, vm *goja.Runtime, scheduler *goja_util.Scheduler) {
+func (s *Store[K, T]) bindWatch(storeObj *goja.Object, vm *goja.Runtime, scheduler *goja_util.Scheduler) {
 
 	//	Example:
 	//	store.watch("key", (value) => {
@@ -80,7 +101,10 @@ func (s *Store[K, T]) BindWatch(storeObj *goja.Object, vm *goja.Runtime, schedul
 			}
 		}()
 
-		return goja.Undefined()
+		cancelFn := func() {
+			s.keySubscribers.Delete(key)
+		}
+		return vm.ToValue(cancelFn)
 	})
 }
 

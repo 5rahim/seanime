@@ -3,6 +3,7 @@ package goja_bindings
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,9 +12,12 @@ import (
 	"time"
 
 	"github.com/dop251/goja"
-	"github.com/goccy/go-json"
 	"github.com/rs/zerolog/log"
 )
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Fetch
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const (
 	maxConcurrentRequests = 50
@@ -62,18 +66,38 @@ func (fr *fetchResponse) toGojaObject(vm *goja.Runtime) *goja.Object {
 	return obj
 }
 
-var (
-	fetchSem = make(chan struct{}, maxConcurrentRequests)
-	client   = &http.Client{
-		Timeout:   defaultTimeout,
-		Transport: util.AddCloudFlareByPass(http.DefaultTransport),
-	}
-)
+var client = &http.Client{
+	Timeout:   defaultTimeout,
+	Transport: util.AddCloudFlareByPass(http.DefaultTransport),
+}
+
+type vmFetchState struct {
+	fetchSem     chan struct{}
+	vmResponseCh chan func()
+}
 
 func BindFetch(vm *goja.Runtime) error {
-	return vm.Set("fetch", func(call goja.FunctionCall) goja.Value {
-		return vm.ToValue(gojaFetch(vm, call))
+	state := &vmFetchState{
+		fetchSem:     make(chan struct{}, maxConcurrentRequests),
+		vmResponseCh: make(chan func(), maxConcurrentRequests),
+	}
+
+	// Start a goroutine to handle VM responses for this specific VM
+	go func() {
+		for fn := range state.vmResponseCh {
+			fn()
+		}
+	}()
+
+	err := vm.Set("fetch", func(call goja.FunctionCall) goja.Value {
+		return vm.ToValue(gojaFetch(vm, call, state))
 	})
+	if err != nil {
+		close(state.vmResponseCh)
+		return err
+	}
+
+	return nil
 }
 
 type fetchResult struct {
@@ -81,51 +105,47 @@ type fetchResult struct {
 	err      error
 }
 
-func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
+func gojaFetch(vm *goja.Runtime, call goja.FunctionCall, state *vmFetchState) *goja.Promise {
 	promise, resolve, reject := vm.NewPromise()
 
 	// Input validation
 	if len(call.Arguments) < 1 {
-		reject(vm.ToValue("TypeError: fetch requires at least 1 argument"))
+		_ = reject(vm.ToValue("TypeError: fetch requires at least 1 argument"))
 		return promise
 	}
 
 	urlArg, ok := call.Argument(0).Export().(string)
 	if !ok {
-		reject(vm.ToValue("TypeError: URL parameter must be a string"))
+		_ = reject(vm.ToValue("TypeError: URL parameter must be a string"))
 		return promise
 	}
 
 	// Parse options
 	options := parseOptions(vm, call)
 
-	// channel to receive the result
-	resultCh := make(chan fetchResult, 1)
-
+	// Execute request in a separate goroutine to not block the VM
 	go func() {
 		var result fetchResult
-		defer func() {
-			if r := recover(); r != nil {
-				result.err = fmt.Errorf("JS VM: Panic from fetch: %v", r)
-			}
-			resultCh <- result
-		}()
 
 		// Acquire semaphore
-		fetchSem <- struct{}{}
-		defer func() { <-fetchSem }()
+		state.fetchSem <- struct{}{}
+		defer func() { <-state.fetchSem }()
 
 		// Create request
 		req, err := createRequest(urlArg, options)
 		if err != nil {
-			result.err = err
+			state.vmResponseCh <- func() {
+				_ = reject(vm.ToValue(err.Error()))
+			}
 			return
 		}
 
 		// Execute request
 		resp, body, err := executeRequest(req)
 		if err != nil {
-			result.err = err
+			state.vmResponseCh <- func() {
+				_ = reject(vm.ToValue(err.Error()))
+			}
 			return
 		}
 		defer resp.Body.Close()
@@ -135,15 +155,12 @@ func gojaFetch(vm *goja.Runtime, call goja.FunctionCall) *goja.Promise {
 			response: resp,
 			body:     body,
 		}
-	}()
 
-	// Handle the result in the original goroutine
-	result := <-resultCh
-	if result.err != nil {
-		reject(vm.ToValue(result.err.Error()))
-		return promise
-	}
-	resolve(result.response.toGojaObject(vm))
+		// Schedule the resolution through the VM response channel
+		state.vmResponseCh <- func() {
+			_ = resolve(result.response.toGojaObject(vm))
+		}
+	}()
 
 	return promise
 }

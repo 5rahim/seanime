@@ -179,7 +179,7 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	//_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
 
 	// Bind the store
-	p.bindStore(vm)
+	p.store.Bind(vm, p.scheduler)
 	// Bind mutable bindings
 	goja_util.BindMutable(vm)
 
@@ -200,28 +200,6 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 			}
 		}
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (p *GojaPlugin) bindStore(vm *goja.Runtime) {
-	// Create a new object for the store
-	storeObj := vm.NewObject()
-	_ = storeObj.Set("get", p.store.Get)
-	_ = storeObj.Set("set", p.store.Set)
-	_ = storeObj.Set("length", p.store.Length)
-	_ = storeObj.Set("remove", p.store.Remove)
-	_ = storeObj.Set("removeAll", p.store.RemoveAll)
-	_ = storeObj.Set("getAll", p.store.GetAll)
-	_ = storeObj.Set("has", p.store.Has)
-	_ = storeObj.Set("getOrSet", p.store.GetOrSet)
-	_ = storeObj.Set("setIfLessThanLimit", p.store.SetIfLessThanLimit)
-	_ = storeObj.Set("unmarshalJSON", p.store.UnmarshalJSON)
-	_ = storeObj.Set("marshalJSON", p.store.MarshalJSON)
-	_ = storeObj.Set("reset", p.store.Reset)
-	_ = storeObj.Set("values", p.store.Values)
-	p.store.BindWatch(storeObj, vm, p.scheduler)
-	_ = vm.Set("$store", storeObj)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

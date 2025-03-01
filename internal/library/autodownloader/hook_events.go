@@ -7,45 +7,32 @@ import (
 	"seanime/internal/library/anime"
 )
 
-// AutoDownloaderQueueOrDownloadTorrentEvent is triggered when a torrent is added to the queue or downloaded
-type AutoDownloaderQueueOrDownloadTorrentEvent struct {
-	hook_resolver.Event
-	TorrentName string `json:"torrentName"`
-	MediaId     int    `json:"mediaId"`
-	Episode     int    `json:"episode"`
-	Link        string `json:"link"`
-	Hash        string `json:"hash"`
-	Magnet      string `json:"magnet"`
-	Downloaded  bool   `json:"downloaded"`
-}
-
-// AutoDownloaderTorrentMatchedEvent is triggered when a torrent matches a rule
-type AutoDownloaderTorrentMatchedEvent struct {
-	hook_resolver.Event
-	TorrentName string                    `json:"torrentName"`
-	Rule        *anime.AutoDownloaderRule `json:"rule"`
-	Episode     int                       `json:"episode"`
-}
-
-// AutoDownloaderRuleVerifyMatchEvent is triggered when checking if a torrent matches a rule
-type AutoDownloaderRuleVerifyMatchEvent struct {
-	hook_resolver.Event
-	TorrentName string                       `json:"torrentName"`
-	Rule        *anime.AutoDownloaderRule    `json:"rule"`
-	ListEntry   *anilist.AnimeListEntry      `json:"listEntry"`
-	LocalEntry  *anime.LocalFileWrapperEntry `json:"localEntry"`
-}
-
 // AutoDownloaderRunStartedEvent is triggered when the autodownloader starts checking for new episodes
 type AutoDownloaderRunStartedEvent struct {
 	hook_resolver.Event
 	Rules []*anime.AutoDownloaderRule `json:"rules"`
 }
 
-// AutoDownloaderRunCompletedEvent is triggered when the autodownloader finishes checking for new episodes
-type AutoDownloaderRunCompletedEvent struct {
+// AutoDownloaderTorrentsFetchedEvent is triggered when the autodownloader fetches torrents from the provider
+type AutoDownloaderTorrentsFetchedEvent struct {
 	hook_resolver.Event
-	TorrentsAdded int `json:"torrentsAdded"`
+	Torrents []*NormalizedTorrent `json:"torrents"`
+}
+
+// AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule
+type AutoDownloaderMatchVerifiedEvent struct {
+	hook_resolver.Event
+	// Fetched torrent
+	Torrent    *NormalizedTorrent           `json:"torrent"`
+	Rule       *anime.AutoDownloaderRule    `json:"rule"`
+	ListEntry  *anilist.AnimeListEntry      `json:"listEntry"`
+	LocalEntry *anime.LocalFileWrapperEntry `json:"localEntry"`
+	// The episode number found for the match
+	// If the match failed, this will be 0
+	Episode int `json:"episode"`
+	// Whether the torrent matches the rule
+	// Changing this value to true will trigger a download even if the match failed;
+	Ok bool `json:"ok"`
 }
 
 // AutoDownloaderSettingsUpdatedEvent is triggered when the autodownloader settings are updated

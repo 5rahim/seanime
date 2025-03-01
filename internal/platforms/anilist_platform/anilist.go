@@ -5,7 +5,6 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
-	"seanime/internal/hook_resolver"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/limiter"
 	"sync"
@@ -71,14 +70,16 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 	event.StartedAt = startedAt
 	event.CompletedAt = completedAt
 
-	err := hook.GlobalHookManager.OnPreUpdateEntry().Trigger(event, func(resolver hook_resolver.Resolver) error {
-		e := resolver.(*PreUpdateEntryEvent)
-		_, err := ap.anilistClient.UpdateMediaListEntry(context.Background(), e.MediaID, e.Status, e.ScoreRaw, e.Progress, e.StartedAt, e.CompletedAt)
-		if err != nil {
-			return err
-		}
+	err := hook.GlobalHookManager.OnPreUpdateEntry().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.Override != nil && *event.Override {
 		return nil
-	})
+	}
+
+	_, err = ap.anilistClient.UpdateMediaListEntry(context.Background(), event.MediaID, event.Status, event.ScoreRaw, event.Progress, event.StartedAt, event.CompletedAt)
 	if err != nil {
 		return err
 	}
@@ -99,53 +100,55 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalC
 	event.Progress = &progress
 	event.TotalCount = totalCount
 	event.Status = lo.ToPtr(anilist.MediaListStatusCurrent)
-	event.SkipDefault = lo.ToPtr(false)
+	event.Override = lo.ToPtr(false)
+	event.OverrideProcessing = lo.ToPtr(false)
 
-	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event, func(resolver hook_resolver.Resolver) error {
-		e := resolver.(*PreUpdateEntryProgressEvent)
-		if e.SkipDefault == nil || !*e.SkipDefault {
-			realTotalCount := 0
-			if totalCount != nil && *totalCount > 0 {
-				realTotalCount = *totalCount
-			}
+	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event)
+	if err != nil {
+		return err
+	}
 
-			// Check if the anime is in the repeating list
-			// If it is, set the status to repeating
-			if ap.rawAnimeCollection.IsPresent() {
-				for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
-					if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
-						if list.Entries != nil {
-							for _, entry := range list.Entries {
-								if entry.GetMedia().GetID() == mediaID {
-									*e.Status = anilist.MediaListStatusRepeating
-									break
-								}
+	if event.OverrideProcessing == nil || !*event.OverrideProcessing {
+		realTotalCount := 0
+		if totalCount != nil && *totalCount > 0 {
+			realTotalCount = *totalCount
+		}
+
+		// Check if the anime is in the repeating list
+		// If it is, set the status to repeating
+		if ap.rawAnimeCollection.IsPresent() {
+			for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
+				if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
+					if list.Entries != nil {
+						for _, entry := range list.Entries {
+							if entry.GetMedia().GetID() == mediaID {
+								*event.Status = anilist.MediaListStatusRepeating
+								break
 							}
 						}
 					}
 				}
 			}
-			if realTotalCount > 0 && progress >= realTotalCount {
-				*e.Status = anilist.MediaListStatusCompleted
-			}
-
-			if realTotalCount > 0 && progress > realTotalCount {
-				*e.Progress = realTotalCount
-			}
+		}
+		if realTotalCount > 0 && progress >= realTotalCount {
+			*event.Status = anilist.MediaListStatusCompleted
 		}
 
-		_, err := ap.anilistClient.UpdateMediaListEntryProgress(
-			context.Background(),
-			e.MediaID,
-			e.Progress,
-			e.Status,
-		)
-		if err != nil {
-			return err
+		if realTotalCount > 0 && progress > realTotalCount {
+			*event.Progress = realTotalCount
 		}
+	}
 
+	if event.Override != nil && *event.Override {
 		return nil
-	})
+	}
+
+	_, err = ap.anilistClient.UpdateMediaListEntryProgress(
+		context.Background(),
+		event.MediaID,
+		event.Progress,
+		event.Status,
+	)
 	if err != nil {
 		return err
 	}
@@ -168,14 +171,16 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 	event.MediaID = &mediaID
 	event.Repeat = &repeat
 
-	err := hook.GlobalHookManager.OnPreUpdateEntryRepeat().Trigger(event, func(resolver hook_resolver.Resolver) error {
-		e := resolver.(*PreUpdateEntryRepeatEvent)
-		_, err := ap.anilistClient.UpdateMediaListEntryRepeat(context.Background(), e.MediaID, e.Repeat)
-		if err != nil {
-			return err
-		}
+	err := hook.GlobalHookManager.OnPreUpdateEntryRepeat().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.Override != nil && *event.Override {
 		return nil
-	})
+	}
+
+	_, err = ap.anilistClient.UpdateMediaListEntryRepeat(context.Background(), event.MediaID, event.Repeat)
 	if err != nil {
 		return err
 	}

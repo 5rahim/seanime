@@ -48,12 +48,33 @@ type Manager interface {
 	OnAnimeLibraryStreamCollection() *Hook[hook_resolver.Resolver]
 
 	// Auto Downloader events
-	OnAutoDownloaderQueueOrDownloadTorrent() *Hook[hook_resolver.Resolver]
-	OnAutoDownloaderTorrentMatched() *Hook[hook_resolver.Resolver]
-	OnAutoDownloaderRuleVerifyMatch() *Hook[hook_resolver.Resolver]
 	OnAutoDownloaderRunStarted() *Hook[hook_resolver.Resolver]
-	OnAutoDownloaderRunCompleted() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderMatchVerified() *Hook[hook_resolver.Resolver]
 	OnAutoDownloaderSettingsUpdated() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderTorrentsFetched() *Hook[hook_resolver.Resolver]
+
+	// Scanner events
+	OnScanStarted() *Hook[hook_resolver.Resolver]
+	OnScanCompleted() *Hook[hook_resolver.Resolver]
+	OnScanMediaFetcherStarted() *Hook[hook_resolver.Resolver]
+	OnScanMediaFetcherCompleted() *Hook[hook_resolver.Resolver]
+	OnScanMatchingStarted() *Hook[hook_resolver.Resolver]
+	OnScanLocalFileMatched() *Hook[hook_resolver.Resolver]
+	OnScanMatchingCompleted() *Hook[hook_resolver.Resolver]
+	OnScanHydrationStarted() *Hook[hook_resolver.Resolver]
+	OnScanLocalFileHydrationStarted() *Hook[hook_resolver.Resolver]
+	OnScanLocalFileHydrated() *Hook[hook_resolver.Resolver]
+	OnScanHydrationCompleted() *Hook[hook_resolver.Resolver]
+
+	// Anime metadata events
+	OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeMetadataEvent() *Hook[hook_resolver.Resolver]
+
+	// Manga events
+	OnMangaEntryRequested() *Hook[hook_resolver.Resolver]
+	OnMangaEntry() *Hook[hook_resolver.Resolver]
+	OnMangaLibraryCollectionRequested() *Hook[hook_resolver.Resolver]
+	OnMangaLibraryCollection() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
@@ -89,12 +110,31 @@ type ManagerImpl struct {
 	onAnimeLibraryStreamCollectionRequested *Hook[hook_resolver.Resolver]
 	onAnimeLibraryStreamCollection          *Hook[hook_resolver.Resolver]
 	// Auto Downloader events
-	onAutoDownloaderQueueOrDownloadTorrent *Hook[hook_resolver.Resolver]
-	onAutoDownloaderTorrentMatched         *Hook[hook_resolver.Resolver]
-	onAutoDownloaderRuleVerifyMatch        *Hook[hook_resolver.Resolver]
-	onAutoDownloaderRunStarted             *Hook[hook_resolver.Resolver]
-	onAutoDownloaderRunCompleted           *Hook[hook_resolver.Resolver]
-	onAutoDownloaderSettingsUpdated        *Hook[hook_resolver.Resolver]
+	onAutoDownloaderMatchVerified   *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRunStarted      *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRunCompleted    *Hook[hook_resolver.Resolver]
+	onAutoDownloaderSettingsUpdated *Hook[hook_resolver.Resolver]
+	onAutoDownloaderTorrentsFetched *Hook[hook_resolver.Resolver]
+	// Scanner events
+	onScanStarted                   *Hook[hook_resolver.Resolver]
+	onScanCompleted                 *Hook[hook_resolver.Resolver]
+	onScanMediaFetcherStarted       *Hook[hook_resolver.Resolver]
+	onScanMediaFetcherCompleted     *Hook[hook_resolver.Resolver]
+	onScanMatchingStarted           *Hook[hook_resolver.Resolver]
+	onScanLocalFileMatched          *Hook[hook_resolver.Resolver]
+	onScanMatchingCompleted         *Hook[hook_resolver.Resolver]
+	onScanHydrationStarted          *Hook[hook_resolver.Resolver]
+	onScanLocalFileHydrationStarted *Hook[hook_resolver.Resolver]
+	onScanLocalFileHydrated         *Hook[hook_resolver.Resolver]
+	onScanHydrationCompleted        *Hook[hook_resolver.Resolver]
+	// Anime metadata events
+	onAnimeMetadataRequested *Hook[hook_resolver.Resolver]
+	onAnimeMetadataEvent     *Hook[hook_resolver.Resolver]
+	// Manga events
+	onMangaEntryRequested             *Hook[hook_resolver.Resolver]
+	onMangaEntry                      *Hook[hook_resolver.Resolver]
+	onMangaLibraryCollectionRequested *Hook[hook_resolver.Resolver]
+	onMangaLibraryCollection          *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -151,12 +191,31 @@ func (m *ManagerImpl) initHooks() {
 	m.onAnimeLibraryStreamCollectionRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeLibraryStreamCollection = &Hook[hook_resolver.Resolver]{}
 	// Auto Downloader events
-	m.onAutoDownloaderQueueOrDownloadTorrent = &Hook[hook_resolver.Resolver]{}
-	m.onAutoDownloaderTorrentMatched = &Hook[hook_resolver.Resolver]{}
-	m.onAutoDownloaderRuleVerifyMatch = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderMatchVerified = &Hook[hook_resolver.Resolver]{}
 	m.onAutoDownloaderRunStarted = &Hook[hook_resolver.Resolver]{}
 	m.onAutoDownloaderRunCompleted = &Hook[hook_resolver.Resolver]{}
 	m.onAutoDownloaderSettingsUpdated = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderTorrentsFetched = &Hook[hook_resolver.Resolver]{}
+	// Scanner events
+	m.onScanStarted = &Hook[hook_resolver.Resolver]{}
+	m.onScanCompleted = &Hook[hook_resolver.Resolver]{}
+	m.onScanMediaFetcherStarted = &Hook[hook_resolver.Resolver]{}
+	m.onScanMediaFetcherCompleted = &Hook[hook_resolver.Resolver]{}
+	m.onScanMatchingStarted = &Hook[hook_resolver.Resolver]{}
+	m.onScanLocalFileMatched = &Hook[hook_resolver.Resolver]{}
+	m.onScanMatchingCompleted = &Hook[hook_resolver.Resolver]{}
+	m.onScanHydrationStarted = &Hook[hook_resolver.Resolver]{}
+	m.onScanLocalFileHydrationStarted = &Hook[hook_resolver.Resolver]{}
+	m.onScanLocalFileHydrated = &Hook[hook_resolver.Resolver]{}
+	m.onScanHydrationCompleted = &Hook[hook_resolver.Resolver]{}
+	// Anime metadata events
+	m.onAnimeMetadataRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeMetadataEvent = &Hook[hook_resolver.Resolver]{}
+	// Manga events
+	m.onMangaEntryRequested = &Hook[hook_resolver.Resolver]{}
+	m.onMangaEntry = &Hook[hook_resolver.Resolver]{}
+	m.onMangaLibraryCollectionRequested = &Hook[hook_resolver.Resolver]{}
+	m.onMangaLibraryCollection = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -354,25 +413,11 @@ func (m *ManagerImpl) OnAnimeLibraryStreamCollection() *Hook[hook_resolver.Resol
 
 // Auto Downloader events
 
-func (m *ManagerImpl) OnAutoDownloaderQueueOrDownloadTorrent() *Hook[hook_resolver.Resolver] {
+func (m *ManagerImpl) OnAutoDownloaderMatchVerified() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
 	}
-	return m.onAutoDownloaderQueueOrDownloadTorrent
-}
-
-func (m *ManagerImpl) OnAutoDownloaderTorrentMatched() *Hook[hook_resolver.Resolver] {
-	if m == nil {
-		return &Hook[hook_resolver.Resolver]{}
-	}
-	return m.onAutoDownloaderTorrentMatched
-}
-
-func (m *ManagerImpl) OnAutoDownloaderRuleVerifyMatch() *Hook[hook_resolver.Resolver] {
-	if m == nil {
-		return &Hook[hook_resolver.Resolver]{}
-	}
-	return m.onAutoDownloaderRuleVerifyMatch
+	return m.onAutoDownloaderMatchVerified
 }
 
 func (m *ManagerImpl) OnAutoDownloaderRunStarted() *Hook[hook_resolver.Resolver] {
@@ -382,16 +427,140 @@ func (m *ManagerImpl) OnAutoDownloaderRunStarted() *Hook[hook_resolver.Resolver]
 	return m.onAutoDownloaderRunStarted
 }
 
-func (m *ManagerImpl) OnAutoDownloaderRunCompleted() *Hook[hook_resolver.Resolver] {
-	if m == nil {
-		return &Hook[hook_resolver.Resolver]{}
-	}
-	return m.onAutoDownloaderRunCompleted
-}
-
 func (m *ManagerImpl) OnAutoDownloaderSettingsUpdated() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAutoDownloaderSettingsUpdated
+}
+
+func (m *ManagerImpl) OnAutoDownloaderTorrentsFetched() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderTorrentsFetched
+}
+
+// Scanner events
+func (m *ManagerImpl) OnScanStarted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanStarted
+}
+
+func (m *ManagerImpl) OnScanCompleted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanCompleted
+}
+
+func (m *ManagerImpl) OnScanMediaFetcherStarted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanMediaFetcherStarted
+}
+
+func (m *ManagerImpl) OnScanMediaFetcherCompleted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanMediaFetcherCompleted
+}
+
+func (m *ManagerImpl) OnScanMatchingStarted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanMatchingStarted
+}
+
+func (m *ManagerImpl) OnScanLocalFileMatched() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanLocalFileMatched
+}
+
+func (m *ManagerImpl) OnScanMatchingCompleted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanMatchingCompleted
+}
+
+func (m *ManagerImpl) OnScanHydrationStarted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanHydrationStarted
+}
+
+func (m *ManagerImpl) OnScanLocalFileHydrationStarted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanLocalFileHydrationStarted
+}
+
+func (m *ManagerImpl) OnScanLocalFileHydrated() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanLocalFileHydrated
+}
+
+func (m *ManagerImpl) OnScanHydrationCompleted() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanHydrationCompleted
+}
+
+// Anime metadata events
+
+func (m *ManagerImpl) OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeMetadataRequested
+}
+
+func (m *ManagerImpl) OnAnimeMetadataEvent() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeMetadataEvent
+}
+
+// Manga events
+
+func (m *ManagerImpl) OnMangaEntryRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaEntryRequested
+}
+
+func (m *ManagerImpl) OnMangaEntry() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaEntry
+}
+
+func (m *ManagerImpl) OnMangaLibraryCollectionRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaLibraryCollectionRequested
+}
+
+func (m *ManagerImpl) OnMangaLibraryCollection() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaLibraryCollection
 }

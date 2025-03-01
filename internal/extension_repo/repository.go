@@ -320,7 +320,7 @@ func (r *Repository) loadPlugins() {
 		ID:       "test-plugin",
 		Language: extension.LanguageTypescript,
 		Plugin: &extension.PluginManifest{
-			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionOS},
+			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionOS, extension.PluginPermissionDatabase},
 		},
 		Payload: `
 			function init() {
@@ -329,26 +329,18 @@ func (r *Repository) loadPlugins() {
 
 					const currentMediaId = ctx.state(0);
 					const storageBackgroundImage = ctx.state("");
+					const mediaIds = ctx.state([]);
 					
-					const form = ctx.newForm("form")
 					const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
-					
-					function setFormValues(backgroundImage) {
-						form.setValues({
-							customBannerImage: backgroundImage || "",
-						});
-					}
 					
 					const fetchBackgroundImage = () => {
 						const backgroundImage = $storage.get('backgroundImages.' + currentMediaId.get());
 						if (backgroundImage) {
 							storageBackgroundImage.set(backgroundImage);
-							setFormValues(backgroundImage);
 							customBannerImageRef.setValue(backgroundImage);
 						} else {
 							storageBackgroundImage.set("");
 							customBannerImageRef.setValue("");
-							form.reset();
 						}
 					}
 
@@ -376,14 +368,6 @@ func (r *Repository) loadPlugins() {
 						tray.update();
 					});
 
-					form.onSubmit((data) => {
-						$storage.set('backgroundImages.' + currentMediaId.get(), data.customBannerImage);
-						ctx.toast.success("Background image saved");
-						fetchBackgroundImage();
-						tray.update();
-						$anilist.refreshAnimeCollection();
-					});
-
 					ctx.registerEventHandler("saveBackgroundImage", () => {
 						ctx.toast.info("Setting background image to " + customBannerImageRef.current);
 						$storage.set('backgroundImages.' + currentMediaId.get(), customBannerImageRef.current);
@@ -393,27 +377,36 @@ func (r *Repository) loadPlugins() {
 						$anilist.refreshAnimeCollection();
 					});
 
+					$store.watch("mediaIds", (mId) => {
+						mediaIds.set(p => [...p, mId]);
+						tray.update();
+					});
+
+					ctx.registerEventHandler("button-clicked", () => {
+						const cmd = $os.cmd("open", "https://google.com");
+						cmd.run();
+					});
+
 					tray.render(() => {
 						return tray.stack({
 							items: [
-								tray.text("Keys: " + JSON.stringify($storage.get("backgroundImages"))),
+								tray.button("Click me", { onClick: "button-clicked" }),
 								currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
 									items: [
 										tray.text("Current media ID: " + currentMediaId.get()),
 										tray.input({ fieldRef: "customBannerImageRef", value: storageBackgroundImage.get() }),
 										tray.button({ label: "Save", onClick: "saveBackgroundImage" }),
-										form.render({
-											fields: [
-												form.inputField({ name: "customBannerImage", label: "Custom banner image", value: storageBackgroundImage.get() }),
-												form.submitButton({ label: "Save" }),
-											],
-										}),
 									],
 								}),
 							],
 						});
 					});
 				})
+
+				$app.onGetAnime((e) => {
+					$store.set("mediaIds", e.anime.id);
+					e.next();
+				});
 
 				// $app.onAnimeEntry((e) => {
 				// 	const mediaId = e.entry.mediaId;

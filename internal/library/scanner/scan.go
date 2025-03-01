@@ -2,12 +2,10 @@ package scanner
 
 import (
 	"errors"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/metadata"
 	"seanime/internal/events"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/filesystem"
 	"seanime/internal/library/summary"
@@ -15,6 +13,11 @@ import (
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"sync"
+	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 )
 
 type Scanner struct {
@@ -53,6 +56,23 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	scn.Logger.Debug().Msg("scanner: Starting scan")
 	scn.WSEventManager.SendEvent(events.EventScanProgress, 10)
 	scn.WSEventManager.SendEvent(events.EventScanStatus, "Retrieving local files...")
+
+	startTime := time.Now()
+
+	// Invoke ScanStarted hook
+	event := &ScanStartedEvent{
+		DirPath:       scn.DirPath,
+		OtherDirPaths: scn.OtherDirPaths,
+		Enhanced:      scn.Enhanced,
+		SkipLocked:    scn.SkipLockedFiles,
+		SkipIgnored:   scn.SkipIgnoredFiles,
+	}
+	hook.GlobalHookManager.OnScanStarted().Trigger(event)
+	scn.DirPath = event.DirPath
+	scn.OtherDirPaths = event.OtherDirPaths
+	scn.Enhanced = event.Enhanced
+	scn.SkipLockedFiles = event.SkipLocked
+	scn.SkipIgnoredFiles = event.SkipIgnored
 
 	// +---------------------+
 	// |     Local Files     |
@@ -209,6 +229,14 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		scn.WSEventManager.SendEvent(events.EventScanProgress, 100)
 		scn.WSEventManager.SendEvent(events.EventScanStatus, "Scan completed")
 
+		// Invoke ScanCompleted hook
+		completedEvent := &ScanCompletedEvent{
+			LocalFiles: localFiles,
+			Duration:   int(time.Since(startTime).Milliseconds()),
+		}
+		hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
+		localFiles = completedEvent.LocalFiles
+
 		return localFiles, nil
 	}
 
@@ -361,6 +389,14 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			Int("unknownMediaCount", len(mf.UnknownMediaIds)).
 			Msg("Scan completed")
 	}
+
+	// Invoke ScanCompleted hook
+	completedEvent := &ScanCompletedEvent{
+		LocalFiles: localFiles,
+		Duration:   int(time.Since(startTime).Milliseconds()),
+	}
+	hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
+	localFiles = completedEvent.LocalFiles
 
 	return localFiles, nil
 }

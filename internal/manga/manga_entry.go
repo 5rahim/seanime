@@ -1,10 +1,13 @@
 package manga
 
 import (
-	"github.com/rs/zerolog"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
+	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util/filecache"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -42,6 +45,17 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 		MediaId: opts.MediaId,
 	}
 
+	optsEvent := new(MangaEntryRequestedEvent)
+	optsEvent.MediaId = opts.MediaId
+	optsEvent.MangaCollection = opts.MangaCollection
+
+	err = hook.GlobalHookManager.OnMangaEntryRequested().Trigger(optsEvent)
+	if err != nil {
+		return nil, err
+	}
+	opts.MediaId = optsEvent.MediaId
+	opts.MangaCollection = optsEvent.MangaCollection
+
 	anilistEntry, found := opts.MangaCollection.GetListEntryFromMangaId(opts.MediaId)
 
 	// If the entry is not found, we fetch the manga from the Anilist API.
@@ -51,9 +65,16 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 			return nil, err
 		}
 		entry.Media = media
+
 	} else {
 		// If the entry is found, we use the entry from the collection.
-		entry.Media = anilistEntry.GetMedia()
+		mangaEvent := new(anilist_platform.GetMangaEvent)
+		mangaEvent.Manga = anilistEntry.GetMedia()
+		err := hook.GlobalHookManager.OnGetManga().Trigger(mangaEvent)
+		if err != nil {
+			return nil, err
+		}
+		entry.Media = mangaEvent.Manga
 		entry.EntryListData = &EntryListData{
 			Progress:    *anilistEntry.Progress,
 			Score:       *anilistEntry.Score,
@@ -64,5 +85,12 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 		}
 	}
 
-	return entry, nil
+	mangaEvent := new(MangaEntryEvent)
+	mangaEvent.Entry = entry
+	err = hook.GlobalHookManager.OnMangaEntry().Trigger(mangaEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	return mangaEvent.Entry, nil
 }

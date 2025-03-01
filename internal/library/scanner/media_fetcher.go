@@ -2,19 +2,21 @@ package scanner
 
 import (
 	"errors"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/mal"
 	"seanime/internal/api/metadata"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/platforms/platform"
 	"seanime/internal/util"
 	"seanime/internal/util/limiter"
 	"seanime/internal/util/parallel"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 )
 
 // MediaFetcher holds all anilist.BaseAnime that will be used for the comparison process
@@ -65,6 +67,13 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 		mf.ScanLogger.LogMediaFetcher(zerolog.InfoLevel).
 			Msg("Creating media fetcher")
 	}
+
+	// Invoke ScanMediaFetcherStarted hook
+	event := &ScanMediaFetcherStartedEvent{
+		Enhanced: opts.Enhanced,
+	}
+	hook.GlobalHookManager.OnScanMediaFetcherStarted().Trigger(event)
+	opts.Enhanced = event.Enhanced
 
 	// +---------------------+
 	// |     All media       |
@@ -156,6 +165,15 @@ func NewMediaFetcher(opts *MediaFetcherOptions) (ret *MediaFetcher, retErr error
 			Int("allMediaCount", len(mf.AllMedia)).
 			Msg("Finished creating media fetcher")
 	}
+
+	// Invoke ScanMediaFetcherCompleted hook
+	completedEvent := &ScanMediaFetcherCompletedEvent{
+		AllMedia:        mf.AllMedia,
+		UnknownMediaIds: mf.UnknownMediaIds,
+	}
+	hook.GlobalHookManager.OnScanMediaFetcherCompleted().Trigger(completedEvent)
+	mf.AllMedia = completedEvent.AllMedia
+	mf.UnknownMediaIds = completedEvent.UnknownMediaIds
 
 	return mf, nil
 }

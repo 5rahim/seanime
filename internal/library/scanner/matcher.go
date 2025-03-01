@@ -3,18 +3,20 @@ package scanner
 import (
 	"errors"
 	"fmt"
-	"github.com/adrg/strutil/metrics"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
-	lop "github.com/samber/lo/parallel"
-	"github.com/sourcegraph/conc/pool"
 	"math"
 	"seanime/internal/api/anilist"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/summary"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"time"
+
+	"github.com/adrg/strutil/metrics"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
+	"github.com/sourcegraph/conc/pool"
 )
 
 type Matcher struct {
@@ -56,12 +58,32 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 
 	m.Logger.Debug().Msg("Starting matching process")
 
+	// Invoke ScanMatchingStarted hook
+	event := &ScanMatchingStartedEvent{
+		LocalFiles:      m.LocalFiles,
+		NormalizedMedia: m.MediaContainer.NormalizedMedia,
+		Algorithm:       m.Algorithm,
+		Threshold:       m.Threshold,
+	}
+	hook.GlobalHookManager.OnScanMatchingStarted().Trigger(event)
+	m.LocalFiles = event.LocalFiles
+	m.MediaContainer.NormalizedMedia = event.NormalizedMedia
+	m.Algorithm = event.Algorithm
+	m.Threshold = event.Threshold
+
 	// Parallelize the matching process
 	lop.ForEach(m.LocalFiles, func(localFile *anime.LocalFile, _ int) {
 		m.matchLocalFileWithMedia(localFile)
 	})
 
 	m.validateMatches()
+
+	// Invoke ScanMatchingCompleted hook
+	completedEvent := &ScanMatchingCompletedEvent{
+		LocalFiles: m.LocalFiles,
+	}
+	hook.GlobalHookManager.OnScanMatchingCompleted().Trigger(completedEvent)
+	m.LocalFiles = completedEvent.LocalFiles
 
 	if m.ScanLogger != nil {
 		m.ScanLogger.LogMatcher(zerolog.InfoLevel).
@@ -323,6 +345,42 @@ func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
 		finalRating = dice.Compare(*levMatch.OriginalValue, *levMatch.Value)
 		m.ScanSummaryLogger.LogComparison(lf, "Sorensen-Dice", *levMatch.Value, "Final rating", util.InlineSpewT(finalRating))
 		mediaMatch, found = m.MediaContainer.GetMediaFromTitleOrSynonym(levMatch.Value)
+	}
+
+	// After setting the mediaId, add the hook invocation
+	// Invoke ScanLocalFileMatched hook
+	event := &ScanLocalFileMatchedEvent{
+		LocalFile: lf,
+		Score:     finalRating,
+		Match:     mediaMatch,
+		Found:     found,
+	}
+	hook.GlobalHookManager.OnScanLocalFileMatched().Trigger(event)
+	lf = event.LocalFile
+	mediaMatch = event.Match
+	found = event.Found
+	finalRating = event.Score
+
+	// Check if the hook overrode the match
+	if event.Override != nil && *event.Override {
+		if m.ScanLogger != nil {
+			if mediaMatch != nil {
+				m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+					Str("filename", lf.Name).
+					Int("id", mediaMatch.ID).
+					Msg("Hook overrode match")
+			} else {
+				m.ScanLogger.LogMatcher(zerolog.DebugLevel).
+					Str("filename", lf.Name).
+					Msg("Hook overrode match, no match found")
+			}
+		}
+		if mediaMatch != nil {
+			lf.MediaId = mediaMatch.ID
+		} else {
+			lf.MediaId = 0
+		}
+		return
 	}
 
 	if !found {
