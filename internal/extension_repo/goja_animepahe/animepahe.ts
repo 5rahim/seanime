@@ -206,7 +206,7 @@ class Provider {
             result.videoSources.push(videoSource)
         })
 
-        await Promise.all(result.videoSources.map(async (videoSource) => {
+        const queries = result.videoSources.map(async (videoSource) => {
             try {
                 const src_req = await fetch(videoSource.url, {
                     headers: {
@@ -249,7 +249,9 @@ class Provider {
             catch (e) {
                 console.error("Failed to fetch kwik link", e)
             }
-        }))
+        })
+
+        await Promise.all(queries)
 
         return result
     }

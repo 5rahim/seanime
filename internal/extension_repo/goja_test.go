@@ -1,15 +1,16 @@
 package extension_repo_test
 
 import (
-	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
-	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/extension"
 	"seanime/internal/extension_repo"
 	"seanime/internal/util"
 	"testing"
+
+	hibikemanga "github.com/5rahim/hibike/pkg/extension/manga"
+	hibikeonlinestream "github.com/5rahim/hibike/pkg/extension/onlinestream"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGojaWithExtension(t *testing.T) {
@@ -79,7 +80,7 @@ func TestGojaWithExtension(t *testing.T) {
 
 func TestGojaOnlinestreamExtension(t *testing.T) {
 	// Get the script
-	filepath := "./goja_onlinestream_test/animepahe.ts"
+	filepath := "./goja_animepahe/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
@@ -122,7 +123,7 @@ func TestGojaOnlinestreamExtension(t *testing.T) {
 
 func TestGojaOnlinestreamExtension2(t *testing.T) {
 	// Get the script
-	filepath := "./goja_onlinestream_test/animepahe.ts"
+	filepath := "./goja_animepahe/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
@@ -146,7 +147,7 @@ func TestGojaOnlinestreamExtension2(t *testing.T) {
 	// Find first episode server
 	server, err := provider.FindEpisodeServer(&hibikeonlinestream.EpisodeDetails{
 		Provider: "animepahe",
-		ID:       "0ba8e30b98b1be6d19c8ac73ae11372911e62424ef454f05052ef6af8f01f13b$269b021d-a893-4471-04e7-b8933d81bda1",
+		ID:       "b3dd4279853b86047935ed3c9f6c26ed23e56c974efe43333aa4019f68412a13$f789184a-0479-abe3-14b9-155f323a125c",
 		Number:   1,
 		URL:      "",
 		Title:    "",

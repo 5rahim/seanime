@@ -2,15 +2,93 @@ package extension_repo_test
 
 import (
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/dop251/goja"
-	"github.com/stretchr/testify/require"
 	"os"
 	"seanime/internal/extension_repo"
 	"seanime/internal/util"
 	"testing"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/dop251/goja"
+	"github.com/stretchr/testify/require"
 )
+
+func TestGojaSimpleAwait(t *testing.T) {
+
+	// VM
+	vm, err := extension_repo.CreateJSVM(util.NewLogger())
+	require.NoError(t, err)
+
+	_, err = vm.RunString(`
+async function testSimpleAwait() {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+    const data = await res.json();
+	console.log(data);
+    return data;
+}
+	`)
+	require.NoError(t, err)
+
+	// Get the function
+	runFunc, ok := goja.AssertFunction(vm.Get("testSimpleAwait"))
+	require.True(t, ok)
+
+	// Call the function
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	spew.Dump(ret)
+	time.Sleep(2 * time.Second)
+}
+
+// Write a test for Promise.all fetch
+func TestGojaPromiseAllFetch(t *testing.T) {
+
+	// VM
+	vm, err := extension_repo.CreateJSVM(util.NewLogger())
+	require.NoError(t, err)
+
+	_, err = vm.RunString(`
+async function testPromiseAll() {
+    const urls = [
+        "https://jsonplaceholder.typicode.com/posts/1",
+        "https://jsonplaceholder.typicode.com/posts/2",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+        "https://jsonplaceholder.typicode.com/posts/3",
+    ];
+
+    const promises = urls.map(url => fetch(url).then(res => res.json()));
+    const results = await Promise.all(promises);
+    return results;
+}
+	`)
+	require.NoError(t, err)
+
+	// Get the function
+	runFunc, ok := goja.AssertFunction(vm.Get("testPromiseAll"))
+	require.True(t, ok)
+
+	// Call the function
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	spew.Dump(ret)
+	time.Sleep(1 * time.Second)
+}
 
 func TestGojaDocument(t *testing.T) {
 
