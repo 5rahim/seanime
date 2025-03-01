@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.7.5
+
+- 🦺 Extensions: Fixed runtime errors caused by concurrent requests
+- 🦺 Manga: Removed light novels from manga library #234
+- 🦺 Fixed torrent stream overlay blocking UI #243
+- 🏗️ Server: Removed DNS resolver fallback
+
 ## v2.7.4
 
 - 🚑️ Fixed infinite loading screen when launching app for the first time
@@ -10,7 +17,7 @@ All notable changes to this project will be documented in this file.
 - 🦺 Debrid: Fixed downloading to nonexistent destination (v2.7.3) 
 - 🦺 Anime library: Fixed external player link not working due to incorrect un-escaping (v2.7.3) 
 - 🦺 Small UI fixes (v2.7.3) 
-- 🏗️ Server: Support serving Base64 encoded file paths (v2.7.3) 
+- 🏗️ Server: Support serving Base64 encoded file paths (v2.7.3)
 
 ## v2.7.3
 
