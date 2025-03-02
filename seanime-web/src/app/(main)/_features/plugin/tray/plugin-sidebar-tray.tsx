@@ -1,12 +1,10 @@
 import { ExtensionRepo_TrayPluginExtensionItem } from "@/api/generated/types"
 import { PluginTray } from "@/app/(main)/_features/plugin/tray/plugin-tray"
 import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
 import React from "react"
-import { LuShapes } from "react-icons/lu"
 
 export const __plugin_trayItemsAtom = atom<ExtensionRepo_TrayPluginExtensionItem[]>([])
 
@@ -44,12 +42,12 @@ export function PluginSidebarTray() {
                     <PluginTray extensionID={trayItem.id} key={index} />
                 ))}
 
-                <IconButton
+                {/* <IconButton
                     intent="gray-basic"
                     size="sm"
                     icon={<LuShapes />}
                     className="rounded-full"
-                />
+                 /> */}
             </div>
         </>
     )

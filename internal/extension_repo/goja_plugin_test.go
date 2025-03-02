@@ -5,37 +5,206 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"seanime/internal/api/anilist"
+	"seanime/internal/continuity"
+	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
+	"seanime/internal/library/playbackmanager"
 	"seanime/internal/platforms/anilist_platform"
+	"seanime/internal/plugin"
 	"seanime/internal/test_utils"
 	"seanime/internal/util"
+	"seanime/internal/util/filecache"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/stretchr/testify/require"
 )
+
+// TestPluginOptions contains options for initializing a test plugin
+type TestPluginOptions struct {
+	ID          string
+	Payload     string
+	Language    extension.Language
+	Permissions []extension.PluginPermission
+	PoolSize    int
+	SetupHooks  bool
+}
+
+// DefaultTestPluginOptions returns default options for a test plugin
+func DefaultTestPluginOptions() TestPluginOptions {
+	return TestPluginOptions{
+		ID:          "dummy-plugin",
+		Payload:     "",
+		Language:    extension.LanguageJavascript,
+		Permissions: nil,
+		PoolSize:    15,
+		SetupHooks:  true,
+	}
+}
+
+// InitTestPlugin initializes a test plugin with the given options
+func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog.Logger, *goja_runtime.Manager, *anilist_platform.AnilistPlatform, events.WSEventManagerInterface) {
+	if opts.SetupHooks {
+		test_utils.SetTwoLevelDeep()
+		if tPtr, ok := t.(*testing.T); ok {
+			test_utils.InitTestProvider(tPtr, test_utils.Anilist())
+		}
+	}
+
+	ext := &extension.Extension{
+		ID:       opts.ID,
+		Payload:  opts.Payload,
+		Language: opts.Language,
+	}
+
+	if len(opts.Permissions) > 0 {
+		ext.Plugin = &extension.PluginManifest{
+			Permissions: opts.Permissions,
+		}
+	}
+
+	logger := util.NewLogger()
+	wsEventManager := events.NewMockWSEventManager(logger)
+	anilistClient := anilist.NewMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger).(*anilist_platform.AnilistPlatform)
+
+	// Initialize hook manager if needed
+	if opts.SetupHooks {
+		hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
+		hook.SetGlobalHookManager(hm)
+	}
+
+	manager := goja_runtime.NewManager(logger, int32(opts.PoolSize))
+	loader := NewGojaPluginLoader(ext, logger, manager)
+
+	plugin, err := NewGojaPlugin(loader, ext, opts.Language, logger, manager, wsEventManager)
+	if err != nil {
+		t.Fatalf("NewGojaPlugin returned error: %v", err)
+	}
+
+	return plugin, logger, manager, anilistPlatform, wsEventManager
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginMpv(t *testing.T) {
+	payload := `
+function init() {
+
+	$ui.register((ctx) => {
+
+		console.log("Testing MPV");
+
+		const conn = $mpv.newConnection("/tmp/mpv_socket")
+		conn.open()
+
+
+		console.log("Connection created", conn)
+
+		conn.call("observe_property", 42, "time-pos")
+
+		const cancel = $mpv.registerEventListener(conn, (event) => {
+			console.log("Event received", event)
+		})
+
+		// conn.call("set_property", "pause", true)
+
+		ctx.setTimeout(() => {
+			console.log("Cancelling event listener")
+			cancel()
+		}, 1000)
+	});
+
+}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+	opts.Permissions = []extension.PluginPermission{
+		extension.PluginPermissionPlayback,
+	}
+
+	_, _, manager, _, _ := InitTestPlugin(t, opts)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	time.Sleep(8 * time.Second)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginPlaybackEvents(t *testing.T) {
+	payload := `
+function init() {
+
+	$ui.register((ctx) => {
+		console.log("Testing Playback");
+
+		const cancel = $playback.registerEventListener("mySubscriber", (event) => {
+			console.log("Event received", event)
+		})
+
+		ctx.setTimeout(() => {
+			console.log("Cancelling event listener")
+			cancel()
+		}, 1000)
+	});
+
+}
+	`
+
+	playbackManager, _, err := getPlaybackManager(t)
+	require.NoError(t, err)
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		PlaybackManager: playbackManager,
+	})
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+	opts.Permissions = []extension.PluginPermission{
+		extension.PluginPermissionPlayback,
+	}
+
+	_, _, manager, _, _ := InitTestPlugin(t, opts)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	time.Sleep(8 * time.Second)
+}
 
 func TestNewGojaPluginUI(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(5000 * time.Millisecond)
 		fmt.Fprint(w, `{"test": "data"}`)
 	}))
 	defer server.Close()
 
-	test_utils.SetTwoLevelDeep()
-	test_utils.InitTestProvider(t, test_utils.Anilist())
 	payload := fmt.Sprintf(`
 	function init() {
 
 		$app.onGetAnime(async (e) => {
+			const url = "%s"
 
-			$store.set("anime", e.anime);
-			$store.set("value", 42);
+			// const res = $await(fetch(url))
+			const res = await fetch(url)
+			const data = res.json()
+			console.log("fetched results in hook", data)
+			$store.set("data", data)
 
-			console.log("onGetAnime fired", $store.get("value"));
+			console.log("first hook fired");
+
+			e.next();
+		});
+
+		$app.onGetAnime(async (e) => {
+			console.log("results from first hook", $store.get("data"));
 
 			e.next();
 		});
@@ -46,11 +215,17 @@ func TestNewGojaPluginUI(t *testing.T) {
 
 			const count = ctx.state(0)
 
-			ctx.effect(() => {
+			ctx.effect(async () => {
 				console.log("running effect that takes 1s")
 				ctx.setTimeout(() => {
 					console.log("1s elapsed since first effect called")
 				}, 1000)
+				const [a, b, c] = await Promise.all([
+					ctx.fetch("https://jsonplaceholder.typicode.com/todos/1"),
+					ctx.fetch("https://jsonplaceholder.typicode.com/todos/2"),
+					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
+				])
+				console.log("fetch results", a.json(), b.json(), c.json())
 			}, [count])
 
 			ctx.effect(() => {
@@ -63,48 +238,32 @@ func TestNewGojaPluginUI(t *testing.T) {
 		});
 
 	}
-	`, server.URL)
+	`, server.URL, server.URL)
 
-	ext := &extension.Extension{
-		ID:      "dummy-plugin",
-		Payload: payload,
-	}
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
 
-	logger := util.NewLogger()
+	_, _, manager, anilistPlatform, _ := InitTestPlugin(t, opts)
 
-	wsEventManager := events.NewMockWSEventManager(logger)
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
-	_ = anilistPlatform
+	go func() {
+		time.Sleep(time.Second)
+		_, err := anilistPlatform.GetAnime(178022)
+		if err != nil {
+			t.Errorf("GetAnime returned error: %v", err)
+		}
 
-	manager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, manager)
+		// _, err = anilistPlatform.GetAnime(177709)
+		// if err != nil {
+		// 	t.Errorf("GetAnime returned error: %v", err)
+		// }
+	}()
 
-	//go func() {
-	//	time.Sleep(time.Second)
-	//	_, err := anilistPlatform.GetAnime(178022)
-	//	if err != nil {
-	//		t.Errorf("GetAnime returned error: %v", err)
-	//	}
-	//
-	//	_, err = anilistPlatform.GetAnime(177709)
-	//	if err != nil {
-	//		t.Errorf("GetAnime returned error: %v", err)
-	//	}
-	//}()
+	manager.PrintPluginPoolMetrics(opts.ID)
 
-	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
-	if err != nil {
-		t.Fatalf("NewGojaPlugin returned error: %v", err)
-	}
-
-	manager.PrintPluginPoolMetrics(ext.ID)
-
-	time.Sleep(6 * time.Second)
+	time.Sleep(8 * time.Second)
 }
 
 func TestNewGojaPluginContext(t *testing.T) {
-	test_utils.SetTwoLevelDeep()
-	test_utils.InitTestProvider(t, test_utils.Anilist())
 	payload := `
 	function init() {
 
@@ -127,23 +286,10 @@ func TestNewGojaPluginContext(t *testing.T) {
 	}
 	`
 
-	ext := &extension.Extension{
-		ID:      "dummy-plugin",
-		Payload: payload,
-	}
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
 
-	logger := util.NewLogger()
-
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
-
-	manager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, manager)
-
-	wsEventManager := events.NewMockWSEventManager(logger)
-	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
-	if err != nil {
-		t.Fatalf("NewGojaPlugin returned error: %v", err)
-	}
+	_, _, manager, anilistPlatform, _ := InitTestPlugin(t, opts)
 
 	m, err := anilistPlatform.GetAnime(178022)
 	if err != nil {
@@ -160,13 +306,10 @@ func TestNewGojaPluginContext(t *testing.T) {
 
 	util.Spew(m.Title)
 
-	manager.PrintPluginPoolMetrics(ext.ID)
-
+	manager.PrintPluginPoolMetrics(opts.ID)
 }
 
 func TestNewGojaPlugin(t *testing.T) {
-	test_utils.SetTwoLevelDeep()
-	test_utils.InitTestProvider(t, test_utils.Anilist())
 	payload := `
 	function init() {
 
@@ -191,23 +334,10 @@ func TestNewGojaPlugin(t *testing.T) {
 	}
 	`
 
-	ext := &extension.Extension{
-		ID:      "dummy-plugin",
-		Payload: payload,
-	}
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
 
-	logger := util.NewLogger()
-
-	anilistPlatform := anilist_platform.NewAnilistPlatform(anilist.NewMockAnilistClient(), logger)
-
-	manager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, manager)
-
-	wsEventManager := events.NewMockWSEventManager(logger)
-	_, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, manager, wsEventManager)
-	if err != nil {
-		t.Fatalf("NewGojaPlugin returned error: %v", err)
-	}
+	_, _, manager, anilistPlatform, _ := InitTestPlugin(t, opts)
 
 	m, err := anilistPlatform.GetAnime(178022)
 	if err != nil {
@@ -224,8 +354,7 @@ func TestNewGojaPlugin(t *testing.T) {
 
 	util.Spew(m.Title)
 
-	manager.PrintPluginPoolMetrics(ext.ID)
-
+	manager.PrintPluginPoolMetrics(opts.ID)
 }
 
 func BenchmarkAllHooks(b *testing.B) {
@@ -241,9 +370,6 @@ func BenchmarkAllHooks(b *testing.B) {
 
 func BenchmarkHookInvocation(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
 
 	// Dummy extension payload that registers a hook
 	payload := `
@@ -253,25 +379,16 @@ func BenchmarkHookInvocation(b *testing.B) {
 			});
 		}
 	`
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	wsEventManager := events.NewMockWSEventManager(logger)
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
-	// Initialize the plugin, which will bind the hook
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin // keep the plugin reference alive
-
-	title := "Test Anime"
 	// Create a dummy anime event that we'll reuse
+	title := "Test Anime"
 	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
@@ -283,21 +400,16 @@ func BenchmarkHookInvocation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
+		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
-		//b.ReportMetric(b.Elapsed().Seconds(), "s/op")
 	}
 
-	runtimeManager.PrintPluginPoolMetrics(ext.ID)
-
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 func BenchmarkNoHookInvocation(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
 
 	// Dummy extension payload that registers a hook
 	payload := `
@@ -307,24 +419,16 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 			});
 		}
 	`
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	wsEventManager := events.NewMockWSEventManager(logger)
-	// Initialize the plugin, which will bind the hook
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin // keep the plugin reference alive
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
-	title := "Test Anime"
 	// Create a dummy anime event that we'll reuse
+	title := "Test Anime"
 	dummyEvent := &anilist_platform.GetAnimeEvent{
 		Anime: &anilist.BaseAnime{
 			ID: 1234,
@@ -336,22 +440,17 @@ func BenchmarkNoHookInvocation(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
+		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 	}
 
-	runtimeManager.PrintPluginPoolMetrics(ext.ID)
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 // Add a parallel version to see how it performs under concurrent load
 func BenchmarkHookInvocationParallel(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
-
-	wsEventManager := events.NewMockWSEventManager(logger)
 
 	payload := `
 		function init() {
@@ -361,27 +460,12 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 		}
 	`
 
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
-
-	// Initialize the plugin with the runtime manager
-	plugin, err := NewGojaPlugin(
-		loader,
-		ext,
-		extension.LanguageJavascript,
-		logger,
-		runtimeManager,
-		wsEventManager,
-	)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
 	title := "Test Anime"
 	event := &anilist_platform.GetAnimeEvent{
@@ -396,22 +480,17 @@ func BenchmarkHookInvocationParallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			if err := hm.OnGetAnime().Trigger(event); err != nil {
+			if err := hook.GlobalHookManager.OnGetAnime().Trigger(event); err != nil {
 				b.Fatal(err)
 			}
 		}
 	})
 
-	runtimeManager.PrintPluginPoolMetrics(ext.ID)
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
-
-	wsEventManager := events.NewMockWSEventManager(logger)
 
 	payload := `
 		function init() {
@@ -421,27 +500,12 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 		}
 	`
 
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
-
-	// Initialize the plugin with the runtime manager
-	plugin, err := NewGojaPlugin(
-		loader,
-		ext,
-		extension.LanguageJavascript,
-		logger,
-		runtimeManager,
-		wsEventManager,
-	)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
 	title := "Test Anime"
 	event := &anilist_platform.GetAnimeEvent{
@@ -456,11 +520,13 @@ func BenchmarkNoHookInvocationParallel(b *testing.B) {
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			if err := hm.OnGetAnime().Trigger(event); err != nil {
+			if err := hook.GlobalHookManager.OnGetAnime().Trigger(event); err != nil {
 				b.Fatal(err)
 			}
 		}
 	})
+
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 // BenchmarkBaselineNoHook measures the baseline performance without any hooks
@@ -485,9 +551,6 @@ func BenchmarkBaselineNoHook(b *testing.B) {
 // BenchmarkHookInvocationWithWork measures performance with a hook that does some actual work
 func BenchmarkHookInvocationWithWork(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
 
 	payload := `
 		function init() {
@@ -502,20 +565,13 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 			});
 		}
 	`
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
-	wsEventManager := events.NewMockWSEventManager(logger)
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
 	title := "Test Anime"
 	dummyEvent := &anilist_platform.GetAnimeEvent{
@@ -529,23 +585,17 @@ func BenchmarkHookInvocationWithWork(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := hm.OnGetAnime().Trigger(dummyEvent); err != nil {
+		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
 			b.Fatal(err)
 		}
 	}
 
-	runtimeManager.PrintPluginPoolMetrics(ext.ID)
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 // BenchmarkHookParallel measures parallel performance with a hook that does some work
 func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
-
-	wsEventManager := events.NewMockWSEventManager(logger)
 
 	payload := `
 		function init() {
@@ -561,27 +611,12 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 		}
 	`
 
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
-
-	// Initialize the plugin with the runtime manager
-	plugin, err := NewGojaPlugin(
-		loader,
-		ext,
-		extension.LanguageJavascript,
-		logger,
-		runtimeManager,
-		wsEventManager,
-	)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
 	title := "Test Anime"
 	dummyEvent := &anilist_platform.GetAnimeEvent{
@@ -602,17 +637,11 @@ func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
 		}
 	})
 
-	runtimeManager.PrintPluginPoolMetrics(ext.ID)
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 	b.ReportAllocs()
-	logger := util.NewLogger()
-
-	hm := hook.NewHookManager(hook.NewHookManagerOptions{Logger: logger})
-	hook.SetGlobalHookManager(hm)
-
-	wsEventManager := events.NewMockWSEventManager(logger)
 
 	payload := `
 		function init() {
@@ -627,19 +656,13 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 			});
 		}
 	`
-	ext := &extension.Extension{
-		ID:      "dummy-hook-benchmark",
-		Payload: payload,
-	}
 
-	runtimeManager := goja_runtime.NewManager(logger, 15)
-	loader := NewGojaPluginLoader(ext, logger, runtimeManager)
+	opts := DefaultTestPluginOptions()
+	opts.ID = "dummy-hook-benchmark"
+	opts.Payload = payload
+	opts.SetupHooks = true
 
-	plugin, err := NewGojaPlugin(loader, ext, extension.LanguageJavascript, logger, runtimeManager, wsEventManager)
-	if err != nil {
-		b.Fatal(err)
-	}
-	_ = plugin
+	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
 
 	title := "Test Anime"
 	dummyEvent := &anilist_platform.GetAnimeEvent{
@@ -658,5 +681,45 @@ func BenchmarkNoHookInvocationWithWork(b *testing.B) {
 		}
 	}
 
-	runtimeManager.PrintPluginPoolMetrics(ext.ID)
+	runtimeManager.PrintPluginPoolMetrics(opts.ID)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////s
+
+func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilist.AnimeCollection, error) {
+
+	logger := util.NewLogger()
+
+	wsEventManager := events.NewMockWSEventManager(logger)
+
+	database, err := db.NewDatabase(test_utils.ConfigData.Path.DataDir, test_utils.ConfigData.Database.Name, logger)
+
+	if err != nil {
+		t.Fatalf("error while creating database, %v", err)
+	}
+
+	filecacher, err := filecache.NewCacher(t.TempDir())
+	require.NoError(t, err)
+	anilistClient := anilist.TestGetMockAnilistClient()
+	anilistPlatform := anilist_platform.NewAnilistPlatform(anilistClient, logger)
+	animeCollection, err := anilistPlatform.GetAnimeCollection(true)
+	require.NoError(t, err)
+	continuityManager := continuity.NewManager(&continuity.NewManagerOptions{
+		FileCacher: filecacher,
+		Logger:     logger,
+		Database:   database,
+	})
+
+	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
+		WSEventManager: wsEventManager,
+		Logger:         logger,
+		Platform:       anilistPlatform,
+		Database:       database,
+		RefreshAnimeCollectionFunc: func() {
+			// Do nothing
+		},
+		DiscordPresence:   nil,
+		IsOffline:         false,
+		ContinuityManager: continuityManager,
+	}), animeCollection, nil
 }

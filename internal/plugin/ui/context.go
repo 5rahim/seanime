@@ -44,6 +44,10 @@ type Context struct {
 	pendingStateUpdates map[string]struct{} // Set of state IDs with pending updates
 	updateBatchTimer    *time.Timer         // Timer for flushing batched updates
 
+	// UI update rate limiting
+	lastUIUpdateAt time.Time
+	uiUpdateMu     sync.Mutex
+
 	webviewManager *WebviewManager // UNUSED
 	screenManager  *ScreenManager  // Listen for screen events, send screen actions
 	trayManager    *TrayManager    // Register and manage tray
@@ -77,6 +81,7 @@ func NewContext(ui *UI) *Context {
 		effectStack:         make(map[string]bool),
 		effectCalls:         make(map[string][]time.Time),
 		pendingStateUpdates: make(map[string]struct{}),
+		lastUIUpdateAt:      time.Now().Add(-time.Hour), // Initialize to a time in the past
 	}
 
 	ret.scheduler = ui.scheduler
@@ -711,6 +716,27 @@ func (c *Context) flushStateUpdates() {
 	// Process all updates
 	for _, id := range pendingUpdates {
 		c.publishStateUpdate(id)
+	}
+
+	// Trigger UI update after state changes
+	c.triggerUIUpdate()
+}
+
+// triggerUIUpdate schedules a UI update after state changes
+func (c *Context) triggerUIUpdate() {
+	c.uiUpdateMu.Lock()
+	defer c.uiUpdateMu.Unlock()
+
+	// Rate limit UI updates
+	if time.Since(c.lastUIUpdateAt) < time.Millisecond*time.Duration(UIUpdateRateLimit) {
+		return
+	}
+
+	c.lastUIUpdateAt = time.Now()
+
+	// Trigger tray update if available
+	if c.trayManager != nil {
+		c.trayManager.renderTrayScheduled()
 	}
 }
 

@@ -56,7 +56,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 		return errors.New("[matcher] no media fed into the matcher")
 	}
 
-	m.Logger.Debug().Msg("Starting matching process")
+	m.Logger.Debug().Msg("matcher: Starting matching process")
 
 	// Invoke ScanMatchingStarted hook
 	event := &ScanMatchingStartedEvent{
@@ -70,6 +70,11 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	m.MediaContainer.NormalizedMedia = event.NormalizedMedia
 	m.Algorithm = event.Algorithm
 	m.Threshold = event.Threshold
+
+	if event.DefaultPrevented {
+		m.Logger.Debug().Msg("matcher: Match stopped by hook")
+		return nil
+	}
 
 	// Parallelize the matching process
 	lop.ForEach(m.LocalFiles, func(localFile *anime.LocalFile, _ int) {
@@ -362,7 +367,7 @@ func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
 	finalRating = event.Score
 
 	// Check if the hook overrode the match
-	if event.Override != nil && *event.Override {
+	if event.DefaultPrevented {
 		if m.ScanLogger != nil {
 			if mediaMatch != nil {
 				m.ScanLogger.LogMatcher(zerolog.DebugLevel).

@@ -182,6 +182,8 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	p.store.Bind(vm, p.scheduler)
 	// Bind mutable bindings
 	goja_util.BindMutable(vm)
+	// Bind await bindings
+	goja_util.BindAwait(vm)
 
 	// Bind permission-specific APIs
 	if p.ext.Plugin != nil {

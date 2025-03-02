@@ -75,6 +75,18 @@ type Manager interface {
 	OnMangaEntry() *Hook[hook_resolver.Resolver]
 	OnMangaLibraryCollectionRequested() *Hook[hook_resolver.Resolver]
 	OnMangaLibraryCollection() *Hook[hook_resolver.Resolver]
+
+	// Playback events
+	OnLocalFilePlaybackRequested() *Hook[hook_resolver.Resolver]
+	OnPrePlaybackTracking() *Hook[hook_resolver.Resolver]
+	OnStreamPlaybackRequested() *Hook[hook_resolver.Resolver]
+
+	// Debrid events
+	OnDebridSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver]
+	OnDebridLocalDownloadRequested() *Hook[hook_resolver.Resolver]
+
+	// Torrent stream events
+	OnTorrentStreamSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
@@ -135,6 +147,15 @@ type ManagerImpl struct {
 	onMangaEntry                      *Hook[hook_resolver.Resolver]
 	onMangaLibraryCollectionRequested *Hook[hook_resolver.Resolver]
 	onMangaLibraryCollection          *Hook[hook_resolver.Resolver]
+	// Playback events
+	onLocalFilePlaybackRequested *Hook[hook_resolver.Resolver]
+	onPrePlaybackTracking        *Hook[hook_resolver.Resolver]
+	onStreamPlaybackRequested    *Hook[hook_resolver.Resolver]
+	// Debrid events
+	onDebridSendStreamToMediaPlayer *Hook[hook_resolver.Resolver]
+	onDebridLocalDownloadRequested  *Hook[hook_resolver.Resolver]
+	// Torrent stream events
+	onTorrentStreamSendStreamToMediaPlayer *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -216,6 +237,15 @@ func (m *ManagerImpl) initHooks() {
 	m.onMangaEntry = &Hook[hook_resolver.Resolver]{}
 	m.onMangaLibraryCollectionRequested = &Hook[hook_resolver.Resolver]{}
 	m.onMangaLibraryCollection = &Hook[hook_resolver.Resolver]{}
+	// Playback events
+	m.onLocalFilePlaybackRequested = &Hook[hook_resolver.Resolver]{}
+	m.onPrePlaybackTracking = &Hook[hook_resolver.Resolver]{}
+	m.onStreamPlaybackRequested = &Hook[hook_resolver.Resolver]{}
+	// Debrid events
+	m.onDebridSendStreamToMediaPlayer = &Hook[hook_resolver.Resolver]{}
+	m.onDebridLocalDownloadRequested = &Hook[hook_resolver.Resolver]{}
+	// Torrent stream events
+	m.onTorrentStreamSendStreamToMediaPlayer = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -563,4 +593,52 @@ func (m *ManagerImpl) OnMangaLibraryCollection() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onMangaLibraryCollection
+}
+
+// Playback events
+
+func (m *ManagerImpl) OnLocalFilePlaybackRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onLocalFilePlaybackRequested
+}
+
+func (m *ManagerImpl) OnPrePlaybackTracking() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onPrePlaybackTracking
+}
+
+func (m *ManagerImpl) OnStreamPlaybackRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onStreamPlaybackRequested
+}
+
+// Debrid events
+
+func (m *ManagerImpl) OnDebridSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDebridSendStreamToMediaPlayer
+}
+
+func (m *ManagerImpl) OnDebridLocalDownloadRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onDebridLocalDownloadRequested
+}
+
+// Torrent stream events
+
+func (m *ManagerImpl) OnTorrentStreamSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onTorrentStreamSendStreamToMediaPlayer
 }

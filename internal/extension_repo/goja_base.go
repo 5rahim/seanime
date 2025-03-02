@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
@@ -158,26 +159,33 @@ func (g *gojaProviderBase) waitForPromise(value goja.Value) (goja.Value, error) 
 		return nil, fmt.Errorf("cannot wait for nil promise")
 	}
 
+	// If the value is a promise, wait for it to resolve
 	if promise, ok := value.Export().(*goja.Promise); ok {
-		result := promise.Result()
-		if result == nil {
-			return nil, fmt.Errorf("promise result is nil")
+		doneCh := make(chan struct{})
+
+		// Wait for the promise to resolve
+		go func() {
+			for promise.State() == goja.PromiseStatePending {
+				time.Sleep(10 * time.Millisecond)
+			}
+			close(doneCh)
+		}()
+
+		<-doneCh
+
+		// If the promise is rejected, return the error
+		if promise.State() == goja.PromiseStateRejected {
+			err := promise.Result()
+			return nil, fmt.Errorf("promise rejected: %v", err)
 		}
 
-		switch promise.State() {
-		case goja.PromiseStatePending:
-			return nil, fmt.Errorf("promise is still pending")
-		case goja.PromiseStateRejected:
-			if err, ok := result.Export().(error); ok {
-				return nil, fmt.Errorf("promise rejected: %w", err)
-			}
-			return nil, fmt.Errorf("promise rejected: %v", result)
-		case goja.PromiseStateFulfilled:
-			return result, nil
-		default:
-			return nil, fmt.Errorf("unknown promise state: %v", promise.State())
-		}
+		// If the promise is fulfilled, return the result
+		res := promise.Result()
+
+		return res, nil
 	}
+
+	// If the value is not a promise, return it as is
 	return value, nil
 }
 

@@ -276,6 +276,10 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	_ = hook.GlobalHookManager.OnAutoDownloaderRunStarted().Trigger(event)
 	rules = event.Rules
 
+	if event.DefaultPrevented {
+		return
+	}
+
 	// If there are no rules, return
 	if len(rules) == 0 {
 		ad.logger.Debug().Msg("autodownloader: No rules found")

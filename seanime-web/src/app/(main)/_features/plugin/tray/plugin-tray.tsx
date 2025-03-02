@@ -1,9 +1,11 @@
 import { PluginProvider, registry, RenderPluginComponents } from "@/app/(main)/_features/plugin/components/registry"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { PopoverAnatomy } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
+import Image from "next/image"
 import React from "react"
 import {
     usePluginListenTrayUpdatedEvent,
@@ -72,16 +74,21 @@ export function PluginTray(props: TrayPluginProps) {
                         <Tooltip
                             side="right"
                             trigger={
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden hover:bg-gray-800 cursor-pointer transition-all">
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 cursor-pointer transition-all relative">
                                     <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative">
-                                        <span>T</span>
-                                        {/*<Image*/}
-                                        {/*    src="https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png"*/}
-                                        {/*    alt="logo"*/}
-                                        {/*    fill*/}
-                                        {/*    className="p-1 w-full h-full object-contain"*/}
-                                        {/*/>*/}
+                                        <Image
+                                            src="https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png"
+                                            alt="logo"
+                                            fill
+                                            className="p-1 w-full h-full object-contain"
+                                        />
                                     </div>
+                                    <Badge
+                                        intent="alert-solid"
+                                        className="absolute -top-2 -right-2 z-10"
+                                    >
+                                        2
+                                    </Badge>
                                 </div>}
                         >
                             Extension name

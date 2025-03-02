@@ -258,6 +258,29 @@ func (m *Mpv) SeekTo(position float64) error {
 	return nil
 }
 
+func (m *Mpv) GetOpenConnection() (*mpvipc.Connection, error) {
+	if m.conn == nil || m.conn.IsClosed() {
+		return nil, errors.New("mpv is not running")
+	}
+	return m.conn, nil
+}
+
+func (m *Mpv) Pause() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	_, err := m.conn.Call("set_property", "pause", true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Mpv) establishConnection() error {
 	tries := 1
 	for {

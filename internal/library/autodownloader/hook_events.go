@@ -7,19 +7,20 @@ import (
 	"seanime/internal/library/anime"
 )
 
-// AutoDownloaderRunStartedEvent is triggered when the autodownloader starts checking for new episodes
+// AutoDownloaderRunStartedEvent is triggered when the autodownloader starts checking for new episodes.
+// Prevent default to abort the run.
 type AutoDownloaderRunStartedEvent struct {
 	hook_resolver.Event
 	Rules []*anime.AutoDownloaderRule `json:"rules"`
 }
 
-// AutoDownloaderTorrentsFetchedEvent is triggered when the autodownloader fetches torrents from the provider
+// AutoDownloaderTorrentsFetchedEvent is triggered when the autodownloader fetches torrents from the provider.
 type AutoDownloaderTorrentsFetchedEvent struct {
 	hook_resolver.Event
 	Torrents []*NormalizedTorrent `json:"torrents"`
 }
 
-// AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule
+// AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule.
 type AutoDownloaderMatchVerifiedEvent struct {
 	hook_resolver.Event
 	// Fetched torrent

@@ -15,7 +15,7 @@ import React from "react"
 import { BiDotsVerticalRounded } from "react-icons/bi"
 import { CgMediaPodcast } from "react-icons/cg"
 import { GrInstallOption } from "react-icons/gr"
-import { LuPlug } from "react-icons/lu"
+import { LuBlocks } from "react-icons/lu"
 import { PiBookFill } from "react-icons/pi"
 import { RiFolderDownloadFill } from "react-icons/ri"
 import { TbReload } from "react-icons/tb"
@@ -108,7 +108,7 @@ export function ExtensionList(props: ExtensionListProps) {
 
             {!!pluginExtensions?.length && (
                 <>
-                    <h3 className="flex gap-3 items-center"><LuPlug /> Plugins</h3>
+                    <h3 className="flex gap-3 items-center"><LuBlocks /> Plugins</h3>
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
                         {pluginExtensions.map(extension => (
                             <ExtensionCard

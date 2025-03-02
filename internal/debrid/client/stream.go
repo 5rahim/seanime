@@ -7,6 +7,7 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
+	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"strconv"
@@ -305,7 +306,29 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			return
 		}
 
-		switch opts.PlaybackType {
+		event := &DebridSendStreamToMediaPlayerEvent{
+			WindowTitle:  fmt.Sprintf("%s - Episode %s", selectedTorrent.Name, aniDbEpisode),
+			StreamURL:    streamUrl,
+			Media:        media.ToBaseAnime(),
+			AniDbEpisode: aniDbEpisode,
+			PlaybackType: string(opts.PlaybackType),
+		}
+		err = hook.GlobalHookManager.OnDebridSendStreamToMediaPlayer().Trigger(event)
+		if err != nil {
+			s.repository.logger.Err(err).Msg("debridstream: Failed to send stream to media player")
+		}
+		windowTitle := event.WindowTitle
+		streamUrl = event.StreamURL
+		media := event.Media
+		aniDbEpisode := event.AniDbEpisode
+		playbackType := StreamPlaybackType(event.PlaybackType)
+
+		if event.DefaultPrevented {
+			s.repository.logger.Debug().Msg("debridstream: Stream prevented by hook")
+			return
+		}
+
+		switch playbackType {
 		case PlaybackTypeDefault:
 			//
 			// Start the stream
@@ -313,11 +336,11 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			s.repository.logger.Debug().Msg("debridstream: Starting the media player")
 			// Sends the stream to the media player
 			// DEVNOTE: Events are handled by the torrentstream.Repository module
-			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer(fmt.Sprintf("%s - Episode %s", selectedTorrent.Name, aniDbEpisode), &playbackmanager.StartPlayingOptions{
+			err = s.repository.playbackManager.StartStreamingUsingMediaPlayer(windowTitle, &playbackmanager.StartPlayingOptions{
 				Payload:   streamUrl,
 				UserAgent: opts.UserAgent,
 				ClientId:  opts.ClientId,
-			}, media.ToBaseAnime(), aniDbEpisode)
+			}, media, aniDbEpisode)
 			if err != nil {
 				// Failed to start the stream, we'll drop the torrents and stop the server
 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{

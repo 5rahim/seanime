@@ -134,6 +134,11 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 //	Example:
 //	tray.update()
 func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
+	// Update the context's lastUIUpdateAt to prevent duplicate updates
+	t.trayManager.ctx.uiUpdateMu.Lock()
+	t.trayManager.ctx.lastUIUpdateAt = time.Now()
+	t.trayManager.ctx.uiUpdateMu.Unlock()
+
 	t.trayManager.renderTrayScheduled()
 	return goja.Undefined()
 }

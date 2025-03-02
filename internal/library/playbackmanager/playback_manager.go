@@ -10,6 +10,7 @@ import (
 	"seanime/internal/database/db_bridge"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
+	"seanime/internal/hook"
 	"seanime/internal/library/anime"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
@@ -242,6 +243,16 @@ type StartPlayingOptions struct {
 }
 
 func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOptions) error {
+
+	event := &LocalFilePlaybackRequestedEvent{
+		Path: opts.Payload,
+	}
+	err := hook.GlobalHookManager.OnLocalFilePlaybackRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+	opts.Payload = event.Path
+
 	pm.playlistHub.reset()
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
@@ -253,9 +264,21 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	}
 
 	// Send the media file to the media player
-	err := pm.MediaPlayerRepository.Play(opts.Payload)
+	err = pm.MediaPlayerRepository.Play(opts.Payload)
 	if err != nil {
 		return err
+	}
+
+	trackingEvent := &PrePlaybackTrackingEvent{
+		IsStream: false,
+	}
+	err = hook.GlobalHookManager.OnPrePlaybackTracking().Trigger(trackingEvent)
+	if err != nil {
+		return err
+	}
+
+	if trackingEvent.DefaultPrevented {
+		return nil
 	}
 
 	// Start tracking
@@ -269,6 +292,21 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 // Note that PlaybackManager.currentStreamEpisodeCollection is not required to start streaming but is needed for progress tracking.
 func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, opts *StartPlayingOptions, media *anilist.BaseAnime, aniDbEpisode string) (err error) {
 	defer util.HandlePanicInModuleWithError("library/playbackmanager/StartStreamingUsingMediaPlayer", &err)
+
+	event := &StreamPlaybackRequestedEvent{
+		WindowTitle:  windowTitle,
+		Payload:      opts.Payload,
+		Media:        media,
+		AniDbEpisode: aniDbEpisode,
+	}
+	err = hook.GlobalHookManager.OnStreamPlaybackRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.DefaultPrevented {
+		return nil
+	}
 
 	pm.playlistHub.reset()
 	if pm.isOffline {
@@ -316,6 +354,18 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	pm.Logger.Trace().Msg("playback manager: Sent stream to media player")
+
+	trackingEvent := &PrePlaybackTrackingEvent{
+		IsStream: true,
+	}
+	err = hook.GlobalHookManager.OnPrePlaybackTracking().Trigger(trackingEvent)
+	if err != nil {
+		return err
+	}
+
+	if trackingEvent.DefaultPrevented {
+		return nil
+	}
 
 	pm.MediaPlayerRepository.StartTrackingTorrentStream()
 

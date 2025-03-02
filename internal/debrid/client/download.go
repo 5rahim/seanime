@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/dustin/go-humanize"
 	"io"
 	"mime"
 	"net/http"
@@ -15,12 +14,15 @@ import (
 	"runtime"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
+	"seanime/internal/hook"
 	"seanime/internal/notifier"
 	"seanime/internal/util"
 	"seanime/internal/util/result"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/dustin/go-humanize"
 )
 
 func (r *Repository) launchDownloadLoop(ctx context.Context) {
@@ -113,6 +115,21 @@ func (r *Repository) downloadTorrentItem(tId string, torrentName string, destina
 	})
 	if err != nil {
 		return err
+	}
+
+	event := &DebridLocalDownloadRequestedEvent{
+		TorrentName: torrentName,
+		Destination: destination,
+		DownloadUrl: downloadUrl,
+	}
+	err = hook.GlobalHookManager.OnDebridLocalDownloadRequested().Trigger(event)
+	if err != nil {
+		return err
+	}
+
+	if event.DefaultPrevented {
+		r.logger.Debug().Msg("debrid: Download prevented by hook")
+		return nil
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

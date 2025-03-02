@@ -36,7 +36,8 @@ type ScanMediaFetcherCompletedEvent struct {
 	UnknownMediaIds []int                    `json:"unknownMediaIds"`
 }
 
-// ScanMatchingStartedEvent is triggered when the matching process begins
+// ScanMatchingStartedEvent is triggered when the matching process begins.
+// Prevent default to skip the default matching and override the matching.
 type ScanMatchingStartedEvent struct {
 	hook_resolver.Event
 	LocalFiles      []*anime.LocalFile       `json:"localFiles"`
@@ -45,7 +46,8 @@ type ScanMatchingStartedEvent struct {
 	Threshold       float64                  `json:"threshold"`
 }
 
-// ScanLocalFileMatchedEvent is triggered when a local file is matched with media and before the match is analyzed
+// ScanLocalFileMatchedEvent is triggered when a local file is matched with media and before the match is analyzed.
+// Prevent default to skip the default analysis and override the match.
 type ScanLocalFileMatchedEvent struct {
 	hook_resolver.Event
 	// Can be nil if there's no match
@@ -53,9 +55,6 @@ type ScanLocalFileMatchedEvent struct {
 	Found     bool                   `json:"found"`
 	LocalFile *anime.LocalFile       `json:"localFile"`
 	Score     float64                `json:"score"`
-	// When true, match analysis will be skipped
-	// Set this to true if you plan to override the values so that the default analysis is not performed
-	Override *bool `json:"override"`
 }
 
 // ScanMatchingCompletedEvent is triggered when the matching process completes
@@ -71,12 +70,12 @@ type ScanHydrationStartedEvent struct {
 	AllMedia   []*anime.NormalizedMedia `json:"allMedia"`
 }
 
+// ScanLocalFileHydrationStartedEvent is triggered when a local file's metadata is about to be hydrated.
+// Prevent default to skip the default hydration and override the hydration.
 type ScanLocalFileHydrationStartedEvent struct {
 	hook_resolver.Event
 	LocalFile *anime.LocalFile       `json:"localFile"`
 	Media     *anime.NormalizedMedia `json:"media"`
-	// When true, the default hydration will be skipped
-	Override *bool `json:"override"`
 }
 
 // ScanLocalFileHydratedEvent is triggered when a local file's metadata is hydrated

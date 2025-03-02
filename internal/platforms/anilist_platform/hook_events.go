@@ -54,6 +54,8 @@ type GetStudioDetailsEvent struct {
 	Studio *anilist.StudioDetails `json:"studio"`
 }
 
+// PreUpdateEntryEvent is triggered when an entry is about to be updated.
+// Prevent default to skip the default update and override the update.
 type PreUpdateEntryEvent struct {
 	hook_resolver.Event
 	MediaID     *int                     `json:"mediaId"`
@@ -62,7 +64,6 @@ type PreUpdateEntryEvent struct {
 	Progress    *int                     `json:"progress"`
 	StartedAt   *anilist.FuzzyDateInput  `json:"startedAt"`
 	CompletedAt *anilist.FuzzyDateInput  `json:"completedAt"`
-	Override    *bool                    `json:"override"`
 }
 
 type PostUpdateEntryEvent struct {
@@ -70,15 +71,13 @@ type PostUpdateEntryEvent struct {
 	MediaID *int `json:"mediaId"`
 }
 
+// PreUpdateEntryProgressEvent is triggered when an entry's progress is about to be updated.
+// Prevent default to skip the default update and override the update.
 type PreUpdateEntryProgressEvent struct {
 	hook_resolver.Event
-	// When true, Seanime's default logic for updating the progress will be overridden
-	// This means the status will not be updated and the progress will not be clamped
-	OverrideProcessing *bool `json:"overrideProcessing"`
-	Override           *bool `json:"override"`
-	MediaID            *int  `json:"mediaId"`
-	Progress           *int  `json:"progress"`
-	TotalCount         *int  `json:"totalCount"`
+	MediaID    *int `json:"mediaId"`
+	Progress   *int `json:"progress"`
+	TotalCount *int `json:"totalCount"`
 	// Defaults to anilist.MediaListStatusCurrent
 	Status *anilist.MediaListStatus `json:"status"`
 }
@@ -88,11 +87,12 @@ type PostUpdateEntryProgressEvent struct {
 	MediaID *int `json:"mediaId"`
 }
 
+// PreUpdateEntryRepeatEvent is triggered when an entry's repeat is about to be updated.
+// Prevent default to skip the default update and override the update.
 type PreUpdateEntryRepeatEvent struct {
 	hook_resolver.Event
-	MediaID  *int  `json:"mediaId"`
-	Repeat   *int  `json:"repeat"`
-	Override *bool `json:"override"`
+	MediaID *int `json:"mediaId"`
+	Repeat  *int `json:"repeat"`
 }
 
 type PostUpdateEntryRepeatEvent struct {

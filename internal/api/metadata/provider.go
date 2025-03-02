@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"errors"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/api/anizip"
@@ -65,8 +66,8 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 
 	// Invoke AnimeMetadataRequested hook
 	reqEvent := &AnimeMetadataRequestedEvent{
-		MediaId:               mId,
-		OverrideAnimeMetadata: ret,
+		MediaId:       mId,
+		AnimeMetadata: ret,
 	}
 	err = hook.GlobalHookManager.OnAnimeMetadataRequested().Trigger(reqEvent)
 	if err != nil {
@@ -74,8 +75,13 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 	}
 	mId = reqEvent.MediaId
 
-	if reqEvent.Override != nil && *reqEvent.Override {
-		return reqEvent.OverrideAnimeMetadata, nil
+	// If the hook prevented the default behavior, return the overridden metadata
+	if reqEvent.DefaultPrevented {
+		if reqEvent.AnimeMetadata != nil {
+			p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), reqEvent.AnimeMetadata, 1*time.Hour)
+			return reqEvent.AnimeMetadata, nil
+		}
+		return nil, errors.New("no metadata was returned")
 	}
 
 	anizipMedia, err := anizip.FetchAniZipMediaC(string(platform), mId, p.anizipCache)

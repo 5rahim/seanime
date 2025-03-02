@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/library/playbackmanager"
+
+	"github.com/labstack/echo/v4"
 )
 
 // HandlePlaybackPlayVideo

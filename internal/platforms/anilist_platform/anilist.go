@@ -75,7 +75,7 @@ func (ap *AnilistPlatform) UpdateEntry(mediaID int, status *anilist.MediaListSta
 		return err
 	}
 
-	if event.Override != nil && *event.Override {
+	if event.DefaultPrevented {
 		return nil
 	}
 
@@ -100,47 +100,43 @@ func (ap *AnilistPlatform) UpdateEntryProgress(mediaID int, progress int, totalC
 	event.Progress = &progress
 	event.TotalCount = totalCount
 	event.Status = lo.ToPtr(anilist.MediaListStatusCurrent)
-	event.Override = lo.ToPtr(false)
-	event.OverrideProcessing = lo.ToPtr(false)
 
 	err := hook.GlobalHookManager.OnPreUpdateEntryProgress().Trigger(event)
 	if err != nil {
 		return err
 	}
 
-	if event.OverrideProcessing == nil || !*event.OverrideProcessing {
-		realTotalCount := 0
-		if totalCount != nil && *totalCount > 0 {
-			realTotalCount = *totalCount
-		}
+	if event.DefaultPrevented {
+		return nil
+	}
 
-		// Check if the anime is in the repeating list
-		// If it is, set the status to repeating
-		if ap.rawAnimeCollection.IsPresent() {
-			for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
-				if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
-					if list.Entries != nil {
-						for _, entry := range list.Entries {
-							if entry.GetMedia().GetID() == mediaID {
-								*event.Status = anilist.MediaListStatusRepeating
-								break
-							}
+	realTotalCount := 0
+	if totalCount != nil && *totalCount > 0 {
+		realTotalCount = *totalCount
+	}
+
+	// Check if the anime is in the repeating list
+	// If it is, set the status to repeating
+	if ap.rawAnimeCollection.IsPresent() {
+		for _, list := range ap.rawAnimeCollection.MustGet().MediaListCollection.Lists {
+			if list.Status != nil && *list.Status == anilist.MediaListStatusRepeating {
+				if list.Entries != nil {
+					for _, entry := range list.Entries {
+						if entry.GetMedia().GetID() == mediaID {
+							*event.Status = anilist.MediaListStatusRepeating
+							break
 						}
 					}
 				}
 			}
 		}
-		if realTotalCount > 0 && progress >= realTotalCount {
-			*event.Status = anilist.MediaListStatusCompleted
-		}
-
-		if realTotalCount > 0 && progress > realTotalCount {
-			*event.Progress = realTotalCount
-		}
+	}
+	if realTotalCount > 0 && progress >= realTotalCount {
+		*event.Status = anilist.MediaListStatusCompleted
 	}
 
-	if event.Override != nil && *event.Override {
-		return nil
+	if realTotalCount > 0 && progress > realTotalCount {
+		*event.Progress = realTotalCount
 	}
 
 	_, err = ap.anilistClient.UpdateMediaListEntryProgress(
@@ -176,7 +172,7 @@ func (ap *AnilistPlatform) UpdateEntryRepeat(mediaID int, repeat int) error {
 		return err
 	}
 
-	if event.Override != nil && *event.Override {
+	if event.DefaultPrevented {
 		return nil
 	}
 

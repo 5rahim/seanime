@@ -386,6 +386,7 @@ func (r *Repository) loadPlugins() {
 					tray.render(() => {
 						return tray.stack({
 							items: [
+								tray.text("Keys: " + JSON.stringify(mediaIds.get())),
 								tray.button("Click me", { onClick: "button-clicked" }),
 								currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
 									items: [

@@ -18,6 +18,7 @@ const (
 	MaxEffectCallsPerWindow    = 100  // Maximum number of effect calls allowed in time window
 	EffectTimeWindow           = 1000 // Time window in milliseconds to track effect calls
 	StateUpdateBatchInterval   = 10   // Time in milliseconds to batch state updates
+	UIUpdateRateLimit          = 120  // Time in milliseconds to rate limit UI updates
 )
 
 // UI registry, unique to a plugin and VM

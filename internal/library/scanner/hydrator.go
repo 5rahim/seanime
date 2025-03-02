@@ -148,7 +148,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 		}()
 
 		// Handle hook override
-		if event.Override != nil && *event.Override {
+		if event.DefaultPrevented {
 			if fh.ScanLogger != nil {
 				fh.ScanLogger.LogFileHydrator(zerolog.DebugLevel).
 					Str("filename", lf.Name).

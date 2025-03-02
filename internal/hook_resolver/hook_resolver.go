@@ -6,6 +6,10 @@ type Resolver interface {
 	Next() error
 
 	NextFunc() func() error
+
+	// PreventDefault prevents the native handler from being called.
+	PreventDefault()
+
 	SetNextFunc(f func() error)
 }
 
@@ -23,6 +27,8 @@ var _ Resolver = (*Event)(nil)
 //	}
 type Event struct {
 	next func() error
+
+	DefaultPrevented bool
 }
 
 // Next calls the next hook handler.
@@ -31,6 +37,10 @@ func (e *Event) Next() error {
 		return e.next()
 	}
 	return nil
+}
+
+func (e *Event) PreventDefault() {
+	e.DefaultPrevented = true
 }
 
 // NextFunc returns the function that Next calls.
