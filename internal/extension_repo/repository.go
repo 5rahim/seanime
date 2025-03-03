@@ -374,19 +374,40 @@ func (r *Repository) loadPlugins() {
 						$anilist.refreshAnimeCollection();
 					});
 
-					$store.watch("mediaIds", (mId) => {
-						mediaIds.set(p => [...p, mId]);
-					});
+					// $store.watch("mediaIds", (mId) => {
+					// 	mediaIds.set(p => [...p, mId]);
+					// });
 
 					ctx.registerEventHandler("button-clicked", () => {
-						const cmd = $os.cmd("open", "https://google.com");
-						cmd.run();
+						console.log("button-clicked");
+						console.log("navigating to /entry?id=21");
+						try {
+							ctx.screen.navigateTo("/entry?id=21");
+						} catch (e) {
+							console.error("navigate error", e);
+						}
+						ctx.setTimeout(() => {
+							try {
+								console.log("navigating to /entry?id=177709");
+								ctx.screen.navigateTo("/entry?id=177709");
+							} catch (e) {
+								console.error("navigate error", e);
+							}
+						}, 1000);
+						ctx.setTimeout(() => {
+							try {
+								console.log("opening https://google.com");
+								const cmd = $os.cmd("open", "https://google.com");
+								cmd.run();
+							} catch (e) {
+								console.error("open error", e);
+							}
+						}, 2000);
 					});
 
 					tray.render(() => {
 						return tray.stack({
 							items: [
-								tray.text("Keys: " + JSON.stringify(mediaIds.get())),
 								tray.button("Click me", { onClick: "button-clicked" }),
 								currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
 									items: [

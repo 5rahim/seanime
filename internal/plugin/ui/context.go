@@ -323,17 +323,19 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	go func(fn goja.Callable) {
+	globalObj := c.vm.GlobalObject()
+
+	go func(fn goja.Callable, globalObj goja.Value) {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(time.Duration(delay) * time.Millisecond):
 			c.scheduler.ScheduleAsync(func() error {
-				_, err := fn(goja.Undefined())
+				_, err := fn(globalObj)
 				return err
 			})
 		}
-	}(fn)
+	}(fn, globalObj)
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
@@ -368,20 +370,22 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 		c.HandleTypeError("delay must be a number")
 	}
 
+	globalObj := c.vm.GlobalObject()
+
 	ctx, cancel := context.WithCancel(context.Background())
-	go func(fn goja.Callable) {
+	go func(fn goja.Callable, globalObj goja.Value) {
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-time.After(time.Duration(delay) * time.Millisecond):
 				c.scheduler.ScheduleAsync(func() error {
-					_, err := fn(goja.Undefined())
+					_, err := fn(globalObj)
 					return err
 				})
 			}
 		}
-	}(fn)
+	}(fn, globalObj)
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
@@ -461,10 +465,12 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		dropIDs[i] = idStr
 	}
 
+	globalObj := c.vm.GlobalObject()
+
 	// Subscribe to state updates
 	subChan := c.subscribeStateUpdates()
 	ctxEffect, cancel := context.WithCancel(context.Background())
-	go func(effectFn *goja.Callable) {
+	go func(effectFn *goja.Callable, globalObj goja.Value) {
 		for {
 			select {
 			case <-ctxEffect.Done():
@@ -501,7 +507,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 								c.mu.Unlock()
 
 								c.scheduler.ScheduleAsync(func() error {
-									_, err := (*effectFn)(goja.Undefined())
+									_, err := (*effectFn)(globalObj)
 									c.mu.Lock()
 									c.effectStack[effectID] = false
 									c.mu.Unlock()
@@ -513,7 +519,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 				}
 			}
 		}
-	}(&effectFn)
+	}(&effectFn, globalObj)
 
 	cancelFunc := func(call goja.FunctionCall) goja.Value {
 		cancel()
@@ -547,20 +553,22 @@ func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
 	eventListener := c.RegisterEventListener(ClientEventHandlerTriggeredEvent)
 	payload := ClientEventHandlerTriggeredEventPayload{}
 
-	go func() {
+	globalObj := c.vm.GlobalObject()
+
+	go func(handlerCallback goja.Callable, globalObj goja.Value) {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) {
 				// Check if the handler name matches
 				if payload.HandlerName == handlerName {
 					c.scheduler.ScheduleAsync(func() error {
 						// Trigger the callback with the event payload
-						_, err := handlerCallback(goja.Undefined(), c.vm.ToValue(payload.Event))
+						_, err := handlerCallback(globalObj, c.vm.ToValue(payload.Event))
 						return err
 					})
 				}
 			}
 		}
-	}()
+	}(handlerCallback, globalObj)
 
 	return goja.Undefined()
 }
@@ -614,7 +622,10 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 	eventListener := c.RegisterEventListener(ClientFieldRefSendValueEvent, ClientRenderTrayEvent)
 	payload := ClientFieldRefSendValueEventPayload{}
 	renderPayload := ClientRenderTrayEventPayload{}
-	go func() {
+
+	globalObj := c.vm.GlobalObject()
+
+	go func(eventListener *EventListener, globalObj goja.Value) {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) {
 				if payload.Value != nil {
@@ -634,7 +645,7 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 				})
 			}
 		}
-	}()
+	}(eventListener, globalObj)
 
 	return fieldRefObj
 }

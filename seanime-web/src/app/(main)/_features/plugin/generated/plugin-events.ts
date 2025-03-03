@@ -18,6 +18,7 @@ export enum PluginServerEvents {
     FormReset = "form:reset",
     FormSetValues = "form:set-values",
     FieldRefSetValue = "field-ref:set-value",
+    ScreenNavigateTo = "screen:navigate-to",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -199,6 +200,18 @@ export function usePluginListenFieldRefSetValueEvent(cb: (payload: Plugin_Server
     return useWebsocketPluginMessageListener<Plugin_Server_FieldRefSetValueEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.FieldRefSetValue,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_ScreenNavigateToEventPayload = {
+    path: string
+}
+
+export function usePluginListenScreenNavigateToEvent(cb: (payload: Plugin_Server_ScreenNavigateToEventPayload) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_ScreenNavigateToEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.ScreenNavigateTo,
         onMessage: cb,
     })
 }

@@ -1767,20 +1767,6 @@ export type INTERNAL_FeatureFlags = {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Db
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/database/db/scan_summary.go
- * - Filename: scan_summary.go
- * - Package: db
- */
-export type DB_ScanSummaryItem = {
-    createdAt?: string
-    scanSummary?: Summary_ScanSummary
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Debrid
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2044,6 +2030,7 @@ export type Extension_Extension = {
     userConfig?: Extension_UserConfig
     payload: string
     payloadURI?: string
+    plugin?: Extension_PluginManifest
 }
 
 /**
@@ -2072,6 +2059,22 @@ export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_
  * - Package: extension
  */
 export type Extension_Language = "javascript" | "typescript" | "go"
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_PluginManifest = {
+    permissions?: Array<Extension_PluginPermission>
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ */
+export type Extension_PluginPermission = string
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -3196,61 +3199,6 @@ export type Report_ReactQueryLog = {
 export type Report_UnlockedLocalFile = {
     path: string
     mediaId: number
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Summary
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * - Filepath: internal/library/summary/scan_summary.go
- * - Filename: scan_summary.go
- * - Package: summary
- */
-export type Summary_ScanSummary = {
-    id: string
-    groups?: Array<Summary_ScanSummaryGroup>
-    unmatchedFiles?: Array<Summary_ScanSummaryFile>
-}
-
-/**
- * - Filepath: internal/library/summary/scan_summary.go
- * - Filename: scan_summary.go
- * - Package: summary
- */
-export type Summary_ScanSummaryFile = {
-    id: string
-    localFile?: Anime_LocalFile
-    logs?: Array<Summary_ScanSummaryLog>
-}
-
-/**
- * - Filepath: internal/library/summary/scan_summary.go
- * - Filename: scan_summary.go
- * - Package: summary
- */
-export type Summary_ScanSummaryGroup = {
-    id: string
-    files?: Array<Summary_ScanSummaryFile>
-    mediaId: number
-    mediaTitle: string
-    mediaImage: string
-    /**
-     * Whether the media is in the user's AniList collection
-     */
-    mediaIsInCollection: boolean
-}
-
-/**
- * - Filepath: internal/library/summary/scan_summary.go
- * - Filename: scan_summary.go
- * - Package: summary
- */
-export type Summary_ScanSummaryLog = {
-    id: string
-    filePath: string
-    level: string
-    message: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

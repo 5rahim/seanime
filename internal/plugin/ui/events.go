@@ -72,6 +72,7 @@ const (
 	ServerFormSetValuesEvent    ServerEventType = "form:set-values"
 	ServerFieldRefSetValueEvent ServerEventType = "field-ref:set-value" // Set the value of a field (not in a form)
 	ServerFatalErrorEvent       ServerEventType = "fatal-error"         // When the UI encounters a fatal error
+	ServerScreenNavigateToEvent ServerEventType = "screen:navigate-to"  // Navigate to a new screen
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -99,6 +100,10 @@ type ServerFieldRefGetValueEventPayload struct {
 
 type ServerFatalErrorEventPayload struct {
 	Error string `json:"error"`
+}
+
+type ServerScreenNavigateToEventPayload struct {
+	Path string `json:"path"`
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
