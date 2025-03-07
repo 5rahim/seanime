@@ -3,6 +3,7 @@ package filesystem
 import (
 	"os"
 	"path/filepath"
+	"seanime/internal/util"
 	"testing"
 )
 
@@ -47,16 +48,31 @@ func TestGetVideoFilePathsFromDir_WithSymlinks(t *testing.T) {
 		filepath.Join(externalLibDir, "external_video2.mp4"),
 	}
 
-	filePaths, err := GetMediaFilePathsFromDirS(tmpDir)
+	filePaths, err := GetMediaFilePathsFromDirS(libDir)
 	if err != nil {
 		t.Fatalf("Unexpected error: %s", err)
 	}
+
+	util.Spew(filePaths)
 
 	// Check results
 	for _, expected := range expectedPaths {
 		found := false
 		for _, path := range filePaths {
-			if path == expected {
+			// if path == expected {
+			// 	found = true
+			// 	break
+			// }
+			// Compare the paths using stdlib
+			info1, err := os.Stat(path)
+			if err != nil {
+				t.Fatalf("Failed to get file info for %s: %s", path, err)
+			}
+			info2, err := os.Stat(expected)
+			if err != nil {
+				t.Fatalf("Failed to get file info for %s: %s", expected, err)
+			}
+			if os.SameFile(info1, info2) {
 				found = true
 				break
 			}

@@ -103,10 +103,28 @@ func (u *UI) Register(callback string) {
 					if clientEvent.ExtensionID == "" || clientEvent.ExtensionID == u.ext.ID {
 
 						switch clientEvent.Type {
-						case ClientRenderTraysEvent: // Client wants to render the trays
-							u.context.trayManager.renderTrayScheduled()
+
 						case ClientRenderTrayEvent: // Client wants to render the tray
 							u.context.trayManager.renderTrayScheduled()
+
+						case ClientListTrayIconsEvent: // Client wants to list all tray icons from all plugins
+							u.context.trayManager.sendIconToClient()
+
+						case ClientActionRenderAnimePageButtonsEvent: // Client wants to update the anime page buttons
+							u.context.actionManager.renderAnimePageButtons()
+
+						case ClientActionRenderAnimePageDropdownItemsEvent: // Client wants to update the anime page dropdown items
+							u.context.actionManager.renderAnimePageDropdownItems()
+
+						case ClientActionRenderAnimeLibraryDropdownItemsEvent: // Client wants to update the anime library dropdown items
+							u.context.actionManager.renderAnimeLibraryDropdownItems()
+
+						case ClientActionRenderMangaPageButtonsEvent: // Client wants to update the manga page buttons
+							u.context.actionManager.renderMangaPageButtons()
+
+						case ClientActionRenderMediaCardContextMenuItemsEvent: // Client wants to update the media card context menu items
+							u.context.actionManager.renderMediaCardContextMenuItems()
+
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
 								//util.SpewMany("Event to listeners", event.Payload)

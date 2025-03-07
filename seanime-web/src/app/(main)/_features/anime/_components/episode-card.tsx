@@ -112,13 +112,13 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     >
                         Open page
                     </ContextMenuItem>
-                    <ContextMenuItem
+                    {!serverStatus?.isOffline && <ContextMenuItem
                         onClick={() => {
                             setPreviewModalMediaId(anime?.id || 0, "anime")
                         }}
                     >
                         Preview
-                    </ContextMenuItem>
+                    </ContextMenuItem>}
                 </ContextMenuGroup>
             }
         >

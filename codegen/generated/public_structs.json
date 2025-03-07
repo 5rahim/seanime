@@ -51195,74 +51195,75 @@
         "comments": []
       },
       {
-        "name": "animeActionButtons",
-        "jsonName": "animeActionButtons",
-        "goType": "[]AnimeActionButton",
-        "typescriptType": "Array\u003cAnimeActionButton\u003e",
-        "usedStructName": "plugin_ui.AnimeActionButton",
+        "name": "animePageButtons",
+        "jsonName": "animePageButtons",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/plugin/ui/action.go",
-    "filename": "action.go",
-    "name": "AnimeActionButton",
-    "formattedName": "AnimeActionButton",
-    "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Intent",
-        "jsonName": "intent",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OnClick",
-        "jsonName": "onClick",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
         "comments": [
-          " Event handler name"
+          " Keyed by ID"
+        ]
+      },
+      {
+        "name": "animeLibraryDropdownItems",
+        "jsonName": "animeLibraryDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Keyed by ID"
+        ]
+      },
+      {
+        "name": "animePageDropdownItems",
+        "jsonName": "animePageDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Keyed by ID"
+        ]
+      },
+      {
+        "name": "mangaPageButtons",
+        "jsonName": "mangaPageButtons",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Keyed by ID"
+        ]
+      },
+      {
+        "name": "mediaCardContextMenuItems",
+        "jsonName": "mediaCardContextMenuItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Keyed by ID"
         ]
       }
     ],
     "comments": [
-      " AnimeActionButton is a button that appears on the anime page.",
-      " It can be created by a plugin."
+      " ActionManager",
+      "",
+      " Actions are buttons, dropdown items, and context menu items that are displayed in certain places in the UI.",
+      " They are defined in the plugin code and are used to trigger events.",
+      "",
+      " The ActionManager is responsible for registering, rendering, and handling events for actions."
     ]
   },
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "AnimeActionDropdownItem",
-    "formattedName": "AnimeActionDropdownItem",
+    "name": "BaseActionProps",
+    "formattedName": "BaseActionProps",
     "package": "plugin_ui",
     "fields": [
       {
@@ -51300,67 +51301,42 @@
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "AnimeLibraryActionDropdownItem",
-    "formattedName": "AnimeLibraryActionDropdownItem",
+    "name": "BaseActionImpl",
+    "formattedName": "BaseActionImpl",
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
+        "name": "actionManager",
+        "jsonName": "actionManager",
+        "goType": "ActionManager",
+        "typescriptType": "ActionManager",
+        "usedStructName": "plugin_ui.ActionManager",
+        "required": false,
+        "public": false,
         "comments": []
       },
       {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
+        "name": "Map",
+        "jsonName": "Map",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
         "public": true,
         "comments": []
-      },
-      {
-        "name": "OnClick",
-        "jsonName": "onClick",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": [
-          " Event handler name"
-        ]
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionProps"
+    ]
   },
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "MangaActionButton",
-    "formattedName": "MangaActionButton",
+    "name": "BaseActionImplButton",
+    "formattedName": "BaseActionImplButton",
     "package": "plugin_ui",
     "fields": [
-      {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Label",
-        "jsonName": "label",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
       {
         "name": "Intent",
         "jsonName": "intent",
@@ -51369,20 +51345,103 @@
         "required": true,
         "public": true,
         "comments": []
-      },
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "AnimePageButtonAction",
+    "formattedName": "AnimePageButtonAction",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionImplButton"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MangaPageButtonAction",
+    "formattedName": "MangaPageButtonAction",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionImplButton"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "AnimePageDropdownMenuItemAction",
+    "formattedName": "AnimePageDropdownMenuItemAction",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "AnimeLibraryDropdownMenuItemAction",
+    "formattedName": "AnimeLibraryDropdownMenuItemAction",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionImpl"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MediaCardContextMenuItemFor",
+    "formattedName": "MediaCardContextMenuItemFor",
+    "package": "plugin_ui",
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"anime\"",
+        "\"manga\"",
+        "\"both\""
+      ]
+    },
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/action.go",
+    "filename": "action.go",
+    "name": "MediaCardContextMenuItemAction",
+    "formattedName": "MediaCardContextMenuItemAction",
+    "package": "plugin_ui",
+    "fields": [
       {
-        "name": "OnClick",
-        "jsonName": "onClick",
-        "goType": "string",
-        "typescriptType": "string",
+        "name": "For",
+        "jsonName": "for",
+        "goType": "MediaCardContextMenuItemFor",
+        "typescriptType": "MediaCardContextMenuItemFor",
+        "usedStructName": "plugin_ui.MediaCardContextMenuItemFor",
         "required": true,
         "public": true,
         "comments": [
-          " Event handler name"
+          " anime, manga, both"
         ]
       }
     ],
-    "comments": []
+    "comments": [],
+    "embeddedStructNames": [
+      "plugin_ui.BaseActionImpl"
+    ]
   },
   {
     "filepath": "../internal/plugin/ui/component_utils.go",
@@ -51756,6 +51815,18 @@
         ]
       },
       {
+        "name": "actionManager",
+        "jsonName": "actionManager",
+        "goType": "ActionManager",
+        "typescriptType": "ActionManager",
+        "usedStructName": "plugin_ui.ActionManager",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Register and manage actions"
+        ]
+      },
+      {
         "name": "formManager",
         "jsonName": "formManager",
         "goType": "FormManager",
@@ -51869,9 +51940,15 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"tray:render\"",
-        "\"tray:render-all\"",
+        "\"tray:list-icons\"",
         "\"tray:opened\"",
         "\"tray:closed\"",
+        "\"tray:clicked\"",
+        "\"action:anime-page-buttons:render\"",
+        "\"action:anime-page-dropdown-items:render\"",
+        "\"action:manga-page-buttons:render\"",
+        "\"action:media-card-context-menu-items:render\"",
+        "\"action:anime-library-dropdown-items:render\"",
         "\"form:submitted\"",
         "\"screen:changed\"",
         "\"handler:triggered\"",
@@ -51932,8 +52009,8 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
-    "name": "ClientRenderTraysEventPayload",
-    "formattedName": "ClientRenderTraysEventPayload",
+    "name": "ClientListTrayIconsEventPayload",
+    "formattedName": "ClientListTrayIconsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -51952,6 +52029,42 @@
     "filename": "events.go",
     "name": "ClientTrayClosedEventPayload",
     "formattedName": "ClientTrayClosedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientTrayClickedEventPayload",
+    "formattedName": "ClientTrayClickedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderAnimePageButtonsEventPayload",
+    "formattedName": "ClientActionRenderAnimePageButtonsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderMangaPageButtonsEventPayload",
+    "formattedName": "ClientActionRenderMangaPageButtonsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderMediaCardContextMenuItemsEventPayload",
+    "formattedName": "ClientActionRenderMediaCardContextMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
     "comments": []
@@ -52080,6 +52193,12 @@
       "typescriptType": "string",
       "declaredValues": [
         "\"tray:updated\"",
+        "\"tray:icon\"",
+        "\"action:anime-page-buttons:updated\"",
+        "\"action:anime-page-dropdown-items:updated\"",
+        "\"action:manga-page-buttons:updated\"",
+        "\"action:media-card-context-menu-items:updated\"",
+        "\"action:anime-library-dropdown-items:updated\"",
         "\"form:reset\"",
         "\"form:set-values\"",
         "\"field-ref:set-value\"",
@@ -52143,6 +52262,43 @@
         "jsonName": "components",
         "goType": "",
         "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerTrayIconEventPayload",
+    "formattedName": "ServerTrayIconEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "IconURL",
+        "jsonName": "iconUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithContent",
+        "jsonName": "withContent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TooltipText",
+        "jsonName": "tooltipText",
+        "goType": "string",
+        "typescriptType": "string",
         "required": true,
         "public": true,
         "comments": []
@@ -52287,6 +52443,106 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderAnimePageButtonsEventPayload",
+    "formattedName": "ServerActionRenderAnimePageButtonsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Buttons",
+        "jsonName": "buttons",
+        "goType": "[]map[string]",
+        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
+        "usedStructName": "plugin_ui.map[string]",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderAnimePageDropdownItemsEventPayload",
+    "formattedName": "ServerActionRenderAnimePageDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]map[string]",
+        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
+        "usedStructName": "plugin_ui.map[string]",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderMangaPageButtonsEventPayload",
+    "formattedName": "ServerActionRenderMangaPageButtonsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Buttons",
+        "jsonName": "buttons",
+        "goType": "[]map[string]",
+        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
+        "usedStructName": "plugin_ui.map[string]",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderMediaCardContextMenuItemsEventPayload",
+    "formattedName": "ServerActionRenderMediaCardContextMenuItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]map[string]",
+        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
+        "usedStructName": "plugin_ui.map[string]",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "formattedName": "ServerActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]map[string]",
+        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
+        "usedStructName": "plugin_ui.map[string]",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -52626,6 +52882,33 @@
     "formattedName": "Tray",
     "package": "plugin_ui",
     "fields": [
+      {
+        "name": "WithContent",
+        "jsonName": "withContent",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IconURL",
+        "jsonName": "iconUrl",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TooltipText",
+        "jsonName": "tooltipText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "renderFunc",
         "jsonName": "renderFunc",

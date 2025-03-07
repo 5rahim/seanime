@@ -38,6 +38,7 @@ import React, { useState } from "react"
 import { BiPlay } from "react-icons/bi"
 import { IoLibrarySharp } from "react-icons/io5"
 import { RiCalendarLine } from "react-icons/ri"
+import { PluginMediaCardContextMenuItems } from "../../plugin/actions/plugin-actions"
 
 type MediaEntryCardBaseProps = {
     overlay?: React.ReactNode
@@ -170,6 +171,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                     >
                         Preview
                     </ContextMenuItem>
+
+                    <PluginMediaCardContextMenuItems for={type} media={media} />
                 </ContextMenuGroup>}
             >
                 <ContextMenuTrigger>

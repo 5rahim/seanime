@@ -14,7 +14,7 @@ export function SeaContextMenu(props: SeaContextMenuProps) {
     const {
         content,
         children,
-        availableWhenOffline = false,
+        availableWhenOffline = true,
         hideMenuIf,
         ...rest
     } = props

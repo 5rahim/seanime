@@ -1,33 +1,53 @@
-import { ExtensionRepo_TrayPluginExtensionItem } from "@/api/generated/types"
-import { PluginTray } from "@/app/(main)/_features/plugin/tray/plugin-tray"
-import { useWebsocketMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
+import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { cn } from "@/components/ui/core/styling"
-import { atom } from "jotai/index"
 import { useAtom } from "jotai/react"
+import { atom } from "jotai/vanilla"
 import React from "react"
+import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
 
-export const __plugin_trayItemsAtom = atom<ExtensionRepo_TrayPluginExtensionItem[]>([])
+
+export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
+// FIXME
+// TODO Remove
+// export const __plugin_trayIconsAtom = atomWithStorage<TrayIcon[]>("TEST_ONLY-plugin-tray-icons", [], undefined, { getOnInit: true })
 
 export function PluginSidebarTray() {
     const { sendMessage } = useWebsocketSender()
 
-    const [trayItems, setTrayItems] = useAtom(__plugin_trayItemsAtom)
+    const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
+
+    /**
+     * 1. Send a request to the server to list all tray icons
+     * 2. Receive the tray icons from the server
+     * 3. Set the tray icons in the state to display them
+     */
+    const { sendListTrayIconsEvent } = usePluginSendListTrayIconsEvent()
 
     React.useEffect(() => {
-        sendMessage({
-            type: "tray:list",
-            payload: {},
-        })
+        // Send a request to all plugins to list their tray icons.
+        // Only plugins with a registered tray icon will respond.
+        sendListTrayIconsEvent({}, "")
     }, [])
 
-    useWebsocketMessageListener({
-        type: "tray:list",
-        onMessage: (data: ExtensionRepo_TrayPluginExtensionItem[]) => {
-            setTrayItems(data)
-        },
-    })
+    /**
+     * TODO: Listen to other events from Extension Repository to refetch tray icons
+     * - When an extension is loaded
+     * - When an extension is unloaded
+     * - When an extension is updated
+     */
 
-    if (!trayItems) return null
+    usePluginListenTrayIconEvent((data, extensionId) => {
+        setTrayIcons(prev => {
+            const oldTrayIcons = prev.filter(icon => icon.extensionId !== extensionId)
+            return [...oldTrayIcons, {
+                extensionId,
+                ...data,
+            }].sort((a, b) => a.extensionId.localeCompare(b.extensionId, undefined, { numeric: true }))
+        })
+    }, "")
+
+    if (!trayIcons) return null
 
     return (
         <>
@@ -38,8 +58,8 @@ export function PluginSidebarTray() {
                 )}
             >
 
-                {trayItems.filter(n => n.isPinned).map((trayItem, index) => (
-                    <PluginTray extensionID={trayItem.id} key={index} />
+                {trayIcons.map((trayIcon, index) => (
+                    <PluginTray trayIcon={trayIcon} key={index} />
                 ))}
 
                 {/* <IconButton

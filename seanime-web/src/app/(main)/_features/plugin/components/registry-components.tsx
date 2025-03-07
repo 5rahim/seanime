@@ -16,9 +16,9 @@ import {
     usePluginListenFieldRefSetValueEvent,
     usePluginListenFormResetEvent,
     usePluginListenFormSetValuesEvent,
+    usePluginSendEventHandlerTriggeredEvent,
     usePluginSendFieldRefSendValueEvent,
     usePluginSendFormSubmittedEvent,
-    usePluginSendHandlerTriggeredEvent,
 } from "../generated/plugin-events"
 import { usePluginTray } from "../tray/plugin-tray"
 
@@ -29,11 +29,11 @@ interface ButtonProps {
 }
 
 export function PluginButton(props: ButtonProps) {
-    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
 
     function handleClick() {
         if (props.onClick) {
-            sendHandlerTriggeredEvent({
+            sendEventHandlerTriggeredEvent({
                 handlerName: props.onClick,
                 event: {},
             })
@@ -65,8 +65,8 @@ interface InputProps {
 }
 
 export function PluginInput(props: InputProps) {
-    const { extensionID } = usePluginTray()
-    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { trayIcon } = usePluginTray()
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
@@ -78,7 +78,7 @@ export function PluginInput(props: InputProps) {
             return
         }
         if (props.onChange) {
-            sendHandlerTriggeredEvent({
+            sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: {
                     value: debouncedValue,
@@ -97,7 +97,7 @@ export function PluginInput(props: InputProps) {
         if (data.fieldRef === props.fieldRef) {
             setValue(data.value)
         }
-    }, extensionID)
+    }, trayIcon.extensionId)
 
     return (
         <TextInput
@@ -127,14 +127,14 @@ interface SelectProps {
 }
 
 export function PluginSelect(props: SelectProps) {
-    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
     useEffect(() => {
         if (props.onChange) {
-            sendHandlerTriggeredEvent({
+            sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: debouncedValue },
             })
@@ -171,14 +171,14 @@ interface CheckboxProps {
 }
 
 export function PluginCheckbox(props: CheckboxProps) {
-    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
     useEffect(() => {
         if (props.onChange) {
-            sendHandlerTriggeredEvent({
+            sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: value },
             })
@@ -214,14 +214,14 @@ interface SwitchProps {
 }
 
 export function PluginSwitch(props: SwitchProps) {
-    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
     useEffect(() => {
         if (props.onChange) {
-            sendHandlerTriggeredEvent({
+            sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: value },
             })
@@ -261,14 +261,14 @@ interface RadioGroupProps {
 }
 
 export function PluginRadioGroup(props: RadioGroupProps) {
-    const { sendHandlerTriggeredEvent } = usePluginSendHandlerTriggeredEvent()
+    const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
     useEffect(() => {
         if (props.onChange) {
-            sendHandlerTriggeredEvent({
+            sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: value },
             })
@@ -431,7 +431,7 @@ export function PluginForm({ name, fields: _fields }: FormProps) {
         }, {} as { [key: string]: any }),
     })
 
-    const { extensionID } = usePluginTray()
+    const { trayIcon } = usePluginTray()
 
     const { sendFormSubmittedEvent } = usePluginSendFormSubmittedEvent()
 
@@ -440,7 +440,7 @@ export function PluginForm({ name, fields: _fields }: FormProps) {
         sendFormSubmittedEvent({
             formName: name,
             data: data,
-        }, extensionID)
+        }, trayIcon.extensionId)
     }
 
     usePluginListenFormResetEvent((data) => {
@@ -455,7 +455,7 @@ export function PluginForm({ name, fields: _fields }: FormProps) {
                 }, 250)
             }
         }
-    }, extensionID)
+    }, trayIcon.extensionId)
 
     usePluginListenFormSetValuesEvent((data) => {
         console.log("set values", data)
@@ -464,7 +464,7 @@ export function PluginForm({ name, fields: _fields }: FormProps) {
                 form.setValue(key, value)
             }
         }
-    }, extensionID)
+    }, trayIcon.extensionId)
 
 
     return (

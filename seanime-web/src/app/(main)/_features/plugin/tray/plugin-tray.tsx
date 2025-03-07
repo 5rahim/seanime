@@ -7,19 +7,34 @@ import { Tooltip } from "@/components/ui/tooltip"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import Image from "next/image"
 import React from "react"
+import { LuFileQuestion } from "react-icons/lu"
 import {
+    Plugin_Server_TrayIconEventPayload,
     usePluginListenTrayUpdatedEvent,
+    usePluginSendRenderTrayEvent,
+    usePluginSendTrayClickedEvent,
     usePluginSendTrayClosedEvent,
     usePluginSendTrayOpenedEvent,
-    usePluginSendTrayRenderEvent,
 } from "../generated/plugin-events"
 
+/**
+ * TrayIcon
+ */
+export type TrayIcon = {
+    extensionId: string
+} & Plugin_Server_TrayIconEventPayload
+
 type TrayPluginProps = {
-    extensionID: string
+    trayIcon: TrayIcon
 }
 
 export const PluginTrayContext = React.createContext<TrayPluginProps>({
-    extensionID: "",
+    trayIcon: {
+        extensionId: "",
+        iconUrl: "",
+        withContent: false,
+        tooltipText: "",
+    },
 })
 
 function PluginTrayProvider(props: { children: React.ReactNode, props: TrayPluginProps }) {
@@ -46,6 +61,7 @@ export function PluginTray(props: TrayPluginProps) {
 
     const { sendTrayOpenedEvent } = usePluginSendTrayOpenedEvent()
     const { sendTrayClosedEvent } = usePluginSendTrayClosedEvent()
+    const { sendTrayClickedEvent } = usePluginSendTrayClickedEvent()
 
     const firstRender = React.useRef(true)
     React.useEffect(() => {
@@ -54,11 +70,56 @@ export function PluginTray(props: TrayPluginProps) {
             return
         }
         if (open) {
-            sendTrayOpenedEvent({}, props.extensionID)
+            sendTrayOpenedEvent({}, props.trayIcon.extensionId)
         } else {
-            sendTrayClosedEvent({}, props.extensionID)
+            sendTrayClosedEvent({}, props.trayIcon.extensionId)
         }
     }, [open])
+
+    function handleClick() {
+        sendTrayClickedEvent({}, props.trayIcon.extensionId)
+    }
+
+
+    const TrayIcon = () => {
+        return (
+            <div
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 cursor-pointer transition-all relative"
+                onClick={handleClick}
+            >
+                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative">
+                    {props.trayIcon.iconUrl ? <Image
+                        src={props.trayIcon.iconUrl}
+                        alt="logo"
+                        fill
+                        className="p-1 w-full h-full object-contain"
+                    /> : <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                        <LuFileQuestion className="text-2xl" />
+                    </div>}
+                </div>
+                <Badge
+                    intent="alert-solid"
+                    size="sm"
+                    className="absolute -top-2 -right-2 z-10 select-none pointer-events-none"
+                >
+                    2
+                </Badge>
+            </div>
+        )
+    }
+
+    if (!props.trayIcon.withContent) {
+        return <div className="cursor-pointer">
+            {!!props.trayIcon.tooltipText ? <Tooltip
+                side="right"
+                trigger={<div>
+                    <TrayIcon />
+                </div>}
+            >
+                {props.trayIcon.tooltipText}
+            </Tooltip> : <TrayIcon />}
+        </div>
+    }
 
     return (
         <>
@@ -71,28 +132,14 @@ export function PluginTray(props: TrayPluginProps) {
                     asChild
                 >
                     <div>
-                        <Tooltip
+                        {!!props.trayIcon.tooltipText ? <Tooltip
                             side="right"
-                            trigger={
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 cursor-pointer transition-all relative">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative">
-                                        <Image
-                                            src="https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png"
-                                            alt="logo"
-                                            fill
-                                            className="p-1 w-full h-full object-contain"
-                                        />
-                                    </div>
-                                    <Badge
-                                        intent="alert-solid"
-                                        className="absolute -top-2 -right-2 z-10"
-                                    >
-                                        2
-                                    </Badge>
-                                </div>}
+                            trigger={<div>
+                                <TrayIcon />
+                            </div>}
                         >
-                            Extension name
-                        </Tooltip>
+                            {props.trayIcon.tooltipText}
+                        </Tooltip> : <TrayIcon />}
                     </div>
                 </PopoverPrimitive.Trigger>
                 <PopoverPrimitive.Portal>
@@ -123,16 +170,16 @@ type PluginTrayContentProps = {
 
 function PluginTrayContent(props: PluginTrayContentProps) {
     const {
-        extensionID,
+        trayIcon,
         open,
         setOpen,
     } = props
 
-    const { sendTrayRenderEvent } = usePluginSendTrayRenderEvent()
+    const { sendRenderTrayEvent } = usePluginSendRenderTrayEvent()
 
     React.useEffect(() => {
         if (open) {
-            sendTrayRenderEvent({}, extensionID)
+            sendRenderTrayEvent({}, trayIcon.extensionId)
         }
     }, [open])
 
@@ -141,7 +188,7 @@ function PluginTrayContent(props: PluginTrayContentProps) {
     usePluginListenTrayUpdatedEvent((data) => {
         // console.log("tray:updated", extensionID, data)
         setData(data)
-    }, extensionID)
+    }, trayIcon.extensionId)
 
     return (
         <div>

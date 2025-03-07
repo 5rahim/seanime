@@ -24,6 +24,7 @@ import { IoLibrary, IoLibrarySharp } from "react-icons/io5"
 import { MdOutlineVideoLibrary } from "react-icons/md"
 import { PiClockCounterClockwiseFill } from "react-icons/pi"
 import { TbFileSad, TbReload } from "react-icons/tb"
+import { PluginAnimeLibraryDropdownItems } from "../../_features/plugin/actions/plugin-actions"
 
 export type LibraryToolbarProps = {
     collectionList: Anime_LibraryCollectionList[]
@@ -157,6 +158,8 @@ export function LibraryToolbar(props: LibraryToolbarProps) {
                             <span>Scan summaries</span>
                         </DropdownMenuItem>
                     </SeaLink>
+
+                        <PluginAnimeLibraryDropdownItems />
                     </DropdownMenu>}
 
             </div>

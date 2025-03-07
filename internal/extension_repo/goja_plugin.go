@@ -191,14 +191,19 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 			switch permission.String() {
 			case extension.PluginPermissionStorage.String(): // Storage
 				plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
+
 			case extension.PluginPermissionAnilist.String(): // Anilist
 				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext)
+
 			case extension.PluginPermissionDatabase.String(): // Database
 				plugin.GlobalAppContext.BindDatabase(vm, logger, p.ext)
-			case extension.PluginPermissionOS.String(): // OS
-				plugin.GlobalAppContext.BindOS(vm, logger, p.ext)
-				plugin.GlobalAppContext.BindFilepath(vm, logger, p.ext)
-				plugin.GlobalAppContext.BindFilesystem(vm, logger, p.ext)
+
+			case extension.PluginPermissionSystem.String(): // System
+				plugin.GlobalAppContext.BindSystem(vm, logger, p.ext, p.scheduler)
+
+			case extension.PluginPermissionCron.String(): // Cron
+				plugin.GlobalAppContext.BindCron(vm, logger, p.ext, p.scheduler)
+
 			case extension.PluginPermissionPlayback.String(): // Playback
 				plugin.GlobalAppContext.BindPlayback(vm, logger, p.ext, p.scheduler)
 			}

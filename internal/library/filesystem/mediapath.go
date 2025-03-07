@@ -71,10 +71,13 @@ func GetMediaFilePathsFromDirS(oDirPath string) ([]string, error) {
 
 	var walkDir func(string) error
 	walkDir = func(oCurrentPath string) error {
+
+		currentPath := oCurrentPath
+
 		// Normalize current path
-		currentPath, err := filepath.EvalSymlinks(oCurrentPath)
-		if err != nil {
-			return fmt.Errorf("could not evaluate symlink: %w", err)
+		resolvedPath, err := filepath.EvalSymlinks(oCurrentPath)
+		if err == nil {
+			currentPath = resolvedPath
 		}
 
 		if visited[currentPath] {
@@ -85,19 +88,19 @@ func GetMediaFilePathsFromDirS(oDirPath string) ([]string, error) {
 		return filepath.WalkDir(currentPath, func(path string, d fs.DirEntry, err error) error {
 
 			if err != nil {
-				return err
+				return nil
 			}
 
 			// If it's a symlink directory, resolve and walk the symlink
 			info, err := os.Lstat(path)
 			if err != nil {
-				return fmt.Errorf("could not get file info: %w", err)
+				return nil
 			}
 
 			if info.Mode()&os.ModeSymlink != 0 {
 				linkPath, err := os.Readlink(path)
 				if err != nil {
-					return fmt.Errorf("could not read symlink: %w", err)
+					return nil
 				}
 
 				// Resolve the symlink to an absolute path
@@ -105,7 +108,11 @@ func GetMediaFilePathsFromDirS(oDirPath string) ([]string, error) {
 					linkPath = filepath.Join(filepath.Dir(path), linkPath)
 				}
 
-				return walkDir(linkPath)
+				// Only follow the symlink if we can access it
+				if _, err := os.Stat(linkPath); err == nil {
+					return walkDir(linkPath)
+				}
+				return nil
 			}
 
 			if d.IsDir() {

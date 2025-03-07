@@ -51,8 +51,10 @@ type Context struct {
 	webviewManager *WebviewManager // UNUSED
 	screenManager  *ScreenManager  // Listen for screen events, send screen actions
 	trayManager    *TrayManager    // Register and manage tray
+	actionManager  *ActionManager  // Register and manage actions
 	formManager    *FormManager    // Register and manage forms
 	toastManager   *ToastManager   // Register and manage toasts
+	commandPalette *CommandPalette // Register and manage command palette
 }
 
 type State struct {
@@ -89,10 +91,12 @@ func NewContext(ui *UI) *Context {
 	ret.updateBatchTimer.Stop() // Start in stopped state
 
 	ret.trayManager = NewTrayManager(ret)
+	ret.actionManager = NewActionManager(ret)
 	ret.webviewManager = NewWebviewManager(ret)
 	ret.screenManager = NewScreenManager(ret)
 	ret.formManager = NewFormManager(ret)
 	ret.toastManager = NewToastManager(ret)
+	ret.commandPalette = NewCommandPalette(ret)
 
 	return ret
 }
@@ -114,9 +118,13 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("registerFieldRef", c.jsRegisterFieldRef)
 
 	// Bind screen manager
-	c.screenManager.bind(vm, obj)
+	c.screenManager.bind(obj)
+	// Bind action manager
+	c.actionManager.bind(obj)
 	// Bind toast manager
-	c.toastManager.bind(vm, obj)
+	c.toastManager.bind(obj)
+	// Bind command palette
+	c.commandPalette.bind(obj)
 
 	_ = vm.Set("__ctx", obj)
 }

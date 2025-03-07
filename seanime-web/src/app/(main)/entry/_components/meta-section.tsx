@@ -31,6 +31,7 @@ import { TORRENT_CLIENT } from "@/lib/server/settings"
 import { ThemeMediaPageInfoBoxSize, useThemeSettings } from "@/lib/theme/hooks"
 import React from "react"
 import { SiAnilist } from "react-icons/si"
+import { PluginAnimePageButtons } from "../../_features/plugin/actions/plugin-actions"
 
 export function AnimeMetaActionButton({ className, ...rest }: ButtonProps) {
     const ts = useThemeSettings()
@@ -94,6 +95,8 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 </>}
                 <AnimeEntryDropdownMenu entry={entry} />
             </div>
+
+            <PluginAnimePageButtons />
         </div>
     )
 

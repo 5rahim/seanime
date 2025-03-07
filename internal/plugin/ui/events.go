@@ -18,20 +18,38 @@ type ClientPluginEvent struct {
 }
 
 const (
-	ClientRenderTrayEvent            ClientEventType = "tray:render"          // Client wants to render the tray
-	ClientRenderTraysEvent           ClientEventType = "tray:render-all"      // Client wants to render the tray
-	ClientTrayOpenedEvent            ClientEventType = "tray:opened"          // When the tray is opened
-	ClientTrayClosedEvent            ClientEventType = "tray:closed"          // When the tray is closed
-	ClientFormSubmittedEvent         ClientEventType = "form:submitted"       // When the form registered by the tray is submitted
-	ClientScreenChangedEvent         ClientEventType = "screen:changed"       // When the current screen changes
-	ClientEventHandlerTriggeredEvent ClientEventType = "handler:triggered"    // When a custom event registered by the plugin is triggered
-	ClientFieldRefSendValueEvent     ClientEventType = "field-ref:send-value" // When the client sends the value of a field that has a ref
+	ClientRenderTrayEvent                            ClientEventType = "tray:render"                                 // Client wants to render the tray
+	ClientListTrayIconsEvent                         ClientEventType = "tray:list-icons"                             // Client wants to list all icons from all plugins
+	ClientTrayOpenedEvent                            ClientEventType = "tray:opened"                                 // When the tray is opened
+	ClientTrayClosedEvent                            ClientEventType = "tray:closed"                                 // When the tray is closed
+	ClientTrayClickedEvent                           ClientEventType = "tray:clicked"                                // When the tray is clicked
+	ClientActionRenderAnimePageButtonsEvent          ClientEventType = "action:anime-page-buttons:render"            // When the client requests the buttons to display on the anime page
+	ClientActionRenderAnimePageDropdownItemsEvent    ClientEventType = "action:anime-page-dropdown-items:render"     // When the client requests the dropdown items to display on the anime page
+	ClientActionRenderMangaPageButtonsEvent          ClientEventType = "action:manga-page-buttons:render"            // When the client requests the buttons to display on the manga page
+	ClientActionRenderMediaCardContextMenuItemsEvent ClientEventType = "action:media-card-context-menu-items:render" // When the client requests the context menu items to display on the media card
+	ClientActionRenderAnimeLibraryDropdownItemsEvent ClientEventType = "action:anime-library-dropdown-items:render"  // When the client requests the dropdown items to display on the anime library
+	ClientActionClickedEvent                         ClientEventType = "action:clicked"                              // When the user clicks on an action
+	ClientFormSubmittedEvent                         ClientEventType = "form:submitted"                              // When the form registered by the tray is submitted
+	ClientScreenChangedEvent                         ClientEventType = "screen:changed"                              // When the current screen changes
+	ClientEventHandlerTriggeredEvent                 ClientEventType = "handler:triggered"                           // When a custom event registered by the plugin is triggered
+	ClientFieldRefSendValueEvent                     ClientEventType = "field-ref:send-value"                        // When the client sends the value of a field that has a ref
 )
 
 type ClientRenderTrayEventPayload struct{}
-type ClientRenderTraysEventPayload struct{}
+type ClientListTrayIconsEventPayload struct{}
 type ClientTrayOpenedEventPayload struct{}
 type ClientTrayClosedEventPayload struct{}
+type ClientTrayClickedEventPayload struct{}
+type ClientActionRenderAnimePageButtonsEventPayload struct{}
+type ClientActionRenderAnimePageDropdownItemsEventPayload struct{}
+type ClientActionRenderMangaPageButtonsEventPayload struct{}
+type ClientActionRenderMediaCardContextMenuItemsEventPayload struct{}
+type ClientActionRenderAnimeLibraryDropdownItemsEventPayload struct{}
+
+type ClientActionClickedEventPayload struct {
+	ActionID string                 `json:"actionId"`
+	Event    map[string]interface{} `json:"event"`
+}
 
 type ClientEventHandlerTriggeredEventPayload struct {
 	HandlerName string                 `json:"handlerName"`
@@ -67,16 +85,29 @@ type ServerPluginEvent struct {
 }
 
 const (
-	ServerTrayUpdatedEvent      ServerEventType = "tray:updated" // When the trays are updated
-	ServerFormResetEvent        ServerEventType = "form:reset"
-	ServerFormSetValuesEvent    ServerEventType = "form:set-values"
-	ServerFieldRefSetValueEvent ServerEventType = "field-ref:set-value" // Set the value of a field (not in a form)
-	ServerFatalErrorEvent       ServerEventType = "fatal-error"         // When the UI encounters a fatal error
-	ServerScreenNavigateToEvent ServerEventType = "screen:navigate-to"  // Navigate to a new screen
+	ServerTrayUpdatedEvent                           ServerEventType = "tray:updated"                                 // When the trays are updated
+	ServerTrayIconEvent                              ServerEventType = "tray:icon"                                    // When the tray sends its icon to the client
+	ServerActionRenderAnimePageButtonsEvent          ServerEventType = "action:anime-page-buttons:updated"            // When the server renders the anime page buttons
+	ServerActionRenderAnimePageDropdownItemsEvent    ServerEventType = "action:anime-page-dropdown-items:updated"     // When the server renders the anime page dropdown items
+	ServerActionRenderMangaPageButtonsEvent          ServerEventType = "action:manga-page-buttons:updated"            // When the server renders the manga page buttons
+	ServerActionRenderMediaCardContextMenuItemsEvent ServerEventType = "action:media-card-context-menu-items:updated" // When the server renders the media card context menu items
+	ServerActionRenderAnimeLibraryDropdownItemsEvent ServerEventType = "action:anime-library-dropdown-items:updated"  // When the server renders the anime library dropdown items
+	ServerFormResetEvent                             ServerEventType = "form:reset"
+	ServerFormSetValuesEvent                         ServerEventType = "form:set-values"
+	ServerFieldRefSetValueEvent                      ServerEventType = "field-ref:set-value" // Set the value of a field (not in a form)
+	ServerFatalErrorEvent                            ServerEventType = "fatal-error"         // When the UI encounters a fatal error
+	ServerScreenNavigateToEvent                      ServerEventType = "screen:navigate-to"  // Navigate to a new screen
+	ServerScreenReloadEvent                          ServerEventType = "screen:reload"       // Reload the current screen
 )
 
 type ServerTrayUpdatedEventPayload struct {
 	Components interface{} `json:"components"`
+}
+
+type ServerTrayIconEventPayload struct {
+	IconURL     string `json:"iconUrl"`
+	WithContent bool   `json:"withContent"`
+	TooltipText string `json:"tooltipText"`
 }
 
 type ServerFormResetEventPayload struct {
@@ -105,6 +136,28 @@ type ServerFatalErrorEventPayload struct {
 type ServerScreenNavigateToEventPayload struct {
 	Path string `json:"path"`
 }
+
+type ServerActionRenderAnimePageButtonsEventPayload struct {
+	Buttons interface{} `json:"buttons"`
+}
+
+type ServerActionRenderAnimePageDropdownItemsEventPayload struct {
+	Items interface{} `json:"items"`
+}
+
+type ServerActionRenderMangaPageButtonsEventPayload struct {
+	Buttons interface{} `json:"buttons"`
+}
+
+type ServerActionRenderMediaCardContextMenuItemsEventPayload struct {
+	Items interface{} `json:"items"`
+}
+
+type ServerActionRenderAnimeLibraryDropdownItemsEventPayload struct {
+	Items interface{} `json:"items"`
+}
+
+type ServerScreenReloadEventPayload struct{}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

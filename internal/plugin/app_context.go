@@ -16,6 +16,7 @@ import (
 
 type AppContextModules struct {
 	Database                        *db.Database
+	AnimeLibraryPaths               []string
 	AnilistPlatform                 platform.Platform
 	PlaybackManager                 *playbackmanager.PlaybackManager
 	MediaPlayerRepository           *mediaplayer.Repository
@@ -44,14 +45,15 @@ type AppContext interface {
 	BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindDatabase binds $database to the Goja runtime
 	BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
-	// BindFilepath binds $filepath to the Goja runtime
-	BindFilepath(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
-	// BindOS binds $os to the Goja runtime
-	BindOS(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
-	// BindFilesystem binds $filesystem to the Goja runtime
-	BindFilesystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+
+	// BindSystem binds $system to the Goja runtime
+	BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
 	// BindPlayback binds $playback to the Goja runtime
 	BindPlayback(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindCron binds $cron to the Goja runtime
+	BindCron(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 }
 
 var GlobalAppContext = NewAppContext()
@@ -60,6 +62,8 @@ var GlobalAppContext = NewAppContext()
 
 type AppContextImpl struct {
 	logger *zerolog.Logger
+
+	animeLibraryPaths mo.Option[[]string]
 
 	wsEventManager  mo.Option[events.WSEventManagerInterface]
 	database        mo.Option[*db.Database]
@@ -111,6 +115,10 @@ func (a *AppContextImpl) WSEventManager() mo.Option[events.WSEventManagerInterfa
 func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 	if modules.Database != nil {
 		a.database = mo.Some(modules.Database)
+	}
+
+	if modules.AnimeLibraryPaths != nil {
+		a.animeLibraryPaths = mo.Some(modules.AnimeLibraryPaths)
 	}
 
 	if modules.PlaybackManager != nil {

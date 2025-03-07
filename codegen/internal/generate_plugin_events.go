@@ -44,6 +44,8 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 	serverEvents := make([]string, 0)
 	clientPayloads := make(map[string]string)
 	serverPayloads := make(map[string]string)
+	clientEventValues := make(map[string]string)
+	serverEventValues := make(map[string]string)
 
 	for _, decl := range file.Decls {
 		genDecl, ok := decl.(*ast.GenDecl)
@@ -62,20 +64,28 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 				if len(valueSpec.Names) == 1 && len(valueSpec.Values) == 1 {
 					name := valueSpec.Names[0].Name
 					if strings.HasPrefix(name, "Client") && strings.HasSuffix(name, "Event") {
+						eventName := name[len("Client") : len(name)-len("Event")]
+						// Get the string literal value for the enum
 						if basicLit, ok := valueSpec.Values[0].(*ast.BasicLit); ok {
-							eventName := strings.Trim(basicLit.Value, "\"")
+							eventValue := strings.Trim(basicLit.Value, "\"")
 							clientEvents = append(clientEvents, eventName)
 							// Get payload type name
 							payloadType := name + "Payload"
 							clientPayloads[eventName] = payloadType
+							// Store the original string value
+							clientEventValues[eventName] = eventValue
 						}
 					} else if strings.HasPrefix(name, "Server") && strings.HasSuffix(name, "Event") {
+						eventName := name[len("Server") : len(name)-len("Event")]
+						// Get the string literal value for the enum
 						if basicLit, ok := valueSpec.Values[0].(*ast.BasicLit); ok {
-							eventName := strings.Trim(basicLit.Value, "\"")
+							eventValue := strings.Trim(basicLit.Value, "\"")
 							serverEvents = append(serverEvents, eventName)
 							// Get payload type name
 							payloadType := name + "Payload"
 							serverPayloads[eventName] = payloadType
+							// Store the original string value
+							serverEventValues[eventName] = eventValue
 						}
 					}
 				}
@@ -86,21 +96,15 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 	// Write enums
 	outFile.WriteString("export enum PluginClientEvents {\n")
 	for _, event := range clientEvents {
-		parts := strings.Split(event, ":")
-		if len(parts) == 2 {
-			enumName := toPascalCase(parts[0]) + toPascalCase(parts[1])
-			outFile.WriteString(fmt.Sprintf("    %s = \"%s\",\n", enumName, event))
-		}
+		enumName := toPascalCase(event)
+		outFile.WriteString(fmt.Sprintf("    %s = \"%s\",\n", enumName, clientEventValues[event]))
 	}
 	outFile.WriteString("}\n\n")
 
 	outFile.WriteString("export enum PluginServerEvents {\n")
 	for _, event := range serverEvents {
-		parts := strings.Split(event, ":")
-		if len(parts) == 2 {
-			enumName := toPascalCase(parts[0]) + toPascalCase(parts[1])
-			outFile.WriteString(fmt.Sprintf("    %s = \"%s\",\n", enumName, event))
-		}
+		enumName := toPascalCase(event)
+		outFile.WriteString(fmt.Sprintf("    %s = \"%s\",\n", enumName, serverEventValues[event]))
 	}
 	outFile.WriteString("}\n\n")
 
@@ -111,11 +115,6 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 
 	// Write client event types and hooks
 	for _, event := range clientEvents {
-		parts := strings.Split(event, ":")
-		if len(parts) != 2 {
-			continue
-		}
-
 		// Get the payload type
 		payloadType := clientPayloads[event]
 		payloadFound := false
@@ -137,7 +136,7 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 					if typeSpec.Name.Name == payloadType {
 						payloadFound = true
 						// Write the payload type
-						outFile.WriteString(fmt.Sprintf("export type Plugin_Client_%s%sEventPayload = {\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+						outFile.WriteString(fmt.Sprintf("export type Plugin_Client_%sEventPayload = {\n", toPascalCase(event)))
 
 						if structType, ok := typeSpec.Type.(*ast.StructType); ok {
 							for _, field := range structType.Fields.List {
@@ -152,18 +151,18 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 						outFile.WriteString("}\n\n")
 
 						// Write the hook
-						hookName := fmt.Sprintf("usePluginSend%s%sEvent", toPascalCase(parts[0]), toPascalCase(parts[1]))
+						hookName := fmt.Sprintf("usePluginSend%sEvent", toPascalCase(event))
 						outFile.WriteString(fmt.Sprintf("export function %s() {\n", hookName))
 						outFile.WriteString("    const { sendPluginMessage } = useWebsocketSender()\n")
 						outFile.WriteString("\n")
-						outFile.WriteString(fmt.Sprintf("    const send%s%sEvent = useCallback((payload: Plugin_Client_%s%sEventPayload, extensionID?: string) => {\n",
-							toPascalCase(parts[0]), toPascalCase(parts[1]), toPascalCase(parts[0]), toPascalCase(parts[1])))
-						outFile.WriteString(fmt.Sprintf("        sendPluginMessage(PluginClientEvents.%s%s, payload, extensionID)\n",
-							toPascalCase(parts[0]), toPascalCase(parts[1])))
+						outFile.WriteString(fmt.Sprintf("    const send%sEvent = useCallback((payload: Plugin_Client_%sEventPayload, extensionID?: string) => {\n",
+							toPascalCase(event), toPascalCase(event)))
+						outFile.WriteString(fmt.Sprintf("        sendPluginMessage(PluginClientEvents.%s, payload, extensionID)\n",
+							toPascalCase(event)))
 						outFile.WriteString("    }, [])\n")
 						outFile.WriteString("\n")
 						outFile.WriteString("    return {\n")
-						outFile.WriteString(fmt.Sprintf("        send%s%sEvent\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+						outFile.WriteString(fmt.Sprintf("        send%sEvent\n", toPascalCase(event)))
 						outFile.WriteString("    }\n")
 						outFile.WriteString("}\n\n")
 					}
@@ -173,21 +172,21 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 
 		// If payload type not found, write empty object type
 		if !payloadFound {
-			outFile.WriteString(fmt.Sprintf("export type Plugin_Client_%s%sEventPayload = {}\n\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+			outFile.WriteString(fmt.Sprintf("export type Plugin_Client_%sEventPayload = {}\n\n", toPascalCase(event)))
 
 			// Write the hook
-			hookName := fmt.Sprintf("usePluginSend%s%sEvent", toPascalCase(parts[0]), toPascalCase(parts[1]))
+			hookName := fmt.Sprintf("usePluginSend%sEvent", toPascalCase(event))
 			outFile.WriteString(fmt.Sprintf("export function %s() {\n", hookName))
 			outFile.WriteString("    const { sendPluginMessage } = useWebsocketSender()\n")
 			outFile.WriteString("\n")
-			outFile.WriteString(fmt.Sprintf("    const sendPlugin%s%sEvent = useCallback((payload: Plugin_Client_%s%sEventPayload, extensionID?: string) => {\n",
-				toPascalCase(parts[0]), toPascalCase(parts[1]), toPascalCase(parts[0]), toPascalCase(parts[1])))
-			outFile.WriteString(fmt.Sprintf("        sendPluginMessage(PluginClientEvents.%s%s, payload, extensionID)\n",
-				toPascalCase(parts[0]), toPascalCase(parts[1])))
+			outFile.WriteString(fmt.Sprintf("    const sendPlugin%sEvent = useCallback((payload: Plugin_Client_%sEventPayload, extensionID?: string) => {\n",
+				toPascalCase(event), toPascalCase(event)))
+			outFile.WriteString(fmt.Sprintf("        sendPluginMessage(PluginClientEvents.%s, payload, extensionID)\n",
+				toPascalCase(event)))
 			outFile.WriteString("    }, [])\n")
 			outFile.WriteString("\n")
 			outFile.WriteString("    return {\n")
-			outFile.WriteString(fmt.Sprintf("        send%s%sEvent\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+			outFile.WriteString(fmt.Sprintf("        send%sEvent\n", toPascalCase(event)))
 			outFile.WriteString("    }\n")
 			outFile.WriteString("}\n\n")
 		}
@@ -200,11 +199,6 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 
 	// Write server event types and hooks
 	for _, event := range serverEvents {
-		parts := strings.Split(event, ":")
-		if len(parts) != 2 {
-			continue
-		}
-
 		// Get the payload type
 		payloadType := serverPayloads[event]
 		payloadFound := false
@@ -226,7 +220,7 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 					if typeSpec.Name.Name == payloadType {
 						payloadFound = true
 						// Write the payload type
-						outFile.WriteString(fmt.Sprintf("export type Plugin_Server_%s%sEventPayload = {\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+						outFile.WriteString(fmt.Sprintf("export type Plugin_Server_%sEventPayload = {\n", toPascalCase(event)))
 
 						if structType, ok := typeSpec.Type.(*ast.StructType); ok {
 							for _, field := range structType.Fields.List {
@@ -241,12 +235,12 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 						outFile.WriteString("}\n\n")
 
 						// Write the hook
-						hookName := fmt.Sprintf("usePluginListen%s%sEvent", toPascalCase(parts[0]), toPascalCase(parts[1]))
-						outFile.WriteString(fmt.Sprintf("export function %s(cb: (payload: Plugin_Server_%s%sEventPayload) => void, extensionID: string) {\n",
-							hookName, toPascalCase(parts[0]), toPascalCase(parts[1])))
-						outFile.WriteString("    return useWebsocketPluginMessageListener<Plugin_Server_" + toPascalCase(parts[0]) + toPascalCase(parts[1]) + "EventPayload>({\n")
+						hookName := fmt.Sprintf("usePluginListen%sEvent", toPascalCase(event))
+						outFile.WriteString(fmt.Sprintf("export function %s(cb: (payload: Plugin_Server_%sEventPayload, extensionId: string) => void, extensionID: string) {\n",
+							hookName, toPascalCase(event)))
+						outFile.WriteString("    return useWebsocketPluginMessageListener<Plugin_Server_" + toPascalCase(event) + "EventPayload>({\n")
 						outFile.WriteString("        extensionId: extensionID,\n")
-						outFile.WriteString(fmt.Sprintf("        type: PluginServerEvents.%s%s,\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+						outFile.WriteString(fmt.Sprintf("        type: PluginServerEvents.%s,\n", toPascalCase(event)))
 						outFile.WriteString("        onMessage: cb,\n")
 						outFile.WriteString("    })\n")
 						outFile.WriteString("}\n\n")
@@ -257,15 +251,15 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 
 		// If payload type not found, write empty object type
 		if !payloadFound {
-			outFile.WriteString(fmt.Sprintf("export type Plugin_Server_%s%sEventPayload = {}\n\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+			outFile.WriteString(fmt.Sprintf("export type Plugin_Server_%sEventPayload = {}\n\n", toPascalCase(event)))
 
 			// Write the hook
-			hookName := fmt.Sprintf("usePluginListen%s%sEvent", toPascalCase(parts[0]), toPascalCase(parts[1]))
-			outFile.WriteString(fmt.Sprintf("export function %s(cb: (payload: Plugin_Server_%s%sEventPayload) => void, extensionID: string) {\n",
-				hookName, toPascalCase(parts[0]), toPascalCase(parts[1])))
-			outFile.WriteString("    return useWebsocketPluginMessageListener<Plugin_Server_" + toPascalCase(parts[0]) + toPascalCase(parts[1]) + "EventPayload>({\n")
+			hookName := fmt.Sprintf("usePluginListen%sEvent", toPascalCase(event))
+			outFile.WriteString(fmt.Sprintf("export function %s(cb: (payload: Plugin_Server_%sEventPayload, extensionId: string) => void, extensionID: string) {\n",
+				hookName, toPascalCase(event)))
+			outFile.WriteString("    return useWebsocketPluginMessageListener<Plugin_Server_" + toPascalCase(event) + "EventPayload>({\n")
 			outFile.WriteString("        extensionId: extensionID,\n")
-			outFile.WriteString(fmt.Sprintf("        type: PluginServerEvents.%s%s,\n", toPascalCase(parts[0]), toPascalCase(parts[1])))
+			outFile.WriteString(fmt.Sprintf("        type: PluginServerEvents.%s,\n", toPascalCase(event)))
 			outFile.WriteString("        onMessage: cb,\n")
 			outFile.WriteString("    })\n")
 			outFile.WriteString("}\n\n")

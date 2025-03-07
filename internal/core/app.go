@@ -168,8 +168,10 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	database.TrimScanSummaryEntries()   // ran in goroutine
 	database.TrimTorrentstreamHistory() // ran in goroutine
 
+	animeLibraryPaths, _ := database.GetAllLibraryPathsFromSettings()
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
-		Database: database,
+		Database:          database,
+		AnimeLibraryPaths: animeLibraryPaths,
 	})
 
 	// Get token from stored account or return empty string

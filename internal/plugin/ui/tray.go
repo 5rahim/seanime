@@ -61,11 +61,29 @@ func (t *TrayManager) renderTrayScheduled() {
 	})
 }
 
+// sendIconToClient sends the tray icon to the client after it's been requested.
+func (t *TrayManager) sendIconToClient() {
+	if tray, registered := t.tray.Get(); registered {
+		t.ctx.SendEventToClient(ServerTrayIconEvent, ServerTrayIconEventPayload{
+			IconURL:     tray.IconURL,
+			WithContent: tray.WithContent,
+			TooltipText: tray.TooltipText,
+		})
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tray
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type Tray struct {
+	// WithContent is used to determine if the tray has any content
+	// If false, only the tray icon will be rendered and tray.render() will be ignored
+	WithContent bool `json:"withContent"`
+
+	IconURL     string `json:"iconUrl"`
+	TooltipText string `json:"tooltipText"`
+
 	renderFunc  func(goja.FunctionCall) goja.Value
 	trayManager *TrayManager
 }
@@ -81,10 +99,25 @@ type Component struct {
 //
 //	Example:
 //	const tray = ctx.newTray()
-func (t *TrayManager) jsNewTray(goja.FunctionCall) goja.Value {
+func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	tray := &Tray{
 		renderFunc:  nil,
 		trayManager: t,
+		WithContent: true,
+	}
+
+	props := call.Arguments
+	if len(props) > 0 {
+		propsObj := props[0].Export().(map[string]interface{})
+		if propsObj["withContent"] != nil {
+			tray.WithContent, _ = propsObj["withContent"].(bool)
+		}
+		if propsObj["iconUrl"] != nil {
+			tray.IconURL, _ = propsObj["iconUrl"].(string)
+		}
+		if propsObj["tooltipText"] != nil {
+			tray.TooltipText, _ = propsObj["tooltipText"].(string)
+		}
 	}
 
 	t.tray = mo.Some(tray)
@@ -95,7 +128,9 @@ func (t *TrayManager) jsNewTray(goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("update", tray.jsUpdate)
 	_ = trayObj.Set("onOpen", tray.jsOnOpen)
 	_ = trayObj.Set("onClose", tray.jsOnClose)
+	_ = trayObj.Set("onClick", tray.jsOnClick)
 
+	// Register components
 	_ = trayObj.Set("div", t.componentManager.jsDiv)
 	_ = trayObj.Set("flex", t.componentManager.jsFlex)
 	_ = trayObj.Set("stack", t.componentManager.jsStack)
@@ -166,7 +201,7 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientTrayOpenedEvent, &payload) {
 				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
-					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(payload))
+					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
 					if err != nil {
 						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray open callback")
 					}
@@ -175,6 +210,42 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 			}
 		}
 	}()
+	return goja.Undefined()
+}
+
+// jsOnClick
+//
+//	Example:
+//	tray.onClick(() => {
+//		console.log("tray clicked by the user")
+//	})
+func (t *Tray) jsOnClick(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		t.trayManager.ctx.HandleTypeError("onClick requires a callback function")
+	}
+
+	callback, ok := goja.AssertFunction(call.Argument(0))
+	if !ok {
+		t.trayManager.ctx.HandleTypeError("onClick requires a callback function")
+	}
+
+	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClickedEvent)
+	payload := ClientTrayClickedEventPayload{}
+
+	go func() {
+		for event := range eventListener.Channel {
+			if event.ParsePayloadAs(ClientTrayClickedEvent, &payload) {
+				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
+					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
+					if err != nil {
+						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray click callback")
+					}
+					return err
+				})
+			}
+		}
+	}()
+
 	return goja.Undefined()
 }
 
@@ -201,7 +272,7 @@ func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientTrayClosedEvent, &payload) {
 				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
-					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(payload))
+					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
 					if err != nil {
 						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray close callback")
 					}

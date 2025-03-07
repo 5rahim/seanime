@@ -55,6 +55,8 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
+require github.com/bmatcuk/doublestar/v4 v4.8.1 // indirect
+
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect

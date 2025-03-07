@@ -22,10 +22,11 @@ func NewScreenManager(ctx *Context) *ScreenManager {
 //
 //	Example:
 //	ctx.screen.navigateTo("/entry?id=21");
-func (s *ScreenManager) bind(vm *goja.Runtime, ctxObj *goja.Object) {
-	screenObj := vm.NewObject()
+func (s *ScreenManager) bind(ctxObj *goja.Object) {
+	screenObj := s.ctx.vm.NewObject()
 	_ = screenObj.Set("onNavigate", s.jsOnNavigate)
 	_ = screenObj.Set("navigateTo", s.jsNavigateTo)
+	_ = screenObj.Set("reload", s.jsReload)
 
 	_ = ctxObj.Set("screen", screenObj)
 }
@@ -44,6 +45,11 @@ func (s *ScreenManager) jsNavigateTo(path string) {
 	})
 }
 
+// jsReload reloads the current screen
+func (s *ScreenManager) jsReload() {
+	s.ctx.SendEventToClient(ServerScreenReloadEvent, ServerScreenReloadEventPayload{})
+}
+
 // jsOnNavigate registers a callback to be called when the current screen changes
 //
 //	Example:
@@ -52,7 +58,7 @@ func (s *ScreenManager) jsNavigateTo(path string) {
 //	};
 //	ctx.screen.onNavigate(onNavigate);
 func (s *ScreenManager) jsOnNavigate(callback goja.Callable) {
-	eventListener := s.ctx.RegisterEventListener()
+	eventListener := s.ctx.RegisterEventListener(ClientScreenChangedEvent)
 	var payload ClientScreenChangedEventPayload
 
 	go func(payload ClientScreenChangedEventPayload) {

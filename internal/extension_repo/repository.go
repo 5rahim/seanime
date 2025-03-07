@@ -2,6 +2,7 @@ package extension_repo
 
 import (
 	"os"
+	"path/filepath"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
@@ -316,168 +317,43 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 
 func (r *Repository) loadPlugins() {
 
+	// TESTING
+
+	currDir, err := os.Getwd()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("extensions: Failed to get current directory")
+		return
+	}
+
+	pluginFilePath := filepath.Join(currDir, "/internal/extension_repo/goja_plugin_test", "test1.js")
+	payload, err := os.ReadFile(pluginFilePath)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("extensions: Failed to read test extension")
+		return
+	}
+
 	testExt := &extension.Extension{
 		ID:       "test-plugin",
 		Language: extension.LanguageTypescript,
 		Plugin: &extension.PluginManifest{
-			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionOS, extension.PluginPermissionDatabase},
+			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionSystem, extension.PluginPermissionDatabase},
+			SystemAllowlist: &extension.PluginSystemAllowlist{
+				AllowReadPaths:  []string{"$DOWNLOAD/**", "$SEANIME_ASSETS/**", "$SEANIME_ANIME_LIBRARY/**"},
+				AllowWritePaths: []string{"$DOWNLOAD/**", "$SEANIME_ASSETS/**", "$SEANIME_ANIME_LIBRARY/**"},
+				CommandScopes: []*extension.CommandScope{
+					{
+						Description: "Open files with the default application",
+						Command:     "open",
+						Args: []extension.CommandArg{
+							{
+								Validator: "^http://.*$",
+							},
+						},
+					},
+				},
+			},
 		},
-		Payload: `
-			function init() {
-				$ui.register((ctx) => {
-					const tray = ctx.newTray();
-
-					const currentMediaId = ctx.state(0);
-					const storageBackgroundImage = ctx.state("");
-					const mediaIds = ctx.state([]);
-					
-					const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
-					
-					const fetchBackgroundImage = () => {
-						const backgroundImage = $storage.get('backgroundImages.' + currentMediaId.get());
-						if (backgroundImage) {
-							storageBackgroundImage.set(backgroundImage);
-							customBannerImageRef.setValue(backgroundImage);
-						} else {
-							storageBackgroundImage.set("");
-							customBannerImageRef.setValue("");
-						}
-					}
-
-					ctx.effect(() => {
-						console.log("media ID changed, fetching background image and updating tray");
-						fetchBackgroundImage();
-
-						console.log("updating tray");
-					}, [currentMediaId]);
-
-
-					fetchBackgroundImage()
-
-					ctx.screen.onNavigate((e) => {
-						console.log("screen navigated", e);
-						if (e.pathname === "/entry" && !!e.query) {
-							const id = parseInt(e.query.replace("?id=", ""));
-							currentMediaId.set(id);
-						} else {
-							currentMediaId.set(0);
-						}
-
-						console.log("updating tray");
-					});
-
-					ctx.registerEventHandler("saveBackgroundImage", () => {
-						ctx.toast.info("Setting background image to " + customBannerImageRef.current);
-						$storage.set('backgroundImages.' + currentMediaId.get(), customBannerImageRef.current);
-						ctx.toast.success("Background image saved");
-						fetchBackgroundImage();
-						$anilist.refreshAnimeCollection();
-					});
-
-					// $store.watch("mediaIds", (mId) => {
-					// 	mediaIds.set(p => [...p, mId]);
-					// });
-
-					ctx.registerEventHandler("button-clicked", () => {
-						console.log("button-clicked");
-						console.log("navigating to /entry?id=21");
-						try {
-							ctx.screen.navigateTo("/entry?id=21");
-						} catch (e) {
-							console.error("navigate error", e);
-						}
-						ctx.setTimeout(() => {
-							try {
-								console.log("navigating to /entry?id=177709");
-								ctx.screen.navigateTo("/entry?id=177709");
-							} catch (e) {
-								console.error("navigate error", e);
-							}
-						}, 1000);
-						ctx.setTimeout(() => {
-							try {
-								console.log("opening https://google.com");
-								const cmd = $os.cmd("open", "https://google.com");
-								cmd.run();
-							} catch (e) {
-								console.error("open error", e);
-							}
-						}, 2000);
-					});
-
-					tray.render(() => {
-						return tray.stack({
-							items: [
-								tray.button("Click me", { onClick: "button-clicked" }),
-								currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
-									items: [
-										tray.text("Current media ID: " + currentMediaId.get()),
-										tray.input({ fieldRef: "customBannerImageRef", value: storageBackgroundImage.get() }),
-										tray.button({ label: "Save", onClick: "saveBackgroundImage" }),
-									],
-								}),
-							],
-						});
-					});
-				})
-
-				$app.onGetAnime((e) => {
-					$store.set("mediaIds", e.anime.id);
-					e.next();
-				});
-
-				// $app.onAnimeEntry((e) => {
-				// 	const mediaId = e.entry.mediaId;
-				// 	const bannerImage = $storage.get('backgroundImages')[mediaId.toString()] || "";
-				// 	console.log("onAnimeEntry", e.entry.mediaId, bannerImage);
-				// 	console.log("storage", $storage.get('backgroundImages'));
-				// 	if (!!bannerImage) {
-				// 		$replace(e.entry.media.bannerImage, bannerImage);
-				// 		console.log("replaced banner image", e.entry.media.bannerImage);
-				// 	}
-					
-				// });
-
-				$app.onGetAnimeCollection((e) => {
-					const bannerImages = $storage.get('backgroundImages');
-					for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-						for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-							const mediaId = e.animeCollection.mediaListCollection.lists[i].entries[j].media.id;
-							const bannerImage = bannerImages[mediaId.toString()] || "";
-							if (!!bannerImage) {
-								$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.bannerImage, bannerImage);
-							}
-						}
-					}
-					e.next();
-				});
-				
-				$app.onGetRawAnimeCollection((e) => {
-					const bannerImages = $storage.get('backgroundImages');
-					//console.log("onGetRawAnimeCollection fired", e.animeCollection.mediaListCollection)
-					for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-						for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-							const mediaId = e.animeCollection.mediaListCollection.lists[i].entries[j].media.id;
-							const bannerImage = bannerImages[mediaId.toString()] || "";
-							if (!!bannerImage) {
-								$replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.bannerImage, bannerImage);
-							}
-						}
-					}
-					e.next();
-				});
-
-				// $app.onAnimeEntryLibraryDataRequest((e) => {
-				// 	$replace(e.options.entryLocalFiles, [])
-				// 	e.next();
-				// });
-				// $app.OnAnimeEntryRequest((e) => {
-				// 	e.mediaId = 21;
-				// 	e.next();
-				// });
-				
-			}
-			`,
+		Payload:     string(payload),
 		Name:        "Test Plugin",
 		Version:     "1.0.0",
 		ManifestURI: "https://raw.githubusercontent.com/5rahim/seanime-extensions/refs/heads/main/anime-torrent-providers/basic-nyaa/basic-nyaa.json",
@@ -487,7 +363,7 @@ func (r *Repository) loadPlugins() {
 		PayloadURI:  "",
 	}
 
-	err := r.loadPluginExtension(testExt)
+	err = r.loadPluginExtension(testExt)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("extensions: Failed to load test extension")
 	}

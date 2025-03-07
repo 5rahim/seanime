@@ -1,4 +1,4 @@
-//go:generate go run main.go --skipHandlers=false --skipStructs=false --skipTypes=false --skipPluginEvents=false
+//go:generate go run main.go --skipHandlers=true --skipStructs=true --skipTypes=true --skipPluginEvents=false
 package main
 
 import (

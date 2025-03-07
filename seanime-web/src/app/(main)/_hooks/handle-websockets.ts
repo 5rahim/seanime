@@ -91,7 +91,7 @@ export function useWebsocketMessageListener<TData = unknown>({ type, onMessage }
 export type WebSocketPluginMessageListener<TData> = {
     type: string
     extensionId: string // If empty, get message from all plugins
-    onMessage: (data: TData) => void
+    onMessage: (data: TData, extensionId: string) => void
 }
 
 export function useWebsocketPluginMessageListener<TData = unknown>({ type, extensionId, onMessage }: WebSocketPluginMessageListener<TData>) {
@@ -104,8 +104,11 @@ export function useWebsocketPluginMessageListener<TData = unknown>({ type, exten
                     const parsed = JSON.parse(event.data) as SeaWebsocketEvent<TData>
                     if (!!parsed.type && parsed.type === "plugin") {
                         const message = parsed.payload as SeaWebsocketPluginEvent<TData>
+                        // Plugins always send back their extension ID
+                        // Invoke the callback only if the extension ID of the message matches the ID we're listening to
+                        // OR if we're listening to all plugins (i.e. extensionId is "")
                         if (message.type === type && (message.extensionId === extensionId || extensionId === "")) {
-                            onMessage(message.payload)
+                            onMessage(message.payload, message.extensionId)
                         }
                     }
                 }

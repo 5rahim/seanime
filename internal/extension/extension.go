@@ -1,6 +1,8 @@
 package extension
 
-import "strings"
+import (
+	"strings"
+)
 
 type Consumer interface {
 	InitExtensionBank(bank *UnifiedBank)
@@ -29,10 +31,11 @@ const (
 
 var (
 	PluginPermissionStorage  PluginPermission = "storage"  // Allows the plugin to store its own data
-	PluginPermissionDatabase PluginPermission = "database" // Allows the plugin to use the database
+	PluginPermissionDatabase PluginPermission = "database" // Allows the plugin to read non-auth data from the database and write to it
 	PluginPermissionPlayback PluginPermission = "playback" // Allows the plugin to use the playback manager
 	PluginPermissionAnilist  PluginPermission = "anilist"  // Allows the plugin to use the Anilist client
-	PluginPermissionOS       PluginPermission = "os"       // Allows the plugin to use the OS/Filesystem/Filepath functions
+	PluginPermissionSystem   PluginPermission = "system"   // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
+	PluginPermissionCron     PluginPermission = "cron"     // Allows the plugin to use the cron manager
 )
 
 type Extension struct {
@@ -74,7 +77,108 @@ type Extension struct {
 }
 
 type PluginManifest struct {
+	Version string `json:"version"`
+	// Permissions is a list of permissions that the plugin is asking for.
+	// The user must acknowledge these permissions before the plugin can be loaded.
 	Permissions []PluginPermission `json:"permissions,omitempty"`
+	// SystemAllowlist is a list of system permissions that the plugin is asking for.
+	// The user must acknowledge these permissions before the plugin can be loaded.
+	SystemAllowlist *PluginSystemAllowlist `json:"systemAllowlist,omitempty"`
+}
+
+// PluginSystemAllowlist is a list of system permissions that the plugin is asking for.
+//
+// The user must acknowledge these permissions before the plugin can be loaded.
+//
+// Path examples:
+// - "$HOME/**/*" - All files in the user's home directory and subdirectories
+// - "$ANIME_LIBRARY/**/*" - All files in the anime library and subdirectories
+// - "$SEANIME_ASSETS/*" - All files in the seanime assets folder, not including subdirectories
+// - "C:/Users/*/Downloads/**/*" - All files in the user's downloads folder and subdirectories
+type PluginSystemAllowlist struct {
+	// AllowReadPaths is a list of paths that the plugin is allowed to read from.
+	AllowReadPaths []string `json:"allowReadPaths,omitempty"`
+	// AllowWritePaths is a list of paths that the plugin is allowed to write to.
+	AllowWritePaths []string `json:"allowWritePaths,omitempty"`
+	// CommandScopes defines the commands that the plugin is allowed to execute.
+	// Each command scope has a unique identifier and configuration.
+	CommandScopes []*CommandScope `json:"commandScopes,omitempty"`
+	// AllowCommands is a list of commands that the plugin is allowed to execute.
+	// This field is deprecated and kept for backward compatibility.
+	// Use CommandScopes instead.
+}
+
+// CommandScope defines a specific command or set of commands that can be executed
+// with specific arguments and validation rules.
+type CommandScope struct {
+	// Description explains why this command scope is needed
+	Description string `json:"description,omitempty"`
+	// Command is the executable program
+	Command string `json:"command"`
+	// Args defines the allowed arguments for this command
+	// If nil or empty, no arguments are allowed
+	// If contains "$ARGS", any arguments are allowed at that position
+	Args []CommandArg `json:"args,omitempty"`
+}
+
+// CommandArg represents an argument for a command
+type CommandArg struct {
+	// Value is the fixed argument value
+	// If empty, Validator must be set
+	Value string `json:"value,omitempty"`
+	// Validator is a Perl compatible regex pattern to validate dynamic argument values
+	// Special values:
+	// - "$ARGS" allows any arguments at this position
+	// - "$PATH" allows any valid file path
+	Validator string `json:"validator,omitempty"`
+}
+
+// ReadAllowCommands returns a human-readable representation of the commands
+// that the plugin is allowed to execute.
+func (p *PluginSystemAllowlist) ReadAllowCommands() []string {
+	if p == nil {
+		return []string{}
+	}
+
+	result := make([]string, 0)
+
+	// Add commands from CommandScopes
+	if len(p.CommandScopes) > 0 {
+		for _, scope := range p.CommandScopes {
+			cmd := scope.Command
+
+			// Build argument string
+			args := ""
+			for i, arg := range scope.Args {
+				if i > 0 {
+					args += " "
+				}
+
+				if arg.Value != "" {
+					args += arg.Value
+				} else if arg.Validator == "$ARGS" {
+					args += "[any arguments]"
+				} else if arg.Validator == "$PATH" {
+					args += "[any path]"
+				} else if arg.Validator != "" {
+					args += "[matching: " + arg.Validator + "]"
+				}
+			}
+
+			if args != "" {
+				cmd += " " + args
+			}
+
+			// Add description if available
+			if scope.Description != "" {
+				cmd += " - " + scope.Description
+			}
+
+			result = append(result, cmd)
+		}
+	}
+
+	return result
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

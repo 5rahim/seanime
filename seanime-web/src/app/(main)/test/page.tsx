@@ -1,6 +1,10 @@
 "use client"
 
+import { PluginAnimePageButtons } from "../_features/plugin/actions/plugin-actions"
+
 export default function TestPage() {
-    return <div>Test</div>
+    return <div>
+        <PluginAnimePageButtons />
+    </div>
 }
 

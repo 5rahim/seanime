@@ -33,6 +33,7 @@ func (fr *fetchResponse) toGojaObject(vm *goja.Runtime) *goja.Object {
 	_ = obj.Set("status", fr.response.StatusCode)
 	_ = obj.Set("statusText", fr.response.Status)
 	_ = obj.Set("method", fr.response.Request.Method)
+	_ = obj.Set("rawHeaders", fr.response.Header)
 	_ = obj.Set("ok", fr.response.StatusCode >= 200 && fr.response.StatusCode < 300)
 	_ = obj.Set("url", fr.response.Request.URL.String())
 
@@ -46,8 +47,8 @@ func (fr *fetchResponse) toGojaObject(vm *goja.Runtime) *goja.Object {
 	_ = obj.Set("headers", headers)
 
 	// Set body methods
-	_ = obj.Set("text", func(call goja.FunctionCall) goja.Value {
-		return vm.ToValue(string(fr.body))
+	_ = obj.Set("text", func() string {
+		return string(fr.body)
 	})
 
 	// Set JSON method
@@ -185,7 +186,7 @@ func createRequest(url string, options *goja.Object) (*http.Request, error) {
 		}
 	}
 
-	log.Trace().Str("url", url).Str("method", method).Msgf("extension: Fetching using JS VM")
+	log.Trace().Str("url", url).Str("method", method).Msgf("plugin: Network request")
 	return req, nil
 }
 
