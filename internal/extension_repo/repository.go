@@ -325,7 +325,7 @@ func (r *Repository) loadPlugins() {
 		return
 	}
 
-	pluginFilePath := filepath.Join(currDir, "/internal/extension_repo/goja_plugin_test", "test1.js")
+	pluginFilePath := filepath.Join(currDir, "/internal/extension_repo/goja_plugin_test", "test-actions.js")
 	payload, err := os.ReadFile(pluginFilePath)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("extensions: Failed to read test extension")

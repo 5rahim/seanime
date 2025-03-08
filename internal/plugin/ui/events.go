@@ -23,6 +23,8 @@ const (
 	ClientTrayOpenedEvent                            ClientEventType = "tray:opened"                                 // When the tray is opened
 	ClientTrayClosedEvent                            ClientEventType = "tray:closed"                                 // When the tray is closed
 	ClientTrayClickedEvent                           ClientEventType = "tray:clicked"                                // When the tray is clicked
+	ClientRenderCommandPaletteEvent                  ClientEventType = "command-palette:render"                      // When the client requests the command palette to render
+	ClientCommandPaletteItemSelectedEvent            ClientEventType = "command-palette:item-selected"               // When the client selects an item from the command palette
 	ClientActionRenderAnimePageButtonsEvent          ClientEventType = "action:anime-page-buttons:render"            // When the client requests the buttons to display on the anime page
 	ClientActionRenderAnimePageDropdownItemsEvent    ClientEventType = "action:anime-page-dropdown-items:render"     // When the client requests the dropdown items to display on the anime page
 	ClientActionRenderMangaPageButtonsEvent          ClientEventType = "action:manga-page-buttons:render"            // When the client requests the buttons to display on the manga page
@@ -71,6 +73,12 @@ type ClientFieldRefSendValueEventPayload struct {
 	Value    interface{} `json:"value"`
 }
 
+type ClientRenderCommandPaletteEventPayload struct{}
+
+type ClientCommandPaletteItemSelectedEventPayload struct {
+	ItemID string `json:"itemId"`
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +95,7 @@ type ServerPluginEvent struct {
 const (
 	ServerTrayUpdatedEvent                           ServerEventType = "tray:updated"                                 // When the trays are updated
 	ServerTrayIconEvent                              ServerEventType = "tray:icon"                                    // When the tray sends its icon to the client
+	ServerCommandPaletteUpdatedEvent                 ServerEventType = "command-palette:updated"                      // When the command palette is updated
 	ServerActionRenderAnimePageButtonsEvent          ServerEventType = "action:anime-page-buttons:updated"            // When the server renders the anime page buttons
 	ServerActionRenderAnimePageDropdownItemsEvent    ServerEventType = "action:anime-page-dropdown-items:updated"     // When the server renders the anime page dropdown items
 	ServerActionRenderMangaPageButtonsEvent          ServerEventType = "action:manga-page-buttons:updated"            // When the server renders the manga page buttons
@@ -102,6 +111,13 @@ const (
 
 type ServerTrayUpdatedEventPayload struct {
 	Components interface{} `json:"components"`
+}
+
+type ServerCommandPaletteUpdatedEventPayload struct {
+	Placeholder  string      `json:"placeholder"`
+	ShouldFilter bool        `json:"shouldFilter"`
+	FilterType   string      `json:"filterType"`
+	Items        interface{} `json:"items"`
 }
 
 type ServerTrayIconEventPayload struct {

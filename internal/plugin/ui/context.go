@@ -48,13 +48,13 @@ type Context struct {
 	lastUIUpdateAt time.Time
 	uiUpdateMu     sync.Mutex
 
-	webviewManager *WebviewManager // UNUSED
-	screenManager  *ScreenManager  // Listen for screen events, send screen actions
-	trayManager    *TrayManager    // Register and manage tray
-	actionManager  *ActionManager  // Register and manage actions
-	formManager    *FormManager    // Register and manage forms
-	toastManager   *ToastManager   // Register and manage toasts
-	commandPalette *CommandPalette // Register and manage command palette
+	webviewManager        *WebviewManager        // UNUSED
+	screenManager         *ScreenManager         // Listen for screen events, send screen actions
+	trayManager           *TrayManager           // Register and manage tray
+	actionManager         *ActionManager         // Register and manage actions
+	formManager           *FormManager           // Register and manage forms
+	toastManager          *ToastManager          // Register and manage toasts
+	commandPaletteManager *CommandPaletteManager // Register and manage command palette
 }
 
 type State struct {
@@ -96,7 +96,7 @@ func NewContext(ui *UI) *Context {
 	ret.screenManager = NewScreenManager(ret)
 	ret.formManager = NewFormManager(ret)
 	ret.toastManager = NewToastManager(ret)
-	ret.commandPalette = NewCommandPalette(ret)
+	ret.commandPaletteManager = NewCommandPaletteManager(ret)
 
 	return ret
 }
@@ -106,6 +106,8 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 
 	_ = obj.Set("newTray", c.trayManager.jsNewTray)
 	_ = obj.Set("newForm", c.formManager.jsNewForm)
+
+	_ = obj.Set("newCommandPalette", c.commandPaletteManager.jsNewCommandPalette)
 
 	_ = obj.Set("state", c.jsState)
 	_ = obj.Set("setTimeout", c.jsSetTimeout)
@@ -123,8 +125,6 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	c.actionManager.bind(obj)
 	// Bind toast manager
 	c.toastManager.bind(obj)
-	// Bind command palette
-	c.commandPalette.bind(obj)
 
 	_ = vm.Set("__ctx", obj)
 }

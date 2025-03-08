@@ -126,6 +126,25 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		return os.Stat(path)
 	})
 
+	fileModeObj := vm.NewObject()
+
+	fileModeObj.Set("ModeDir", os.ModeDir)
+	fileModeObj.Set("ModeAppend", os.ModeAppend)
+	fileModeObj.Set("ModeExclusive", os.ModeExclusive)
+	fileModeObj.Set("ModeTemporary", os.ModeTemporary)
+	fileModeObj.Set("ModeSymlink", os.ModeSymlink)
+	fileModeObj.Set("ModeDevice", os.ModeDevice)
+	fileModeObj.Set("ModeNamedPipe", os.ModeNamedPipe)
+	fileModeObj.Set("ModeSocket", os.ModeSocket)
+	fileModeObj.Set("ModeSetuid", os.ModeSetuid)
+	fileModeObj.Set("ModeSetgid", os.ModeSetgid)
+	fileModeObj.Set("ModeCharDevice", os.ModeCharDevice)
+	fileModeObj.Set("ModeSticky", os.ModeSticky)
+	fileModeObj.Set("ModeIrregular", os.ModeIrregular)
+	fileModeObj.Set("ModeType", os.ModeType)
+	fileModeObj.Set("ModePerm", os.ModePerm)
+	_ = vm.Set("$os.FileMode", fileModeObj)
+
 	_ = vm.Set("$os", osObj)
 
 	//////////////////////////////////////
@@ -201,18 +220,26 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		return util.UnrarFile(src, dest)
 	})
 
+	_ = vm.Set("$osExtra", osExtraObj)
+
 	//////////////////////////////////////
 	// mime
 	//////////////////////////////////////
 
 	mimeObj := vm.NewObject()
 
-	mimeObj.Set("parse", func(contentType string) (string, error) {
-		res, _, err := mime.ParseMediaType(contentType)
-		return res, err
+	mimeObj.Set("parse", func(contentType string) (map[string]interface{}, error) {
+		res, params, err := mime.ParseMediaType(contentType)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]interface{}{
+			"mediaType":  res,
+			"parameters": params,
+		}, nil
 	})
 	_ = vm.Set("$mime", mimeObj)
-	_ = vm.Set("$osExtra", osExtraObj)
+
 }
 
 // resolveEnvironmentPaths resolves environment paths in the form of $NAME
