@@ -23,7 +23,11 @@ const (
 	ClientTrayOpenedEvent                            ClientEventType = "tray:opened"                                 // When the tray is opened
 	ClientTrayClosedEvent                            ClientEventType = "tray:closed"                                 // When the tray is closed
 	ClientTrayClickedEvent                           ClientEventType = "tray:clicked"                                // When the tray is clicked
+	ClientListCommandPalettesEvent                   ClientEventType = "command-palette:list"                        // When the client wants to list all command palettes
+	ClientCommandPaletteOpenedEvent                  ClientEventType = "command-palette:opened"                      // When the client opens the command palette
+	ClientCommandPaletteClosedEvent                  ClientEventType = "command-palette:closed"                      // When the client closes the command palette
 	ClientRenderCommandPaletteEvent                  ClientEventType = "command-palette:render"                      // When the client requests the command palette to render
+	ClientCommandPaletteInputEvent                   ClientEventType = "command-palette:input"                       // The client sends the current input of the command palette
 	ClientCommandPaletteItemSelectedEvent            ClientEventType = "command-palette:item-selected"               // When the client selects an item from the command palette
 	ClientActionRenderAnimePageButtonsEvent          ClientEventType = "action:anime-page-buttons:render"            // When the client requests the buttons to display on the anime page
 	ClientActionRenderAnimePageDropdownItemsEvent    ClientEventType = "action:anime-page-dropdown-items:render"     // When the client requests the dropdown items to display on the anime page
@@ -47,6 +51,12 @@ type ClientActionRenderAnimePageDropdownItemsEventPayload struct{}
 type ClientActionRenderMangaPageButtonsEventPayload struct{}
 type ClientActionRenderMediaCardContextMenuItemsEventPayload struct{}
 type ClientActionRenderAnimeLibraryDropdownItemsEventPayload struct{}
+
+type ClientListCommandPalettesEventPayload struct{}
+
+type ClientCommandPaletteOpenedEventPayload struct{}
+
+type ClientCommandPaletteClosedEventPayload struct{}
 
 type ClientActionClickedEventPayload struct {
 	ActionID string                 `json:"actionId"`
@@ -79,6 +89,10 @@ type ClientCommandPaletteItemSelectedEventPayload struct {
 	ItemID string `json:"itemId"`
 }
 
+type ClientCommandPaletteInputEventPayload struct {
+	Value string `json:"value"`
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +109,12 @@ type ServerPluginEvent struct {
 const (
 	ServerTrayUpdatedEvent                           ServerEventType = "tray:updated"                                 // When the trays are updated
 	ServerTrayIconEvent                              ServerEventType = "tray:icon"                                    // When the tray sends its icon to the client
+	ServerCommandPaletteInfoEvent                    ServerEventType = "command-palette:info"                         // When the command palette sends its state to the client
 	ServerCommandPaletteUpdatedEvent                 ServerEventType = "command-palette:updated"                      // When the command palette is updated
+	ServerCommandPaletteOpenEvent                    ServerEventType = "command-palette:open"                         // When the command palette is opened
+	ServerCommandPaletteCloseEvent                   ServerEventType = "command-palette:close"                        // When the command palette is closed
+	ServerCommandPaletteGetInputEvent                ServerEventType = "command-palette:get-input"                    // When the command palette requests the input from the client
+	ServerCommandPaletteSetInputEvent                ServerEventType = "command-palette:set-input"                    // When the command palette sets the input
 	ServerActionRenderAnimePageButtonsEvent          ServerEventType = "action:anime-page-buttons:updated"            // When the server renders the anime page buttons
 	ServerActionRenderAnimePageDropdownItemsEvent    ServerEventType = "action:anime-page-dropdown-items:updated"     // When the server renders the anime page dropdown items
 	ServerActionRenderMangaPageButtonsEvent          ServerEventType = "action:manga-page-buttons:updated"            // When the server renders the manga page buttons
@@ -114,10 +133,8 @@ type ServerTrayUpdatedEventPayload struct {
 }
 
 type ServerCommandPaletteUpdatedEventPayload struct {
-	Placeholder  string      `json:"placeholder"`
-	ShouldFilter bool        `json:"shouldFilter"`
-	FilterType   string      `json:"filterType"`
-	Items        interface{} `json:"items"`
+	Placeholder string      `json:"placeholder"`
+	Items       interface{} `json:"items"`
 }
 
 type ServerTrayIconEventPayload struct {
@@ -174,6 +191,21 @@ type ServerActionRenderAnimeLibraryDropdownItemsEventPayload struct {
 }
 
 type ServerScreenReloadEventPayload struct{}
+
+type ServerCommandPaletteInfoEventPayload struct {
+	Placeholder      string `json:"placeholder"`
+	KeyboardShortcut string `json:"keyboardShortcut"`
+}
+
+type ServerCommandPaletteOpenEventPayload struct{}
+
+type ServerCommandPaletteCloseEventPayload struct{}
+
+type ServerCommandPaletteGetInputEventPayload struct{}
+
+type ServerCommandPaletteSetInputEventPayload struct {
+	Value string `json:"value"`
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

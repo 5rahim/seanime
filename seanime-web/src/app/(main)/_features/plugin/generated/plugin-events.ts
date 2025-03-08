@@ -8,7 +8,11 @@ export enum PluginClientEvents {
     TrayOpened = "tray:opened",
     TrayClosed = "tray:closed",
     TrayClicked = "tray:clicked",
+    ListCommandPalettes = "command-palette:list",
+    CommandPaletteOpened = "command-palette:opened",
+    CommandPaletteClosed = "command-palette:closed",
     RenderCommandPalette = "command-palette:render",
+    CommandPaletteInput = "command-palette:input",
     CommandPaletteItemSelected = "command-palette:item-selected",
     ActionRenderAnimePageButtons = "action:anime-page-buttons:render",
     ActionRenderAnimePageDropdownItems = "action:anime-page-dropdown-items:render",
@@ -25,7 +29,12 @@ export enum PluginClientEvents {
 export enum PluginServerEvents {
     TrayUpdated = "tray:updated",
     TrayIcon = "tray:icon",
+    CommandPaletteInfo = "command-palette:info",
     CommandPaletteUpdated = "command-palette:updated",
+    CommandPaletteOpen = "command-palette:open",
+    CommandPaletteClose = "command-palette:close",
+    CommandPaletteGetInput = "command-palette:get-input",
+    CommandPaletteSetInput = "command-palette:set-input",
     ActionRenderAnimePageButtons = "action:anime-page-buttons:updated",
     ActionRenderAnimePageDropdownItems = "action:anime-page-dropdown-items:updated",
     ActionRenderMangaPageButtons = "action:manga-page-buttons:updated",
@@ -113,6 +122,48 @@ export function usePluginSendTrayClickedEvent() {
     }
 }
 
+export type Plugin_Client_ListCommandPalettesEventPayload = {}
+
+export function usePluginSendListCommandPalettesEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendListCommandPalettesEvent = useCallback((payload: Plugin_Client_ListCommandPalettesEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.ListCommandPalettes, payload, extensionID)
+    }, [])
+
+    return {
+        sendListCommandPalettesEvent,
+    }
+}
+
+export type Plugin_Client_CommandPaletteOpenedEventPayload = {}
+
+export function usePluginSendCommandPaletteOpenedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendCommandPaletteOpenedEvent = useCallback((payload: Plugin_Client_CommandPaletteOpenedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.CommandPaletteOpened, payload, extensionID)
+    }, [])
+
+    return {
+        sendCommandPaletteOpenedEvent,
+    }
+}
+
+export type Plugin_Client_CommandPaletteClosedEventPayload = {}
+
+export function usePluginSendCommandPaletteClosedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendCommandPaletteClosedEvent = useCallback((payload: Plugin_Client_CommandPaletteClosedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.CommandPaletteClosed, payload, extensionID)
+    }, [])
+
+    return {
+        sendCommandPaletteClosedEvent,
+    }
+}
+
 export type Plugin_Client_RenderCommandPaletteEventPayload = {}
 
 export function usePluginSendRenderCommandPaletteEvent() {
@@ -124,6 +175,22 @@ export function usePluginSendRenderCommandPaletteEvent() {
 
     return {
         sendRenderCommandPaletteEvent,
+    }
+}
+
+export type Plugin_Client_CommandPaletteInputEventPayload = {
+    value: string
+}
+
+export function usePluginSendCommandPaletteInputEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendCommandPaletteInputEvent = useCallback((payload: Plugin_Client_CommandPaletteInputEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.CommandPaletteInput, payload, extensionID)
+    }, [])
+
+    return {
+        sendCommandPaletteInputEvent,
     }
 }
 
@@ -340,10 +407,23 @@ export function usePluginListenTrayIconEvent(cb: (payload: Plugin_Server_TrayIco
     })
 }
 
+export type Plugin_Server_CommandPaletteInfoEventPayload = {
+    placeholder: string
+    keyboardShortcut: string
+}
+
+export function usePluginListenCommandPaletteInfoEvent(cb: (payload: Plugin_Server_CommandPaletteInfoEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteInfoEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.CommandPaletteInfo,
+        onMessage: cb,
+    })
+}
+
 export type Plugin_Server_CommandPaletteUpdatedEventPayload = {
     placeholder: string
-    shouldFilter: boolean
-    filterType: string
     items: any
 }
 
@@ -353,6 +433,56 @@ export function usePluginListenCommandPaletteUpdatedEvent(cb: (payload: Plugin_S
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteUpdatedEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteUpdated,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_CommandPaletteOpenEventPayload = {}
+
+export function usePluginListenCommandPaletteOpenEvent(cb: (payload: Plugin_Server_CommandPaletteOpenEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteOpenEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.CommandPaletteOpen,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_CommandPaletteCloseEventPayload = {}
+
+export function usePluginListenCommandPaletteCloseEvent(cb: (payload: Plugin_Server_CommandPaletteCloseEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteCloseEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.CommandPaletteClose,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_CommandPaletteGetInputEventPayload = {}
+
+export function usePluginListenCommandPaletteGetInputEvent(cb: (payload: Plugin_Server_CommandPaletteGetInputEventPayload,
+    extensionId: string,
+) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteGetInputEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.CommandPaletteGetInput,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_CommandPaletteSetInputEventPayload = {
+    value: string
+}
+
+export function usePluginListenCommandPaletteSetInputEvent(cb: (payload: Plugin_Server_CommandPaletteSetInputEventPayload,
+    extensionId: string,
+) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteSetInputEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.CommandPaletteSetInput,
         onMessage: cb,
     })
 }

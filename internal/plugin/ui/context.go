@@ -67,6 +67,7 @@ type EventListener struct {
 	ID       string
 	ListenTo []ClientEventType       // Optional event type to listen for
 	Channel  chan *ClientPluginEvent // Channel for the event payload
+	closed   bool
 }
 
 func NewContext(ui *UI) *Context {
@@ -139,6 +140,15 @@ func (c *Context) RegisterEventListener(events ...ClientEventType) *EventListene
 	}
 	c.eventListeners.Set(id, listener)
 	return listener
+}
+
+func (c *Context) UnregisterEventListener(id string) {
+	listener, ok := c.eventListeners.Get(id)
+	if !ok {
+		return
+	}
+	close(listener.Channel)
+	c.eventListeners.Delete(id)
 }
 
 // SendEventToClient sends an event to the client

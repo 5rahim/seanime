@@ -1,5 +1,4 @@
 import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
-import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { cn } from "@/components/ui/core/styling"
 import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
@@ -8,13 +7,8 @@ import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from ".
 
 
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
-// FIXME
-// TODO Remove
-// export const __plugin_trayIconsAtom = atomWithStorage<TrayIcon[]>("TEST_ONLY-plugin-tray-icons", [], undefined, { getOnInit: true })
 
 export function PluginSidebarTray() {
-    const { sendMessage } = useWebsocketSender()
-
     const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
 
     /**

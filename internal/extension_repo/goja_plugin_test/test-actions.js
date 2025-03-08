@@ -10,7 +10,7 @@ function init() {
 
         const cmd = ctx.newCommandPalette({
             placeholder: "Search for something",
-            shouldFilter: "includes",
+            keyboardShortcut: "t",
         })
 
         function renderOther() {
@@ -26,32 +26,47 @@ function init() {
                         })
                     },
                     onSelect: () => {
+                        ctx.toast.info("Test Item 2 Clicked, Input: " + cmd.getInput());
+                        renderFirst();
                     },
                 }
             ])
         }
 
-        cmd.setItems([
-            {
-                value: "Test Item 1",
-                render: () => {
-                    return cmd.stack({
-                        items: [
-                            cmd.text("Test Item 1"),
-                            cmd.text("Test Item 1 Description", {style: {color: "gray"}}),
-                        ]
-                    })
+        function renderFirst() {
+            cmd.setItems([
+                {
+                    value: "Test Item 1",
+                    render: () => {
+                        return cmd.stack({
+                            items: [
+                                cmd.text("Test Item 1"),
+                                cmd.text("Test Item 1 Description", {style: {color: "gray"}}),
+                            ]
+                        })
+                    },
+                    filterType: "includes",
+                    onSelect: () => {
+                        ctx.toast.info("Test Item 1 Clicked, Input: " + cmd.getInput());
+                        cmd.setInput("Test Item 1");
+                        ctx.setTimeout(() => {
+                            cmd.close();
+                            renderOther();
+                        }, 1000);
+                    }
                 },
-                onSelect: () => {
-                    ctx.toast.info("Test Item 1 Clicked");
-                    ctx.setTimeout(() => {
-                        cmd.close();
-                        renderOther();
-                    }, 1000);
+                {
+                    value: "Test Item 2",
+                    label: "Label 2",
+                    filterType: "includes",
+                    onSelect: () => {
+                        ctx.toast.info("Test Item 2 Clicked, Input: " + cmd.getInput());
+                    }
                 }
-            },
+            ])
+        }
 
-        ])
+        renderFirst();
 
         tray.onClick(() => {
             cmd.open();

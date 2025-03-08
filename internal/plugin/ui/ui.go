@@ -125,6 +125,12 @@ func (u *UI) Register(callback string) {
 						case ClientActionRenderMediaCardContextMenuItemsEvent: // Client wants to update the media card context menu items
 							u.context.actionManager.renderMediaCardContextMenuItems()
 
+						case ClientRenderCommandPaletteEvent: // Client wants to render the command palette
+							u.context.commandPaletteManager.renderCommandPaletteScheduled()
+
+						case ClientListCommandPalettesEvent: // Client wants to list all command palettes
+							u.context.commandPaletteManager.sendInfoToClient()
+
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
 								//util.SpewMany("Event to listeners", event.Payload)

@@ -1,5 +1,6 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
+import { PluginCommandPalettes } from "./command/plugin-command-palettes"
 import { usePluginListenScreenNavigateToEvent, usePluginListenScreenReloadEvent, usePluginSendScreenChangedEvent } from "./generated/plugin-events"
 
 export function PluginManager() {
@@ -32,5 +33,7 @@ export function PluginManager() {
         router.refresh()
     }, "") // Listen to all plugins
 
-    return <></>
+    return <>
+        <PluginCommandPalettes />
+    </>
 }
