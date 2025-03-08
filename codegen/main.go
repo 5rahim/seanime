@@ -1,4 +1,4 @@
-//go:generate go run main.go --skipHandlers=true --skipStructs=true --skipTypes=true --skipPluginEvents=false
+//go:generate go run main.go --skipHandlers=true --skipStructs=false --skipTypes=false --skipPluginEvents=true --skipHookEvents=false
 package main
 
 import (
@@ -20,6 +20,9 @@ func main() {
 	var skipPluginEvents bool
 	flag.BoolVar(&skipPluginEvents, "skipPluginEvents", false, "Skip generating plugin events")
 
+	var skipHookEvents bool
+	flag.BoolVar(&skipHookEvents, "skipHookEvents", false, "Skip generating hook events")
+
 	flag.Parse()
 
 	if !skipHandlers {
@@ -37,6 +40,10 @@ func main() {
 
 	if !skipPluginEvents {
 		codegen.GeneratePluginEventFile("../internal/plugin/ui/events.go", "../seanime-web/src/app/(main)/_features/plugin/generated")
+	}
+
+	if !skipHookEvents {
+		codegen.GeneratePluginHooksDefinitionFile("../internal/extension_repo/goja_plugin_types", "./generated/public_structs.json", "./generated")
 	}
 
 }

@@ -71,14 +71,13 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 
 	fillerEvent := new(anime.AnimeEntryFillerHydrationEvent)
 	fillerEvent.Entry = entry
-	fillerEvent.SkipDefault = lo.ToPtr(false)
 	err = hook.GlobalHookManager.OnAnimeEntryFillerHydration().Trigger(fillerEvent)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 	entry = fillerEvent.Entry
 
-	if fillerEvent.SkipDefault == nil || !*fillerEvent.SkipDefault {
+	if fillerEvent.DefaultPrevented {
 		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
 	}
 

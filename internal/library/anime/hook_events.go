@@ -24,11 +24,10 @@ type AnimeEntryEvent struct {
 }
 
 // AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry.
+// Prevent default to avoid adding the filler data.
 type AnimeEntryFillerHydrationEvent struct {
 	hook_resolver.Event
-	// If true, the default filler data will not be added to the media entry.
-	SkipDefault *bool  `json:"skipDefault"`
-	Entry       *Entry `json:"entry"`
+	Entry *Entry `json:"entry"`
 }
 
 // AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry.

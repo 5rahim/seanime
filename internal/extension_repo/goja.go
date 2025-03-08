@@ -88,7 +88,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		}
 	}
 
-	vm.Set("toString", func(raw any, maxReaderBytes int) (string, error) {
+	vm.Set("$toString", func(raw any, maxReaderBytes int) (string, error) {
 		switch v := raw.(type) {
 		case io.Reader:
 			if maxReaderBytes == 0 {
@@ -116,11 +116,11 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		}
 	})
 
-	vm.Set("sleep", func(milliseconds int64) {
+	vm.Set("$sleep", func(milliseconds int64) {
 		time.Sleep(time.Duration(milliseconds) * time.Millisecond)
 	})
 
-	vm.Set("arrayOf", func(model any) any {
+	vm.Set("$arrayOf", func(model any) any {
 		mt := reflect.TypeOf(model)
 		st := cachedArrayOfTypes.GetOrSet(mt, func() reflect.Type {
 			return reflect.SliceOf(mt)
@@ -129,7 +129,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return reflect.New(st).Elem().Addr().Interface()
 	})
 
-	vm.Set("unmarshal", func(data, dst any) error {
+	vm.Set("$unmarshal", func(data, dst any) error {
 		raw, err := json.Marshal(data)
 		if err != nil {
 			return err
@@ -138,7 +138,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return json.Unmarshal(raw, &dst)
 	})
 
-	vm.Set("Context", func(call goja.ConstructorCall) *goja.Object {
+	vm.Set("$Context", func(call goja.ConstructorCall) *goja.Object {
 		var instance context.Context
 
 		oldCtx, ok := call.Argument(0).Export().(context.Context)

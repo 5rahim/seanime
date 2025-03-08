@@ -42,7 +42,7 @@ func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, e
 	storageObj := vm.NewObject()
 	_ = storageObj.Set("get", storage.Get)
 	_ = storageObj.Set("set", storage.Set)
-	_ = storageObj.Set("delete", storage.Delete)
+	_ = storageObj.Set("remove", storage.Delete)
 	_ = storageObj.Set("drop", storage.Drop)
 	_ = storageObj.Set("clear", storage.Clear)
 	_ = storageObj.Set("keys", storage.Keys)

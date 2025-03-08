@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"unicode"
 )
 
 type GoStruct struct {
@@ -49,6 +50,7 @@ type GoStructField struct {
 var typePrefixesByPackage = map[string]string{
 	"anilist":                "AL_",
 	"auto_downloader":        "AutoDownloader_",
+	"autodownloader":         "AutoDownloader_",
 	"entities":               "",
 	"db":                     "DB_",
 	"db_bridge":              "DB_",
@@ -636,6 +638,12 @@ func jsonFieldName(field *ast.Field) string {
 		jsonTag := tag.Get("json")
 		if jsonTag != "" {
 			jsonParts := strings.Split(jsonTag, ",")
+			if jsonParts[0] == "-" {
+				return ""
+			}
+			if jsonParts[0] != "" {
+				return jsonParts[0]
+			}
 			return jsonParts[0]
 		}
 	}
@@ -652,4 +660,45 @@ func jsonFieldOmitEmpty(field *ast.Field) bool {
 		}
 	}
 	return false
+}
+
+func isCustomStruct(goType string) bool {
+	return goTypeToTypescriptType(goType) == "unknown"
+}
+
+var nameExceptions = map[string]string{"OAuth2": "oauth2"}
+
+func convertGoToJSName(name string) string {
+	if v, ok := nameExceptions[name]; ok {
+		return v
+	}
+
+	startUppercase := make([]rune, 0, len(name))
+
+	for _, c := range name {
+		if c != '_' && !unicode.IsUpper(c) && !unicode.IsDigit(c) {
+			break
+		}
+
+		startUppercase = append(startUppercase, c)
+	}
+
+	totalStartUppercase := len(startUppercase)
+
+	// all uppercase eg. "JSON" -> "json"
+	if len(name) == totalStartUppercase {
+		return strings.ToLower(name)
+	}
+
+	// eg. "JSONField" -> "jsonField"
+	if totalStartUppercase > 1 {
+		return strings.ToLower(name[0:totalStartUppercase-1]) + name[totalStartUppercase-1:]
+	}
+
+	// eg. "GetField" -> "getField"
+	if totalStartUppercase == 1 {
+		return strings.ToLower(name[0:1]) + name[1:]
+	}
+
+	return name
 }

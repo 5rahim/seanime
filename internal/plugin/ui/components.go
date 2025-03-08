@@ -198,6 +198,7 @@ func (c *ComponentManager) jsCheckbox(call goja.FunctionCall) goja.Value {
 func (c *ComponentManager) jsRadioGroup(call goja.FunctionCall) goja.Value {
 	return defineComponent(c.ctx.vm, call, "radioGroup", []ComponentProp{
 		{Name: "label", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
+		{Name: "value", Type: "string", Required: false, Default: "", Validate: validateType("string")},
 		{
 			Name:     "options",
 			Type:     "array",

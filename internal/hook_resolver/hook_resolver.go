@@ -26,9 +26,10 @@ var _ Resolver = (*Event)(nil)
 //		SomeField int
 //	}
 type Event struct {
-	next func() error
+	next           func() error
+	preventDefault func()
 
-	DefaultPrevented bool
+	DefaultPrevented bool `json:"defaultPrevented"`
 }
 
 // Next calls the next hook handler.

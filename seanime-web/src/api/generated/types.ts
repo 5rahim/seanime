@@ -1956,6 +1956,32 @@ export type DebridClient_StreamStatus = "downloading" | "ready" | "failed" | "st
  * - Filepath: internal/extension/extension.go
  * - Filename: extension.go
  * - Package: extension
+ * @description
+ *  CommandArg represents an argument for a command
+ */
+export type Extension_CommandArg = {
+    value?: string
+    validator?: string
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ * @description
+ *  CommandScope defines a specific command or set of commands that can be executed
+ *  with specific arguments and validation rules.
+ */
+export type Extension_CommandScope = {
+    description?: string
+    command: string
+    args?: Array<Extension_CommandArg>
+}
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
  */
 export type Extension_ConfigField = {
     type: Extension_ConfigFieldType
@@ -2066,7 +2092,9 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Package: extension
  */
 export type Extension_PluginManifest = {
+    version: string
     permissions?: Array<Extension_PluginPermission>
+    systemAllowlist?: Extension_PluginSystemAllowlist
 }
 
 /**
@@ -2075,6 +2103,43 @@ export type Extension_PluginManifest = {
  * - Package: extension
  */
 export type Extension_PluginPermission = string
+
+/**
+ * - Filepath: internal/extension/extension.go
+ * - Filename: extension.go
+ * - Package: extension
+ * @description
+ *  PluginSystemAllowlist is a list of system permissions that the plugin is asking for.
+ *
+ *  The user must acknowledge these permissions before the plugin can be loaded.
+ *
+ *  Path examples:
+ *  - "$HOME/**/
+*
+" - All files in the user's home directory and subdirectories
+* -"$ANIME_LIBRARY/**/*" - All
+files in the
+anime
+library
+and
+subdirectories
+* -"$SEANIME_ASSETS/*" - All
+files in the
+seanime
+assets
+folder, not
+including
+subdirectories
+* -"C:/Users/*/Downloads/**/*" - All
+files in the
+user
+'s downloads folder and subdirectories
+* /
+export type Extension_PluginSystemAllowlist = {
+    allowReadPaths?: Array<string>
+    allowWritePaths?: Array<string>
+    commandScopes?: Array<Extension_CommandScope>
+}
 
 /**
  * - Filepath: internal/extension/extension.go

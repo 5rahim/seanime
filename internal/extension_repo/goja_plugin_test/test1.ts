@@ -1,8 +1,13 @@
+/// <reference path="../goja_plugin_types/plugin.d.ts" />
+/// <reference path="../goja_plugin_types/hooks.d.ts" />
+/// <reference path="../goja_plugin_types/system.d.ts" />
+
 function init() {
     $ui.register((ctx) => {
         const tray = ctx.newTray({
             tooltipText: "Test Plugin",
             iconUrl: "https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png",
+            withContent: true,
         });
 
         const currentMediaId = ctx.state(0);
@@ -100,19 +105,21 @@ function init() {
     })
 
     $app.onGetAnime((e) => {
-        $store.set("mediaIds", e.anime.id);
+        $store.set("mediaIds", e.anime?.id)
         e.next();
     });
 
 
     $app.onGetAnimeCollection((e) => {
         const bannerImages = $storage.get('backgroundImages');
-        for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-            for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-                const mediaId = e.animeCollection.mediaListCollection.lists[i].entries[j].media.id;
-                const bannerImage = bannerImages[mediaId.toString()] || "";
-                if (!!bannerImage) {
-                    $replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.bannerImage, bannerImage);
+        if (!!e.animeCollection?.mediaListCollection?.lists?.length) {
+            for (let i = 0; i < e.animeCollection?.mediaListCollection?.lists?.length; i++) {
+                for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries!.length; j++) {
+                    const mediaId = e.animeCollection!.mediaListCollection!.lists[i]!.entries![j]!.media!.id
+                    const bannerImage = bannerImages[mediaId.toString()] || ""
+                    if (!!bannerImage) {
+                        $replace(e.animeCollection!.mediaListCollection!.lists[i]!.entries![j]!.media!.bannerImage, bannerImage)
+                    }
                 }
             }
         }
@@ -120,13 +127,13 @@ function init() {
     });
 
     $app.onGetRawAnimeCollection((e) => {
-        const bannerImages = $storage.get('backgroundImages');
-        for (let i = 0; i < e.animeCollection.mediaListCollection.lists.length; i++) {
-            for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries.length; j++) {
-                const mediaId = e.animeCollection.mediaListCollection.lists[i].entries[j].media.id;
+        const bannerImages = $storage.get<Record<string, string>>("backgroundImages")
+        for (let i = 0; i < e.animeCollection!.mediaListCollection!.lists!.length; i++) {
+            for (let j = 0; j < e.animeCollection!.mediaListCollection!.lists![i]!.entries!.length; j++) {
+                const mediaId = e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.id
                 const bannerImage = bannerImages[mediaId.toString()] || "";
                 if (!!bannerImage) {
-                    $replace(e.animeCollection.mediaListCollection.lists[i].entries[j].media.bannerImage, bannerImage);
+                    $replace(e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.bannerImage, bannerImage)
                 }
             }
         }

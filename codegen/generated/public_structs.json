@@ -25373,7 +25373,7 @@
         "name": "AutoDownloader",
         "jsonName": "AutoDownloader",
         "goType": "autodownloader.AutoDownloader",
-        "typescriptType": "AutoDownloader",
+        "typescriptType": "AutoDownloader_AutoDownloader",
         "usedStructName": "autodownloader.AutoDownloader",
         "required": false,
         "public": true,
@@ -32054,6 +32054,15 @@
     "package": "extension",
     "fields": [
       {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "Permissions",
         "jsonName": "permissions",
         "goType": "[]PluginPermission",
@@ -32062,9 +32071,138 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "SystemAllowlist",
+        "jsonName": "systemAllowlist",
+        "goType": "PluginSystemAllowlist",
+        "typescriptType": "Extension_PluginSystemAllowlist",
+        "usedStructName": "extension.PluginSystemAllowlist",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "PluginSystemAllowlist",
+    "formattedName": "Extension_PluginSystemAllowlist",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "AllowReadPaths",
+        "jsonName": "allowReadPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AllowWritePaths",
+        "jsonName": "allowWritePaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CommandScopes",
+        "jsonName": "commandScopes",
+        "goType": "[]CommandScope",
+        "typescriptType": "Array\u003cExtension_CommandScope\u003e",
+        "usedStructName": "extension.CommandScope",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " PluginSystemAllowlist is a list of system permissions that the plugin is asking for.",
+      "",
+      " The user must acknowledge these permissions before the plugin can be loaded.",
+      "",
+      " Path examples:",
+      " - \"$HOME/**/*\" - All files in the user's home directory and subdirectories",
+      " - \"$ANIME_LIBRARY/**/*\" - All files in the anime library and subdirectories",
+      " - \"$SEANIME_ASSETS/*\" - All files in the seanime assets folder, not including subdirectories",
+      " - \"C:/Users/*/Downloads/**/*\" - All files in the user's downloads folder and subdirectories"
+    ]
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "CommandScope",
+    "formattedName": "Extension_CommandScope",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Command",
+        "jsonName": "command",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Args",
+        "jsonName": "args",
+        "goType": "[]CommandArg",
+        "typescriptType": "Array\u003cExtension_CommandArg\u003e",
+        "usedStructName": "extension.CommandArg",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CommandScope defines a specific command or set of commands that can be executed",
+      " with specific arguments and validation rules."
+    ]
+  },
+  {
+    "filepath": "../internal/extension/extension.go",
+    "filename": "extension.go",
+    "name": "CommandArg",
+    "formattedName": "Extension_CommandArg",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Validator",
+        "jsonName": "validator",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CommandArg represents an argument for a command"
+    ]
   },
   {
     "filepath": "../internal/extension/extension.go",
@@ -36184,8 +36322,17 @@
         "comments": []
       },
       {
+        "name": "preventDefault",
+        "jsonName": "preventDefault",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "DefaultPrevented",
-        "jsonName": "DefaultPrevented",
+        "jsonName": "defaultPrevented",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -37907,15 +38054,6 @@
     "package": "anime",
     "fields": [
       {
-        "name": "SkipDefault",
-        "jsonName": "skipDefault",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
         "name": "Entry",
         "jsonName": "entry",
         "goType": "Entry",
@@ -37927,7 +38065,8 @@
       }
     ],
     "comments": [
-      " AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry."
+      " AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry.",
+      " Prevent default to avoid adding the filler data."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38827,7 +38966,7 @@
     "filepath": "../internal/library/autodownloader/autodownloader.go",
     "filename": "autodownloader.go",
     "name": "AutoDownloader",
-    "formattedName": "AutoDownloader",
+    "formattedName": "AutoDownloader_AutoDownloader",
     "package": "autodownloader",
     "fields": [
       {
@@ -38972,7 +39111,7 @@
     "filepath": "../internal/library/autodownloader/autodownloader.go",
     "filename": "autodownloader.go",
     "name": "NewAutoDownloaderOptions",
-    "formattedName": "NewAutoDownloaderOptions",
+    "formattedName": "AutoDownloader_NewAutoDownloaderOptions",
     "package": "autodownloader",
     "fields": [
       {
@@ -39052,12 +39191,12 @@
     "filepath": "../internal/library/autodownloader/autodownloader_torrent.go",
     "filename": "autodownloader_torrent.go",
     "name": "NormalizedTorrent",
-    "formattedName": "NormalizedTorrent",
+    "formattedName": "AutoDownloader_NormalizedTorrent",
     "package": "autodownloader",
     "fields": [
       {
         "name": "ParsedData",
-        "jsonName": "ParsedData",
+        "jsonName": "parsedData",
         "goType": "habari.Metadata",
         "typescriptType": "Metadata",
         "usedStructName": "habari.Metadata",
@@ -39086,7 +39225,7 @@
     "filepath": "../internal/library/autodownloader/hook_events.go",
     "filename": "hook_events.go",
     "name": "AutoDownloaderRunStartedEvent",
-    "formattedName": "AutoDownloaderRunStartedEvent",
+    "formattedName": "AutoDownloader_AutoDownloaderRunStartedEvent",
     "package": "autodownloader",
     "fields": [
       {
@@ -39112,14 +39251,14 @@
     "filepath": "../internal/library/autodownloader/hook_events.go",
     "filename": "hook_events.go",
     "name": "AutoDownloaderTorrentsFetchedEvent",
-    "formattedName": "AutoDownloaderTorrentsFetchedEvent",
+    "formattedName": "AutoDownloader_AutoDownloaderTorrentsFetchedEvent",
     "package": "autodownloader",
     "fields": [
       {
         "name": "Torrents",
         "jsonName": "torrents",
         "goType": "[]NormalizedTorrent",
-        "typescriptType": "Array\u003cNormalizedTorrent\u003e",
+        "typescriptType": "Array\u003cAutoDownloader_NormalizedTorrent\u003e",
         "usedStructName": "autodownloader.NormalizedTorrent",
         "required": false,
         "public": true,
@@ -39137,14 +39276,14 @@
     "filepath": "../internal/library/autodownloader/hook_events.go",
     "filename": "hook_events.go",
     "name": "AutoDownloaderMatchVerifiedEvent",
-    "formattedName": "AutoDownloaderMatchVerifiedEvent",
+    "formattedName": "AutoDownloader_AutoDownloaderMatchVerifiedEvent",
     "package": "autodownloader",
     "fields": [
       {
         "name": "Torrent",
         "jsonName": "torrent",
         "goType": "NormalizedTorrent",
-        "typescriptType": "NormalizedTorrent",
+        "typescriptType": "AutoDownloader_NormalizedTorrent",
         "usedStructName": "autodownloader.NormalizedTorrent",
         "required": false,
         "public": true,
@@ -39210,7 +39349,7 @@
     "filepath": "../internal/library/autodownloader/hook_events.go",
     "filename": "hook_events.go",
     "name": "AutoDownloaderSettingsUpdatedEvent",
-    "formattedName": "AutoDownloaderSettingsUpdatedEvent",
+    "formattedName": "AutoDownloader_AutoDownloaderSettingsUpdatedEvent",
     "package": "autodownloader",
     "fields": [
       {
@@ -39367,7 +39506,7 @@
         "name": "autoDownloader",
         "jsonName": "autoDownloader",
         "goType": "autodownloader.AutoDownloader",
-        "typescriptType": "AutoDownloader",
+        "typescriptType": "AutoDownloader_AutoDownloader",
         "usedStructName": "autodownloader.AutoDownloader",
         "required": false,
         "public": false,
@@ -39457,7 +39596,7 @@
         "name": "AutoDownloader",
         "jsonName": "AutoDownloader",
         "goType": "autodownloader.AutoDownloader",
-        "typescriptType": "AutoDownloader",
+        "typescriptType": "AutoDownloader_AutoDownloader",
         "usedStructName": "autodownloader.AutoDownloader",
         "required": false,
         "public": true,
@@ -50450,6 +50589,15 @@
         "comments": []
       },
       {
+        "name": "AnimeLibraryPaths",
+        "jsonName": "AnimeLibraryPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "AnilistPlatform",
         "jsonName": "AnilistPlatform",
         "goType": "platform.Platform",
@@ -50528,6 +50676,15 @@
         "comments": []
       },
       {
+        "name": "animeLibraryPaths",
+        "jsonName": "animeLibraryPaths",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "wsEventManager",
         "jsonName": "wsEventManager",
         "goType": "",
@@ -50594,6 +50751,270 @@
     "comments": []
   },
   {
+    "filepath": "../internal/plugin/cron.go",
+    "filename": "cron.go",
+    "name": "Cron",
+    "formattedName": "Cron",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "timezone",
+        "jsonName": "timezone",
+        "goType": "time.Location",
+        "typescriptType": "Location",
+        "usedStructName": "time.Location",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ticker",
+        "jsonName": "ticker",
+        "goType": "time.Ticker",
+        "typescriptType": "Ticker",
+        "usedStructName": "time.Ticker",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "startTimer",
+        "jsonName": "startTimer",
+        "goType": "time.Timer",
+        "typescriptType": "Timer",
+        "usedStructName": "time.Timer",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "tickerDone",
+        "jsonName": "tickerDone",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "jobs",
+        "jsonName": "jobs",
+        "goType": "[]CronJob",
+        "typescriptType": "Array\u003cCronJob\u003e",
+        "usedStructName": "plugin.CronJob",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "interval",
+        "jsonName": "interval",
+        "goType": "time.Duration",
+        "typescriptType": "Duration",
+        "usedStructName": "time.Duration",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mux",
+        "jsonName": "mux",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "goja_util.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedStructName": "goja_util.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Cron is a crontab-like struct for tasks/jobs scheduling."
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/cron.go",
+    "filename": "cron.go",
+    "name": "CronJob",
+    "formattedName": "CronJob",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "fn",
+        "jsonName": "fn",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "schedule",
+        "jsonName": "schedule",
+        "goType": "Schedule",
+        "typescriptType": "Schedule",
+        "usedStructName": "plugin.Schedule",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "id",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "goja_util.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedStructName": "goja_util.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CronJob defines a single registered cron job."
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/cron.go",
+    "filename": "cron.go",
+    "name": "Moment",
+    "formattedName": "Moment",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "Minute",
+        "jsonName": "minute",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hour",
+        "jsonName": "hour",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Day",
+        "jsonName": "day",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Month",
+        "jsonName": "month",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DayOfWeek",
+        "jsonName": "dayOfWeek",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Moment represents a parsed single time moment."
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/cron.go",
+    "filename": "cron.go",
+    "name": "Schedule",
+    "formattedName": "Schedule",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "Minutes",
+        "jsonName": "minutes",
+        "goType": "map[int]__STRUCT__",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Hours",
+        "jsonName": "hours",
+        "goType": "map[int]__STRUCT__",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Days",
+        "jsonName": "days",
+        "goType": "map[int]__STRUCT__",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Months",
+        "jsonName": "months",
+        "goType": "map[int]__STRUCT__",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "DaysOfWeek",
+        "jsonName": "daysOfWeek",
+        "goType": "map[int]__STRUCT__",
+        "typescriptType": "Record\u003cnumber, { }\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "rawExpr",
+        "jsonName": "rawExpr",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Schedule stores parsed information for each time component when a cron job should run."
+    ]
+  },
+  {
     "filepath": "../internal/plugin/database.go",
     "filename": "database.go",
     "name": "Database",
@@ -50624,119 +51045,23 @@
     "comments": []
   },
   {
-    "filepath": "../internal/plugin/filesystem.go",
-    "filename": "filesystem.go",
-    "name": "File",
-    "formattedName": "File",
+    "filepath": "../internal/plugin/downloader.go",
+    "filename": "downloader.go",
+    "name": "DownloadStatus",
+    "formattedName": "DownloadStatus",
     "package": "plugin",
-    "fields": [
-      {
-        "name": "Reader",
-        "jsonName": "-",
-        "goType": "FileReader",
-        "typescriptType": "FileReader",
-        "usedStructName": "plugin.FileReader",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "OriginalName",
-        "jsonName": "originalName",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Size",
-        "jsonName": "size",
-        "goType": "int64",
-        "typescriptType": "number",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " File defines a single file [io.ReadSeekCloser] resource.",
-      "",
-      " The file could be from a local path, multipart/form-data header, etc."
-    ]
-  },
-  {
-    "filepath": "../internal/plugin/filesystem.go",
-    "filename": "filesystem.go",
-    "name": "MultipartReader",
-    "formattedName": "MultipartReader",
-    "package": "plugin",
-    "fields": [
-      {
-        "name": "Header",
-        "jsonName": "Header",
-        "goType": "multipart.FileHeader",
-        "typescriptType": "FileHeader",
-        "usedStructName": "multipart.FileHeader",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " MultipartReader defines a FileReader from [multipart.FileHeader]."
-    ]
-  },
-  {
-    "filepath": "../internal/plugin/filesystem.go",
-    "filename": "filesystem.go",
-    "name": "PathReader",
-    "formattedName": "PathReader",
-    "package": "plugin",
-    "fields": [
-      {
-        "name": "Path",
-        "jsonName": "Path",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " PathReader defines a FileReader from a local file path."
-    ]
-  },
-  {
-    "filepath": "../internal/plugin/filesystem.go",
-    "filename": "filesystem.go",
-    "name": "BytesReader",
-    "formattedName": "BytesReader",
-    "package": "plugin",
-    "fields": [
-      {
-        "name": "Bytes",
-        "jsonName": "Bytes",
-        "goType": "string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " BytesReader defines a FileReader from bytes content."
-    ]
+    "fields": [],
+    "aliasOf": {
+      "goType": "string",
+      "typescriptType": "string",
+      "declaredValues": [
+        "\"downloading\"",
+        "\"completed\"",
+        "\"cancelled\"",
+        "\"error\""
+      ]
+    },
+    "comments": []
   },
   {
     "filepath": "../internal/plugin/playback.go",
@@ -51201,20 +51526,7 @@
         "typescriptType": "any",
         "required": false,
         "public": false,
-        "comments": [
-          " Keyed by ID"
-        ]
-      },
-      {
-        "name": "animeLibraryDropdownItems",
-        "jsonName": "animeLibraryDropdownItems",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": [
-          " Keyed by ID"
-        ]
+        "comments": []
       },
       {
         "name": "animePageDropdownItems",
@@ -51223,9 +51535,16 @@
         "typescriptType": "any",
         "required": false,
         "public": false,
-        "comments": [
-          " Keyed by ID"
-        ]
+        "comments": []
+      },
+      {
+        "name": "animeLibraryDropdownItems",
+        "jsonName": "animeLibraryDropdownItems",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       },
       {
         "name": "mangaPageButtons",
@@ -51234,9 +51553,7 @@
         "typescriptType": "any",
         "required": false,
         "public": false,
-        "comments": [
-          " Keyed by ID"
-        ]
+        "comments": []
       },
       {
         "name": "mediaCardContextMenuItems",
@@ -51245,9 +51562,7 @@
         "typescriptType": "any",
         "required": false,
         "public": false,
-        "comments": [
-          " Keyed by ID"
-        ]
+        "comments": []
       }
     ],
     "comments": [
@@ -51285,15 +51600,13 @@
         "comments": []
       },
       {
-        "name": "OnClick",
-        "jsonName": "onClick",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
+        "name": "Style",
+        "jsonName": "style",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
         "public": true,
-        "comments": [
-          " Event handler name"
-        ]
+        "comments": []
       }
     ],
     "comments": []
@@ -51301,31 +51614,13 @@
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "BaseActionImpl",
-    "formattedName": "BaseActionImpl",
+    "name": "BaseAction",
+    "formattedName": "BaseAction",
     "package": "plugin_ui",
-    "fields": [
-      {
-        "name": "actionManager",
-        "jsonName": "actionManager",
-        "goType": "ActionManager",
-        "typescriptType": "ActionManager",
-        "usedStructName": "plugin_ui.ActionManager",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
-        "name": "Map",
-        "jsonName": "Map",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
+    "fields": [],
+    "comments": [
+      " Base action struct that all action types embed"
     ],
-    "comments": [],
     "embeddedStructNames": [
       "plugin_ui.BaseActionProps"
     ]
@@ -51333,8 +51628,8 @@
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "BaseActionImplButton",
-    "formattedName": "BaseActionImplButton",
+    "name": "AnimePageButton",
+    "formattedName": "AnimePageButton",
     "package": "plugin_ui",
     "fields": [
       {
@@ -51342,62 +51637,60 @@
         "jsonName": "intent",
         "goType": "string",
         "typescriptType": "string",
-        "required": true,
+        "required": false,
         "public": true,
         "comments": []
       }
     ],
     "comments": [],
     "embeddedStructNames": [
-      "plugin_ui.BaseActionImpl"
+      "plugin_ui.BaseAction"
     ]
   },
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "AnimePageButtonAction",
-    "formattedName": "AnimePageButtonAction",
+    "name": "MangaPageButton",
+    "formattedName": "MangaPageButton",
     "package": "plugin_ui",
-    "fields": [],
+    "fields": [
+      {
+        "name": "Intent",
+        "jsonName": "intent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": [],
     "embeddedStructNames": [
-      "plugin_ui.BaseActionImplButton"
+      "plugin_ui.BaseAction"
     ]
   },
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "MangaPageButtonAction",
-    "formattedName": "MangaPageButtonAction",
+    "name": "AnimePageDropdownMenuItem",
+    "formattedName": "AnimePageDropdownMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
     "embeddedStructNames": [
-      "plugin_ui.BaseActionImplButton"
+      "plugin_ui.BaseAction"
     ]
   },
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "AnimePageDropdownMenuItemAction",
-    "formattedName": "AnimePageDropdownMenuItemAction",
+    "name": "AnimeLibraryDropdownMenuItem",
+    "formattedName": "AnimeLibraryDropdownMenuItem",
     "package": "plugin_ui",
     "fields": [],
     "comments": [],
     "embeddedStructNames": [
-      "plugin_ui.BaseActionImpl"
-    ]
-  },
-  {
-    "filepath": "../internal/plugin/ui/action.go",
-    "filename": "action.go",
-    "name": "AnimeLibraryDropdownMenuItemAction",
-    "formattedName": "AnimeLibraryDropdownMenuItemAction",
-    "package": "plugin_ui",
-    "fields": [],
-    "comments": [],
-    "embeddedStructNames": [
-      "plugin_ui.BaseActionImpl"
+      "plugin_ui.BaseAction"
     ]
   },
   {
@@ -51421,8 +51714,8 @@
   {
     "filepath": "../internal/plugin/ui/action.go",
     "filename": "action.go",
-    "name": "MediaCardContextMenuItemAction",
-    "formattedName": "MediaCardContextMenuItemAction",
+    "name": "MediaCardContextMenuItem",
+    "formattedName": "MediaCardContextMenuItem",
     "package": "plugin_ui",
     "fields": [
       {
@@ -51440,8 +51733,211 @@
     ],
     "comments": [],
     "embeddedStructNames": [
-      "plugin_ui.BaseActionImpl"
+      "plugin_ui.BaseAction"
     ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/command.go",
+    "filename": "command.go",
+    "name": "CommandPaletteManager",
+    "formattedName": "CommandPaletteManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "updateMutex",
+        "jsonName": "updateMutex",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "lastUpdated",
+        "jsonName": "lastUpdated",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "componentManager",
+        "jsonName": "componentManager",
+        "goType": "ComponentManager",
+        "typescriptType": "ComponentManager",
+        "usedStructName": "plugin_ui.ComponentManager",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "placeholder",
+        "jsonName": "placeholder",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "keyboardShortcut",
+        "jsonName": "keyboardShortcut",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "registered",
+        "jsonName": "registered",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "items",
+        "jsonName": "items",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "renderedItems",
+        "jsonName": "renderedItems",
+        "goType": "[]CommandItemJSON",
+        "typescriptType": "Array\u003cCommandItemJSON\u003e",
+        "usedStructName": "plugin_ui.CommandItemJSON",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Store rendered items when setItems is called"
+        ]
+      }
+    ],
+    "comments": [
+      " CommandPaletteManager is a manager for the command palette.",
+      " Unlike the Tray, command palette items are not reactive to state changes.",
+      " They are only rendered when the setItems function is called or the refresh function is called."
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/command.go",
+    "filename": "command.go",
+    "name": "CommandItemJSON",
+    "formattedName": "CommandItemJSON",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Index",
+        "jsonName": "index",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Label",
+        "jsonName": "label",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "FilterType",
+        "jsonName": "filterType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Heading",
+        "jsonName": "heading",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Components",
+        "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/command.go",
+    "filename": "command.go",
+    "name": "NewCommandPaletteOptions",
+    "formattedName": "NewCommandPaletteOptions",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Placeholder",
+        "jsonName": "placeholder",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "KeyboardShortcut",
+        "jsonName": "keyboardShortcut",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/plugin/ui/component_utils.go",
@@ -51849,6 +52345,18 @@
         "comments": [
           " Register and manage toasts"
         ]
+      },
+      {
+        "name": "commandPaletteManager",
+        "jsonName": "commandPaletteManager",
+        "goType": "CommandPaletteManager",
+        "typescriptType": "CommandPaletteManager",
+        "usedStructName": "plugin_ui.CommandPaletteManager",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Register and manage command palette"
+        ]
       }
     ],
     "comments": [
@@ -51922,6 +52430,15 @@
         "comments": [
           " Channel for the event payload"
         ]
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -51944,11 +52461,18 @@
         "\"tray:opened\"",
         "\"tray:closed\"",
         "\"tray:clicked\"",
+        "\"command-palette:list\"",
+        "\"command-palette:opened\"",
+        "\"command-palette:closed\"",
+        "\"command-palette:render\"",
+        "\"command-palette:input\"",
+        "\"command-palette:item-selected\"",
         "\"action:anime-page-buttons:render\"",
         "\"action:anime-page-dropdown-items:render\"",
         "\"action:manga-page-buttons:render\"",
         "\"action:media-card-context-menu-items:render\"",
         "\"action:anime-library-dropdown-items:render\"",
+        "\"action:clicked\"",
         "\"form:submitted\"",
         "\"screen:changed\"",
         "\"handler:triggered\"",
@@ -52054,6 +52578,15 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientActionRenderAnimePageDropdownItemsEventPayload",
+    "formattedName": "ClientActionRenderAnimePageDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ClientActionRenderMangaPageButtonsEventPayload",
     "formattedName": "ClientActionRenderMangaPageButtonsEventPayload",
     "package": "plugin_ui",
@@ -52067,6 +52600,70 @@
     "formattedName": "ClientActionRenderMediaCardContextMenuItemsEventPayload",
     "package": "plugin_ui",
     "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "formattedName": "ClientActionRenderAnimeLibraryDropdownItemsEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientListCommandPalettesEventPayload",
+    "formattedName": "ClientListCommandPalettesEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientCommandPaletteOpenedEventPayload",
+    "formattedName": "ClientCommandPaletteOpenedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientCommandPaletteClosedEventPayload",
+    "formattedName": "ClientCommandPaletteClosedEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientActionClickedEventPayload",
+    "formattedName": "ClientActionClickedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ActionID",
+        "jsonName": "actionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Event",
+        "jsonName": "event",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {
@@ -52184,6 +52781,53 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientRenderCommandPaletteEventPayload",
+    "formattedName": "ClientRenderCommandPaletteEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientCommandPaletteItemSelectedEventPayload",
+    "formattedName": "ClientCommandPaletteItemSelectedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ItemID",
+        "jsonName": "itemId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientCommandPaletteInputEventPayload",
+    "formattedName": "ClientCommandPaletteInputEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerEventType",
     "formattedName": "ServerEventType",
     "package": "plugin_ui",
@@ -52194,6 +52838,12 @@
       "declaredValues": [
         "\"tray:updated\"",
         "\"tray:icon\"",
+        "\"command-palette:info\"",
+        "\"command-palette:updated\"",
+        "\"command-palette:open\"",
+        "\"command-palette:close\"",
+        "\"command-palette:get-input\"",
+        "\"command-palette:set-input\"",
         "\"action:anime-page-buttons:updated\"",
         "\"action:anime-page-dropdown-items:updated\"",
         "\"action:manga-page-buttons:updated\"",
@@ -52203,7 +52853,8 @@
         "\"form:set-values\"",
         "\"field-ref:set-value\"",
         "\"fatal-error\"",
-        "\"screen:navigate-to\""
+        "\"screen:navigate-to\"",
+        "\"screen:reload\""
       ]
     },
     "comments": []
@@ -52260,6 +52911,34 @@
       {
         "name": "Components",
         "jsonName": "components",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerCommandPaletteUpdatedEventPayload",
+    "formattedName": "ServerCommandPaletteUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Placeholder",
+        "jsonName": "placeholder",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Items",
+        "jsonName": "items",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -52459,10 +53138,9 @@
       {
         "name": "Buttons",
         "jsonName": "buttons",
-        "goType": "[]map[string]",
-        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
-        "usedStructName": "plugin_ui.map[string]",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -52479,10 +53157,9 @@
       {
         "name": "Items",
         "jsonName": "items",
-        "goType": "[]map[string]",
-        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
-        "usedStructName": "plugin_ui.map[string]",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -52499,10 +53176,9 @@
       {
         "name": "Buttons",
         "jsonName": "buttons",
-        "goType": "[]map[string]",
-        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
-        "usedStructName": "plugin_ui.map[string]",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -52519,10 +53195,9 @@
       {
         "name": "Items",
         "jsonName": "items",
-        "goType": "[]map[string]",
-        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
-        "usedStructName": "plugin_ui.map[string]",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -52539,10 +53214,92 @@
       {
         "name": "Items",
         "jsonName": "items",
-        "goType": "[]map[string]",
-        "typescriptType": "Array\u003cRecord\u003cstring, any\u003e\u003e",
-        "usedStructName": "plugin_ui.map[string]",
-        "required": false,
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerScreenReloadEventPayload",
+    "formattedName": "ServerScreenReloadEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerCommandPaletteInfoEventPayload",
+    "formattedName": "ServerCommandPaletteInfoEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Placeholder",
+        "jsonName": "placeholder",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "KeyboardShortcut",
+        "jsonName": "keyboardShortcut",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerCommandPaletteOpenEventPayload",
+    "formattedName": "ServerCommandPaletteOpenEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerCommandPaletteCloseEventPayload",
+    "formattedName": "ServerCommandPaletteCloseEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerCommandPaletteGetInputEventPayload",
+    "formattedName": "ServerCommandPaletteGetInputEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerCommandPaletteSetInputEventPayload",
+    "formattedName": "ServerCommandPaletteSetInputEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }
