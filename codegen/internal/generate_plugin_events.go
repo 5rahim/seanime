@@ -443,9 +443,9 @@ func writePackageEventGoStructs(f *os.File, packageName string, goStructs []*GoS
 
 		/////// Write event interface
 		f.WriteString(fmt.Sprintf("    interface %s {\n", goStruct.Name))
-		f.WriteString(fmt.Sprintf("        next();\n"))
+		f.WriteString(fmt.Sprintf("        next();\n\n"))
 		if shouldAddPreventDefault {
-			f.WriteString(fmt.Sprintf("        preventDefault();\n"))
+			f.WriteString(fmt.Sprintf("        preventDefault();\n\n"))
 		}
 		// Write the fields
 		for _, field := range goStruct.Fields {
@@ -468,7 +468,7 @@ func writePackageEventGoStructs(f *os.File, packageName string, goStructs []*GoS
 
 			typeText := field.TypescriptType
 
-			f.WriteString(fmt.Sprintf("        %s%s: %s\n", field.JsonName, fieldNameSuffix, typeText))
+			f.WriteString(fmt.Sprintf("        %s%s: %s;\n", field.JsonName, fieldNameSuffix, typeText))
 		}
 		f.WriteString(fmt.Sprintf("    }\n\n"))
 
@@ -506,7 +506,7 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 
 			typeText := field.TypescriptType
 
-			f.WriteString(fmt.Sprintf("        %s%s: %s\n", convertGoToJSName(field.JsonName), fieldNameSuffix, typeText))
+			f.WriteString(fmt.Sprintf("        %s%s: %s;\n", convertGoToJSName(field.JsonName), fieldNameSuffix, typeText))
 		}
 		f.WriteString("    }\n\n")
 	}
@@ -519,9 +519,9 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 			} else {
 				union = strings.Join(goStruct.AliasOf.DeclaredValues, " | ")
 			}
-			f.WriteString(fmt.Sprintf("    export type %s = %s\n\n", goStruct.FormattedName, union))
+			f.WriteString(fmt.Sprintf("    export type %s = %s;\n\n", goStruct.FormattedName, union))
 		} else {
-			f.WriteString(fmt.Sprintf("    export type %s = %s\n\n", goStruct.FormattedName, goStruct.AliasOf.TypescriptType))
+			f.WriteString(fmt.Sprintf("    export type %s = %s;\n\n", goStruct.FormattedName, goStruct.AliasOf.TypescriptType))
 		}
 	}
 

@@ -89,12 +89,6 @@ type PluginManifest struct {
 // PluginSystemAllowlist is a list of system permissions that the plugin is asking for.
 //
 // The user must acknowledge these permissions before the plugin can be loaded.
-//
-// Path examples:
-// - "$HOME/**/*" - All files in the user's home directory and subdirectories
-// - "$ANIME_LIBRARY/**/*" - All files in the anime library and subdirectories
-// - "$SEANIME_ASSETS/*" - All files in the seanime assets folder, not including subdirectories
-// - "C:/Users/*/Downloads/**/*" - All files in the user's downloads folder and subdirectories
 type PluginSystemAllowlist struct {
 	// AllowReadPaths is a list of paths that the plugin is allowed to read from.
 	AllowReadPaths []string `json:"allowReadPaths,omitempty"`

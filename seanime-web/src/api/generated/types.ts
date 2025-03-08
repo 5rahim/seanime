@@ -2110,31 +2110,9 @@ export type Extension_PluginPermission = string
  * - Package: extension
  * @description
  *  PluginSystemAllowlist is a list of system permissions that the plugin is asking for.
- *
+ *  
  *  The user must acknowledge these permissions before the plugin can be loaded.
- *
- *  Path examples:
- *  - "$HOME/**/
-*
-" - All files in the user's home directory and subdirectories
-* -"$ANIME_LIBRARY/**/*" - All
-files in the
-anime
-library
-and
-subdirectories
-* -"$SEANIME_ASSETS/*" - All
-files in the
-seanime
-assets
-folder, not
-including
-subdirectories
-* -"C:/Users/*/Downloads/**/*" - All
-files in the
-user
-'s downloads folder and subdirectories
-* /
+ */
 export type Extension_PluginSystemAllowlist = {
     allowReadPaths?: Array<string>
     allowWritePaths?: Array<string>

@@ -11,9 +11,9 @@ declare namespace $app {
     function onGetAnime(cb: (event: GetAnimeEvent) => void);
 
     interface GetAnimeEvent {
-        anime?: AL_BaseAnime
-
         next();
+
+        anime?: AL_BaseAnime;
     }
 
     /**
@@ -23,9 +23,9 @@ declare namespace $app {
     function onGetAnimeDetails(cb: (event: GetAnimeDetailsEvent) => void);
 
     interface GetAnimeDetailsEvent {
-        anime?: AL_AnimeDetailsById_Media
-
         next();
+
+        anime?: AL_AnimeDetailsById_Media;
     }
 
     /**
@@ -35,9 +35,9 @@ declare namespace $app {
     function onGetManga(cb: (event: GetMangaEvent) => void);
 
     interface GetMangaEvent {
-        manga?: AL_BaseManga
-
         next();
+
+        manga?: AL_BaseManga;
     }
 
     /**
@@ -47,9 +47,9 @@ declare namespace $app {
     function onGetMangaDetails(cb: (event: GetMangaDetailsEvent) => void);
 
     interface GetMangaDetailsEvent {
-        manga?: AL_MangaDetailsById_Media
-
         next();
+
+        manga?: AL_MangaDetailsById_Media;
     }
 
     /**
@@ -59,9 +59,9 @@ declare namespace $app {
     function onGetAnimeCollection(cb: (event: GetAnimeCollectionEvent) => void);
 
     interface GetAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection
-
         next();
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -71,9 +71,9 @@ declare namespace $app {
     function onGetMangaCollection(cb: (event: GetMangaCollectionEvent) => void);
 
     interface GetMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection
-
         next();
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -83,9 +83,9 @@ declare namespace $app {
     function onGetRawAnimeCollection(cb: (event: GetRawAnimeCollectionEvent) => void);
 
     interface GetRawAnimeCollectionEvent {
-        animeCollection?: AL_AnimeCollection
-
         next();
+
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -95,9 +95,9 @@ declare namespace $app {
     function onGetRawMangaCollection(cb: (event: GetRawMangaCollectionEvent) => void);
 
     interface GetRawMangaCollectionEvent {
-        mangaCollection?: AL_MangaCollection
-
         next();
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -107,9 +107,9 @@ declare namespace $app {
     function onGetStudioDetails(cb: (event: GetStudioDetailsEvent) => void);
 
     interface GetStudioDetailsEvent {
-        studio?: AL_StudioDetails
-
         next();
+
+        studio?: AL_StudioDetails;
     }
 
     /**
@@ -122,16 +122,16 @@ declare namespace $app {
     function onPreUpdateEntry(cb: (event: PreUpdateEntryEvent) => void);
 
     interface PreUpdateEntryEvent {
-        mediaId?: number
-        status?: AL_MediaListStatus
-        scoreRaw?: number
-        progress?: number
-        startedAt?: AL_FuzzyDateInput
-        completedAt?: AL_FuzzyDateInput
-
         next();
 
         preventDefault();
+
+        mediaId?: number;
+        status?: AL_MediaListStatus;
+        scoreRaw?: number;
+        progress?: number;
+        startedAt?: AL_FuzzyDateInput;
+        completedAt?: AL_FuzzyDateInput;
     }
 
     /**
@@ -141,9 +141,9 @@ declare namespace $app {
     function onPostUpdateEntry(cb: (event: PostUpdateEntryEvent) => void);
 
     interface PostUpdateEntryEvent {
-        mediaId?: number
-
         next();
+
+        mediaId?: number;
     }
 
     /**
@@ -156,14 +156,14 @@ declare namespace $app {
     function onPreUpdateEntryProgress(cb: (event: PreUpdateEntryProgressEvent) => void);
 
     interface PreUpdateEntryProgressEvent {
-        mediaId?: number
-        progress?: number
-        totalCount?: number
-        status?: AL_MediaListStatus
-
         next();
 
         preventDefault();
+
+        mediaId?: number;
+        progress?: number;
+        totalCount?: number;
+        status?: AL_MediaListStatus;
     }
 
     /**
@@ -173,9 +173,9 @@ declare namespace $app {
     function onPostUpdateEntryProgress(cb: (event: PostUpdateEntryProgressEvent) => void);
 
     interface PostUpdateEntryProgressEvent {
-        mediaId?: number
-
         next();
+
+        mediaId?: number;
     }
 
     /**
@@ -188,12 +188,12 @@ declare namespace $app {
     function onPreUpdateEntryRepeat(cb: (event: PreUpdateEntryRepeatEvent) => void);
 
     interface PreUpdateEntryRepeatEvent {
-        mediaId?: number
-        repeat?: number
-
         next();
 
         preventDefault();
+
+        mediaId?: number;
+        repeat?: number;
     }
 
     /**
@@ -203,9 +203,9 @@ declare namespace $app {
     function onPostUpdateEntryRepeat(cb: (event: PostUpdateEntryRepeatEvent) => void);
 
     interface PostUpdateEntryRepeatEvent {
-        mediaId?: number
-
         next();
+
+        mediaId?: number;
     }
 
 
@@ -222,11 +222,11 @@ declare namespace $app {
     function onAnimeEntryRequested(cb: (event: AnimeEntryRequestedEvent) => void);
 
     interface AnimeEntryRequestedEvent {
-        mediaId: number
-        localFiles?: Array<Anime_LocalFile>
-        animeCollection?: AL_AnimeCollection
-
         next();
+
+        mediaId: number;
+        localFiles?: Array<Anime_LocalFile>;
+        animeCollection?: AL_AnimeCollection;
     }
 
     /**
@@ -238,9 +238,9 @@ declare namespace $app {
     function onAnimeEntry(cb: (event: AnimeEntryEvent) => void);
 
     interface AnimeEntryEvent {
-        entry?: Anime_Entry
-
         next();
+
+        entry?: Anime_Entry;
     }
 
     /**
@@ -253,11 +253,11 @@ declare namespace $app {
     function onAnimeEntryFillerHydration(cb: (event: AnimeEntryFillerHydrationEvent) => void);
 
     interface AnimeEntryFillerHydrationEvent {
-        entry?: Anime_Entry
-
         next();
 
         preventDefault();
+
+        entry?: Anime_Entry;
     }
 
     /**
@@ -269,11 +269,11 @@ declare namespace $app {
     function onAnimeEntryLibraryDataRequested(cb: (event: AnimeEntryLibraryDataRequestedEvent) => void);
 
     interface AnimeEntryLibraryDataRequestedEvent {
-        entryLocalFiles?: Array<Anime_LocalFile>
-        mediaId: number
-        currentProgress: number
-
         next();
+
+        entryLocalFiles?: Array<Anime_LocalFile>;
+        mediaId: number;
+        currentProgress: number;
     }
 
     /**
@@ -285,9 +285,9 @@ declare namespace $app {
     function onAnimeEntryLibraryData(cb: (event: AnimeEntryLibraryDataEvent) => void);
 
     interface AnimeEntryLibraryDataEvent {
-        entryLibraryData?: Anime_EntryLibraryData
-
         next();
+
+        entryLibraryData?: Anime_EntryLibraryData;
     }
 
     /**
@@ -299,11 +299,11 @@ declare namespace $app {
     function onAnimeEntryManualMatchBeforeSave(cb: (event: AnimeEntryManualMatchBeforeSaveEvent) => void);
 
     interface AnimeEntryManualMatchBeforeSaveEvent {
-        mediaId: number
-        paths?: Array<string>
-        matchedLocalFiles?: Array<Anime_LocalFile>
-
         next();
+
+        mediaId: number;
+        paths?: Array<string>;
+        matchedLocalFiles?: Array<Anime_LocalFile>;
     }
 
     /**
@@ -315,11 +315,11 @@ declare namespace $app {
     function onMissingEpisodesRequested(cb: (event: MissingEpisodesRequestedEvent) => void);
 
     interface MissingEpisodesRequestedEvent {
-        animeCollection?: AL_AnimeCollection
-        localFiles?: Array<Anime_LocalFile>
-        silencedMediaIds?: Array<number>
-
         next();
+
+        animeCollection?: AL_AnimeCollection;
+        localFiles?: Array<Anime_LocalFile>;
+        silencedMediaIds?: Array<number>;
     }
 
     /**
@@ -329,9 +329,9 @@ declare namespace $app {
     function onMissingEpisodes(cb: (event: MissingEpisodesEvent) => void);
 
     interface MissingEpisodesEvent {
-        missingEpisodes?: Anime_MissingEpisodes
-
         next();
+
+        missingEpisodes?: Anime_MissingEpisodes;
     }
 
     /**
@@ -341,9 +341,9 @@ declare namespace $app {
     function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void);
 
     interface AnimeLibraryCollectionEvent {
-        libraryCollection?: Anime_LibraryCollection
-
         next();
+
+        libraryCollection?: Anime_LibraryCollection;
     }
 
     /**
@@ -353,9 +353,9 @@ declare namespace $app {
     function onAnimeLibraryStreamCollection(cb: (event: AnimeLibraryStreamCollectionEvent) => void);
 
     interface AnimeLibraryStreamCollectionEvent {
-        streamCollection?: Anime_StreamCollection
-
         next();
+
+        streamCollection?: Anime_StreamCollection;
     }
 
     /**
@@ -365,10 +365,10 @@ declare namespace $app {
     function onAnimeLibraryCollectionRequested(cb: (event: AnimeLibraryCollectionRequestedEvent) => void);
 
     interface AnimeLibraryCollectionRequestedEvent {
-        animeCollection?: AL_AnimeCollection
-        localFiles?: Array<Anime_LocalFile>
-
         next();
+
+        animeCollection?: AL_AnimeCollection;
+        localFiles?: Array<Anime_LocalFile>;
     }
 
     /**
@@ -378,10 +378,10 @@ declare namespace $app {
     function onAnimeLibraryStreamCollectionRequested(cb: (event: AnimeLibraryStreamCollectionRequestedEvent) => void);
 
     interface AnimeLibraryStreamCollectionRequestedEvent {
-        animeCollection?: AL_AnimeCollection
-        libraryCollection?: Anime_LibraryCollection
-
         next();
+
+        animeCollection?: AL_AnimeCollection;
+        libraryCollection?: Anime_LibraryCollection;
     }
 
 
@@ -399,11 +399,11 @@ declare namespace $app {
     function onAutoDownloaderRunStarted(cb: (event: AutoDownloaderRunStartedEvent) => void);
 
     interface AutoDownloaderRunStartedEvent {
-        rules?: Array<Anime_AutoDownloaderRule>
-
         next();
 
         preventDefault();
+
+        rules?: Array<Anime_AutoDownloaderRule>;
     }
 
     /**
@@ -415,9 +415,9 @@ declare namespace $app {
     function onAutoDownloaderTorrentsFetched(cb: (event: AutoDownloaderTorrentsFetchedEvent) => void);
 
     interface AutoDownloaderTorrentsFetchedEvent {
-        torrents?: Array<AutoDownloader_NormalizedTorrent>
-
         next();
+
+        torrents?: Array<AutoDownloader_NormalizedTorrent>;
     }
 
     /**
@@ -429,14 +429,14 @@ declare namespace $app {
     function onAutoDownloaderMatchVerified(cb: (event: AutoDownloaderMatchVerifiedEvent) => void);
 
     interface AutoDownloaderMatchVerifiedEvent {
-        torrent?: AutoDownloader_NormalizedTorrent
-        rule?: Anime_AutoDownloaderRule
-        listEntry?: AL_AnimeListEntry
-        localEntry?: Anime_LocalFileWrapperEntry
-        episode: number
-        ok: boolean
-
         next();
+
+        torrent?: AutoDownloader_NormalizedTorrent;
+        rule?: Anime_AutoDownloaderRule;
+        listEntry?: AL_AnimeListEntry;
+        localEntry?: Anime_LocalFileWrapperEntry;
+        episode: number;
+        ok: boolean;
     }
 
     /**
@@ -448,9 +448,9 @@ declare namespace $app {
     function onAutoDownloaderSettingsUpdated(cb: (event: AutoDownloaderSettingsUpdatedEvent) => void);
 
     interface AutoDownloaderSettingsUpdatedEvent {
-        settings?: Models_AutoDownloaderSettings
-
         next();
+
+        settings?: Models_AutoDownloaderSettings;
     }
 
 
@@ -468,15 +468,15 @@ declare namespace $app {
     function onDebridSendStreamToMediaPlayer(cb: (event: DebridSendStreamToMediaPlayerEvent) => void);
 
     interface DebridSendStreamToMediaPlayerEvent {
-        windowTitle: string
-        streamURL: string
-        media?: AL_BaseAnime
-        aniDbEpisode: string
-        playbackType: string
-
         next();
 
         preventDefault();
+
+        windowTitle: string;
+        streamURL: string;
+        media?: AL_BaseAnime;
+        aniDbEpisode: string;
+        playbackType: string;
     }
 
     /**
@@ -489,13 +489,13 @@ declare namespace $app {
     function onDebridLocalDownloadRequested(cb: (event: DebridLocalDownloadRequestedEvent) => void);
 
     interface DebridLocalDownloadRequestedEvent {
-        torrentName: string
-        destination: string
-        downloadUrl: string
-
         next();
 
         preventDefault();
+
+        torrentName: string;
+        destination: string;
+        downloadUrl: string;
     }
 
 
@@ -512,10 +512,10 @@ declare namespace $app {
     function onMangaEntryRequested(cb: (event: MangaEntryRequestedEvent) => void);
 
     interface MangaEntryRequestedEvent {
-        mediaId: number
-        mangaCollection?: AL_MangaCollection
-
         next();
+
+        mediaId: number;
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -527,9 +527,9 @@ declare namespace $app {
     function onMangaEntry(cb: (event: MangaEntryEvent) => void);
 
     interface MangaEntryEvent {
-        entry?: Manga_Entry
-
         next();
+
+        entry?: Manga_Entry;
     }
 
     /**
@@ -539,9 +539,9 @@ declare namespace $app {
     function onMangaLibraryCollection(cb: (event: MangaLibraryCollectionEvent) => void);
 
     interface MangaLibraryCollectionEvent {
-        libraryCollection?: Manga_Collection
-
         next();
+
+        libraryCollection?: Manga_Collection;
     }
 
     /**
@@ -551,9 +551,9 @@ declare namespace $app {
     function onMangaLibraryCollectionRequested(cb: (event: MangaLibraryCollectionRequestedEvent) => void);
 
     interface MangaLibraryCollectionRequestedEvent {
-        mangaCollection?: AL_MangaCollection
-
         next();
+
+        mangaCollection?: AL_MangaCollection;
     }
 
 
@@ -571,12 +571,12 @@ declare namespace $app {
     function onAnimeMetadataRequested(cb: (event: AnimeMetadataRequestedEvent) => void);
 
     interface AnimeMetadataRequestedEvent {
-        mediaId: number
-        overrideAnimeMetadata?: Metadata_AnimeMetadata
-
         next();
 
         preventDefault();
+
+        mediaId: number;
+        overrideAnimeMetadata?: Metadata_AnimeMetadata;
     }
 
     /**
@@ -588,10 +588,10 @@ declare namespace $app {
     function onAnimeMetadata(cb: (event: AnimeMetadataEvent) => void);
 
     interface AnimeMetadataEvent {
-        mediaId: number
-        animeMetadata?: Metadata_AnimeMetadata
-
         next();
+
+        mediaId: number;
+        animeMetadata?: Metadata_AnimeMetadata;
     }
 
 
@@ -609,11 +609,11 @@ declare namespace $app {
     function onLocalFilePlaybackRequested(cb: (event: LocalFilePlaybackRequestedEvent) => void);
 
     interface LocalFilePlaybackRequestedEvent {
-        path: string
-
         next();
 
         preventDefault();
+
+        path: string;
     }
 
     /**
@@ -626,14 +626,14 @@ declare namespace $app {
     function onStreamPlaybackRequested(cb: (event: StreamPlaybackRequestedEvent) => void);
 
     interface StreamPlaybackRequestedEvent {
-        windowTitle: string
-        payload: string
-        media?: AL_BaseAnime
-        aniDbEpisode: string
-
         next();
 
         preventDefault();
+
+        windowTitle: string;
+        payload: string;
+        media?: AL_BaseAnime;
+        aniDbEpisode: string;
     }
 
     /**
@@ -646,11 +646,11 @@ declare namespace $app {
     function onPrePlaybackTracking(cb: (event: PrePlaybackTrackingEvent) => void);
 
     interface PrePlaybackTrackingEvent {
-        isStream: boolean
-
         next();
 
         preventDefault();
+
+        isStream: boolean;
     }
 
 
@@ -667,13 +667,13 @@ declare namespace $app {
     function onScanStarted(cb: (event: ScanStartedEvent) => void);
 
     interface ScanStartedEvent {
-        dirPath: string
-        otherDirPaths?: Array<string>
-        enhanced: boolean
-        skipLocked: boolean
-        skipIgnored: boolean
-
         next();
+
+        dirPath: string;
+        otherDirPaths?: Array<string>;
+        enhanced: boolean;
+        skipLocked: boolean;
+        skipIgnored: boolean;
     }
 
     /**
@@ -685,13 +685,13 @@ declare namespace $app {
     function onScanCompleted(cb: (event: ScanCompletedEvent) => void);
 
     interface ScanCompletedEvent {
-        localFiles?: Array<Anime_LocalFile>
+        next();
+
+        localFiles?: Array<Anime_LocalFile>;
         /**
          * in milliseconds
          */
-        duration: number
-
-        next();
+        duration: number;
     }
 
     /**
@@ -703,9 +703,9 @@ declare namespace $app {
     function onScanMediaFetcherStarted(cb: (event: ScanMediaFetcherStartedEvent) => void);
 
     interface ScanMediaFetcherStartedEvent {
-        enhanced: boolean
-
         next();
+
+        enhanced: boolean;
     }
 
     /**
@@ -717,10 +717,10 @@ declare namespace $app {
     function onScanMediaFetcherCompleted(cb: (event: ScanMediaFetcherCompletedEvent) => void);
 
     interface ScanMediaFetcherCompletedEvent {
-        allMedia?: Array<AL_CompleteAnime>
-        unknownMediaIds?: Array<number>
-
         next();
+
+        allMedia?: Array<AL_CompleteAnime>;
+        unknownMediaIds?: Array<number>;
     }
 
     /**
@@ -733,14 +733,14 @@ declare namespace $app {
     function onScanMatchingStarted(cb: (event: ScanMatchingStartedEvent) => void);
 
     interface ScanMatchingStartedEvent {
-        localFiles?: Array<Anime_LocalFile>
-        normalizedMedia?: Array<Anime_NormalizedMedia>
-        algorithm: string
-        threshold: number
-
         next();
 
         preventDefault();
+
+        localFiles?: Array<Anime_LocalFile>;
+        normalizedMedia?: Array<Anime_NormalizedMedia>;
+        algorithm: string;
+        threshold: number;
     }
 
     /**
@@ -753,14 +753,14 @@ declare namespace $app {
     function onScanLocalFileMatched(cb: (event: ScanLocalFileMatchedEvent) => void);
 
     interface ScanLocalFileMatchedEvent {
-        match?: Anime_NormalizedMedia
-        found: boolean
-        localFile?: Anime_LocalFile
-        score: number
-
         next();
 
         preventDefault();
+
+        match?: Anime_NormalizedMedia;
+        found: boolean;
+        localFile?: Anime_LocalFile;
+        score: number;
     }
 
     /**
@@ -772,9 +772,9 @@ declare namespace $app {
     function onScanMatchingCompleted(cb: (event: ScanMatchingCompletedEvent) => void);
 
     interface ScanMatchingCompletedEvent {
-        localFiles?: Array<Anime_LocalFile>
-
         next();
+
+        localFiles?: Array<Anime_LocalFile>;
     }
 
     /**
@@ -786,10 +786,10 @@ declare namespace $app {
     function onScanHydrationStarted(cb: (event: ScanHydrationStartedEvent) => void);
 
     interface ScanHydrationStartedEvent {
-        localFiles?: Array<Anime_LocalFile>
-        allMedia?: Array<Anime_NormalizedMedia>
-
         next();
+
+        localFiles?: Array<Anime_LocalFile>;
+        allMedia?: Array<Anime_NormalizedMedia>;
     }
 
     /**
@@ -802,12 +802,12 @@ declare namespace $app {
     function onScanLocalFileHydrationStarted(cb: (event: ScanLocalFileHydrationStartedEvent) => void);
 
     interface ScanLocalFileHydrationStartedEvent {
-        localFile?: Anime_LocalFile
-        media?: Anime_NormalizedMedia
-
         next();
 
         preventDefault();
+
+        localFile?: Anime_LocalFile;
+        media?: Anime_NormalizedMedia;
     }
 
     /**
@@ -819,11 +819,11 @@ declare namespace $app {
     function onScanLocalFileHydrated(cb: (event: ScanLocalFileHydratedEvent) => void);
 
     interface ScanLocalFileHydratedEvent {
-        localFile?: Anime_LocalFile
-        mediaId: number
-        episode: number
-
         next();
+
+        localFile?: Anime_LocalFile;
+        mediaId: number;
+        episode: number;
     }
 
     /**
@@ -835,9 +835,9 @@ declare namespace $app {
     function onScanHydrationCompleted(cb: (event: ScanHydrationCompletedEvent) => void);
 
     interface ScanHydrationCompletedEvent {
-        localFiles?: Array<Anime_LocalFile>
-
         next();
+
+        localFiles?: Array<Anime_LocalFile>;
     }
 
 
@@ -855,15 +855,15 @@ declare namespace $app {
     function onTorrentStreamSendStreamToMediaPlayer(cb: (event: TorrentStreamSendStreamToMediaPlayerEvent) => void);
 
     interface TorrentStreamSendStreamToMediaPlayerEvent {
-        windowTitle: string
-        streamURL: string
-        media?: AL_BaseAnime
-        aniDbEpisode: string
-        playbackType: string
-
         next();
 
         preventDefault();
+
+        windowTitle: string;
+        streamURL: string;
+        media?: AL_BaseAnime;
+        aniDbEpisode: string;
+        playbackType: string;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -876,7 +876,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeCollection {
-        mediaListCollection?: AL_AnimeCollection_MediaListCollection
+        mediaListCollection?: AL_AnimeCollection_MediaListCollection;
     }
 
     /**
@@ -885,7 +885,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection {
-        lists?: Array<AL_AnimeCollection_MediaListCollection_Lists>
+        lists?: Array<AL_AnimeCollection_MediaListCollection_Lists>;
     }
 
     /**
@@ -894,10 +894,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists {
-        status?: AL_MediaListStatus
-        name?: string
-        isCustomList?: boolean
-        entries?: Array<AL_AnimeCollection_MediaListCollection_Lists_Entries>
+        status?: AL_MediaListStatus;
+        name?: string;
+        isCustomList?: boolean;
+        entries?: Array<AL_AnimeCollection_MediaListCollection_Lists_Entries>;
     }
 
     /**
@@ -906,16 +906,16 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists_Entries {
-        id: number
-        score?: number
-        progress?: number
-        status?: AL_MediaListStatus
-        notes?: string
-        repeat?: number
-        private?: boolean
-        startedAt?: AL_AnimeCollection_MediaListCollection_Lists_Entries_StartedAt
-        completedAt?: AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt
-        media?: AL_BaseAnime
+        id: number;
+        score?: number;
+        progress?: number;
+        status?: AL_MediaListStatus;
+        notes?: string;
+        repeat?: number;
+        private?: boolean;
+        startedAt?: AL_AnimeCollection_MediaListCollection_Lists_Entries_StartedAt;
+        completedAt?: AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt;
+        media?: AL_BaseAnime;
     }
 
     /**
@@ -924,9 +924,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -935,9 +935,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists_Entries_StartedAt {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -946,23 +946,23 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media {
-        siteUrl?: string
-        id: number
-        duration?: number
-        genres?: Array<string>
-        averageScore?: number
-        popularity?: number
-        meanScore?: number
-        description?: string
-        trailer?: AL_AnimeDetailsById_Media_Trailer
-        startDate?: AL_AnimeDetailsById_Media_StartDate
-        endDate?: AL_AnimeDetailsById_Media_EndDate
-        studios?: AL_AnimeDetailsById_Media_Studios
-        characters?: AL_AnimeDetailsById_Media_Characters
-        staff?: AL_AnimeDetailsById_Media_Staff
-        rankings?: Array<AL_AnimeDetailsById_Media_Rankings>
-        recommendations?: AL_AnimeDetailsById_Media_Recommendations
-        relations?: AL_AnimeDetailsById_Media_Relations
+        siteUrl?: string;
+        id: number;
+        duration?: number;
+        genres?: Array<string>;
+        averageScore?: number;
+        popularity?: number;
+        meanScore?: number;
+        description?: string;
+        trailer?: AL_AnimeDetailsById_Media_Trailer;
+        startDate?: AL_AnimeDetailsById_Media_StartDate;
+        endDate?: AL_AnimeDetailsById_Media_EndDate;
+        studios?: AL_AnimeDetailsById_Media_Studios;
+        characters?: AL_AnimeDetailsById_Media_Characters;
+        staff?: AL_AnimeDetailsById_Media_Staff;
+        rankings?: Array<AL_AnimeDetailsById_Media_Rankings>;
+        recommendations?: AL_AnimeDetailsById_Media_Recommendations;
+        relations?: AL_AnimeDetailsById_Media_Relations;
     }
 
     /**
@@ -971,7 +971,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Characters {
-        edges?: Array<AL_AnimeDetailsById_Media_Characters_Edges>
+        edges?: Array<AL_AnimeDetailsById_Media_Characters_Edges>;
     }
 
     /**
@@ -980,10 +980,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Characters_Edges {
-        id?: number
-        role?: AL_CharacterRole
-        name?: string
-        node?: AL_BaseCharacter
+        id?: number;
+        role?: AL_CharacterRole;
+        name?: string;
+        node?: AL_BaseCharacter;
     }
 
     /**
@@ -992,9 +992,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_EndDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1003,13 +1003,13 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Rankings {
-        context: string
-        type: AL_MediaRankType
-        rank: number
-        year?: number
-        format: AL_MediaFormat
-        allTime?: boolean
-        season?: AL_MediaSeason
+        context: string;
+        type: AL_MediaRankType;
+        rank: number;
+        year?: number;
+        format: AL_MediaFormat;
+        allTime?: boolean;
+        season?: AL_MediaSeason;
     }
 
     /**
@@ -1018,7 +1018,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations {
-        edges?: Array<AL_AnimeDetailsById_Media_Recommendations_Edges>
+        edges?: Array<AL_AnimeDetailsById_Media_Recommendations_Edges>;
     }
 
     /**
@@ -1027,7 +1027,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges {
-        node?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node
+        node?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node;
     }
 
     /**
@@ -1036,7 +1036,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node {
-        mediaRecommendation?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation
+        mediaRecommendation?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation;
     }
 
     /**
@@ -1045,22 +1045,22 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation {
-        id: number
-        idMal?: number
-        siteUrl?: string
-        status?: AL_MediaStatus
-        isAdult?: boolean
-        season?: AL_MediaSeason
-        type?: AL_MediaType
-        format?: AL_MediaFormat
-        meanScore?: number
-        description?: string
-        episodes?: number
-        trailer?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer
-        startDate?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate
-        coverImage?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage
-        bannerImage?: string
-        title?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title
+        id: number;
+        idMal?: number;
+        siteUrl?: string;
+        status?: AL_MediaStatus;
+        isAdult?: boolean;
+        season?: AL_MediaSeason;
+        type?: AL_MediaType;
+        format?: AL_MediaFormat;
+        meanScore?: number;
+        description?: string;
+        episodes?: number;
+        trailer?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer;
+        startDate?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate;
+        coverImage?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage;
+        bannerImage?: string;
+        title?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title;
     }
 
     /**
@@ -1069,10 +1069,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage {
-        extraLarge?: string
-        large?: string
-        medium?: string
-        color?: string
+        extraLarge?: string;
+        large?: string;
+        medium?: string;
+        color?: string;
     }
 
     /**
@@ -1081,9 +1081,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1092,10 +1092,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title {
-        romaji?: string
-        english?: string
-        native?: string
-        userPreferred?: string
+        romaji?: string;
+        english?: string;
+        native?: string;
+        userPreferred?: string;
     }
 
     /**
@@ -1104,9 +1104,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer {
-        id?: string
-        site?: string
-        thumbnail?: string
+        id?: string;
+        site?: string;
+        thumbnail?: string;
     }
 
     /**
@@ -1115,7 +1115,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Relations {
-        edges?: Array<AL_AnimeDetailsById_Media_Relations_Edges>
+        edges?: Array<AL_AnimeDetailsById_Media_Relations_Edges>;
     }
 
     /**
@@ -1124,8 +1124,8 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Relations_Edges {
-        relationType?: AL_MediaRelation
-        node?: AL_BaseAnime
+        relationType?: AL_MediaRelation;
+        node?: AL_BaseAnime;
     }
 
     /**
@@ -1134,7 +1134,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff {
-        edges?: Array<AL_AnimeDetailsById_Media_Staff_Edges>
+        edges?: Array<AL_AnimeDetailsById_Media_Staff_Edges>;
     }
 
     /**
@@ -1143,8 +1143,8 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff_Edges {
-        role?: string
-        node?: AL_AnimeDetailsById_Media_Staff_Edges_Node
+        role?: string;
+        node?: AL_AnimeDetailsById_Media_Staff_Edges_Node;
     }
 
     /**
@@ -1153,8 +1153,8 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff_Edges_Node {
-        name?: AL_AnimeDetailsById_Media_Staff_Edges_Node_Name
-        id: number
+        name?: AL_AnimeDetailsById_Media_Staff_Edges_Node_Name;
+        id: number;
     }
 
     /**
@@ -1163,7 +1163,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff_Edges_Node_Name {
-        full?: string
+        full?: string;
     }
 
     /**
@@ -1172,9 +1172,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_StartDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1183,7 +1183,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Studios {
-        nodes?: Array<AL_AnimeDetailsById_Media_Studios_Nodes>
+        nodes?: Array<AL_AnimeDetailsById_Media_Studios_Nodes>;
     }
 
     /**
@@ -1192,8 +1192,8 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Studios_Nodes {
-        name: string
-        id: number
+        name: string;
+        id: number;
     }
 
     /**
@@ -1202,9 +1202,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Trailer {
-        id?: string
-        site?: string
-        thumbnail?: string
+        id?: string;
+        site?: string;
+        thumbnail?: string;
     }
 
     /**
@@ -1212,7 +1212,7 @@ declare namespace $app {
      * - Filename: collection_helper.go
      * - Package: anilist
      */
-    export type AL_AnimeListEntry = AL_AnimeCollection_MediaListCollection_Lists_Entries
+    export type AL_AnimeListEntry = AL_AnimeCollection_MediaListCollection_Lists_Entries;
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
@@ -1220,29 +1220,29 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime {
-        id: number
-        idMal?: number
-        siteUrl?: string
-        status?: AL_MediaStatus
-        season?: AL_MediaSeason
-        type?: AL_MediaType
-        format?: AL_MediaFormat
-        seasonYear?: number
-        bannerImage?: string
-        episodes?: number
-        synonyms?: Array<string>
-        isAdult?: boolean
-        countryOfOrigin?: string
-        meanScore?: number
-        description?: string
-        genres?: Array<string>
-        duration?: number
-        trailer?: AL_BaseAnime_Trailer
-        title?: AL_BaseAnime_Title
-        coverImage?: AL_BaseAnime_CoverImage
-        startDate?: AL_BaseAnime_StartDate
-        endDate?: AL_BaseAnime_EndDate
-        nextAiringEpisode?: AL_BaseAnime_NextAiringEpisode
+        id: number;
+        idMal?: number;
+        siteUrl?: string;
+        status?: AL_MediaStatus;
+        season?: AL_MediaSeason;
+        type?: AL_MediaType;
+        format?: AL_MediaFormat;
+        seasonYear?: number;
+        bannerImage?: string;
+        episodes?: number;
+        synonyms?: Array<string>;
+        isAdult?: boolean;
+        countryOfOrigin?: string;
+        meanScore?: number;
+        description?: string;
+        genres?: Array<string>;
+        duration?: number;
+        trailer?: AL_BaseAnime_Trailer;
+        title?: AL_BaseAnime_Title;
+        coverImage?: AL_BaseAnime_CoverImage;
+        startDate?: AL_BaseAnime_StartDate;
+        endDate?: AL_BaseAnime_EndDate;
+        nextAiringEpisode?: AL_BaseAnime_NextAiringEpisode;
     }
 
     /**
@@ -1251,10 +1251,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime_CoverImage {
-        extraLarge?: string
-        large?: string
-        medium?: string
-        color?: string
+        extraLarge?: string;
+        large?: string;
+        medium?: string;
+        color?: string;
     }
 
     /**
@@ -1263,9 +1263,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime_EndDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1274,9 +1274,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime_NextAiringEpisode {
-        airingAt: number
-        timeUntilAiring: number
-        episode: number
+        airingAt: number;
+        timeUntilAiring: number;
+        episode: number;
     }
 
     /**
@@ -1285,9 +1285,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime_StartDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1296,10 +1296,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime_Title {
-        userPreferred?: string
-        romaji?: string
-        english?: string
-        native?: string
+        userPreferred?: string;
+        romaji?: string;
+        english?: string;
+        native?: string;
     }
 
     /**
@@ -1308,9 +1308,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseAnime_Trailer {
-        id?: string
-        site?: string
-        thumbnail?: string
+        id?: string;
+        site?: string;
+        thumbnail?: string;
     }
 
     /**
@@ -1319,15 +1319,15 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseCharacter {
-        id: number
-        isFavourite: boolean
-        gender?: string
-        age?: string
-        dateOfBirth?: AL_BaseCharacter_DateOfBirth
-        name?: AL_BaseCharacter_Name
-        image?: AL_BaseCharacter_Image
-        description?: string
-        siteUrl?: string
+        id: number;
+        isFavourite: boolean;
+        gender?: string;
+        age?: string;
+        dateOfBirth?: AL_BaseCharacter_DateOfBirth;
+        name?: AL_BaseCharacter_Name;
+        image?: AL_BaseCharacter_Image;
+        description?: string;
+        siteUrl?: string;
     }
 
     /**
@@ -1336,9 +1336,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseCharacter_DateOfBirth {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1347,7 +1347,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseCharacter_Image {
-        large?: string
+        large?: string;
     }
 
     /**
@@ -1356,9 +1356,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseCharacter_Name {
-        full?: string
-        native?: string
-        alternative?: Array<string>
+        full?: string;
+        native?: string;
+        alternative?: Array<string>;
     }
 
     /**
@@ -1367,26 +1367,26 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseManga {
-        id: number
-        idMal?: number
-        siteUrl?: string
-        status?: AL_MediaStatus
-        season?: AL_MediaSeason
-        type?: AL_MediaType
-        format?: AL_MediaFormat
-        bannerImage?: string
-        chapters?: number
-        volumes?: number
-        synonyms?: Array<string>
-        isAdult?: boolean
-        countryOfOrigin?: string
-        meanScore?: number
-        description?: string
-        genres?: Array<string>
-        title?: AL_BaseManga_Title
-        coverImage?: AL_BaseManga_CoverImage
-        startDate?: AL_BaseManga_StartDate
-        endDate?: AL_BaseManga_EndDate
+        id: number;
+        idMal?: number;
+        siteUrl?: string;
+        status?: AL_MediaStatus;
+        season?: AL_MediaSeason;
+        type?: AL_MediaType;
+        format?: AL_MediaFormat;
+        bannerImage?: string;
+        chapters?: number;
+        volumes?: number;
+        synonyms?: Array<string>;
+        isAdult?: boolean;
+        countryOfOrigin?: string;
+        meanScore?: number;
+        description?: string;
+        genres?: Array<string>;
+        title?: AL_BaseManga_Title;
+        coverImage?: AL_BaseManga_CoverImage;
+        startDate?: AL_BaseManga_StartDate;
+        endDate?: AL_BaseManga_EndDate;
     }
 
     /**
@@ -1395,10 +1395,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseManga_CoverImage {
-        extraLarge?: string
-        large?: string
-        medium?: string
-        color?: string
+        extraLarge?: string;
+        large?: string;
+        medium?: string;
+        color?: string;
     }
 
     /**
@@ -1407,9 +1407,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseManga_EndDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1418,9 +1418,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseManga_StartDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1429,10 +1429,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_BaseManga_Title {
-        userPreferred?: string
-        romaji?: string
-        english?: string
-        native?: string
+        userPreferred?: string;
+        romaji?: string;
+        english?: string;
+        native?: string;
     }
 
     /**
@@ -1442,7 +1442,7 @@ declare namespace $app {
      * @description
      *  The role the character plays in the media
      */
-    export type AL_CharacterRole = "MAIN" | "SUPPORTING" | "BACKGROUND"
+    export type AL_CharacterRole = "MAIN" | "SUPPORTING" | "BACKGROUND";
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
@@ -1450,30 +1450,30 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime {
-        id: number
-        idMal?: number
-        siteUrl?: string
-        status?: AL_MediaStatus
-        season?: AL_MediaSeason
-        seasonYear?: number
-        type?: AL_MediaType
-        format?: AL_MediaFormat
-        bannerImage?: string
-        episodes?: number
-        synonyms?: Array<string>
-        isAdult?: boolean
-        countryOfOrigin?: string
-        meanScore?: number
-        description?: string
-        genres?: Array<string>
-        duration?: number
-        trailer?: AL_CompleteAnime_Trailer
-        title?: AL_CompleteAnime_Title
-        coverImage?: AL_CompleteAnime_CoverImage
-        startDate?: AL_CompleteAnime_StartDate
-        endDate?: AL_CompleteAnime_EndDate
-        nextAiringEpisode?: AL_CompleteAnime_NextAiringEpisode
-        relations?: AL_CompleteAnime_Relations
+        id: number;
+        idMal?: number;
+        siteUrl?: string;
+        status?: AL_MediaStatus;
+        season?: AL_MediaSeason;
+        seasonYear?: number;
+        type?: AL_MediaType;
+        format?: AL_MediaFormat;
+        bannerImage?: string;
+        episodes?: number;
+        synonyms?: Array<string>;
+        isAdult?: boolean;
+        countryOfOrigin?: string;
+        meanScore?: number;
+        description?: string;
+        genres?: Array<string>;
+        duration?: number;
+        trailer?: AL_CompleteAnime_Trailer;
+        title?: AL_CompleteAnime_Title;
+        coverImage?: AL_CompleteAnime_CoverImage;
+        startDate?: AL_CompleteAnime_StartDate;
+        endDate?: AL_CompleteAnime_EndDate;
+        nextAiringEpisode?: AL_CompleteAnime_NextAiringEpisode;
+        relations?: AL_CompleteAnime_Relations;
     }
 
     /**
@@ -1482,10 +1482,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_CoverImage {
-        extraLarge?: string
-        large?: string
-        medium?: string
-        color?: string
+        extraLarge?: string;
+        large?: string;
+        medium?: string;
+        color?: string;
     }
 
     /**
@@ -1494,9 +1494,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_EndDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1505,9 +1505,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_NextAiringEpisode {
-        airingAt: number
-        timeUntilAiring: number
-        episode: number
+        airingAt: number;
+        timeUntilAiring: number;
+        episode: number;
     }
 
     /**
@@ -1516,7 +1516,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_Relations {
-        edges?: Array<AL_CompleteAnime_Relations_Edges>
+        edges?: Array<AL_CompleteAnime_Relations_Edges>;
     }
 
     /**
@@ -1525,8 +1525,8 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_Relations_Edges {
-        relationType?: AL_MediaRelation
-        node?: AL_BaseAnime
+        relationType?: AL_MediaRelation;
+        node?: AL_BaseAnime;
     }
 
     /**
@@ -1535,9 +1535,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_StartDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1546,10 +1546,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_Title {
-        userPreferred?: string
-        romaji?: string
-        english?: string
-        native?: string
+        userPreferred?: string;
+        romaji?: string;
+        english?: string;
+        native?: string;
     }
 
     /**
@@ -1558,9 +1558,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_CompleteAnime_Trailer {
-        id?: string
-        site?: string
-        thumbnail?: string
+        id?: string;
+        site?: string;
+        thumbnail?: string;
     }
 
     /**
@@ -1571,9 +1571,9 @@ declare namespace $app {
      *  Date object that allows for incomplete date values (fuzzy)
      */
     interface AL_FuzzyDateInput {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1582,7 +1582,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaCollection {
-        mediaListCollection?: AL_MangaCollection_MediaListCollection
+        mediaListCollection?: AL_MangaCollection_MediaListCollection;
     }
 
     /**
@@ -1591,7 +1591,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection {
-        lists?: Array<AL_MangaCollection_MediaListCollection_Lists>
+        lists?: Array<AL_MangaCollection_MediaListCollection_Lists>;
     }
 
     /**
@@ -1600,10 +1600,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists {
-        status?: AL_MediaListStatus
-        name?: string
-        isCustomList?: boolean
-        entries?: Array<AL_MangaCollection_MediaListCollection_Lists_Entries>
+        status?: AL_MediaListStatus;
+        name?: string;
+        isCustomList?: boolean;
+        entries?: Array<AL_MangaCollection_MediaListCollection_Lists_Entries>;
     }
 
     /**
@@ -1612,16 +1612,16 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists_Entries {
-        id: number
-        score?: number
-        progress?: number
-        status?: AL_MediaListStatus
-        notes?: string
-        repeat?: number
-        private?: boolean
-        startedAt?: AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt
-        completedAt?: AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt
-        media?: AL_BaseManga
+        id: number;
+        score?: number;
+        progress?: number;
+        status?: AL_MediaListStatus;
+        notes?: string;
+        repeat?: number;
+        private?: boolean;
+        startedAt?: AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt;
+        completedAt?: AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt;
+        media?: AL_BaseManga;
     }
 
     /**
@@ -1630,9 +1630,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1641,9 +1641,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1652,14 +1652,14 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media {
-        siteUrl?: string
-        id: number
-        duration?: number
-        genres?: Array<string>
-        rankings?: Array<AL_MangaDetailsById_Media_Rankings>
-        characters?: AL_MangaDetailsById_Media_Characters
-        recommendations?: AL_MangaDetailsById_Media_Recommendations
-        relations?: AL_MangaDetailsById_Media_Relations
+        siteUrl?: string;
+        id: number;
+        duration?: number;
+        genres?: Array<string>;
+        rankings?: Array<AL_MangaDetailsById_Media_Rankings>;
+        characters?: AL_MangaDetailsById_Media_Characters;
+        recommendations?: AL_MangaDetailsById_Media_Recommendations;
+        relations?: AL_MangaDetailsById_Media_Relations;
     }
 
     /**
@@ -1668,7 +1668,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Characters {
-        edges?: Array<AL_MangaDetailsById_Media_Characters_Edges>
+        edges?: Array<AL_MangaDetailsById_Media_Characters_Edges>;
     }
 
     /**
@@ -1677,10 +1677,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Characters_Edges {
-        id?: number
-        role?: AL_CharacterRole
-        name?: string
-        node?: AL_BaseCharacter
+        id?: number;
+        role?: AL_CharacterRole;
+        name?: string;
+        node?: AL_BaseCharacter;
     }
 
     /**
@@ -1689,13 +1689,13 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Rankings {
-        context: string
-        type: AL_MediaRankType
-        rank: number
-        year?: number
-        format: AL_MediaFormat
-        allTime?: boolean
-        season?: AL_MediaSeason
+        context: string;
+        type: AL_MediaRankType;
+        rank: number;
+        year?: number;
+        format: AL_MediaFormat;
+        allTime?: boolean;
+        season?: AL_MediaSeason;
     }
 
     /**
@@ -1704,7 +1704,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations {
-        edges?: Array<AL_MangaDetailsById_Media_Recommendations_Edges>
+        edges?: Array<AL_MangaDetailsById_Media_Recommendations_Edges>;
     }
 
     /**
@@ -1713,7 +1713,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges {
-        node?: AL_MangaDetailsById_Media_Recommendations_Edges_Node
+        node?: AL_MangaDetailsById_Media_Recommendations_Edges_Node;
     }
 
     /**
@@ -1722,7 +1722,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node {
-        mediaRecommendation?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation
+        mediaRecommendation?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation;
     }
 
     /**
@@ -1731,25 +1731,25 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation {
-        id: number
-        idMal?: number
-        siteUrl?: string
-        status?: AL_MediaStatus
-        season?: AL_MediaSeason
-        type?: AL_MediaType
-        format?: AL_MediaFormat
-        bannerImage?: string
-        chapters?: number
-        volumes?: number
-        synonyms?: Array<string>
-        isAdult?: boolean
-        countryOfOrigin?: string
-        meanScore?: number
-        description?: string
-        title?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title
-        coverImage?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage
-        startDate?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate
-        endDate?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate
+        id: number;
+        idMal?: number;
+        siteUrl?: string;
+        status?: AL_MediaStatus;
+        season?: AL_MediaSeason;
+        type?: AL_MediaType;
+        format?: AL_MediaFormat;
+        bannerImage?: string;
+        chapters?: number;
+        volumes?: number;
+        synonyms?: Array<string>;
+        isAdult?: boolean;
+        countryOfOrigin?: string;
+        meanScore?: number;
+        description?: string;
+        title?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title;
+        coverImage?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage;
+        startDate?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate;
+        endDate?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate;
     }
 
     /**
@@ -1758,10 +1758,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage {
-        extraLarge?: string
-        large?: string
-        medium?: string
-        color?: string
+        extraLarge?: string;
+        large?: string;
+        medium?: string;
+        color?: string;
     }
 
     /**
@@ -1770,9 +1770,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1781,9 +1781,9 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate {
-        year?: number
-        month?: number
-        day?: number
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1792,10 +1792,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title {
-        userPreferred?: string
-        romaji?: string
-        english?: string
-        native?: string
+        userPreferred?: string;
+        romaji?: string;
+        english?: string;
+        native?: string;
     }
 
     /**
@@ -1804,7 +1804,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Relations {
-        edges?: Array<AL_MangaDetailsById_Media_Relations_Edges>
+        edges?: Array<AL_MangaDetailsById_Media_Relations_Edges>;
     }
 
     /**
@@ -1813,8 +1813,8 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Relations_Edges {
-        relationType?: AL_MediaRelation
-        node?: AL_BaseManga
+        relationType?: AL_MediaRelation;
+        node?: AL_BaseManga;
     }
 
     /**
@@ -1833,7 +1833,7 @@ declare namespace $app {
         "MUSIC" |
         "MANGA" |
         "NOVEL" |
-        "ONE_SHOT"
+        "ONE_SHOT";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1847,7 +1847,7 @@ declare namespace $app {
         "COMPLETED" |
         "DROPPED" |
         "PAUSED" |
-        "REPEATING"
+        "REPEATING";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1856,7 +1856,7 @@ declare namespace $app {
      * @description
      *  The type of ranking
      */
-    export type AL_MediaRankType = "RATED" | "POPULAR"
+    export type AL_MediaRankType = "RATED" | "POPULAR";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1877,14 +1877,14 @@ declare namespace $app {
         "OTHER" |
         "SOURCE" |
         "COMPILATION" |
-        "CONTAINS"
+        "CONTAINS";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
      * - Filename: models_gen.go
      * - Package: anilist
      */
-    export type AL_MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL"
+    export type AL_MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1893,7 +1893,7 @@ declare namespace $app {
      * @description
      *  The current releasing status of the media
      */
-    export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS"
+    export type AL_MediaStatus = "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED" | "HIATUS";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1902,7 +1902,7 @@ declare namespace $app {
      * @description
      *  Media type enum, anime or manga.
      */
-    export type AL_MediaType = "ANIME" | "MANGA"
+    export type AL_MediaType = "ANIME" | "MANGA";
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
@@ -1910,7 +1910,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_StudioDetails {
-        studio?: AL_StudioDetails_Studio
+        studio?: AL_StudioDetails_Studio;
     }
 
     /**
@@ -1919,10 +1919,10 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_StudioDetails_Studio {
-        id: number
-        isAnimationStudio: boolean
-        name: string
-        media?: AL_StudioDetails_Studio_Media
+        id: number;
+        isAnimationStudio: boolean;
+        name: string;
+        media?: AL_StudioDetails_Studio_Media;
     }
 
     /**
@@ -1931,7 +1931,7 @@ declare namespace $app {
      * - Package: anilist
      */
     interface AL_StudioDetails_Studio_Media {
-        nodes?: Array<AL_BaseAnime>
+        nodes?: Array<AL_BaseAnime>;
     }
 
     /**
@@ -1943,17 +1943,17 @@ declare namespace $app {
         /**
          * Will be set when fetched from the database
          */
-        dbId: number
-        enabled: boolean
-        mediaId: number
-        releaseGroups?: Array<string>
-        resolutions?: Array<string>
-        comparisonTitle: string
-        titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType
-        episodeType: Anime_AutoDownloaderRuleEpisodeType
-        episodeNumbers?: Array<number>
-        destination: string
-        additionalTerms?: Array<string>
+        dbId: number;
+        enabled: boolean;
+        mediaId: number;
+        releaseGroups?: Array<string>;
+        resolutions?: Array<string>;
+        comparisonTitle: string;
+        titleComparisonType: Anime_AutoDownloaderRuleTitleComparisonType;
+        episodeType: Anime_AutoDownloaderRuleEpisodeType;
+        episodeNumbers?: Array<number>;
+        destination: string;
+        additionalTerms?: Array<string>;
     }
 
     /**
@@ -1961,14 +1961,14 @@ declare namespace $app {
      * - Filename: autodownloader_rule.go
      * - Package: anime
      */
-    export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected"
+    export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected";
 
     /**
      * - Filepath: internal/library/anime/autodownloader_rule.go
      * - Filename: autodownloader_rule.go
      * - Package: anime
      */
-    export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely"
+    export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely";
 
     /**
      * - Filepath: internal/library/anime/entry.go
@@ -1976,16 +1976,16 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_Entry {
-        mediaId: number
-        media?: AL_BaseAnime
-        listData?: Anime_EntryListData
-        libraryData?: Anime_EntryLibraryData
-        downloadInfo?: Anime_EntryDownloadInfo
-        episodes?: Array<Anime_Episode>
-        nextEpisode?: Anime_Episode
-        localFiles?: Array<Anime_LocalFile>
-        anidbId: number
-        currentEpisodeCount: number
+        mediaId: number;
+        media?: AL_BaseAnime;
+        listData?: Anime_EntryListData;
+        libraryData?: Anime_EntryLibraryData;
+        downloadInfo?: Anime_EntryDownloadInfo;
+        episodes?: Array<Anime_Episode>;
+        nextEpisode?: Anime_Episode;
+        localFiles?: Array<Anime_LocalFile>;
+        anidbId: number;
+        currentEpisodeCount: number;
     }
 
     /**
@@ -1994,9 +1994,9 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_EntryDownloadEpisode {
-        episodeNumber: number
-        aniDBEpisode: string
-        episode?: Anime_Episode
+        episodeNumber: number;
+        aniDBEpisode: string;
+        episode?: Anime_Episode;
     }
 
     /**
@@ -2005,12 +2005,12 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_EntryDownloadInfo {
-        episodesToDownload?: Array<Anime_EntryDownloadEpisode>
-        canBatch: boolean
-        batchAll: boolean
-        hasInaccurateSchedule: boolean
-        rewatch: boolean
-        absoluteOffset: number
+        episodesToDownload?: Array<Anime_EntryDownloadEpisode>;
+        canBatch: boolean;
+        batchAll: boolean;
+        hasInaccurateSchedule: boolean;
+        rewatch: boolean;
+        absoluteOffset: number;
     }
 
     /**
@@ -2019,10 +2019,10 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_EntryLibraryData {
-        allFilesLocked: boolean
-        sharedPath: string
-        unwatchedCount: number
-        mainFileCount: number
+        allFilesLocked: boolean;
+        sharedPath: string;
+        unwatchedCount: number;
+        mainFileCount: number;
     }
 
     /**
@@ -2031,12 +2031,12 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_EntryListData {
-        progress?: number
-        score?: number
-        status?: AL_MediaListStatus
-        repeat?: number
-        startedAt?: string
-        completedAt?: string
+        progress?: number;
+        score?: number;
+        status?: AL_MediaListStatus;
+        repeat?: number;
+        startedAt?: string;
+        completedAt?: string;
     }
 
     /**
@@ -2045,47 +2045,47 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_Episode {
-        type: Anime_LocalFileType
+        type: Anime_LocalFileType;
         /**
          * e.g, Show: "Episode 1", Movie: "Violet Evergarden The Movie"
          */
-        displayTitle: string
+        displayTitle: string;
         /**
          * e.g, "Shibuya Incident - Gate, Open"
          */
-        episodeTitle: string
-        episodeNumber: number
+        episodeTitle: string;
+        episodeNumber: number;
         /**
          * AniDB episode number
          */
-        aniDBEpisode?: string
-        absoluteEpisodeNumber: number
+        aniDBEpisode?: string;
+        absoluteEpisodeNumber: number;
         /**
          * Usually the same as EpisodeNumber, unless there is a discrepancy between AniList and AniDB
          */
-        progressNumber: number
-        localFile?: Anime_LocalFile
+        progressNumber: number;
+        localFile?: Anime_LocalFile;
         /**
          * Is in the local files
          */
-        isDownloaded: boolean
+        isDownloaded: boolean;
         /**
          * (image, airDate, length, summary, overview)
          */
-        episodeMetadata?: Anime_EpisodeMetadata
+        episodeMetadata?: Anime_EpisodeMetadata;
         /**
          * (episode, aniDBEpisode, type...)
          */
-        fileMetadata?: Anime_LocalFileMetadata
+        fileMetadata?: Anime_LocalFileMetadata;
         /**
          * No AniDB data
          */
-        isInvalid: boolean
+        isInvalid: boolean;
         /**
          * Alerts the user that there is a discrepancy between AniList and AniDB
          */
-        metadataIssue?: string
-        baseAnime?: AL_BaseAnime
+        metadataIssue?: string;
+        baseAnime?: AL_BaseAnime;
     }
 
     /**
@@ -2094,13 +2094,13 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_EpisodeMetadata {
-        anidbId?: number
-        image?: string
-        airDate?: string
-        length?: number
-        summary?: string
-        overview?: string
-        isFiller?: boolean
+        anidbId?: number;
+        image?: string;
+        airDate?: string;
+        length?: number;
+        summary?: string;
+        overview?: string;
+        isFiller?: boolean;
     }
 
     /**
@@ -2109,17 +2109,17 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LibraryCollection {
-        continueWatchingList?: Array<Anime_Episode>
-        lists?: Array<Anime_LibraryCollectionList>
-        unmatchedLocalFiles?: Array<Anime_LocalFile>
-        unmatchedGroups?: Array<Anime_UnmatchedGroup>
-        ignoredLocalFiles?: Array<Anime_LocalFile>
-        unknownGroups?: Array<Anime_UnknownGroup>
-        stats?: Anime_LibraryCollectionStats
+        continueWatchingList?: Array<Anime_Episode>;
+        lists?: Array<Anime_LibraryCollectionList>;
+        unmatchedLocalFiles?: Array<Anime_LocalFile>;
+        unmatchedGroups?: Array<Anime_UnmatchedGroup>;
+        ignoredLocalFiles?: Array<Anime_LocalFile>;
+        unknownGroups?: Array<Anime_UnknownGroup>;
+        stats?: Anime_LibraryCollectionStats;
         /**
          * Hydrated by the route handler
          */
-        stream?: Anime_StreamCollection
+        stream?: Anime_StreamCollection;
     }
 
     /**
@@ -2128,16 +2128,16 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LibraryCollectionEntry {
-        media?: AL_BaseAnime
-        mediaId: number
+        media?: AL_BaseAnime;
+        mediaId: number;
         /**
          * Library data
          */
-        libraryData?: Anime_EntryLibraryData
+        libraryData?: Anime_EntryLibraryData;
         /**
          * AniList list data
          */
-        listData?: Anime_EntryListData
+        listData?: Anime_EntryListData;
     }
 
     /**
@@ -2146,9 +2146,9 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LibraryCollectionList {
-        type?: AL_MediaListStatus
-        status?: AL_MediaListStatus
-        entries?: Array<Anime_LibraryCollectionEntry>
+        type?: AL_MediaListStatus;
+        status?: AL_MediaListStatus;
+        entries?: Array<Anime_LibraryCollectionEntry>;
     }
 
     /**
@@ -2157,12 +2157,12 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LibraryCollectionStats {
-        totalEntries: number
-        totalFiles: number
-        totalShows: number
-        totalMovies: number
-        totalSpecials: number
-        totalSize: string
+        totalEntries: number;
+        totalFiles: number;
+        totalShows: number;
+        totalMovies: number;
+        totalSpecials: number;
+        totalSize: string;
     }
 
     /**
@@ -2171,17 +2171,17 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LocalFile {
-        path: string
-        name: string
-        parsedInfo?: Anime_LocalFileParsedData
-        parsedFolderInfo?: Array<Anime_LocalFileParsedData>
-        metadata?: Anime_LocalFileMetadata
-        locked: boolean
+        path: string;
+        name: string;
+        parsedInfo?: Anime_LocalFileParsedData;
+        parsedFolderInfo?: Array<Anime_LocalFileParsedData>;
+        metadata?: Anime_LocalFileMetadata;
+        locked: boolean;
         /**
          * Unused for now
          */
-        ignored: boolean
-        mediaId: number
+        ignored: boolean;
+        mediaId: number;
     }
 
     /**
@@ -2190,9 +2190,9 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LocalFileMetadata {
-        episode: number
-        aniDBEpisode: string
-        type: Anime_LocalFileType
+        episode: number;
+        aniDBEpisode: string;
+        type: Anime_LocalFileType;
     }
 
     /**
@@ -2201,17 +2201,17 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LocalFileParsedData {
-        original: string
-        title?: string
-        releaseGroup?: string
-        season?: string
-        seasonRange?: Array<string>
-        part?: string
-        partRange?: Array<string>
-        episode?: string
-        episodeRange?: Array<string>
-        episodeTitle?: string
-        year?: string
+        original: string;
+        title?: string;
+        releaseGroup?: string;
+        season?: string;
+        seasonRange?: Array<string>;
+        part?: string;
+        partRange?: Array<string>;
+        episode?: string;
+        episodeRange?: Array<string>;
+        episodeTitle?: string;
+        year?: string;
     }
 
     /**
@@ -2219,7 +2219,7 @@ declare namespace $app {
      * - Filename: localfile.go
      * - Package: anime
      */
-    export type Anime_LocalFileType = "main" | "special" | "nc"
+    export type Anime_LocalFileType = "main" | "special" | "nc";
 
     /**
      * - Filepath: internal/library/anime/localfile_wrapper.go
@@ -2227,8 +2227,8 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_LocalFileWrapperEntry {
-        mediaId: number
-        localFiles?: Array<Anime_LocalFile>
+        mediaId: number;
+        localFiles?: Array<Anime_LocalFile>;
     }
 
     /**
@@ -2237,8 +2237,8 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_MissingEpisodes {
-        episodes?: Array<Anime_Episode>
-        silencedEpisodes?: Array<Anime_Episode>
+        episodes?: Array<Anime_Episode>;
+        silencedEpisodes?: Array<Anime_Episode>;
     }
 
     /**
@@ -2247,29 +2247,29 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_NormalizedMedia {
-        id: number
-        idMal?: number
-        siteUrl?: string
-        status?: AL_MediaStatus
-        season?: AL_MediaSeason
-        type?: AL_MediaType
-        format?: AL_MediaFormat
-        seasonYear?: number
-        bannerImage?: string
-        episodes?: number
-        synonyms?: Array<string>
-        isAdult?: boolean
-        countryOfOrigin?: string
-        meanScore?: number
-        description?: string
-        genres?: Array<string>
-        duration?: number
-        trailer?: AL_BaseAnime_Trailer
-        title?: AL_BaseAnime_Title
-        coverImage?: AL_BaseAnime_CoverImage
-        startDate?: AL_BaseAnime_StartDate
-        endDate?: AL_BaseAnime_EndDate
-        nextAiringEpisode?: AL_BaseAnime_NextAiringEpisode
+        id: number;
+        idMal?: number;
+        siteUrl?: string;
+        status?: AL_MediaStatus;
+        season?: AL_MediaSeason;
+        type?: AL_MediaType;
+        format?: AL_MediaFormat;
+        seasonYear?: number;
+        bannerImage?: string;
+        episodes?: number;
+        synonyms?: Array<string>;
+        isAdult?: boolean;
+        countryOfOrigin?: string;
+        meanScore?: number;
+        description?: string;
+        genres?: Array<string>;
+        duration?: number;
+        trailer?: AL_BaseAnime_Trailer;
+        title?: AL_BaseAnime_Title;
+        coverImage?: AL_BaseAnime_CoverImage;
+        startDate?: AL_BaseAnime_StartDate;
+        endDate?: AL_BaseAnime_EndDate;
+        nextAiringEpisode?: AL_BaseAnime_NextAiringEpisode;
     }
 
     /**
@@ -2278,9 +2278,9 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_StreamCollection {
-        continueWatchingList?: Array<Anime_Episode>
-        anime?: Array<AL_BaseAnime>
-        listData?: Record<number, Anime_EntryListData>
+        continueWatchingList?: Array<Anime_Episode>;
+        anime?: Array<AL_BaseAnime>;
+        listData?: Record<number, Anime_EntryListData>;
     }
 
     /**
@@ -2289,8 +2289,8 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_UnknownGroup {
-        mediaId: number
-        localFiles?: Array<Anime_LocalFile>
+        mediaId: number;
+        localFiles?: Array<Anime_LocalFile>;
     }
 
     /**
@@ -2299,9 +2299,9 @@ declare namespace $app {
      * - Package: anime
      */
     interface Anime_UnmatchedGroup {
-        dir: string
-        localFiles?: Array<Anime_LocalFile>
-        suggestions?: Array<AL_BaseAnime>
+        dir: string;
+        localFiles?: Array<Anime_LocalFile>;
+        suggestions?: Array<AL_BaseAnime>;
     }
 
     /**
@@ -2310,29 +2310,29 @@ declare namespace $app {
      * - Package: autodownloader
      */
     interface AutoDownloader_NormalizedTorrent {
-        parsedData?: Metadata
+        parsedData?: Metadata;
         /**
          * Access using GetMagnet()
          */
-        magnet: string
-        provider?: string
-        name: string
-        date: string
-        size: number
-        formattedSize: string
-        seeders: number
-        leechers: number
-        downloadCount: number
-        link: string
-        downloadUrl: string
-        magnetLink?: string
-        infoHash?: string
-        resolution?: string
-        isBatch?: boolean
-        episodeNumber?: number
-        releaseGroup?: string
-        isBestRelease: boolean
-        confirmed: boolean
+        magnet: string;
+        provider?: string;
+        name: string;
+        date: string;
+        size: number;
+        formattedSize: string;
+        seeders: number;
+        leechers: number;
+        downloadCount: number;
+        link: string;
+        downloadUrl: string;
+        magnetLink?: string;
+        infoHash?: string;
+        resolution?: string;
+        isBatch?: boolean;
+        episodeNumber?: number;
+        releaseGroup?: string;
+        isBestRelease: boolean;
+        confirmed: boolean;
     }
 
     /**
@@ -2341,7 +2341,7 @@ declare namespace $app {
      * - Package: manga
      */
     interface Manga_Collection {
-        lists?: Array<Manga_CollectionList>
+        lists?: Array<Manga_CollectionList>;
     }
 
     /**
@@ -2350,12 +2350,12 @@ declare namespace $app {
      * - Package: manga
      */
     interface Manga_CollectionEntry {
-        media?: AL_BaseManga
-        mediaId: number
+        media?: AL_BaseManga;
+        mediaId: number;
         /**
          * AniList list data
          */
-        listData?: Manga_EntryListData
+        listData?: Manga_EntryListData;
     }
 
     /**
@@ -2364,9 +2364,9 @@ declare namespace $app {
      * - Package: manga
      */
     interface Manga_CollectionList {
-        type?: AL_MediaListStatus
-        status?: AL_MediaListStatus
-        entries?: Array<Manga_CollectionEntry>
+        type?: AL_MediaListStatus;
+        status?: AL_MediaListStatus;
+        entries?: Array<Manga_CollectionEntry>;
     }
 
     /**
@@ -2375,9 +2375,9 @@ declare namespace $app {
      * - Package: manga
      */
     interface Manga_Entry {
-        mediaId: number
-        media?: AL_BaseManga
-        listData?: Manga_EntryListData
+        mediaId: number;
+        media?: AL_BaseManga;
+        listData?: Manga_EntryListData;
     }
 
     /**
@@ -2386,12 +2386,12 @@ declare namespace $app {
      * - Package: manga
      */
     interface Manga_EntryListData {
-        progress?: number
-        score?: number
-        status?: AL_MediaListStatus
-        repeat?: number
-        startedAt?: string
-        completedAt?: string
+        progress?: number;
+        score?: number;
+        status?: AL_MediaListStatus;
+        repeat?: number;
+        startedAt?: string;
+        completedAt?: string;
     }
 
     /**
@@ -2400,18 +2400,18 @@ declare namespace $app {
      * - Package: metadata
      */
     interface Metadata_AnimeMappings {
-        animeplanetId: string
-        kitsuId: number
-        malId: number
-        type: string
-        anilistId: number
-        anisearchId: number
-        anidbId: number
-        notifymoeId: string
-        livechartId: number
-        thetvdbId: number
-        imdbId: string
-        themoviedbId: string
+        animeplanetId: string;
+        kitsuId: number;
+        malId: number;
+        type: string;
+        anilistId: number;
+        anisearchId: number;
+        anidbId: number;
+        notifymoeId: string;
+        livechartId: number;
+        thetvdbId: number;
+        imdbId: string;
+        themoviedbId: string;
     }
 
     /**
@@ -2420,11 +2420,11 @@ declare namespace $app {
      * - Package: metadata
      */
     interface Metadata_AnimeMetadata {
-        titles?: Record<string, string>
-        episodes?: Record<string, Metadata_EpisodeMetadata>
-        episodeCount: number
-        specialCount: number
-        mappings?: Metadata_AnimeMappings
+        titles?: Record<string, string>;
+        episodes?: Record<string, Metadata_EpisodeMetadata>;
+        episodeCount: number;
+        specialCount: number;
+        mappings?: Metadata_AnimeMappings;
     }
 
     /**
@@ -2433,19 +2433,19 @@ declare namespace $app {
      * - Package: metadata
      */
     interface Metadata_EpisodeMetadata {
-        anidbId: number
-        tvdbId: number
-        title: string
-        image: string
-        airDate: string
-        length: number
-        summary: string
-        overview: string
-        episodeNumber: number
-        episode: string
-        seasonNumber: number
-        absoluteEpisodeNumber: number
-        anidbEid: number
+        anidbId: number;
+        tvdbId: number;
+        title: string;
+        image: string;
+        airDate: string;
+        length: number;
+        summary: string;
+        overview: string;
+        episodeNumber: number;
+        episode: string;
+        seasonNumber: number;
+        absoluteEpisodeNumber: number;
+        anidbEid: number;
     }
 
     /**
@@ -2454,13 +2454,13 @@ declare namespace $app {
      * - Package: models
      */
     interface Models_AutoDownloaderSettings {
-        provider: string
-        interval: number
-        enabled: boolean
-        downloadAutomatically: boolean
-        enableEnhancedQueries: boolean
-        enableSeasonCheck: boolean
-        useDebrid: boolean
+        provider: string;
+        interval: number;
+        enabled: boolean;
+        downloadAutomatically: boolean;
+        enableEnhancedQueries: boolean;
+        enableSeasonCheck: boolean;
+        useDebrid: boolean;
     }
 
 }
