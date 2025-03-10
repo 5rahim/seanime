@@ -1,4 +1,4 @@
-declare class Buffer extends SUint8Array {
+declare class Buffer extends Uint8Array {
     static poolSize: number
 
     constructor(arg?: string | ArrayBuffer | ArrayLike<number>, encoding?: string);
@@ -12,21 +12,4 @@ declare class Buffer extends SUint8Array {
     equals(other: Buffer | Uint8Array): boolean;
 
     toString(encoding?: string): string;
-}
-
-declare class SUint8Array {
-    length: number
-
-    constructor(arrayBuffer: ArrayBuffer);
-
-    constructor(length: number);
-
-    [index: number]: number;
-
-    static of(...items: number[]): SUint8Array;
-
-    static from(arrayLike: ArrayLike<number>): SUint8Array;
-    static from(arrayBuffer: ArrayBuffer): SUint8Array;
-
-    set(array: SUint8Array, offset?: number): void;
 }

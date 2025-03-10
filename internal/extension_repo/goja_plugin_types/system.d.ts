@@ -104,6 +104,41 @@ declare namespace $os {
      */
     function stat(path: string): FileInfo;
 
+    /**
+     * Opens a file for reading and writing.
+     * @param path The path to the file to open
+     * @param flag The flags to open the file with
+     * @param perm The file mode (permissions)
+     * @returns A file object or an error if the file is not authorized for writing
+     */
+    function openFile(path: string, flag: number, perm: number): File;
+
+
+    interface File {
+        chmod(mode: FileMode): void;
+        chown(uid: number, gid: number): void;
+        close(): void;
+        fd(): number;
+        name(): string;
+        read(b: Uint8Array): number;
+        readAt(b: Uint8Array, off: number): number;
+        readDir(n: number): DirEntry[];
+        readFrom(r: io.Reader): number;
+        readdir(n: number): FileInfo[];
+        readdirnames(n: number): string[];
+        seek(offset: number, whence: number): number;
+        setDeadline(t: Date): void;
+        setReadDeadline(t: Date): void;
+        setWriteDeadline(t: Date): void;
+        stat(): FileInfo;
+        sync(): void;
+        syscallConn(): any; /* Not documented */
+        truncate(size: number): void;
+        write(b: Uint8Array): number;
+        writeAt(b: Uint8Array, off: number): number;
+        writeString(s: string): number;
+        writeTo(w: io.Writer): number;
+    }
 
     /**
      * Cmd represents an external command being prepared or run.

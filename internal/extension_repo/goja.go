@@ -68,18 +68,21 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 	registry := new(gojarequire.Registry)
 	registry.Enable(vm)
 
+	fm := goja_bindings.DefaultFieldMapper{}
+	vm.SetFieldNameMapper(fm)
+
 	bindings := []struct {
 		name string
 		fn   func(*goja.Runtime) error
 	}{
 		{"url", func(vm *goja.Runtime) error { gojaurl.Enable(vm); return nil }},
 		{"buffer", func(vm *goja.Runtime) error { gojabuffer.Enable(vm); return nil }},
-		{"fetch", goja_bindings.BindFetch},
-		{"console", func(vm *goja.Runtime) error { return goja_bindings.BindConsole(vm, logger) }},
-		{"formData", goja_bindings.BindFormData},
-		{"document", goja_bindings.BindDocument},
-		{"crypto", goja_bindings.BindCrypto},
-		{"torrentUtils", goja_bindings.BindTorrentUtils},
+		{"fetch", func(vm *goja.Runtime) error { goja_bindings.BindFetch(vm); return nil }},
+		{"console", func(vm *goja.Runtime) error { goja_bindings.BindConsole(vm, logger); return nil }},
+		{"formData", func(vm *goja.Runtime) error { goja_bindings.BindFormData(vm); return nil }},
+		{"document", func(vm *goja.Runtime) error { goja_bindings.BindDocument(vm); return nil }},
+		{"crypto", func(vm *goja.Runtime) error { goja_bindings.BindCrypto(vm); return nil }},
+		{"torrentUtils", func(vm *goja.Runtime) error { goja_bindings.BindTorrentUtils(vm); return nil }},
 	}
 
 	for _, binding := range bindings {

@@ -1,7 +1,7 @@
 /// <reference path="../goja_plugin_types/plugin.d.ts" />
 /// <reference path="../goja_plugin_types/hooks.d.ts" />
 
-//@ts-expect-error
+//@ts-ignore
 function init() {
 
     $ui.register((ctx) => {

@@ -2,10 +2,12 @@ package goja_bindings
 
 import (
 	"bytes"
-	"github.com/dop251/goja"
+	"io"
 	"mime/multipart"
 	"strconv"
 	"strings"
+
+	"github.com/dop251/goja"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,19 +17,11 @@ import (
 func BindFormData(vm *goja.Runtime) error {
 	err := vm.Set("FormData", func(call goja.ConstructorCall) *goja.Object {
 		fd := newFormData(vm)
-		obj := call.This
-		obj.Set("append", fd.Append)
-		obj.Set("delete", fd.Delete)
-		obj.Set("entries", fd.Entries)
-		obj.Set("get", fd.Get)
-		obj.Set("getAll", fd.GetAll)
-		obj.Set("has", fd.Has)
-		obj.Set("keys", fd.Keys)
-		obj.Set("set", fd.Set)
-		obj.Set("values", fd.Values)
-		obj.Set("getContentType", fd.GetContentType)
-		obj.Set("getBuffer", fd.GetBuffer)
-		return obj
+
+		instanceValue := vm.ToValue(fd).(*goja.Object)
+		instanceValue.SetPrototype(call.This.Prototype())
+
+		return instanceValue
 	})
 	if err != nil {
 		return err
@@ -228,10 +222,10 @@ func (fd *formData) GetContentType() goja.Value {
 	return fd.runtime.ToValue(fd.writer.FormDataContentType())
 }
 
-func (fd *formData) GetBuffer() goja.Value {
+func (fd *formData) GetBuffer() (io.Reader, *multipart.Writer) {
 	if !fd.closed {
 		fd.writer.Close()
 		fd.closed = true
 	}
-	return fd.runtime.ToValue(fd.buf.String())
+	return bytes.NewReader(fd.buf.Bytes()), fd.writer
 }

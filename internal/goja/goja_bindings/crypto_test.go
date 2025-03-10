@@ -1,6 +1,27 @@
-/// <reference path="../crypto.d.ts" />
-/// <reference path="../buffer.d.ts" />
+package goja_bindings
 
+import (
+	"seanime/internal/util"
+	"testing"
+	"time"
+
+	"github.com/dop251/goja"
+	gojabuffer "github.com/dop251/goja_nodejs/buffer"
+	gojarequire "github.com/dop251/goja_nodejs/require"
+	"github.com/stretchr/testify/require"
+)
+
+func TestGojaCrypto(t *testing.T) {
+	vm := goja.New()
+	defer vm.ClearInterrupt()
+
+	registry := new(gojarequire.Registry)
+	registry.Enable(vm)
+	gojabuffer.Enable(vm)
+	BindCrypto(vm)
+	BindConsole(vm, util.NewLogger())
+
+	_, err := vm.RunString(`
 async function run() {
 
     try {
@@ -98,4 +119,24 @@ async function run() {
     catch (e) {
         console.error("Error:", e)
     }
+}
+`)
+	require.NoError(t, err)
+
+	runFunc, ok := goja.AssertFunction(vm.Get("run"))
+	require.True(t, ok)
+
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	promise := ret.Export().(*goja.Promise)
+
+	for promise.State() == goja.PromiseStatePending {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if promise.State() == goja.PromiseStateRejected {
+		err := promise.Result()
+		t.Fatal(err)
+	}
 }

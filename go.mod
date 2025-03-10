@@ -10,6 +10,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/Yamashou/gqlgenc v0.25.4
 	github.com/adrg/strutil v0.3.1
+	github.com/alecthomas/assert/v2 v2.0.0-alpha3
 	github.com/anacrolix/log v0.16.0
 	github.com/anacrolix/torrent v1.58.0
 	github.com/charmbracelet/lipgloss v1.0.0
@@ -55,7 +56,12 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require github.com/bmatcuk/doublestar/v4 v4.8.1 // indirect
+require (
+	github.com/alecthomas/repr v0.0.0-20210801044451-80ca428c5142 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.8.1
+	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
+)
 
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect
@@ -90,7 +96,6 @@ require (
 	github.com/dlclark/regexp2 v1.11.4 // indirect
 	github.com/dop251/base64dec v0.0.0-20231022112746-c6c9f9a96217 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-llsqlite/adapter v0.0.0-20230927005056-7f5ce7f0c916 // indirect
 	github.com/go-llsqlite/crawshaw v0.5.2-0.20240425034140-f30eb7704568 // indirect
@@ -160,7 +165,7 @@ require (
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
-	github.com/spf13/cast v1.6.0 // indirect
+	github.com/spf13/cast v1.6.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect

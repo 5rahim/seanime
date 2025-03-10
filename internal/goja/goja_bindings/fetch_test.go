@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"seanime/internal/util"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/dop251/goja"
+	gojabuffer "github.com/dop251/goja_nodejs/buffer"
+	gojarequire "github.com/dop251/goja_nodejs/require"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFetch_ThreadSafety(t *testing.T) {
@@ -56,8 +61,7 @@ func TestFetch_ThreadSafety(t *testing.T) {
 		t.Run(fmt.Sprintf("Iteration_%d", i), func(t *testing.T) {
 			// Create a new VM for each iteration
 			vm := goja.New()
-			err := BindFetch(vm)
-			assert.NoError(t, err)
+			BindFetch(vm)
 
 			// Execute the JavaScript code
 			v, err := vm.RunString(jsCode)
@@ -115,8 +119,7 @@ func TestFetch_VMIsolation(t *testing.T) {
 
 			// Create a new VM for this goroutine
 			vm := goja.New()
-			err := BindFetch(vm)
-			assert.NoError(t, err)
+			BindFetch(vm)
 
 			// Create JavaScript code that makes multiple requests
 			jsCode := fmt.Sprintf(`
@@ -150,4 +153,172 @@ func TestFetch_VMIsolation(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+func TestGojaPromiseAll(t *testing.T) {
+	vm := goja.New()
+
+	BindFetch(vm)
+
+	registry := new(gojarequire.Registry)
+	registry.Enable(vm)
+	gojabuffer.Enable(vm)
+	BindConsole(vm, util.NewLogger())
+
+	_, err := vm.RunString(`
+	async function run() {
+		const [a, b, c] = await Promise.all([
+			fetch("https://jsonplaceholder.typicode.com/todos/1"),
+			fetch("https://jsonplaceholder.typicode.com/todos/2"),
+			fetch("https://jsonplaceholder.typicode.com/todos/3"),
+			fetch("https://jsonplaceholder.typicode.com/todos/4"),
+			fetch("https://jsonplaceholder.typicode.com/todos/5"),
+			fetch("https://jsonplaceholder.typicode.com/todos/6"),
+			fetch("https://jsonplaceholder.typicode.com/todos/7"),
+			fetch("https://jsonplaceholder.typicode.com/todos/8"),
+		])
+
+		const dataA = await a.json();
+		const dataB = await b.json();
+		const dataC = await c.json();
+
+		console.log("Data A:", dataA.title);
+		console.log("Data B:", dataB);
+		console.log("Data C:", dataC);
+	}
+	`)
+	require.NoError(t, err)
+
+	runFunc, ok := goja.AssertFunction(vm.Get("run"))
+	require.True(t, ok)
+
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	promise := ret.Export().(*goja.Promise)
+
+	for promise.State() == goja.PromiseStatePending {
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+func TestGojaFormDataAndFetch(t *testing.T) {
+	vm := goja.New()
+	BindFetch(vm)
+
+	registry := new(gojarequire.Registry)
+	registry.Enable(vm)
+	gojabuffer.Enable(vm)
+	BindConsole(vm, util.NewLogger())
+
+	_, err := vm.RunString(`
+async function run() {
+	const formData = new FormData();
+	formData.append("username", "John");
+	formData.append("accountnum", 123456);
+	
+	console.log(formData.get("username")); // John
+
+	const fData = new URLSearchParams();
+	for (const pair of formData.entries()) {
+		fData.append(pair[0], pair[1]);
+	}
+	
+	const response = await fetch('https://httpbin.org/post', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: formData
+	});
+
+	const data = await response.json();
+	console.log(data);
+
+	console.log("Echoed GojaFormData content:");
+    if (data.form) {
+        for (const key in data.form) {
+            console.log(key, data.form[key]);
+        }
+    } else {
+        console.log("No form data echoed in the response.");
+    }
+
+	return data;
+}
+	`)
+	require.NoError(t, err)
+
+	runFunc, ok := goja.AssertFunction(vm.Get("run"))
+	require.True(t, ok)
+
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	promise := ret.Export().(*goja.Promise)
+
+	for promise.State() == goja.PromiseStatePending {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if promise.State() == goja.PromiseStateFulfilled {
+		spew.Dump(promise.Result())
+	} else {
+		err := promise.Result()
+		spew.Dump(err)
+	}
+}
+
+func TestGojaFetchPostJSON(t *testing.T) {
+	vm := goja.New()
+
+	BindFetch(vm)
+
+	registry := new(gojarequire.Registry)
+	registry.Enable(vm)
+	gojabuffer.Enable(vm)
+	BindConsole(vm, util.NewLogger())
+
+	_, err := vm.RunString(`
+async function run() {
+	const response = await fetch('https://httpbin.org/post', {
+		method: 'POST',
+		body: { name: "John Doe", age: 30 },
+	});
+
+	const data = await response.json();
+	console.log(data);
+
+	console.log("Echoed content:");
+    if (data.json) {
+        for (const key in data.json) {
+            console.log(key, data.json[key]);
+        }
+    } else {
+        console.log("No form data echoed in the response.");
+    }
+
+	return data;
+}
+	`)
+	require.NoError(t, err)
+
+	runFunc, ok := goja.AssertFunction(vm.Get("run"))
+	require.True(t, ok)
+
+	ret, err := runFunc(goja.Undefined())
+	require.NoError(t, err)
+
+	promise := ret.Export().(*goja.Promise)
+
+	for promise.State() == goja.PromiseStatePending {
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	if promise.State() == goja.PromiseStateFulfilled {
+		spew.Dump(promise.Result())
+	} else {
+		err := promise.Result()
+		spew.Dump(err)
+	}
 }

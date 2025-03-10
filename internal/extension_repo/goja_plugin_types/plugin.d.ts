@@ -104,12 +104,16 @@ declare namespace $ui {
     }
 
     interface FetchOptions {
-        /** HTTP method */
+        /** HTTP method, defaults to GET */
         method?: string;
         /** Request headers */
         headers?: Record<string, string>;
         /** Request body */
-        body?: string;
+        body?: any;
+        /** Whether to bypass cloudflare */
+        noCloudflareBypass?: boolean;
+        /** Timeout in seconds, defaults to 35 */
+        timeout?: number;
     }
 
     interface FetchResponse {
@@ -127,7 +131,14 @@ declare namespace $ui {
         url: string;
         /** Response headers */
         headers: Record<string, string>;
-
+        /** Response cookies */
+        cookies: Record<string, string>;
+        /** Whether the response was redirected */
+        redirected: boolean;
+        /** Response content type */
+        contentType: string;
+        /** Response content length */
+        contentLength: number;
         /** Get response text */
         text(): string;
 

@@ -2,6 +2,7 @@
 /// <reference path="../goja_plugin_types/hooks.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
 
+// @ts-ignore
 function init() {
     $ui.register((ctx) => {
         const tray = ctx.newTray({

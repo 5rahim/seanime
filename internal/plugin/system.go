@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"errors"
+	"io"
 	"io/fs"
 	"mime"
 	"os"
@@ -126,6 +127,37 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		return os.Stat(path)
 	})
 
+	_ = osObj.Set("O_RDONLY", os.O_RDONLY)
+	_ = osObj.Set("O_WRONLY", os.O_WRONLY)
+	_ = osObj.Set("O_RDWR", os.O_RDWR)
+	_ = osObj.Set("O_APPEND", os.O_APPEND)
+	_ = osObj.Set("O_CREATE", os.O_CREATE)
+	_ = osObj.Set("O_EXCL", os.O_EXCL)
+	_ = osObj.Set("O_SYNC", os.O_SYNC)
+	_ = osObj.Set("O_TRUNC", os.O_TRUNC)
+
+	// Example:
+	//	const file = $os.openFile("path/to/file.txt", $os.O_RDWR|$os.O_CREATE, 0644)
+	//	file.writeString("Hello, world!")
+	//	file.close()
+	_ = osObj.Set("openFile", func(path string, flag int, perm fs.FileMode) (*os.File, error) {
+		if !a.isAllowedPath(ext, path, AllowPathWrite) {
+			return nil, ErrPathNotAuthorized
+		}
+		return os.OpenFile(path, flag, perm)
+	})
+
+	// Example:
+	//	const file = $os.create("path/to/file.txt")
+	//	file.writeString("Hello, world!")
+	//	file.close()
+	_ = osObj.Set("create", func(path string) (*os.File, error) {
+		if !a.isAllowedPath(ext, path, AllowPathWrite) {
+			return nil, ErrPathNotAuthorized
+		}
+		return os.Create(path)
+	})
+
 	fileModeObj := vm.NewObject()
 
 	fileModeObj.Set("ModeDir", os.ModeDir)
@@ -146,6 +178,16 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 	_ = vm.Set("$os.FileMode", fileModeObj)
 
 	_ = vm.Set("$os", osObj)
+
+	//////////////////////////////////////
+	// IO
+	//////////////////////////////////////
+
+	ioObj := vm.NewObject()
+
+	ioObj.Set("Copy", func(dst io.Writer, src io.Reader) (int64, error) {
+		return io.Copy(dst, src)
+	})
 
 	//////////////////////////////////////
 	// Downloader

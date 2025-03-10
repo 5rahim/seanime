@@ -181,7 +181,7 @@ func TestNewGojaPluginUI(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		time.Sleep(5000 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprint(w, `{"test": "data"}`)
 	}))
 	defer server.Close()
@@ -223,6 +223,9 @@ func TestNewGojaPluginUI(t *testing.T) {
 				const [a, b, c] = await Promise.all([
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/1"),
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/2"),
+					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
+					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
+					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
 				])
 				console.log("fetch results", a.json(), b.json(), c.json())

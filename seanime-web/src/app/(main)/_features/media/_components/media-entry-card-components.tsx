@@ -361,11 +361,12 @@ export function MediaEntryCardBody(props: MediaEntryCardBodyProps) {
                         className={cn(
                             "object-cover object-center transition-transform",
                             "group-hover/media-entry-card:scale-110",
+                            (blurAdultContent && isAdult) && "opacity-80",
                         )}
                     />
 
                     {(blurAdultContent && isAdult) && <div
-                        className="absolute top-0 w-full h-full backdrop-blur-xl z-[3] rounded-[--radius]"
+                        className="absolute top-0 w-[125%] h-[125%] -translate-x-[10%] -translate-y-[10%] backdrop-blur-xl z-[3] rounded-[--radius]"
                     ></div>}
                 </div>
             </SeaLink>

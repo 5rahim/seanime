@@ -6,8 +6,8 @@ declare class WordArray {
 // then it will generate a 256-bit key.
 declare class CryptoJS {
     static AES: {
-        encrypt: (message: string, key: string | ArrayBuffer, cfg?: AESConfig) => WordArray;
-        decrypt: (message: string | WordArray, key: string | ArrayBuffer, cfg?: AESConfig) => WordArray;
+        encrypt: (message: string, key: string | Uint8Array, cfg?: AESConfig) => WordArray;
+        decrypt: (message: string | WordArray, key: string | Uint8Array, cfg?: AESConfig) => WordArray;
     }
     static enc: {
         Utf8: CryptoJSEncoder;
@@ -20,11 +20,11 @@ declare class CryptoJS {
 }
 
 declare interface AESConfig {
-    iv?: ArrayBuffer;
+    iv?: Uint8Array;
 }
 
 declare class CryptoJSEncoder {
-    stringify(input: ArrayBuffer): string;
+    stringify(input: Uint8Array): string;
 
-    parse(input: string): ArrayBuffer;
+    parse(input: string): Uint8Array;
 }

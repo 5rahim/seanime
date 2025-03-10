@@ -114,12 +114,10 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("setTimeout", c.jsSetTimeout)
 	_ = obj.Set("setInterval", c.jsSetInterval)
 	_ = obj.Set("effect", c.jsEffect)
-	_ = obj.Set("fetch", func(call goja.FunctionCall) goja.Value {
-		return c.vm.ToValue(c.jsFetch(call))
-	})
 	_ = obj.Set("registerEventHandler", c.jsRegisterEventHandler)
 	_ = obj.Set("registerFieldRef", c.jsRegisterFieldRef)
 
+	c.bindFetch(obj)
 	// Bind screen manager
 	c.screenManager.bind(obj)
 	// Bind action manager

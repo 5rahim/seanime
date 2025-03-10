@@ -325,7 +325,7 @@ func (r *Repository) loadPlugins() {
 		return
 	}
 
-	pluginFilePath := filepath.Join(currDir, "/internal/extension_repo/goja_plugin_test", "test-command-palette.js")
+	pluginFilePath := filepath.Join(currDir, "/internal/extension_repo/goja_plugin_test", "test-command-palette.ts")
 	payload, err := os.ReadFile(pluginFilePath)
 	if err != nil {
 		r.logger.Error().Err(err).Msg("extensions: Failed to read test extension")
@@ -338,8 +338,8 @@ func (r *Repository) loadPlugins() {
 		Plugin: &extension.PluginManifest{
 			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionSystem, extension.PluginPermissionDatabase},
 			SystemAllowlist: &extension.PluginSystemAllowlist{
-				AllowReadPaths:  []string{"$DOWNLOAD/**", "$SEANIME_ASSETS/**", "$SEANIME_ANIME_LIBRARY/**"},
-				AllowWritePaths: []string{"$DOWNLOAD/**", "$SEANIME_ASSETS/**", "$SEANIME_ANIME_LIBRARY/**"},
+				AllowReadPaths:  []string{"$DOWNLOAD/**/*", "$SEANIME_ASSETS/**/*", "$SEANIME_ANIME_LIBRARY/**/*"},
+				AllowWritePaths: []string{"$DOWNLOAD/**/*", "$SEANIME_ASSETS/**/*", "$SEANIME_ANIME_LIBRARY/**/*"},
 				CommandScopes: []*extension.CommandScope{
 					{
 						Description: "Open files with the default application",

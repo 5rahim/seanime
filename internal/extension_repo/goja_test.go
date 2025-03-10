@@ -83,7 +83,7 @@ func TestGojaWithExtension(t *testing.T) {
 func TestGojaOnlinestreamExtension(t *testing.T) {
 	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
 	// Get the script
-	filepath := "./goja_onlinestream_test/animepahe.ts"
+	filepath := "./goja_animepahe/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)
@@ -127,7 +127,7 @@ func TestGojaOnlinestreamExtension(t *testing.T) {
 func TestGojaOnlinestreamExtension2(t *testing.T) {
 	runtimeManager := goja_runtime.NewManager(util.NewLogger(), 10)
 	// Get the script
-	filepath := "./goja_onlinestream_test/animepahe.ts"
+	filepath := "./goja_animepahe/animepahe.ts"
 	fileB, err := os.ReadFile(filepath)
 	if err != nil {
 		t.Fatal(err)

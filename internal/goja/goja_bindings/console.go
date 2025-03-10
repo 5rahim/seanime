@@ -75,7 +75,7 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 				}
 				ret = append(ret, fmt.Sprintf("%s", v))
 			case []byte:
-				ret = append(ret, fmt.Sprintf("ArrayBuffer(%d) [%s]", len(v), strings.Trim(fmt.Sprint(v), "[]")))
+				ret = append(ret, fmt.Sprintf("ArrayBuffer(%d) %s", len(v), fmt.Sprint(v)))
 			case map[string]interface{}:
 				ret = append(ret, fmt.Sprintf("%+v", v))
 			default:
