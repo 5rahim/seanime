@@ -664,6 +664,17 @@ export type UpdateExtensionCode_Variables = {
 /**
  * - Filepath: internal/handlers/extensions.go
  * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/external/reload
+ * @description
+ * Route reloads the external extension with the given ID.
+ */
+export type ReloadExternalExtension_Variables = {
+    id: string
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
  * - Endpoint: /api/v1/extensions/all
  * @description
  * Route returns all loaded and invalid extensions.

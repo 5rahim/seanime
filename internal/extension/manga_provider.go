@@ -88,3 +88,7 @@ func (m *MangaProviderExtensionImpl) GetUserConfig() *UserConfig {
 func (m *MangaProviderExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }
+
+func (m *MangaProviderExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
+}

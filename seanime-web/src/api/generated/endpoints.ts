@@ -602,10 +602,20 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/external/reload",
         },
+        ReloadExternalExtension: {
+            key: "EXTENSIONS-reload-external-extension",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/external/reload",
+        },
         ListExtensionData: {
             key: "EXTENSIONS-list-extension-data",
             methods: ["GET"],
             endpoint: "/api/v1/extensions/list",
+        },
+        ListDevelopmentModeExtensions: {
+            key: "EXTENSIONS-list-development-mode-extensions",
+            methods: ["GET"],
+            endpoint: "/api/v1/extensions/list/development",
         },
         GetAllExtensions: {
             key: "EXTENSIONS-get-all-extensions",

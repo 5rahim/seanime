@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit.
-import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { useCallback } from "react"
+import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 
 export enum PluginClientEvents {
     RenderTray = "tray:render",
@@ -52,7 +52,8 @@ export enum PluginServerEvents {
 // Client to server
 /////////////////////////////////////////////////////////////////////////////////////
 
-export type Plugin_Client_RenderTrayEventPayload = {}
+export type Plugin_Client_RenderTrayEventPayload = {
+}
 
 export function usePluginSendRenderTrayEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -62,11 +63,12 @@ export function usePluginSendRenderTrayEvent() {
     }, [])
 
     return {
-        sendRenderTrayEvent,
+        sendRenderTrayEvent
     }
 }
 
-export type Plugin_Client_ListTrayIconsEventPayload = {}
+export type Plugin_Client_ListTrayIconsEventPayload = {
+}
 
 export function usePluginSendListTrayIconsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -76,11 +78,12 @@ export function usePluginSendListTrayIconsEvent() {
     }, [])
 
     return {
-        sendListTrayIconsEvent,
+        sendListTrayIconsEvent
     }
 }
 
-export type Plugin_Client_TrayOpenedEventPayload = {}
+export type Plugin_Client_TrayOpenedEventPayload = {
+}
 
 export function usePluginSendTrayOpenedEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -90,11 +93,12 @@ export function usePluginSendTrayOpenedEvent() {
     }, [])
 
     return {
-        sendTrayOpenedEvent,
+        sendTrayOpenedEvent
     }
 }
 
-export type Plugin_Client_TrayClosedEventPayload = {}
+export type Plugin_Client_TrayClosedEventPayload = {
+}
 
 export function usePluginSendTrayClosedEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -104,11 +108,12 @@ export function usePluginSendTrayClosedEvent() {
     }, [])
 
     return {
-        sendTrayClosedEvent,
+        sendTrayClosedEvent
     }
 }
 
-export type Plugin_Client_TrayClickedEventPayload = {}
+export type Plugin_Client_TrayClickedEventPayload = {
+}
 
 export function usePluginSendTrayClickedEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -118,11 +123,12 @@ export function usePluginSendTrayClickedEvent() {
     }, [])
 
     return {
-        sendTrayClickedEvent,
+        sendTrayClickedEvent
     }
 }
 
-export type Plugin_Client_ListCommandPalettesEventPayload = {}
+export type Plugin_Client_ListCommandPalettesEventPayload = {
+}
 
 export function usePluginSendListCommandPalettesEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -132,11 +138,12 @@ export function usePluginSendListCommandPalettesEvent() {
     }, [])
 
     return {
-        sendListCommandPalettesEvent,
+        sendListCommandPalettesEvent
     }
 }
 
-export type Plugin_Client_CommandPaletteOpenedEventPayload = {}
+export type Plugin_Client_CommandPaletteOpenedEventPayload = {
+}
 
 export function usePluginSendCommandPaletteOpenedEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -146,11 +153,12 @@ export function usePluginSendCommandPaletteOpenedEvent() {
     }, [])
 
     return {
-        sendCommandPaletteOpenedEvent,
+        sendCommandPaletteOpenedEvent
     }
 }
 
-export type Plugin_Client_CommandPaletteClosedEventPayload = {}
+export type Plugin_Client_CommandPaletteClosedEventPayload = {
+}
 
 export function usePluginSendCommandPaletteClosedEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -160,11 +168,12 @@ export function usePluginSendCommandPaletteClosedEvent() {
     }, [])
 
     return {
-        sendCommandPaletteClosedEvent,
+        sendCommandPaletteClosedEvent
     }
 }
 
-export type Plugin_Client_RenderCommandPaletteEventPayload = {}
+export type Plugin_Client_RenderCommandPaletteEventPayload = {
+}
 
 export function usePluginSendRenderCommandPaletteEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -174,7 +183,7 @@ export function usePluginSendRenderCommandPaletteEvent() {
     }, [])
 
     return {
-        sendRenderCommandPaletteEvent,
+        sendRenderCommandPaletteEvent
     }
 }
 
@@ -190,7 +199,7 @@ export function usePluginSendCommandPaletteInputEvent() {
     }, [])
 
     return {
-        sendCommandPaletteInputEvent,
+        sendCommandPaletteInputEvent
     }
 }
 
@@ -206,87 +215,82 @@ export function usePluginSendCommandPaletteItemSelectedEvent() {
     }, [])
 
     return {
-        sendCommandPaletteItemSelectedEvent,
+        sendCommandPaletteItemSelectedEvent
     }
 }
 
-export type Plugin_Client_ActionRenderAnimePageButtonsEventPayload = {}
+export type Plugin_Client_ActionRenderAnimePageButtonsEventPayload = {
+}
 
 export function usePluginSendActionRenderAnimePageButtonsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderAnimePageButtonsEvent = useCallback((payload: Plugin_Client_ActionRenderAnimePageButtonsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderAnimePageButtonsEvent = useCallback((payload: Plugin_Client_ActionRenderAnimePageButtonsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderAnimePageButtons, payload, extensionID)
     }, [])
 
     return {
-        sendActionRenderAnimePageButtonsEvent,
+        sendActionRenderAnimePageButtonsEvent
     }
 }
 
-export type Plugin_Client_ActionRenderAnimePageDropdownItemsEventPayload = {}
+export type Plugin_Client_ActionRenderAnimePageDropdownItemsEventPayload = {
+}
 
 export function usePluginSendActionRenderAnimePageDropdownItemsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderAnimePageDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderAnimePageDropdownItemsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderAnimePageDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderAnimePageDropdownItemsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderAnimePageDropdownItems, payload, extensionID)
     }, [])
 
     return {
-        sendActionRenderAnimePageDropdownItemsEvent,
+        sendActionRenderAnimePageDropdownItemsEvent
     }
 }
 
-export type Plugin_Client_ActionRenderMangaPageButtonsEventPayload = {}
+export type Plugin_Client_ActionRenderMangaPageButtonsEventPayload = {
+}
 
 export function usePluginSendActionRenderMangaPageButtonsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderMangaPageButtonsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaPageButtonsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderMangaPageButtonsEvent = useCallback((payload: Plugin_Client_ActionRenderMangaPageButtonsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderMangaPageButtons, payload, extensionID)
     }, [])
 
     return {
-        sendActionRenderMangaPageButtonsEvent,
+        sendActionRenderMangaPageButtonsEvent
     }
 }
 
-export type Plugin_Client_ActionRenderMediaCardContextMenuItemsEventPayload = {}
+export type Plugin_Client_ActionRenderMediaCardContextMenuItemsEventPayload = {
+}
 
 export function usePluginSendActionRenderMediaCardContextMenuItemsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderMediaCardContextMenuItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMediaCardContextMenuItemsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderMediaCardContextMenuItemsEvent = useCallback((payload: Plugin_Client_ActionRenderMediaCardContextMenuItemsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderMediaCardContextMenuItems, payload, extensionID)
     }, [])
 
     return {
-        sendActionRenderMediaCardContextMenuItemsEvent,
+        sendActionRenderMediaCardContextMenuItemsEvent
     }
 }
 
-export type Plugin_Client_ActionRenderAnimeLibraryDropdownItemsEventPayload = {}
+export type Plugin_Client_ActionRenderAnimeLibraryDropdownItemsEventPayload = {
+}
 
 export function usePluginSendActionRenderAnimeLibraryDropdownItemsEvent() {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const sendActionRenderAnimeLibraryDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderAnimeLibraryDropdownItemsEventPayload,
-        extensionID?: string,
-    ) => {
+    const sendActionRenderAnimeLibraryDropdownItemsEvent = useCallback((payload: Plugin_Client_ActionRenderAnimeLibraryDropdownItemsEventPayload, extensionID?: string) => {
         sendPluginMessage(PluginClientEvents.ActionRenderAnimeLibraryDropdownItems, payload, extensionID)
     }, [])
 
     return {
-        sendActionRenderAnimeLibraryDropdownItemsEvent,
+        sendActionRenderAnimeLibraryDropdownItemsEvent
     }
 }
 
@@ -303,7 +307,7 @@ export function usePluginSendActionClickedEvent() {
     }, [])
 
     return {
-        sendActionClickedEvent,
+        sendActionClickedEvent
     }
 }
 
@@ -320,7 +324,7 @@ export function usePluginSendFormSubmittedEvent() {
     }, [])
 
     return {
-        sendFormSubmittedEvent,
+        sendFormSubmittedEvent
     }
 }
 
@@ -337,7 +341,7 @@ export function usePluginSendScreenChangedEvent() {
     }, [])
 
     return {
-        sendScreenChangedEvent,
+        sendScreenChangedEvent
     }
 }
 
@@ -354,7 +358,7 @@ export function usePluginSendEventHandlerTriggeredEvent() {
     }, [])
 
     return {
-        sendEventHandlerTriggeredEvent,
+        sendEventHandlerTriggeredEvent
     }
 }
 
@@ -371,7 +375,7 @@ export function usePluginSendFieldRefSendValueEvent() {
     }, [])
 
     return {
-        sendFieldRefSendValueEvent,
+        sendFieldRefSendValueEvent
     }
 }
 
@@ -383,9 +387,7 @@ export type Plugin_Server_TrayUpdatedEventPayload = {
     components: any
 }
 
-export function usePluginListenTrayUpdatedEvent(cb: (payload: Plugin_Server_TrayUpdatedEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenTrayUpdatedEvent(cb: (payload: Plugin_Server_TrayUpdatedEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayUpdatedEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.TrayUpdated,
@@ -412,9 +414,7 @@ export type Plugin_Server_CommandPaletteInfoEventPayload = {
     keyboardShortcut: string
 }
 
-export function usePluginListenCommandPaletteInfoEvent(cb: (payload: Plugin_Server_CommandPaletteInfoEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenCommandPaletteInfoEvent(cb: (payload: Plugin_Server_CommandPaletteInfoEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteInfoEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteInfo,
@@ -427,9 +427,7 @@ export type Plugin_Server_CommandPaletteUpdatedEventPayload = {
     items: any
 }
 
-export function usePluginListenCommandPaletteUpdatedEvent(cb: (payload: Plugin_Server_CommandPaletteUpdatedEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenCommandPaletteUpdatedEvent(cb: (payload: Plugin_Server_CommandPaletteUpdatedEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteUpdatedEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteUpdated,
@@ -437,11 +435,10 @@ export function usePluginListenCommandPaletteUpdatedEvent(cb: (payload: Plugin_S
     })
 }
 
-export type Plugin_Server_CommandPaletteOpenEventPayload = {}
+export type Plugin_Server_CommandPaletteOpenEventPayload = {
+}
 
-export function usePluginListenCommandPaletteOpenEvent(cb: (payload: Plugin_Server_CommandPaletteOpenEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenCommandPaletteOpenEvent(cb: (payload: Plugin_Server_CommandPaletteOpenEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteOpenEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteOpen,
@@ -449,11 +446,10 @@ export function usePluginListenCommandPaletteOpenEvent(cb: (payload: Plugin_Serv
     })
 }
 
-export type Plugin_Server_CommandPaletteCloseEventPayload = {}
+export type Plugin_Server_CommandPaletteCloseEventPayload = {
+}
 
-export function usePluginListenCommandPaletteCloseEvent(cb: (payload: Plugin_Server_CommandPaletteCloseEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenCommandPaletteCloseEvent(cb: (payload: Plugin_Server_CommandPaletteCloseEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteCloseEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteClose,
@@ -461,11 +457,10 @@ export function usePluginListenCommandPaletteCloseEvent(cb: (payload: Plugin_Ser
     })
 }
 
-export type Plugin_Server_CommandPaletteGetInputEventPayload = {}
+export type Plugin_Server_CommandPaletteGetInputEventPayload = {
+}
 
-export function usePluginListenCommandPaletteGetInputEvent(cb: (payload: Plugin_Server_CommandPaletteGetInputEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenCommandPaletteGetInputEvent(cb: (payload: Plugin_Server_CommandPaletteGetInputEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteGetInputEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteGetInput,
@@ -477,9 +472,7 @@ export type Plugin_Server_CommandPaletteSetInputEventPayload = {
     value: string
 }
 
-export function usePluginListenCommandPaletteSetInputEvent(cb: (payload: Plugin_Server_CommandPaletteSetInputEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenCommandPaletteSetInputEvent(cb: (payload: Plugin_Server_CommandPaletteSetInputEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_CommandPaletteSetInputEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.CommandPaletteSetInput,
@@ -491,9 +484,7 @@ export type Plugin_Server_ActionRenderAnimePageButtonsEventPayload = {
     buttons: any
 }
 
-export function usePluginListenActionRenderAnimePageButtonsEvent(cb: (payload: Plugin_Server_ActionRenderAnimePageButtonsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderAnimePageButtonsEvent(cb: (payload: Plugin_Server_ActionRenderAnimePageButtonsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderAnimePageButtonsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderAnimePageButtons,
@@ -505,9 +496,7 @@ export type Plugin_Server_ActionRenderAnimePageDropdownItemsEventPayload = {
     items: any
 }
 
-export function usePluginListenActionRenderAnimePageDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderAnimePageDropdownItemsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderAnimePageDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderAnimePageDropdownItemsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderAnimePageDropdownItemsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderAnimePageDropdownItems,
@@ -519,9 +508,7 @@ export type Plugin_Server_ActionRenderMangaPageButtonsEventPayload = {
     buttons: any
 }
 
-export function usePluginListenActionRenderMangaPageButtonsEvent(cb: (payload: Plugin_Server_ActionRenderMangaPageButtonsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderMangaPageButtonsEvent(cb: (payload: Plugin_Server_ActionRenderMangaPageButtonsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMangaPageButtonsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderMangaPageButtons,
@@ -533,9 +520,7 @@ export type Plugin_Server_ActionRenderMediaCardContextMenuItemsEventPayload = {
     items: any
 }
 
-export function usePluginListenActionRenderMediaCardContextMenuItemsEvent(cb: (payload: Plugin_Server_ActionRenderMediaCardContextMenuItemsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderMediaCardContextMenuItemsEvent(cb: (payload: Plugin_Server_ActionRenderMediaCardContextMenuItemsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderMediaCardContextMenuItemsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderMediaCardContextMenuItems,
@@ -547,9 +532,7 @@ export type Plugin_Server_ActionRenderAnimeLibraryDropdownItemsEventPayload = {
     items: any
 }
 
-export function usePluginListenActionRenderAnimeLibraryDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderAnimeLibraryDropdownItemsEventPayload,
-    extensionId: string,
-) => void, extensionID: string) {
+export function usePluginListenActionRenderAnimeLibraryDropdownItemsEvent(cb: (payload: Plugin_Server_ActionRenderAnimeLibraryDropdownItemsEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ActionRenderAnimeLibraryDropdownItemsEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ActionRenderAnimeLibraryDropdownItems,
@@ -575,9 +558,7 @@ export type Plugin_Server_FormSetValuesEventPayload = {
     data: Record<string, any>
 }
 
-export function usePluginListenFormSetValuesEvent(cb: (payload: Plugin_Server_FormSetValuesEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenFormSetValuesEvent(cb: (payload: Plugin_Server_FormSetValuesEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_FormSetValuesEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.FormSetValues,
@@ -590,9 +571,7 @@ export type Plugin_Server_FieldRefSetValueEventPayload = {
     value: any
 }
 
-export function usePluginListenFieldRefSetValueEvent(cb: (payload: Plugin_Server_FieldRefSetValueEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenFieldRefSetValueEvent(cb: (payload: Plugin_Server_FieldRefSetValueEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_FieldRefSetValueEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.FieldRefSetValue,
@@ -604,9 +583,7 @@ export type Plugin_Server_FatalErrorEventPayload = {
     error: string
 }
 
-export function usePluginListenFatalErrorEvent(cb: (payload: Plugin_Server_FatalErrorEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenFatalErrorEvent(cb: (payload: Plugin_Server_FatalErrorEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_FatalErrorEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.FatalError,
@@ -618,9 +595,7 @@ export type Plugin_Server_ScreenNavigateToEventPayload = {
     path: string
 }
 
-export function usePluginListenScreenNavigateToEvent(cb: (payload: Plugin_Server_ScreenNavigateToEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenScreenNavigateToEvent(cb: (payload: Plugin_Server_ScreenNavigateToEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ScreenNavigateToEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ScreenNavigateTo,
@@ -628,11 +603,10 @@ export function usePluginListenScreenNavigateToEvent(cb: (payload: Plugin_Server
     })
 }
 
-export type Plugin_Server_ScreenReloadEventPayload = {}
+export type Plugin_Server_ScreenReloadEventPayload = {
+}
 
-export function usePluginListenScreenReloadEvent(cb: (payload: Plugin_Server_ScreenReloadEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenScreenReloadEvent(cb: (payload: Plugin_Server_ScreenReloadEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ScreenReloadEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ScreenReload,

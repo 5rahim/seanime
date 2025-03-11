@@ -49,11 +49,11 @@ type AppContext interface {
 	// BindSystem binds $system to the Goja runtime
 	BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 
-	// BindPlayback binds $playback to the Goja runtime
-	BindPlayback(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	// BindPlaybackToContextObj binds 'playback' to the UI context object
+	BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 
-	// BindCron binds $cron to the Goja runtime
-	BindCron(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+	// BindCronToContextObj binds 'cron' to the UI context object
+	BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 }
 
 var GlobalAppContext = NewAppContext()

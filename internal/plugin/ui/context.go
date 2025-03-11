@@ -6,9 +6,11 @@ import (
 	"reflect"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	"seanime/internal/plugin"
 	goja_util "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/dop251/goja"
@@ -33,6 +35,7 @@ type Context struct {
 	scheduler        *goja_util.Scheduler // Schedule VM executions concurrently and execute them in order.
 	wsSubscriber     *events.ClientEventSubscriber
 	eventListeners   *result.Map[string, *EventListener] // Event listeners registered by plugin functions
+	contextObj       *goja.Object
 
 	fieldRefCount  int                    // Number of field refs registered
 	exceptionCount int                    // Number of exceptions that have occurred
@@ -55,6 +58,9 @@ type Context struct {
 	formManager           *FormManager           // Register and manage forms
 	toastManager          *ToastManager          // Register and manage toasts
 	commandPaletteManager *CommandPaletteManager // Register and manage command palette
+
+	atomicCleanupCounter atomic.Int64
+	onCleanupFns         *result.Map[int64, func()]
 }
 
 type State struct {
@@ -72,19 +78,21 @@ type EventListener struct {
 
 func NewContext(ui *UI) *Context {
 	ret := &Context{
-		ui:                  ui,
-		ext:                 ui.ext,
-		logger:              ui.logger,
-		vm:                  ui.vm,
-		states:              result.NewResultMap[string, *State](),
-		fetchSem:            make(chan struct{}, MaxConcurrentFetchRequests),
-		stateSubscribers:    make([]chan *State, 0),
-		eventListeners:      result.NewResultMap[string, *EventListener](),
-		wsEventManager:      ui.wsEventManager,
-		effectStack:         make(map[string]bool),
-		effectCalls:         make(map[string][]time.Time),
-		pendingStateUpdates: make(map[string]struct{}),
-		lastUIUpdateAt:      time.Now().Add(-time.Hour), // Initialize to a time in the past
+		ui:                   ui,
+		ext:                  ui.ext,
+		logger:               ui.logger,
+		vm:                   ui.vm,
+		states:               result.NewResultMap[string, *State](),
+		fetchSem:             make(chan struct{}, MaxConcurrentFetchRequests),
+		stateSubscribers:     make([]chan *State, 0),
+		eventListeners:       result.NewResultMap[string, *EventListener](),
+		wsEventManager:       ui.wsEventManager,
+		effectStack:          make(map[string]bool),
+		effectCalls:          make(map[string][]time.Time),
+		pendingStateUpdates:  make(map[string]struct{}),
+		lastUIUpdateAt:       time.Now().Add(-time.Hour), // Initialize to a time in the past
+		atomicCleanupCounter: atomic.Int64{},
+		onCleanupFns:         result.NewResultMap[int64, func()](),
 	}
 
 	ret.scheduler = ui.scheduler
@@ -125,7 +133,22 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	// Bind toast manager
 	c.toastManager.bind(obj)
 
+	if c.ext.Plugin != nil {
+		for _, permission := range c.ext.Plugin.Permissions {
+			switch permission {
+			case extension.PluginPermissionPlayback:
+				// Bind playback to the context object
+				plugin.GlobalAppContext.BindPlaybackToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+			case extension.PluginPermissionCron:
+				// Bind cron to the context object
+				plugin.GlobalAppContext.BindCronToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+			}
+		}
+	}
+
 	_ = vm.Set("__ctx", obj)
+
+	c.contextObj = obj
 }
 
 // RegisterEventListener is used to register a new event listener in a Goja function
@@ -167,6 +190,10 @@ func (c *Context) PrintState() {
 	})
 }
 
+func (c *Context) GetContextObj() (*goja.Object, bool) {
+	return c.contextObj, c.contextObj != nil
+}
+
 // HandleTypeError interrupts the UI the first time we encounter a type error.
 // Interrupting early is better to catch wrong usage of the API.
 func (c *Context) HandleTypeError(msg string) {
@@ -205,7 +232,12 @@ func (c *Context) fatalError(err error) {
 
 	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("Plugin: '%s' has encountered a fatal error and has been terminated.", c.ext.Name))
 
-	c.ui.ClearInterrupt()
+	c.ui.Unload()
+}
+
+func (c *Context) registerOnCleanup(fn func()) {
+	c.atomicCleanupCounter.Add(1)
+	c.onCleanupFns.Set(c.atomicCleanupCounter.Load(), fn)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -492,7 +524,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 			case <-ctxEffect.Done():
 				return
 			case updatedState := <-subChan:
-				if effectFn != nil {
+				if effectFn != nil && updatedState != nil {
 					// Check if the updated state is one of our dependencies by matching __stateId
 					for i, depID := range dropIDs {
 						if depID == updatedState.ID {
@@ -775,4 +807,46 @@ func (c *Context) Cleanup() {
 
 	// Flush any remaining updates
 	c.flushStateUpdates()
+}
+
+func (c *Context) Stop() {
+	c.logger.Debug().Msg("plugin: Stopping context")
+
+	if c.updateBatchTimer != nil {
+		c.updateBatchTimer.Stop()
+	}
+
+	// Stop the scheduler
+	c.scheduler.Stop()
+
+	// Stop all event listeners
+	for _, listener := range c.eventListeners.Values() {
+		go func(listener *EventListener) {
+			defer func() {
+				if r := recover(); r != nil {
+				}
+			}()
+			listener.closed = true
+			close(listener.Channel)
+		}(listener)
+	}
+
+	// Stop all state subscribers
+	for _, sub := range c.stateSubscribers {
+		go func(sub chan *State) {
+			defer func() {
+				if r := recover(); r != nil {
+				}
+			}()
+			close(sub)
+		}(sub)
+	}
+
+	c.onCleanupFns.Range(func(key int64, fn func()) bool {
+		fn()
+		return true
+	})
+	c.onCleanupFns.Clear()
+
+	c.logger.Debug().Msg("plugin: Stopped context")
 }

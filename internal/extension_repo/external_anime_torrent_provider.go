@@ -30,7 +30,7 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 }
 
 func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.Extension, language extension.Language) error {
-	provider, _, err := NewGojaAnimeTorrentProvider(ext, language, r.logger, r.gojaRuntimeManager)
+	provider, gojaExt, err := NewGojaAnimeTorrentProvider(ext, language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
@@ -38,5 +38,6 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtensionJS(ext *extension.
 	// Add the extension to the map
 	retExt := extension.NewAnimeTorrentProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 	return nil
 }

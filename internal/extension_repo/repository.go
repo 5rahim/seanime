@@ -2,7 +2,6 @@ package extension_repo
 
 import (
 	"os"
-	"path/filepath"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	hibikemanga "seanime/internal/extension/hibike/manga"
@@ -11,6 +10,7 @@ import (
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/plugin"
+	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
 
@@ -152,6 +152,17 @@ func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
 		ret = append(ret, extension.ToExtensionData(ext))
+		return true
+	})
+
+	return ret
+}
+
+func (r *Repository) ListDevelopmentModeExtensions() (ret []*extension.Extension) {
+	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
+		if ext.GetIsDevelopment() {
+			ret = append(ret, extension.ToExtensionData(ext))
+		}
 		return true
 	})
 
@@ -313,59 +324,15 @@ func (r *Repository) LoadBuiltInOnlinestreamProviderExtensionJS(info extension.E
 	r.logger.Debug().Str("id", info.ID).Msg("extensions: Loaded built-in onlinestream provider extension")
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+func (r *Repository) loadPlugin(ext *extension.Extension) (err error) {
+	defer util.HandlePanicInModuleWithError("extension_repo/loadPlugin", &err)
 
-func (r *Repository) loadPlugins() {
-
-	// TESTING
-
-	currDir, err := os.Getwd()
+	err = r.loadPluginExtension(ext)
 	if err != nil {
-		r.logger.Error().Err(err).Msg("extensions: Failed to get current directory")
-		return
+		r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to load plugin")
+		return err
 	}
 
-	pluginFilePath := filepath.Join(currDir, "/internal/extension_repo/goja_plugin_test", "test-command-palette.ts")
-	payload, err := os.ReadFile(pluginFilePath)
-	if err != nil {
-		r.logger.Error().Err(err).Msg("extensions: Failed to read test extension")
-		return
-	}
-
-	testExt := &extension.Extension{
-		ID:       "test-plugin",
-		Language: extension.LanguageTypescript,
-		Plugin: &extension.PluginManifest{
-			Permissions: []extension.PluginPermission{extension.PluginPermissionStorage, extension.PluginPermissionAnilist, extension.PluginPermissionSystem, extension.PluginPermissionDatabase},
-			SystemAllowlist: &extension.PluginSystemAllowlist{
-				AllowReadPaths:  []string{"$DOWNLOAD/**/*", "$SEANIME_ASSETS/**/*", "$SEANIME_ANIME_LIBRARY/**/*"},
-				AllowWritePaths: []string{"$DOWNLOAD/**/*", "$SEANIME_ASSETS/**/*", "$SEANIME_ANIME_LIBRARY/**/*"},
-				CommandScopes: []*extension.CommandScope{
-					{
-						Description: "Open files with the default application",
-						Command:     "open",
-						Args: []extension.CommandArg{
-							{
-								Validator: "^http://.*$",
-							},
-						},
-					},
-				},
-			},
-		},
-		Payload:     string(payload),
-		Name:        "Test Plugin",
-		Version:     "1.0.0",
-		ManifestURI: "https://raw.githubusercontent.com/5rahim/seanime-extensions/refs/heads/main/anime-torrent-providers/basic-nyaa/basic-nyaa.json",
-		Type:        extension.TypePlugin,
-		Description: "Test Plugin",
-		Author:      "Test Author",
-		PayloadURI:  "",
-	}
-
-	err = r.loadPluginExtension(testExt)
-	if err != nil {
-		r.logger.Error().Err(err).Msg("extensions: Failed to load test extension")
-	}
-
+	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded plugin")
+	return
 }

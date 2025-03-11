@@ -386,7 +386,7 @@ declare namespace $storage {
      * @returns The value associated with the key
      * @throws Error if something goes wrong
      */
-    function get<T = any>(key: string): T
+    function get<T = any>(key: string): T | undefined
 
     /**
      * Removes a value from the storage.
@@ -611,3 +611,77 @@ declare function $toString(value: any): string;
  * @param milliseconds - The amount of time to sleep in milliseconds
  */
 declare function $sleep(milliseconds: number): void;
+
+/**
+ * Cron
+ */
+
+declare namespace $cron {
+    /**
+     * Adds a cron job
+     * @param id - The id of the cron job
+     * @param cronExpr - The cron expression
+     * @param fn - The function to call
+     */
+    function add(id: string, cronExpr: string, fn: () => void): void;
+
+    /**
+     * Removes a cron job
+     * @param id - The id of the cron job
+     */
+    function remove(id: string): void;
+
+    /**
+     * Removes all cron jobs
+     */
+    function removeAll(): void;
+
+    /**
+     * Gets the total number of cron jobs
+     * @returns The total number of cron jobs
+     */
+    function total(): number;
+
+    /**
+     * Starts the cron jobs, can be paused by calling stop()
+     */
+    function start(): void;
+
+    /**
+     * Stops the cron jobs, can be resumed by calling start()
+     */
+    function stop(): void;
+
+    /**
+     * Checks if the cron jobs have started
+     * @returns True if the cron jobs have started, false otherwise
+     */
+    function hasStarted(): boolean;
+}
+
+/**
+ * Database
+ */
+
+declare namespace $database {
+
+    declare namespace anime {
+        /**
+         * Gets the local files
+         * @returns The local files
+         */
+        function getAll(): $app.Anime_LocalFile[];
+
+        /**
+         * Saves the modified local files
+         * @param files - The local files to save
+         */
+        function save(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[];
+
+        /**
+         * Inserts the local files as a new entry
+         * @param files - The local files to insert
+         */
+        function insert(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[];
+    }
+}

@@ -3,6 +3,7 @@ import {
     FetchExternalExtensionData_Variables,
     GetAllExtensions_Variables,
     InstallExternalExtension_Variables,
+    ReloadExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
     SaveExtensionUserConfig_Variables,
     UninstallExternalExtension_Variables,
@@ -157,6 +158,27 @@ export function useSaveExtensionUserConfig() {
         onSuccess: async () => {
             // DEVNOTE: No need to refetch, the websocket listener will do it
             toast.success("Config saved successfully.")
+        },
+    })
+}
+
+export function useListDevelopmentModeExtensions() {
+    return useServerQuery<Array<Extension_Extension>>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key],
+        enabled: true,
+    })
+}
+
+export function useReloadExternalExtension() {
+    return useServerMutation<boolean, ReloadExternalExtension_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.key],
+        onSuccess: async () => {
+            toast.success("Extension reloaded successfully.")
+            // DEVNOTE: No need to refetch, the websocket listener will do it
         },
     })
 }

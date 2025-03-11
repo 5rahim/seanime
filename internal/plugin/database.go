@@ -25,14 +25,17 @@ func (a *AppContextImpl) BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, 
 	}
 	dbObj := vm.NewObject()
 
-	dbObj.Set("getLocalFiles", db.getLocalFiles)
-	dbObj.Set("saveLocalFiles", db.saveLocalFiles)
-	dbObj.Set("insertLocalFiles", db.insertLocalFiles)
+	animeObj := vm.NewObject()
+	animeObj.Set("getAll", db.getAllLocalFiles)
+	animeObj.Set("save", db.saveLocalFiles)
+	animeObj.Set("insert", db.insertLocalFiles)
+
+	dbObj.Set("anime", animeObj)
 
 	_ = vm.Set("$database", dbObj)
 }
 
-func (d *Database) getLocalFiles() ([]*anime.LocalFile, error) {
+func (d *Database) getAllLocalFiles() ([]*anime.LocalFile, error) {
 	db, ok := d.ctx.database.Get()
 	if !ok {
 		return nil, errors.New("database not initialized")

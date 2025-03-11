@@ -440,12 +440,12 @@ func (s *Storage) Get(key string) (interface{}, error) {
 
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
-		return nil, err
+		return nil, nil
 	}
 
 	data, err := s.getDataMap(pluginData)
 	if err != nil {
-		return nil, err
+		return nil, nil
 	}
 
 	value := getNestedValue(data, key)

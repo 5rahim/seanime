@@ -51,6 +51,7 @@ const (
 	MediastreamShutdownStream = "mediastream-shutdown-stream"
 
 	ExtensionsReloaded = "extensions-reloaded"
+	PluginUnloaded     = "plugin-unloaded"
 
 	ActiveTorrentCountUpdated = "active-torrent-count-updated"
 

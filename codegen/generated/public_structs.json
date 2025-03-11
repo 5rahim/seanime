@@ -32042,6 +32042,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "IsDevelopment",
+        "jsonName": "isDevelopment",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -34865,6 +34874,58 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/goja/goja_bindings/fetch.go",
+    "filename": "fetch.go",
+    "name": "Fetch",
+    "formattedName": "Fetch",
+    "package": "goja_bindings",
+    "fields": [
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "fetchSem",
+        "jsonName": "fetchSem",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vmResponseCh",
+        "jsonName": "vmResponseCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/goja/goja_bindings/fieldmapper.go",
+    "filename": "fieldmapper.go",
+    "name": "DefaultFieldMapper",
+    "formattedName": "DefaultFieldMapper",
+    "package": "goja_bindings",
+    "fields": [],
+    "comments": [
+      " DefaultFieldMapper provides custom mapping between Go and JavaScript methods names.",
+      "",
+      " It is similar to the builtin \"uncapFieldNameMapper\" but also converts",
+      " all uppercase identifiers to their lowercase equivalent (eg. \"GET\" -\u003e \"get\")."
+    ]
   },
   {
     "filepath": "../internal/goja/goja_runtime/goja_runtime_manager.go",
@@ -52171,6 +52232,16 @@
         ]
       },
       {
+        "name": "contextObj",
+        "jsonName": "contextObj",
+        "goType": "goja.Object",
+        "typescriptType": "Object",
+        "usedStructName": "goja.Object",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "fieldRefCount",
         "jsonName": "fieldRefCount",
         "goType": "int",
@@ -52351,6 +52422,25 @@
         "comments": [
           " Register and manage command palette"
         ]
+      },
+      {
+        "name": "atomicCleanupCounter",
+        "jsonName": "atomicCleanupCounter",
+        "goType": "atomic.Int64",
+        "typescriptType": "Int64",
+        "usedStructName": "atomic.Int64",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onCleanupFns",
+        "jsonName": "onCleanupFns",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [

@@ -10,9 +10,13 @@ import (
 )
 
 func manifestSanityCheck(ext *extension.Extension) error {
-	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" || ext.Payload == "" {
+	if ext.ID == "" || ext.Name == "" || ext.Version == "" || ext.Language == "" || ext.Type == "" || ext.Author == "" {
 		return fmt.Errorf("extension is missing required fields, ID: %v, Name: %v, Version: %v, Language: %v, Type: %v, Author: %v, Payload: %v",
 			ext.ID, ext.Name, ext.Version, ext.Language, ext.Type, ext.Author, len(ext.Payload))
+	}
+
+	if ext.Payload == "" && ext.PayloadURI == "" {
+		return fmt.Errorf("extension is missing payload or payload URI")
 	}
 
 	// Check the ID
@@ -44,7 +48,8 @@ func manifestSanityCheck(ext *extension.Extension) error {
 	// Check type
 	if ext.Type != extension.TypeMangaProvider &&
 		ext.Type != extension.TypeOnlinestreamProvider &&
-		ext.Type != extension.TypeAnimeTorrentProvider {
+		ext.Type != extension.TypeAnimeTorrentProvider &&
+		ext.Type != extension.TypePlugin {
 		return fmt.Errorf("unsupported extension type: %v", ext.Type)
 	}
 

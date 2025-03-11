@@ -82,3 +82,7 @@ func (m *PluginExtensionImpl) GetUserConfig() *UserConfig {
 func (m *PluginExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }
+
+func (m *PluginExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
+}

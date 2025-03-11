@@ -27,7 +27,7 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 }
 
 func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, language extension.Language) error {
-	provider, _, err := NewGojaMangaProvider(ext, language, r.logger, r.gojaRuntimeManager)
+	provider, gojaExt, err := NewGojaMangaProvider(ext, language, r.logger, r.gojaRuntimeManager)
 	if err != nil {
 		return err
 	}
@@ -35,5 +35,6 @@ func (r *Repository) loadExternalMangaExtensionJS(ext *extension.Extension, lang
 	// Add the extension to the map
 	retExt := extension.NewMangaProviderExtension(ext, provider)
 	r.extensionBank.Set(ext.ID, retExt)
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 	return nil
 }

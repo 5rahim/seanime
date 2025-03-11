@@ -586,6 +586,11 @@ func (pm *PlaybackManager) SubscribeToPlaybackStatus(id string) *PlaybackStatusS
 }
 
 func (pm *PlaybackManager) UnsubscribeFromPlaybackStatus(id string) {
+	defer func() {
+		if r := recover(); r != nil {
+			pm.Logger.Warn().Msg("playback manager: Failed to unsubscribe from playback status")
+		}
+	}()
 	subscriber, ok := pm.playbackStatusSubscribers.Get(id)
 	if !ok {
 		return

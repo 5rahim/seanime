@@ -70,10 +70,15 @@ type Extension struct {
 	// Payload is the content of the extension.
 	Payload string `json:"payload"`
 	// PayloadURI is the URI to the extension payload.
-	// It can be used as an alternative to the Payload field.
+	// It can be used as an alternative to the Payload field to load the payload from a remote source.
+	// If the extension is in debug mode, this can be a file path to the local payload.
 	PayloadURI string `json:"payloadURI,omitempty"`
 	// Plugin is the manifest of the extension if it is a plugin.
 	Plugin *PluginManifest `json:"plugin,omitempty"`
+
+	// IsDevelopment is true if the extension is in development mode.
+	// If true, the extension code will be loaded from PayloadURI and allow you to edit the code from an editor and reload the extension without restarting the application.
+	IsDevelopment bool `json:"isDevelopment,omitempty"`
 }
 
 type PluginManifest struct {
@@ -195,25 +200,27 @@ type BaseExtension interface {
 	GetWebsite() string
 	GetPermissions() []string
 	GetUserConfig() *UserConfig
+	GetIsDevelopment() bool
 }
 
 func ToExtensionData(ext BaseExtension) *Extension {
 	return &Extension{
-		ID:          ext.GetID(),
-		Name:        ext.GetName(),
-		Version:     ext.GetVersion(),
-		ManifestURI: ext.GetManifestURI(),
-		Language:    ext.GetLanguage(),
-		Lang:        GetExtensionLang(ext.GetLang()),
-		Type:        ext.GetType(),
-		Description: ext.GetDescription(),
-		Author:      ext.GetAuthor(),
-		Permissions: ext.GetPermissions(),
-		UserConfig:  ext.GetUserConfig(),
-		Icon:        ext.GetIcon(),
-		Website:     ext.GetWebsite(),
-		Payload:     ext.GetPayload(),
-		PayloadURI:  ext.GetPayloadURI(),
+		ID:            ext.GetID(),
+		Name:          ext.GetName(),
+		Version:       ext.GetVersion(),
+		ManifestURI:   ext.GetManifestURI(),
+		Language:      ext.GetLanguage(),
+		Lang:          GetExtensionLang(ext.GetLang()),
+		Type:          ext.GetType(),
+		Description:   ext.GetDescription(),
+		Author:        ext.GetAuthor(),
+		Permissions:   ext.GetPermissions(),
+		UserConfig:    ext.GetUserConfig(),
+		Icon:          ext.GetIcon(),
+		Website:       ext.GetWebsite(),
+		Payload:       ext.GetPayload(),
+		PayloadURI:    ext.GetPayloadURI(),
+		IsDevelopment: ext.GetIsDevelopment(),
 	}
 }
 

@@ -3,6 +3,8 @@ import { atom } from "jotai/vanilla"
 import React from "react"
 import { usePluginListenCommandPaletteInfoEvent, usePluginSendListCommandPalettesEvent } from "../generated/plugin-events"
 import { PluginCommandPalette, PluginCommandPaletteInfo } from "./plugin-command-palette"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { WSEvents } from "@/lib/server/ws-events"
 
 
 export const __plugin_commandPalettesAtom = atom<PluginCommandPaletteInfo[]>([])
@@ -41,6 +43,13 @@ export function PluginCommandPalettes() {
             }].sort((a, b) => a.extensionId.localeCompare(b.extensionId, undefined, { numeric: true }))
         })
     }, "")
+
+    useWebsocketMessageListener({
+        type: WSEvents.PLUGIN_UNLOADED,
+        onMessage: (extensionId) => {
+            setCommandPalettes(prev => prev.filter(palette => palette.extensionId !== extensionId))
+        }
+    })
 
     if (!commandPalettes) return null
 

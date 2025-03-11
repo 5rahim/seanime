@@ -1,10 +1,12 @@
 package plugin_ui
 
 import (
+	"runtime"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/plugin"
+	"seanime/internal/util"
 	goja_util "seanime/internal/util/goja"
 	"sync"
 
@@ -33,20 +35,26 @@ type UI struct {
 	scheduler      *goja_util.Scheduler
 }
 
-func (u *UI) ClearInterrupt() {
+func (u *UI) Unload() {
+	u.logger.Debug().Msg("plugin: Stopping UI")
 	u.mu.Lock()
 	defer u.mu.Unlock()
-
+	// Stop the VM
 	u.vm.ClearInterrupt()
-	u.context.scheduler.Stop()
+	// Unsubscribe from client all events
 	if u.context.wsSubscriber != nil {
 		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.ext.ID)
 	}
-
-	// Clean up the context
+	// Clean up the context (all modules)
 	if u.context != nil {
-		u.context.Cleanup()
+		u.context.Stop()
 	}
+
+	// Send the plugin unloaded event to the client
+	u.wsEventManager.SendEvent(events.PluginUnloaded, u.ext.ID)
+
+	runtime.GC()
+	u.logger.Debug().Msg("plugin: Stopped UI")
 }
 
 type NewUIOptions struct {
@@ -80,6 +88,10 @@ func NewUI(options NewUIOptions) *UI {
 // This is the main entry point for the UI
 // - It is called once when the plugin is loaded and registers all necessary modules
 func (u *UI) Register(callback string) {
+	defer util.HandlePanicInModuleThen("plugin_ui/Register", func() {
+		u.logger.Error().Msg("plugin: Panic in Register")
+	})
+
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
@@ -90,6 +102,8 @@ func (u *UI) Register(callback string) {
 
 	// Subscribe the plugin to client events
 	u.context.wsSubscriber = u.wsEventManager.SubscribeToClientEvents("plugin-" + u.ext.ID)
+
+	u.logger.Debug().Msg("plugin: Registering UI")
 
 	// Listen for client events and send them to the event listeners
 	go func() {
@@ -152,12 +166,7 @@ func (u *UI) Register(callback string) {
 				}
 			}
 		}
-		u.logger.Warn().Msg("plugin: Unsubscribed from client events")
-		// Close the listener channels when the subscriber is closed
-		u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
-			close(listener.Channel)
-			return true
-		})
+		u.logger.Debug().Msg("plugin: Event goroutine stopped")
 	}()
 
 	u.context.createAndBindContextObject(u.vm)
@@ -168,4 +177,15 @@ func (u *UI) Register(callback string) {
 		u.logger.Error().Err(err).Msg("plugin: Failed to register UI")
 		return
 	}
+
+	// Send events to the client
+	u.context.trayManager.renderTrayScheduled()
+	u.context.trayManager.sendIconToClient()
+	u.context.actionManager.renderAnimePageButtons()
+	u.context.actionManager.renderAnimePageDropdownItems()
+	u.context.actionManager.renderAnimeLibraryDropdownItems()
+	u.context.actionManager.renderMangaPageButtons()
+	u.context.actionManager.renderMediaCardContextMenuItems()
+	u.context.commandPaletteManager.renderCommandPaletteScheduled()
+	u.context.commandPaletteManager.sendInfoToClient()
 }

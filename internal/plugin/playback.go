@@ -50,7 +50,28 @@ func (a *AppContextImpl) BindPlayback(vm *goja.Runtime, logger *zerolog.Logger, 
 	_ = mpvObj.Set("newConnection", p.mpvNewConnection)
 	_ = mpvObj.Set("registerEventListener", p.mpvRegisterEventListener)
 	_ = vm.Set("$mpv", mpvObj)
+}
 
+func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+	p := &Playback{
+		ctx:       a,
+		vm:        vm,
+		logger:    logger,
+		ext:       ext,
+		scheduler: scheduler,
+	}
+
+	playbackObj := vm.NewObject()
+	_ = playbackObj.Set("playUsingMediaPlayer", p.playUsingMediaPlayer)
+	_ = playbackObj.Set("streamUsingMediaPlayer", p.streamUsingMediaPlayer)
+	_ = playbackObj.Set("registerEventListener", p.registerEventListener)
+	_ = obj.Set("playback", playbackObj)
+
+	// MPV
+	mpvObj := vm.NewObject()
+	_ = mpvObj.Set("newConnection", p.mpvNewConnection)
+	_ = mpvObj.Set("registerEventListener", p.mpvRegisterEventListener)
+	_ = obj.Set("mpv", mpvObj)
 }
 
 type PlaybackEvent struct {

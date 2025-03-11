@@ -88,3 +88,7 @@ func (m *AnimeTorrentProviderExtensionImpl) GetUserConfig() *UserConfig {
 func (m *AnimeTorrentProviderExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }
+
+func (m *AnimeTorrentProviderExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
+}

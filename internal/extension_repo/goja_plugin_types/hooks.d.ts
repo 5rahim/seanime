@@ -688,9 +688,9 @@ declare namespace $app {
         next();
 
         localFiles?: Array<Anime_LocalFile>;
-        /**
-         * in milliseconds
-         */
+    /**
+     * in milliseconds
+     */
         duration: number;
     }
 
@@ -1825,15 +1825,15 @@ declare namespace $app {
      *  The format the media was released in
      */
     export type AL_MediaFormat = "TV" |
-        "TV_SHORT" |
-        "MOVIE" |
-        "SPECIAL" |
-        "OVA" |
-        "ONA" |
-        "MUSIC" |
-        "MANGA" |
-        "NOVEL" |
-        "ONE_SHOT";
+    "TV_SHORT" |
+    "MOVIE" |
+    "SPECIAL" |
+    "OVA" |
+    "ONA" |
+    "MUSIC" |
+    "MANGA" |
+    "NOVEL" |
+    "ONE_SHOT";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1843,11 +1843,11 @@ declare namespace $app {
      *  Media list watching/reading status enum.
      */
     export type AL_MediaListStatus = "CURRENT" |
-        "PLANNING" |
-        "COMPLETED" |
-        "DROPPED" |
-        "PAUSED" |
-        "REPEATING";
+    "PLANNING" |
+    "COMPLETED" |
+    "DROPPED" |
+    "PAUSED" |
+    "REPEATING";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -1866,18 +1866,18 @@ declare namespace $app {
      *  Type of relation media has to its parent.
      */
     export type AL_MediaRelation = "ADAPTATION" |
-        "PREQUEL" |
-        "SEQUEL" |
-        "PARENT" |
-        "SIDE_STORY" |
-        "CHARACTER" |
-        "SUMMARY" |
-        "ALTERNATIVE" |
-        "SPIN_OFF" |
-        "OTHER" |
-        "SOURCE" |
-        "COMPILATION" |
-        "CONTAINS";
+    "PREQUEL" |
+    "SEQUEL" |
+    "PARENT" |
+    "SIDE_STORY" |
+    "CHARACTER" |
+    "SUMMARY" |
+    "ALTERNATIVE" |
+    "SPIN_OFF" |
+    "OTHER" |
+    "SOURCE" |
+    "COMPILATION" |
+    "CONTAINS";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go

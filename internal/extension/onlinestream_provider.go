@@ -88,3 +88,7 @@ func (m *OnlinestreamProviderExtensionImpl) GetUserConfig() *UserConfig {
 func (m *OnlinestreamProviderExtensionImpl) GetPayloadURI() string {
 	return m.ext.PayloadURI
 }
+
+func (m *OnlinestreamProviderExtensionImpl) GetIsDevelopment() bool {
+	return m.ext.IsDevelopment
+}

@@ -176,6 +176,11 @@ func (m *WSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscrib
 }
 
 func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
+	defer func() {
+		if r := recover(); r != nil {
+			m.Logger.Warn().Msg("ws: Failed to unsubscribe from client events")
+		}
+	}()
 	subscriber, ok := m.clientEventSubscribers.Get(id)
 	if ok {
 		close(subscriber.Channel)

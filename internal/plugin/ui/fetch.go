@@ -19,4 +19,8 @@ func (c *Context) bindFetch(obj *goja.Object) {
 			})
 		}
 	}()
+
+	c.registerOnCleanup(func() {
+		f.Close()
+	})
 }

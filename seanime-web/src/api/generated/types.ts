@@ -2057,6 +2057,7 @@ export type Extension_Extension = {
     payload: string
     payloadURI?: string
     plugin?: Extension_PluginManifest
+    isDevelopment?: boolean
 }
 
 /**

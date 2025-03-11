@@ -51,7 +51,7 @@ func New(scheduler *goja_util.Scheduler) *Cron {
 	}
 }
 
-func (a *AppContextImpl) BindCron(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
 	cron := New(scheduler)
 	cronObj := vm.NewObject()
 	_ = cronObj.Set("add", cron.Add)
@@ -61,7 +61,7 @@ func (a *AppContextImpl) BindCron(vm *goja.Runtime, logger *zerolog.Logger, ext 
 	_ = cronObj.Set("stop", cron.Stop)
 	_ = cronObj.Set("start", cron.Start)
 	_ = cronObj.Set("hasStarted", cron.HasStarted)
-	_ = vm.Set("$cron", cronObj)
+	_ = obj.Set("cron", cronObj)
 }
 
 ////////////////////////////////////////////////////////////////////////////

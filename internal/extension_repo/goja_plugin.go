@@ -29,7 +29,7 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 
 	loader := NewGojaPluginLoader(ext, r.logger, r.gojaRuntimeManager)
 
-	_, err = NewGojaPlugin(loader, ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
+	_, gojaExt, err := NewGojaPlugin(loader, ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}
@@ -37,6 +37,7 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 	// Add the extension to the map
 	retExt := extension.NewPluginExtension(ext)
 	r.extensionBank.Set(ext.ID, retExt)
+	r.gojaExtensions.Set(ext.ID, gojaExt)
 
 	return
 }
@@ -62,11 +63,17 @@ func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
 // ClearInterrupt stops the UI VM and other modules.
 // It is called when the extension is unloaded.
 func (p *GojaPlugin) ClearInterrupt() {
-	p.ui.ClearInterrupt()
+	p.logger.Debug().Msg("plugin: Interrupting plugin")
+	p.ui.Unload()
 	p.store.Stop()
+	p.logger.Debug().Msg("plugin: Interrupted plugin")
 }
 
 func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
+	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPluginLoader", func() {
+		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to create Goja loader runtime")
+	})
+
 	loader := goja.New()
 	ShareBinds(loader, logger)
 
@@ -85,7 +92,11 @@ func NewGojaPlugin(
 	logger *zerolog.Logger,
 	runtimeManager *goja_runtime.Manager,
 	wsEventManager events.WSEventManagerInterface,
-) (*GojaPlugin, error) {
+) (*GojaPlugin, GojaExtension, error) {
+	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPlugin", func() {
+		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to create Goja plugin")
+	})
+
 	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
 
 	p := &GojaPlugin{
@@ -104,7 +115,7 @@ func NewGojaPlugin(
 		source, err = JSVMTypescriptToJS(ext.Payload)
 		if err != nil {
 			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
@@ -116,7 +127,7 @@ func NewGojaPlugin(
 		return runtime
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	//////// UI
@@ -124,9 +135,7 @@ func NewGojaPlugin(
 	// Create a new VM for the UI
 	// We only need one VM for the UI because it is registered once and there's no need to be thread safe
 	uiVM := goja.New()
-	fm := FieldMapper{}
 	uiVM.SetParserOptions(parser.WithDisableSourceMaps)
-	uiVM.SetFieldNameMapper(fm)
 	ShareBinds(uiVM, logger)
 	// Bind the store to the UI VM
 	p.BindPluginAPIs(uiVM, logger)
@@ -154,21 +163,21 @@ func NewGojaPlugin(
 	// Load the extension payload in the loader runtime
 	_, err = loader.RunString(source)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Call init() if it exists, so that plugin initialization runs
 	if initFunc := loader.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
 		_, err = loader.RunString("init();")
 		if err != nil {
-			return nil, fmt.Errorf("failed to run init: %w", err)
+			return nil, nil, fmt.Errorf("failed to run init: %w", err)
 		}
 		logger.Debug().Str("id", ext.ID).Msg("extensions: Plugin initialized")
 	}
 
 	p.pool = pool
 
-	return p, nil
+	return p, p, nil
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,6 +186,9 @@ func NewGojaPlugin(
 func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind the app context
 	//_ = vm.Set("$ctx", hook.GlobalHookManager.AppContext())
+
+	fm := FieldMapper{}
+	vm.SetFieldNameMapper(fm)
 
 	// Bind the store
 	p.store.Bind(vm, p.scheduler)
@@ -188,24 +200,18 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	// Bind permission-specific APIs
 	if p.ext.Plugin != nil {
 		for _, permission := range p.ext.Plugin.Permissions {
-			switch permission.String() {
-			case extension.PluginPermissionStorage.String(): // Storage
+			switch permission {
+			case extension.PluginPermissionStorage: // Storage
 				plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
 
-			case extension.PluginPermissionAnilist.String(): // Anilist
+			case extension.PluginPermissionAnilist: // Anilist
 				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext)
 
-			case extension.PluginPermissionDatabase.String(): // Database
+			case extension.PluginPermissionDatabase: // Database
 				plugin.GlobalAppContext.BindDatabase(vm, logger, p.ext)
 
-			case extension.PluginPermissionSystem.String(): // System
+			case extension.PluginPermissionSystem: // System
 				plugin.GlobalAppContext.BindSystem(vm, logger, p.ext, p.scheduler)
-
-			case extension.PluginPermissionCron.String(): // Cron
-				plugin.GlobalAppContext.BindCron(vm, logger, p.ext, p.scheduler)
-
-			case extension.PluginPermissionPlayback.String(): // Playback
-				plugin.GlobalAppContext.BindPlayback(vm, logger, p.ext, p.scheduler)
 			}
 		}
 	}

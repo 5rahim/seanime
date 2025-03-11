@@ -111,6 +111,24 @@ func (h *Handler) HandleReloadExternalExtensions(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
+// HandleReloadExternalExtension
+//
+//	@summary reloads the external extension with the given ID.
+//	@route /api/v1/extensions/external/reload [POST]
+//	@returns bool
+func (h *Handler) HandleReloadExternalExtension(c echo.Context) error {
+	type body struct {
+		ID string `json:"id"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+	h.App.ExtensionRepository.ReloadExternalExtension(b.ID)
+	return h.RespondWithData(c, true)
+}
+
 // HandleListExtensionData
 //
 //	@summary returns the loaded extensions
@@ -118,6 +136,16 @@ func (h *Handler) HandleReloadExternalExtensions(c echo.Context) error {
 //	@returns []extension.Extension
 func (h *Handler) HandleListExtensionData(c echo.Context) error {
 	extensions := h.App.ExtensionRepository.ListExtensionData()
+	return h.RespondWithData(c, extensions)
+}
+
+// HandleListDevelopmentModeExtensions
+//
+//	@summary returns the development mode extensions
+//	@route /api/v1/extensions/list/development [GET]
+//	@returns []extension.Extension
+func (h *Handler) HandleListDevelopmentModeExtensions(c echo.Context) error {
+	extensions := h.App.ExtensionRepository.ListDevelopmentModeExtensions()
 	return h.RespondWithData(c, extensions)
 }
 

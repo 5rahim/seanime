@@ -113,6 +113,10 @@ function init() {
 
     $app.onGetAnimeCollection((e) => {
         const bannerImages = $storage.get('backgroundImages');
+        if (!bannerImages) {
+            e.next();
+            return;
+        }
         if (!!e.animeCollection?.mediaListCollection?.lists?.length) {
             for (let i = 0; i < e.animeCollection?.mediaListCollection?.lists?.length; i++) {
                 for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries!.length; j++) {
@@ -129,6 +133,10 @@ function init() {
 
     $app.onGetRawAnimeCollection((e) => {
         const bannerImages = $storage.get<Record<string, string>>("backgroundImages")
+        if (!bannerImages) {
+            e.next();
+            return;
+        }
         for (let i = 0; i < e.animeCollection!.mediaListCollection!.lists!.length; i++) {
             for (let j = 0; j < e.animeCollection!.mediaListCollection!.lists![i]!.entries!.length; j++) {
                 const mediaId = e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.id

@@ -4,11 +4,20 @@ import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
 import React from "react"
 import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { WSEvents } from "@/lib/server/ws-events"
+import { LuBug, LuRefreshCw } from "react-icons/lu"
+import { IconButton } from "@/components/ui/button"
+import { Popover } from "@/components/ui/popover"
+import { useListDevelopmentModeExtensions, useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
+import { useQueryClient } from "@tanstack/react-query"
+import { API_ENDPOINTS } from "@/api/generated/endpoints"
 
 
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
 
 export function PluginSidebarTray() {
+    const queryClient = useQueryClient()
     const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
 
     /**
@@ -41,6 +50,20 @@ export function PluginSidebarTray() {
         })
     }, "")
 
+    const { data: developmentModeExtensions, refetch } = useListDevelopmentModeExtensions()
+    const { mutate: reloadExternalExtension, isPending: isReloadingExtension } = useReloadExternalExtension()
+
+    useWebsocketMessageListener({
+        type: WSEvents.PLUGIN_UNLOADED,
+        onMessage: (extensionId) => {
+            setTrayIcons(prev => prev.filter(icon => icon.extensionId !== extensionId))
+            setTimeout(() => {
+                refetch()
+            }, 1000)
+        }
+    })
+
+
     if (!trayIcons) return null
 
     return (
@@ -56,12 +79,34 @@ export function PluginSidebarTray() {
                     <PluginTray trayIcon={trayIcon} key={index} />
                 ))}
 
-                {/* <IconButton
-                    intent="gray-basic"
-                    size="sm"
-                    icon={<LuShapes />}
-                    className="rounded-full"
-                 /> */}
+                <Popover
+                    side="right"
+                    trigger={<div>
+                        <IconButton
+                            intent="gray-basic"
+                            size="sm"
+                            icon={<LuBug />}
+                            className="rounded-full"
+                        />
+                    </div>}>
+                        <div className="space-y-2">
+                            {developmentModeExtensions?.map(extension => (
+                                <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2 px-4">
+                                    <p className="text-sm font-medium">{extension.id}</p>
+                                    <div>
+                                        <IconButton
+                                            intent="warning-basic"
+                                            size="sm"
+                                            icon={<LuRefreshCw className="size-5" />}
+                                            className="rounded-full"
+                                            onClick={() => reloadExternalExtension({ id: extension.id })}
+                                            loading={isReloadingExtension}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                </Popover>
             </div>
         </>
     )

@@ -3,6 +3,7 @@ package extension_repo
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -332,6 +333,10 @@ func (r *Repository) ReloadExternalExtensions() {
 	r.loadExternalExtensions()
 }
 
+func (r *Repository) ReloadExternalExtension(id string) {
+	r.reloadExtension(id)
+}
+
 // killGojaVMs kills all VMs from currently loaded Goja extensions & clears the Goja extensions map.
 func (r *Repository) killGojaVMs() {
 	defer util.HandlePanicInModuleThen("extension_repo/killGojaVMs", func() {})
@@ -402,9 +407,6 @@ func (r *Repository) loadExternalExtensions() {
 		return
 	}
 
-	// FIXME
-	r.loadPlugins()
-
 	r.logger.Debug().Msg("extensions: Loaded external extensions")
 
 	r.wsEventManager.SendEvent(events.ExtensionsReloaded, nil)
@@ -468,6 +470,22 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		r.logger.Warn().Err(configErr).Str("id", invalidExtensionID).Msg("extensions: Failed to load user config")
 	}
 
+	// Load the payload URI if the extension is development mode.
+	// The payload URI is a path to the payload file.
+	if ext.IsDevelopment && ext.PayloadURI != "" {
+		if _, err := os.Stat(ext.PayloadURI); errors.Is(err, os.ErrNotExist) {
+			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to read payload file")
+			return
+		}
+		payload, err := os.ReadFile(ext.PayloadURI)
+		if err != nil {
+			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to read payload file")
+			return
+		}
+		ext.Payload = string(payload)
+		r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded payload from file")
+	}
+
 	// Load extension
 	switch ext.Type {
 	case extension.TypeMangaProvider:
@@ -479,6 +497,9 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	case extension.TypeAnimeTorrentProvider:
 		// Load torrent provider
 		loadingErr = r.loadExternalAnimeTorrentProviderExtension(ext)
+	case extension.TypePlugin:
+		// Load plugin
+		loadingErr = r.loadPlugin(ext)
 	default:
 		r.logger.Error().Str("type", string(ext.Type)).Msg("extensions: Extension type not supported")
 		loadingErr = fmt.Errorf("extension type not supported")
@@ -516,7 +537,8 @@ func (r *Repository) ReloadExtension(id string) error {
 func (r *Repository) reloadExtension(id string) {
 	r.logger.Trace().Str("id", id).Msg("extensions: Reloading extension")
 
-	// Remove pointers to the extension
+	// 1. Unload the extension
+
 	// Remove extension from bank
 	r.extensionBank.Delete(id)
 	// Kill Goja VM if it exists
@@ -525,8 +547,9 @@ func (r *Repository) reloadExtension(id string) {
 		if key != id {
 			return true
 		}
-		// ext.ClearInterrupt()
-		r.logger.Trace().Str("id", id).Msg("extensions: Killed extension JS VM")
+		// Interrupt the extension's runtime and running processed before unloading
+		ext.ClearInterrupt()
+		r.logger.Trace().Str("id", id).Msg("extensions: Killed extension's runtime")
 		return false
 	})
 	r.gojaExtensions.Delete(id)
@@ -539,6 +562,8 @@ func (r *Repository) reloadExtension(id string) {
 	//	}
 	//	return true
 	//})
+
+	// 2. Load the extension back
 
 	// Load the extension from the file
 	extensionFilepath := filepath.Join(r.extensionDir, id+".json")

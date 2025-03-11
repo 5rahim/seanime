@@ -48,6 +48,14 @@ func (f *Fetch) ResponseChannel() <-chan func() {
 	return f.vmResponseCh
 }
 
+func (f *Fetch) Close() {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	close(f.vmResponseCh)
+}
+
 type fetchOptions struct {
 	Method             string
 	Body               goja.Value
