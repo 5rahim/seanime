@@ -71,7 +71,7 @@ type fetchResult struct {
 }
 
 // BindFetch binds the fetch function to the VM
-func BindFetch(vm *goja.Runtime) {
+func BindFetch(vm *goja.Runtime) *Fetch {
 	// Create a new Fetch instance
 	f := NewFetch(vm)
 	_ = vm.Set("fetch", f.Fetch)
@@ -81,6 +81,8 @@ func BindFetch(vm *goja.Runtime) {
 			fn()
 		}
 	}()
+
+	return f
 }
 
 func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {

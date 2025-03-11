@@ -95,7 +95,7 @@ export function AnimeEntryDropdownMenu({ entry }: { entry: Anime_Entry }) {
                     </DropdownMenuItem>
                 </>}
 
-                <PluginAnimePageDropdownItems />
+                <PluginAnimePageDropdownItems media={entry.media!} />
 
             </DropdownMenu>
 

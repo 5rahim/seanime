@@ -16,6 +16,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
+	"github.com/samber/mo"
 )
 
 // Context manages the entire plugin UI during its lifecycle
@@ -61,6 +62,7 @@ type Context struct {
 
 	atomicCleanupCounter atomic.Int64
 	onCleanupFns         *result.Map[int64, func()]
+	cron                 mo.Option[*plugin.Cron]
 }
 
 type State struct {
@@ -93,6 +95,7 @@ func NewContext(ui *UI) *Context {
 		lastUIUpdateAt:       time.Now().Add(-time.Hour), // Initialize to a time in the past
 		atomicCleanupCounter: atomic.Int64{},
 		onCleanupFns:         result.NewResultMap[int64, func()](),
+		cron:                 mo.None[*plugin.Cron](),
 	}
 
 	ret.scheduler = ui.scheduler
@@ -141,7 +144,8 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 				plugin.GlobalAppContext.BindPlaybackToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			case extension.PluginPermissionCron:
 				// Bind cron to the context object
-				plugin.GlobalAppContext.BindCronToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+				cron := plugin.GlobalAppContext.BindCronToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+				c.cron = mo.Some(cron)
 			}
 		}
 	}
@@ -440,6 +444,10 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 		return goja.Undefined()
 	}
 
+	c.registerOnCleanup(func() {
+		cancel()
+	})
+
 	return c.vm.ToValue(cancelFunc)
 }
 
@@ -577,6 +585,10 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		c.mu.Unlock()
 		return goja.Undefined()
 	}
+
+	c.registerOnCleanup(func() {
+		cancel()
+	})
 
 	return c.vm.ToValue(cancelFunc)
 }
@@ -809,6 +821,7 @@ func (c *Context) Cleanup() {
 	c.flushStateUpdates()
 }
 
+// Stop is called when the UI is being unloaded
 func (c *Context) Stop() {
 	c.logger.Debug().Msg("plugin: Stopping context")
 
@@ -819,11 +832,17 @@ func (c *Context) Stop() {
 	// Stop the scheduler
 	c.scheduler.Stop()
 
+	// Stop the cron
+	if cron, hasCron := c.cron.Get(); hasCron {
+		cron.Stop()
+	}
+
 	// Stop all event listeners
 	for _, listener := range c.eventListeners.Values() {
 		go func(listener *EventListener) {
 			defer func() {
 				if r := recover(); r != nil {
+					c.logger.Error().Err(fmt.Errorf("%v", r)).Msg("plugin: Error stopping event listener")
 				}
 			}()
 			listener.closed = true
@@ -836,12 +855,14 @@ func (c *Context) Stop() {
 		go func(sub chan *State) {
 			defer func() {
 				if r := recover(); r != nil {
+					c.logger.Error().Err(fmt.Errorf("%v", r)).Msg("plugin: Error stopping state subscriber")
 				}
 			}()
 			close(sub)
 		}(sub)
 	}
 
+	// Run all cleanup functions
 	c.onCleanupFns.Range(func(key int64, fn func()) bool {
 		fn()
 		return true

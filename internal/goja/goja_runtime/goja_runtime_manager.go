@@ -38,6 +38,14 @@ func (m *Manager) GetOrCreatePluginPool(extID string, initFn func() *goja.Runtim
 	return pool, nil
 }
 
+func (m *Manager) DeletePluginPool(extID string) {
+	if m.pluginPools == nil {
+		return
+	}
+	// Delete the pool
+	m.pluginPools.Delete(extID)
+}
+
 // GetOrCreateBasePool returns the shared base pool.
 func (m *Manager) GetOrCreateBasePool(initFn func() *goja.Runtime) (*Pool, error) {
 	if m.basePool == nil {

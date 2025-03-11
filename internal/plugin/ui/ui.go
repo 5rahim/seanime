@@ -1,7 +1,6 @@
 package plugin_ui
 
 import (
-	"runtime"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension"
@@ -53,7 +52,6 @@ func (u *UI) Unload() {
 	// Send the plugin unloaded event to the client
 	u.wsEventManager.SendEvent(events.PluginUnloaded, u.ext.ID)
 
-	runtime.GC()
 	u.logger.Debug().Msg("plugin: Stopped UI")
 }
 

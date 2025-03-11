@@ -96,7 +96,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 <AnimeEntryDropdownMenu entry={entry} />
             </div>
 
-            <PluginAnimePageButtons />
+            <PluginAnimePageButtons media={entry.media!} />
         </div>
     )
 

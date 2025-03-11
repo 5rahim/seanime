@@ -79,9 +79,8 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 	}
 
 	manager := goja_runtime.NewManager(logger, int32(opts.PoolSize))
-	loader := NewGojaPluginLoader(ext, logger, manager)
 
-	plugin, _, err := NewGojaPlugin(loader, ext, opts.Language, logger, manager, wsEventManager)
+	plugin, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
 	if err != nil {
 		t.Fatalf("NewGojaPlugin returned error: %v", err)
 	}

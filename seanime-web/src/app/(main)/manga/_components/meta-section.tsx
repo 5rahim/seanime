@@ -83,7 +83,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
 
                     <MediaSyncTrackButton mediaId={entry.mediaId} type="manga" size="md" />
 
-                    <PluginMangaPageButtons />
+                    <PluginMangaPageButtons media={entry.media} />
                 </div>
 
             </MediaPageHeaderDetailsContainer>

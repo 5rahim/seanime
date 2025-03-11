@@ -872,8 +872,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeCollection {
         mediaListCollection?: AL_AnimeCollection_MediaListCollection;
@@ -881,8 +879,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection {
         lists?: Array<AL_AnimeCollection_MediaListCollection_Lists>;
@@ -890,8 +886,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists {
         status?: AL_MediaListStatus;
@@ -902,8 +896,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists_Entries {
         id: number;
@@ -920,8 +912,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists_Entries_CompletedAt {
         year?: number;
@@ -931,8 +921,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeCollection_MediaListCollection_Lists_Entries_StartedAt {
         year?: number;
@@ -942,8 +930,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media {
         siteUrl?: string;
@@ -967,8 +953,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Characters {
         edges?: Array<AL_AnimeDetailsById_Media_Characters_Edges>;
@@ -976,8 +960,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Characters_Edges {
         id?: number;
@@ -988,8 +970,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_EndDate {
         year?: number;
@@ -999,8 +979,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Rankings {
         context: string;
@@ -1014,8 +992,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations {
         edges?: Array<AL_AnimeDetailsById_Media_Recommendations_Edges>;
@@ -1023,8 +999,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges {
         node?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node;
@@ -1032,8 +1006,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node {
         mediaRecommendation?: AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation;
@@ -1041,8 +1013,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation {
         id: number;
@@ -1065,8 +1035,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage {
         extraLarge?: string;
@@ -1077,8 +1045,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate {
         year?: number;
@@ -1088,8 +1054,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title {
         romaji?: string;
@@ -1100,8 +1064,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Trailer {
         id?: string;
@@ -1111,8 +1073,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Relations {
         edges?: Array<AL_AnimeDetailsById_Media_Relations_Edges>;
@@ -1120,8 +1080,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Relations_Edges {
         relationType?: AL_MediaRelation;
@@ -1130,8 +1088,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff {
         edges?: Array<AL_AnimeDetailsById_Media_Staff_Edges>;
@@ -1139,8 +1095,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff_Edges {
         role?: string;
@@ -1149,8 +1103,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff_Edges_Node {
         name?: AL_AnimeDetailsById_Media_Staff_Edges_Node_Name;
@@ -1159,8 +1111,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Staff_Edges_Node_Name {
         full?: string;
@@ -1168,8 +1118,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_StartDate {
         year?: number;
@@ -1179,8 +1127,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Studios {
         nodes?: Array<AL_AnimeDetailsById_Media_Studios_Nodes>;
@@ -1188,8 +1134,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Studios_Nodes {
         name: string;
@@ -1198,8 +1142,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_AnimeDetailsById_Media_Trailer {
         id?: string;
@@ -1209,15 +1151,11 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/collection_helper.go
-     * - Filename: collection_helper.go
-     * - Package: anilist
      */
     export type AL_AnimeListEntry = AL_AnimeCollection_MediaListCollection_Lists_Entries;
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime {
         id: number;
@@ -1247,8 +1185,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime_CoverImage {
         extraLarge?: string;
@@ -1259,8 +1195,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime_EndDate {
         year?: number;
@@ -1270,8 +1204,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime_NextAiringEpisode {
         airingAt: number;
@@ -1281,8 +1213,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime_StartDate {
         year?: number;
@@ -1292,8 +1222,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime_Title {
         userPreferred?: string;
@@ -1304,8 +1232,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseAnime_Trailer {
         id?: string;
@@ -1315,8 +1241,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseCharacter {
         id: number;
@@ -1332,8 +1256,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseCharacter_DateOfBirth {
         year?: number;
@@ -1343,8 +1265,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseCharacter_Image {
         large?: string;
@@ -1352,8 +1272,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseCharacter_Name {
         full?: string;
@@ -1363,8 +1281,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseManga {
         id: number;
@@ -1391,8 +1307,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseManga_CoverImage {
         extraLarge?: string;
@@ -1403,8 +1317,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseManga_EndDate {
         year?: number;
@@ -1414,8 +1326,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseManga_StartDate {
         year?: number;
@@ -1425,8 +1335,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_BaseManga_Title {
         userPreferred?: string;
@@ -1437,8 +1345,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  The role the character plays in the media
      */
@@ -1446,8 +1352,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime {
         id: number;
@@ -1478,8 +1382,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_CoverImage {
         extraLarge?: string;
@@ -1490,8 +1392,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_EndDate {
         year?: number;
@@ -1501,8 +1401,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_NextAiringEpisode {
         airingAt: number;
@@ -1512,8 +1410,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_Relations {
         edges?: Array<AL_CompleteAnime_Relations_Edges>;
@@ -1521,8 +1417,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_Relations_Edges {
         relationType?: AL_MediaRelation;
@@ -1531,8 +1425,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_StartDate {
         year?: number;
@@ -1542,8 +1434,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_Title {
         userPreferred?: string;
@@ -1554,8 +1444,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_CompleteAnime_Trailer {
         id?: string;
@@ -1565,8 +1453,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  Date object that allows for incomplete date values (fuzzy)
      */
@@ -1578,8 +1464,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaCollection {
         mediaListCollection?: AL_MangaCollection_MediaListCollection;
@@ -1587,8 +1471,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection {
         lists?: Array<AL_MangaCollection_MediaListCollection_Lists>;
@@ -1596,8 +1478,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists {
         status?: AL_MediaListStatus;
@@ -1608,8 +1488,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists_Entries {
         id: number;
@@ -1626,8 +1504,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists_Entries_CompletedAt {
         year?: number;
@@ -1637,8 +1513,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaCollection_MediaListCollection_Lists_Entries_StartedAt {
         year?: number;
@@ -1648,8 +1522,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media {
         siteUrl?: string;
@@ -1664,8 +1536,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Characters {
         edges?: Array<AL_MangaDetailsById_Media_Characters_Edges>;
@@ -1673,8 +1543,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Characters_Edges {
         id?: number;
@@ -1685,8 +1553,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Rankings {
         context: string;
@@ -1700,8 +1566,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations {
         edges?: Array<AL_MangaDetailsById_Media_Recommendations_Edges>;
@@ -1709,8 +1573,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges {
         node?: AL_MangaDetailsById_Media_Recommendations_Edges_Node;
@@ -1718,8 +1580,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node {
         mediaRecommendation?: AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation;
@@ -1727,8 +1587,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation {
         id: number;
@@ -1754,8 +1612,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_CoverImage {
         extraLarge?: string;
@@ -1766,8 +1622,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_EndDate {
         year?: number;
@@ -1777,8 +1631,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_StartDate {
         year?: number;
@@ -1788,8 +1640,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Recommendations_Edges_Node_MediaRecommendation_Title {
         userPreferred?: string;
@@ -1800,8 +1650,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Relations {
         edges?: Array<AL_MangaDetailsById_Media_Relations_Edges>;
@@ -1809,8 +1657,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_MangaDetailsById_Media_Relations_Edges {
         relationType?: AL_MediaRelation;
@@ -1819,8 +1665,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  The format the media was released in
      */
@@ -1837,8 +1681,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  Media list watching/reading status enum.
      */
@@ -1851,8 +1693,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  The type of ranking
      */
@@ -1860,8 +1700,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  Type of relation media has to its parent.
      */
@@ -1881,15 +1719,11 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      */
     export type AL_MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  The current releasing status of the media
      */
@@ -1897,8 +1731,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
-     * - Filename: models_gen.go
-     * - Package: anilist
      * @description
      *  Media type enum, anime or manga.
      */
@@ -1906,8 +1738,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_StudioDetails {
         studio?: AL_StudioDetails_Studio;
@@ -1915,8 +1745,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_StudioDetails_Studio {
         id: number;
@@ -1927,8 +1755,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/anilist/client_gen.go
-     * - Filename: client_gen.go
-     * - Package: anilist
      */
     interface AL_StudioDetails_Studio_Media {
         nodes?: Array<AL_BaseAnime>;
@@ -1936,8 +1762,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/autodownloader_rule.go
-     * - Filename: autodownloader_rule.go
-     * - Package: anime
      */
     interface Anime_AutoDownloaderRule {
         /**
@@ -1958,22 +1782,16 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/autodownloader_rule.go
-     * - Filename: autodownloader_rule.go
-     * - Package: anime
      */
     export type Anime_AutoDownloaderRuleEpisodeType = "recent" | "selected";
 
     /**
      * - Filepath: internal/library/anime/autodownloader_rule.go
-     * - Filename: autodownloader_rule.go
-     * - Package: anime
      */
     export type Anime_AutoDownloaderRuleTitleComparisonType = "contains" | "likely";
 
     /**
      * - Filepath: internal/library/anime/entry.go
-     * - Filename: entry.go
-     * - Package: anime
      */
     interface Anime_Entry {
         mediaId: number;
@@ -1990,8 +1808,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/entry_download_info.go
-     * - Filename: entry_download_info.go
-     * - Package: anime
      */
     interface Anime_EntryDownloadEpisode {
         episodeNumber: number;
@@ -2001,8 +1817,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/entry_download_info.go
-     * - Filename: entry_download_info.go
-     * - Package: anime
      */
     interface Anime_EntryDownloadInfo {
         episodesToDownload?: Array<Anime_EntryDownloadEpisode>;
@@ -2015,8 +1829,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/entry_library_data.go
-     * - Filename: entry_library_data.go
-     * - Package: anime
      */
     interface Anime_EntryLibraryData {
         allFilesLocked: boolean;
@@ -2027,8 +1839,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/entry.go
-     * - Filename: entry.go
-     * - Package: anime
      */
     interface Anime_EntryListData {
         progress?: number;
@@ -2041,8 +1851,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/episode.go
-     * - Filename: episode.go
-     * - Package: anime
      */
     interface Anime_Episode {
         type: Anime_LocalFileType;
@@ -2090,8 +1898,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/episode.go
-     * - Filename: episode.go
-     * - Package: anime
      */
     interface Anime_EpisodeMetadata {
         anidbId?: number;
@@ -2105,8 +1911,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_LibraryCollection {
         continueWatchingList?: Array<Anime_Episode>;
@@ -2124,8 +1928,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_LibraryCollectionEntry {
         media?: AL_BaseAnime;
@@ -2142,8 +1944,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_LibraryCollectionList {
         type?: AL_MediaListStatus;
@@ -2153,8 +1953,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_LibraryCollectionStats {
         totalEntries: number;
@@ -2167,8 +1965,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/localfile.go
-     * - Filename: localfile.go
-     * - Package: anime
      */
     interface Anime_LocalFile {
         path: string;
@@ -2186,8 +1982,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/localfile.go
-     * - Filename: localfile.go
-     * - Package: anime
      */
     interface Anime_LocalFileMetadata {
         episode: number;
@@ -2197,8 +1991,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/localfile.go
-     * - Filename: localfile.go
-     * - Package: anime
      */
     interface Anime_LocalFileParsedData {
         original: string;
@@ -2216,15 +2008,11 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/localfile.go
-     * - Filename: localfile.go
-     * - Package: anime
      */
     export type Anime_LocalFileType = "main" | "special" | "nc";
 
     /**
      * - Filepath: internal/library/anime/localfile_wrapper.go
-     * - Filename: localfile_wrapper.go
-     * - Package: anime
      */
     interface Anime_LocalFileWrapperEntry {
         mediaId: number;
@@ -2233,8 +2021,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/missing_episodes.go
-     * - Filename: missing_episodes.go
-     * - Package: anime
      */
     interface Anime_MissingEpisodes {
         episodes?: Array<Anime_Episode>;
@@ -2243,8 +2029,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/normalized_media.go
-     * - Filename: normalized_media.go
-     * - Package: anime
      */
     interface Anime_NormalizedMedia {
         id: number;
@@ -2274,8 +2058,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_StreamCollection {
         continueWatchingList?: Array<Anime_Episode>;
@@ -2285,8 +2067,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_UnknownGroup {
         mediaId: number;
@@ -2295,8 +2075,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/anime/collection.go
-     * - Filename: collection.go
-     * - Package: anime
      */
     interface Anime_UnmatchedGroup {
         dir: string;
@@ -2306,8 +2084,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/library/autodownloader/autodownloader_torrent.go
-     * - Filename: autodownloader_torrent.go
-     * - Package: autodownloader
      */
     interface AutoDownloader_NormalizedTorrent {
         parsedData?: Metadata;
@@ -2337,8 +2113,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/manga/collection.go
-     * - Filename: collection.go
-     * - Package: manga
      */
     interface Manga_Collection {
         lists?: Array<Manga_CollectionList>;
@@ -2346,8 +2120,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/manga/collection.go
-     * - Filename: collection.go
-     * - Package: manga
      */
     interface Manga_CollectionEntry {
         media?: AL_BaseManga;
@@ -2360,8 +2132,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/manga/collection.go
-     * - Filename: collection.go
-     * - Package: manga
      */
     interface Manga_CollectionList {
         type?: AL_MediaListStatus;
@@ -2371,8 +2141,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/manga/manga_entry.go
-     * - Filename: manga_entry.go
-     * - Package: manga
      */
     interface Manga_Entry {
         mediaId: number;
@@ -2382,8 +2150,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/manga/manga_entry.go
-     * - Filename: manga_entry.go
-     * - Package: manga
      */
     interface Manga_EntryListData {
         progress?: number;
@@ -2396,8 +2162,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/metadata/types.go
-     * - Filename: types.go
-     * - Package: metadata
      */
     interface Metadata_AnimeMappings {
         animeplanetId: string;
@@ -2416,8 +2180,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/metadata/types.go
-     * - Filename: types.go
-     * - Package: metadata
      */
     interface Metadata_AnimeMetadata {
         titles?: Record<string, string>;
@@ -2429,8 +2191,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/api/metadata/types.go
-     * - Filename: types.go
-     * - Package: metadata
      */
     interface Metadata_EpisodeMetadata {
         anidbId: number;
@@ -2450,8 +2210,6 @@ declare namespace $app {
 
     /**
      * - Filepath: internal/database/models/models.go
-     * - Filename: models.go
-     * - Package: models
      */
     interface Models_AutoDownloaderSettings {
         provider: string;

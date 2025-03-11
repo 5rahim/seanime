@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"runtime"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/goja/goja_runtime"
@@ -27,9 +28,7 @@ import (
 func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 	defer util.HandlePanicInModuleWithError("extension_repo/loadPluginExtension", &err)
 
-	loader := NewGojaPluginLoader(ext, r.logger, r.gojaRuntimeManager)
-
-	_, gojaExt, err := NewGojaPlugin(loader, ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
+	_, gojaExt, err := NewGojaPlugin(ext, ext.Language, r.logger, r.gojaRuntimeManager, r.wsEventManager)
 	if err != nil {
 		return err
 	}
@@ -47,13 +46,15 @@ func (r *Repository) loadPluginExtension(ext *extension.Extension) (err error) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type GojaPlugin struct {
-	ext            *extension.Extension
-	logger         *zerolog.Logger
-	pool           *goja_runtime.Pool
-	runtimeManager *goja_runtime.Manager
-	store          *plugin.Store[string, any]
-	ui             *plugin_ui.UI
-	scheduler      *goja_util.Scheduler
+	ext             *extension.Extension
+	logger          *zerolog.Logger
+	pool            *goja_runtime.Pool
+	runtimeManager  *goja_runtime.Manager
+	store           *plugin.Store[string, any]
+	ui              *plugin_ui.UI
+	scheduler       *goja_util.Scheduler
+	loader          *goja.Runtime
+	unbindHookFuncs []func()
 }
 
 func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
@@ -65,28 +66,19 @@ func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
 func (p *GojaPlugin) ClearInterrupt() {
 	p.logger.Debug().Msg("plugin: Interrupting plugin")
 	p.ui.Unload()
+	p.loader.ClearInterrupt()
 	p.store.Stop()
+	runtime.GC()
+	p.runtimeManager.DeletePluginPool(p.ext.ID)
+	for _, unbindHookFunc := range p.unbindHookFuncs {
+		unbindHookFunc()
+	}
 	p.logger.Debug().Msg("plugin: Interrupted plugin")
-}
-
-func NewGojaPluginLoader(ext *extension.Extension, logger *zerolog.Logger, runtimeManager *goja_runtime.Manager) *goja.Runtime {
-	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPluginLoader", func() {
-		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to create Goja loader runtime")
-	})
-
-	loader := goja.New()
-	ShareBinds(loader, logger)
-
-	// Bind hooks to the loader
-	BindHooks(loader, runtimeManager, ext)
-
-	return loader
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func NewGojaPlugin(
-	loader *goja.Runtime,
 	ext *extension.Extension,
 	language extension.Language,
 	logger *zerolog.Logger,
@@ -99,16 +91,25 @@ func NewGojaPlugin(
 
 	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
 
+	// 1. Create a new plugin instance
 	p := &GojaPlugin{
-		ext:            ext,
-		logger:         logger,
-		runtimeManager: runtimeManager,
-		store:          plugin.NewStore[string, any](nil),
-		scheduler:      goja_util.NewScheduler(),
-		ui:             nil,
+		ext:             ext,
+		logger:          logger,
+		runtimeManager:  runtimeManager,
+		store:           plugin.NewStore[string, any](nil), // Create a store (must be stopped when unloading)
+		scheduler:       goja_util.NewScheduler(),          // Create a scheduler (must be stopped when unloading)
+		ui:              nil,                               // To be initialized
+		loader:          goja.New(),                        // To be initialized
+		unbindHookFuncs: []func(){},
 	}
 
-	// Convert the payload to JavaScript if necessary
+	// 2. Create a new loader for the plugin
+	// Bind shared APIs to the loader
+	ShareBinds(p.loader, logger)
+	// Bind hooks to the loader
+	p.bindHooks()
+
+	// 3. Convert the payload to JavaScript if necessary
 	source := ext.Payload
 	if language == extension.LanguageTypescript {
 		var err error
@@ -119,8 +120,9 @@ func NewGojaPlugin(
 		}
 	}
 
-	// Create a new pool for the plugin
-	pool, err := runtimeManager.GetOrCreatePluginPool(ext.ID, func() *goja.Runtime {
+	// 4. Create a new pool for the plugin hooks (must be deleted when unloading)
+	var err error
+	p.pool, err = runtimeManager.GetOrCreatePluginPool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
 		p.BindPluginAPIs(runtime, logger)
@@ -132,10 +134,11 @@ func NewGojaPlugin(
 
 	//////// UI
 
-	// Create a new VM for the UI
-	// We only need one VM for the UI because it is registered once and there's no need to be thread safe
+	// 5. Create a new VM for the UI (The UI uses a single VM instead of a pool in order to share state)
+	// (must be interrupted when unloading)
 	uiVM := goja.New()
 	uiVM.SetParserOptions(parser.WithDisableSourceMaps)
+	// Bind shared APIs
 	ShareBinds(uiVM, logger)
 	// Bind the store to the UI VM
 	p.BindPluginAPIs(uiVM, logger)
@@ -148,34 +151,26 @@ func NewGojaPlugin(
 		Scheduler: p.scheduler,
 	})
 
-	////////
-
-	// Bind the UI API to the loader so the plugin can register a new UI
-	// Create a new object for the UI
-	uiObj := loader.NewObject()
-	// Set the register method on the UI object
+	// 6. Bind the UI API to the loader so the plugin can register a new UI
+	//	$ui.register(callback)
+	uiObj := p.loader.NewObject()
 	uiObj.Set("register", p.ui.Register)
-	// Set the UI object in the loader
-	loader.Set("$ui", uiObj)
+	p.loader.Set("$ui", uiObj)
 
-	////////
-
-	// Load the extension payload in the loader runtime
-	_, err = loader.RunString(source)
+	// 7. Load the plugin source code in the VM (nothing will execute)
+	_, err = p.loader.RunString(source)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Call init() if it exists, so that plugin initialization runs
-	if initFunc := loader.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
-		_, err = loader.RunString("init();")
+	// 8. Get and call the init function to actually run the plugin
+	if initFunc := p.loader.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
+		_, err = p.loader.RunString("init();")
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to run init: %w", err)
 		}
 		logger.Debug().Str("id", ext.ID).Msg("extensions: Plugin initialized")
 	}
-
-	p.pool = pool
 
 	return p, p, nil
 }
@@ -219,8 +214,8 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// BindHooks sets up hooks for the Goja runtime
-func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *extension.Extension) {
+// bindHooks sets up hooks for the Goja runtime
+func (p *GojaPlugin) bindHooks() {
 	// Create a FieldMapper instance for method name mapping
 	fm := FieldMapper{}
 
@@ -235,7 +230,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *
 	excludeHooks := []string{"OnServe", ""}
 
 	// Create a new JavaScript object to hold the hooks ($app)
-	appObj := loader.NewObject()
+	appObj := p.loader.NewObject()
 
 	// Iterate through all methods of the global hook manager
 	// i.e. OnGetAnime, OnGetAnimeDetails, etc.
@@ -274,6 +269,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *
 
 			// Get the BindFunc method from the hook instance
 			hookBindFunc := hookInstance.MethodByName("BindFunc")
+			unbindHookFunc := hookInstance.MethodByName("Unbind")
 
 			// Get the expected handler type for the hook
 			// i.e. func(e *hook_resolver.Resolver) error
@@ -286,7 +282,7 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *
 				handlerArgs := make([]any, len(args))
 
 				// Run the handler in an isolated "executor" runtime for concurrency
-				err := runtimeManager.Run(context.Background(), ext.ID, func(executor *goja.Runtime) error {
+				err := p.runtimeManager.Run(context.Background(), p.ext.ID, func(executor *goja.Runtime) error {
 					// Set the field name mapper for the executor
 					executor.SetFieldNameMapper(fm)
 					// Convert each argument (event property) to the appropriate type
@@ -317,13 +313,20 @@ func BindHooks(loader *goja.Runtime, runtimeManager *goja_runtime.Manager, ext *
 			})
 
 			// Register the wrapped hook handler
-			hookBindFunc.Call([]reflect.Value{handler})
-
+			callRet := hookBindFunc.Call([]reflect.Value{handler})
+			// Get the ID from the return value
+			id, ok := callRet[0].Interface().(string)
+			if ok {
+				p.unbindHookFuncs = append(p.unbindHookFuncs, func() {
+					p.logger.Trace().Str("id", p.ext.ID).Msgf("plugin: Unbinding hook %s", id)
+					unbindHookFunc.Call([]reflect.Value{reflect.ValueOf(id)})
+				})
+			}
 		})
 	}
 
 	// Set the $app object in the loader for JavaScript access
-	loader.Set("$app", appObj)
+	p.loader.Set("$app", appObj)
 }
 
 // normalizeException checks if the provided error is a goja.Exception

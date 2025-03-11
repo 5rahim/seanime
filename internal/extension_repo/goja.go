@@ -6,13 +6,11 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
 	"seanime/internal/plugin"
 	"time"
 
 	"github.com/dop251/goja"
-	"github.com/dop251/goja/parser"
 	gojabuffer "github.com/dop251/goja_nodejs/buffer"
 	gojarequire "github.com/dop251/goja_nodejs/require"
 	gojaurl "github.com/dop251/goja_nodejs/url"
@@ -26,38 +24,6 @@ import (
 type GojaExtension interface {
 	PutVM(*goja.Runtime)
 	ClearInterrupt()
-}
-
-// SetupGojaExtensionVM creates a new JavaScript VM with the extension source code loaded
-func SetupGojaExtensionVM(ext *extension.Extension, language extension.Language, logger *zerolog.Logger) (func() *goja.Runtime, *goja.Program, error) {
-	logger.Trace().Str("id", ext.ID).Any("language", language).Msgf("extensions: Creating javascript VM")
-
-	source := ext.Payload
-	if language == extension.LanguageTypescript {
-		var err error
-		source, err = JSVMTypescriptToJS(ext.Payload)
-		if err != nil {
-			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
-			return nil, nil, err
-		}
-	}
-
-	ext.Payload = source
-
-	// Compile the program once, to be reused by all VMs
-	program, err := goja.Compile("", source, false)
-	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to compile program")
-		return nil, nil, fmt.Errorf("compilation failed: %w", err)
-	}
-
-	return func() *goja.Runtime {
-		vm := goja.New()
-		vm.SetParserOptions(parser.WithDisableSourceMaps)
-		// Bind the shared bindings
-		ShareBinds(vm, logger)
-		return vm
-	}, program, nil
 }
 
 var cachedArrayOfTypes = plugin.NewStore[reflect.Type, reflect.Type](nil)

@@ -188,13 +188,13 @@ declare namespace $ui {
          * Creates a new button for the anime page
          * @param props - Button properties
          */
-        newAnimePageButton(props: { label: string, intent?: string, style?: Record<string, string> }): ActionObject;
+        newAnimePageButton(props: { label: string, intent?: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime}>;
 
         /**
          * Creates a new dropdown menu item for the anime page
          * @param props - Dropdown item properties
          */
-        newAnimePageDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject;
+        newAnimePageDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>;
 
         /**
          * Creates a new dropdown menu item for the anime library
@@ -206,16 +206,16 @@ declare namespace $ui {
          * Creates a new context menu item for media cards
          * @param props - Context menu item properties
          */
-        newMediaCardContextMenuItem(props: { label: string, for?: "anime" | "manga" | "both", style?: Record<string, string> }): ActionObject;
+        newMediaCardContextMenuItem<F extends "anime" | "manga" | "both">(props: { label: string, for?: F, style?: Record<string, string> }): ActionObject<{ media: F extends "anime" ? $app.AL_BaseAnime : F extends "manga" ? $app.AL_BaseManga : $app.AL_BaseAnime | $app.AL_BaseManga }>;
 
         /**
          * Creates a new button for the manga page
          * @param props - Button properties
          */
-        newMangaPageButton(props: { label: string, intent?: string, style?: Record<string, string> }): ActionObject;
+        newMangaPageButton(props: { label: string, intent?: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>;
     }
 
-    interface ActionObject {
+    interface ActionObject<E extends any = {}> {
         /** Mounts the action to make it visible */
         mount(): void;
 
@@ -229,7 +229,7 @@ declare namespace $ui {
         setStyle(style: Record<string, string>): void;
 
         /** Sets the click handler for the action */
-        onClick(handler: (event: any) => void): void;
+        onClick(handler: (event: E) => void): void;
     }
 
     interface CommandPaletteOptions {

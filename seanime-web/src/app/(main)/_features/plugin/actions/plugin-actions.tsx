@@ -30,7 +30,7 @@ type PluginAnimePageButton = {
     id: string
 }
 
-export function PluginAnimePageButtons() {
+export function PluginAnimePageButtons(props: { media: AL_BaseAnime }) {
     const [buttons, setButtons] = useState<PluginAnimePageButton[]>([])
 
     const { sendActionRenderAnimePageButtonsEvent } = usePluginSendActionRenderAnimePageButtonsEvent()
@@ -53,7 +53,9 @@ export function PluginAnimePageButtons() {
     function handleClick(button: PluginAnimePageButton) {
         sendActionClickedEvent({
             actionId: button.id,
-            event: {},
+            event: {
+                media: props.media,
+            },
         }, button.extensionId)
     }
 
@@ -83,7 +85,7 @@ type PluginMangaPageButton = {
     id: string
 }
 
-export function PluginMangaPageButtons() {
+export function PluginMangaPageButtons(props: { media: AL_BaseManga }) {
     const [buttons, setButtons] = useState<PluginMangaPageButton[]>([])
 
     const { sendActionRenderMangaPageButtonsEvent } = usePluginSendActionRenderMangaPageButtonsEvent()
@@ -106,7 +108,9 @@ export function PluginMangaPageButtons() {
     function handleClick(button: PluginMangaPageButton) {
         sendActionClickedEvent({
             actionId: button.id,
-            event: {},
+            event: {
+                media: props.media,
+            },
         }, button.extensionId)
     }
 
@@ -239,7 +243,7 @@ type PluginAnimePageDropdownMenuItem = {
     style: React.CSSProperties
 }
 
-export function PluginAnimePageDropdownItems() {
+export function PluginAnimePageDropdownItems(props: { media: AL_BaseAnime }) {
     const [items, setItems] = useState<PluginAnimePageDropdownMenuItem[]>([])
 
     const { sendActionRenderAnimePageDropdownItemsEvent } = usePluginSendActionRenderAnimePageDropdownItemsEvent()
@@ -263,7 +267,9 @@ export function PluginAnimePageDropdownItems() {
     function handleClick(item: PluginAnimePageDropdownMenuItem) {
         sendActionClickedEvent({
             actionId: item.id,
-            event: {},
+            event: {
+                media: props.media,
+            },
         }, item.extensionId)
     }
 

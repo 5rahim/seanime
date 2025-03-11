@@ -52441,6 +52441,15 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "cron",
+        "jsonName": "cron",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [

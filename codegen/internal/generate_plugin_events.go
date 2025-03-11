@@ -478,8 +478,6 @@ func writePackageEventGoStructs(f *os.File, packageName string, goStructs []*GoS
 func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[string]*GoStruct) {
 	f.WriteString("    /**\n")
 	f.WriteString(fmt.Sprintf("     * - Filepath: %s\n", strings.TrimPrefix(goStruct.Filepath, "../")))
-	f.WriteString(fmt.Sprintf("     * - Filename: %s\n", goStruct.Filename))
-	f.WriteString(fmt.Sprintf("     * - Package: %s\n", goStruct.Package))
 	if len(goStruct.Comments) > 0 {
 		f.WriteString(fmt.Sprintf("     * @description\n"))
 		for _, cmt := range goStruct.Comments {
