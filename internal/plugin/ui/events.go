@@ -109,6 +109,8 @@ type ServerPluginEvent struct {
 const (
 	ServerTrayUpdatedEvent                           ServerEventType = "tray:updated"                                 // When the trays are updated
 	ServerTrayIconEvent                              ServerEventType = "tray:icon"                                    // When the tray sends its icon to the client
+	ServerTrayOpenEvent                              ServerEventType = "tray:open"                                    // When the tray is opened
+	ServerTrayCloseEvent                             ServerEventType = "tray:close"                                   // When the tray is closed
 	ServerCommandPaletteInfoEvent                    ServerEventType = "command-palette:info"                         // When the command palette sends its state to the client
 	ServerCommandPaletteUpdatedEvent                 ServerEventType = "command-palette:updated"                      // When the command palette is updated
 	ServerCommandPaletteOpenEvent                    ServerEventType = "command-palette:open"                         // When the command palette is opened
@@ -126,6 +128,7 @@ const (
 	ServerFatalErrorEvent                            ServerEventType = "fatal-error"         // When the UI encounters a fatal error
 	ServerScreenNavigateToEvent                      ServerEventType = "screen:navigate-to"  // Navigate to a new screen
 	ServerScreenReloadEvent                          ServerEventType = "screen:reload"       // Reload the current screen
+	ServerScreenGetCurrentEvent                      ServerEventType = "screen:get-current"  // Get the current screen
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -137,10 +140,16 @@ type ServerCommandPaletteUpdatedEventPayload struct {
 	Items       interface{} `json:"items"`
 }
 
+type ServerTrayOpenEventPayload struct{}
+
+type ServerTrayCloseEventPayload struct{}
+
 type ServerTrayIconEventPayload struct {
 	IconURL     string `json:"iconUrl"`
 	WithContent bool   `json:"withContent"`
 	TooltipText string `json:"tooltipText"`
+	BadgeNumber int    `json:"badgeNumber"`
+	BadgeIntent string `json:"badgeIntent"`
 }
 
 type ServerFormResetEventPayload struct {
@@ -206,6 +215,8 @@ type ServerCommandPaletteGetInputEventPayload struct{}
 type ServerCommandPaletteSetInputEventPayload struct {
 	Value string `json:"value"`
 }
+
+type ServerScreenGetCurrentEventPayload struct{}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"seanime/internal/database/models"
 	"seanime/internal/extension"
+	goja_util "seanime/internal/util/goja"
 	"seanime/internal/util/result"
 	"strings"
 
@@ -19,8 +20,11 @@ type Storage struct {
 	ctx             *AppContextImpl
 	ext             *extension.Extension
 	logger          *zerolog.Logger
+	runtime         *goja.Runtime
 	pluginDataCache *result.Map[string, *models.PluginData] // Cache to avoid repeated database calls
 	keyDataCache    *result.Map[string, interface{}]        // Cache to avoid repeated database calls
+	keySubscribers  *result.Map[string, []chan interface{}] // Subscribers for key changes
+	scheduler       *goja_util.Scheduler
 }
 
 var (
@@ -30,14 +34,17 @@ var (
 // BindStorage binds the storage API to the Goja runtime.
 // Permissions need to be checked by the caller.
 // Permissions needed: storage
-func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension) {
+func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Storage {
 	storageLogger := logger.With().Str("id", ext.ID).Logger()
 	storage := &Storage{
 		ctx:             a,
 		ext:             ext,
 		logger:          &storageLogger,
+		runtime:         vm,
 		pluginDataCache: result.NewResultMap[string, *models.PluginData](),
 		keyDataCache:    result.NewResultMap[string, interface{}](),
+		keySubscribers:  result.NewResultMap[string, []chan interface{}](),
+		scheduler:       scheduler,
 	}
 	storageObj := vm.NewObject()
 	_ = storageObj.Set("get", storage.Get)
@@ -47,7 +54,21 @@ func (a *AppContextImpl) BindStorage(vm *goja.Runtime, logger *zerolog.Logger, e
 	_ = storageObj.Set("clear", storage.Clear)
 	_ = storageObj.Set("keys", storage.Keys)
 	_ = storageObj.Set("has", storage.Has)
+	_ = storageObj.Set("watch", storage.Watch)
 	_ = vm.Set("$storage", storageObj)
+
+	return storage
+}
+
+// Stop closes all subscriber channels.
+func (s *Storage) Stop() {
+	s.keySubscribers.Range(func(key string, subscribers []chan interface{}) bool {
+		for _, ch := range subscribers {
+			close(ch)
+		}
+		return true
+	})
+	s.keySubscribers.Clear()
 }
 
 // getDB returns the database instance or an error if not initialized
@@ -72,8 +93,8 @@ func (s *Storage) getPluginData(createIfNotExists bool) (*models.PluginData, err
 		return nil, err
 	}
 
-	pluginData := &models.PluginData{}
-	if err := db.Where("plugin_id = ?", s.ext.ID).Find(pluginData).Error; err != nil {
+	var pluginData models.PluginData
+	if err := db.Where("plugin_id = ?", s.ext.ID).First(&pluginData).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) && createIfNotExists {
 			// Create empty data structure
 			baseData := make(map[string]interface{})
@@ -99,8 +120,8 @@ func (s *Storage) getPluginData(createIfNotExists bool) (*models.PluginData, err
 	}
 
 	// Cache the plugin data
-	s.pluginDataCache.Set(s.ext.ID, pluginData)
-	return pluginData, nil
+	s.pluginDataCache.Set(s.ext.ID, &pluginData)
+	return &pluginData, nil
 }
 
 // getDataMap unmarshals the plugin data into a map
@@ -325,6 +346,43 @@ func getAllKeys(data map[string]interface{}, prefix string) []string {
 	return keys
 }
 
+func (s *Storage) Watch(key string, callback goja.Callable) goja.Value {
+	s.logger.Trace().Msgf("plugin: Watching key %s", key)
+
+	// Create a channel to receive updates
+	updateCh := make(chan interface{})
+
+	// Add this channel to the subscribers for this key
+	subscribers := []chan interface{}{}
+	if existingSubscribers, ok := s.keySubscribers.Get(key); ok {
+		subscribers = existingSubscribers
+	}
+	subscribers = append(subscribers, updateCh)
+	s.keySubscribers.Set(key, subscribers)
+
+	// Start a goroutine to listen for updates
+	go func() {
+		for value := range updateCh {
+			// Call the callback with the new value
+			s.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), s.runtime.ToValue(value))
+				if err != nil {
+					s.logger.Error().Err(err).Msgf("plugin: Error calling watch callback for key %s", key)
+				}
+				return nil
+			})
+		}
+	}()
+
+	// Return a function that can be used to cancel the watch
+	cancelFn := func() {
+		close(updateCh)
+		s.keySubscribers.Delete(key)
+	}
+
+	return s.runtime.ToValue(cancelFn)
+}
+
 func (s *Storage) Delete(key string) error {
 	s.logger.Trace().Msgf("plugin: Deleting key %s", key)
 
@@ -344,6 +402,18 @@ func (s *Storage) Delete(key string) error {
 		return err
 	}
 
+	// Notify subscribers that the key was deleted by sending nil
+	if subscribers, ok := s.keySubscribers.Get(key); ok {
+		for _, ch := range subscribers {
+			// Non-blocking send to avoid deadlocks
+			select {
+			case ch <- nil:
+			default:
+				// Channel is full or closed, skip
+			}
+		}
+	}
+
 	if deleteNestedValue(data, key) {
 		return s.saveDataMap(pluginData, data)
 	}
@@ -353,6 +423,15 @@ func (s *Storage) Delete(key string) error {
 
 func (s *Storage) Drop() error {
 	s.logger.Trace().Msg("plugin: Dropping storage")
+
+	// // Close all subscriber channels
+	// s.keySubscribers.Range(func(key string, subscribers []chan interface{}) bool {
+	// 	for _, ch := range subscribers {
+	// 		close(ch)
+	// 	}
+	// 	return true
+	// })
+	// s.keySubscribers.Clear()
 
 	// Clear caches
 	s.pluginDataCache.Clear()
@@ -368,6 +447,19 @@ func (s *Storage) Drop() error {
 
 func (s *Storage) Clear() error {
 	s.logger.Trace().Msg("plugin: Clearing storage")
+
+	// Notify all subscribers that their keys were cleared by sending nil
+	s.keySubscribers.Range(func(key string, subscribers []chan interface{}) bool {
+		for _, ch := range subscribers {
+			// Non-blocking send to avoid deadlocks
+			select {
+			case ch <- nil:
+			default:
+				// Channel is full or closed, skip
+			}
+		}
+		return true
+	})
 
 	// Clear key cache
 	s.keyDataCache.Clear()
@@ -440,12 +532,12 @@ func (s *Storage) Get(key string) (interface{}, error) {
 
 	pluginData, err := s.getPluginData(true)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	data, err := s.getDataMap(pluginData)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	value := getNestedValue(data, key)
@@ -474,6 +566,18 @@ func (s *Storage) Set(key string, value interface{}) error {
 
 	// Update key cache
 	s.keyDataCache.Set(key, value)
+
+	// Notify subscribers if any
+	if subscribers, ok := s.keySubscribers.Get(key); ok {
+		for _, ch := range subscribers {
+			// Non-blocking send to avoid deadlocks
+			select {
+			case ch <- value:
+			default:
+				// Channel is full or closed, skip
+			}
+		}
+	}
 
 	return s.saveDataMap(pluginData, data)
 }

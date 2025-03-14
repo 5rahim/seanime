@@ -102,6 +102,7 @@ func (s *Store[K, T]) bindWatch(storeObj *goja.Object, vm *goja.Runtime, schedul
 		}()
 
 		cancelFn := func() {
+			close(subscriber.Channel)
 			s.keySubscribers.Delete(key)
 		}
 		return vm.ToValue(cancelFn)

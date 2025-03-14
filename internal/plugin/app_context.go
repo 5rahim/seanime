@@ -7,7 +7,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
-	goja_util "seanime/internal/util/goja"
+	"seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -40,7 +40,7 @@ type AppContext interface {
 	WSEventManager() mo.Option[events.WSEventManagerInterface]
 
 	// BindStorage binds $storage to the Goja runtime
-	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
+	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Storage
 	// BindAnilist binds $anilist to the Goja runtime
 	BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindDatabase binds $database to the Goja runtime

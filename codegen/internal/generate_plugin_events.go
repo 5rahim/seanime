@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"go/ast"
@@ -269,8 +270,16 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 	}
 }
 
+var execptions = map[string]string{
+	"playbackmanager": "PlaybackManager	",
+}
+
 func toPascalCase(s string) string {
+	if exception, ok := execptions[s]; ok {
+		return exception
+	}
 	s = strings.ReplaceAll(s, "-", " ")
+	s = strings.ReplaceAll(s, "_", " ")
 	s = cases.Title(language.English, cases.NoLower).String(s)
 	return strings.ReplaceAll(s, " ", "")
 }
@@ -289,6 +298,12 @@ func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath stri
 		panic(err)
 	}
 	defer f.Close()
+
+	mdFile, err := os.Create(filepath.Join(genOutDir, "hooks.mdx"))
+	if err != nil {
+		panic(err)
+	}
+	defer mdFile.Close()
 
 	goStructs := LoadPublicStructs(publicStructsFilePath)
 
@@ -412,6 +427,10 @@ func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath stri
 	}
 
 	f.WriteString("}\n")
+
+	// Generate markdown documentation
+	writeMarkdownFile(mdFile, hookEventDefinitions, referencedStructsMap, referencedStructs)
+
 }
 
 func writePackageEventGoStructs(f *os.File, packageName string, goStructs []*GoStruct, allGoStructs map[string]*GoStruct) {
@@ -525,4 +544,258 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 
 	// Add the struct to the written types
 	writtenTypes[goStruct.Package+"."+goStruct.Name] = goStruct
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// writeMarkdownFile generates a well-formatted Markdown documentation for hooks
+func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinition, referencedStructsMap map[string]*GoStruct, referencedStructs []*GoStruct) {
+
+	mdFile.WriteString("---\n")
+	mdFile.WriteString("title: Hooks\n")
+	mdFile.WriteString("description: How to use hooks\n")
+	mdFile.WriteString("---")
+	mdFile.WriteString("\n\n")
+
+	// Group hooks by package
+	packageHooks := make(map[string][]*HookEventDefinition)
+	for _, hook := range hookEventDefinitions {
+		packageHooks[hook.Package] = append(packageHooks[hook.Package], hook)
+	}
+
+	// Sort packages alphabetically
+	packageNames := make([]string, 0, len(packageHooks))
+	for pkg := range packageHooks {
+		packageNames = append(packageNames, pkg)
+	}
+	slices.Sort(packageNames)
+
+	// Write each package section
+	for _, pkg := range packageNames {
+		hooks := packageHooks[pkg]
+
+		mdFile.WriteString(fmt.Sprintf("<a id=\"%s\"></a>\n", pkg))
+		mdFile.WriteString(fmt.Sprintf("# %s\n\n", toPascalCase(pkg)))
+
+		// Write each hook in the package
+		for _, hook := range hooks {
+			goStruct := hook.GoStruct
+			eventName := goStruct.Name
+			hookName := fmt.Sprintf("on%s", strings.TrimSuffix(eventName, "Event"))
+
+			mdFile.WriteString(fmt.Sprintf("<a id=\"on%s\"></a>\n", strings.ToLower(strings.TrimSuffix(eventName, "Event"))))
+			mdFile.WriteString(fmt.Sprintf("## %s\n\n", hookName))
+
+			// Write description
+			if len(goStruct.Comments) > 0 {
+				for _, comment := range goStruct.Comments {
+					mdFile.WriteString(fmt.Sprintf("%s\n", strings.TrimSpace(comment)))
+				}
+				mdFile.WriteString("\n")
+			}
+
+			// Check if it has preventDefault
+			hasPreventDefault := false
+			for _, comment := range goStruct.Comments {
+				if strings.Contains(strings.ToLower(comment), "prevent default") {
+					hasPreventDefault = true
+					break
+				}
+			}
+
+			if hasPreventDefault {
+				mdFile.WriteString("**Can prevent default:** Yes\n\n")
+			} else {
+				mdFile.WriteString("**Can prevent default:** No\n\n")
+			}
+
+			// Write event interface
+			mdFile.WriteString("**Event Interface:**\n\n")
+			mdFile.WriteString("```typescript\n")
+			mdFile.WriteString(fmt.Sprintf("interface %s {\n", eventName))
+			mdFile.WriteString("    next();\n")
+			if hasPreventDefault {
+				mdFile.WriteString("    preventDefault();\n")
+			}
+
+			// Write fields
+			for _, field := range goStruct.Fields {
+				if field.Name == "next" || field.Name == "preventDefault" || field.Name == "DefaultPrevented" {
+					continue
+				}
+
+				fieldNameSuffix := ""
+				if !field.Required {
+					fieldNameSuffix = "?"
+				}
+
+				// Add comments if available
+				if len(field.Comments) > 0 {
+					mdFile.WriteString("\n    /**\n")
+					for _, comment := range field.Comments {
+						mdFile.WriteString(fmt.Sprintf("     * %s\n", strings.TrimSpace(comment)))
+					}
+					mdFile.WriteString("     */\n")
+				}
+
+				mdFile.WriteString(fmt.Sprintf("    %s%s: %s;\n", field.JsonName, fieldNameSuffix, field.TypescriptType))
+			}
+
+			mdFile.WriteString("}\n")
+			mdFile.WriteString("```\n\n")
+
+			// Add a list of referenced structs links
+			mdFile.WriteString("**Referenced types:**\n\n")
+			for _, field := range goStruct.Fields {
+				if !isCustomStruct(field.GoType) {
+					continue
+				}
+
+				goStruct, ok := referencedStructsMap[field.UsedStructType]
+				if !ok {
+					continue
+				}
+				mdFile.WriteString(fmt.Sprintf("- [%s](#%s)\n", goStruct.FormattedName, fmt.Sprintf("%s_%s", goStruct.Package, goStruct.Name)))
+			}
+			mdFile.WriteString("\n")
+
+			// Add example usage
+			mdFile.WriteString("**Example:**\n\n")
+			mdFile.WriteString("```typescript\n")
+			mdFile.WriteString(fmt.Sprintf("$app.%s((e) => {\n", hookName))
+
+			// Generate example code based on fields
+			for _, field := range goStruct.Fields {
+				if field.Name == "next" || field.Name == "preventDefault" || field.Name == "DefaultPrevented" {
+					continue
+				}
+
+				mdFile.WriteString(fmt.Sprintf("    // console.log(e.%s);\n", field.JsonName))
+			}
+
+			if hasPreventDefault {
+				mdFile.WriteString("\n    // Prevent default behavior if needed\n")
+				mdFile.WriteString("    // e.preventDefault();\n")
+			}
+
+			mdFile.WriteString("    \n    e.next();\n")
+			mdFile.WriteString("});\n")
+			mdFile.WriteString("```\n\n")
+
+			// Add separator between hooks
+			mdFile.WriteString("---\n\n")
+		}
+	}
+
+	// Write the referenced structs
+	mdFile.WriteString("\n# Referenced Types\n\n")
+	for _, goStruct := range referencedStructs {
+
+		mdFile.WriteString(fmt.Sprintf("#### %s\n\n", goStruct.FormattedName))
+		mdFile.WriteString(fmt.Sprintf("<div id=\"%s\"></div>\n\n", fmt.Sprintf("%s_%s", goStruct.Package, goStruct.Name)))
+		mdFile.WriteString(fmt.Sprintf("**Filepath:** `%s`\n\n", strings.TrimPrefix(goStruct.Filepath, "../")))
+
+		if len(goStruct.Fields) > 0 {
+			mdFile.WriteString("**Fields:**\n\n")
+
+			// Write the table of fields
+			/*
+							<Table>
+				      <TableCaption>A list of your recent invoices.</TableCaption>
+				      <TableHeader>
+				        <TableRow>
+				          <TableHead className="w-[100px]">Invoice</TableHead>
+				          <TableHead>Status</TableHead>
+				          <TableHead>Method</TableHead>
+				          <TableHead className="text-right">Amount</TableHead>
+				        </TableRow>
+				      </TableHeader>
+				      <TableBody>
+				        {invoices.map((invoice) => (
+				          <TableRow key={invoice.invoice}>
+				            <TableCell className="font-medium">{invoice.invoice}</TableCell>
+				            <TableCell>{invoice.paymentStatus}</TableCell>
+				            <TableCell>{invoice.paymentMethod}</TableCell>
+				            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+				          </TableRow>
+				        ))}
+				      </TableBody>
+				      <TableFooter>
+				        <TableRow>
+				          <TableCell colSpan={3}>Total</TableCell>
+				          <TableCell className="text-right">$2,500.00</TableCell>
+				        </TableRow>
+				      </TableFooter>
+				    </Table>
+			*/
+
+			mdFile.WriteString("<Table>\n")
+			mdFile.WriteString("<TableCaption>Fields</TableCaption>\n")
+			mdFile.WriteString("<TableHeader>\n")
+			mdFile.WriteString("<TableRow>\n")
+			mdFile.WriteString("<TableHead>Property</TableHead>\n")
+			mdFile.WriteString("<TableHead>Type</TableHead>\n")
+			mdFile.WriteString("<TableHead>Description</TableHead>\n")
+			mdFile.WriteString("</TableRow>\n")
+			mdFile.WriteString("</TableHeader>\n")
+			mdFile.WriteString("<TableBody>\n")
+			for _, field := range goStruct.Fields {
+				mdFile.WriteString(fmt.Sprintf("<TableRow>\n"))
+				mdFile.WriteString(fmt.Sprintf("<TableCell className=\"py-1 px-2 max-w-[200px] break-all\">%s</TableCell>\n", field.JsonName))
+
+				typeContainsReference := false
+				if field.UsedStructType != "" && isCustomStruct(field.UsedStructType) {
+					typeContainsReference = true
+				}
+				if typeContainsReference {
+					link := fmt.Sprintf("<a href=\"#%s\">`%s`</a>", fmt.Sprintf("%s_%s", goStruct.Package, goStruct.Name), goStruct.FormattedName)
+					mdFile.WriteString(fmt.Sprintf("<TableCell className=\"py-1 px-2 break-all\">%s</TableCell>\n", link))
+				} else {
+					mdFile.WriteString(fmt.Sprintf("<TableCell className=\"py-1 px-2 break-all\">`%s`</TableCell>\n", field.TypescriptType))
+				}
+				mdFile.WriteString(fmt.Sprintf("<TableCell className=\"py-1 px-2 max-w-[200px] break-all\">%s</TableCell>\n", cmp.Or(strings.Join(field.Comments, "\n"), "-")))
+				mdFile.WriteString("</TableRow>\n")
+			}
+			mdFile.WriteString("</TableBody>\n")
+			mdFile.WriteString("</Table>\n")
+
+			// for _, field := range goStruct.Fields {
+			// 	fieldNameSuffix := ""
+			// 	if !field.Required {
+			// 		fieldNameSuffix = "?"
+			// 	}
+			// 	typeContainsReference := false
+			// 	if field.UsedStructType != "" && isCustomStruct(field.UsedStructType) {
+			// 		typeContainsReference = true
+			// 	}
+
+			// 	cleanTypescriptType := field.TypescriptType
+			// 	cleanTypescriptType = strings.ReplaceAll(cleanTypescriptType, "<", "\\<")
+			// 	cleanTypescriptType = strings.ReplaceAll(cleanTypescriptType, ">", "\\>")
+
+			// 	if !typeContainsReference {
+			// 		mdFile.WriteString(fmt.Sprintf("**%s%s**: `%s`\n", field.JsonName, fieldNameSuffix, cleanTypescriptType))
+			// 	} else {
+			// 		mdFile.WriteString(fmt.Sprintf("**%s%s**: [%s](#%s)\n", field.JsonName, fieldNameSuffix, cleanTypescriptType, strings.ReplaceAll(field.UsedStructType, ".", "_")))
+			// 	}
+			// 	mdFile.WriteString("<Separator />\n")
+			// }
+		}
+
+		if goStruct.AliasOf != nil {
+			if goStruct.AliasOf.DeclaredValues != nil && len(goStruct.AliasOf.DeclaredValues) > 0 {
+				union := ""
+				if len(goStruct.AliasOf.DeclaredValues) > 5 {
+					union = strings.Join(goStruct.AliasOf.DeclaredValues, " |\n    ")
+				} else {
+					union = strings.Join(goStruct.AliasOf.DeclaredValues, " | ")
+				}
+				mdFile.WriteString(fmt.Sprintf("%s\n\n", union))
+			} else {
+				mdFile.WriteString(fmt.Sprintf("%s\n\n", goStruct.AliasOf.TypescriptType))
+			}
+		}
+
+		mdFile.WriteString("\n")
+	}
 }

@@ -26,12 +26,13 @@ import (
 
 // TestPluginOptions contains options for initializing a test plugin
 type TestPluginOptions struct {
-	ID          string
-	Payload     string
-	Language    extension.Language
-	Permissions []extension.PluginPermission
-	PoolSize    int
-	SetupHooks  bool
+	ID              string
+	Payload         string
+	Language        extension.Language
+	Permissions     []extension.PluginPermission
+	SystemAllowlist *extension.PluginSystemAllowlist
+	PoolSize        int
+	SetupHooks      bool
 }
 
 // DefaultTestPluginOptions returns default options for a test plugin
@@ -65,6 +66,10 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 		ext.Plugin = &extension.PluginManifest{
 			Permissions: opts.Permissions,
 		}
+	}
+
+	if opts.SystemAllowlist != nil {
+		ext.Plugin.SystemAllowlist = opts.SystemAllowlist
 	}
 
 	logger := util.NewLogger()
@@ -125,6 +130,50 @@ function init() {
 	opts.Payload = payload
 	opts.Permissions = []extension.PluginPermission{
 		extension.PluginPermissionPlayback,
+	}
+
+	_, _, manager, _, _ := InitTestPlugin(t, opts)
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+
+	time.Sleep(8 * time.Second)
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+func TestGojaPluginFiles(t *testing.T) {
+	payload := `
+function init() {
+
+	$ui.register((ctx) => {
+
+		const tempDir = $os.tempDir();
+		console.log("Temp dir", tempDir);
+
+		const downloadDirPath = "/Users/rahim/Downloads";
+		const entries = $os.readDir(downloadDirPath);
+		for (const entry of entries) {
+			console.log("Entry", entry.name());
+		}
+
+		const filePath = "/Users/rahim/Downloads/sms-bistro-blaster-main/components.json"
+		const content = $os.readFile(filePath);
+		console.log("File", $toString(content));
+		
+
+	});
+
+}
+	`
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+	opts.Permissions = []extension.PluginPermission{
+		extension.PluginPermissionSystem,
+	}
+	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
+		AllowReadPaths:  []string{"$TEMP/*", "/Users/rahim/Downloads/*"},
+		AllowWritePaths: []string{"$TEMP/*"},
 	}
 
 	_, _, manager, _, _ := InitTestPlugin(t, opts)
@@ -319,9 +368,14 @@ func TestNewGojaPlugin(t *testing.T) {
 
 			if(e.anime.id === 178022) {
 				e.anime.id = 21;
+				e.anime.idMal = 21;
+				$replace(e.anime.id, 22)
 				$replace(e.anime.title, { "english": "The One Piece is Real" })
-				$replace(e.anime.synonyms, ["The One Piece is Real"])
-				e.anime.synonyms[0] = "The One Piece"
+				// e.anime.title = { "english": "The One Piece is Real" }
+				// $replace(e.anime.synonyms, ["The One Piece is Real"])
+				e.anime.synonyms = ["The One Piece is Real"]
+				// e.anime.synonyms[0] = "The One Piece is Real"
+				// $replace(e.anime.synonyms[0], "The One Piece is Real")
 			}
 
 			e.next();
@@ -330,6 +384,7 @@ func TestNewGojaPlugin(t *testing.T) {
 		$app.onGetAnime((e) => {
 			console.log("$app.onGetAnime(2) fired")
 			console.log(e.anime.id)
+			console.log(e.anime.idMal)
 			console.log(e.anime.synonyms[0])
 			console.log(e.anime.title)
 		});
@@ -349,12 +404,12 @@ func TestNewGojaPlugin(t *testing.T) {
 	util.Spew(m.Title)
 	util.Spew(m.Synonyms)
 
-	m, err = anilistPlatform.GetAnime(177709)
-	if err != nil {
-		t.Fatalf("GetAnime returned error: %v", err)
-	}
+	// m, err = anilistPlatform.GetAnime(177709)
+	// if err != nil {
+	// 	t.Fatalf("GetAnime returned error: %v", err)
+	// }
 
-	util.Spew(m.Title)
+	// util.Spew(m.Title)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 }

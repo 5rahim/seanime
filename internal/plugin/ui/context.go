@@ -198,26 +198,23 @@ func (c *Context) GetContextObj() (*goja.Object, bool) {
 	return c.contextObj, c.contextObj != nil
 }
 
-// HandleTypeError interrupts the UI the first time we encounter a type error.
+// handleTypeError interrupts the UI the first time we encounter a type error.
 // Interrupting early is better to catch wrong usage of the API.
-func (c *Context) HandleTypeError(msg string) {
-	// c.mu.Lock()
-	// defer c.mu.Unlock()
-
-	c.logger.Error().Err(fmt.Errorf(msg)).Msg("plugin: Type error, interrupting UI")
+func (c *Context) handleTypeError(msg string) {
+	c.logger.Error().Err(fmt.Errorf(msg)).Msg("plugin: Type error")
 	c.fatalError(fmt.Errorf(msg))
 	// panic(c.vm.NewTypeError(msg))
 }
 
-// HandleException interrupts the UI after a certain number of exceptions have occurred.
+// handleException interrupts the UI after a certain number of exceptions have occurred.
 // As opposed to HandleTypeError, this is more-so for unexpected errors and not wrong usage of the API.
-func (c *Context) HandleException(err error) {
+func (c *Context) handleException(err error) {
 	// c.mu.Lock()
 	// defer c.mu.Unlock()
 
 	c.exceptionCount++
 	if c.exceptionCount >= MaxExceptions {
-		c.logger.Error().Err(err).Msg("plugin: Too many errors, interrupting UI")
+		c.logger.Error().Err(err).Msg("plugin: Too many exceptions, interrupting UI")
 		c.fatalError(err)
 	}
 }
@@ -230,13 +227,14 @@ func (c *Context) fatalError(err error) {
 		})
 	} else {
 		c.SendEventToClient(ServerFatalErrorEvent, ServerFatalErrorEventPayload{
-			Error: fmt.Sprintf("plugin '%s' has encountered a fatal error and has been terminated.", c.ext.Name),
+			Error: fmt.Sprintf("plugin: %s (%s) has encountered a fatal error and has been terminated.", c.ext.Name, c.ext.ID),
 		})
 	}
 
-	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("Plugin: '%s' has encountered a fatal error and has been terminated.", c.ext.Name))
+	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin: %s (%s) encountered a fatal error and has been terminated.", c.ext.Name, c.ext.ID))
 
-	c.ui.Unload()
+	// Unload the UI and signal the Plugin that it's been terminated
+	c.ui.Unload(true)
 }
 
 func (c *Context) registerOnCleanup(fn func()) {
@@ -328,16 +326,16 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 	return obj;
 })`)
 	if err != nil {
-		c.HandleTypeError(err.Error())
+		c.handleTypeError(err.Error())
 	}
 	jsDynamicDefFunc, ok := goja.AssertFunction(jsDynamicDefFuncValue)
 	if !ok {
-		c.HandleTypeError("dynamic definition is not a function")
+		c.handleTypeError("dynamic definition is not a function")
 	}
 
 	jsDynamicState, err := jsDynamicDefFunc(goja.Undefined(), stateObj, jsGetStateVal, jsSetStateVal)
 	if err != nil {
-		c.HandleTypeError(err.Error())
+		c.handleTypeError(err.Error())
 	}
 
 	// Attach hidden state ID for subscription
@@ -357,7 +355,7 @@ func (c *Context) jsState(call goja.FunctionCall) goja.Value {
 //	cancel(); // cancels the timeout
 func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) != 2 {
-		c.HandleTypeError("setTimeout requires a function and a delay")
+		c.handleTypeError("setTimeout requires a function and a delay")
 	}
 
 	fnValue := call.Argument(0)
@@ -365,12 +363,12 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 
 	fn, ok := goja.AssertFunction(fnValue)
 	if !ok {
-		c.HandleTypeError("setTimeout requires a function")
+		c.handleTypeError("setTimeout requires a function")
 	}
 
 	delay, ok := delayValue.Export().(int64)
 	if !ok {
-		c.HandleTypeError("delay must be a number")
+		c.handleTypeError("delay must be a number")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -406,7 +404,7 @@ func (c *Context) jsSetTimeout(call goja.FunctionCall) goja.Value {
 //	cancel(); // cancels the interval
 func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 2 {
-		c.HandleTypeError("setInterval requires a function and a delay")
+		c.handleTypeError("setInterval requires a function and a delay")
 	}
 
 	fnValue := call.Argument(0)
@@ -414,12 +412,12 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 
 	fn, ok := goja.AssertFunction(fnValue)
 	if !ok {
-		c.HandleTypeError("setInterval requires a function")
+		c.handleTypeError("setInterval requires a function")
 	}
 
 	delay, ok := delayValue.Export().(int64)
 	if !ok {
-		c.HandleTypeError("delay must be a number")
+		c.handleTypeError("delay must be a number")
 	}
 
 	globalObj := c.vm.GlobalObject()
@@ -462,12 +460,12 @@ func (c *Context) jsSetInterval(call goja.FunctionCall) goja.Value {
 //	text.set("Hello, world! 2"); // This will trigger the effect
 func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 2 {
-		c.HandleTypeError("effect requires a function and an array of dependencies")
+		c.handleTypeError("effect requires a function and an array of dependencies")
 	}
 
 	effectFn, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		c.HandleTypeError("first argument to effect must be a function")
+		c.handleTypeError("first argument to effect must be a function")
 	}
 
 	depsObj, ok := call.Argument(1).(*goja.Object)
@@ -507,7 +505,7 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 		depVal := depsObj.Get(fmt.Sprintf("%d", i))
 		depObj, ok := depVal.(*goja.Object)
 		if !ok {
-			c.HandleTypeError("dependency is not an object")
+			c.handleTypeError("dependency is not an object")
 		}
 		deps[i] = depObj
 		oldValues[i] = depObj.Get("value")
@@ -601,13 +599,13 @@ func (c *Context) jsEffect(call goja.FunctionCall) goja.Value {
 //	});
 func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 2 {
-		c.HandleTypeError("registerEventHandler requires a handler name and a function")
+		c.handleTypeError("registerEventHandler requires a handler name and a function")
 	}
 
 	handlerName := call.Argument(0).String()
 	handlerCallback, ok := goja.AssertFunction(call.Argument(1))
 	if !ok {
-		c.HandleTypeError("second argument to registerEventHandler must be a function")
+		c.handleTypeError("second argument to registerEventHandler must be a function")
 	}
 
 	eventListener := c.RegisterEventListener(ClientEventHandlerTriggeredEvent)
@@ -645,7 +643,7 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 	fieldRefObj := c.vm.NewObject()
 
 	if c.fieldRefCount >= MAX_FIELD_REFS {
-		c.HandleTypeError("Too many field refs registered")
+		c.handleTypeError("Too many field refs registered")
 		return goja.Undefined()
 	}
 
@@ -655,13 +653,13 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 
 	fieldRefName, ok := call.Argument(0).Export().(string)
 	if !ok {
-		c.HandleTypeError("registerFieldRef requires a field name")
+		c.handleTypeError("registerFieldRef requires a field name")
 	}
 
 	fieldRefObj.Set("setValue", func(call goja.FunctionCall) goja.Value {
 		value := call.Argument(0).Export()
 		if value == nil {
-			c.HandleTypeError("setValue requires a value")
+			c.handleTypeError("setValue requires a value")
 		}
 
 		c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{

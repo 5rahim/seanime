@@ -1,6 +1,7 @@
 package goja_bindings
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -80,13 +81,13 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 				ret = append(ret, fmt.Sprintf("%+v", v))
 			default:
 				// TODO change back
-				ret = append(ret, fmt.Sprintf("%+v", v))
-				//bs, err := json.Marshal(v)
-				//if err != nil {
-				//	ret = append(ret, fmt.Sprintf("%+v", v))
-				//} else {
-				//	ret = append(ret, string(bs))
-				//}
+				// ret = append(ret, fmt.Sprintf("%+v", v))
+				bs, err := json.Marshal(v)
+				if err != nil {
+					ret = append(ret, fmt.Sprintf("%+v", v))
+				} else {
+					ret = append(ret, string(bs))
+				}
 			}
 		}
 		switch t {

@@ -116,6 +116,7 @@ func (c *ComponentManager) jsInput(call goja.FunctionCall) goja.Value {
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
 }
 
@@ -169,6 +170,7 @@ func (c *ComponentManager) jsSelect(call goja.FunctionCall) goja.Value {
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
 }
 
@@ -185,6 +187,7 @@ func (c *ComponentManager) jsCheckbox(call goja.FunctionCall) goja.Value {
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
 }
 
@@ -208,6 +211,7 @@ func (c *ComponentManager) jsRadioGroup(call goja.FunctionCall) goja.Value {
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
 }
 
@@ -225,5 +229,6 @@ func (c *ComponentManager) jsSwitch(call goja.FunctionCall) goja.Value {
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
 }

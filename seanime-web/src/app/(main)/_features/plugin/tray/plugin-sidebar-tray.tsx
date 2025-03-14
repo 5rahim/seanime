@@ -1,24 +1,39 @@
+import { useListDevelopmentModeExtensions, useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
 import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
+import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
+import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
+import { Popover } from "@/components/ui/popover"
+import { WSEvents } from "@/lib/server/ws-events"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
+import { usePathname } from "next/navigation"
 import React from "react"
-import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
-import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { WSEvents } from "@/lib/server/ws-events"
 import { LuBug, LuRefreshCw } from "react-icons/lu"
-import { IconButton } from "@/components/ui/button"
-import { Popover } from "@/components/ui/popover"
-import { useListDevelopmentModeExtensions, useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
-import { useQueryClient } from "@tanstack/react-query"
-import { API_ENDPOINTS } from "@/api/generated/endpoints"
-
+import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
 
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
+
+export const __plugin_hasNavigatedAtom = atom<boolean>(false)
 
 export function PluginSidebarTray() {
     const queryClient = useQueryClient()
     const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
+
+    const [hasNavigated, setHasNavigated] = useAtom(__plugin_hasNavigatedAtom)
+    const pathname = usePathname()
+
+    const firstRender = React.useRef(true)
+    React.useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false
+            return
+        }
+        if (!hasNavigated) {
+            setHasNavigated(true)
+        }
+    }, [pathname, hasNavigated])
 
     /**
      * 1. Send a request to the server to list all tray icons

@@ -95,6 +95,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	//	return nil, err
 	//}
 
+	// Create a map of local file paths, will be used to avoid duplicates
 	localFilePathsMap := make(map[string]struct{})
 	for _, path := range paths {
 		localFilePathsMap[util.NormalizePath(path)] = struct{}{}
@@ -104,6 +105,9 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	for _, dirPath := range scn.OtherDirPaths {
 		//otherLocalFiles, err := GetLocalFilesFromDir(dirPath, scn.Logger)
 		otherPaths, err := filesystem.GetMediaFilePathsFromDirS(dirPath)
+
+		// TODO: Event for local files retrieved
+
 		if scn.ScanLogger != nil {
 			scn.ScanLogger.logger.Info().
 				Any("count", len(otherPaths)).
@@ -113,7 +117,6 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			return nil, err
 		}
 		for _, path := range otherPaths {
-			//if _, ok := localFilePathsMap[strings.ToLower(path)]; !ok {
 			if _, ok := localFilePathsMap[util.NormalizePath(path)]; !ok {
 				paths = append(paths, path)
 			}
@@ -126,9 +129,13 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			Msg("Retrieved file paths from all directories")
 	}
 
+	// TODO: Event for all local files retrieved
+
 	// +---------------------+
 	// | Filter local files  |
 	// +---------------------+
+
+	// TODO: Event for local files filtering (preventable)
 
 	localFiles := make([]*anime.LocalFile, 0)
 
@@ -188,26 +195,29 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			Msg("===========================================================================================================")
 	}
 
+	// DEVNOTE: Removed because it causes some issues with symlinks
 	// Remove local files from both skipped and un-skipped files if they are not under any of the directories
-	allLibraries := []string{scn.DirPath}
-	allLibraries = append(allLibraries, scn.OtherDirPaths...)
-	localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
-		if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
-			return false
-		}
-		return true
-	})
+	// allLibraries := []string{scn.DirPath}
+	// allLibraries = append(allLibraries, scn.OtherDirPaths...)
+	// localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
+	// 	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
+	// 		return false
+	// 	}
+	// 	return true
+	// })
+
 	//skippedLfs = lo.Filter(skippedLfs, func(lf *anime.LocalFile, _ int) bool {
 	//	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
 	//		return false
 	//	}
 	//	return true
 	//})
-	for _, lf := range skippedLfs {
-		if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
-			delete(skippedLfs, lf.GetNormalizedPath())
-		}
-	}
+	// DEVNOTE: Removed because it causes some issues with symlinks
+	// for _, lf := range skippedLfs {
+	// 	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
+	// 		delete(skippedLfs, lf.GetNormalizedPath())
+	// 	}
+	// }
 
 	// +---------------------+
 	// |  No files to scan   |

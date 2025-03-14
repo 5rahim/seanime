@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit.
-import { useCallback } from "react"
 import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { useCallback } from "react"
 
 export enum PluginClientEvents {
     RenderTray = "tray:render",
@@ -29,6 +29,8 @@ export enum PluginClientEvents {
 export enum PluginServerEvents {
     TrayUpdated = "tray:updated",
     TrayIcon = "tray:icon",
+    TrayOpen = "tray:open",
+    TrayClose = "tray:close",
     CommandPaletteInfo = "command-palette:info",
     CommandPaletteUpdated = "command-palette:updated",
     CommandPaletteOpen = "command-palette:open",
@@ -46,6 +48,7 @@ export enum PluginServerEvents {
     FatalError = "fatal-error",
     ScreenNavigateTo = "screen:navigate-to",
     ScreenReload = "screen:reload",
+    ScreenGetCurrent = "screen:get-current",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -399,12 +402,34 @@ export type Plugin_Server_TrayIconEventPayload = {
     iconUrl: string
     withContent: boolean
     tooltipText: string
+    badgeNumber: number
+    badgeIntent: string
 }
 
 export function usePluginListenTrayIconEvent(cb: (payload: Plugin_Server_TrayIconEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayIconEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.TrayIcon,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_TrayOpenEventPayload = {}
+
+export function usePluginListenTrayOpenEvent(cb: (payload: Plugin_Server_TrayOpenEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_TrayOpenEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.TrayOpen,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_TrayCloseEventPayload = {}
+
+export function usePluginListenTrayCloseEvent(cb: (payload: Plugin_Server_TrayCloseEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_TrayCloseEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.TrayClose,
         onMessage: cb,
     })
 }
@@ -610,6 +635,18 @@ export function usePluginListenScreenReloadEvent(cb: (payload: Plugin_Server_Scr
     return useWebsocketPluginMessageListener<Plugin_Server_ScreenReloadEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ScreenReload,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_ScreenGetCurrentEventPayload = {}
+
+export function usePluginListenScreenGetCurrentEvent(cb: (payload: Plugin_Server_ScreenGetCurrentEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_ScreenGetCurrentEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.ScreenGetCurrent,
         onMessage: cb,
     })
 }

@@ -26,10 +26,11 @@ type GoStruct struct {
 }
 
 type GoAlias struct {
-	GoType         string   `json:"goType"`
-	TypescriptType string   `json:"typescriptType"`
-	DeclaredValues []string `json:"declaredValues"`
-	UsedStructType string   `json:"usedStructName,omitempty"`
+	GoType             string   `json:"goType"`
+	TypescriptType     string   `json:"typescriptType"`
+	UsedTypescriptType string   `json:"usedTypescriptType,omitempty"`
+	DeclaredValues     []string `json:"declaredValues"`
+	UsedStructType     string   `json:"usedStructName,omitempty"`
 }
 
 type GoStructField struct {

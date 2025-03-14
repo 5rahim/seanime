@@ -95,6 +95,7 @@ func TestByteSliceToUint8Array(t *testing.T) {
 		console.log(typeof uint8Array, uint8Array);
 
 		console.log("toString", $toString(uint8Array));
+		console.log("toString", uint8Array.toString());
 
 
         true; // Return true if all checks pass

@@ -51,10 +51,12 @@ type GojaPlugin struct {
 	pool            *goja_runtime.Pool
 	runtimeManager  *goja_runtime.Manager
 	store           *plugin.Store[string, any]
+	storage         *plugin.Storage
 	ui              *plugin_ui.UI
 	scheduler       *goja_util.Scheduler
 	loader          *goja.Runtime
 	unbindHookFuncs []func()
+	interrupted     bool
 }
 
 func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
@@ -64,15 +66,35 @@ func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
 // ClearInterrupt stops the UI VM and other modules.
 // It is called when the extension is unloaded.
 func (p *GojaPlugin) ClearInterrupt() {
+	p.interrupted = true
+
 	p.logger.Debug().Msg("plugin: Interrupting plugin")
-	p.ui.Unload()
-	p.loader.ClearInterrupt()
-	p.store.Stop()
-	runtime.GC()
-	p.runtimeManager.DeletePluginPool(p.ext.ID)
+	// Unload the UI
+	if p.ui != nil {
+		p.ui.Unload(false)
+	}
+	// Clear the interrupt
+	if p.loader != nil {
+		p.loader.ClearInterrupt()
+	}
+	// Stop the store
+	if p.store != nil {
+		p.store.Stop()
+	}
+	// Stop the storage
+	if p.storage != nil {
+		p.storage.Stop()
+	}
+	// Delete the plugin pool
+	if p.runtimeManager != nil {
+		p.runtimeManager.DeletePluginPool(p.ext.ID)
+	}
+	// Unbind all hooks
 	for _, unbindHookFunc := range p.unbindHookFuncs {
 		unbindHookFunc()
 	}
+	// Run garbage collection
+	runtime.GC()
 	p.logger.Debug().Msg("plugin: Interrupted plugin")
 }
 
@@ -151,6 +173,12 @@ func NewGojaPlugin(
 		Scheduler: p.scheduler,
 	})
 
+	go func() {
+		<-p.ui.Destroyed()
+		p.logger.Warn().Str("id", ext.ID).Msg("plugin: UI interrupted, interrupting plugin")
+		p.ClearInterrupt()
+	}()
+
 	// 6. Bind the UI API to the loader so the plugin can register a new UI
 	//	$ui.register(callback)
 	uiObj := p.loader.NewObject()
@@ -160,13 +188,17 @@ func NewGojaPlugin(
 	// 7. Load the plugin source code in the VM (nothing will execute)
 	_, err = p.loader.RunString(source)
 	if err != nil {
+		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to load plugin")
 		return nil, nil, err
 	}
 
 	// 8. Get and call the init function to actually run the plugin
 	if initFunc := p.loader.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
 		_, err = p.loader.RunString("init();")
+		// DEVNOTE: Code errors in callbacks functions are not caught here, so the plugin will still be "initialized" even though it might be interrupted almost instantly
+		// e.g. Type errors in the UI callback will not fail the init function
 		if err != nil {
+			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to run init")
 			return nil, nil, fmt.Errorf("failed to run init: %w", err)
 		}
 		logger.Debug().Str("id", ext.ID).Msg("extensions: Plugin initialized")
@@ -197,7 +229,7 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 		for _, permission := range p.ext.Plugin.Permissions {
 			switch permission {
 			case extension.PluginPermissionStorage: // Storage
-				plugin.GlobalAppContext.BindStorage(vm, logger, p.ext)
+				p.storage = plugin.GlobalAppContext.BindStorage(vm, logger, p.ext, p.scheduler)
 
 			case extension.PluginPermissionAnilist: // Anilist
 				plugin.GlobalAppContext.BindAnilist(vm, logger, p.ext)
@@ -281,6 +313,11 @@ func (p *GojaPlugin) bindHooks() {
 				// Prepare arguments for the handler
 				handlerArgs := make([]any, len(args))
 
+				// var err error
+				// if p.interrupted {
+				// 	return []reflect.Value{reflect.ValueOf(&err).Elem()}
+				// }
+
 				// Run the handler in an isolated "executor" runtime for concurrency
 				err := p.runtimeManager.Run(context.Background(), p.ext.ID, func(executor *goja.Runtime) error {
 					// Set the field name mapper for the executor
@@ -311,6 +348,11 @@ func (p *GojaPlugin) bindHooks() {
 				// Return the error as a reflect.Value
 				return []reflect.Value{reflect.ValueOf(&err).Elem()}
 			})
+
+			// Bind the hook if the plugin is not interrupted
+			if p.interrupted {
+				return
+			}
 
 			// Register the wrapped hook handler
 			callRet := hookBindFunc.Call([]reflect.Value{handler})

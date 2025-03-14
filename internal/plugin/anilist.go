@@ -33,6 +33,7 @@ func (a *AppContextImpl) BindAnilist(vm *goja.Runtime, logger *zerolog.Logger, e
 	// Bind anilist platform
 	anilistPlatform, ok := a.anilistPlatform.Get()
 	if ok {
+		// TODO: Send event to invalidate queries
 		_ = anilistObj.Set("updateEntry", anilistPlatform.UpdateEntry)
 		_ = anilistObj.Set("updateEntryProgress", anilistPlatform.UpdateEntryProgress)
 		_ = anilistObj.Set("updateEntryRepeat", anilistPlatform.UpdateEntryRepeat)

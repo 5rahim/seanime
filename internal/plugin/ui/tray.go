@@ -37,9 +37,9 @@ func (t *TrayManager) renderTrayScheduled() {
 	}
 
 	// Rate limit updates
-	if time.Since(t.lastUpdatedAt) < time.Millisecond*200 {
-		return
-	}
+	//if time.Since(t.lastUpdatedAt) < time.Millisecond*200 {
+	//	return
+	//}
 
 	t.lastUpdatedAt = time.Now()
 
@@ -48,7 +48,7 @@ func (t *TrayManager) renderTrayScheduled() {
 		newComponents, err := t.componentManager.renderComponents(tray.renderFunc)
 		if err != nil {
 			t.ctx.logger.Error().Err(err).Msg("plugin: Failed to render tray")
-			t.ctx.HandleException(err)
+			t.ctx.handleException(err)
 			return nil
 		}
 
@@ -83,6 +83,8 @@ type Tray struct {
 
 	IconURL     string `json:"iconUrl"`
 	TooltipText string `json:"tooltipText"`
+	BadgeNumber int    `json:"badgeNumber"`
+	BadgeIntent string `json:"badgeIntent"`
 
 	renderFunc  func(goja.FunctionCall) goja.Value
 	trayManager *TrayManager
@@ -129,6 +131,9 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 	_ = trayObj.Set("onOpen", tray.jsOnOpen)
 	_ = trayObj.Set("onClose", tray.jsOnClose)
 	_ = trayObj.Set("onClick", tray.jsOnClick)
+	_ = trayObj.Set("open", tray.jsOpen)
+	_ = trayObj.Set("close", tray.jsClose)
+	_ = trayObj.Set("updateBadge", tray.jsUpdateBadge)
 
 	// Register components
 	_ = trayObj.Set("div", t.componentManager.jsDiv)
@@ -155,7 +160,7 @@ func (t *Tray) jsRender(call goja.FunctionCall) goja.Value {
 
 	funcRes, ok := call.Argument(0).Export().(func(goja.FunctionCall) goja.Value)
 	if !ok {
-		t.trayManager.ctx.HandleTypeError("render requires a function")
+		t.trayManager.ctx.handleTypeError("render requires a function")
 	}
 
 	// Set the render function
@@ -181,17 +186,72 @@ func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
 // jsOnOpen
 //
 //	Example:
+//	tray.open()
+func (t *Tray) jsOpen(call goja.FunctionCall) goja.Value {
+	t.trayManager.ctx.SendEventToClient(ServerTrayOpenEvent, ServerTrayOpenEventPayload{})
+	return goja.Undefined()
+}
+
+// jsClose
+//
+//	Example:
+//	tray.close()
+func (t *Tray) jsClose(call goja.FunctionCall) goja.Value {
+	t.trayManager.ctx.SendEventToClient(ServerTrayCloseEvent, ServerTrayCloseEventPayload{})
+	return goja.Undefined()
+}
+
+// jsUpdateBadge
+//
+//	Example:
+//	tray.updateBadge({ number: 1, intent: "success" })
+func (t *Tray) jsUpdateBadge(call goja.FunctionCall) goja.Value {
+	if len(call.Arguments) < 1 {
+		t.trayManager.ctx.handleTypeError("updateBadge requires a callback function")
+	}
+
+	propsObj, ok := call.Argument(0).Export().(map[string]interface{})
+	if !ok {
+		t.trayManager.ctx.handleTypeError("updateBadge requires a callback function")
+	}
+
+	number, ok := propsObj["number"].(int64)
+	if !ok {
+		t.trayManager.ctx.handleTypeError("updateBadge: number must be an integer")
+	}
+
+	intent, ok := propsObj["intent"].(string)
+	if !ok {
+		intent = "info"
+	}
+
+	t.BadgeNumber = int(number)
+	t.BadgeIntent = intent
+
+	t.trayManager.ctx.SendEventToClient(ServerTrayIconEvent, ServerTrayIconEventPayload{
+		IconURL:     t.IconURL,
+		WithContent: t.WithContent,
+		TooltipText: t.TooltipText,
+		BadgeNumber: t.BadgeNumber,
+		BadgeIntent: t.BadgeIntent,
+	})
+	return goja.Undefined()
+}
+
+// jsOnOpen
+//
+//	Example:
 //	tray.onOpen(() => {
 //		console.log("tray opened by the user")
 //	})
 func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		t.trayManager.ctx.HandleTypeError("onOpen requires a callback function")
+		t.trayManager.ctx.handleTypeError("onOpen requires a callback function")
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		t.trayManager.ctx.HandleTypeError("onOpen requires a callback function")
+		t.trayManager.ctx.handleTypeError("onOpen requires a callback function")
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayOpenedEvent)
@@ -221,12 +281,12 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 //	})
 func (t *Tray) jsOnClick(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		t.trayManager.ctx.HandleTypeError("onClick requires a callback function")
+		t.trayManager.ctx.handleTypeError("onClick requires a callback function")
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		t.trayManager.ctx.HandleTypeError("onClick requires a callback function")
+		t.trayManager.ctx.handleTypeError("onClick requires a callback function")
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClickedEvent)
@@ -257,12 +317,12 @@ func (t *Tray) jsOnClick(call goja.FunctionCall) goja.Value {
 //	})
 func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 	if len(call.Arguments) < 1 {
-		t.trayManager.ctx.HandleTypeError("onClose requires a callback function")
+		t.trayManager.ctx.handleTypeError("onClose requires a callback function")
 	}
 
 	callback, ok := goja.AssertFunction(call.Argument(0))
 	if !ok {
-		t.trayManager.ctx.HandleTypeError("onClose requires a callback function")
+		t.trayManager.ctx.handleTypeError("onClose requires a callback function")
 	}
 
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClosedEvent)

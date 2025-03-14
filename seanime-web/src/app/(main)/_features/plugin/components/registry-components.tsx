@@ -53,6 +53,8 @@ export function PluginButton(props: ButtonProps) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Fields
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 interface InputProps {
     placeholder?: string
@@ -62,6 +64,7 @@ interface InputProps {
     value?: string
     onChange?: string
     fieldRef?: string
+    disabled?: boolean
 }
 
 export function PluginInput(props: InputProps) {
@@ -107,6 +110,7 @@ export function PluginInput(props: InputProps) {
             style={props.style}
             value={value}
             onValueChange={(value) => setValue(value)}
+            disabled={props.disabled}
         />
     )
 }
@@ -124,6 +128,7 @@ interface SelectProps {
     fieldRef?: string
     style?: React.CSSProperties
     value?: string
+    disabled?: boolean
 }
 
 export function PluginSelect(props: SelectProps) {
@@ -155,6 +160,7 @@ export function PluginSelect(props: SelectProps) {
             options={props.options}
             value={value}
             onValueChange={(value) => setValue(value)}
+            disabled={props.disabled}
         />
     )
 }
@@ -168,6 +174,7 @@ interface CheckboxProps {
     value?: boolean
     onChange?: string
     fieldRef?: string
+    disabled?: boolean
 }
 
 export function PluginCheckbox(props: CheckboxProps) {
@@ -198,6 +205,7 @@ export function PluginCheckbox(props: CheckboxProps) {
             style={props.style}
             value={value}
             onValueChange={(value) => typeof value === "boolean" && setValue(value)}
+            disabled={props.disabled}
         />
     )
 }
@@ -211,6 +219,7 @@ interface SwitchProps {
     value?: boolean
     onChange?: string
     fieldRef?: string
+    disabled?: boolean
 }
 
 export function PluginSwitch(props: SwitchProps) {
@@ -241,6 +250,7 @@ export function PluginSwitch(props: SwitchProps) {
             style={props.style}
             value={value}
             onValueChange={(value) => typeof value === "boolean" && setValue(value)}
+            disabled={props.disabled}
         />
     )
 }
@@ -258,6 +268,7 @@ interface RadioGroupProps {
     fieldRef?: string
     style?: React.CSSProperties
     value?: string
+    disabled?: boolean
 }
 
 export function PluginRadioGroup(props: RadioGroupProps) {
@@ -288,12 +299,14 @@ export function PluginRadioGroup(props: RadioGroupProps) {
             options={props.options}
             value={value}
             onValueChange={(value) => setValue(value)}
+            disabled={props.disabled}
         />
     )
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 interface FlexProps {
     items?: any[]
     direction?: "row" | "column"

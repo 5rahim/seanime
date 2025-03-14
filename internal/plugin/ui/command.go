@@ -95,23 +95,23 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 			label, _ := itemMap["label"].(string)
 			value, ok := itemMap["value"].(string)
 			if !ok {
-				c.ctx.HandleTypeError("value must be a string")
+				c.ctx.handleTypeError("value must be a string")
 				return
 			}
 			filterType, _ := itemMap["filterType"].(string)
 			if filterType != "includes" && filterType != "startsWith" && filterType != "" {
-				c.ctx.HandleTypeError("filterType must be 'includes', 'startsWith'")
+				c.ctx.handleTypeError("filterType must be 'includes', 'startsWith'")
 				return
 			}
 			heading, _ := itemMap["heading"].(string)
 			renderFunc, ok := itemMap["render"].(func(goja.FunctionCall) goja.Value)
 			if len(label) == 0 && !ok {
-				c.ctx.HandleTypeError("label or render function must be provided")
+				c.ctx.handleTypeError("label or render function must be provided")
 				return
 			}
 			onSelectFunc, ok := itemMap["onSelect"].(func(goja.FunctionCall) goja.Value)
 			if !ok {
-				c.ctx.HandleTypeError("onSelect must be a function")
+				c.ctx.handleTypeError("onSelect must be a function")
 				return
 			}
 
@@ -205,12 +205,12 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 	//	})
 	_ = cmdObj.Set("onOpen", func(call goja.FunctionCall) goja.Value {
 		if len(call.Arguments) < 1 {
-			c.ctx.HandleTypeError("onOpen requires a callback function")
+			c.ctx.handleTypeError("onOpen requires a callback function")
 		}
 
 		callback, ok := goja.AssertFunction(call.Argument(0))
 		if !ok {
-			c.ctx.HandleTypeError("onOpen requires a callback function")
+			c.ctx.handleTypeError("onOpen requires a callback function")
 		}
 
 		eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteOpenedEvent)
@@ -240,12 +240,12 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 	//	})
 	_ = cmdObj.Set("onClose", func(call goja.FunctionCall) goja.Value {
 		if len(call.Arguments) < 1 {
-			c.ctx.HandleTypeError("onClose requires a callback function")
+			c.ctx.handleTypeError("onClose requires a callback function")
 		}
 
 		callback, ok := goja.AssertFunction(call.Argument(0))
 		if !ok {
-			c.ctx.HandleTypeError("onClose requires a callback function")
+			c.ctx.handleTypeError("onClose requires a callback function")
 		}
 
 		eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteClosedEvent)
@@ -304,7 +304,7 @@ func (c *commandItem) ToJSON(ctx *Context, componentManager *ComponentManager, s
 		components, err = componentManager.renderComponents(c.renderFunc)
 		if err != nil {
 			ctx.logger.Error().Err(err).Msg("plugin: Failed to render command palette item")
-			ctx.HandleException(err)
+			ctx.handleException(err)
 			return nil
 		}
 	}

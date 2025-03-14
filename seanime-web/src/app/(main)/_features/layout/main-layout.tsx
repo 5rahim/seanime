@@ -27,6 +27,7 @@ import { TorrentStreamOverlay } from "@/app/(main)/entry/_containers/torrent-str
 import { ChapterDownloadsDrawer } from "@/app/(main)/manga/_containers/chapter-downloads/chapter-downloads-drawer"
 import { AppLayout, AppLayoutContent, AppLayoutSidebar, AppSidebarProvider } from "@/components/ui/app-layout"
 import React from "react"
+import { useInvalidateQueriesListener } from "../../_listeners/invalidate-queries.listeners"
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -47,6 +48,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
     useMangaListener()
     useExternalPlayerLinkListener()
     useSyncListener()
+    useInvalidateQueriesListener()
 
     return (
         <>

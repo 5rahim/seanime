@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"io"
 	"io/fs"
@@ -78,11 +80,11 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		}
 		return os.ReadDir(path)
 	})
-	_ = osObj.Set("tempDir", func() string {
+	_ = osObj.Set("tempDir", func() (string, error) {
 		if !a.isAllowedPath(ext, os.TempDir(), AllowPathRead) {
-			return ""
+			return "", ErrPathNotAuthorized
 		}
-		return os.TempDir()
+		return os.TempDir(), nil
 	})
 	_ = osObj.Set("truncate", func(path string, size int64) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
@@ -185,9 +187,111 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 
 	ioObj := vm.NewObject()
 
-	ioObj.Set("Copy", func(dst io.Writer, src io.Reader) (int64, error) {
+	ioObj.Set("copy", func(dst io.Writer, src io.Reader) (int64, error) {
 		return io.Copy(dst, src)
 	})
+
+	ioObj.Set("readAll", func(r io.Reader) ([]byte, error) {
+		return io.ReadAll(r)
+	})
+
+	ioObj.Set("writeString", func(w io.Writer, s string) (int, error) {
+		return io.WriteString(w, s)
+	})
+
+	ioObj.Set("readAtLeast", func(r io.Reader, buf []byte, min int) (int, error) {
+		return io.ReadAtLeast(r, buf, min)
+	})
+
+	ioObj.Set("readFull", func(r io.Reader, buf []byte) (int, error) {
+		return io.ReadFull(r, buf)
+	})
+
+	ioObj.Set("copyN", func(dst io.Writer, src io.Reader, n int64) (int64, error) {
+		return io.CopyN(dst, src, n)
+	})
+
+	ioObj.Set("copyBuffer", func(dst io.Writer, src io.Reader, buf []byte) (int64, error) {
+		return io.CopyBuffer(dst, src, buf)
+	})
+
+	ioObj.Set("limitReader", func(r io.Reader, n int64) io.Reader {
+		return io.LimitReader(r, n)
+	})
+
+	ioObj.Set("newSectionReader", func(r io.ReaderAt, off int64, n int64) io.Reader {
+		return io.NewSectionReader(r, off, n)
+	})
+
+	ioObj.Set("nopCloser", func(r io.Reader) io.ReadCloser {
+		return io.NopCloser(r)
+	})
+
+	_ = vm.Set("$io", ioObj)
+
+	//////////////////////////////////////
+	// bufio
+	//////////////////////////////////////
+
+	bufioObj := vm.NewObject()
+
+	bufioObj.Set("NewReader", func(r io.Reader) *bufio.Reader {
+		return bufio.NewReader(r)
+	})
+
+	bufioObj.Set("NewReaderSize", func(r io.Reader, size int) *bufio.Reader {
+		return bufio.NewReaderSize(r, size)
+	})
+
+	bufioObj.Set("NewWriter", func(w io.Writer) *bufio.Writer {
+		return bufio.NewWriter(w)
+	})
+
+	bufioObj.Set("NewWriterSize", func(w io.Writer, size int) *bufio.Writer {
+		return bufio.NewWriterSize(w, size)
+	})
+
+	bufioObj.Set("NewScanner", func(r io.Reader) *bufio.Scanner {
+		return bufio.NewScanner(r)
+	})
+
+	bufioObj.Set("ScanLines", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		return bufio.ScanLines(data, atEOF)
+	})
+
+	bufioObj.Set("ScanWords", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		return bufio.ScanWords(data, atEOF)
+	})
+
+	bufioObj.Set("ScanRunes", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		return bufio.ScanRunes(data, atEOF)
+	})
+
+	bufioObj.Set("ScanBytes", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		return bufio.ScanBytes(data, atEOF)
+	})
+
+	_ = vm.Set("$bufio", bufioObj)
+
+	//////////////////////////////////////
+	// bytes
+	//////////////////////////////////////
+
+	bytesObj := vm.NewObject()
+
+	bytesObj.Set("NewBuffer", func(buf []byte) *bytes.Buffer {
+		return bytes.NewBuffer(buf)
+	})
+
+	bytesObj.Set("NewBufferString", func(s string) *bytes.Buffer {
+		return bytes.NewBufferString(s)
+	})
+
+	bytesObj.Set("NewReader", func(b []byte) *bytes.Reader {
+		return bytes.NewReader(b)
+	})
+
+	_ = vm.Set("$bytes", bytesObj)
 
 	//////////////////////////////////////
 	// Downloader
@@ -292,7 +396,7 @@ func (a *AppContextImpl) resolveEnvironmentPaths(name string) []string {
 
 	switch name {
 	case "SEANIME_ANIME_LIBRARY":
-		if animeLibraryPaths := a.animeLibraryPaths.MustGet(); len(animeLibraryPaths) > 0 {
+		if animeLibraryPaths, ok := a.animeLibraryPaths.Get(); ok && len(animeLibraryPaths) > 0 {
 			return animeLibraryPaths
 		}
 		return []string{}
@@ -350,7 +454,6 @@ func (a *AppContextImpl) isAllowedPath(ext *extension.Extension, path string, mo
 	// Normalize the path to use forward slashes and absolute path
 	normalizedPath := path
 	if !filepath.IsAbs(normalizedPath) {
-		// Convert to absolute path
 		absPath, err := filepath.Abs(normalizedPath)
 		if err != nil {
 			return false
@@ -359,10 +462,22 @@ func (a *AppContextImpl) isAllowedPath(ext *extension.Extension, path string, mo
 	}
 	normalizedPath = filepath.ToSlash(normalizedPath)
 
+	// Check if the path is a directory
+	isDir := false
+	if stat, err := os.Stat(path); err == nil && stat.IsDir() {
+		isDir = true
+		// Ensure directory paths end with a slash for proper matching
+		if !strings.HasSuffix(normalizedPath, "/") {
+			normalizedPath += "/"
+		}
+	}
+
 	// Check if the path matches any of the allowed patterns
 	for _, pattern := range patterns {
 		// Resolve environment variables in the pattern, which may result in multiple patterns
 		resolvedPatterns := a.resolvePattern(pattern)
+
+		util.Spew(resolvedPatterns)
 
 		for _, resolvedPattern := range resolvedPatterns {
 			// Convert to absolute path if needed
@@ -370,10 +485,76 @@ func (a *AppContextImpl) isAllowedPath(ext *extension.Extension, path string, mo
 				resolvedPattern = filepath.Join(filepath.Dir(normalizedPath), resolvedPattern)
 			}
 
-			// Use doublestar for glob pattern matching
+			// Direct match attempt
 			matched, err := doublestar.Match(resolvedPattern, normalizedPath)
 			if err == nil && matched {
 				return true
+			}
+
+			// For directories, we need special handling
+			if isDir {
+				// Case 1: Check if this directory is explicitly allowed by a pattern ending with "/"
+				if !strings.HasSuffix(resolvedPattern, "/") {
+					dirPattern := resolvedPattern
+					if !strings.HasSuffix(dirPattern, "/") {
+						dirPattern += "/"
+					}
+					matched, err = doublestar.Match(dirPattern, normalizedPath)
+					if err == nil && matched {
+						return true
+					}
+				}
+
+				// Case 2: Check if this directory is covered by a wildcard pattern
+				// Strip trailing wildcards to get the base directory pattern
+				basePattern := resolvedPattern
+				basePattern = strings.TrimSuffix(basePattern, "/**/*")
+				basePattern = strings.TrimSuffix(basePattern, "/**")
+				basePattern = strings.TrimSuffix(basePattern, "/*")
+
+				// Ensure the base pattern ends with a slash for directory comparison
+				if !strings.HasSuffix(basePattern, "/") {
+					basePattern += "/"
+				}
+
+				// If the path is exactly the base directory or a subdirectory of it
+				// AND the original pattern had a wildcard
+				if (normalizedPath == basePattern || strings.HasPrefix(normalizedPath, basePattern)) &&
+					(strings.HasSuffix(resolvedPattern, "/**") ||
+						strings.HasSuffix(resolvedPattern, "/**/*") ||
+						strings.HasSuffix(resolvedPattern, "/*")) {
+					return true
+				}
+
+				// Case 3: Check if the pattern is for a subdirectory of this directory
+				// This handles the case where we're checking access to a parent directory
+				// when a subdirectory is explicitly allowed
+				if strings.HasPrefix(basePattern, normalizedPath) &&
+					(strings.HasSuffix(resolvedPattern, "/**") ||
+						strings.HasSuffix(resolvedPattern, "/**/*") ||
+						strings.HasSuffix(resolvedPattern, "/*")) {
+					return true
+				}
+			} else {
+				// For files, check if any parent directory is allowed with wildcards
+				parentDir := filepath.Dir(normalizedPath)
+				if !strings.HasSuffix(parentDir, "/") {
+					parentDir += "/"
+				}
+
+				// Check if the file's parent directory matches a directory wildcard pattern
+				for _, suffix := range []string{"/**/*", "/**", "/*"} {
+					if strings.HasSuffix(resolvedPattern, suffix) {
+						basePattern := strings.TrimSuffix(resolvedPattern, suffix)
+						if !strings.HasSuffix(basePattern, "/") {
+							basePattern += "/"
+						}
+
+						if strings.HasPrefix(parentDir, basePattern) {
+							return true
+						}
+					}
+				}
 			}
 		}
 	}
@@ -408,7 +589,10 @@ func (a *AppContextImpl) resolvePattern(pattern string) []string {
 
 			for _, existingPattern := range patterns {
 				for _, path := range paths {
-					newPattern := strings.ReplaceAll(existingPattern, placeholder, path)
+					// Ensure proper path separator handling
+					cleanPath := filepath.ToSlash(path)
+					// Replace the placeholder with the path, ensuring no double slashes
+					newPattern := strings.ReplaceAll(existingPattern, placeholder, cleanPath)
 					newPatterns = append(newPatterns, newPattern)
 				}
 			}
@@ -419,7 +603,10 @@ func (a *AppContextImpl) resolvePattern(pattern string) []string {
 			// If there's only one path or the placeholder doesn't exist,
 			// just replace it in all existing patterns
 			for i := range patterns {
-				patterns[i] = strings.ReplaceAll(patterns[i], placeholder, paths[0])
+				// Ensure proper path separator handling
+				cleanPath := filepath.ToSlash(paths[0])
+				// Replace the placeholder with the path, ensuring no double slashes
+				patterns[i] = strings.ReplaceAll(patterns[i], placeholder, cleanPath)
 			}
 		}
 	}
@@ -427,6 +614,14 @@ func (a *AppContextImpl) resolvePattern(pattern string) []string {
 	// Replace environment variables in all patterns
 	for i := range patterns {
 		patterns[i] = os.ExpandEnv(patterns[i])
+	}
+
+	// Clean up any potential double slashes that might have been introduced
+	for i := range patterns {
+		// Replace any double slashes with single slashes
+		for strings.Contains(patterns[i], "//") {
+			patterns[i] = strings.ReplaceAll(patterns[i], "//", "/")
+		}
 	}
 
 	return patterns

@@ -465,12 +465,12 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 
 	_ = obj.Set("onClick", func(call goja.FunctionCall) goja.Value {
 		if len(call.Arguments) < 1 {
-			a.ctx.HandleTypeError("onClick requires a callback function")
+			a.ctx.handleTypeError("onClick requires a callback function")
 		}
 
 		callback, ok := goja.AssertFunction(call.Argument(0))
 		if !ok {
-			a.ctx.HandleTypeError("onClick requires a callback function")
+			a.ctx.handleTypeError("onClick requires a callback function")
 		}
 
 		eventListener := a.ctx.RegisterEventListener(ClientActionClickedEvent)
@@ -500,21 +500,21 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 
 func (a *ActionManager) unmarshalProps(call goja.FunctionCall, ret interface{}) {
 	if len(call.Arguments) < 1 {
-		a.ctx.HandleException(fmt.Errorf("expected 1 argument"))
+		a.ctx.handleException(fmt.Errorf("expected 1 argument"))
 	}
 
 	props := call.Arguments[0].Export()
 	if props == nil {
-		a.ctx.HandleException(fmt.Errorf("expected props object"))
+		a.ctx.handleException(fmt.Errorf("expected props object"))
 	}
 
 	marshaled, err := json.Marshal(props)
 	if err != nil {
-		a.ctx.HandleException(err)
+		a.ctx.handleException(err)
 	}
 
 	err = json.Unmarshal(marshaled, ret)
 	if err != nil {
-		a.ctx.HandleException(err)
+		a.ctx.handleException(err)
 	}
 }

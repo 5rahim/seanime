@@ -3,8 +3,10 @@ package plugin
 import (
 	"errors"
 	"seanime/internal/database/db_bridge"
+	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/library/anime"
+	util "seanime/internal/util"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -25,12 +27,13 @@ func (a *AppContextImpl) BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, 
 	}
 	dbObj := vm.NewObject()
 
-	animeObj := vm.NewObject()
-	animeObj.Set("getAll", db.getAllLocalFiles)
-	animeObj.Set("save", db.saveLocalFiles)
-	animeObj.Set("insert", db.insertLocalFiles)
+	localFilesObj := vm.NewObject()
+	localFilesObj.Set("getAll", db.getAllLocalFiles)
+	localFilesObj.Set("findBy", db.findLocalFilesBy)
+	localFilesObj.Set("save", db.saveLocalFiles)
+	localFilesObj.Set("insert", db.insertLocalFiles)
 
-	dbObj.Set("anime", animeObj)
+	dbObj.Set("localFiles", localFilesObj)
 
 	_ = vm.Set("$database", dbObj)
 }
@@ -49,20 +52,56 @@ func (d *Database) getAllLocalFiles() ([]*anime.LocalFile, error) {
 	return files, nil
 }
 
-func (d *Database) saveLocalFiles(files []*anime.LocalFile) error {
+func (d *Database) findLocalFilesBy(filterFn func(*anime.LocalFile) bool) ([]*anime.LocalFile, error) {
+	db, ok := d.ctx.database.Get()
+	if !ok {
+		return nil, errors.New("database not initialized")
+	}
+
+	files, _, err := db_bridge.GetLocalFiles(db)
+	if err != nil {
+		return nil, err
+	}
+
+	filteredFiles := make([]*anime.LocalFile, 0)
+	for _, file := range files {
+		if filterFn(file) {
+			filteredFiles = append(filteredFiles, file)
+		}
+	}
+	return filteredFiles, nil
+}
+
+func (d *Database) saveLocalFiles(filesToSave []*anime.LocalFile) error {
 	db, ok := d.ctx.database.Get()
 	if !ok {
 		return errors.New("database not initialized")
 	}
 
-	_, lfsId, err := db_bridge.GetLocalFiles(db)
+	lfs, lfsId, err := db_bridge.GetLocalFiles(db)
 	if err != nil {
 		return err
 	}
 
-	_, err = db_bridge.SaveLocalFiles(db, lfsId, files)
+	filesToSaveMap := make(map[string]*anime.LocalFile)
+	for _, file := range filesToSave {
+		filesToSaveMap[util.NormalizePath(file.Path)] = file
+	}
+
+	for i := range lfs {
+		if fileToSave, ok := filesToSaveMap[util.NormalizePath(lfs[i].Path)]; !ok {
+			lfs[i] = fileToSave
+		}
+	}
+
+	_, err = db_bridge.SaveLocalFiles(db, lfsId, lfs)
 	if err != nil {
 		return err
+	}
+
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetLocalFilesEndpoint, events.GetAnimeEntryEndpoint, events.GetLibraryCollectionEndpoint, events.GetMissingEpisodesEndpoint})
 	}
 
 	return nil
@@ -77,6 +116,11 @@ func (d *Database) insertLocalFiles(files []*anime.LocalFile) ([]*anime.LocalFil
 	lfs, err := db_bridge.InsertLocalFiles(db, files)
 	if err != nil {
 		return nil, err
+	}
+
+	ws, ok := d.ctx.wsEventManager.Get()
+	if ok {
+		ws.SendEvent(events.InvalidateQueries, []string{events.GetLocalFilesEndpoint, events.GetAnimeEntryEndpoint, events.GetLibraryCollectionEndpoint, events.GetMissingEpisodesEndpoint})
 	}
 
 	return lfs, nil

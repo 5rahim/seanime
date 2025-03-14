@@ -29,7 +29,7 @@ func (t *ToastManager) bind(contextObj *goja.Object) {
 func (t *ToastManager) jsToastSuccess(call goja.FunctionCall) goja.Value {
 	message, ok := call.Argument(0).Export().(string)
 	if !ok {
-		t.ctx.HandleTypeError("toast: success requires a string message")
+		t.ctx.handleTypeError("toast: success requires a string message")
 		return goja.Undefined()
 	}
 
@@ -40,7 +40,7 @@ func (t *ToastManager) jsToastSuccess(call goja.FunctionCall) goja.Value {
 func (t *ToastManager) jsToastError(call goja.FunctionCall) goja.Value {
 	message, ok := call.Argument(0).Export().(string)
 	if !ok {
-		t.ctx.HandleTypeError("toast: error requires a string message")
+		t.ctx.handleTypeError("toast: error requires a string message")
 		return goja.Undefined()
 	}
 
@@ -51,7 +51,7 @@ func (t *ToastManager) jsToastError(call goja.FunctionCall) goja.Value {
 func (t *ToastManager) jsToastInfo(call goja.FunctionCall) goja.Value {
 	message, ok := call.Argument(0).Export().(string)
 	if !ok {
-		t.ctx.HandleTypeError("toast: info requires a string message")
+		t.ctx.handleTypeError("toast: info requires a string message")
 		return goja.Undefined()
 	}
 
@@ -62,7 +62,7 @@ func (t *ToastManager) jsToastInfo(call goja.FunctionCall) goja.Value {
 func (t *ToastManager) jsToastWarning(call goja.FunctionCall) goja.Value {
 	message, ok := call.Argument(0).Export().(string)
 	if !ok {
-		t.ctx.HandleTypeError("toast: warning requires a string message")
+		t.ctx.handleTypeError("toast: warning requires a string message")
 		return goja.Undefined()
 	}
 

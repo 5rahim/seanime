@@ -34019,6 +34019,16 @@
         "comments": []
       },
       {
+        "name": "storage",
+        "jsonName": "storage",
+        "goType": "plugin.Storage",
+        "typescriptType": "Storage",
+        "usedStructName": "plugin.Storage",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "ui",
         "jsonName": "ui",
         "goType": "plugin_ui.UI",
@@ -34035,6 +34045,34 @@
         "typescriptType": "Scheduler",
         "usedStructName": "goja_util.Scheduler",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "loader",
+        "jsonName": "loader",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "unbindHookFuncs",
+        "jsonName": "unbindHookFuncs",
+        "goType": "[]",
+        "typescriptType": "Array\u003cany\u003e",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "interrupted",
+        "jsonName": "interrupted",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": false,
         "comments": []
       }
@@ -51327,6 +51365,16 @@
         "comments": []
       },
       {
+        "name": "runtime",
+        "jsonName": "runtime",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "pluginDataCache",
         "jsonName": "pluginDataCache",
         "goType": "",
@@ -51347,6 +51395,27 @@
         "comments": [
           " Cache to avoid repeated database calls"
         ]
+      },
+      {
+        "name": "keySubscribers",
+        "jsonName": "keySubscribers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Subscribers for key changes"
+        ]
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "goja_util.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedStructName": "goja_util.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
@@ -52931,6 +53000,8 @@
       "declaredValues": [
         "\"tray:updated\"",
         "\"tray:icon\"",
+        "\"tray:open\"",
+        "\"tray:close\"",
         "\"command-palette:info\"",
         "\"command-palette:updated\"",
         "\"command-palette:open\"",
@@ -52947,7 +53018,8 @@
         "\"field-ref:set-value\"",
         "\"fatal-error\"",
         "\"screen:navigate-to\"",
-        "\"screen:reload\""
+        "\"screen:reload\"",
+        "\"screen:get-current\""
       ]
     },
     "comments": []
@@ -53044,6 +53116,24 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ServerTrayOpenEventPayload",
+    "formattedName": "ServerTrayOpenEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerTrayCloseEventPayload",
+    "formattedName": "ServerTrayCloseEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerTrayIconEventPayload",
     "formattedName": "ServerTrayIconEventPayload",
     "package": "plugin_ui",
@@ -53069,6 +53159,24 @@
       {
         "name": "TooltipText",
         "jsonName": "tooltipText",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BadgeNumber",
+        "jsonName": "badgeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BadgeIntent",
+        "jsonName": "badgeIntent",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -53397,6 +53505,15 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerScreenGetCurrentEventPayload",
+    "formattedName": "ServerScreenGetCurrentEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
     "comments": []
   },
   {
@@ -53760,6 +53877,24 @@
         "comments": []
       },
       {
+        "name": "BadgeNumber",
+        "jsonName": "badgeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BadgeIntent",
+        "jsonName": "badgeIntent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "renderFunc",
         "jsonName": "renderFunc",
         "goType": "",
@@ -53913,6 +54048,24 @@
         "typescriptType": "Scheduler",
         "usedStructName": "goja_util.Scheduler",
         "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "destroyedCh",
+        "jsonName": "destroyedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "destroyed",
+        "jsonName": "destroyed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": false,
         "comments": []
       }

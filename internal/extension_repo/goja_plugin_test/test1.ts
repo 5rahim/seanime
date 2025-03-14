@@ -17,14 +17,20 @@ function init() {
 
         const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
 
+        ctx.screen.loadCurrent()
+        tray.updateBadge({ number: 0 })
+
         const fetchBackgroundImage = () => {
-            const backgroundImage = $storage.get('backgroundImages.' + currentMediaId.get());
+            const backgroundImage = $storage.get<string>("backgroundImages." + currentMediaId.get())
+            console.log("backgroundImage", backgroundImage)
             if (backgroundImage) {
                 storageBackgroundImage.set(backgroundImage);
                 customBannerImageRef.setValue(backgroundImage);
+                tray.updateBadge({ number: 1, intent: "info" })
             } else {
                 storageBackgroundImage.set("");
                 customBannerImageRef.setValue("");
+                tray.updateBadge({ number: 0 })
             }
         }
 
@@ -35,7 +41,6 @@ function init() {
             console.log("updating tray");
         }, [currentMediaId]);
 
-
         fetchBackgroundImage()
 
         ctx.screen.onNavigate((e) => {
@@ -43,8 +48,11 @@ function init() {
             if (e.pathname === "/entry" && !!e.query) {
                 const id = parseInt(e.query.replace("?id=", ""));
                 currentMediaId.set(id);
+                fetchBackgroundImage()
+                // tray.open();
             } else {
                 currentMediaId.set(0);
+                tray.close()
             }
 
             console.log("updating tray");
@@ -53,7 +61,7 @@ function init() {
         ctx.registerEventHandler("saveBackgroundImage", () => {
             ctx.toast.info("Setting background image to " + customBannerImageRef.current);
             $storage.set('backgroundImages.' + currentMediaId.get(), customBannerImageRef.current);
-            ctx.toast.success("Background image saved");
+            ctx.toast.success("Background image saved " + customBannerImageRef.current)
             fetchBackgroundImage();
             $anilist.refreshAnimeCollection();
         });
@@ -63,31 +71,53 @@ function init() {
         // });
 
         ctx.registerEventHandler("button-clicked", () => {
-            console.log("button-clicked");
-            console.log("navigating to /entry?id=21");
-            try {
-                ctx.screen.navigateTo("/entry?id=21");
-            } catch (e) {
-                console.error("navigate error", e);
-            }
+            const previous = $database.localFiles.getAll()
+            $database.localFiles.insert([{
+                path: "/Volumes/Seagate Portable Drive/ANIME/[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]/[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv",
+                name: "[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv",
+                locked: true,
+                ignored: false,
+                mediaId: 130003,
+                metadata: {
+                    episode: 1,
+                    aniDBEpisode: "1",
+                    type: "main",
+                },
+            }])
+            ctx.toast.info("Inserted new local file")
+
             ctx.setTimeout(() => {
-                try {
-                    console.log("navigating to /entry?id=177709");
-                    ctx.screen.navigateTo("/entry?id=177709");
-                } catch (e) {
-                    console.error("navigate error", e);
-                }
-            }, 1000);
-            ctx.setTimeout(() => {
-                try {
-                    console.log("opening https://google.com");
-                    const cmd = $os.cmd("open", "https://google.com");
-                    cmd.run();
-                } catch (e) {
-                    console.error("open error", e);
-                }
-            }, 2000);
-        });
+                $database.localFiles.insert(previous)
+                ctx.toast.info("Inserted previous local files")
+            }, 3000);
+        })
+
+        // ctx.registerEventHandler("button-clicked", () => {
+        //     console.log("button-clicked");
+        //     console.log("navigating to /entry?id=21");
+        //     try {
+        //         ctx.screen.navigateTo("/entry?id=21");
+        //     } catch (e) {
+        //         console.error("navigate error", e);
+        //     }
+        //     ctx.setTimeout(() => {
+        //         try {
+        //             console.log("navigating to /entry?id=177709");
+        //             ctx.screen.navigateTo("/entry?id=177709");
+        //         } catch (e) {
+        //             console.error("navigate error", e);
+        //         }
+        //     }, 1000);
+        //     ctx.setTimeout(() => {
+        //         try {
+        //             console.log("opening https://google.com");
+        //             const cmd = $os.cmd("open", "https://google.com");
+        //             cmd.run();
+        //         } catch (e) {
+        //             console.error("open error", e);
+        //         }
+        //     }, 2000);
+        // });
 
         tray.render(() => {
             return tray.stack({
@@ -112,7 +142,9 @@ function init() {
 
 
     $app.onGetAnimeCollection((e) => {
+        console.log("onGetAnimeCollection called")
         const bannerImages = $storage.get('backgroundImages');
+        console.log("onGetAnimeCollection bannerImages", bannerImages)
         if (!bannerImages) {
             e.next();
             return;

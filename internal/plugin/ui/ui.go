@@ -1,6 +1,7 @@
 package plugin_ui
 
 import (
+	"fmt"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	"seanime/internal/extension"
@@ -32,12 +33,29 @@ type UI struct {
 	wsEventManager events.WSEventManagerInterface
 	appContext     plugin.AppContext
 	scheduler      *goja_util.Scheduler
+
+	// Channel to signal the UI has been unloaded
+	// This is used to interrupt the Plugin when the UI is stopped
+	destroyedCh chan struct{}
+	destroyed   bool
 }
 
-func (u *UI) Unload() {
+// Called by the Plugin when it's being unloaded
+func (u *UI) Unload(signalDestroyed bool) {
 	u.logger.Debug().Msg("plugin: Stopping UI")
+
 	u.mu.Lock()
 	defer u.mu.Unlock()
+
+	u.UnloadFromInside(signalDestroyed)
+
+	u.logger.Debug().Msg("plugin: Stopped UI")
+}
+
+func (u *UI) UnloadFromInside(signalDestroyed bool) {
+	if u.destroyed {
+		return
+	}
 	// Stop the VM
 	u.vm.ClearInterrupt()
 	// Unsubscribe from client all events
@@ -52,7 +70,9 @@ func (u *UI) Unload() {
 	// Send the plugin unloaded event to the client
 	u.wsEventManager.SendEvent(events.PluginUnloaded, u.ext.ID)
 
-	u.logger.Debug().Msg("plugin: Stopped UI")
+	if signalDestroyed {
+		u.signalDestroyed()
+	}
 }
 
 type NewUIOptions struct {
@@ -73,13 +93,26 @@ func NewUI(options NewUIOptions) *UI {
 		wsEventManager: options.WSManager,
 		appContext:     plugin.GlobalAppContext, // Get the app context from the global hook manager
 		scheduler:      options.Scheduler,
+		destroyedCh:    make(chan struct{}),
 	}
 	ui.context = NewContext(ui)
 	ui.context.scheduler.SetOnException(func(err error) {
-		ui.context.HandleException(err)
+		ui.context.handleException(err)
 	})
 
 	return ui
+}
+
+func (u *UI) Destroyed() <-chan struct{} {
+	return u.destroyedCh
+}
+
+func (u *UI) signalDestroyed() {
+	if u.destroyed {
+		return
+	}
+	u.destroyed = true
+	close(u.destroyedCh)
 }
 
 // Register a UI
@@ -91,7 +124,6 @@ func (u *UI) Register(callback string) {
 	})
 
 	u.mu.Lock()
-	defer u.mu.Unlock()
 
 	// Create a wrapper JavaScript function that calls the provided callback
 	callback = `function(ctx) { return (` + callback + `).call(undefined, ctx); }`
@@ -172,7 +204,11 @@ func (u *UI) Register(callback string) {
 	// Execute the callback
 	_, err := u.vm.RunString(`(` + callback + `).call(undefined, __ctx)`)
 	if err != nil {
-		u.logger.Error().Err(err).Msg("plugin: Failed to register UI")
+		u.mu.Unlock()
+		u.logger.Error().Err(err).Msg("plugin: Failed to run UI code, unloading plugin")
+		u.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin: %s (%s): Failed to run UI code: %s", u.ext.Name, u.ext.ID, err.Error()))
+		// Unload the UI and signal the Plugin that it's been terminated
+		u.UnloadFromInside(true)
 		return
 	}
 
@@ -186,4 +222,6 @@ func (u *UI) Register(callback string) {
 	u.context.actionManager.renderMediaCardContextMenuItems()
 	u.context.commandPaletteManager.renderCommandPaletteScheduled()
 	u.context.commandPaletteManager.sendInfoToClient()
+
+	u.mu.Unlock()
 }

@@ -5,17 +5,22 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { PopoverAnatomy } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
+import { useAtomValue } from "jotai"
 import Image from "next/image"
 import React from "react"
 import { LuFileQuestion } from "react-icons/lu"
 import {
     Plugin_Server_TrayIconEventPayload,
+    usePluginListenTrayCloseEvent,
+    usePluginListenTrayIconEvent,
+    usePluginListenTrayOpenEvent,
     usePluginListenTrayUpdatedEvent,
     usePluginSendRenderTrayEvent,
     usePluginSendTrayClickedEvent,
     usePluginSendTrayClosedEvent,
     usePluginSendTrayOpenedEvent,
 } from "../generated/plugin-events"
+import { __plugin_hasNavigatedAtom } from "./plugin-sidebar-tray"
 
 /**
  * TrayIcon
@@ -34,6 +39,8 @@ export const PluginTrayContext = React.createContext<TrayPluginProps>({
         iconUrl: "",
         withContent: false,
         tooltipText: "",
+        badgeNumber: 0,
+        badgeIntent: "info",
     },
 })
 
@@ -58,10 +65,14 @@ export function PluginTray(props: TrayPluginProps) {
     } = props
 
     const [open, setOpen] = React.useState(false)
+    const [badgeNumber, setBadgeNumber] = React.useState(0)
+    const [badgeIntent, setBadgeIntent] = React.useState("info")
 
     const { sendTrayOpenedEvent } = usePluginSendTrayOpenedEvent()
     const { sendTrayClosedEvent } = usePluginSendTrayClosedEvent()
     const { sendTrayClickedEvent } = usePluginSendTrayClickedEvent()
+
+    const hasNavigated = useAtomValue(__plugin_hasNavigatedAtom)
 
     const firstRender = React.useRef(true)
     React.useEffect(() => {
@@ -75,6 +86,21 @@ export function PluginTray(props: TrayPluginProps) {
             sendTrayClosedEvent({}, props.trayIcon.extensionId)
         }
     }, [open])
+
+    usePluginListenTrayIconEvent((data) => {
+        setBadgeNumber(data.badgeNumber)
+        setBadgeIntent(data.badgeIntent)
+    }, props.trayIcon.extensionId)
+
+    usePluginListenTrayOpenEvent((data) => {
+        if (hasNavigated) {
+            setOpen(true)
+        }
+    }, props.trayIcon.extensionId)
+
+    usePluginListenTrayCloseEvent((data) => {
+        setOpen(false)
+    }, props.trayIcon.extensionId)
 
     function handleClick() {
         sendTrayClickedEvent({}, props.trayIcon.extensionId)
@@ -97,13 +123,13 @@ export function PluginTray(props: TrayPluginProps) {
                         <LuFileQuestion className="text-2xl" />
                     </div>}
                 </div>
-                <Badge
-                    intent="alert-solid"
+                {!!badgeNumber && <Badge
+                    intent={`${badgeIntent}-solid` as any}
                     size="sm"
                     className="absolute -top-2 -right-2 z-10 select-none pointer-events-none"
                 >
-                    2
-                </Badge>
+                    {badgeNumber}
+                </Badge>}
             </div>
         )
     }

@@ -1,7 +1,12 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { PluginCommandPalettes } from "./command/plugin-command-palettes"
-import { usePluginListenScreenNavigateToEvent, usePluginListenScreenReloadEvent, usePluginSendScreenChangedEvent } from "./generated/plugin-events"
+import {
+    usePluginListenScreenGetCurrentEvent,
+    usePluginListenScreenNavigateToEvent,
+    usePluginListenScreenReloadEvent,
+    usePluginSendScreenChangedEvent,
+} from "./generated/plugin-events"
 
 export function PluginManager() {
     const router = useRouter()
@@ -16,6 +21,13 @@ export function PluginManager() {
             query: window.location.search,
         })
     }, [pathname, searchParams])
+
+    usePluginListenScreenGetCurrentEvent((event, extensionId) => {
+        sendScreenChangedEvent({
+            pathname: pathname,
+            query: window.location.search,
+        }, extensionId)
+    }, "") // Listen to all plugins
 
     usePluginListenScreenNavigateToEvent((event) => {
         if ([

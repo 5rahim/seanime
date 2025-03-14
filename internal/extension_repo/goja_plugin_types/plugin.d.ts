@@ -179,8 +179,26 @@ declare namespace $ui {
         /** Invoked when the tray icon is clicked */
         onClick(cb: () => void): void;
 
-        /** Renders the tray content */
+        /** Invoked when the tray icon is opened */
+        onOpen(cb: () => void): void;
+
+        /** Invoked when the tray icon is closed */
+        onClose(cb: () => void): void;
+
+        /** Registers the render function for the tray content */
         render(fn: () => void): void;
+
+        /** Schedules a re-render of the tray content */
+        update(): void;
+
+        /** Opens the tray */
+        open(): void;
+
+        /** Closes the tray */
+        close(): void;
+
+        /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
+        updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void;
     }
 
     interface Action {
@@ -299,6 +317,9 @@ declare namespace $ui {
 
         /** Reloads the current screen */
         reload(): void;
+
+        /** Calls onNavigate with the current screen data */
+        loadCurrent(): void
 
         /** Called when navigation occurs */
         onNavigate(cb: (event: { pathname: string, query: string }) => void): void;
@@ -665,7 +686,7 @@ declare namespace $cron {
 
 declare namespace $database {
 
-    declare namespace anime {
+    declare namespace localFiles {
         /**
          * Gets the local files
          * @returns The local files
@@ -673,7 +694,14 @@ declare namespace $database {
         function getAll(): $app.Anime_LocalFile[];
 
         /**
-         * Saves the modified local files
+         * Finds the local files by a filter function
+         * @param filterFn - The filter function
+         * @returns The local files
+         */
+        function findBy(filterFn: (file: $app.Anime_LocalFile) => boolean): $app.Anime_LocalFile[];
+
+        /**
+         * Saves the modified local files. This only works if the local files are already in the database.
          * @param files - The local files to save
          */
         function save(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[];

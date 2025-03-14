@@ -62,4 +62,6 @@ const (
 	DebridDownloadProgress = "debrid-download-progress"
 
 	DebridStreamState = "debrid-stream-state"
+
+	InvalidateQueries = "invalidate-queries"
 )

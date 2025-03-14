@@ -187,6 +187,7 @@ func BindMutable(vm *goja.Runtime) {
 		targetVal := reflect.ValueOf(target)
 		if targetVal.Kind() != reflect.Ptr {
 			// panic(vm.NewTypeError("Target must be a pointer"))
+			// TODO: Handle non-pointer targets
 			return goja.Undefined()
 		}
 
