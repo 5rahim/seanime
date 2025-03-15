@@ -4,11 +4,12 @@ import { cn } from "@/components/ui/core/styling"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { PopoverAnatomy } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
+import { getPixelsFromLength } from "@/lib/helpers/css"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { useAtomValue } from "jotai"
 import Image from "next/image"
 import React from "react"
-import { LuFileQuestion } from "react-icons/lu"
+import { LuCircleDashed } from "react-icons/lu"
 import {
     Plugin_Server_TrayIconEventPayload,
     usePluginListenTrayCloseEvent,
@@ -31,9 +32,13 @@ export type TrayIcon = {
 
 type TrayPluginProps = {
     trayIcon: TrayIcon
+    place: "sidebar" | "top"
+    width: number | null
 }
 
 export const PluginTrayContext = React.createContext<TrayPluginProps>({
+    place: "sidebar",
+    width: null,
     trayIcon: {
         extensionId: "",
         iconUrl: "",
@@ -41,6 +46,8 @@ export const PluginTrayContext = React.createContext<TrayPluginProps>({
         tooltipText: "",
         badgeNumber: 0,
         badgeIntent: "info",
+        width: "30rem",
+        minHeight: "auto",
     },
 })
 
@@ -59,10 +66,6 @@ export function usePluginTray() {
 }
 
 export function PluginTray(props: TrayPluginProps) {
-
-    const {
-        ...rest
-    } = props
 
     const [open, setOpen] = React.useState(false)
     const [badgeNumber, setBadgeNumber] = React.useState(0)
@@ -120,7 +123,7 @@ export function PluginTray(props: TrayPluginProps) {
                         fill
                         className="p-1 w-full h-full object-contain"
                     /> : <div className="w-8 h-8 rounded-full flex items-center justify-center">
-                        <LuFileQuestion className="text-2xl" />
+                        <LuCircleDashed className="text-2xl" />
                     </div>}
                 </div>
                 {!!badgeNumber && <Badge
@@ -147,6 +150,15 @@ export function PluginTray(props: TrayPluginProps) {
         </div>
     }
 
+    const designatedWidthPx = getPixelsFromLength(props.trayIcon.width || "30rem")
+    const popoverWidth = (props.width && props.width < 1024)
+        ? (designatedWidthPx >= props.width ? `calc(100vw - 30px)` : designatedWidthPx)
+        : props.trayIcon.width || "30rem"
+
+    console.log("popoverWidth", popoverWidth)
+    console.log("designatedWidthPx", designatedWidthPx)
+    console.log("props.width", props.width)
+
     return (
         <>
             <PopoverPrimitive.Root
@@ -159,7 +171,7 @@ export function PluginTray(props: TrayPluginProps) {
                 >
                     <div>
                         {!!props.trayIcon.tooltipText ? <Tooltip
-                            side="right"
+                            side={props.place === "sidebar" ? "right" : "bottom"}
                             trigger={<div>
                                 <TrayIcon />
                             </div>}
@@ -171,15 +183,20 @@ export function PluginTray(props: TrayPluginProps) {
                 <PopoverPrimitive.Portal>
                     <PopoverPrimitive.Content
                         sideOffset={10}
-                        side="right"
-                        className={cn(PopoverAnatomy.root(), "w-[30rem] bg-gray-950 min-h-80 p-0 shadow-xl rounded-xl mb-4")}
+                        side={props.place === "sidebar" ? "right" : "bottom"}
+                        className={cn(PopoverAnatomy.root(), "bg-gray-950 p-0 shadow-xl rounded-xl mb-4")}
                         onOpenAutoFocus={(e) => e.preventDefault()}
+                        style={{
+                            width: popoverWidth,
+                            minHeight: props.trayIcon.minHeight || "auto",
+                            marginLeft: props.width && props.width < 1024 ? `10px` : undefined,
+                        }}
                     >
                         <PluginTrayProvider props={props}>
                             <PluginTrayContent
                                 open={open}
                                 setOpen={setOpen}
-                                {...rest}
+                                {...props}
                             />
                         </PluginTrayProvider>
                     </PopoverPrimitive.Content>
@@ -225,7 +242,7 @@ function PluginTrayContent(props: PluginTrayContentProps) {
 
             <div
                 className={cn(
-                    "max-h-[35rem] overflow-y-auto p-4",
+                    "max-h-[35rem] overflow-y-auto p-3",
                 )}
             >
 

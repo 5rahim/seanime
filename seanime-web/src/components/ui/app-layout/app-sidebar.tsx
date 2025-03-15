@@ -170,7 +170,7 @@ export const AppSidebarProvider: React.FC<AppSidebarProviderProps> = ({
     const [isBelowBreakpoint, setIsBelowBreakpoint] = React.useState<boolean>(false)
 
     React.useEffect(() => {
-        const handleResize = () => setIsBelowBreakpoint(window.innerWidth <= 1024) // lg breakpoint
+        const handleResize = () => setIsBelowBreakpoint(window.innerWidth < 1024) // lg breakpoint
         handleResize()
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize)

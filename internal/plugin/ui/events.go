@@ -150,6 +150,8 @@ type ServerTrayIconEventPayload struct {
 	TooltipText string `json:"tooltipText"`
 	BadgeNumber int    `json:"badgeNumber"`
 	BadgeIntent string `json:"badgeIntent"`
+	Width       string `json:"width,omitempty"`
+	MinHeight   string `json:"minHeight,omitempty"`
 }
 
 type ServerFormResetEventPayload struct {

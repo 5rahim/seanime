@@ -82,13 +82,13 @@ export function OfflineSidebar() {
 
                     <SidebarNavbar
                         isCollapsed={isCollapsed}
-                        handleExpandSidebar={() => {}}
-                        handleUnexpandedSidebar={() => {}}
+                        handleExpandSidebar={() => { }}
+                        handleUnexpandedSidebar={() => { }}
                     />
 
+                    <PluginSidebarTray place="sidebar" />
                 </div>
                 <div className="flex w-full gap-2 flex-col px-4">
-                    <PluginSidebarTray />
                     <div>
                         <VerticalMenu
                             collapsed={isCollapsed}

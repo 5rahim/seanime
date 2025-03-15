@@ -18,6 +18,7 @@ import { usePathname } from "next/navigation"
 import React from "react"
 import { FaDownload } from "react-icons/fa"
 import { IoReload } from "react-icons/io5"
+import { PluginSidebarTray } from "../plugin/tray/plugin-sidebar-tray"
 
 type TopNavbarProps = {
     children?: React.ReactNode
@@ -45,6 +46,7 @@ export function TopNavbar(props: TopNavbarProps) {
                 <div className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
                     <div className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
+                        <PluginSidebarTray place="top" />
                         {!isOffline ? <TopMenu /> : <OfflineTopMenu />}
                         <PlaybackManagerProgressTrackingButton />
                         <ManualProgressTrackingButton />

@@ -34125,6 +34125,16 @@
         "comments": []
       },
       {
+        "name": "SystemAllowlist",
+        "jsonName": "SystemAllowlist",
+        "goType": "extension.PluginSystemAllowlist",
+        "typescriptType": "Extension_PluginSystemAllowlist",
+        "usedStructName": "extension.PluginSystemAllowlist",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "PoolSize",
         "jsonName": "PoolSize",
         "goType": "int",
@@ -53182,6 +53192,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinHeight",
+        "jsonName": "minHeight",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -53891,6 +53919,24 @@
         "goType": "string",
         "typescriptType": "string",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Width",
+        "jsonName": "width",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MinHeight",
+        "jsonName": "minHeight",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       },

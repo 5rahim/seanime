@@ -161,6 +161,10 @@ declare namespace $ui {
         withContent: boolean;
         /** Tooltip text for the tray icon */
         tooltipText?: string;
+        /** Width of the tray */
+        width?: string;
+        /** Minimum height of the tray */
+        minHeight?: string;
     }
 
     interface Tray {

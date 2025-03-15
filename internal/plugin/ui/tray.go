@@ -68,6 +68,10 @@ func (t *TrayManager) sendIconToClient() {
 			IconURL:     tray.IconURL,
 			WithContent: tray.WithContent,
 			TooltipText: tray.TooltipText,
+			BadgeNumber: tray.BadgeNumber,
+			BadgeIntent: tray.BadgeIntent,
+			Width:       tray.Width,
+			MinHeight:   tray.MinHeight,
 		})
 	}
 }
@@ -85,6 +89,8 @@ type Tray struct {
 	TooltipText string `json:"tooltipText"`
 	BadgeNumber int    `json:"badgeNumber"`
 	BadgeIntent string `json:"badgeIntent"`
+	Width       string `json:"width,omitempty"`
+	MinHeight   string `json:"minHeight,omitempty"`
 
 	renderFunc  func(goja.FunctionCall) goja.Value
 	trayManager *TrayManager
@@ -119,6 +125,12 @@ func (t *TrayManager) jsNewTray(call goja.FunctionCall) goja.Value {
 		}
 		if propsObj["tooltipText"] != nil {
 			tray.TooltipText, _ = propsObj["tooltipText"].(string)
+		}
+		if propsObj["width"] != nil {
+			tray.Width, _ = propsObj["width"].(string)
+		}
+		if propsObj["minHeight"] != nil {
+			tray.MinHeight, _ = propsObj["minHeight"].(string)
 		}
 	}
 
@@ -228,13 +240,7 @@ func (t *Tray) jsUpdateBadge(call goja.FunctionCall) goja.Value {
 	t.BadgeNumber = int(number)
 	t.BadgeIntent = intent
 
-	t.trayManager.ctx.SendEventToClient(ServerTrayIconEvent, ServerTrayIconEventPayload{
-		IconURL:     t.IconURL,
-		WithContent: t.WithContent,
-		TooltipText: t.TooltipText,
-		BadgeNumber: t.BadgeNumber,
-		BadgeIntent: t.BadgeIntent,
-	})
+	t.trayManager.sendIconToClient()
 	return goja.Undefined()
 }
 

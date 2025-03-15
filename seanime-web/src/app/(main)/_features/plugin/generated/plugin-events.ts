@@ -404,6 +404,8 @@ export type Plugin_Server_TrayIconEventPayload = {
     tooltipText: string
     badgeNumber: number
     badgeIntent: string
+    width: string
+    minHeight: string
 }
 
 export function usePluginListenTrayIconEvent(cb: (payload: Plugin_Server_TrayIconEventPayload, extensionId: string) => void, extensionID: string) {

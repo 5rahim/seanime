@@ -5,20 +5,20 @@ import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
 import { WSEvents } from "@/lib/server/ws-events"
-import { useQueryClient } from "@tanstack/react-query"
+import { useWindowSize } from "@uidotdev/usehooks"
 import { useAtom } from "jotai/react"
 import { atom } from "jotai/vanilla"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuBug, LuRefreshCw } from "react-icons/lu"
+import { LuBlocks, LuBug, LuRefreshCw } from "react-icons/lu"
 import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
 
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
 
 export const __plugin_hasNavigatedAtom = atom<boolean>(false)
 
-export function PluginSidebarTray() {
-    const queryClient = useQueryClient()
+export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
+    const { width } = useWindowSize()
     const [trayIcons, setTrayIcons] = useAtom(__plugin_trayIconsAtom)
 
     const [hasNavigated, setHasNavigated] = useAtom(__plugin_hasNavigatedAtom)
@@ -78,35 +78,40 @@ export function PluginSidebarTray() {
         }
     })
 
+    const isMobile = width && width < 1024
+
 
     if (!trayIcons) return null
 
-    return (
-        <>
-            <div
-                className={cn(
-                    "w-10 mx-auto p-1",
-                    "flex flex-col gap-1 items-center justify-center rounded-full border hover:border-[--border] transition-all duration-300",
-                )}
-            >
+    const ExtensionList = React.useCallback(() => {
+        return (
+            <>
+                <div
+                    className={cn(
+                        "w-10 mx-auto p-1 my-2",
+                        "flex flex-col gap-1 items-center justify-center rounded-full border hover:border-[--border] transition-all duration-300",
+                        place === "top" && "flex-row w-auto my-0 justify-start px-2 py-2 border-none",
+                    )}
+                >
+                    {trayIcons.map((trayIcon, index) => (
+                        <PluginTray trayIcon={trayIcon} key={index} place={place} width={width} />
+                    ))}
 
-                {trayIcons.map((trayIcon, index) => (
-                    <PluginTray trayIcon={trayIcon} key={index} />
-                ))}
-
-                <Popover
-                    side="right"
-                    trigger={<div>
-                        <IconButton
-                            intent="gray-basic"
-                            size="sm"
-                            icon={<LuBug />}
-                            className="rounded-full"
-                        />
-                    </div>}>
+                    <Popover
+                        side={place === "top" ? "bottom" : "right"}
+                        trigger={<div>
+                            <IconButton
+                                intent="gray-basic"
+                                size="sm"
+                                icon={<LuBug />}
+                                className="rounded-full"
+                            />
+                        </div>}
+                        className="p-2"
+                    >
                         <div className="space-y-2">
                             {developmentModeExtensions?.map(extension => (
-                                <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2 px-4">
+                                <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
                                     <p className="text-sm font-medium">{extension.id}</p>
                                     <div>
                                         <IconButton
@@ -121,8 +126,34 @@ export function PluginSidebarTray() {
                                 </div>
                             ))}
                         </div>
+                    </Popover>
+                </div>
+            </>
+        )
+    }, [place, developmentModeExtensions, isReloadingExtension, trayIcons, width])
+
+    return (
+        <>
+            {!isMobile && place === "sidebar" && <ExtensionList />}
+            {isMobile && place === "top" && <div className="">
+                <Popover
+                    side="bottom"
+                    trigger={<div>
+                        <IconButton
+                            intent="gray-basic"
+                            size="sm"
+                            icon={<LuBlocks />}
+                        />
+                    </div>}
+                    className="rounded-full p-0 overflow-y-auto bg-black/80 mx-4"
+                    style={{
+                        width: width ? width - 50 : "100%",
+                        // transform: "translateX(10px)",
+                    }}
+                >
+                    <ExtensionList />
                 </Popover>
-            </div>
+            </div>}
         </>
     )
 }

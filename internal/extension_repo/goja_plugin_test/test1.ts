@@ -7,8 +7,10 @@ function init() {
     $ui.register((ctx) => {
         const tray = ctx.newTray({
             tooltipText: "Test Plugin",
-            iconUrl: "https://raw.githubusercontent.com/5rahim/hibike/main/icons/seadex.png",
+            iconUrl: "",
             withContent: true,
+            // minHeight: "100vh",
+            // width: "calc(100vw - 100px)",
         });
 
         const currentMediaId = ctx.state(0);
