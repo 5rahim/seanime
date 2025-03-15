@@ -10,7 +10,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/Yamashou/gqlgenc v0.25.4
 	github.com/adrg/strutil v0.3.1
-	github.com/alecthomas/assert/v2 v2.0.0-alpha3
 	github.com/anacrolix/log v0.16.0
 	github.com/anacrolix/torrent v1.58.0
 	github.com/charmbracelet/lipgloss v1.0.0
@@ -56,12 +55,7 @@ require (
 	gorm.io/gorm v1.25.12
 )
 
-require (
-	github.com/alecthomas/repr v0.0.0-20210801044451-80ca428c5142 // indirect
-	github.com/bmatcuk/doublestar/v4 v4.8.1
-	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/hexops/gotextdiff v1.0.3 // indirect
-)
+require github.com/bmatcuk/doublestar/v4 v4.8.1
 
 require (
 	github.com/99designs/gqlgen v0.17.54 // indirect

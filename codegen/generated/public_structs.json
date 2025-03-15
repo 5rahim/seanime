@@ -52503,6 +52503,18 @@
         ]
       },
       {
+        "name": "domManager",
+        "jsonName": "domManager",
+        "goType": "DOMManager",
+        "typescriptType": "DOMManager",
+        "usedStructName": "plugin_ui.DOMManager",
+        "required": false,
+        "public": false,
+        "comments": [
+          " DOM manipulation manager"
+        ]
+      },
+      {
         "name": "atomicCleanupCounter",
         "jsonName": "atomicCleanupCounter",
         "goType": "atomic.Int64",
@@ -52611,11 +52623,146 @@
         "required": true,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.Mutex",
+        "typescriptType": "Sync_Mutex",
+        "usedStructName": "sync.Mutex",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": [
       " EventListener is used by Goja methods to listen for events from the client"
     ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/dom.go",
+    "filename": "dom.go",
+    "name": "DOMManager",
+    "formattedName": "DOMManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "elementObservers",
+        "jsonName": "elementObservers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "eventListeners",
+        "jsonName": "eventListeners",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " DOMManager handles DOM manipulation requests from plugins"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/dom.go",
+    "filename": "dom.go",
+    "name": "ElementObserver",
+    "formattedName": "ElementObserver",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Selector",
+        "jsonName": "Selector",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Callback",
+        "jsonName": "Callback",
+        "goType": "goja.Callable",
+        "typescriptType": "Callable",
+        "usedStructName": "goja.Callable",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/dom.go",
+    "filename": "dom.go",
+    "name": "DOMEventListener",
+    "formattedName": "DOMEventListener",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "ID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ElementID",
+        "jsonName": "ElementID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EventType",
+        "jsonName": "EventType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Callback",
+        "jsonName": "Callback",
+        "goType": "goja.Callable",
+        "typescriptType": "Callable",
+        "usedStructName": "goja.Callable",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
   },
   {
     "filepath": "../internal/plugin/ui/events.go",
@@ -52648,7 +52795,15 @@
         "\"form:submitted\"",
         "\"screen:changed\"",
         "\"handler:triggered\"",
-        "\"field-ref:send-value\""
+        "\"field-ref:send-value\"",
+        "\"dom:query-result\"",
+        "\"dom:query-one-result\"",
+        "\"dom:observe-result\"",
+        "\"dom:stop-observe\"",
+        "\"dom:create-result\"",
+        "\"dom:element-updated\"",
+        "\"dom:event-triggered\"",
+        "\"dom:ready\""
       ]
     },
     "comments": []
@@ -53000,6 +53155,220 @@
   {
     "filepath": "../internal/plugin/ui/events.go",
     "filename": "events.go",
+    "name": "ClientDOMEventTriggeredEventPayload",
+    "formattedName": "ClientDOMEventTriggeredEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ElementID",
+        "jsonName": "elementID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EventType",
+        "jsonName": "eventType",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Event",
+        "jsonName": "event",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMQueryResultEventPayload",
+    "formattedName": "ClientDOMQueryResultEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Elements",
+        "jsonName": "elements",
+        "goType": "[]",
+        "typescriptType": "Array\u003cany\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMQueryOneResultEventPayload",
+    "formattedName": "ClientDOMQueryOneResultEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Element",
+        "jsonName": "element",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMObserveResultEventPayload",
+    "formattedName": "ClientDOMObserveResultEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ObserverID",
+        "jsonName": "observerID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Elements",
+        "jsonName": "elements",
+        "goType": "[]",
+        "typescriptType": "Array\u003cany\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMCreateResultEventPayload",
+    "formattedName": "ClientDOMCreateResultEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Element",
+        "jsonName": "element",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMElementUpdatedEventPayload",
+    "formattedName": "ClientDOMElementUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ElementID",
+        "jsonName": "elementID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Action",
+        "jsonName": "action",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Result",
+        "jsonName": "result",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMStopObserveEventPayload",
+    "formattedName": "ClientDOMStopObserveEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ObserverID",
+        "jsonName": "observerID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ClientDOMReadyEventPayload",
+    "formattedName": "ClientDOMReadyEventPayload",
+    "package": "plugin_ui",
+    "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
     "name": "ServerEventType",
     "formattedName": "ServerEventType",
     "package": "plugin_ui",
@@ -53029,7 +53398,13 @@
         "\"fatal-error\"",
         "\"screen:navigate-to\"",
         "\"screen:reload\"",
-        "\"screen:get-current\""
+        "\"screen:get-current\"",
+        "\"dom:query\"",
+        "\"dom:query-one\"",
+        "\"dom:observe\"",
+        "\"dom:stop-observe\"",
+        "\"dom:create\"",
+        "\"dom:manipulate\""
       ]
     },
     "comments": []
@@ -53542,6 +53917,176 @@
     "formattedName": "ServerScreenGetCurrentEventPayload",
     "package": "plugin_ui",
     "fields": [],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMQueryEventPayload",
+    "formattedName": "ServerDOMQueryEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Selector",
+        "jsonName": "selector",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " Add DOM event payloads"
+    ]
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMQueryOneEventPayload",
+    "formattedName": "ServerDOMQueryOneEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Selector",
+        "jsonName": "selector",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMObserveEventPayload",
+    "formattedName": "ServerDOMObserveEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "Selector",
+        "jsonName": "selector",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ObserverID",
+        "jsonName": "observerID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMStopObserveEventPayload",
+    "formattedName": "ServerDOMStopObserveEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ObserverID",
+        "jsonName": "observerID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMCreateEventPayload",
+    "formattedName": "ServerDOMCreateEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "TagName",
+        "jsonName": "tagName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerDOMManipulateEventPayload",
+    "formattedName": "ServerDOMManipulateEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ElementID",
+        "jsonName": "elementID",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Action",
+        "jsonName": "action",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Params",
+        "jsonName": "params",
+        "goType": "map[string]",
+        "typescriptType": "Record\u003cstring, any\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
     "comments": []
   },
   {

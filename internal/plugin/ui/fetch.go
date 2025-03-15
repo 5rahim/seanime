@@ -21,6 +21,7 @@ func (c *Context) bindFetch(obj *goja.Object) {
 	}()
 
 	c.registerOnCleanup(func() {
+		c.logger.Debug().Msg("plugin: Terminating fetch")
 		f.Close()
 	})
 }

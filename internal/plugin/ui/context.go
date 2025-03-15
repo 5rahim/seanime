@@ -59,6 +59,7 @@ type Context struct {
 	formManager           *FormManager           // Register and manage forms
 	toastManager          *ToastManager          // Register and manage toasts
 	commandPaletteManager *CommandPaletteManager // Register and manage command palette
+	domManager            *DOMManager            // DOM manipulation manager
 
 	atomicCleanupCounter atomic.Int64
 	onCleanupFns         *result.Map[int64, func()]
@@ -76,6 +77,7 @@ type EventListener struct {
 	ListenTo []ClientEventType       // Optional event type to listen for
 	Channel  chan *ClientPluginEvent // Channel for the event payload
 	closed   bool
+	mu       sync.Mutex
 }
 
 func NewContext(ui *UI) *Context {
@@ -109,6 +111,7 @@ func NewContext(ui *UI) *Context {
 	ret.formManager = NewFormManager(ret)
 	ret.toastManager = NewToastManager(ret)
 	ret.commandPaletteManager = NewCommandPaletteManager(ret)
+	ret.domManager = NewDOMManager(ret)
 
 	return ret
 }
@@ -135,6 +138,8 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	c.actionManager.bind(obj)
 	// Bind toast manager
 	c.toastManager.bind(obj)
+	// Bind DOM manager
+	c.domManager.BindToObj(vm, obj)
 
 	if c.ext.Plugin != nil {
 		for _, permission := range c.ext.Plugin.Permissions {
@@ -172,8 +177,36 @@ func (c *Context) UnregisterEventListener(id string) {
 	if !ok {
 		return
 	}
-	close(listener.Channel)
+	listener.Close()
 	c.eventListeners.Delete(id)
+}
+
+func (e *EventListener) Close() {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	if e.closed {
+		return
+	}
+	e.closed = true
+	close(e.Channel)
+}
+
+func (e *EventListener) Send(event *ClientPluginEvent) {
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	if e.closed {
+		return
+	}
+	e.Channel <- event
 }
 
 // SendEventToClient sends an event to the client
@@ -843,10 +876,10 @@ func (c *Context) Stop() {
 					c.logger.Error().Err(fmt.Errorf("%v", r)).Msg("plugin: Error stopping event listener")
 				}
 			}()
-			listener.closed = true
-			close(listener.Channel)
+			listener.Close()
 		}(listener)
 	}
+	c.eventListeners.Clear()
 
 	// Stop all state subscribers
 	for _, sub := range c.stateSubscribers {

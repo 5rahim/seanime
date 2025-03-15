@@ -2,8 +2,9 @@ package util
 
 import (
 	"fmt"
-	"github.com/kr/pretty"
 	"strings"
+
+	"github.com/kr/pretty"
 )
 
 func Spew(v interface{}) {
@@ -11,10 +12,11 @@ func Spew(v interface{}) {
 }
 
 func SpewMany(v ...interface{}) {
-	fmt.Println("Spewing values:")
+	fmt.Println("\nSpewing values:")
 	for _, val := range v {
 		Spew(val)
 	}
+	fmt.Println()
 }
 
 func SpewT(v interface{}) string {

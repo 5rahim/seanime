@@ -2,19 +2,19 @@
 /// <reference path="../goja_plugin_types/hooks.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
 
+
 // @ts-ignore
 function init() {
     $ui.register((ctx) => {
         const tray = ctx.newTray({
             tooltipText: "Test Plugin",
-            iconUrl: "",
+            iconUrl: "https://seanime.rahim.app/logo_2.png",
             withContent: true,
             // minHeight: "100vh",
             // width: "calc(100vw - 100px)",
         });
 
         const currentMediaId = ctx.state(0);
-        const storageBackgroundImage = ctx.state("");
         const mediaIds = ctx.state([]);
 
         const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
@@ -26,11 +26,9 @@ function init() {
             const backgroundImage = $storage.get<string>("backgroundImages." + currentMediaId.get())
             console.log("backgroundImage", backgroundImage)
             if (backgroundImage) {
-                storageBackgroundImage.set(backgroundImage);
                 customBannerImageRef.setValue(backgroundImage);
                 tray.updateBadge({ number: 1, intent: "info" })
             } else {
-                storageBackgroundImage.set("");
                 customBannerImageRef.setValue("");
                 tray.updateBadge({ number: 0 })
             }
@@ -68,31 +66,18 @@ function init() {
             $anilist.refreshAnimeCollection();
         });
 
-        // $store.watch("mediaIds", (mId) => {
-        // 	mediaIds.set(p => [...p, mId]);
-        // });
+        // ctx.registerEventHandler("button-clicked", () => {
+        //     const previous = $database.localFiles.getAll()
+        //     $database.localFiles.insert([{
+        //         path: "/Volumes/Seagate Portable Drive/ANIME/[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]/[SubsPlease] Bocchi the Rock! -
+        // 01v2 (1080p) [ABDDAE16].mkv", name: "[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv", locked: true, ignored: false, mediaId:
+        // 130003, metadata: { episode: 1, aniDBEpisode: "1", type: "main", }, }]) ctx.toast.info("Inserted new local file")
 
-        ctx.registerEventHandler("button-clicked", () => {
-            const previous = $database.localFiles.getAll()
-            $database.localFiles.insert([{
-                path: "/Volumes/Seagate Portable Drive/ANIME/[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]/[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv",
-                name: "[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv",
-                locked: true,
-                ignored: false,
-                mediaId: 130003,
-                metadata: {
-                    episode: 1,
-                    aniDBEpisode: "1",
-                    type: "main",
-                },
-            }])
-            ctx.toast.info("Inserted new local file")
-
-            ctx.setTimeout(() => {
-                $database.localFiles.insert(previous)
-                ctx.toast.info("Inserted previous local files")
-            }, 3000);
-        })
+        //     ctx.setTimeout(() => {
+        //         $database.localFiles.insert(previous)
+        //         ctx.toast.info("Inserted previous local files")
+        //     }, 3000);
+        // })
 
         // ctx.registerEventHandler("button-clicked", () => {
         //     console.log("button-clicked");
@@ -128,12 +113,12 @@ function init() {
         tray.render(() => {
             return tray.stack({
                 items: [
-                    tray.button("Click me", {onClick: "button-clicked"}),
+                    // tray.button("Click me", {onClick: "button-clicked"}),
                     currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
                         items: [
                             tray.text(`Current media ID: ${currentMediaId.get()}`),
-                            tray.input({fieldRef: "customBannerImageRef", value: storageBackgroundImage.get()}),
-                            tray.button({label: "Save", onClick: "saveBackgroundImage"}),
+                            tray.input({ fieldRef: "customBannerImageRef", value: customBannerImageRef.current }),
+                            tray.button({ label: "Save", onClick: "saveBackgroundImage" }),
                         ],
                     }),
                 ],

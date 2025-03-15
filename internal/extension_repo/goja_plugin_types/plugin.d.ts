@@ -22,6 +22,11 @@ declare namespace $ui {
         action: Action;
 
         /**
+         * DOM
+         */
+        dom: DOM;
+
+        /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
@@ -210,7 +215,7 @@ declare namespace $ui {
          * Creates a new button for the anime page
          * @param props - Button properties
          */
-        newAnimePageButton(props: { label: string, intent?: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime}>;
+        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>;
 
         /**
          * Creates a new dropdown menu item for the anime page
@@ -234,7 +239,7 @@ declare namespace $ui {
          * Creates a new button for the manga page
          * @param props - Button properties
          */
-        newMangaPageButton(props: { label: string, intent?: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>;
+        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>;
     }
 
     interface ActionObject<E extends any = {}> {
@@ -394,6 +399,159 @@ declare namespace $ui {
         (props: { label?: string } & FieldComponentProps): void
         (label: string, props?: FieldComponentProps): void
     }
+
+    // DOM Element interface
+    interface DOMElement {
+        id: string
+        tagName: string
+
+        // Properties
+        /**
+         * Gets the text content of the element
+         * @returns The text content of the element
+         */
+        getText(): string
+
+        /**
+         * Sets the text content of the element
+         * @param text - The text content to set
+         */
+        setText(text: string): void
+
+        /**
+         * Gets the value of an attribute
+         * @param name - The name of the attribute
+         * @returns The value of the attribute
+         */
+        getAttribute(name: string): any
+
+        /**
+         * Sets the value of an attribute
+         * @param name - The name of the attribute
+         * @param value - The value to set
+         */
+        setAttribute(name: string, value: string): void
+
+        /**
+         * Removes an attribute
+         * @param name - The name of the attribute
+         */
+        removeAttribute(name: string): void
+
+        /**
+         * Adds a class to the element
+         * @param className - The class to add
+         */
+        addClass(className: string): void
+
+        /**
+         * Checks if the element has a class
+         * @param className - The class to check
+         */
+        hasClass(className: string): boolean
+
+        /**
+         * Sets the style of the element
+         * @param property - The property to set
+         * @param value - The value to set
+         */
+        setStyle(property: string, value: string): void
+
+        /**
+         * Gets the style of the element
+         * @param property - The property to get
+
+         // DOM manipulation
+         /**
+         * Appends a child to the element
+         * @param child - The child to append
+         */
+        append(child: DOMElement): void
+
+        /**
+         * Inserts a sibling before the element
+         * @param sibling - The sibling to insert
+         */
+        before(sibling: DOMElement): void
+
+        /**
+         * Inserts a sibling after the element
+         * @param sibling - The sibling to insert
+         */
+        after(sibling: DOMElement): void
+
+        /**
+         * Removes the element
+         */
+        remove(): void
+
+        /**
+         * Gets the parent of the element
+         * @returns The parent of the element
+         */
+        getParent(): Promise<DOMElement | null>
+
+        /**
+         * Gets the children of the element
+         * @returns The children of the element
+         */
+        getChildren(): Promise<DOMElement[]>
+
+        // Events
+        addEventListener(event: string, callback: (event: any) => void): () => void
+    }
+
+    // DOM interface
+    interface DOM {
+        /**
+         * Queries the DOM for elements matching the selector
+         * @param selector - The selector to query
+         * @returns A promise that resolves to an array of DOM elements
+         */
+        query(selector: string): Promise<DOMElement[]>
+
+        /**
+         * Queries the DOM for a single element matching the selector
+         * @param selector - The selector to query
+         * @returns A promise that resolves to a DOM element or null if no element is found
+         */
+        queryOne(selector: string): Promise<DOMElement | null>
+
+        /**
+         * Observes changes to the DOM
+         * @param selector - The selector to observe
+         * @param callback - The callback to call when the DOM changes
+         * @returns A function to stop observing the DOM
+         */
+        observe(selector: string, callback: (elements: DOMElement[]) => void): () => void
+
+        /**
+         * Creates a new DOM element
+         * @param tagName - The tag name of the element
+         * @returns A promise that resolves to a DOM element
+         */
+        createElement(tagName: string): Promise<DOMElement>
+
+        /**
+         * Called when the DOM is ready
+         * @param callback - The callback to call when the DOM is ready
+         */
+        onReady(callback: () => void): void
+    }
+
+    type Intent =
+        "primary"
+        | "primary-subtle"
+        | "alert"
+        | "alert-subtle"
+        | "warning"
+        | "warning-subtle"
+        | "success"
+        | "success-subtle"
+        | "white"
+        | "white-subtle"
+        | "gray"
+        | "gray-subtle"
 }
 
 declare namespace $storage {

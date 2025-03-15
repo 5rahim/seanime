@@ -39,6 +39,15 @@ const (
 	ClientScreenChangedEvent                         ClientEventType = "screen:changed"                              // When the current screen changes
 	ClientEventHandlerTriggeredEvent                 ClientEventType = "handler:triggered"                           // When a custom event registered by the plugin is triggered
 	ClientFieldRefSendValueEvent                     ClientEventType = "field-ref:send-value"                        // When the client sends the value of a field that has a ref
+
+	ClientDOMQueryResultEvent    ClientEventType = "dom:query-result"     // Result of a DOM query
+	ClientDOMQueryOneResultEvent ClientEventType = "dom:query-one-result" // Result of a DOM query for one element
+	ClientDOMObserveResultEvent  ClientEventType = "dom:observe-result"   // Result of a DOM observation
+	ClientDOMStopObserveEvent    ClientEventType = "dom:stop-observe"     // Stop observing DOM elements
+	ClientDOMCreateResultEvent   ClientEventType = "dom:create-result"    // Result of creating a DOM element
+	ClientDOMElementUpdatedEvent ClientEventType = "dom:element-updated"  // When a DOM element is updated
+	ClientDOMEventTriggeredEvent ClientEventType = "dom:event-triggered"  // When a DOM event is triggered
+	ClientDOMReadyEvent          ClientEventType = "dom:ready"            // When a DOM element is ready
 )
 
 type ClientRenderTrayEventPayload struct{}
@@ -93,6 +102,45 @@ type ClientCommandPaletteInputEventPayload struct {
 	Value string `json:"value"`
 }
 
+type ClientDOMEventTriggeredEventPayload struct {
+	ElementID string                 `json:"elementID"`
+	EventType string                 `json:"eventType"`
+	Event     map[string]interface{} `json:"event"`
+}
+
+type ClientDOMQueryResultEventPayload struct {
+	RequestID string        `json:"requestId"`
+	Elements  []interface{} `json:"elements"`
+}
+
+type ClientDOMQueryOneResultEventPayload struct {
+	RequestID string      `json:"requestId"`
+	Element   interface{} `json:"element"`
+}
+
+type ClientDOMObserveResultEventPayload struct {
+	ObserverID string        `json:"observerID"`
+	Elements   []interface{} `json:"elements"`
+}
+
+type ClientDOMCreateResultEventPayload struct {
+	RequestID string      `json:"requestId"`
+	Element   interface{} `json:"element"`
+}
+
+type ClientDOMElementUpdatedEventPayload struct {
+	ElementID string      `json:"elementID"`
+	Action    string      `json:"action"`
+	Result    interface{} `json:"result"`
+}
+
+type ClientDOMStopObserveEventPayload struct {
+	ObserverID string `json:"observerID"`
+}
+
+type ClientDOMReadyEventPayload struct {
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +177,13 @@ const (
 	ServerScreenNavigateToEvent                      ServerEventType = "screen:navigate-to"  // Navigate to a new screen
 	ServerScreenReloadEvent                          ServerEventType = "screen:reload"       // Reload the current screen
 	ServerScreenGetCurrentEvent                      ServerEventType = "screen:get-current"  // Get the current screen
+
+	ServerDOMQueryEvent       ServerEventType = "dom:query"        // When the server queries for DOM elements
+	ServerDOMQueryOneEvent    ServerEventType = "dom:query-one"    // When the server queries for a single DOM element
+	ServerDOMObserveEvent     ServerEventType = "dom:observe"      // When the server starts observing DOM elements
+	ServerDOMStopObserveEvent ServerEventType = "dom:stop-observe" // When the server stops observing DOM elements
+	ServerDOMCreateEvent      ServerEventType = "dom:create"       // When the server creates a DOM element
+	ServerDOMManipulateEvent  ServerEventType = "dom:manipulate"   // When the server manipulates a DOM element
 )
 
 type ServerTrayUpdatedEventPayload struct {
@@ -261,4 +316,35 @@ func (e *ClientPluginEvent) ParsePayloadAs(t ClientEventType, ret interface{}) b
 		return false
 	}
 	return e.ParsePayload(ret)
+}
+
+// Add DOM event payloads
+type ServerDOMQueryEventPayload struct {
+	Selector  string `json:"selector"`
+	RequestID string `json:"requestId"`
+}
+
+type ServerDOMQueryOneEventPayload struct {
+	Selector  string `json:"selector"`
+	RequestID string `json:"requestId"`
+}
+
+type ServerDOMObserveEventPayload struct {
+	Selector   string `json:"selector"`
+	ObserverID string `json:"observerID"`
+}
+
+type ServerDOMStopObserveEventPayload struct {
+	ObserverID string `json:"observerID"`
+}
+
+type ServerDOMCreateEventPayload struct {
+	TagName   string `json:"tagName"`
+	RequestID string `json:"requestId"`
+}
+
+type ServerDOMManipulateEventPayload struct {
+	ElementID string                 `json:"elementID"`
+	Action    string                 `json:"action"`
+	Params    map[string]interface{} `json:"params"`
 }

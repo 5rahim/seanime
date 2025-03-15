@@ -24,6 +24,14 @@ export enum PluginClientEvents {
     ScreenChanged = "screen:changed",
     EventHandlerTriggered = "handler:triggered",
     FieldRefSendValue = "field-ref:send-value",
+    DOMQueryResult = "dom:query-result",
+    DOMQueryOneResult = "dom:query-one-result",
+    DOMObserveResult = "dom:observe-result",
+    DOMStopObserve = "dom:stop-observe",
+    DOMCreateResult = "dom:create-result",
+    DOMElementUpdated = "dom:element-updated",
+    DOMEventTriggered = "dom:event-triggered",
+    DOMReady = "dom:ready",
 }
 
 export enum PluginServerEvents {
@@ -49,6 +57,12 @@ export enum PluginServerEvents {
     ScreenNavigateTo = "screen:navigate-to",
     ScreenReload = "screen:reload",
     ScreenGetCurrent = "screen:get-current",
+    DOMQuery = "dom:query",
+    DOMQueryOne = "dom:query-one",
+    DOMObserve = "dom:observe",
+    DOMStopObserve = "dom:stop-observe",
+    DOMCreate = "dom:create",
+    DOMManipulate = "dom:manipulate",
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -382,6 +396,140 @@ export function usePluginSendFieldRefSendValueEvent() {
     }
 }
 
+export type Plugin_Client_DOMQueryResultEventPayload = {
+    requestId: string
+    elements: Array<any>
+}
+
+export function usePluginSendDOMQueryResultEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMQueryResultEvent = useCallback((payload: Plugin_Client_DOMQueryResultEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMQueryResult, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMQueryResultEvent,
+    }
+}
+
+export type Plugin_Client_DOMQueryOneResultEventPayload = {
+    requestId: string
+    element: any
+}
+
+export function usePluginSendDOMQueryOneResultEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMQueryOneResultEvent = useCallback((payload: Plugin_Client_DOMQueryOneResultEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMQueryOneResult, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMQueryOneResultEvent,
+    }
+}
+
+export type Plugin_Client_DOMObserveResultEventPayload = {
+    observerID: string
+    elements: Array<any>
+}
+
+export function usePluginSendDOMObserveResultEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMObserveResultEvent = useCallback((payload: Plugin_Client_DOMObserveResultEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMObserveResult, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMObserveResultEvent,
+    }
+}
+
+export type Plugin_Client_DOMStopObserveEventPayload = {
+    observerID: string
+}
+
+export function usePluginSendDOMStopObserveEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMStopObserveEvent = useCallback((payload: Plugin_Client_DOMStopObserveEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMStopObserve, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMStopObserveEvent,
+    }
+}
+
+export type Plugin_Client_DOMCreateResultEventPayload = {
+    requestId: string
+    element: any
+}
+
+export function usePluginSendDOMCreateResultEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMCreateResultEvent = useCallback((payload: Plugin_Client_DOMCreateResultEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMCreateResult, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMCreateResultEvent,
+    }
+}
+
+export type Plugin_Client_DOMElementUpdatedEventPayload = {
+    elementID: string
+    action: string
+    result: any
+}
+
+export function usePluginSendDOMElementUpdatedEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMElementUpdatedEvent = useCallback((payload: Plugin_Client_DOMElementUpdatedEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMElementUpdated, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMElementUpdatedEvent,
+    }
+}
+
+export type Plugin_Client_DOMEventTriggeredEventPayload = {
+    elementID: string
+    eventType: string
+    event: Record<string, any>
+}
+
+export function usePluginSendDOMEventTriggeredEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMEventTriggeredEvent = useCallback((payload: Plugin_Client_DOMEventTriggeredEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMEventTriggered, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMEventTriggeredEvent,
+    }
+}
+
+export type Plugin_Client_DOMReadyEventPayload = {}
+
+export function usePluginSendDOMReadyEvent() {
+    const { sendPluginMessage } = useWebsocketSender()
+
+    const sendDOMReadyEvent = useCallback((payload: Plugin_Client_DOMReadyEventPayload, extensionID?: string) => {
+        sendPluginMessage(PluginClientEvents.DOMReady, payload, extensionID)
+    }, [])
+
+    return {
+        sendDOMReadyEvent,
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Server to client
 /////////////////////////////////////////////////////////////////////////////////////
@@ -649,6 +797,92 @@ export function usePluginListenScreenGetCurrentEvent(cb: (payload: Plugin_Server
     return useWebsocketPluginMessageListener<Plugin_Server_ScreenGetCurrentEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ScreenGetCurrent,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMQueryEventPayload = {
+    selector: string
+    requestId: string
+}
+
+export function usePluginListenDOMQueryEvent(cb: (payload: Plugin_Server_DOMQueryEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMQueryEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMQuery,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMQueryOneEventPayload = {
+    selector: string
+    requestId: string
+}
+
+export function usePluginListenDOMQueryOneEvent(cb: (payload: Plugin_Server_DOMQueryOneEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMQueryOneEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMQueryOne,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMObserveEventPayload = {
+    selector: string
+    observerID: string
+}
+
+export function usePluginListenDOMObserveEvent(cb: (payload: Plugin_Server_DOMObserveEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMObserveEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMObserve,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMStopObserveEventPayload = {
+    observerID: string
+}
+
+export function usePluginListenDOMStopObserveEvent(cb: (payload: Plugin_Server_DOMStopObserveEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMStopObserveEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMStopObserve,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMCreateEventPayload = {
+    tagName: string
+    requestId: string
+}
+
+export function usePluginListenDOMCreateEvent(cb: (payload: Plugin_Server_DOMCreateEventPayload, extensionId: string) => void, extensionID: string) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMCreateEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMCreate,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_DOMManipulateEventPayload = {
+    elementID: string
+    action: string
+    params: Record<string, any>
+}
+
+export function usePluginListenDOMManipulateEvent(cb: (payload: Plugin_Server_DOMManipulateEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_DOMManipulateEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.DOMManipulate,
         onMessage: cb,
     })
 }

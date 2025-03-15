@@ -177,16 +177,25 @@ func (u *UI) Register(callback string) {
 
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
-								//util.SpewMany("Event to listeners", event.Payload)
+								// if clientEvent.Type == ClientDOMQueryResultEvent {
+								// 	fmt.Printf("DOM query result event received, listeners: %d\n", len(listener.ListenTo))
+								// 	fmt.Printf("\tlistener: %s\n", listener.ID)
+								// 	for _, eventType := range listener.ListenTo {
+								// 		fmt.Printf("\t\tevent type: %s\n", eventType)
+								// 	}
+								// }
 								if len(listener.ListenTo) > 0 {
 									// Check if the event type is in the listener's list of event types
 									for _, eventType := range listener.ListenTo {
 										if eventType == clientEvent.Type {
-											listener.Channel <- clientEvent // Only send the event to the listener if the event type is in the list
+											// Only send the event to the listener if the event type is in the list
+											//go listener.Send(clientEvent)
+											listener.Send(clientEvent)
 										}
 									}
 								} else {
-									listener.Channel <- clientEvent
+									//go listener.Send(clientEvent)
+									listener.Send(clientEvent)
 								}
 								return true
 							})

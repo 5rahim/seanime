@@ -155,9 +155,9 @@ export function PluginTray(props: TrayPluginProps) {
         ? (designatedWidthPx >= props.width ? `calc(100vw - 30px)` : designatedWidthPx)
         : props.trayIcon.width || "30rem"
 
-    console.log("popoverWidth", popoverWidth)
-    console.log("designatedWidthPx", designatedWidthPx)
-    console.log("props.width", props.width)
+    // console.log("popoverWidth", popoverWidth)
+    // console.log("designatedWidthPx", designatedWidthPx)
+    // console.log("props.width", props.width)
 
     return (
         <>
