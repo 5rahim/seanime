@@ -1,3 +1,4 @@
+import { Extension_Extension } from "@/api/generated/types"
 import { useListDevelopmentModeExtensions, useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
 import { PluginTray, TrayIcon } from "@/app/(main)/_features/plugin/tray/plugin-tray"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
@@ -16,6 +17,69 @@ import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from ".
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
 
 export const __plugin_hasNavigatedAtom = atom<boolean>(false)
+
+const ExtensionList = ({
+    place,
+    developmentModeExtensions,
+    isReloadingExtension,
+    reloadExternalExtension,
+    trayIcons,
+    width,
+}: {
+    place: "sidebar" | "top";
+    developmentModeExtensions: Extension_Extension[];
+    isReloadingExtension: boolean;
+    reloadExternalExtension: (params: { id: string }) => void;
+    trayIcons: TrayIcon[];
+    width: number | null;
+}) => {
+    return (
+        <>
+            <div
+                className={cn(
+                    "w-10 mx-auto p-1 my-2",
+                    "flex flex-col gap-1 items-center justify-center rounded-full border hover:border-[--border] transition-all duration-300",
+                    place === "top" && "flex-row w-auto my-0 justify-start px-2 py-2 border-none",
+                )}
+            >
+                {trayIcons.map((trayIcon, index) => (
+                    <PluginTray trayIcon={trayIcon} key={index} place={place} width={width} />
+                ))}
+
+                <Popover
+                    side={place === "top" ? "bottom" : "right"}
+                    trigger={<div>
+                        <IconButton
+                            intent="gray-basic"
+                            size="sm"
+                            icon={<LuBug />}
+                            className="rounded-full"
+                        />
+                    </div>}
+                    className="p-2"
+                >
+                    <div className="space-y-2">
+                        {developmentModeExtensions?.map(extension => (
+                            <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
+                                <p className="text-sm font-medium">{extension.id}</p>
+                                <div>
+                                    <IconButton
+                                        intent="warning-basic"
+                                        size="sm"
+                                        icon={<LuRefreshCw className="size-5" />}
+                                        className="rounded-full"
+                                        onClick={() => reloadExternalExtension({ id: extension.id })}
+                                        loading={isReloadingExtension}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Popover>
+            </div>
+        </>
+    )
+}
 
 export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
     const { width } = useWindowSize()
@@ -83,58 +147,16 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
 
     if (!trayIcons) return null
 
-    const ExtensionList = React.useCallback(() => {
-        return (
-            <>
-                <div
-                    className={cn(
-                        "w-10 mx-auto p-1 my-2",
-                        "flex flex-col gap-1 items-center justify-center rounded-full border hover:border-[--border] transition-all duration-300",
-                        place === "top" && "flex-row w-auto my-0 justify-start px-2 py-2 border-none",
-                    )}
-                >
-                    {trayIcons.map((trayIcon, index) => (
-                        <PluginTray trayIcon={trayIcon} key={index} place={place} width={width} />
-                    ))}
-
-                    <Popover
-                        side={place === "top" ? "bottom" : "right"}
-                        trigger={<div>
-                            <IconButton
-                                intent="gray-basic"
-                                size="sm"
-                                icon={<LuBug />}
-                                className="rounded-full"
-                            />
-                        </div>}
-                        className="p-2"
-                    >
-                        <div className="space-y-2">
-                            {developmentModeExtensions?.map(extension => (
-                                <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
-                                    <p className="text-sm font-medium">{extension.id}</p>
-                                    <div>
-                                        <IconButton
-                                            intent="warning-basic"
-                                            size="sm"
-                                            icon={<LuRefreshCw className="size-5" />}
-                                            className="rounded-full"
-                                            onClick={() => reloadExternalExtension({ id: extension.id })}
-                                            loading={isReloadingExtension}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Popover>
-                </div>
-            </>
-        )
-    }, [place, developmentModeExtensions, isReloadingExtension, trayIcons, width])
-
     return (
         <>
-            {!isMobile && place === "sidebar" && <ExtensionList />}
+            {!isMobile && place === "sidebar" && <ExtensionList
+                place={place}
+                developmentModeExtensions={developmentModeExtensions || []}
+                isReloadingExtension={isReloadingExtension}
+                reloadExternalExtension={reloadExternalExtension}
+                trayIcons={trayIcons}
+                width={width}
+            />}
             {isMobile && place === "top" && <div className="">
                 <Popover
                     side="bottom"
@@ -151,7 +173,14 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
                         // transform: "translateX(10px)",
                     }}
                 >
-                    <ExtensionList />
+                    <ExtensionList
+                        place={place}
+                        developmentModeExtensions={developmentModeExtensions || []}
+                        isReloadingExtension={isReloadingExtension}
+                        reloadExternalExtension={reloadExternalExtension}
+                        trayIcons={trayIcons}
+                        width={width}
+                    />
                 </Popover>
             </div>}
         </>

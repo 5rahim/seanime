@@ -121,6 +121,10 @@ function init() {
         //     }, 2000);
         // });
 
+        tray.onOpen(() => {
+            ctx.screen.loadCurrent()
+        })
+
         tray.render(() => {
             return tray.stack({
                 items: [
