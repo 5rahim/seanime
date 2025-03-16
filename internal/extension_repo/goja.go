@@ -10,6 +10,7 @@ import (
 	"seanime/internal/plugin"
 	"time"
 
+	"github.com/5rahim/habari"
 	"github.com/dop251/goja"
 	gojabuffer "github.com/dop251/goja_nodejs/buffer"
 	gojarequire "github.com/dop251/goja_nodejs/require"
@@ -127,6 +128,12 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 
 		return instanceValue
 	})
+
+	habariObj := vm.NewObject()
+	_ = habariObj.Set("parse", func(filename string) *habari.Metadata {
+		return habari.Parse(filename)
+	})
+	vm.Set("$habari", habariObj)
 }
 
 // JSVMTypescriptToJS converts typescript to javascript

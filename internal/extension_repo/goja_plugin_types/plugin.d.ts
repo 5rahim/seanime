@@ -975,3 +975,40 @@ declare namespace $app {
      */
     function invalidateClientQuery(queryKeys: string[]): void
 }
+
+declare namespace $habari {
+
+    declare interface Metadata {
+        season_number?: string[];
+        part_number?: string[];
+        title?: string;
+        formatted_title?: string;
+        anime_type?: string[];
+        year?: string;
+        audio_term?: string[];
+        device_compatibility?: string[];
+        episode_number?: string[];
+        other_episode_number?: string[];
+        episode_number_alt?: string[];
+        episode_title?: string;
+        file_checksum?: string;
+        file_extension?: string;
+        file_name?: string;
+        language?: string[];
+        release_group?: string;
+        release_information?: string[];
+        release_version?: string[];
+        source?: string[];
+        subtitles?: string[];
+        video_resolution?: string;
+        video_term?: string[];
+        volume_number?: string[];
+    }
+
+    /**
+     * Parses a filename and returns the metadata
+     * @param filename - The filename to parse
+     * @returns The metadata
+     */
+    function parse(filename: string): Metadata
+}

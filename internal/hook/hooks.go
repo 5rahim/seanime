@@ -55,6 +55,8 @@ type Manager interface {
 
 	// Scanner events
 	OnScanStarted() *Hook[hook_resolver.Resolver]
+	OnScanFilePathsRetrieved() *Hook[hook_resolver.Resolver]
+	OnScanLocalFilesParsed() *Hook[hook_resolver.Resolver]
 	OnScanCompleted() *Hook[hook_resolver.Resolver]
 	OnScanMediaFetcherStarted() *Hook[hook_resolver.Resolver]
 	OnScanMediaFetcherCompleted() *Hook[hook_resolver.Resolver]
@@ -129,6 +131,8 @@ type ManagerImpl struct {
 	onAutoDownloaderTorrentsFetched *Hook[hook_resolver.Resolver]
 	// Scanner events
 	onScanStarted                   *Hook[hook_resolver.Resolver]
+	onScanFilePathsRetrieved        *Hook[hook_resolver.Resolver]
+	onScanLocalFilesParsed          *Hook[hook_resolver.Resolver]
 	onScanCompleted                 *Hook[hook_resolver.Resolver]
 	onScanMediaFetcherStarted       *Hook[hook_resolver.Resolver]
 	onScanMediaFetcherCompleted     *Hook[hook_resolver.Resolver]
@@ -219,6 +223,8 @@ func (m *ManagerImpl) initHooks() {
 	m.onAutoDownloaderTorrentsFetched = &Hook[hook_resolver.Resolver]{}
 	// Scanner events
 	m.onScanStarted = &Hook[hook_resolver.Resolver]{}
+	m.onScanFilePathsRetrieved = &Hook[hook_resolver.Resolver]{}
+	m.onScanLocalFilesParsed = &Hook[hook_resolver.Resolver]{}
 	m.onScanCompleted = &Hook[hook_resolver.Resolver]{}
 	m.onScanMediaFetcherStarted = &Hook[hook_resolver.Resolver]{}
 	m.onScanMediaFetcherCompleted = &Hook[hook_resolver.Resolver]{}
@@ -477,6 +483,20 @@ func (m *ManagerImpl) OnScanStarted() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onScanStarted
+}
+
+func (m *ManagerImpl) OnScanFilePathsRetrieved() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanFilePathsRetrieved
+}
+
+func (m *ManagerImpl) OnScanLocalFilesParsed() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onScanLocalFilesParsed
 }
 
 func (m *ManagerImpl) OnScanCompleted() *Hook[hook_resolver.Resolver] {

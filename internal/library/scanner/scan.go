@@ -67,7 +67,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 		SkipLocked:    scn.SkipLockedFiles,
 		SkipIgnored:   scn.SkipIgnoredFiles,
 	}
-	hook.GlobalHookManager.OnScanStarted().Trigger(event)
+	_ = hook.GlobalHookManager.OnScanStarted().Trigger(event)
 	scn.DirPath = event.DirPath
 	scn.OtherDirPaths = event.OtherDirPaths
 	scn.Enhanced = event.Enhanced
@@ -75,53 +75,56 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 	scn.SkipIgnoredFiles = event.SkipIgnored
 
 	// +---------------------+
-	// |     Local Files     |
+	// |     File paths      |
 	// +---------------------+
 
-	paths, err := filesystem.GetMediaFilePathsFromDirS(scn.DirPath)
-	if err != nil {
-		return nil, err
-	}
+	libraryPaths := append([]string{scn.DirPath}, scn.OtherDirPaths...)
 
-	if scn.ScanLogger != nil {
-		scn.ScanLogger.logger.Info().
-			Any("count", len(paths)).
-			Msg("Retrieved file paths from main directory")
-	}
+	// Create a map of local file paths used to avoid duplicates
+	retrievedPathMap := make(map[string]struct{})
 
-	// Get local files
-	//localFiles, err := GetLocalFilesFromDir(scn.DirPath, scn.Logger)
-	//if err != nil {
-	//	return nil, err
-	//}
+	paths := make([]string, 0)
+	mu := sync.Mutex{}
+	logMu := sync.Mutex{}
+	wg := sync.WaitGroup{}
 
-	// Create a map of local file paths, will be used to avoid duplicates
-	localFilePathsMap := make(map[string]struct{})
-	for _, path := range paths {
-		localFilePathsMap[util.NormalizePath(path)] = struct{}{}
-	}
+	wg.Add(len(libraryPaths))
 
-	// Get local files from other directories
-	for _, dirPath := range scn.OtherDirPaths {
-		//otherLocalFiles, err := GetLocalFilesFromDir(dirPath, scn.Logger)
-		otherPaths, err := filesystem.GetMediaFilePathsFromDirS(dirPath)
-
-		// TODO: Event for local files retrieved
-
-		if scn.ScanLogger != nil {
-			scn.ScanLogger.logger.Info().
-				Any("count", len(otherPaths)).
-				Msgf("Retrieved file paths from other directory: %s", dirPath)
-		}
-		if err != nil {
-			return nil, err
-		}
-		for _, path := range otherPaths {
-			if _, ok := localFilePathsMap[util.NormalizePath(path)]; !ok {
-				paths = append(paths, path)
+	// Get local files from all directories
+	for i, dirPath := range libraryPaths {
+		go func(dirPath string, i int) {
+			defer wg.Done()
+			retrievedPaths, err := filesystem.GetMediaFilePathsFromDirS(dirPath)
+			if err != nil {
+				scn.Logger.Error().Msgf("scanner: An error occurred while retrieving local files from directory: %s", err)
+				return
 			}
-		}
+
+			if scn.ScanLogger != nil {
+				logMu.Lock()
+				if i == 0 {
+					scn.ScanLogger.logger.Info().
+						Any("count", len(paths)).
+						Msgf("Retrieved file paths from main directory: %s", dirPath)
+				} else {
+					scn.ScanLogger.logger.Info().
+						Any("count", len(retrievedPaths)).
+						Msgf("Retrieved file paths from other directory: %s", dirPath)
+				}
+				logMu.Unlock()
+			}
+
+			for _, path := range retrievedPaths {
+				if _, ok := retrievedPathMap[util.NormalizePath(path)]; !ok {
+					mu.Lock()
+					paths = append(paths, path)
+					mu.Unlock()
+				}
+			}
+		}(dirPath, i)
 	}
+
+	wg.Wait()
 
 	if scn.ScanLogger != nil {
 		scn.ScanLogger.logger.Info().
@@ -129,13 +132,16 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			Msg("Retrieved file paths from all directories")
 	}
 
-	// TODO: Event for all local files retrieved
+	// Invoke ScanFilePathsRetrieved hook
+	fpEvent := &ScanFilePathsRetrievedEvent{
+		FilePaths: paths,
+	}
+	_ = hook.GlobalHookManager.OnScanFilePathsRetrieved().Trigger(fpEvent)
+	paths = fpEvent.FilePaths
 
 	// +---------------------+
-	// | Filter local files  |
+	// |    Local files      |
 	// +---------------------+
-
-	// TODO: Event for local files filtering (preventable)
 
 	localFiles := make([]*anime.LocalFile, 0)
 
@@ -150,23 +156,30 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 				skippedLfs[lf.GetNormalizedPath()] = lf
 			}
 		}
-
-		// Remove skipped files from local files that will be hydrated
-		localFiles = lop.Map(paths, func(path string, _ int) *anime.LocalFile {
-			if _, ok := skippedLfs[util.NormalizePath(path)]; !ok {
-				// Create a new local file
-				return anime.NewLocalFile(path, scn.DirPath)
-			} else {
-				return nil
-			}
-		})
-
-		// Remove nil values
-		localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
-			return lf != nil
-		})
-
 	}
+
+	// Create local files from paths (skipping skipped files)
+	localFiles = lop.Map(paths, func(path string, _ int) *anime.LocalFile {
+		if _, ok := skippedLfs[util.NormalizePath(path)]; !ok {
+			// Create a new local file
+			return anime.NewLocalFileS(path, libraryPaths)
+		} else {
+			return nil
+		}
+	})
+
+	// Remove nil values
+	localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
+		return lf != nil
+	})
+
+	// Invoke ScanLocalFilesParsed hook
+	parsedEvent := &ScanLocalFilesParsedEvent{
+		LocalFiles: localFiles,
+	}
+	_ = hook.GlobalHookManager.OnScanLocalFilesParsed().Trigger(parsedEvent)
+	localFiles = parsedEvent.LocalFiles
+
 	if scn.ScanLogger != nil {
 		scn.ScanLogger.logger.Debug().
 			Any("count", len(localFiles)).

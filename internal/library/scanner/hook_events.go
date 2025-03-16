@@ -6,7 +6,7 @@ import (
 	"seanime/internal/library/anime"
 )
 
-// ScanStartedEvent is triggered when a scan operation begins
+// ScanStartedEvent is triggered when the scanning process begins
 type ScanStartedEvent struct {
 	hook_resolver.Event
 	DirPath       string   `json:"dirPath"`
@@ -16,7 +16,19 @@ type ScanStartedEvent struct {
 	SkipIgnored   bool     `json:"skipIgnored"`
 }
 
-// ScanCompletedEvent is triggered when a scan operation finishes
+// ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved
+type ScanFilePathsRetrievedEvent struct {
+	hook_resolver.Event
+	FilePaths []string `json:"filePaths"`
+}
+
+// ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects
+type ScanLocalFilesParsedEvent struct {
+	hook_resolver.Event
+	LocalFiles []*anime.LocalFile `json:"localFiles"`
+}
+
+// ScanCompletedEvent is triggered when the scanning process finishes
 type ScanCompletedEvent struct {
 	hook_resolver.Event
 	LocalFiles []*anime.LocalFile `json:"localFiles"`
