@@ -19,6 +19,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/dop251/goja/parser"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,15 +104,16 @@ func (p *GojaPlugin) ClearInterrupt() {
 func NewGojaPlugin(
 	ext *extension.Extension,
 	language extension.Language,
-	logger *zerolog.Logger,
+	mLogger *zerolog.Logger,
 	runtimeManager *goja_runtime.Manager,
 	wsEventManager events.WSEventManagerInterface,
 ) (*GojaPlugin, GojaExtension, error) {
+	logger := lo.ToPtr(mLogger.With().Str("id", ext.ID).Logger())
 	defer util.HandlePanicInModuleThen("extension_repo/NewGojaPlugin", func() {
-		logger.Error().Str("id", ext.ID).Msg("extensions: Failed to create Goja plugin")
+		logger.Error().Msg("extensions: Failed to create Goja plugin")
 	})
 
-	logger.Trace().Str("id", ext.ID).Msg("extensions: Loading plugin")
+	logger.Trace().Msg("extensions: Loading plugin")
 
 	// 1. Create a new plugin instance
 	p := &GojaPlugin{
@@ -137,7 +139,7 @@ func NewGojaPlugin(
 		var err error
 		source, err = JSVMTypescriptToJS(ext.Payload)
 		if err != nil {
-			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to convert typescript")
+			logger.Error().Err(err).Msg("extensions: Failed to convert typescript")
 			return nil, nil, err
 		}
 	}
@@ -175,7 +177,7 @@ func NewGojaPlugin(
 
 	go func() {
 		<-p.ui.Destroyed()
-		p.logger.Warn().Str("id", ext.ID).Msg("plugin: UI interrupted, interrupting plugin")
+		p.logger.Warn().Msg("plugin: UI interrupted, interrupting plugin")
 		p.ClearInterrupt()
 	}()
 
@@ -188,7 +190,7 @@ func NewGojaPlugin(
 	// 7. Load the plugin source code in the VM (nothing will execute)
 	_, err = p.loader.RunString(source)
 	if err != nil {
-		logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to load plugin")
+		logger.Error().Err(err).Msg("extensions: Failed to load plugin")
 		return nil, nil, err
 	}
 
@@ -198,10 +200,10 @@ func NewGojaPlugin(
 		// DEVNOTE: Code errors in callbacks functions are not caught here, so the plugin will still be "initialized" even though it might be interrupted almost instantly
 		// e.g. Type errors in the UI callback will not fail the init function
 		if err != nil {
-			logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to run init")
+			logger.Error().Err(err).Msg("extensions: Failed to run init")
 			return nil, nil, fmt.Errorf("failed to run init: %w", err)
 		}
-		logger.Debug().Str("id", ext.ID).Msg("extensions: Plugin initialized")
+		logger.Debug().Msg("extensions: Plugin initialized")
 	}
 
 	return p, p, nil
@@ -223,6 +225,9 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	goja_util.BindMutable(vm)
 	// Bind await bindings
 	goja_util.BindAwait(vm)
+
+	// Bind the app context
+	plugin.GlobalAppContext.BindApp(vm, logger, p.ext)
 
 	// Bind permission-specific APIs
 	if p.ext.Plugin != nil {
@@ -327,7 +332,7 @@ func (p *GojaPlugin) bindHooks() {
 						handlerArgs[i] = arg.Interface()
 					}
 					// Set the global variable $ctx in the executor
-					//executor.Set("$ctx", hook.GlobalHookManager.AppContext())
+					// executor.Set("$$app", plugin.GlobalAppContext)
 					executor.Set("__args", handlerArgs)
 					// Execute the handler program
 					res, err := executor.RunProgram(pr)

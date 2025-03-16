@@ -2,174 +2,147 @@
 /// <reference path="../goja_plugin_types/hooks.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
 
-
-// @ts-ignore
 function init() {
     $ui.register((ctx) => {
+        // Create the tray icon
         const tray = ctx.newTray({
-            tooltipText: "Test Plugin",
+            tooltipText: "Anime banner image",
             iconUrl: "https://seanime.rahim.app/logo_2.png",
             withContent: true,
-            // minHeight: "100vh",
-            // width: "calc(100vw - 100px)",
-        });
+        })
 
-        const currentMediaId = ctx.state(0);
-        const mediaIds = ctx.state([]);
+        // Keep track of the current media ID
+        const currentMediaId = ctx.state(0)
 
-        const customBannerImageRef = ctx.registerFieldRef("customBannerImageRef");
+        // Create a field ref for the URL input
+        const inputRef = ctx.registerFieldRef("customBannerImageRef")
 
-        ctx.screen.loadCurrent()
+        // When the plugin loads, fetch the current screen and set the badge to 0
+        ctx.screen.loadCurrent() // Triggers onNavigate
         tray.updateBadge({ number: 0 })
-
-        const fetchBackgroundImage = () => {
-            const backgroundImage = $storage.get<string>("backgroundImages." + currentMediaId.get())
-            console.log("backgroundImage", backgroundImage)
-            if (backgroundImage) {
-                customBannerImageRef.setValue(backgroundImage);
-                tray.updateBadge({ number: 1, intent: "info" })
-            } else {
-                customBannerImageRef.setValue("");
-                tray.updateBadge({ number: 0 })
-            }
-        }
-
-        ctx.effect(() => {
-            console.log("media ID changed, fetching background image and updating tray");
-            fetchBackgroundImage();
-
-            console.log("updating tray");
-        }, [currentMediaId]);
-
-        fetchBackgroundImage()
-
-        ctx.screen.onNavigate((e) => {
-            console.log("screen navigated", e);
-            if (e.pathname === "/entry" && !!e.query) {
-                const id = parseInt(e.query.replace("?id=", ""));
-                currentMediaId.set(id);
-                fetchBackgroundImage()
-                // tray.open();
-            } else {
-                currentMediaId.set(0);
-                tray.close()
-            }
-
-            console.log("updating tray");
-        });
-
-        ctx.registerEventHandler("saveBackgroundImage", () => {
-            ctx.toast.info("Setting background image to " + customBannerImageRef.current);
-            $storage.set('backgroundImages.' + currentMediaId.get(), customBannerImageRef.current);
-            ctx.toast.success("Background image saved " + customBannerImageRef.current)
-            fetchBackgroundImage();
-            $anilist.refreshAnimeCollection();
-        });
-
-        // ctx.registerEventHandler("button-clicked", () => {
-        //     const previous = $database.localFiles.getAll()
-        //     $database.localFiles.insert([{
-        //         path: "/Volumes/Seagate Portable Drive/ANIME/[SubsPlease] Bocchi the Rock! (01-12) (1080p) [Batch]/[SubsPlease] Bocchi the Rock! -
-        // 01v2 (1080p) [ABDDAE16].mkv", name: "[SubsPlease] Bocchi the Rock! - 01v2 (1080p) [ABDDAE16].mkv", locked: true, ignored: false, mediaId:
-        // 130003, metadata: { episode: 1, aniDBEpisode: "1", type: "main", }, }]) ctx.toast.info("Inserted new local file")
-
-        //     ctx.setTimeout(() => {
-        //         $database.localFiles.insert(previous)
-        //         ctx.toast.info("Inserted previous local files")
-        //     }, 3000);
-        // })
-
-        // ctx.registerEventHandler("button-clicked", () => {
-        //     console.log("button-clicked");
-        //     console.log("navigating to /entry?id=21");
-        //     try {
-        //         ctx.screen.navigateTo("/entry?id=21");
-        //     } catch (e) {
-        //         console.error("navigate error", e);
-        //     }
-        //     ctx.setTimeout(() => {
-        //         try {
-        //             console.log("navigating to /entry?id=177709");
-        //             ctx.screen.navigateTo("/entry?id=177709");
-        //         } catch (e) {
-        //             console.error("navigate error", e);
-        //         }
-        //     }, 1000);
-        //     ctx.setTimeout(() => {
-        //         try {
-        //             console.log("opening https://google.com");
-        //             const cmd = $os.cmd("open", "https://google.com");
-        //             cmd.run();
-        //         } catch (e) {
-        //             console.error("open error", e);
-        //         }
-        //     }, 2000);
-        // });
-
+        // Also fetch current screen when tray is open
         tray.onOpen(() => {
             ctx.screen.loadCurrent()
         })
 
-        tray.render(() => {
-            return tray.stack({
-                items: [
-                    // tray.button("Click me", {onClick: "button-clicked"}),
-                    currentMediaId.get() === 0 ? tray.text("Open an anime or manga") : tray.stack({
-                        items: [
-                            tray.text(`Current media ID: ${currentMediaId.get()}`),
-                            tray.input({ fieldRef: "customBannerImageRef", value: customBannerImageRef.current }),
-                            tray.button({ label: "Save", onClick: "saveBackgroundImage" }),
-                        ],
-                    }),
-                ],
-            });
-        });
-    })
-
-    $app.onGetAnime((e) => {
-        $store.set("mediaIds", e.anime?.id)
-        e.next();
-    });
-
-
-    $app.onGetAnimeCollection((e) => {
-        console.log("onGetAnimeCollection called")
-        const bannerImages = $storage.get('backgroundImages');
-        console.log("onGetAnimeCollection bannerImages", bannerImages)
-        if (!bannerImages) {
-            e.next();
-            return;
-        }
-        if (!!e.animeCollection?.mediaListCollection?.lists?.length) {
-            for (let i = 0; i < e.animeCollection?.mediaListCollection?.lists?.length; i++) {
-                for (let j = 0; j < e.animeCollection.mediaListCollection.lists[i].entries!.length; j++) {
-                    const mediaId = e.animeCollection!.mediaListCollection!.lists[i]!.entries![j]!.media!.id
-                    const bannerImage = bannerImages[mediaId.toString()] || ""
-                    if (!!bannerImage) {
-                        $replace(e.animeCollection!.mediaListCollection!.lists[i]!.entries![j]!.media!.bannerImage, bannerImage)
-                    }
-                }
+        // Updates the field's value and badge based on the current anime page
+        function updateState() {
+            // Reset the badge and input if the user currently isn't on an anime page
+            if (!currentMediaId.get()) {
+                inputRef.setValue("")
+                tray.updateBadge({ number: 0 })
+            }
+            // Get the stored background image URL for this anime
+            const url = $storage.get<string>("backgroundImages." + currentMediaId.get())
+            if (url) {
+                // If there's an URL, set the value of the input 
+                inputRef.setValue(url)
+                // Add a badge
+                tray.updateBadge({ number: 1, intent: "info" })
+            } else {
+                inputRef.setValue("")
+                tray.updateBadge({ number: 0 })
             }
         }
-        e.next();
-    });
 
-    $app.onGetRawAnimeCollection((e) => {
-        const bannerImages = $storage.get<Record<string, string>>("backgroundImages")
+        // Run the function when the plugin loads
+        updateState()
+
+        // Update currentMediaId when the user navigates
+        ctx.screen.onNavigate((e) => {
+            // If the user navigates to an anime page
+            if (e.pathname === "/entry" && !!e.query) {
+                // Get the ID from the URL
+                const id = parseInt(e.query.replace("?id=", ""))
+                currentMediaId.set(id)
+            } else {
+                currentMediaId.set(0)
+            }
+        })
+
+        // This effect will update the state each time currentMediaId changes
+        ctx.effect(() => {
+            updateState()
+        }, [currentMediaId])
+
+        // Create a handler to store the custom banner image URL
+        ctx.registerEventHandler("save", () => {
+            if (!!inputRef.current) {
+                $storage.set(`backgroundImages.${currentMediaId.get()}`, inputRef.current)
+            } else {
+                $storage.remove(`backgroundImages.${currentMediaId.get()}`)
+            }
+            ctx.toast.success("Background image saved")
+            updateState() // Update the state
+
+            // Updates the data on the client
+            // This is better than calling ctx.screen.reload()
+            $anilist.refreshAnimeCollection()
+        });
+        
+        // Tray content
+        tray.render(() => {
+            return tray.stack([
+                currentMediaId.get() === 0
+                    ? tray.text("Open an anime")
+                    : tray.stack([
+                        tray.text(`Current media ID: ${currentMediaId.get()}`),
+                        tray.input({ fieldRef: "customBannerImageRef", value: inputRef.current }),
+                        tray.button({ label: "Save", onClick: "save" }),
+                    ]),
+            ])
+        })
+    })
+
+    // Register hook handlers to listen and modify the anime collection.
+
+    // Triggers the app loads the user's AniList anime collection
+    $app.onGetAnimeCollection((e) => {
+        const bannerImages = $storage.get<Record<string, string | undefined>>("backgroundImages")
         if (!bannerImages) {
-            e.next();
-            return;
+            e.next()
+            return
         }
+        if (!e.animeCollection?.mediaListCollection?.lists?.length) {
+            e.next()
+            return
+        }
+
         for (let i = 0; i < e.animeCollection!.mediaListCollection!.lists!.length; i++) {
             for (let j = 0; j < e.animeCollection!.mediaListCollection!.lists![i]!.entries!.length; j++) {
                 const mediaId = e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.id
-                const bannerImage = bannerImages[mediaId.toString()] || "";
+                const bannerImage = bannerImages[mediaId.toString()]
                 if (!!bannerImage) {
                     $replace(e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.bannerImage, bannerImage)
                 }
             }
         }
-        e.next();
-    });
 
+        e.next()
+    })
+
+    // Same as onGetAnimeCollection but also includes custom lists.
+    $app.onGetRawAnimeCollection((e) => {
+        const bannerImages = $storage.get<Record<string, string | undefined>>("backgroundImages")
+        if (!bannerImages) {
+            e.next()
+            return
+        }
+        if (!e.animeCollection?.mediaListCollection?.lists?.length) {
+            e.next()
+            return
+        }
+        
+        for (let i = 0; i < e.animeCollection!.mediaListCollection!.lists!.length; i++) {
+            for (let j = 0; j < e.animeCollection!.mediaListCollection!.lists![i]!.entries!.length; j++) {
+                const mediaId = e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.id
+                const bannerImage = bannerImages[mediaId.toString()]
+                if (!!bannerImage) {
+                    $replace(e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.bannerImage, bannerImage)
+                }
+            }
+        }
+
+        e.next()
+    })
 }

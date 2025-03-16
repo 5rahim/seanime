@@ -1,4 +1,3 @@
-import { useSeaCommand_ParseCommand } from "@/app/(main)/_features/sea-command/utils"
 import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { useUpdateEffect } from "@/components/ui/core/hooks"
 import mousetrap from "mousetrap"
@@ -54,21 +53,21 @@ export function PluginCommandPalette(props: { extensionId: string, info: PluginC
     const { sendCommandPaletteClosedEvent } = usePluginSendCommandPaletteClosedEvent()
     const { sendCommandPaletteItemSelectedEvent } = usePluginSendCommandPaletteItemSelectedEvent()
 
-
-    const parsedCommandProps = useSeaCommand_ParseCommand(input)
-
+    // const parsedCommandProps = useSeaCommand_ParseCommand(input)
 
     // Register the keyboard shortcut
     React.useEffect(() => {
-        mousetrap.bind(info.keyboardShortcut, () => {
-            setInput("")
-            React.startTransition(() => {
-                setOpen(true)
+        if (!!info.keyboardShortcut) {
+            mousetrap.bind(info.keyboardShortcut, () => {
+                setInput("")
+                React.startTransition(() => {
+                    setOpen(true)
+                })
             })
-        })
 
-        return () => {
-            mousetrap.unbind(info.keyboardShortcut)
+            return () => {
+                mousetrap.unbind(info.keyboardShortcut)
+            }
         }
     }, [info.keyboardShortcut])
 

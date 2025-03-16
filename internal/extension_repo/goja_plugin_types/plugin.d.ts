@@ -11,27 +11,27 @@ declare namespace $ui {
         /**
          * Screen navigation and management
          */
-        screen: Screen;
+        screen: Screen
         /**
          * Toast notifications
          */
-        toast: Toast;
+        toast: Toast
         /**
          * Actions
          */
-        action: Action;
+        action: Action
 
         /**
          * DOM
          */
-        dom: DOM;
+        dom: DOM
 
         /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
          */
-        state<T>(initialValue?: T): State<T>;
+        state<T>(initialValue?: T): State<T>
 
         /**
          * Sets a timeout to execute a function after a delay.
@@ -39,7 +39,7 @@ declare namespace $ui {
          * @param delay - The delay in milliseconds
          * @returns A function to cancel the timeout
          */
-        setTimeout(fn: () => void, delay: number): () => void;
+        setTimeout(fn: () => void, delay: number): () => void
 
         /**
          * Sets an interval to execute a function repeatedly.
@@ -47,7 +47,7 @@ declare namespace $ui {
          * @param delay - The delay in milliseconds between executions
          * @returns A function to cancel the interval
          */
-        setInterval(fn: () => void, delay: number): () => void;
+        setInterval(fn: () => void, delay: number): () => void
 
         /**
          * Creates an effect that runs when dependencies change.
@@ -55,7 +55,7 @@ declare namespace $ui {
          * @param deps - Array of dependencies that trigger the effect
          * @returns A function to clean up the effect
          */
-        effect(fn: () => void, deps: State<any>[]): () => void;
+        effect(fn: () => void, deps: State<any>[]): () => void
 
         /**
          * Makes a fetch request.
@@ -63,7 +63,7 @@ declare namespace $ui {
          * @param options - Fetch options
          * @returns A promise that resolves to the fetch response
          */
-        fetch(url: string, options?: FetchOptions): Promise<FetchResponse>;
+        fetch(url: string, options?: FetchOptions): Promise<FetchResponse>
 
         /**
          * Registers an event handler for the plugin.
@@ -71,143 +71,143 @@ declare namespace $ui {
          * @param handler - The handler to register.
          * @returns A function to unregister the handler.
          */
-        registerEventHandler(eventName: string, handler: (event: any) => void): () => void;
+        registerEventHandler(eventName: string, handler: (event: any) => void): () => void
 
         /**
          * Registers a field reference for field components.
          * @param fieldName - The name of the field
          * @returns A field reference object
          */
-        registerFieldRef<T extends any = string>(fieldName: string): FieldRef<T>;
+        registerFieldRef<T extends any = string>(fieldName: string): FieldRef<T>
 
         /**
          * Creates a new tray icon.
          * @param options - The options for the tray icon.
          * @returns A tray icon object.
          */
-        newTray(options: TrayOptions): Tray;
+        newTray(options: TrayOptions): Tray
 
         /**
          * Creates a new command palette.
          * @param options - The options for the command palette
          * @returns A command palette object
          */
-        newCommandPalette(options: CommandPaletteOptions): CommandPalette;
+        newCommandPalette(options: CommandPaletteOptions): CommandPalette
     }
 
     interface State<T> {
         /** The current value */
-        value: T;
+        value: T
         /** Length of the value if it's a string */
-        length?: number;
+        length?: number
 
         /** Gets the current value */
-        get(): T;
+        get(): T
 
         /** Sets a new value */
-        set(value: T | ((prev: T) => T)): void;
+        set(value: T | ((prev: T) => T)): void
     }
 
     interface FetchOptions {
         /** HTTP method, defaults to GET */
-        method?: string;
+        method?: string
         /** Request headers */
-        headers?: Record<string, string>;
+        headers?: Record<string, string>
         /** Request body */
-        body?: any;
+        body?: any
         /** Whether to bypass cloudflare */
-        noCloudflareBypass?: boolean;
+        noCloudflareBypass?: boolean
         /** Timeout in seconds, defaults to 35 */
-        timeout?: number;
+        timeout?: number
     }
 
     interface FetchResponse {
         /** Response status code */
-        status: number;
+        status: number
         /** Response status text */
-        statusText: string;
+        statusText: string
         /** Request method used */
-        method: string;
+        method: string
         /** Raw response headers */
-        rawHeaders: Record<string, string[]>;
+        rawHeaders: Record<string, string[]>
         /** Whether the response was successful (status in range 200-299) */
-        ok: boolean;
+        ok: boolean
         /** Request URL */
-        url: string;
+        url: string
         /** Response headers */
-        headers: Record<string, string>;
+        headers: Record<string, string>
         /** Response cookies */
-        cookies: Record<string, string>;
+        cookies: Record<string, string>
         /** Whether the response was redirected */
-        redirected: boolean;
+        redirected: boolean
         /** Response content type */
-        contentType: string;
+        contentType: string
         /** Response content length */
-        contentLength: number;
+        contentLength: number
         /** Get response text */
-        text(): string;
+        text(): string
 
         /** Parse response as JSON */
-        json<T = any>(): T;
+        json<T = any>(): T
     }
 
     interface FieldRef<T> {
         /** The current value of the field */
-        current: T;
+        current: T
 
         /** Sets the value of the field */
-        setValue(value: T): void;
+        setValue(value: T): void
     }
 
     interface TrayOptions {
         /** URL of the tray icon */
-        iconUrl: string;
+        iconUrl: string
         /** Whether the tray has content */
-        withContent: boolean;
+        withContent: boolean
         /** Tooltip text for the tray icon */
-        tooltipText?: string;
+        tooltipText?: string
         /** Width of the tray */
-        width?: string;
+        width?: string
         /** Minimum height of the tray */
-        minHeight?: string;
+        minHeight?: string
     }
 
     interface Tray {
         /** UI components for building tray content */
-        div: DivComponentFunction;
-        flex: FlexComponentFunction;
-        stack: StackComponentFunction;
-        text: TextComponentFunction;
-        button: ButtonComponentFunction;
-        input: InputComponentFunction;
-        select: SelectComponentFunction;
-        checkbox: CheckboxComponentFunction;
-        radioGroup: RadioGroupComponentFunction;
-        switch: SwitchComponentFunction;
+        div: DivComponentFunction
+        flex: FlexComponentFunction
+        stack: StackComponentFunction
+        text: TextComponentFunction
+        button: ButtonComponentFunction
+        input: InputComponentFunction
+        select: SelectComponentFunction
+        checkbox: CheckboxComponentFunction
+        radioGroup: RadioGroupComponentFunction
+        switch: SwitchComponentFunction
 
         /** Invoked when the tray icon is clicked */
-        onClick(cb: () => void): void;
+        onClick(cb: () => void): void
 
         /** Invoked when the tray icon is opened */
-        onOpen(cb: () => void): void;
+        onOpen(cb: () => void): void
 
         /** Invoked when the tray icon is closed */
-        onClose(cb: () => void): void;
+        onClose(cb: () => void): void
 
         /** Registers the render function for the tray content */
-        render(fn: () => void): void;
+        render(fn: () => void): void
 
         /** Schedules a re-render of the tray content */
-        update(): void;
+        update(): void
 
         /** Opens the tray */
-        open(): void;
+        open(): void
 
         /** Closes the tray */
-        close(): void;
+        close(): void
 
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
-        updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void;
+        updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void
     }
 
     interface Action {
@@ -215,137 +215,143 @@ declare namespace $ui {
          * Creates a new button for the anime page
          * @param props - Button properties
          */
-        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>;
+        newAnimePageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>
 
         /**
          * Creates a new dropdown menu item for the anime page
          * @param props - Dropdown item properties
          */
-        newAnimePageDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>;
+        newAnimePageDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseAnime }>
 
         /**
          * Creates a new dropdown menu item for the anime library
          * @param props - Dropdown item properties
          */
-        newAnimeLibraryDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject;
+        newAnimeLibraryDropdownItem(props: { label: string, style?: Record<string, string> }): ActionObject
 
         /**
          * Creates a new context menu item for media cards
          * @param props - Context menu item properties
          */
-        newMediaCardContextMenuItem<F extends "anime" | "manga" | "both">(props: { label: string, for?: F, style?: Record<string, string> }): ActionObject<{ media: F extends "anime" ? $app.AL_BaseAnime : F extends "manga" ? $app.AL_BaseManga : $app.AL_BaseAnime | $app.AL_BaseManga }>;
+        newMediaCardContextMenuItem<F extends "anime" | "manga" | "both">(props: {
+            label: string,
+            for?: F,
+            style?: Record<string, string>
+        }): ActionObject<{
+            media: F extends "anime" ? $app.AL_BaseAnime : F extends "manga" ? $app.AL_BaseManga : $app.AL_BaseAnime | $app.AL_BaseManga
+        }>
 
         /**
          * Creates a new button for the manga page
          * @param props - Button properties
          */
-        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>;
+        newMangaPageButton(props: { label: string, intent?: Intent, style?: Record<string, string> }): ActionObject<{ media: $app.AL_BaseManga }>
     }
 
     interface ActionObject<E extends any = {}> {
         /** Mounts the action to make it visible */
-        mount(): void;
+        mount(): void
 
         /** Unmounts the action to hide it */
-        unmount(): void;
+        unmount(): void
 
         /** Sets the label of the action */
-        setLabel(label: string): void;
+        setLabel(label: string): void
 
         /** Sets the style of the action */
-        setStyle(style: Record<string, string>): void;
+        setStyle(style: Record<string, string>): void
 
         /** Sets the click handler for the action */
-        onClick(handler: (event: E) => void): void;
+        onClick(handler: (event: E) => void): void
     }
 
     interface CommandPaletteOptions {
         /** Placeholder text for the command palette input */
-        placeholder?: string;
+        placeholder?: string
         /** Keyboard shortcut to open the command palette */
-        keyboardShortcut?: string;
+        keyboardShortcut?: string
     }
 
     interface CommandPalette {
         /** UI components for building command palette items */
-        div: DivComponentFunction;
-        flex: FlexComponentFunction;
-        stack: StackComponentFunction;
-        text: TextComponentFunction;
-        button: ButtonComponentFunction;
+        div: DivComponentFunction
+        flex: FlexComponentFunction
+        stack: StackComponentFunction
+        text: TextComponentFunction
+        button: ButtonComponentFunction
 
         /** Sets the items in the command palette */
-        setItems(items: CommandPaletteItem[]): void;
+        setItems(items: CommandPaletteItem[]): void
 
         /** Refreshes the command palette items */
-        refresh(): void;
+        refresh(): void
 
         /** Sets the placeholder text */
-        setPlaceholder(placeholder: string): void;
+        setPlaceholder(placeholder: string): void
 
         /** Opens the command palette */
-        open(): void;
+        open(): void
 
         /** Closes the command palette */
-        close(): void;
+        close(): void
 
         /** Sets the input value */
-        setInput(input: string): void;
+        setInput(input: string): void
 
         /** Gets the current input value */
-        getInput(): string;
+        getInput(): string
 
         /** Called when the command palette is opened */
-        onOpen(cb: () => void): void;
+        onOpen(cb: () => void): void
 
         /** Called when the command palette is closed */
-        onClose(cb: () => void): void;
+        onClose(cb: () => void): void
     }
 
     interface CommandPaletteItem {
         /** Label for the item */
-        label?: string;
+        label?: string
         /** Value associated with the item */
-        value: string;
+        value: string
         /**
          * Type of filtering to apply when the input changes.
          * If not provided, the item will not be filtered.
          */
-        filterType?: "includes" | "startsWith";
+        filterType?: "includes" | "startsWith"
         /** Heading for the item group */
-        heading?: string;
+        heading?: string
         /** Custom render function for the item */
-        render?: () => void;
+        render?: () => void
         /** Called when the item is selected */
-        onSelect: () => void;
+        onSelect: () => void
     }
 
     interface Screen {
         /** Navigates to a specific path */
-        navigateTo(path: string): void;
+        navigateTo(path: string): void
 
         /** Reloads the current screen */
-        reload(): void;
+        reload(): void
 
         /** Calls onNavigate with the current screen data */
         loadCurrent(): void
 
         /** Called when navigation occurs */
-        onNavigate(cb: (event: { pathname: string, query: string }) => void): void;
+        onNavigate(cb: (event: { pathname: string, query: string }) => void): void
     }
 
     interface Toast {
         /** Shows a success toast */
-        success(message: string): void;
+        success(message: string): void
 
         /** Shows an error toast */
-        error(message: string): void;
+        error(message: string): void
 
         /** Shows an info toast */
-        info(message: string): void;
+        info(message: string): void
 
         /** Shows a warning toast */
-        warning(message: string): void;
+        warning(message: string): void
     }
 
     type ComponentFunction = (props: any) => void
@@ -607,65 +613,115 @@ declare namespace $storage {
 }
 
 declare namespace $anilist {
-    /** Refreshes the anime collection */
-    function refreshAnimeCollection(): void;
+    /**
+     * Refresh the anime collection.
+     * This will cause the frontend to refetch queries that depend on the anime collection.
+     */
+    function refreshAnimeCollection(): void
 
-    /** Refreshes the manga collection */
-    function refreshMangaCollection(): void;
+    /**
+     * Refresh the manga collection.
+     * This will cause the frontend to refetch queries that depend on the manga collection.
+     */
+    function refreshMangaCollection(): void
 
-    /** Updates a media list entry */
-    function updateEntry(mediaId: number,
+    /**
+     * Update a media list entry.
+     * The anime/manga collection should be refreshed after updating the entry.
+     */
+    function updateEntry(
+        mediaId: number,
         status: $app.AL_MediaListStatus | undefined,
         scoreRaw: number | undefined,
         progress: number | undefined,
         startedAt: $app.AL_FuzzyDateInput | undefined,
         completedAt: $app.AL_FuzzyDateInput | undefined,
-    ): void;
+    ): void
 
-    /** Updates a media list entry's progress */
-    function updateEntryProgress(mediaId: number, progress: number, status: $app.AL_MediaListStatus | undefined): void;
+    /**
+     * Update a media list entry's progress.
+     * The anime/manga collection should be refreshed after updating the entry.
+     */
+    function updateEntryProgress(mediaId: number, progress: number, totalCount: number | undefined): void
 
-    /** Updates a media list entry's repeat count */
-    function updateEntryRepeat(mediaId: number, repeat: number): void;
+    /**
+     * Update a media list entry's repeat count.
+     * The anime/manga collection should be refreshed after updating the entry.
+     */
+    function updateEntryRepeat(mediaId: number, repeat: number): void
 
-    /** Deletes a media list entry */
-    function deleteEntry(mediaListEntryId: number): void;
+    /**
+     * Delete a media list entry.
+     * The anime/manga collection should be refreshed after deleting the entry.
+     */
+    function deleteEntry(mediaId: number): void
 
-    /** Gets the user's anime collection */
-    function getAnimeCollection(): $app.AL_AnimeCollection;
+    /**
+     * Get the user's anime collection.
+     * This collection does not include lists with no status (custom lists).
+     */
+    function getAnimeCollection(): $app.AL_AnimeCollection
 
-    /** Gets the raw anime collection data */
-    function getRawAnimeCollection(): $app.AL_AnimeCollection;
+    /**
+     * Same as [$anilist.getAnimeCollection] but includes lists with no status (custom lists).
+     */
+    function getRawAnimeCollection(): $app.AL_AnimeCollection
 
-    /** Gets the user's manga collection */
-    function getMangaCollection(): $app.AL_MangaCollection;
+    /**
+     * Get the user's manga collection.
+     * This collection does not include lists with no status (custom lists).
+     */
+    function getMangaCollection(): $app.AL_MangaCollection
 
-    /** Gets the raw manga collection data */
-    function getRawMangaCollection(): $app.AL_MangaCollection;
+    /**
+     * Same as [$anilist.getMangaCollection] but includes lists with no status (custom lists).
+     */
+    function getRawMangaCollection(): $app.AL_MangaCollection
 
-    /** Gets anime by ID */
-    function getAnime(id: number): $app.AL_BaseAnime;
+    /**
+     * Get anime by ID
+     */
+    function getAnime(id: number): $app.AL_BaseAnime
 
-    /** Gets manga by ID */
-    function getManga(id: number): $app.AL_BaseManga;
+    /**
+     * Get manga by ID
+     */
+    function getManga(id: number): $app.AL_BaseManga
 
-    /** Gets detailed anime info by ID */
-    function getAnimeDetails(id: number): $app.AL_AnimeDetailsById_Media;
+    /**
+     * Get detailed anime info by ID
+     */
+    function getAnimeDetails(id: number): $app.AL_AnimeDetailsById_Media
 
-    /** Gets detailed manga info by ID */
-    function getMangaDetails(id: number): $app.AL_MangaDetailsById_Media;
+    /**
+     * Get detailed manga info by ID
+     */
+    function getMangaDetails(id: number): $app.AL_MangaDetailsById_Media
 
-    /** Gets anime collection with relations */
-    function getAnimeCollectionWithRelations(): $app.AL_AnimeCollectionWithRelations;
+    /**
+     * Get anime collection with relations
+     */
+    function getAnimeCollectionWithRelations(): $app.AL_AnimeCollectionWithRelations
 
-    /** Adds media to collection */
-    function addMediaToCollection(mediaId: number): void;
+    /**
+     * Add media to collection.
+     *
+     * This will add the media to the collection with the status "PLANNING".
+     *
+     * The anime/manga collection should be refreshed after adding the media.
+     */
+    function addMediaToCollection(mediaIds: number[]): void
 
-    /** Gets studio details */
-    function getStudioDetails(id: number): $app.AL_StudioDetails;
+    /**
+     * Get studio details
+     */
+    function getStudioDetails(studioId: number): $app.AL_StudioDetails
 
-    /** Lists anime based on search criteria */
-    function listAnime(page: number | undefined,
+    /**
+     * List anime based on search criteria
+     */
+    function listAnime(
+        page: number | undefined,
         search: string | undefined,
         perPage: number | undefined,
         sort: $app.AL_MediaSort[] | undefined,
@@ -676,10 +732,13 @@ declare namespace $anilist {
         seasonYear: number | undefined,
         format: $app.AL_MediaFormat | undefined,
         isAdult: boolean | undefined,
-    ): $app.AL_ListAnime;
+    ): $app.AL_ListAnime
 
-    /** Lists manga based on search criteria */
-    function listManga(page: number | undefined,
+    /**
+     * List manga based on search criteria
+     */
+    function listManga(
+        page: number | undefined,
         search: string | undefined,
         perPage: number | undefined,
         sort: $app.AL_MediaSort[] | undefined,
@@ -691,18 +750,23 @@ declare namespace $anilist {
         format: $app.AL_MediaFormat | undefined,
         countryOfOrigin: string | undefined,
         isAdult: boolean | undefined,
-    ): $app.AL_ListManga;
+    ): $app.AL_ListManga
 
-    /** Lists recent anime */
-    function listRecentAnime(page: number | undefined,
+    /**
+     * List recent anime
+     */
+    function listRecentAnime(
+        page: number | undefined,
         perPage: number | undefined,
         airingAtGreater: number | undefined,
         airingAtLesser: number | undefined,
         notYetAired: boolean | undefined,
-    ): $app.AL_ListRecentAnime;
+    ): $app.AL_ListRecentAnime
 
-    /** Makes a custom GraphQL query */
-    function customQuery<T = any>(body: Record<string, any>, token: string): T;
+    /**
+     * Make a custom GraphQL query
+     */
+    function customQuery<T = any>(body: Record<string, any>, token: string): T
 }
 
 declare namespace $store {
@@ -711,21 +775,21 @@ declare namespace $store {
      * @param key - The key to set
      * @param value - The value to set
      */
-    function set(key: string, value: any): void;
+    function set(key: string, value: any): void
 
     /**
      * Gets a value from the store.
      * @param key - The key to get
      * @returns The value associated with the key
      */
-    function get<T = any>(key: string): T;
+    function get<T = any>(key: string): T
 
     /**
      * Checks if a key exists in the store.
      * @param key - The key to check
      * @returns True if the key exists, false otherwise
      */
-    function has(key: string): boolean;
+    function has(key: string): boolean
 
     /**
      * Gets a value from the store or sets it if it doesn't exist.
@@ -733,7 +797,7 @@ declare namespace $store {
      * @param setFunc - The function to set the value
      * @returns The value associated with the key
      */
-    function getOrSet<T = any>(key: string, setFunc: () => T): T;
+    function getOrSet<T = any>(key: string, setFunc: () => T): T
 
     /**
      * Sets a value in the store if it's less than the limit.
@@ -741,31 +805,31 @@ declare namespace $store {
      * @param value - The value to set
      * @param maxAllowedElements - The maximum allowed elements
      */
-    function setIfLessThanLimit<T = any>(key: string, value: T, maxAllowedElements: number): boolean;
+    function setIfLessThanLimit<T = any>(key: string, value: T, maxAllowedElements: number): boolean
 
     /**
      * Unmarshals a JSON string.
      * @param data - The JSON string to unmarshal
      */
-    function unmarshalJSON(data: string): void;
+    function unmarshalJSON(data: string): void
 
     /**
      * Marshals a value to a JSON string.
      * @param value - The value to marshal
      * @returns The JSON string
      */
-    function marshalJSON(value: any): string;
+    function marshalJSON(value: any): string
 
     /**
      * Resets the store.
      */
-    function reset(): void;
+    function reset(): void
 
     /**
      * Gets all values from the store.
      * @returns An array of all values in the store
      */
-    function values(): any[];
+    function values(): any[]
 }
 
 /**
@@ -773,27 +837,27 @@ declare namespace $store {
  * @param value - The value to replace
  * @param newValue - The new value
  */
-declare function $replace<T = any>(value: T, newValue: T): void;
+declare function $replace<T = any>(value: T, newValue: T): void
 
 /**
  * Creates a deep copy of the value.
  * @param value - The value to copy
  * @returns A deep copy of the value
  */
-declare function $clone<T = any>(value: T): T;
+declare function $clone<T = any>(value: T): T
 
 /**
  * Converts a value to a string
  * @param value - The value to convert
  * @returns The string representation of the value
  */
-declare function $toString(value: any): string;
+declare function $toString(value: any): string
 
 /**
  * Sleeps for a specified amount of time
  * @param milliseconds - The amount of time to sleep in milliseconds
  */
-declare function $sleep(milliseconds: number): void;
+declare function $sleep(milliseconds: number): void
 
 /**
  * Cron
@@ -806,40 +870,40 @@ declare namespace $cron {
      * @param cronExpr - The cron expression
      * @param fn - The function to call
      */
-    function add(id: string, cronExpr: string, fn: () => void): void;
+    function add(id: string, cronExpr: string, fn: () => void): void
 
     /**
      * Removes a cron job
      * @param id - The id of the cron job
      */
-    function remove(id: string): void;
+    function remove(id: string): void
 
     /**
      * Removes all cron jobs
      */
-    function removeAll(): void;
+    function removeAll(): void
 
     /**
      * Gets the total number of cron jobs
      * @returns The total number of cron jobs
      */
-    function total(): number;
+    function total(): number
 
     /**
      * Starts the cron jobs, can be paused by calling stop()
      */
-    function start(): void;
+    function start(): void
 
     /**
      * Stops the cron jobs, can be resumed by calling start()
      */
-    function stop(): void;
+    function stop(): void
 
     /**
      * Checks if the cron jobs have started
      * @returns True if the cron jobs have started, false otherwise
      */
-    function hasStarted(): boolean;
+    function hasStarted(): boolean
 }
 
 /**
@@ -853,25 +917,61 @@ declare namespace $database {
          * Gets the local files
          * @returns The local files
          */
-        function getAll(): $app.Anime_LocalFile[];
+        function getAll(): $app.Anime_LocalFile[]
 
         /**
          * Finds the local files by a filter function
          * @param filterFn - The filter function
          * @returns The local files
          */
-        function findBy(filterFn: (file: $app.Anime_LocalFile) => boolean): $app.Anime_LocalFile[];
+        function findBy(filterFn: (file: $app.Anime_LocalFile) => boolean): $app.Anime_LocalFile[]
 
         /**
          * Saves the modified local files. This only works if the local files are already in the database.
          * @param files - The local files to save
          */
-        function save(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[];
+        function save(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[]
 
         /**
          * Inserts the local files as a new entry
          * @param files - The local files to insert
          */
-        function insert(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[];
+        function insert(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[]
     }
+
+    declare namespace anilist {
+        /**
+         * Get the Anilist token
+         *
+         * Permissions needed: anilist-token
+         *
+         * @returns The Anilist token
+         */
+        function getToken(): string
+
+        /**
+         * Get the Anilist username
+         */
+        function getUsername(): string
+    }
+}
+
+declare namespace $app {
+    /**
+     * Gets the version of the app
+     * @returns The version of the app
+     */
+    function getVersion(): string
+
+    /**
+     * Gets the version name of the app
+     * @returns The version name of the app
+     */
+    function getVersionName(): string
+
+    /**
+     * Invalidates the queries on the client
+     * @param queryKeys - Keys of the queries to invalidate
+     */
+    function invalidateClientQuery(queryKeys: string[]): void
 }

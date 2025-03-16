@@ -39,6 +39,7 @@ type AppContext interface {
 	AnilistPlatform() mo.Option[platform.Platform]
 	WSEventManager() mo.Option[events.WSEventManagerInterface]
 
+	BindApp(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension)
 	// BindStorage binds $storage to the Goja runtime
 	BindStorage(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Storage
 	// BindAnilist binds $anilist to the Goja runtime

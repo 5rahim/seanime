@@ -15,6 +15,7 @@ import (
 type Database struct {
 	ctx    *AppContextImpl
 	logger *zerolog.Logger
+	ext    *extension.Extension
 }
 
 // BindDatabase binds the database module to the Goja runtime.
@@ -24,6 +25,7 @@ func (a *AppContextImpl) BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, 
 	db := &Database{
 		ctx:    a,
 		logger: &dbLogger,
+		ext:    ext,
 	}
 	dbObj := vm.NewObject()
 
@@ -33,7 +35,12 @@ func (a *AppContextImpl) BindDatabase(vm *goja.Runtime, logger *zerolog.Logger, 
 	localFilesObj.Set("save", db.saveLocalFiles)
 	localFilesObj.Set("insert", db.insertLocalFiles)
 
+	anilistObj := vm.NewObject()
+	anilistObj.Set("getToken", db.getAnilistToken)
+	anilistObj.Set("getUsername", db.getAnilistUsername)
+
 	dbObj.Set("localFiles", localFilesObj)
+	dbObj.Set("anilist", anilistObj)
 
 	_ = vm.Set("$database", dbObj)
 }
@@ -124,4 +131,32 @@ func (d *Database) insertLocalFiles(files []*anime.LocalFile) ([]*anime.LocalFil
 	}
 
 	return lfs, nil
+}
+
+func (d *Database) getAnilistToken() (string, error) {
+	if d.ext.Plugin == nil || len(d.ext.Plugin.Permissions) == 0 {
+		return "", errors.New("permission denied")
+	}
+	if !util.Contains(d.ext.Plugin.Permissions, extension.PluginPermissionAnilistToken) {
+		return "", errors.New("permission denied")
+	}
+	db, ok := d.ctx.database.Get()
+	if !ok {
+		return "", errors.New("database not initialized")
+	}
+	return db.GetAnilistToken(), nil
+}
+
+func (d *Database) getAnilistUsername() (string, error) {
+	db, ok := d.ctx.database.Get()
+	if !ok {
+		return "", errors.New("database not initialized")
+	}
+
+	acc, err := db.GetAccount()
+	if err != nil {
+		return "", nil
+	}
+
+	return acc.Username, nil
 }

@@ -76,7 +76,7 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 				}
 				ret = append(ret, fmt.Sprintf("%s", v))
 			case []byte:
-				ret = append(ret, fmt.Sprintf("ArrayBuffer(%d) %s", len(v), fmt.Sprint(v)))
+				ret = append(ret, fmt.Sprintf("Uint8Array %s", fmt.Sprint(v)))
 			case map[string]interface{}:
 				ret = append(ret, fmt.Sprintf("%+v", v))
 			default:
@@ -92,9 +92,9 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 		}
 		switch t {
 		case "log", "warn", "info", "debug":
-			c.logger.Debug().Msgf("extension: [console.%s] %s", t, strings.Join(ret, " "))
+			c.logger.Debug().Msgf("extension: (console.%s) %s", t, strings.Join(ret, " "))
 		case "error":
-			c.logger.Error().Msgf("extension: [console.error] %s", strings.Join(ret, " "))
+			c.logger.Error().Msgf("extension: (console.error) %s", strings.Join(ret, " "))
 		}
 		return goja.Undefined()
 	}

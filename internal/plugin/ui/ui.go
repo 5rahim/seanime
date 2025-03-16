@@ -85,11 +85,10 @@ type NewUIOptions struct {
 }
 
 func NewUI(options NewUIOptions) *UI {
-	mLogger := options.Logger.With().Str("id", options.Extension.ID).Logger()
 	ui := &UI{
 		ext:            options.Extension,
 		vm:             options.VM,
-		logger:         &mLogger,
+		logger:         options.Logger,
 		wsEventManager: options.WSManager,
 		appContext:     plugin.GlobalAppContext, // Get the app context from the global hook manager
 		scheduler:      options.Scheduler,
