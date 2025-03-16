@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"seanime/internal/mediaplayers/mpvipc"
 	"seanime/internal/util"
+	"seanime/internal/util/result"
 	"strings"
 	"sync"
 	"time"
@@ -32,16 +33,19 @@ type (
 		AppPath        string
 		mu             sync.Mutex
 		playbackMu     sync.RWMutex
-		cancel         context.CancelFunc     // Cancel function for the context
-		subscribers    map[string]*Subscriber // Subscribers to the mpv events
-		conn           *mpvipc.Connection     // Reference to the mpv connection
+		cancel         context.CancelFunc               // Cancel function for the context
+		subscribers    *result.Map[string, *Subscriber] // Subscribers to the mpv events
+		conn           *mpvipc.Connection               // Reference to the mpv connection
 		cmd            *exec.Cmd
 		prevSocketName string
 		exitedCh       chan struct{}
 	}
 
+	// Subscriber is a subscriber to the mpv events.
+	// Make sure the subscriber listens to both channels, otherwise it will deadlock.
 	Subscriber struct {
-		ClosedCh chan struct{}
+		eventCh  chan *mpvipc.Event
+		closedCh chan struct{}
 	}
 )
 
@@ -64,7 +68,7 @@ func New(logger *zerolog.Logger, socketName string, appPath string) *Mpv {
 		playbackMu:  sync.RWMutex{},
 		SocketName:  sn,
 		AppPath:     appPath,
-		subscribers: make(map[string]*Subscriber),
+		subscribers: result.NewResultMap[string, *Subscriber](),
 		exitedCh:    make(chan struct{}),
 	}
 }
@@ -215,10 +219,11 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 		return err
 	}
 
-	// Reset subscriber's done channel in case it was closed
-	for _, sub := range m.subscribers {
-		sub.ClosedCh = make(chan struct{})
-	}
+	// // Reset subscriber's done channel in case it was closed
+	// m.subscribers.Range(func(key string, sub *Subscriber) bool {
+	// 	sub.eventCh = make(chan *mpvipc.Event)
+	// 	return true
+	// })
 
 	// Listen for events in a goroutine
 	go m.listenForEvents(ctx)
@@ -383,6 +388,12 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 			case 46:
 				m.Playback.Filepath = event.Data.(string)
 			}
+			m.subscribers.Range(func(key string, sub *Subscriber) bool {
+				go func() {
+					sub.eventCh <- event
+				}()
+				return true
+			})
 		}
 	}
 }
@@ -433,18 +444,33 @@ func (m *Mpv) terminate() {
 
 func (m *Mpv) Subscribe(id string) *Subscriber {
 	sub := &Subscriber{
-		ClosedCh: make(chan struct{}),
+		eventCh:  make(chan *mpvipc.Event),
+		closedCh: make(chan struct{}),
 	}
-	m.subscribers[id] = sub
+	m.subscribers.Set(id, sub)
 	return sub
 }
 
 func (m *Mpv) Unsubscribe(id string) {
-	delete(m.subscribers, id)
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
+	sub, ok := m.subscribers.Get(id)
+	if !ok {
+		return
+	}
+	close(sub.eventCh)
+	close(sub.closedCh)
+	m.subscribers.Delete(id)
 }
 
-func (s *Subscriber) Done() chan struct{} {
-	return s.ClosedCh
+func (s *Subscriber) Events() <-chan *mpvipc.Event {
+	return s.eventCh
+}
+
+func (s *Subscriber) Closed() <-chan struct{} {
+	return s.closedCh
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -503,8 +529,10 @@ func (m *Mpv) publishDone() {
 			m.Logger.Warn().Msgf("mpv: Connection already closed")
 		}
 	}()
-	for _, sub := range m.subscribers {
-		close(sub.ClosedCh)
-		sub.ClosedCh = make(chan struct{})
-	}
+	m.subscribers.Range(func(key string, sub *Subscriber) bool {
+		go func() {
+			sub.closedCh <- struct{}{}
+		}()
+		return true
+	})
 }

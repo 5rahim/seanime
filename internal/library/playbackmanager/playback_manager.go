@@ -175,6 +175,7 @@ func New(opts *NewPlaybackManagerOptions) *PlaybackManager {
 		currentLocalFileWrapperEntry:   mo.None[*anime.LocalFileWrapperEntry](),
 		currentMediaListEntry:          mo.None[*anilist.AnimeListEntry](),
 		continuityManager:              opts.ContinuityManager,
+		playbackStatusSubscribers:      result.NewResultMap[string, *PlaybackStatusSubscriber](),
 	}
 
 	pm.playlistHub = newPlaylistHub(pm)

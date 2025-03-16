@@ -12,6 +12,8 @@ import (
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/platforms/anilist_platform"
 	"seanime/internal/plugin"
 	"seanime/internal/test_utils"
@@ -103,28 +105,28 @@ function init() {
 
 		console.log("Testing MPV");
 
-		const conn = $mpv.newConnection("/tmp/mpv_socket")
-		conn.open()
+		ctx.mpv.openAndPlay("/Users/rahim/Documents/collection/Bocchi the Rock/[ASW] Bocchi the Rock! - 01 [1080p HEVC][EDC91675].mkv")
 
-
-		console.log("Connection created", conn)
-
-		conn.call("observe_property", 42, "time-pos")
-
-		const cancel = $mpv.registerEventListener(conn, (event) => {
+		const cancel = ctx.mpv.onEvent((event) => {
 			console.log("Event received", event)
 		})
-
-		// conn.call("set_property", "pause", true)
 
 		ctx.setTimeout(() => {
 			console.log("Cancelling event listener")
 			cancel()
-		}, 1000)
+			ctx.mpv.stop()
+		}, 5000)
 	});
 
 }
 	`
+
+	playbackManager, _, err := getPlaybackManager(t)
+	require.NoError(t, err)
+
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		PlaybackManager: playbackManager,
+	})
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
@@ -192,14 +194,16 @@ function init() {
 	$ui.register((ctx) => {
 		console.log("Testing Playback");
 
-		const cancel = $playback.registerEventListener("mySubscriber", (event) => {
+		const cancel = ctx.playback.registerEventListener("mySubscriber", (event) => {
 			console.log("Event received", event)
 		})
+
+		ctx.playback.playUsingMediaPlayer("/Users/rahim/Documents/collection/Bocchi the Rock/[ASW] Bocchi the Rock! - 01 [1080p HEVC][EDC91675].mkv")
 
 		ctx.setTimeout(() => {
 			console.log("Cancelling event listener")
 			cancel()
-		}, 1000)
+		}, 15000)
 	});
 
 }
@@ -222,7 +226,7 @@ function init() {
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 
-	time.Sleep(8 * time.Second)
+	time.Sleep(16 * time.Second)
 }
 
 func TestNewGojaPluginUI(t *testing.T) {
@@ -767,7 +771,7 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 		Database:   database,
 	})
 
-	return playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
+	playbackManager := playbackmanager.New(&playbackmanager.NewPlaybackManagerOptions{
 		WSEventManager: wsEventManager,
 		Logger:         logger,
 		Platform:       anilistPlatform,
@@ -778,5 +782,19 @@ func getPlaybackManager(t *testing.T) (*playbackmanager.PlaybackManager, *anilis
 		DiscordPresence:   nil,
 		IsOffline:         false,
 		ContinuityManager: continuityManager,
-	}), animeCollection, nil
+	})
+
+	playbackManager.SetAnimeCollection(animeCollection)
+	playbackManager.SetSettings(&playbackmanager.Settings{
+		AutoPlayNextEpisode: false,
+	})
+
+	playbackManager.SetMediaPlayerRepository(mediaplayer.NewRepository(&mediaplayer.NewRepositoryOptions{
+		Mpv:               mpv.New(logger, "", ""),
+		Logger:            logger,
+		Default:           "mpv",
+		ContinuityManager: continuityManager,
+	}))
+
+	return playbackManager, animeCollection, nil
 }

@@ -27,6 +27,16 @@ declare namespace $ui {
         dom: DOM
 
         /**
+         * Playback
+         */
+        playback: Playback
+
+        /**
+         * MPV
+         */
+        mpv: MPV
+
+        /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
@@ -208,6 +218,183 @@ declare namespace $ui {
 
         /** Updates the badge number of the tray icon. 0 = no badge. Default intent is "info". */
         updateBadge(options: { number: number, intent?: "success" | "error" | "warning" | "info" }): void
+    }
+
+    interface Playback {
+        /**
+         * Plays a file using the media player
+         * @param filePath - The path to the file to play
+         */
+        playUsingMediaPlayer(filePath: string): void
+
+        /**
+         * Streams a file using the media player
+         * @param windowTitle - The title of the window
+         * @param streamUrl - The URL of the stream to play
+         * @param anime - The anime object
+         * @param aniDbEpisode - The AniDB episode number
+         * @throws Error if an error occurs
+         */
+        streamUsingMediaPlayer(windowTitle: string, streamUrl: string, anime: $app.AL_BaseAnime, aniDbEpisode: string): void
+
+        /**
+         * Registers an event listener for the playback instance
+         * @param id - The id of the event listener
+         * @param callback - The callback to call when the event occurs
+         * @returns A function to remove the event listener
+         */
+        registerEventListener(id: string, callback: (event: PlaybackEvent) => void): () => void
+    }
+
+    interface PlaybackEvent {
+        /** Whether the video has started */
+        isVideoStarted: boolean
+        /** Whether the video has stopped */
+        isVideoStopped: boolean
+        /** Whether the video has completed */
+        isVideoCompleted: boolean
+        /** Whether the stream has started */
+        isStreamStarted: boolean
+        /** Whether the stream has stopped */
+        isStreamStopped: boolean
+        /** Whether the stream has completed */
+        isStreamCompleted: boolean
+        /** The event that occurred when the video started */
+        startedEvent: { filename: string }
+        /** The event that occurred when the video stopped */
+        stoppedEvent: { reason: string }
+        /** The event that occurred when the video completed */
+        completedEvent: { filename: string }
+        /** The state of the playback */
+        state: PlaybackState
+        /** The status of the playback */
+        status: PlaybackStatus
+    }
+
+    interface PlaybackState {
+        /** The episode number */
+        episodeNumber: number
+        /** The title of the media */
+        mediaTitle: string
+        /** The cover image of the media */
+        mediaCoverImage: string
+        /** The total number of episodes */
+        mediaTotalEpisodes: number
+        /** The filename */
+        filename: string
+        /** The completion percentage */
+        completionPercentage: number
+        /** Whether the next episode can be played */
+        canPlayNext: boolean
+        /** Whether the progress has been updated */
+        progressUpdated: boolean
+        /** The media ID */
+        mediaId: number
+    }
+
+    interface PlaybackStatus {
+        /** The completion percentage of the playback */
+        completionPercentage: number
+        /** Whether the playback is playing */
+        playing: boolean
+        /** The filename */
+        filename: string
+        /** The path */
+        path: string
+        /** The duration of the playback, in milliseconds */
+        duration: number
+        /** The filepath */
+        filepath: string
+        /** The current time in seconds */
+        currentTimeInSeconds: number
+        /** The duration in seconds */
+        durationInSeconds: number
+    }
+
+    interface MPV {
+        /**
+         * Opens and plays a file
+         * @throws Error if an error occurs
+         */
+        openAndPlay(filePath: string): void
+
+        /**
+         * Stops the playback
+         */
+        stop(): void
+
+        /**
+         * Returns the connection object
+         * @returns The connection object or undefined if the connection is not open
+         */
+        getConnection(): MpvConnection | undefined
+
+        /**
+         * Registers an event listener for the MPV instance
+         *
+         * Some properties are already observed by default with the following IDs:
+         * - 42 = time-pos
+         * - 43 = pause
+         * - 44 = duration
+         * - 45 = filename
+         * - 46 = path
+         *
+         * You can observe other properties by getting the connection object and calling conn.call("observe_property", id, property)
+         *
+         * @param event - The event to listen for
+         * @param callback - The callback to call when the event occurs
+         */
+        onEvent(callback: (event: MpvEvent) => void): void
+    }
+
+    interface MpvConnection {
+        /**
+         * Calls a command on the MPV instance
+         * @param command - The command to call
+         * @param args - The arguments to pass to the command
+         */
+        call(...args: any[]): void
+
+        /**
+         * Sets a property on the MPV instance
+         * @param property - The property to set
+         * @param value - The value to set the property to
+         */
+        set(property: string, value: any): void
+
+        /**
+         * Gets a property from the MPV instance
+         * @param property - The property to get
+         * @returns The value of the property
+         */
+        get(property: string): any
+
+        /**
+         * Closes the connection to the MPV instance
+         */
+        close(): void
+
+        /**
+         * Whether the connection is closed
+         */
+        isClosed(): boolean
+    }
+
+    interface MpvEvent {
+        /** The name of the event */
+        event: string
+        /** The data associated with the event */
+        data: any
+        /** The reason for the event */
+        reason: string
+        /** The prefix for the event */
+        prefix: string
+        /** The level of the event */
+        level: string
+        /** The text of the event */
+        text: string
+        /** The ID of the event */
+        id: number
     }
 
     interface Action {

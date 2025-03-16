@@ -6,6 +6,7 @@ import (
 	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
+	"seanime/internal/mediaplayers/mpv"
 	"seanime/internal/mediaplayers/mpvipc"
 	goja_util "seanime/internal/util/goja"
 
@@ -21,35 +22,9 @@ type Playback struct {
 	scheduler *goja_util.Scheduler
 }
 
-// BindPlayback
-//
-// $playback interacts with Seanime's own playback and tracking system.
-// It is used to play local files and stream media.
-//
-//	$playback.playUsingMediaPlayer(path) // Starts playback and tracking of a local file.
-//	$playback.registerEventListener(id, callback) // Registers a callback for playback events.
-//
-// $mpv is used to interact with the MPV media player outside of Seanime's tracking system.
-func (a *AppContextImpl) BindPlayback(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
-	p := &Playback{
-		ctx:       a,
-		vm:        vm,
-		logger:    logger,
-		ext:       ext,
-		scheduler: scheduler,
-	}
-
-	playbackObj := vm.NewObject()
-	_ = playbackObj.Set("playUsingMediaPlayer", p.playUsingMediaPlayer)
-	_ = playbackObj.Set("streamUsingMediaPlayer", p.streamUsingMediaPlayer)
-	_ = playbackObj.Set("registerEventListener", p.registerEventListener)
-	vm.Set("$playback", playbackObj)
-
-	// MPV
-	mpvObj := vm.NewObject()
-	_ = mpvObj.Set("newConnection", p.mpvNewConnection)
-	_ = mpvObj.Set("registerEventListener", p.mpvRegisterEventListener)
-	_ = vm.Set("$mpv", mpvObj)
+type PlaybackMPV struct {
+	mpv      *mpv.Mpv
+	playback *Playback
 }
 
 func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
@@ -69,8 +44,15 @@ func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Ob
 
 	// MPV
 	mpvObj := vm.NewObject()
-	_ = mpvObj.Set("newConnection", p.mpvNewConnection)
-	_ = mpvObj.Set("registerEventListener", p.mpvRegisterEventListener)
+	mpv := mpv.New(logger, "", "")
+	playbackMPV := &PlaybackMPV{
+		mpv:      mpv,
+		playback: p,
+	}
+	_ = mpvObj.Set("openAndPlay", playbackMPV.openAndPlay)
+	_ = mpvObj.Set("onEvent", playbackMPV.onEvent)
+	_ = mpvObj.Set("getConnection", playbackMPV.getConnection)
+	_ = mpvObj.Set("stop", playbackMPV.stop)
 	_ = obj.Set("mpv", mpvObj)
 }
 
@@ -85,7 +67,7 @@ type PlaybackEvent struct {
 		Filename string `json:"filename"`
 	} `json:"startedEvent"`
 	StoppedEvent *struct {
-		Filename string `json:"filename"`
+		Reason string `json:"reason"`
 	} `json:"stoppedEvent"`
 	CompletedEvent *struct {
 		Filename string `json:"filename"`
@@ -126,53 +108,44 @@ func (p *Playback) streamUsingMediaPlayer(windowTitle string, payload string, me
 //
 //	Example:
 //	const conn = $mpv.newConnection("/tmp/mpv-socket")
-func (p *Playback) mpvNewConnection(socketName string) (*mpvipc.Connection, error) {
-	conn := mpvipc.NewConnection(socketName)
-	return conn, nil
+func (p *PlaybackMPV) openAndPlay(filePath string) error {
+	return p.mpv.OpenAndPlay(filePath)
 }
 
-// mpvRegisterEventListener registers an event listener for the MPV connection.
-//
-//	Example:
-//	const conn = $mpv.newConnection("/tmp/mpv-socket")
-//	const cancel = $mpv.registerEventListener(conn, (event) => {
-//		console.log(event)
-//	})
-//	ctx.setTimeout(() => {
-//		cancel()
-//		m.conn.close()
-//	}, 1000)
-func (p *Playback) mpvRegisterEventListener(conn *mpvipc.Connection, callback func(event *mpvipc.Event)) (func(), error) {
-	if conn == nil || conn.IsClosed() {
-		return nil, errors.New("mpv is not running")
-	}
-	events, stopListening := conn.NewEventListener()
-
-	// rateLimit := 200 * time.Millisecond
-	// lastEvent := time.Now()
+func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (func(), error) {
+	id := p.playback.ext.ID + "_mpv"
+	sub := p.mpv.Subscribe(id)
 
 	go func() {
-		for event := range events {
-			// if time.Since(lastEvent) < rateLimit {
-			// 	continue
-			// }
-			// lastEvent = time.Now()
-			p.scheduler.ScheduleAsync(func() error {
-				callback(event)
-				return nil
-			})
+		for event := range sub.Events() {
+			callback(event, false)
 		}
 	}()
 
-	cancel := func() {
-		select {
-		case stopListening <- struct{}{}:
-		default:
-			return
+	go func() {
+		for range sub.Closed() {
+			callback(nil, true)
 		}
+	}()
+
+	cancelFn := func() {
+		p.mpv.Unsubscribe(id)
 	}
 
-	return cancel, nil
+	return cancelFn, nil
+}
+
+func (p *PlaybackMPV) stop() error {
+	p.mpv.CloseAll()
+	return nil
+}
+
+func (p *PlaybackMPV) getConnection() goja.Value {
+	conn, err := p.mpv.GetOpenConnection()
+	if err != nil {
+		return goja.Undefined()
+	}
+	return p.playback.vm.ToValue(conn)
 }
 
 // registerEventListener registers a subscriber for playback events.
@@ -213,9 +186,9 @@ func (p *Playback) registerEventListener(id string, callback func(event *Playbac
 				callback(&PlaybackEvent{
 					IsVideoStopped: true,
 					StoppedEvent: &struct {
-						Filename string `json:"filename"`
+						Reason string `json:"reason"`
 					}{
-						Filename: ret,
+						Reason: ret,
 					},
 				})
 				return nil
@@ -261,9 +234,9 @@ func (p *Playback) registerEventListener(id string, callback func(event *Playbac
 				callback(&PlaybackEvent{
 					IsStreamStopped: true,
 					StoppedEvent: &struct {
-						Filename string `json:"filename"`
+						Reason string `json:"reason"`
 					}{
-						Filename: ret,
+						Reason: ret,
 					},
 				})
 				return nil
