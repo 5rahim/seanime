@@ -35,7 +35,7 @@ function init() {
             // Get the stored background image URL for this anime
             const url = $storage.get<string>("backgroundImages." + currentMediaId.get())
             if (url) {
-                // If there's an URL, set the value of the input 
+                // If there's a URL, set the value of the input
                 inputRef.setValue(url)
                 // Add a badge
                 tray.updateBadge({ number: 1, intent: "info" })
@@ -79,7 +79,7 @@ function init() {
             // This is better than calling ctx.screen.reload()
             $anilist.refreshAnimeCollection()
         });
-        
+
         // Tray content
         tray.render(() => {
             return tray.stack([
@@ -132,7 +132,7 @@ function init() {
             e.next()
             return
         }
-        
+
         for (let i = 0; i < e.animeCollection!.mediaListCollection!.lists!.length; i++) {
             for (let j = 0; j < e.animeCollection!.mediaListCollection!.lists![i]!.entries!.length; j++) {
                 const mediaId = e.animeCollection!.mediaListCollection!.lists![i]!.entries![j]!.media!.id

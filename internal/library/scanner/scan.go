@@ -195,29 +195,7 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 			Msg("===========================================================================================================")
 	}
 
-	// DEVNOTE: Removed because it causes some issues with symlinks
-	// Remove local files from both skipped and un-skipped files if they are not under any of the directories
-	// allLibraries := []string{scn.DirPath}
-	// allLibraries = append(allLibraries, scn.OtherDirPaths...)
-	// localFiles = lo.Filter(localFiles, func(lf *anime.LocalFile, _ int) bool {
-	// 	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
-	// 		return false
-	// 	}
-	// 	return true
-	// })
-
-	//skippedLfs = lo.Filter(skippedLfs, func(lf *anime.LocalFile, _ int) bool {
-	//	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
-	//		return false
-	//	}
-	//	return true
-	//})
-	// DEVNOTE: Removed because it causes some issues with symlinks
-	// for _, lf := range skippedLfs {
-	// 	if !util.IsSubdirectoryOfAny(allLibraries, lf.Path) {
-	// 		delete(skippedLfs, lf.GetNormalizedPath())
-	// 	}
-	// }
+	// DEVNOTE: Removed library path checking because it causes some issues with symlinks
 
 	// +---------------------+
 	// |  No files to scan   |
