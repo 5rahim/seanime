@@ -64,4 +64,5 @@ const (
 	DebridStreamState = "debrid-stream-state"
 
 	InvalidateQueries = "invalidate-queries"
+	ConsoleLog        = "console-log"
 )

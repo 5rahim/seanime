@@ -2,7 +2,7 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { WSEvents } from "@/lib/server/ws-events"
 import { toast } from "sonner"
 
-export function useToastEventListeners() {
+export function useMiscEventListeners() {
 
     useWebsocketMessageListener<string>({
         type: WSEvents.INFO_TOAST, onMessage: data => {
@@ -33,6 +33,12 @@ export function useToastEventListeners() {
             if (!!data) {
                 toast.error(data)
             }
+        },
+    })
+
+    useWebsocketMessageListener<string>({
+        type: WSEvents.CONSOLE_LOG, onMessage: data => {
+            console.log(data)
         },
     })
 

@@ -28,24 +28,24 @@ const (
 )
 
 type downloadProgress struct {
-	ID             string         `json:"id"`
-	URL            string         `json:"url"`
-	Destination    string         `json:"destination"`
-	TotalBytes     int64          `json:"totalBytes"`
-	TotalSize      int64          `json:"totalSize"`
-	Speed          int64          `json:"speed"`
-	Percentage     float64        `json:"percentage"`
-	Status         DownloadStatus `json:"status"`
-	Error          string         `json:"error,omitempty"`
-	LastUpdateTime time.Time      `json:"lastUpdate"`
-	StartTime      time.Time      `json:"startTime"`
+	ID             string    `json:"id"`
+	URL            string    `json:"url"`
+	Destination    string    `json:"destination"`
+	TotalBytes     int64     `json:"totalBytes"`
+	TotalSize      int64     `json:"totalSize"`
+	Speed          int64     `json:"speed"`
+	Percentage     float64   `json:"percentage"`
+	Status         string    `json:"status"`
+	Error          string    `json:"error,omitempty"`
+	LastUpdateTime time.Time `json:"lastUpdate"`
+	StartTime      time.Time `json:"startTime"`
 
 	lastBytes int64
 }
 
 // IsFinished returns true if the download has completed, errored, or been cancelled
 func (p *downloadProgress) IsFinished() bool {
-	return p.Status == DownloadStatusCompleted || p.Status == DownloadStatusCancelled || p.Status == DownloadStatusError
+	return p.Status == string(DownloadStatusCompleted) || p.Status == string(DownloadStatusCancelled) || p.Status == string(DownloadStatusError)
 }
 
 type progressSubscriber struct {
@@ -124,10 +124,19 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 			for {
 				select {
 				case <-ctx.Done():
+					// If download is complete/cancelled/errored, send one last update and stop
+					if progress, ok := progressMap.Load(downloadID); ok {
+						p := progress.(*downloadProgress)
+						scheduler.ScheduleAsync(func() error {
+							p.Speed = 0
+							callback(goja.Undefined(), vm.ToValue(p))
+							return nil
+						})
+					}
 					return
 				case <-ticker.C:
 					if progress, ok := progressMap.Load(downloadID); ok {
-						p := progress.(downloadProgress)
+						p := progress.(*downloadProgress)
 						scheduler.ScheduleAsync(func() error {
 							callback(goja.Undefined(), vm.ToValue(p))
 							return nil
@@ -169,48 +178,8 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 			ctx, cancel = context.WithCancel(context.Background())
 		}
 		downloadCancels.Store(downloadID, cancel)
-		defer downloadCancels.Delete(downloadID)
 
 		logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Starting download")
-
-		// Create request
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-		if err != nil {
-			return "", err
-		}
-
-		// Add headers if provided
-		if headers, ok := options["headers"].(map[string]interface{}); ok {
-			for k, v := range headers {
-				if strVal, ok := v.(string); ok {
-					req.Header.Set(k, strVal)
-				}
-			}
-		}
-
-		// Execute request
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			return "", err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode < 200 || resp.StatusCode > 299 {
-			return "", fmt.Errorf("server returned status code %d", resp.StatusCode)
-		}
-
-		// Create destination directory if it doesn't exist
-		if err := os.MkdirAll(filepath.Dir(destination), 0755); err != nil {
-			return "", err
-		}
-
-		// Create destination file
-		file, err := os.Create(destination)
-		if err != nil {
-			return "", err
-		}
-		defer file.Close()
 
 		// Initialize progress tracking
 		now := time.Now()
@@ -218,18 +187,15 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 			ID:             downloadID,
 			URL:            url,
 			Destination:    destination,
-			Status:         DownloadStatusDownloading,
+			Status:         string(DownloadStatusDownloading),
 			LastUpdateTime: now,
 			StartTime:      now,
-			TotalSize:      resp.ContentLength,
 		}
 		progressMap.Store(downloadID, progress)
 
-		// Create buffer for copying
-		buffer := make([]byte, 32*1024)
-		lastUpdateTime := now
-
+		// Start download in a goroutine
 		go func() {
+			defer downloadCancels.Delete(downloadID)
 			defer func() {
 				// Clean up subscriber if it exists
 				if subscriber, ok := progressSubscribers.Load(downloadID); ok {
@@ -237,51 +203,112 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 				}
 			}()
 
-			defer progressMap.Delete(downloadID)
+			// Create request
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+			if err != nil {
+				progress.Status = string(DownloadStatusError)
+				progress.Error = err.Error()
+				return
+			}
+
+			// Add headers if provided
+			if headers, ok := options["headers"].(map[string]interface{}); ok {
+				for k, v := range headers {
+					if strVal, ok := v.(string); ok {
+						req.Header.Set(k, strVal)
+					}
+				}
+			}
+
+			// Execute request
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				progress.Status = string(DownloadStatusError)
+				progress.Error = err.Error()
+				return
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode < 200 || resp.StatusCode > 299 {
+				progress.Status = string(DownloadStatusError)
+				progress.Error = fmt.Sprintf("server returned status code %d", resp.StatusCode)
+				return
+			}
+
+			// Update progress with content length
+			progress.TotalSize = resp.ContentLength
+
+			// Create destination directory if it doesn't exist
+			if err := os.MkdirAll(filepath.Dir(destination), 0755); err != nil {
+				progress.Status = string(DownloadStatusError)
+				progress.Error = err.Error()
+				return
+			}
+
+			// Create destination file
+			file, err := os.Create(destination)
+			if err != nil {
+				progress.Status = string(DownloadStatusError)
+				progress.Error = err.Error()
+				return
+			}
+			defer file.Close()
+
+			// Create buffer for copying
+			buffer := make([]byte, 32*1024)
+			lastUpdateTime := now
 
 			logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Download started")
 
 			for {
-				n, err := resp.Body.Read(buffer)
-				if n > 0 {
-					_, writeErr := file.Write(buffer[:n])
-					if writeErr != nil {
-						progress.Status = DownloadStatusError
-						progress.Error = writeErr.Error()
-						return
-					}
-
-					progress.TotalBytes += int64(n)
-					if progress.TotalSize > 0 {
-						progress.Percentage = float64(progress.TotalBytes) / float64(progress.TotalSize) * 100
-					}
-
-					// Update speed every 500ms
-					if time.Since(lastUpdateTime) > 500*time.Millisecond {
-						elapsed := time.Since(lastUpdateTime).Seconds()
-						bytesInPeriod := progress.TotalBytes - progress.lastBytes
-						progress.Speed = int64(float64(bytesInPeriod) / elapsed)
-						progress.lastBytes = progress.TotalBytes
-						progress.LastUpdateTime = time.Now()
-						lastUpdateTime = time.Now()
-					}
-				}
-
-				if err != nil {
-					if err == io.EOF {
-						progress.Status = DownloadStatusCompleted
-						logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Download completed")
-						return
-					}
-					if errors.Is(err, context.Canceled) {
-						progress.Status = DownloadStatusCancelled
-						logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Download cancelled")
-						return
-					}
-					progress.Status = DownloadStatusError
-					progress.Error = err.Error()
-					logger.Error().Str("url", url).Str("destination", destination).Msg("plugin: Download error")
+				select {
+				case <-ctx.Done():
+					progress.Status = string(DownloadStatusCancelled)
+					logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Download cancelled")
 					return
+				default:
+					n, err := resp.Body.Read(buffer)
+					if n > 0 {
+						_, writeErr := file.Write(buffer[:n])
+						if writeErr != nil {
+							progress.Status = string(DownloadStatusError)
+							progress.Error = writeErr.Error()
+							return
+						}
+
+						progress.TotalBytes += int64(n)
+						if progress.TotalSize > 0 {
+							progress.Percentage = float64(progress.TotalBytes) / float64(progress.TotalSize) * 100
+						}
+
+						// Update speed every 500ms
+						if time.Since(lastUpdateTime) > 500*time.Millisecond {
+							elapsed := time.Since(lastUpdateTime).Seconds()
+							bytesInPeriod := progress.TotalBytes - progress.lastBytes
+							progress.Speed = int64(float64(bytesInPeriod) / elapsed)
+							progress.lastBytes = progress.TotalBytes
+							progress.LastUpdateTime = time.Now()
+							lastUpdateTime = time.Now()
+						}
+					}
+
+					if err != nil {
+						if err == io.EOF {
+							progress.Status = string(DownloadStatusCompleted)
+							logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Download completed")
+							return
+						}
+						if errors.Is(err, context.Canceled) {
+							progress.Status = string(DownloadStatusCancelled)
+							logger.Trace().Str("url", url).Str("destination", destination).Msg("plugin: Download cancelled")
+							return
+						}
+						progress.Status = string(DownloadStatusError)
+						progress.Error = err.Error()
+						logger.Error().Err(err).Str("url", url).Str("destination", destination).Msg("plugin: Download error")
+						return
+					}
 				}
 			}
 		}()

@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"seanime/internal/events"
 	"seanime/internal/extension"
+	goja_bindings "seanime/internal/goja/goja_bindings"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
 	"seanime/internal/plugin"
@@ -58,6 +59,7 @@ type GojaPlugin struct {
 	loader          *goja.Runtime
 	unbindHookFuncs []func()
 	interrupted     bool
+	wsEventManager  events.WSEventManagerInterface
 }
 
 func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
@@ -125,6 +127,7 @@ func NewGojaPlugin(
 		ui:              nil,                               // To be initialized
 		loader:          goja.New(),                        // To be initialized
 		unbindHookFuncs: []func(){},
+		wsEventManager:  wsEventManager,
 	}
 
 	// 2. Create a new loader for the plugin
@@ -197,11 +200,9 @@ func NewGojaPlugin(
 	// 8. Get and call the init function to actually run the plugin
 	if initFunc := p.loader.Get("init"); initFunc != nil && initFunc != goja.Undefined() {
 		_, err = p.loader.RunString("init();")
-		// DEVNOTE: Code errors in callbacks functions are not caught here, so the plugin will still be "initialized" even though it might be interrupted almost instantly
-		// e.g. Type errors in the UI callback will not fail the init function
 		if err != nil {
-			logger.Error().Err(err).Msg("extensions: Failed to run init")
-			return nil, nil, fmt.Errorf("failed to run init: %w", err)
+			logger.Error().Err(err).Msg("extensions: Failed to run plugin")
+			return nil, nil, fmt.Errorf("failed to run plugin: %w", err)
 		}
 		logger.Debug().Msg("extensions: Plugin initialized")
 	}
@@ -225,6 +226,8 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 	goja_util.BindMutable(vm)
 	// Bind await bindings
 	goja_util.BindAwait(vm)
+	// Bind console bindings
+	goja_bindings.BindConsoleWithWS(p.ext, vm, logger, p.wsEventManager)
 
 	// Bind the app context
 	plugin.GlobalAppContext.BindApp(vm, logger, p.ext)

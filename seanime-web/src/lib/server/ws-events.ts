@@ -36,6 +36,7 @@ export const enum WSEvents {
     DEBRID_STREAM_STATE = "debrid-stream-state",
     CHECK_FOR_UPDATES = "check-for-updates",
     INVALIDATE_QUERIES = "invalidate-queries",
+    CONSOLE_LOG = "console-log",
 }
 
 export const enum WebviewEvents {

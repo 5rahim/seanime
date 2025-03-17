@@ -92,7 +92,7 @@ func UnzipFile(src, dest string) error {
 	defer r.Close()
 
 	// Create a temporary folder to extract the files
-	extractedDir, err := os.MkdirTemp(dest, ".extracted-")
+	extractedDir, err := os.MkdirTemp(filepath.Dir(dest), ".extracted-")
 	if err != nil {
 		return fmt.Errorf("failed to create temp folder: %w", err)
 	}
@@ -134,10 +134,28 @@ func UnzipFile(src, dest string) error {
 		}
 	}
 
-	// Move the extracted files to the destination
-	err = os.Rename(extractedDir, dest)
+	// Ensure the destination directory exists
+	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create destination directory: %w", err)
+	}
+
+	// Move the contents of the extracted directory to the destination
+	entries, err := os.ReadDir(extractedDir)
 	if err != nil {
-		return fmt.Errorf("failed to move extracted files: %w", err)
+		return fmt.Errorf("failed to read extracted directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(extractedDir, entry.Name())
+		destPath := filepath.Join(dest, entry.Name())
+
+		// Remove existing file/directory at destination if it exists
+		_ = os.RemoveAll(destPath)
+
+		// Move the file/directory to the destination
+		if err := os.Rename(srcPath, destPath); err != nil {
+			return fmt.Errorf("failed to move extracted item %s: %w", entry.Name(), err)
+		}
 	}
 
 	return nil
@@ -152,7 +170,7 @@ func UnrarFile(src, dest string) error {
 	defer r.Close()
 
 	// Create a temporary folder to extract the files
-	extractedDir, err := os.MkdirTemp(dest, "extracted-")
+	extractedDir, err := os.MkdirTemp(filepath.Dir(dest), ".extracted-")
 	if err != nil {
 		return fmt.Errorf("failed to create temp folder: %w", err)
 	}
@@ -196,10 +214,28 @@ func UnrarFile(src, dest string) error {
 		}
 	}
 
-	// Move the extracted files to the destination
-	err = os.Rename(extractedDir, dest)
+	// Ensure the destination directory exists
+	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create destination directory: %w", err)
+	}
+
+	// Move the contents of the extracted directory to the destination
+	entries, err := os.ReadDir(extractedDir)
 	if err != nil {
-		return fmt.Errorf("failed to move extracted files: %w", err)
+		return fmt.Errorf("failed to read extracted directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		srcPath := filepath.Join(extractedDir, entry.Name())
+		destPath := filepath.Join(dest, entry.Name())
+
+		// Remove existing file/directory at destination if it exists
+		_ = os.RemoveAll(destPath)
+
+		// Move the file/directory to the destination
+		if err := os.Rename(srcPath, destPath); err != nil {
+			return fmt.Errorf("failed to move extracted item %s: %w", entry.Name(), err)
+		}
 	}
 
 	return nil

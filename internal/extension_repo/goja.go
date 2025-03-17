@@ -86,6 +86,36 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		}
 	})
 
+	vm.Set("$toBytes", func(raw any) ([]byte, error) {
+		switch v := raw.(type) {
+		case io.Reader:
+			bodyBytes, readErr := io.ReadAll(v)
+			if readErr != nil {
+				return nil, readErr
+			}
+
+			return bodyBytes, nil
+		case string:
+			return []byte(v), nil
+		case []byte:
+			return v, nil
+		case []rune:
+			return []byte(string(v)), nil
+		default:
+			// as a last attempt try to json encode the value
+			rawBytes, _ := json.Marshal(raw)
+			return rawBytes, nil
+		}
+	})
+
+	vm.Set("$toError", func(raw any) error {
+		if err, ok := raw.(error); ok {
+			return err
+		}
+
+		return fmt.Errorf("%v", raw)
+	})
+
 	vm.Set("$sleep", func(milliseconds int64) {
 		time.Sleep(time.Duration(milliseconds) * time.Millisecond)
 	})

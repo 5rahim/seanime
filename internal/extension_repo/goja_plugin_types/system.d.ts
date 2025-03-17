@@ -522,12 +522,7 @@ declare namespace $downloader {
     /**
      * Download status constants
      */
-    enum DownloadStatus {
-        DOWNLOADING = "downloading",
-        COMPLETED = "completed",
-        CANCELLED = "cancelled",
-        ERROR = "error"
-    }
+    type DownloadStatus = "downloading" | "completed" | "cancelled" | "error"
 
     /**
      * Download progress information
@@ -583,7 +578,7 @@ declare namespace $downloader {
      * @param callback Function to call with progress updates
      * @returns A function to cancel the watch
      */
-    function watch(downloadId: string, callback: (progress: DownloadProgress) => void): () => void;
+    function watch(downloadId: string, callback: (progress: DownloadProgress | undefined) => void): () => void;
 
     /**
      * Gets the current progress of a download.

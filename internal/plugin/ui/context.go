@@ -235,8 +235,8 @@ func (c *Context) GetContextObj() (*goja.Object, bool) {
 // Interrupting early is better to catch wrong usage of the API.
 func (c *Context) handleTypeError(msg string) {
 	c.logger.Error().Err(fmt.Errorf(msg)).Msg("plugin: Type error")
-	c.fatalError(fmt.Errorf(msg))
-	// panic(c.vm.NewTypeError(msg))
+	// c.fatalError(fmt.Errorf(msg))
+	panic(c.vm.NewTypeError(msg))
 }
 
 // handleException interrupts the UI after a certain number of exceptions have occurred.
@@ -247,24 +247,17 @@ func (c *Context) handleException(err error) {
 
 	c.exceptionCount++
 	if c.exceptionCount >= MaxExceptions {
-		c.logger.Error().Err(err).Msg("plugin: Too many exceptions, interrupting UI")
-		c.fatalError(err)
+		newErr := fmt.Errorf("plugin(%s): Encountered too many exceptions, last error: %w", c.ext.ID, err)
+		c.logger.Error().Err(newErr).Msg("plugin: Encountered too many exceptions, interrupting UI")
+		c.fatalError(newErr)
 	}
 }
 
 func (c *Context) fatalError(err error) {
-	c.logger.Error().Err(err).Msg("plugin: Fatal error, interrupting UI")
-	if err != nil {
-		c.SendEventToClient(ServerFatalErrorEvent, ServerFatalErrorEventPayload{
-			Error: err.Error(),
-		})
-	} else {
-		c.SendEventToClient(ServerFatalErrorEvent, ServerFatalErrorEventPayload{
-			Error: fmt.Sprintf("plugin: %s (%s) has encountered a fatal error and has been terminated.", c.ext.Name, c.ext.ID),
-		})
-	}
+	c.logger.Error().Err(err).Msg("plugin: Encountered fatal error, interrupting UI")
 
-	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin: %s (%s) encountered a fatal error and has been terminated.", c.ext.Name, c.ext.ID))
+	c.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
+	c.wsEventManager.SendEvent(events.ConsoleLog, fmt.Sprintf("plugin(%s): Fatal error: %s", c.ext.ID, err.Error()))
 
 	// Unload the UI and signal the Plugin that it's been terminated
 	c.ui.Unload(true)

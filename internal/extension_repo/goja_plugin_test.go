@@ -26,6 +26,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	testDocumentsDir          = "/Users/rahim/Documents"
+	testDocumentCollectionDir = "/Users/rahim/Documents/collection"
+	testVideoPath             = "/Users/rahim/Documents/collection/Bocchi the Rock/[ASW] Bocchi the Rock! - 01 [1080p HEVC][EDC91675].mkv"
+
+	tempTestDir = "$TEMP/test"
+)
+
 // TestPluginOptions contains options for initializing a test plugin
 type TestPluginOptions struct {
 	ID              string
@@ -50,7 +58,7 @@ func DefaultTestPluginOptions() TestPluginOptions {
 }
 
 // InitTestPlugin initializes a test plugin with the given options
-func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog.Logger, *goja_runtime.Manager, *anilist_platform.AnilistPlatform, events.WSEventManagerInterface) {
+func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog.Logger, *goja_runtime.Manager, *anilist_platform.AnilistPlatform, events.WSEventManagerInterface, error) {
 	if opts.SetupHooks {
 		test_utils.SetTwoLevelDeep()
 		if tPtr, ok := t.(*testing.T); ok {
@@ -88,28 +96,31 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 	manager := goja_runtime.NewManager(logger, int32(opts.PoolSize))
 
 	plugin, _, err := NewGojaPlugin(ext, opts.Language, logger, manager, wsEventManager)
-	if err != nil {
-		t.Fatalf("NewGojaPlugin returned error: %v", err)
-	}
-
-	return plugin, logger, manager, anilistPlatform, wsEventManager
+	return plugin, logger, manager, anilistPlatform, wsEventManager, err
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 func TestGojaPluginMpv(t *testing.T) {
-	payload := `
+	payload := fmt.Sprintf(`
 function init() {
 
 	$ui.register((ctx) => {
 
 		console.log("Testing MPV");
 
-		ctx.mpv.openAndPlay("/Users/rahim/Documents/collection/Bocchi the Rock/[ASW] Bocchi the Rock! - 01 [1080p HEVC][EDC91675].mkv")
+		ctx.mpv.openAndPlay("%s")
 
 		const cancel = ctx.mpv.onEvent((event) => {
 			console.log("Event received", event)
 		})
+
+		ctx.setTimeout(() => {
+			const conn = ctx.mpv.getConnection()
+			if (conn) {
+				conn.call("set_property", "pause", true)
+			}
+		}, 3000)
 
 		ctx.setTimeout(() => {
 			console.log("Cancelling event listener")
@@ -119,7 +130,7 @@ function init() {
 	});
 
 }
-	`
+	`, testVideoPath)
 
 	playbackManager, _, err := getPlaybackManager(t)
 	require.NoError(t, err)
@@ -134,7 +145,8 @@ function init() {
 		extension.PluginPermissionPlayback,
 	}
 
-	_, _, manager, _, _ := InitTestPlugin(t, opts)
+	_, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 
@@ -143,30 +155,21 @@ function init() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-func TestGojaPluginFiles(t *testing.T) {
-	payload := `
+// Test that the plugin cannot access paths that are not allowed
+// $os.readDir should throw an error
+func TestGojaPluginPathNotAllowed(t *testing.T) {
+	payload := fmt.Sprintf(`
 function init() {
-
 	$ui.register((ctx) => {
 
 		const tempDir = $os.tempDir();
 		console.log("Temp dir", tempDir);
 
-		const downloadDirPath = "/Users/rahim/Downloads";
-		const entries = $os.readDir(downloadDirPath);
-		for (const entry of entries) {
-			console.log("Entry", entry.name());
-		}
-
-		const filePath = "/Users/rahim/Downloads/sms-bistro-blaster-main/components.json"
-		const content = $os.readFile(filePath);
-		console.log("File", $toString(content));
-		
-
+		const dirPath = "%s";
+		const entries = $os.readDir(dirPath);
 	});
-
 }
-	`
+	`, testDocumentCollectionDir)
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
@@ -174,21 +177,22 @@ function init() {
 		extension.PluginPermissionSystem,
 	}
 	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{"$TEMP/*", "/Users/rahim/Downloads/*"},
+		AllowReadPaths:  []string{"$TEMP/*", testDocumentsDir},
 		AllowWritePaths: []string{"$TEMP/*"},
 	}
 
-	_, _, manager, _, _ := InitTestPlugin(t, opts)
+	_, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.Error(t, err)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 
-	time.Sleep(8 * time.Second)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+// Test that the plugin can play a video and listen to events
 func TestGojaPluginPlaybackEvents(t *testing.T) {
-	payload := `
+	payload := fmt.Sprintf(`
 function init() {
 
 	$ui.register((ctx) => {
@@ -198,7 +202,7 @@ function init() {
 			console.log("Event received", event)
 		})
 
-		ctx.playback.playUsingMediaPlayer("/Users/rahim/Documents/collection/Bocchi the Rock/[ASW] Bocchi the Rock! - 01 [1080p HEVC][EDC91675].mkv")
+		ctx.playback.playUsingMediaPlayer("%s")
 
 		ctx.setTimeout(() => {
 			console.log("Cancelling event listener")
@@ -207,7 +211,7 @@ function init() {
 	});
 
 }
-	`
+	`, testVideoPath)
 
 	playbackManager, _, err := getPlaybackManager(t)
 	require.NoError(t, err)
@@ -222,14 +226,18 @@ function init() {
 		extension.PluginPermissionPlayback,
 	}
 
-	_, _, manager, _, _ := InitTestPlugin(t, opts)
+	_, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 
 	time.Sleep(16 * time.Second)
 }
 
-func TestNewGojaPluginUI(t *testing.T) {
+// Tests that we can register hooks and the UI handler.
+// Tests that the state updates correctly and effects run as expected.
+// Tests that we can fetch data from an external source.
+func TestGojaPluginUIAndHooks(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -298,7 +306,8 @@ func TestNewGojaPluginUI(t *testing.T) {
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
 
-	_, _, manager, anilistPlatform, _ := InitTestPlugin(t, opts)
+	_, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
 
 	go func() {
 		time.Sleep(time.Second)
@@ -318,7 +327,7 @@ func TestNewGojaPluginUI(t *testing.T) {
 	time.Sleep(8 * time.Second)
 }
 
-func TestNewGojaPluginContext(t *testing.T) {
+func TestGojaPluginStore(t *testing.T) {
 	payload := `
 	function init() {
 
@@ -344,7 +353,8 @@ func TestNewGojaPluginContext(t *testing.T) {
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
 
-	_, _, manager, anilistPlatform, _ := InitTestPlugin(t, opts)
+	_, _, manager, anilistPlatform, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
 
 	m, err := anilistPlatform.GetAnime(178022)
 	if err != nil {
@@ -362,387 +372,6 @@ func TestNewGojaPluginContext(t *testing.T) {
 	util.Spew(m.Title)
 
 	manager.PrintPluginPoolMetrics(opts.ID)
-}
-
-func TestNewGojaPlugin(t *testing.T) {
-	payload := `
-	function init() {
-
-		$app.onGetAnime((e) => {
-
-			if(e.anime.id === 178022) {
-				e.anime.id = 21;
-				e.anime.idMal = 21;
-				$replace(e.anime.id, 22)
-				$replace(e.anime.title, { "english": "The One Piece is Real" })
-				// e.anime.title = { "english": "The One Piece is Real" }
-				// $replace(e.anime.synonyms, ["The One Piece is Real"])
-				e.anime.synonyms = ["The One Piece is Real"]
-				// e.anime.synonyms[0] = "The One Piece is Real"
-				// $replace(e.anime.synonyms[0], "The One Piece is Real")
-			}
-
-			e.next();
-		});
-
-		$app.onGetAnime((e) => {
-			console.log("$app.onGetAnime(2) fired")
-			console.log(e.anime.id)
-			console.log(e.anime.idMal)
-			console.log(e.anime.synonyms[0])
-			console.log(e.anime.title)
-		});
-	}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.Payload = payload
-
-	_, _, manager, anilistPlatform, _ := InitTestPlugin(t, opts)
-
-	m, err := anilistPlatform.GetAnime(178022)
-	if err != nil {
-		t.Fatalf("GetAnime returned error: %v", err)
-	}
-
-	util.Spew(m.Title)
-	util.Spew(m.Synonyms)
-
-	// m, err = anilistPlatform.GetAnime(177709)
-	// if err != nil {
-	// 	t.Fatalf("GetAnime returned error: %v", err)
-	// }
-
-	// util.Spew(m.Title)
-
-	manager.PrintPluginPoolMetrics(opts.ID)
-}
-
-func BenchmarkAllHooks(b *testing.B) {
-	b.Run("BaselineNoHook", BenchmarkBaselineNoHook)
-	b.Run("HookInvocation", BenchmarkHookInvocation)
-	b.Run("HookInvocationParallel", BenchmarkHookInvocationParallel)
-	b.Run("HookInvocationWithWork", BenchmarkHookInvocationWithWork)
-	b.Run("HookInvocationWithWorkParallel", BenchmarkHookInvocationWithWorkParallel)
-	b.Run("NoHookInvocation", BenchmarkNoHookInvocation)
-	b.Run("NoHookInvocationParallel", BenchmarkNoHookInvocationParallel)
-	b.Run("NoHookInvocationWithWork", BenchmarkNoHookInvocationWithWork)
-}
-
-func BenchmarkHookInvocation(b *testing.B) {
-	b.ReportAllocs()
-
-	// Dummy extension payload that registers a hook
-	payload := `
-		function init() {
-			$app.onGetAnime(function(e) {
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	// Create a dummy anime event that we'll reuse
-	title := "Test Anime"
-	dummyEvent := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
-			b.Fatal(err)
-		}
-	}
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
-}
-
-func BenchmarkNoHookInvocation(b *testing.B) {
-	b.ReportAllocs()
-
-	// Dummy extension payload that registers a hook
-	payload := `
-		function init() {
-			$app.onMissingEpisodes(function(e) {
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	// Create a dummy anime event that we'll reuse
-	title := "Test Anime"
-	dummyEvent := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
-			b.Fatal(err)
-		}
-	}
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
-}
-
-// Add a parallel version to see how it performs under concurrent load
-func BenchmarkHookInvocationParallel(b *testing.B) {
-	b.ReportAllocs()
-
-	payload := `
-		function init() {
-			$app.onGetAnime(function(e) {
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	title := "Test Anime"
-	event := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			if err := hook.GlobalHookManager.OnGetAnime().Trigger(event); err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
-}
-
-func BenchmarkNoHookInvocationParallel(b *testing.B) {
-	b.ReportAllocs()
-
-	payload := `
-		function init() {
-			$app.onMissingEpisodes(function(e) {
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	title := "Test Anime"
-	event := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			if err := hook.GlobalHookManager.OnGetAnime().Trigger(event); err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
-}
-
-// BenchmarkBaselineNoHook measures the baseline performance without any hooks
-func BenchmarkBaselineNoHook(b *testing.B) {
-	b.ReportAllocs()
-	title := "Test Anime"
-	dummyEvent := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = dummyEvent.Next()
-	}
-}
-
-// BenchmarkHookInvocationWithWork measures performance with a hook that does some actual work
-func BenchmarkHookInvocationWithWork(b *testing.B) {
-	b.ReportAllocs()
-
-	payload := `
-		function init() {
-			$app.onGetAnime(function(e) {
-				// Do some work
-				if (e.anime.id === 1234) {
-					e.anime.id = 5678;
-					e.anime.title.english = "Modified Title";
-					e.anime.idMal = 9012;
-				}
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	title := "Test Anime"
-	dummyEvent := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
-			b.Fatal(err)
-		}
-	}
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
-}
-
-// BenchmarkHookParallel measures parallel performance with a hook that does some work
-func BenchmarkHookInvocationWithWorkParallel(b *testing.B) {
-	b.ReportAllocs()
-
-	payload := `
-		function init() {
-			$app.onGetAnime(function(e) {
-				// Do some work
-				if (e.anime.id === 1234) {
-					e.anime.id = 5678;
-					e.anime.title.english = "Modified Title";
-					e.anime.idMal = 9012;
-				}
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	title := "Test Anime"
-	dummyEvent := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
-				b.Fatal(err)
-			}
-		}
-	})
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
-}
-
-func BenchmarkNoHookInvocationWithWork(b *testing.B) {
-	b.ReportAllocs()
-
-	payload := `
-		function init() {
-			$app.onMissingEpisodes(function(e) {
-				// Do some work
-				if (e.anime.id === 1234) {
-					e.anime.id = 5678;
-					e.anime.title.english = "Modified Title";
-					e.anime.idMal = 9012;
-				}
-				e.next();
-			});
-		}
-	`
-
-	opts := DefaultTestPluginOptions()
-	opts.ID = "dummy-hook-benchmark"
-	opts.Payload = payload
-	opts.SetupHooks = true
-
-	_, _, runtimeManager, _, _ := InitTestPlugin(b, opts)
-
-	title := "Test Anime"
-	dummyEvent := &anilist_platform.GetAnimeEvent{
-		Anime: &anilist.BaseAnime{
-			ID: 1234,
-			Title: &anilist.BaseAnime_Title{
-				English: &title,
-			},
-		},
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err := hook.GlobalHookManager.OnGetAnime().Trigger(dummyEvent); err != nil {
-			b.Fatal(err)
-		}
-	}
-
-	runtimeManager.PrintPluginPoolMetrics(opts.ID)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////s

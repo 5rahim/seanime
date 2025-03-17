@@ -1,6 +1,7 @@
 package plugin_ui
 
 import (
+	"errors"
 	"fmt"
 	"seanime/internal/database/db"
 	"seanime/internal/events"
@@ -12,6 +13,11 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
+)
+
+var (
+	ErrTooManyExceptions = errors.New("plugin: Too many exceptions")
+	ErrFatalError        = errors.New("plugin: Fatal error")
 )
 
 const (
@@ -38,41 +44,6 @@ type UI struct {
 	// This is used to interrupt the Plugin when the UI is stopped
 	destroyedCh chan struct{}
 	destroyed   bool
-}
-
-// Called by the Plugin when it's being unloaded
-func (u *UI) Unload(signalDestroyed bool) {
-	u.logger.Debug().Msg("plugin: Stopping UI")
-
-	u.mu.Lock()
-	defer u.mu.Unlock()
-
-	u.UnloadFromInside(signalDestroyed)
-
-	u.logger.Debug().Msg("plugin: Stopped UI")
-}
-
-func (u *UI) UnloadFromInside(signalDestroyed bool) {
-	if u.destroyed {
-		return
-	}
-	// Stop the VM
-	u.vm.ClearInterrupt()
-	// Unsubscribe from client all events
-	if u.context.wsSubscriber != nil {
-		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.ext.ID)
-	}
-	// Clean up the context (all modules)
-	if u.context != nil {
-		u.context.Stop()
-	}
-
-	// Send the plugin unloaded event to the client
-	u.wsEventManager.SendEvent(events.PluginUnloaded, u.ext.ID)
-
-	if signalDestroyed {
-		u.signalDestroyed()
-	}
 }
 
 type NewUIOptions struct {
@@ -102,10 +73,49 @@ func NewUI(options NewUIOptions) *UI {
 	return ui
 }
 
+// Called by the Plugin when it's being unloaded
+func (u *UI) Unload(signalDestroyed bool) {
+	u.logger.Debug().Msg("plugin: Stopping UI")
+
+	u.mu.Lock()
+	defer u.mu.Unlock()
+
+	u.UnloadFromInside(signalDestroyed)
+
+	u.logger.Debug().Msg("plugin: Stopped UI")
+}
+
+// UnloadFromInside is called by the UI module itself when it's being unloaded
+func (u *UI) UnloadFromInside(signalDestroyed bool) {
+	if u.destroyed {
+		return
+	}
+	// Stop the VM
+	u.vm.ClearInterrupt()
+	// Unsubscribe from client all events
+	if u.context.wsSubscriber != nil {
+		u.wsEventManager.UnsubscribeFromClientEvents("plugin-" + u.ext.ID)
+	}
+	// Clean up the context (all modules)
+	if u.context != nil {
+		u.context.Stop()
+	}
+
+	// Send the plugin unloaded event to the client
+	u.wsEventManager.SendEvent(events.PluginUnloaded, u.ext.ID)
+
+	if signalDestroyed {
+		u.signalDestroyed()
+	}
+}
+
+// Destroyed returns a channel that is closed when the UI is destroyed
 func (u *UI) Destroyed() <-chan struct{} {
 	return u.destroyedCh
 }
 
+// signalDestroyed tells the plugin that the UI has been destroyed.
+// This is used to interrupt the Plugin when the UI is stopped
 func (u *UI) signalDestroyed() {
 	if u.destroyed {
 		return
@@ -117,7 +127,7 @@ func (u *UI) signalDestroyed() {
 // Register a UI
 // This is the main entry point for the UI
 // - It is called once when the plugin is loaded and registers all necessary modules
-func (u *UI) Register(callback string) {
+func (u *UI) Register(callback string) error {
 	defer util.HandlePanicInModuleThen("plugin_ui/Register", func() {
 		u.logger.Error().Msg("plugin: Panic in Register")
 	})
@@ -176,13 +186,6 @@ func (u *UI) Register(callback string) {
 
 						default:
 							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
-								// if clientEvent.Type == ClientDOMQueryResultEvent {
-								// 	fmt.Printf("DOM query result event received, listeners: %d\n", len(listener.ListenTo))
-								// 	fmt.Printf("\tlistener: %s\n", listener.ID)
-								// 	for _, eventType := range listener.ListenTo {
-								// 		fmt.Printf("\t\tevent type: %s\n", eventType)
-								// 	}
-								// }
 								if len(listener.ListenTo) > 0 {
 									// Check if the event type is in the listener's list of event types
 									for _, eventType := range listener.ListenTo {
@@ -213,11 +216,12 @@ func (u *UI) Register(callback string) {
 	_, err := u.vm.RunString(`(` + callback + `).call(undefined, __ctx)`)
 	if err != nil {
 		u.mu.Unlock()
-		u.logger.Error().Err(err).Msg("plugin: Failed to run UI code, unloading plugin")
-		u.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin: %s (%s): Failed to run UI code: %s", u.ext.Name, u.ext.ID, err.Error()))
+		u.logger.Error().Err(err).Msg("plugin: Encountered exception in UI handler, unloading plugin")
+		u.wsEventManager.SendEvent(events.ErrorToast, fmt.Sprintf("plugin(%s): Encountered exception in UI handler: %s", u.ext.ID, err.Error()))
+		u.wsEventManager.SendEvent(events.ConsoleLog, fmt.Sprintf("plugin(%s): Encountered exception in UI handler: %s", u.ext.ID, err.Error()))
 		// Unload the UI and signal the Plugin that it's been terminated
 		u.UnloadFromInside(true)
-		return
+		return fmt.Errorf("plugin: Encountered exception in UI handler: %w", err)
 	}
 
 	// Send events to the client
@@ -232,4 +236,5 @@ func (u *UI) Register(callback string) {
 	u.context.commandPaletteManager.sendInfoToClient()
 
 	u.mu.Unlock()
+	return nil
 }

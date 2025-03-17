@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"mime"
@@ -56,75 +57,75 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 
 	_ = osObj.Set("cmd", func(name string, arg ...string) (*exec.Cmd, error) {
 		if !a.isAllowedCommand(ext, name, arg...) {
-			return nil, errors.New("command not authorized")
+			return nil, fmt.Errorf("command (%s) not authorized", fmt.Sprintf("%s %s", name, strings.Join(arg, " ")))
 		}
 
 		return exec.Command(name, arg...), nil
 	})
 	_ = osObj.Set("readFile", func(path string) ([]byte, error) {
 		if !a.isAllowedPath(ext, path, AllowPathRead) {
-			return nil, ErrPathNotAuthorized
+			return nil, fmt.Errorf("$os.readFile: path (%s) not authorized for read", path)
 		}
 
 		return os.ReadFile(path)
 	})
 	_ = osObj.Set("writeFile", func(path string, data []byte, perm fs.FileMode) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.writeFile: path (%s) not authorized for write", path)
 		}
 		return os.WriteFile(path, data, perm)
 	})
 	_ = osObj.Set("readDir", func(path string) ([]fs.DirEntry, error) {
 		if !a.isAllowedPath(ext, path, AllowPathRead) {
-			return nil, ErrPathNotAuthorized
+			return nil, fmt.Errorf("$os.readDir: path (%s) not authorized for read", path)
 		}
 		return os.ReadDir(path)
 	})
 	_ = osObj.Set("tempDir", func() (string, error) {
 		if !a.isAllowedPath(ext, os.TempDir(), AllowPathRead) {
-			return "", ErrPathNotAuthorized
+			return "", fmt.Errorf("$os.tempDir: path (%s) not authorized for read", os.TempDir())
 		}
 		return os.TempDir(), nil
 	})
 	_ = osObj.Set("truncate", func(path string, size int64) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.truncate: path (%s) not authorized for write", path)
 		}
 		return os.Truncate(path, size)
 	})
 	_ = osObj.Set("mkdir", func(path string, perm fs.FileMode) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.mkdir: path (%s) not authorized for write", path)
 		}
 		return os.Mkdir(path, perm)
 	})
 	_ = osObj.Set("mkdirAll", func(path string, perm fs.FileMode) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.mkdirAll: path (%s) not authorized for write", path)
 		}
 		return os.MkdirAll(path, perm)
 	})
 	_ = osObj.Set("rename", func(oldpath, newpath string) error {
 		if !a.isAllowedPath(ext, oldpath, AllowPathWrite) || !a.isAllowedPath(ext, newpath, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.rename: path (%s) not authorized for write", oldpath)
 		}
 		return os.Rename(oldpath, newpath)
 	})
 	_ = osObj.Set("remove", func(path string) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.remove: path (%s) not authorized for write", path)
 		}
 		return os.Remove(path)
 	})
 	_ = osObj.Set("removeAll", func(path string) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$os.removeAll: path (%s) not authorized for write", path)
 		}
 		return os.RemoveAll(path)
 	})
 	_ = osObj.Set("stat", func(path string) (fs.FileInfo, error) {
 		if !a.isAllowedPath(ext, path, AllowPathRead) {
-			return nil, ErrPathNotAuthorized
+			return nil, fmt.Errorf("$os.stat: path (%s) not authorized for read", path)
 		}
 		return os.Stat(path)
 	})
@@ -144,7 +145,7 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 	//	file.close()
 	_ = osObj.Set("openFile", func(path string, flag int, perm fs.FileMode) (*os.File, error) {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return nil, ErrPathNotAuthorized
+			return nil, fmt.Errorf("$os.openFile: path (%s) not authorized for write", path)
 		}
 		return os.OpenFile(path, flag, perm)
 	})
@@ -155,7 +156,7 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 	//	file.close()
 	_ = osObj.Set("create", func(path string) (*os.File, error) {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
-			return nil, ErrPathNotAuthorized
+			return nil, fmt.Errorf("$os.create: path (%s) not authorized for write", path)
 		}
 		return os.Create(path)
 	})
@@ -235,39 +236,39 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 
 	bufioObj := vm.NewObject()
 
-	bufioObj.Set("NewReader", func(r io.Reader) *bufio.Reader {
+	bufioObj.Set("newReader", func(r io.Reader) *bufio.Reader {
 		return bufio.NewReader(r)
 	})
 
-	bufioObj.Set("NewReaderSize", func(r io.Reader, size int) *bufio.Reader {
+	bufioObj.Set("newReaderSize", func(r io.Reader, size int) *bufio.Reader {
 		return bufio.NewReaderSize(r, size)
 	})
 
-	bufioObj.Set("NewWriter", func(w io.Writer) *bufio.Writer {
+	bufioObj.Set("newWriter", func(w io.Writer) *bufio.Writer {
 		return bufio.NewWriter(w)
 	})
 
-	bufioObj.Set("NewWriterSize", func(w io.Writer, size int) *bufio.Writer {
+	bufioObj.Set("newWriterSize", func(w io.Writer, size int) *bufio.Writer {
 		return bufio.NewWriterSize(w, size)
 	})
 
-	bufioObj.Set("NewScanner", func(r io.Reader) *bufio.Scanner {
+	bufioObj.Set("newScanner", func(r io.Reader) *bufio.Scanner {
 		return bufio.NewScanner(r)
 	})
 
-	bufioObj.Set("ScanLines", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	bufioObj.Set("scanLines", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return bufio.ScanLines(data, atEOF)
 	})
 
-	bufioObj.Set("ScanWords", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	bufioObj.Set("scanWords", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return bufio.ScanWords(data, atEOF)
 	})
 
-	bufioObj.Set("ScanRunes", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	bufioObj.Set("scanRunes", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return bufio.ScanRunes(data, atEOF)
 	})
 
-	bufioObj.Set("ScanBytes", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	bufioObj.Set("scanBytes", func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		return bufio.ScanBytes(data, atEOF)
 	})
 
@@ -279,15 +280,15 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 
 	bytesObj := vm.NewObject()
 
-	bytesObj.Set("NewBuffer", func(buf []byte) *bytes.Buffer {
+	bytesObj.Set("newBuffer", func(buf []byte) *bytes.Buffer {
 		return bytes.NewBuffer(buf)
 	})
 
-	bytesObj.Set("NewBufferString", func(s string) *bytes.Buffer {
+	bytesObj.Set("newBufferString", func(s string) *bytes.Buffer {
 		return bytes.NewBufferString(s)
 	})
 
-	bytesObj.Set("NewReader", func(b []byte) *bytes.Reader {
+	bytesObj.Set("newReader", func(b []byte) *bytes.Reader {
 		return bytes.NewReader(b)
 	})
 
@@ -313,7 +314,7 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 
 	filepathObj.Set("glob", func(basePath string, pattern string) ([]string, error) {
 		if !a.isAllowedPath(ext, basePath, AllowPathRead) {
-			return nil, ErrPathNotAuthorized
+			return nil, fmt.Errorf("$filepath.glob: path (%s) not authorized for read", basePath)
 		}
 		return doublestar.Glob(os.DirFS(basePath), pattern)
 	})
@@ -326,16 +327,17 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 	filepathObj.Set("toSlash", filepath.ToSlash)
 	filepathObj.Set("walk", func(root string, walkFn filepath.WalkFunc) error {
 		if !a.isAllowedPath(ext, root, AllowPathRead) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$filepath.walk: path (%s) not authorized for read", root)
 		}
 		return filepath.Walk(root, walkFn)
 	})
 	filepathObj.Set("walkDir", func(root string, walkFn fs.WalkDirFunc) error {
 		if !a.isAllowedPath(ext, root, AllowPathRead) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$filepath.walkDir: path (%s) not authorized for read", root)
 		}
 		return filepath.WalkDir(root, walkFn)
 	})
+	filepathObj.Set("skipDir", filepath.SkipDir)
 
 	_ = vm.Set("$filepath", filepathObj)
 
@@ -347,21 +349,21 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 
 	osExtraObj.Set("unwrapAndMove", func(src string, dest string) error {
 		if !a.isAllowedPath(ext, src, AllowPathWrite) || !a.isAllowedPath(ext, dest, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$osExtra.unwrapAndMove: path (%s) not authorized for write", src)
 		}
 		return util.UnwrapAndMove(src, dest)
 	})
 
 	osExtraObj.Set("unzip", func(src string, dest string) error {
 		if !a.isAllowedPath(ext, src, AllowPathWrite) || !a.isAllowedPath(ext, dest, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$osExtra.unzip: path (%s) not authorized for write", src)
 		}
 		return util.UnzipFile(src, dest)
 	})
 
 	osExtraObj.Set("unrar", func(src string, dest string) error {
 		if !a.isAllowedPath(ext, src, AllowPathWrite) || !a.isAllowedPath(ext, dest, AllowPathWrite) {
-			return ErrPathNotAuthorized
+			return fmt.Errorf("$osExtra.unrar: path (%s) not authorized for write", src)
 		}
 		return util.UnrarFile(src, dest)
 	})
@@ -384,6 +386,7 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 			"parameters": params,
 		}, nil
 	})
+	mimeObj.Set("format", mime.FormatMediaType)
 	_ = vm.Set("$mime", mimeObj)
 
 }
