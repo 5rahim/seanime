@@ -24,8 +24,8 @@ func NewManager(logger *zerolog.Logger, size int32) *Manager {
 	}
 }
 
-// GetOrCreatePluginPool returns the shared pool.
-func (m *Manager) GetOrCreatePluginPool(extID string, initFn func() *goja.Runtime) (*Pool, error) {
+// GetOrCreatePrivatePool returns the pool for the given extension.
+func (m *Manager) GetOrCreatePrivatePool(extID string, initFn func() *goja.Runtime) (*Pool, error) {
 	if m.pluginPools == nil {
 		m.pluginPools = result.NewResultMap[string, *Pool]()
 	}
@@ -46,8 +46,8 @@ func (m *Manager) DeletePluginPool(extID string) {
 	m.pluginPools.Delete(extID)
 }
 
-// GetOrCreateBasePool returns the shared base pool.
-func (m *Manager) GetOrCreateBasePool(initFn func() *goja.Runtime) (*Pool, error) {
+// GetOrCreateSharedPool returns the shared pool.
+func (m *Manager) GetOrCreateSharedPool(initFn func() *goja.Runtime) (*Pool, error) {
 	if m.basePool == nil {
 		m.basePool = newPool(15, initFn, m.logger)
 	}
@@ -68,7 +68,7 @@ func (m *Manager) Run(ctx context.Context, extID string, fn func(*goja.Runtime) 
 	return fn(runtime)
 }
 
-func (m *Manager) RunBase(ctx context.Context, fn func(*goja.Runtime) error) error {
+func (m *Manager) RunShared(ctx context.Context, fn func(*goja.Runtime) error) error {
 	runtime, err := m.basePool.Get(ctx)
 	if err != nil {
 		return err

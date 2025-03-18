@@ -75,7 +75,7 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 	}
 	mId = reqEvent.MediaId
 
-	// If the hook prevented the default behavior, return the overridden metadata
+	// Default prevented by hook, return the metadata
 	if reqEvent.DefaultPrevented {
 		if reqEvent.AnimeMetadata != nil {
 			p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), reqEvent.AnimeMetadata, 1*time.Hour)
@@ -133,6 +133,7 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 		ret.Episodes[key] = em
 	}
 
+	// Event
 	event := &AnimeMetadataEvent{
 		MediaId:       mId,
 		AnimeMetadata: ret,

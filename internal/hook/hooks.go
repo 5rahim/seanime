@@ -71,6 +71,8 @@ type Manager interface {
 	// Anime metadata events
 	OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver]
 	OnAnimeMetadataEvent() *Hook[hook_resolver.Resolver]
+	OnAnimeEpisodeMetadataRequested() *Hook[hook_resolver.Resolver]
+	OnAnimeEpisodeMetadataEvent() *Hook[hook_resolver.Resolver]
 
 	// Manga events
 	OnMangaEntryRequested() *Hook[hook_resolver.Resolver]
@@ -146,6 +148,8 @@ type ManagerImpl struct {
 	// Anime metadata events
 	onAnimeMetadataRequested *Hook[hook_resolver.Resolver]
 	onAnimeMetadataEvent     *Hook[hook_resolver.Resolver]
+	onAnimeEpisodeMetadataRequested *Hook[hook_resolver.Resolver]
+	onAnimeEpisodeMetadataEvent     *Hook[hook_resolver.Resolver]
 	// Manga events
 	onMangaEntryRequested             *Hook[hook_resolver.Resolver]
 	onMangaEntry                      *Hook[hook_resolver.Resolver]
@@ -238,6 +242,8 @@ func (m *ManagerImpl) initHooks() {
 	// Anime metadata events
 	m.onAnimeMetadataRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeMetadataEvent = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEpisodeMetadataRequested = &Hook[hook_resolver.Resolver]{}
+	m.onAnimeEpisodeMetadataEvent = &Hook[hook_resolver.Resolver]{}
 	// Manga events
 	m.onMangaEntryRequested = &Hook[hook_resolver.Resolver]{}
 	m.onMangaEntry = &Hook[hook_resolver.Resolver]{}
@@ -583,6 +589,20 @@ func (m *ManagerImpl) OnAnimeMetadataEvent() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAnimeMetadataEvent
+}
+
+func (m *ManagerImpl) OnAnimeEpisodeMetadataRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEpisodeMetadataRequested
+}
+
+func (m *ManagerImpl) OnAnimeEpisodeMetadataEvent() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAnimeEpisodeMetadataEvent
 }
 
 // Manga events

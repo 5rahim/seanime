@@ -54,7 +54,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		return vm
 	}
 
-	pool, err := runtimeManager.GetOrCreateBasePool(initFn)
+	pool, err := runtimeManager.GetOrCreatePrivatePool(ext.ID, initFn)
 	if err != nil {
 		return nil, err
 	}

@@ -1,1 +1,0 @@
-package anime_types

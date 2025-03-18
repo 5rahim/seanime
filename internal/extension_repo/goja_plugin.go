@@ -149,7 +149,7 @@ func NewGojaPlugin(
 
 	// 4. Create a new pool for the plugin hooks (must be deleted when unloading)
 	var err error
-	p.pool, err = runtimeManager.GetOrCreatePluginPool(ext.ID, func() *goja.Runtime {
+	p.pool, err = runtimeManager.GetOrCreatePrivatePool(ext.ID, func() *goja.Runtime {
 		runtime := goja.New()
 		ShareBinds(runtime, logger)
 		p.BindPluginAPIs(runtime, logger)
