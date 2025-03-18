@@ -32058,158 +32058,6 @@
   {
     "filepath": "../internal/extension/extension.go",
     "filename": "extension.go",
-    "name": "PluginManifest",
-    "formattedName": "Extension_PluginManifest",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "Version",
-        "jsonName": "version",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Permissions",
-        "jsonName": "permissions",
-        "goType": "[]PluginPermission",
-        "typescriptType": "Array\u003cExtension_PluginPermission\u003e",
-        "usedStructName": "extension.PluginPermission",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SystemAllowlist",
-        "jsonName": "systemAllowlist",
-        "goType": "PluginSystemAllowlist",
-        "typescriptType": "Extension_PluginSystemAllowlist",
-        "usedStructName": "extension.PluginSystemAllowlist",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension/extension.go",
-    "filename": "extension.go",
-    "name": "PluginSystemAllowlist",
-    "formattedName": "Extension_PluginSystemAllowlist",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "AllowReadPaths",
-        "jsonName": "allowReadPaths",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "AllowWritePaths",
-        "jsonName": "allowWritePaths",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "CommandScopes",
-        "jsonName": "commandScopes",
-        "goType": "[]CommandScope",
-        "typescriptType": "Array\u003cExtension_CommandScope\u003e",
-        "usedStructName": "extension.CommandScope",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " PluginSystemAllowlist is a list of system permissions that the plugin is asking for.",
-      "",
-      " The user must acknowledge these permissions before the plugin can be loaded."
-    ]
-  },
-  {
-    "filepath": "../internal/extension/extension.go",
-    "filename": "extension.go",
-    "name": "CommandScope",
-    "formattedName": "Extension_CommandScope",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "Description",
-        "jsonName": "description",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Command",
-        "jsonName": "command",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Args",
-        "jsonName": "args",
-        "goType": "[]CommandArg",
-        "typescriptType": "Array\u003cExtension_CommandArg\u003e",
-        "usedStructName": "extension.CommandArg",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " CommandScope defines a specific command or set of commands that can be executed",
-      " with specific arguments and validation rules."
-    ]
-  },
-  {
-    "filepath": "../internal/extension/extension.go",
-    "filename": "extension.go",
-    "name": "CommandArg",
-    "formattedName": "Extension_CommandArg",
-    "package": "extension",
-    "fields": [
-      {
-        "name": "Value",
-        "jsonName": "value",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Validator",
-        "jsonName": "validator",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " CommandArg represents an argument for a command"
-    ]
-  },
-  {
-    "filepath": "../internal/extension/extension.go",
-    "filename": "extension.go",
     "name": "InvalidExtensionErrorCode",
     "formattedName": "Extension_InvalidExtensionErrorCode",
     "package": "extension",
@@ -33677,6 +33525,158 @@
   {
     "filepath": "../internal/extension/plugin.go",
     "filename": "plugin.go",
+    "name": "PluginManifest",
+    "formattedName": "Extension_PluginManifest",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Version",
+        "jsonName": "version",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Permissions",
+        "jsonName": "permissions",
+        "goType": "[]PluginPermission",
+        "typescriptType": "Array\u003cExtension_PluginPermission\u003e",
+        "usedStructName": "extension.PluginPermission",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "SystemAllowlist",
+        "jsonName": "systemAllowlist",
+        "goType": "PluginSystemAllowlist",
+        "typescriptType": "Extension_PluginSystemAllowlist",
+        "usedStructName": "extension.PluginSystemAllowlist",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "PluginSystemAllowlist",
+    "formattedName": "Extension_PluginSystemAllowlist",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "AllowReadPaths",
+        "jsonName": "allowReadPaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AllowWritePaths",
+        "jsonName": "allowWritePaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "CommandScopes",
+        "jsonName": "commandScopes",
+        "goType": "[]CommandScope",
+        "typescriptType": "Array\u003cExtension_CommandScope\u003e",
+        "usedStructName": "extension.CommandScope",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " PluginSystemAllowlist is a list of system permissions that the plugin is asking for.",
+      "",
+      " The user must acknowledge these permissions before the plugin can be loaded."
+    ]
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "CommandScope",
+    "formattedName": "Extension_CommandScope",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Description",
+        "jsonName": "description",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Command",
+        "jsonName": "command",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Args",
+        "jsonName": "args",
+        "goType": "[]CommandArg",
+        "typescriptType": "Array\u003cExtension_CommandArg\u003e",
+        "usedStructName": "extension.CommandArg",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CommandScope defines a specific command or set of commands that can be executed",
+      " with specific arguments and validation rules."
+    ]
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "CommandArg",
+    "formattedName": "Extension_CommandArg",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "Value",
+        "jsonName": "value",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Validator",
+        "jsonName": "validator",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " CommandArg represents an argument for a command"
+    ]
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
     "name": "PluginExtensionImpl",
     "formattedName": "Extension_PluginExtensionImpl",
     "package": "extension",
@@ -34073,6 +34073,16 @@
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "wsEventManager",
+        "jsonName": "wsEventManager",
+        "goType": "events.WSEventManagerInterface",
+        "typescriptType": "Events_WSEventManagerInterface",
+        "usedStructName": "events.WSEventManagerInterface",
+        "required": false,
         "public": false,
         "comments": []
       }
@@ -36181,6 +36191,24 @@
       {
         "name": "onScanStarted",
         "jsonName": "onScanStarted",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onScanFilePathsRetrieved",
+        "jsonName": "onScanFilePathsRetrieved",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onScanLocalFilesParsed",
+        "jsonName": "onScanLocalFilesParsed",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -39761,6 +39789,15 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "PrefixPath",
+        "jsonName": "PrefixPath",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -40907,7 +40944,56 @@
       }
     ],
     "comments": [
-      " ScanStartedEvent is triggered when a scan operation begins"
+      " ScanStartedEvent is triggered when the scanning process begins"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/scanner/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "ScanFilePathsRetrievedEvent",
+    "formattedName": "Scanner_ScanFilePathsRetrievedEvent",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "FilePaths",
+        "jsonName": "filePaths",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/scanner/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "ScanLocalFilesParsedEvent",
+    "formattedName": "Scanner_ScanLocalFilesParsedEvent",
+    "package": "scanner",
+    "fields": [
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects"
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -40943,7 +41029,7 @@
       }
     ],
     "comments": [
-      " ScanCompletedEvent is triggered when a scan operation finishes"
+      " ScanCompletedEvent is triggered when the scanning process finishes"
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -46358,9 +46444,8 @@
       {
         "name": "subscribers",
         "jsonName": "subscribers",
-        "goType": "map[string]Subscriber",
-        "typescriptType": "Record\u003cstring, Subscriber\u003e",
-        "usedStructName": "mpv.Subscriber",
+        "goType": "",
+        "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": [
@@ -46418,12 +46503,21 @@
     "package": "mpv",
     "fields": [
       {
-        "name": "ClosedCh",
-        "jsonName": "ClosedCh",
+        "name": "eventCh",
+        "jsonName": "eventCh",
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closedCh",
+        "jsonName": "closedCh",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
         "comments": []
       }
     ],
@@ -51143,6 +51237,16 @@
         "required": false,
         "public": false,
         "comments": []
+      },
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "extension.Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
       }
     ],
     "comments": []
@@ -51229,6 +51333,36 @@
   {
     "filepath": "../internal/plugin/playback.go",
     "filename": "playback.go",
+    "name": "PlaybackMPV",
+    "formattedName": "PlaybackMPV",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "mpv",
+        "jsonName": "mpv",
+        "goType": "mpv.Mpv",
+        "typescriptType": "Mpv",
+        "usedStructName": "mpv.Mpv",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "playback",
+        "jsonName": "playback",
+        "goType": "Playback",
+        "typescriptType": "Playback",
+        "usedStructName": "plugin.Playback",
+        "required": false,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/playback.go",
+    "filename": "playback.go",
     "name": "PlaybackEvent",
     "formattedName": "PlaybackEvent",
     "package": "plugin",
@@ -51300,7 +51434,7 @@
         "name": "StoppedEvent",
         "jsonName": "stoppedEvent",
         "goType": "__STRUCT__",
-        "typescriptType": "{ filename: string; }",
+        "typescriptType": "{ reason: string; }",
         "required": false,
         "public": true,
         "comments": []
@@ -53379,6 +53513,7 @@
       "declaredValues": [
         "\"tray:updated\"",
         "\"tray:icon\"",
+        "\"tray:badge-updated\"",
         "\"tray:open\"",
         "\"tray:close\"",
         "\"command-palette:info\"",
@@ -53583,6 +53718,34 @@
         "goType": "string",
         "typescriptType": "string",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/events.go",
+    "filename": "events.go",
+    "name": "ServerTrayBadgeUpdatedEventPayload",
+    "formattedName": "ServerTrayBadgeUpdatedEventPayload",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "BadgeNumber",
+        "jsonName": "badgeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "BadgeIntent",
+        "jsonName": "badgeIntent",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }

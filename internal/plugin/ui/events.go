@@ -157,6 +157,7 @@ type ServerPluginEvent struct {
 const (
 	ServerTrayUpdatedEvent                           ServerEventType = "tray:updated"                                 // When the trays are updated
 	ServerTrayIconEvent                              ServerEventType = "tray:icon"                                    // When the tray sends its icon to the client
+	ServerTrayBadgeUpdatedEvent                      ServerEventType = "tray:badge-updated"                           // When the tray badge is updated
 	ServerTrayOpenEvent                              ServerEventType = "tray:open"                                    // When the tray is opened
 	ServerTrayCloseEvent                             ServerEventType = "tray:close"                                   // When the tray is closed
 	ServerCommandPaletteInfoEvent                    ServerEventType = "command-palette:info"                         // When the command palette sends its state to the client
@@ -207,6 +208,11 @@ type ServerTrayIconEventPayload struct {
 	BadgeIntent string `json:"badgeIntent"`
 	Width       string `json:"width,omitempty"`
 	MinHeight   string `json:"minHeight,omitempty"`
+}
+
+type ServerTrayBadgeUpdatedEventPayload struct {
+	BadgeNumber int    `json:"badgeNumber"`
+	BadgeIntent string `json:"badgeIntent"`
 }
 
 type ServerFormResetEventPayload struct {

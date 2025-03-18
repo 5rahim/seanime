@@ -29,17 +29,19 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const [isConnected, setIsConnected] = useAtom(websocketConnectedAtom)
     const setConnectionErrorCount = useSetAtom(websocketConnectionErrorCountAtom)
     const openDrawers = useAtomValue(__openDrawersAtom)
-
     const [cookies, setCookie, removeCookie] = useCookies(["Seanime-Client-Id"])
 
     const [, setClientId] = useAtom(clientIdAtom)
+
+    // Added heartbeatRef to periodically check connection health
+    const heartbeatRef = React.useRef<any>(null)
+
     React.useEffect(() => {
         logger("WebsocketProvider").info("Seanime-Client-Id", cookies["Seanime-Client-Id"])
         if (cookies["Seanime-Client-Id"]) {
             setClientId(cookies["Seanime-Client-Id"])
         }
     }, [cookies])
-
 
     useEffectOnce(() => {
         function connectWebSocket() {
@@ -49,7 +51,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             const newSocket = new WebSocket(`${wsUrl}?id=${clientId}`)
 
             newSocket.addEventListener("open", () => {
-                console.log("WebSocket connection opened")
+                logger("WebsocketProvider").info("WebSocket connection opened")
                 setIsConnected(true)
                 setConnectionErrorCount(0)
 
@@ -62,14 +64,32 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                         maxAge: 24 * 60 * 60, // 24 hours
                     })
                 }
+
+                // Start heartbeat interval to detect silent disconnections
+                heartbeatRef.current = setInterval(() => {
+                    if (newSocket.readyState !== WebSocket.OPEN) {
+                        logger("WebsocketProvider").error("Heartbeat check failed, closing connection")
+                        newSocket.close()
+                    }
+                }, 30000) // check every 30 seconds
             })
 
             newSocket.addEventListener("close", () => {
-                console.log("WebSocket connection closed")
+                // Clear heartbeat interval
+                if (heartbeatRef.current) {
+                    clearInterval(heartbeatRef.current)
+                    heartbeatRef.current = null
+                }
+                logger("WebsocketProvider").info("WebSocket connection closed")
                 setIsConnected(false)
                 // Reconnect after a delay
                 setConnectionErrorCount(count => count + 1)
                 setTimeout(connectWebSocket, 1000)
+            })
+
+            newSocket.addEventListener("error", (event) => {
+                logger("WebsocketProvider").error("WebSocket encountered an error:", event)
+                newSocket.close()
             })
 
             setSocket(newSocket)
@@ -79,13 +99,18 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
 
         if (!socket || socket.readyState === WebSocket.CLOSED) {
             // If the socket is not set or the connection is closed, initiate a new connection
-            const newSocket = connectWebSocket()
+            connectWebSocket()
         }
 
         return () => {
             if (socket) {
                 socket.close()
                 setIsConnected(false)
+            }
+            // Cleanup heartbeat on unmount
+            if (heartbeatRef.current) {
+                clearInterval(heartbeatRef.current)
+                heartbeatRef.current = null
             }
         }
     })
@@ -107,5 +132,4 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             </WebSocketContext.Provider>
         </>
     )
-
 }

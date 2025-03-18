@@ -81,7 +81,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 		m.matchLocalFileWithMedia(localFile)
 	})
 
-	m.validateMatches()
+	// m.validateMatches()
 
 	// Invoke ScanMatchingCompleted hook
 	completedEvent := &ScanMatchingCompletedEvent{

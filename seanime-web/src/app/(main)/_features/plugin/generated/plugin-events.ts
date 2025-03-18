@@ -37,6 +37,7 @@ export enum PluginClientEvents {
 export enum PluginServerEvents {
     TrayUpdated = "tray:updated",
     TrayIcon = "tray:icon",
+    TrayBadgeUpdated = "tray:badge-updated",
     TrayOpen = "tray:open",
     TrayClose = "tray:close",
     CommandPaletteInfo = "command-palette:info",
@@ -560,6 +561,21 @@ export function usePluginListenTrayIconEvent(cb: (payload: Plugin_Server_TrayIco
     return useWebsocketPluginMessageListener<Plugin_Server_TrayIconEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.TrayIcon,
+        onMessage: cb,
+    })
+}
+
+export type Plugin_Server_TrayBadgeUpdatedEventPayload = {
+    badgeNumber: number
+    badgeIntent: string
+}
+
+export function usePluginListenTrayBadgeUpdatedEvent(cb: (payload: Plugin_Server_TrayBadgeUpdatedEventPayload, extensionId: string) => void,
+    extensionID: string,
+) {
+    return useWebsocketPluginMessageListener<Plugin_Server_TrayBadgeUpdatedEventPayload>({
+        extensionId: extensionID,
+        type: PluginServerEvents.TrayBadgeUpdated,
         onMessage: cb,
     })
 }

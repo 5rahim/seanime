@@ -1583,7 +1583,116 @@
         }
       ],
       "comments": [
-        " ScanStartedEvent is triggered when a scan operation begins"
+        " ScanStartedEvent is triggered when the scanning process begins"
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "scanner",
+    "goStruct": {
+      "filepath": "../internal/library/scanner/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "ScanFilePathsRetrievedEvent",
+      "formattedName": "Scanner_ScanFilePathsRetrievedEvent",
+      "package": "scanner",
+      "fields": [
+        {
+          "name": "FilePaths",
+          "jsonName": "filePaths",
+          "goType": "[]string",
+          "typescriptType": "Array\u003cstring\u003e",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved"
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "scanner",
+    "goStruct": {
+      "filepath": "../internal/library/scanner/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "ScanLocalFilesParsedEvent",
+      "formattedName": "Scanner_ScanLocalFilesParsedEvent",
+      "package": "scanner",
+      "fields": [
+        {
+          "name": "LocalFiles",
+          "jsonName": "localFiles",
+          "goType": "[]anime.LocalFile",
+          "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+          "usedStructName": "anime.LocalFile",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects"
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"
@@ -1649,7 +1758,7 @@
         }
       ],
       "comments": [
-        " ScanCompletedEvent is triggered when a scan operation finishes"
+        " ScanCompletedEvent is triggered when the scanning process finishes"
       ],
       "embeddedStructNames": [
         "hook_resolver.Event"

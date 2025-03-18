@@ -1953,8 +1953,8 @@ export type DebridClient_StreamStatus = "downloading" | "ready" | "failed" | "st
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
  * - Package: extension
  * @description
  *  CommandArg represents an argument for a command
@@ -1965,8 +1965,8 @@ export type Extension_CommandArg = {
 }
 
 /**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
  * - Package: extension
  * @description
  *  CommandScope defines a specific command or set of commands that can be executed
@@ -2088,8 +2088,8 @@ export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_
 export type Extension_Language = "javascript" | "typescript" | "go"
 
 /**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
  * - Package: extension
  */
 export type Extension_PluginManifest = {
@@ -2106,8 +2106,8 @@ export type Extension_PluginManifest = {
 export type Extension_PluginPermission = string
 
 /**
- * - Filepath: internal/extension/extension.go
- * - Filename: extension.go
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
  * - Package: extension
  * @description
  *  PluginSystemAllowlist is a list of system permissions that the plugin is asking for.

@@ -12,8 +12,8 @@ import React from "react"
 import { LuCircleDashed } from "react-icons/lu"
 import {
     Plugin_Server_TrayIconEventPayload,
+    usePluginListenTrayBadgeUpdatedEvent,
     usePluginListenTrayCloseEvent,
-    usePluginListenTrayIconEvent,
     usePluginListenTrayOpenEvent,
     usePluginListenTrayUpdatedEvent,
     usePluginSendRenderTrayEvent,
@@ -90,7 +90,7 @@ export function PluginTray(props: TrayPluginProps) {
         }
     }, [open])
 
-    usePluginListenTrayIconEvent((data) => {
+    usePluginListenTrayBadgeUpdatedEvent((data) => {
         setBadgeNumber(data.badgeNumber)
         setBadgeIntent(data.badgeIntent)
     }, props.trayIcon.extensionId)

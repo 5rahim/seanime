@@ -1,5 +1,4 @@
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { logger } from "@/lib/helpers/debug"
 import { PluginDOMElement, PluginDOMManipulateOptions } from "./generated/plugin-dom-types"
 import { PluginClientEvents } from "./generated/plugin-events"
 
@@ -24,7 +23,7 @@ export class DOMManager {
     constructor(extensionId: string) {
         this.extensionId = extensionId
         const { sendPluginMessage } = useWebsocketSender()
-        logger("DOMManager").info("DOMManager constructor", extensionId)
+        // logger("DOMManager").info("DOMManager constructor", extensionId)
 
         sendPluginMessage(PluginClientEvents.DOMReady, {}, extensionId)
 

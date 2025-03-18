@@ -662,7 +662,7 @@ declare namespace $app {
      * @event ScanStartedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanStartedEvent is triggered when a scan operation begins
+     * ScanStartedEvent is triggered when the scanning process begins
      */
     function onScanStarted(cb: (event: ScanStartedEvent) => void);
 
@@ -677,10 +677,38 @@ declare namespace $app {
     }
 
     /**
+     * @event ScanFilePathsRetrievedEvent
+     * @file internal/library/scanner/hook_events.go
+     * @description
+     * ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved
+     */
+    function onScanFilePathsRetrieved(cb: (event: ScanFilePathsRetrievedEvent) => void);
+
+    interface ScanFilePathsRetrievedEvent {
+        filePaths?: Array<string>;
+
+        next();
+    }
+
+    /**
+     * @event ScanLocalFilesParsedEvent
+     * @file internal/library/scanner/hook_events.go
+     * @description
+     * ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects
+     */
+    function onScanLocalFilesParsed(cb: (event: ScanLocalFilesParsedEvent) => void);
+
+    interface ScanLocalFilesParsedEvent {
+        localFiles?: Array<Anime_LocalFile>;
+
+        next();
+    }
+
+    /**
      * @event ScanCompletedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanCompletedEvent is triggered when a scan operation finishes
+     * ScanCompletedEvent is triggered when the scanning process finishes
      */
     function onScanCompleted(cb: (event: ScanCompletedEvent) => void);
 

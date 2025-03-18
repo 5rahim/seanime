@@ -1465,7 +1465,7 @@ $app.onPrePlaybackTracking((e) => {
 <a id="onscanstarted"></a>
 ## onScanStarted
 
-ScanStartedEvent is triggered when a scan operation begins
+ScanStartedEvent is triggered when the scanning process begins
 
 **Can prevent default:** No
 
@@ -1501,10 +1501,73 @@ $app.onScanStarted((e) => {
 
 ---
 
+<a id="onscanfilepathsretrieved"></a>
+## onScanFilePathsRetrieved
+
+ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface ScanFilePathsRetrievedEvent {
+    next();
+    filePaths?: Array<string>;
+}
+```
+
+**Referenced types:**
+
+
+**Example:**
+
+```typescript
+$app.onScanFilePathsRetrieved((e) => {
+    // console.log(e.filePaths);
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onscanlocalfilesparsed"></a>
+## onScanLocalFilesParsed
+
+ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface ScanLocalFilesParsedEvent {
+    next();
+    localFiles?: Array<Anime_LocalFile>;
+}
+```
+
+**Referenced types:**
+
+- [Anime_LocalFile](#anime_LocalFile)
+
+**Example:**
+
+```typescript
+$app.onScanLocalFilesParsed((e) => {
+    // console.log(e.localFiles);
+    
+    e.next();
+});
+```
+
+---
+
 <a id="onscancompleted"></a>
 ## onScanCompleted
 
-ScanCompletedEvent is triggered when a scan operation finishes
+ScanCompletedEvent is triggered when the scanning process finishes
 
 **Can prevent default:** No
 

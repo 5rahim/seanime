@@ -50,6 +50,7 @@ function init() {
 
         // Update currentMediaId when the user navigates
         ctx.screen.onNavigate((e) => {
+            console.log("onNavigate", e)
             // If the user navigates to an anime page
             if (e.pathname === "/entry" && !!e.query) {
                 // Get the ID from the URL

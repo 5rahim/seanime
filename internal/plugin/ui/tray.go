@@ -240,7 +240,10 @@ func (t *Tray) jsUpdateBadge(call goja.FunctionCall) goja.Value {
 	t.BadgeNumber = int(number)
 	t.BadgeIntent = intent
 
-	t.trayManager.sendIconToClient()
+	t.trayManager.ctx.SendEventToClient(ServerTrayBadgeUpdatedEvent, ServerTrayBadgeUpdatedEventPayload{
+		BadgeNumber: t.BadgeNumber,
+		BadgeIntent: t.BadgeIntent,
+	})
 	return goja.Undefined()
 }
 
