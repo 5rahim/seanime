@@ -2091,11 +2091,25 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Filepath: internal/extension/plugin.go
  * - Filename: plugin.go
  * - Package: extension
+ * @description
+ *  PluginAllowlist is a list of system permissions that the plugin is asking for.
+ *
+ *  The user must acknowledge these permissions before the plugin can be loaded.
+ */
+export type Extension_PluginAllowlist = {
+    readPaths?: Array<string>
+    writePaths?: Array<string>
+    commandScopes?: Array<Extension_CommandScope>
+}
+
+/**
+ * - Filepath: internal/extension/plugin.go
+ * - Filename: plugin.go
+ * - Package: extension
  */
 export type Extension_PluginManifest = {
     version: string
-    permissions?: Array<Extension_PluginPermission>
-    systemAllowlist?: Extension_PluginSystemAllowlist
+    permissions?: Extension_PluginPermissions
 }
 
 /**
@@ -2103,21 +2117,16 @@ export type Extension_PluginManifest = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_PluginPermission = string
+export type Extension_PluginPermissionScope = string
 
 /**
  * - Filepath: internal/extension/plugin.go
  * - Filename: plugin.go
  * - Package: extension
- * @description
- *  PluginSystemAllowlist is a list of system permissions that the plugin is asking for.
- *  
- *  The user must acknowledge these permissions before the plugin can be loaded.
  */
-export type Extension_PluginSystemAllowlist = {
-    allowReadPaths?: Array<string>
-    allowWritePaths?: Array<string>
-    commandScopes?: Array<Extension_CommandScope>
+export type Extension_PluginPermissions = {
+    scopes?: Array<Extension_PluginPermissionScope>
+    allow?: Extension_PluginAllowlist
 }
 
 /**
