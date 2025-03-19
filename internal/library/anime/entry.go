@@ -65,28 +65,44 @@ type (
 //   - AnidbId: AniDB id
 //   - CurrentEpisodeCount: Current episode count
 func NewEntry(opts *NewEntryOptions) (*Entry, error) {
+	// Create new Entry
+	entry := new(Entry)
+	entry.MediaId = opts.MediaId
 
-	optsEvent := new(AnimeEntryRequestedEvent)
-	optsEvent.MediaId = opts.MediaId
-	optsEvent.LocalFiles = opts.LocalFiles
-	optsEvent.AnimeCollection = opts.AnimeCollection
+	reqEvent := new(AnimeEntryRequestedEvent)
+	reqEvent.MediaId = opts.MediaId
+	reqEvent.LocalFiles = opts.LocalFiles
+	reqEvent.AnimeCollection = opts.AnimeCollection
+	reqEvent.Entry = entry
 
-	err := hook.GlobalHookManager.OnAnimeEntryRequested().Trigger(optsEvent)
+	err := hook.GlobalHookManager.OnAnimeEntryRequested().Trigger(reqEvent)
 	if err != nil {
 		return nil, err
 	}
-	opts.MediaId = optsEvent.MediaId
-	opts.LocalFiles = optsEvent.LocalFiles
-	opts.AnimeCollection = optsEvent.AnimeCollection
+	opts.MediaId = reqEvent.MediaId                 // Override the media ID
+	opts.LocalFiles = reqEvent.LocalFiles           // Override the local files
+	opts.AnimeCollection = reqEvent.AnimeCollection // Override the anime collection
+	entry = reqEvent.Entry                          // Override the entry
+
+	// Default prevented, return the modified entry
+	if reqEvent.DefaultPrevented {
+		event := new(AnimeEntryEvent)
+		event.Entry = reqEvent.Entry
+		err = hook.GlobalHookManager.OnAnimeEntry().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+
+		if event.Entry == nil {
+			return nil, errors.New("no entry was returned")
+		}
+		return event.Entry, nil
+	}
 
 	if opts.AnimeCollection == nil ||
 		opts.Platform == nil {
 		return nil, errors.New("missing arguments when creating media entry")
 	}
-
-	// Create new Entry
-	entry := new(Entry)
-	entry.MediaId = opts.MediaId
 
 	// +---------------------+
 	// |   AniList entry     |

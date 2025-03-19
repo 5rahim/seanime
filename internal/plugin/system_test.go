@@ -54,7 +54,11 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "no patterns",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+					},
 				},
 			},
 			path:     "/some/path",
@@ -65,8 +69,10 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "simple path match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						AllowReadPaths: []string{"/test/**"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
 					},
 				},
 			},
@@ -78,8 +84,10 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "multiple library paths - first match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						AllowReadPaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
 					},
 				},
 			},
@@ -91,8 +99,10 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "multiple library paths - second match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						AllowReadPaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
 					},
 				},
 			},
@@ -104,8 +114,10 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "write mode with read pattern",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						AllowReadPaths: []string{"/test/**"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
 					},
 				},
 			},
@@ -117,8 +129,10 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "multiple patterns - match one",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						AllowReadPaths: []string{"/nope/**", "$SEANIME_ANIME_LIBRARY/**", "/also-nope/**"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
 					},
 				},
 			},
@@ -130,8 +144,10 @@ func TestIsAllowedPath(t *testing.T) {
 			name: "no matching pattern",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						AllowReadPaths: []string{"/test/**", "$SEANIME_ANIME_LIBRARY/**"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
 					},
 				},
 			},
@@ -174,10 +190,15 @@ func TestIsAllowedCommand(t *testing.T) {
 			name: "simple command no args",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "ls",
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "ls",
+								},
 							},
 						},
 					},
@@ -191,14 +212,19 @@ func TestIsAllowedCommand(t *testing.T) {
 			name: "command with fixed args - match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "git",
-								Args: []extension.CommandArg{
-									{Value: "pull"},
-									{Value: "origin"},
-									{Value: "main"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "git",
+									Args: []extension.CommandArg{
+										{Value: "pull"},
+										{Value: "origin"},
+										{Value: "main"},
+									},
 								},
 							},
 						},
@@ -213,12 +239,17 @@ func TestIsAllowedCommand(t *testing.T) {
 			name: "command with fixed args - no match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "git",
-								Args: []extension.CommandArg{
-									{Value: "pull"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "git",
+									Args: []extension.CommandArg{
+										{Value: "pull"},
+									},
 								},
 							},
 						},
@@ -233,12 +264,17 @@ func TestIsAllowedCommand(t *testing.T) {
 			name: "command with $ARGS validator",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "echo",
-								Args: []extension.CommandArg{
-									{Validator: "$ARGS"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "echo",
+									Args: []extension.CommandArg{
+										{Validator: "$ARGS"},
+									},
 								},
 							},
 						},
@@ -246,19 +282,24 @@ func TestIsAllowedCommand(t *testing.T) {
 				},
 			},
 			cmd:      "echo",
-			args:     []string{"hello world"},
+			args:     []string{"hello", "world"},
 			expected: true,
 		},
 		{
 			name: "command with regex validator - match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "open",
-								Args: []extension.CommandArg{
-									{Validator: "^https?://.*$"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "open",
+									Args: []extension.CommandArg{
+										{Validator: "^https?://.*$"},
+									},
 								},
 							},
 						},
@@ -273,12 +314,17 @@ func TestIsAllowedCommand(t *testing.T) {
 			name: "command with regex validator - no match",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "open",
-								Args: []extension.CommandArg{
-									{Validator: "^https?://.*$"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "open",
+									Args: []extension.CommandArg{
+										{Validator: "^https?://.*$"},
+									},
 								},
 							},
 						},
@@ -293,33 +339,43 @@ func TestIsAllowedCommand(t *testing.T) {
 			name: "command with $PATH validator",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "open",
-								Args: []extension.CommandArg{
-									{Validator: "$PATH"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "open",
+									Args: []extension.CommandArg{
+										{Validator: "$PATH"},
+									},
 								},
 							},
+							WritePaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
 						},
-						AllowWritePaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
 					},
 				},
 			},
 			cmd:      "open",
 			args:     []string{"/anime/lib1/test.txt"},
-			expected: false, // Directory does not exist
+			expected: false, // Directory does not exist on the machine
 		},
 		{
 			name: "too many args",
 			ext: &extension.Extension{
 				Plugin: &extension.PluginManifest{
-					SystemAllowlist: &extension.PluginSystemAllowlist{
-						CommandScopes: []*extension.CommandScope{
-							{
-								Command: "ls",
-								Args: []extension.CommandArg{
-									{Value: "-l"},
+					Permissions: extension.PluginPermissions{
+						Scopes: []extension.PluginPermissionScope{
+							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							CommandScopes: []extension.CommandScope{
+								{
+									Command: "ls",
+									Args: []extension.CommandArg{
+										{Value: "-l"},
+									},
 								},
 							},
 						},

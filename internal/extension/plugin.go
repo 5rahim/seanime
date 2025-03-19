@@ -1,36 +1,38 @@
 package extension
 
 var (
-	PluginPermissionStorage      PluginPermission = "storage"       // Allows the plugin to store its own data
-	PluginPermissionDatabase     PluginPermission = "database"      // Allows the plugin to read non-auth data from the database and write to it
-	PluginPermissionPlayback     PluginPermission = "playback"      // Allows the plugin to use the playback manager
-	PluginPermissionAnilist      PluginPermission = "anilist"       // Allows the plugin to use the Anilist client
-	PluginPermissionAnilistToken PluginPermission = "anilist-token" // Allows the plugin to see and use the Anilist token
-	PluginPermissionSystem       PluginPermission = "system"        // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
-	PluginPermissionCron         PluginPermission = "cron"          // Allows the plugin to use the cron manager
+	PluginPermissionStorage      PluginPermissionScope = "storage"       // Allows the plugin to store its own data
+	PluginPermissionDatabase     PluginPermissionScope = "database"      // Allows the plugin to read non-auth data from the database and write to it
+	PluginPermissionPlayback     PluginPermissionScope = "playback"      // Allows the plugin to use the playback manager
+	PluginPermissionAnilist      PluginPermissionScope = "anilist"       // Allows the plugin to use the Anilist client
+	PluginPermissionAnilistToken PluginPermissionScope = "anilist-token" // Allows the plugin to see and use the Anilist token
+	PluginPermissionSystem       PluginPermissionScope = "system"        // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
+	PluginPermissionCron         PluginPermissionScope = "cron"          // Allows the plugin to use the cron manager
 )
 
 type PluginManifest struct {
 	Version string `json:"version"`
 	// Permissions is a list of permissions that the plugin is asking for.
 	// The user must acknowledge these permissions before the plugin can be loaded.
-	Permissions []PluginPermission `json:"permissions,omitempty"`
-	// SystemAllowlist is a list of system permissions that the plugin is asking for.
-	// The user must acknowledge these permissions before the plugin can be loaded.
-	SystemAllowlist *PluginSystemAllowlist `json:"systemAllowlist,omitempty"`
+	Permissions PluginPermissions `json:"permissions,omitempty"`
 }
 
-// PluginSystemAllowlist is a list of system permissions that the plugin is asking for.
+type PluginPermissions struct {
+	Scopes []PluginPermissionScope `json:"scopes,omitempty"`
+	Allow  PluginAllowlist         `json:"allow,omitempty"`
+}
+
+// PluginAllowlist is a list of system permissions that the plugin is asking for.
 //
 // The user must acknowledge these permissions before the plugin can be loaded.
-type PluginSystemAllowlist struct {
-	// AllowReadPaths is a list of paths that the plugin is allowed to read from.
-	AllowReadPaths []string `json:"allowReadPaths,omitempty"`
-	// AllowWritePaths is a list of paths that the plugin is allowed to write to.
-	AllowWritePaths []string `json:"allowWritePaths,omitempty"`
+type PluginAllowlist struct {
+	// ReadPaths is a list of paths that the plugin is allowed to read from.
+	ReadPaths []string `json:"readPaths,omitempty"`
+	// WritePaths is a list of paths that the plugin is allowed to write to.
+	WritePaths []string `json:"writePaths,omitempty"`
 	// CommandScopes defines the commands that the plugin is allowed to execute.
 	// Each command scope has a unique identifier and configuration.
-	CommandScopes []*CommandScope `json:"commandScopes,omitempty"`
+	CommandScopes []CommandScope `json:"commandScopes,omitempty"`
 	// AllowCommands is a list of commands that the plugin is allowed to execute.
 	// This field is deprecated and kept for backward compatibility.
 	// Use CommandScopes instead.
@@ -63,7 +65,7 @@ type CommandArg struct {
 
 // ReadAllowCommands returns a human-readable representation of the commands
 // that the plugin is allowed to execute.
-func (p *PluginSystemAllowlist) ReadAllowCommands() []string {
+func (p *PluginAllowlist) ReadAllowCommands() []string {
 	if p == nil {
 		return []string{}
 	}

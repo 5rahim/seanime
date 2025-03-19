@@ -36,13 +36,12 @@ var (
 
 // TestPluginOptions contains options for initializing a test plugin
 type TestPluginOptions struct {
-	ID              string
-	Payload         string
-	Language        extension.Language
-	Permissions     []extension.PluginPermission
-	SystemAllowlist *extension.PluginSystemAllowlist
-	PoolSize        int
-	SetupHooks      bool
+	ID          string
+	Payload     string
+	Language    extension.Language
+	Permissions extension.PluginPermissions
+	PoolSize    int
+	SetupHooks  bool
 }
 
 // DefaultTestPluginOptions returns default options for a test plugin
@@ -51,7 +50,7 @@ func DefaultTestPluginOptions() TestPluginOptions {
 		ID:          "dummy-plugin",
 		Payload:     "",
 		Language:    extension.LanguageJavascript,
-		Permissions: nil,
+		Permissions: extension.PluginPermissions{},
 		PoolSize:    15,
 		SetupHooks:  true,
 	}
@@ -72,15 +71,13 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 		Language: opts.Language,
 	}
 
-	if len(opts.Permissions) > 0 {
+	if len(opts.Permissions.Scopes) > 0 {
 		ext.Plugin = &extension.PluginManifest{
 			Permissions: opts.Permissions,
 		}
 	}
 
-	if opts.SystemAllowlist != nil {
-		ext.Plugin.SystemAllowlist = opts.SystemAllowlist
-	}
+	ext.Plugin.Permissions.Allow = opts.Permissions.Allow
 
 	logger := util.NewLogger()
 	wsEventManager := events.NewMockWSEventManager(logger)
@@ -141,8 +138,10 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionPlayback,
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionPlayback,
+		},
 	}
 
 	_, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -173,12 +172,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{"$TEMP/*", testDocumentsDir},
-		AllowWritePaths: []string{"$TEMP/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{"$TEMP/*", testDocumentsDir},
+			WritePaths: []string{"$TEMP/*"},
+		},
 	}
 
 	_, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -222,8 +223,10 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionPlayback,
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionPlayback,
+		},
 	}
 
 	_, _, manager, _, _, err := InitTestPlugin(t, opts)

@@ -61,18 +61,31 @@ func (scn *Scanner) Scan() (lfs []*anime.LocalFile, err error) {
 
 	// Invoke ScanStarted hook
 	event := &ScanStartedEvent{
-		DirPath:       scn.DirPath,
-		OtherDirPaths: scn.OtherDirPaths,
-		Enhanced:      scn.Enhanced,
-		SkipLocked:    scn.SkipLockedFiles,
-		SkipIgnored:   scn.SkipIgnoredFiles,
+		LibraryPath:       scn.DirPath,
+		OtherLibraryPaths: scn.OtherDirPaths,
+		Enhanced:          scn.Enhanced,
+		SkipLocked:        scn.SkipLockedFiles,
+		SkipIgnored:       scn.SkipIgnoredFiles,
+		LocalFiles:        scn.ExistingLocalFiles,
 	}
 	_ = hook.GlobalHookManager.OnScanStarted().Trigger(event)
-	scn.DirPath = event.DirPath
-	scn.OtherDirPaths = event.OtherDirPaths
+	scn.DirPath = event.LibraryPath
+	scn.OtherDirPaths = event.OtherLibraryPaths
 	scn.Enhanced = event.Enhanced
 	scn.SkipLockedFiles = event.SkipLocked
 	scn.SkipIgnoredFiles = event.SkipIgnored
+
+	// Default prevented, return the local files
+	if event.DefaultPrevented {
+		// Invoke ScanCompleted hook
+		completedEvent := &ScanCompletedEvent{
+			LocalFiles: event.LocalFiles,
+			Duration:   int(time.Since(startTime).Milliseconds()),
+		}
+		hook.GlobalHookManager.OnScanCompleted().Trigger(completedEvent)
+
+		return completedEvent.LocalFiles, nil
+	}
 
 	// +---------------------+
 	// |     File paths      |

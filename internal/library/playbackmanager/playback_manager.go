@@ -254,6 +254,11 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 	}
 	opts.Payload = event.Path
 
+	if event.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Local file playback prevented by hook")
+		return nil
+	}
+
 	pm.playlistHub.reset()
 	if err := pm.checkOrLoadAnimeCollection(); err != nil {
 		return err
@@ -270,10 +275,10 @@ func (pm *PlaybackManager) StartPlayingUsingMediaPlayer(opts *StartPlayingOption
 		return err
 	}
 
-	trackingEvent := &PrePlaybackTrackingEvent{
+	trackingEvent := &PlaybackBeforeTrackingEvent{
 		IsStream: false,
 	}
-	err = hook.GlobalHookManager.OnPrePlaybackTracking().Trigger(trackingEvent)
+	err = hook.GlobalHookManager.OnPlaybackBeforeTracking().Trigger(trackingEvent)
 	if err != nil {
 		return err
 	}
@@ -306,6 +311,7 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 	}
 
 	if event.DefaultPrevented {
+		pm.Logger.Debug().Msg("playback manager: Stream playback prevented by hook")
 		return nil
 	}
 
@@ -356,10 +362,10 @@ func (pm *PlaybackManager) StartStreamingUsingMediaPlayer(windowTitle string, op
 
 	pm.Logger.Trace().Msg("playback manager: Sent stream to media player")
 
-	trackingEvent := &PrePlaybackTrackingEvent{
+	trackingEvent := &PlaybackBeforeTrackingEvent{
 		IsStream: true,
 	}
-	err = hook.GlobalHookManager.OnPrePlaybackTracking().Trigger(trackingEvent)
+	err = hook.GlobalHookManager.OnPlaybackBeforeTracking().Trigger(trackingEvent)
 	if err != nil {
 		return err
 	}
@@ -455,6 +461,26 @@ func (pm *PlaybackManager) AutoPlayNextEpisode() error {
 	// Remove the next episode from the queue
 	pm.nextEpisodeLocalFile = mo.None[*anime.LocalFile]()
 
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func (pm *PlaybackManager) Pause() error {
+	return pm.MediaPlayerRepository.Pause()
+}
+
+func (pm *PlaybackManager) Resume() error {
+	return pm.MediaPlayerRepository.Resume()
+}
+
+func (pm *PlaybackManager) Seek(seconds float64) error {
+	return pm.MediaPlayerRepository.Seek(seconds)
+}
+
+// Cancel stops the current media player playback and publishes a "normal" event.
+func (pm *PlaybackManager) Cancel() error {
+	pm.MediaPlayerRepository.Stop()
 	return nil
 }
 

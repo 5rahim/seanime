@@ -14,7 +14,7 @@ type Type string
 
 type Language string
 
-type PluginPermission string
+type PluginPermissionScope string
 
 const (
 	TypeAnimeTorrentProvider Type = "anime-torrent-provider"
@@ -198,10 +198,10 @@ type (
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (p *PluginPermission) String() string {
+func (p *PluginPermissionScope) String() string {
 	return string(*p)
 }
 
-func (p *PluginPermission) Is(str string) bool {
+func (p *PluginPermissionScope) Is(str string) bool {
 	return strings.EqualFold(string(*p), str)
 }

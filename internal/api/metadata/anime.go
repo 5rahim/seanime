@@ -60,6 +60,9 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 
 	// Default prevented by hook, return the metadata
 	if reqEvent.DefaultPrevented {
+		if reqEvent.EpisodeMetadata == nil {
+			return ret
+		}
 		return *reqEvent.EpisodeMetadata
 	}
 
@@ -113,6 +116,9 @@ func (aw *AnimeWrapperImpl) GetEpisodeMetadata(epNum int) (ret EpisodeMetadata) 
 	event.EpisodeNumber = epNum
 	event.MediaId = aw.baseAnime.GetID()
 	hook.GlobalHookManager.OnAnimeEpisodeMetadataEvent().Trigger(event)
+	if event.EpisodeMetadata == nil {
+		return ret
+	}
 	ret = *event.EpisodeMetadata
 
 	return ret

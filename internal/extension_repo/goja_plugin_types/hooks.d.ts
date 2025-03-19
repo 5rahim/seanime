@@ -217,16 +217,23 @@ declare namespace $app {
      * @event AnimeEntryRequestedEvent
      * @file internal/library/anime/hook_events.go
      * @description
-     * AnimeEntryRequestedEvent is triggered when a new media entry is being created.
+     * AnimeEntryRequestedEvent is triggered when an anime entry is requested.
+     * Prevent default to skip the default behavior and return the modified entry.
+     * This event is triggered before [AnimeEntryEvent].
+     * If the modified entry is nil, an error will be returned.
      */
     function onAnimeEntryRequested(cb: (event: AnimeEntryRequestedEvent) => void);
 
     interface AnimeEntryRequestedEvent {
         next();
 
+        entry?: Anime_Entry;
+
         mediaId: number;
         localFiles?: Array<Anime_LocalFile>;
         animeCollection?: AL_AnimeCollection;
+
+        preventDefault();
     }
 
     /**
@@ -234,6 +241,7 @@ declare namespace $app {
      * @file internal/library/anime/hook_events.go
      * @description
      * AnimeEntryEvent is triggered when the media entry is being returned.
+     * This event is triggered after [AnimeEntryRequestedEvent].
      */
     function onAnimeEntry(cb: (event: AnimeEntryEvent) => void);
 
@@ -248,7 +256,8 @@ declare namespace $app {
      * @file internal/library/anime/hook_events.go
      * @description
      * AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry.
-     * Prevent default to avoid adding the filler data.
+     * This event is triggered after [AnimeEntryEvent].
+     * Prevent default to skip the filler data.
      */
     function onAnimeEntryFillerHydration(cb: (event: AnimeEntryFillerHydrationEvent) => void);
 
@@ -265,6 +274,7 @@ declare namespace $app {
      * @file internal/library/anime/hook_events.go
      * @description
      * AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry.
+     * This is triggered before [AnimeEntryLibraryDataEvent].
      */
     function onAnimeEntryLibraryDataRequested(cb: (event: AnimeEntryLibraryDataRequestedEvent) => void);
 
@@ -281,6 +291,7 @@ declare namespace $app {
      * @file internal/library/anime/hook_events.go
      * @description
      * AnimeEntryLibraryDataEvent is triggered when the library data is being added to the media entry.
+     * This is triggered after [AnimeEntryLibraryDataRequestedEvent].
      */
     function onAnimeEntryLibraryData(cb: (event: AnimeEntryLibraryDataEvent) => void);
 
@@ -295,11 +306,14 @@ declare namespace $app {
      * @file internal/library/anime/hook_events.go
      * @description
      * AnimeEntryManualMatchBeforeSaveEvent is triggered when the user manually matches local files to a media entry.
+     * Prevent default to skip saving the local files.
      */
     function onAnimeEntryManualMatchBeforeSave(cb: (event: AnimeEntryManualMatchBeforeSaveEvent) => void);
 
     interface AnimeEntryManualMatchBeforeSaveEvent {
         next();
+
+        preventDefault();
 
         mediaId: number;
         paths?: Array<string>;
@@ -310,21 +324,28 @@ declare namespace $app {
      * @event MissingEpisodesRequestedEvent
      * @file internal/library/anime/hook_events.go
      * @description
-     * MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for a media entry.
+     * MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for the entire library.
+     * Prevent default to skip the default process and return the modified missing episodes.
      */
     function onMissingEpisodesRequested(cb: (event: MissingEpisodesRequestedEvent) => void);
 
     interface MissingEpisodesRequestedEvent {
         next();
 
+        missingEpisodes?: Anime_MissingEpisodes;
+
         animeCollection?: AL_AnimeCollection;
         localFiles?: Array<Anime_LocalFile>;
         silencedMediaIds?: Array<number>;
+
+        preventDefault();
     }
 
     /**
      * @event MissingEpisodesEvent
      * @file internal/library/anime/hook_events.go
+     * @description
+     * MissingEpisodesEvent is triggered when the missing episodes are being returned.
      */
     function onMissingEpisodes(cb: (event: MissingEpisodesEvent) => void);
 
@@ -335,45 +356,46 @@ declare namespace $app {
     }
 
     /**
-     * @event AnimeLibraryCollectionEvent
-     * @file internal/library/anime/hook_events.go
-     */
-    function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void);
-
-    interface AnimeLibraryCollectionEvent {
-        next();
-
-        libraryCollection?: Anime_LibraryCollection;
-    }
-
-    /**
-     * @event AnimeLibraryStreamCollectionEvent
-     * @file internal/library/anime/hook_events.go
-     */
-    function onAnimeLibraryStreamCollection(cb: (event: AnimeLibraryStreamCollectionEvent) => void);
-
-    interface AnimeLibraryStreamCollectionEvent {
-        next();
-
-        streamCollection?: Anime_StreamCollection;
-    }
-
-    /**
      * @event AnimeLibraryCollectionRequestedEvent
      * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+     * Prevent default to skip the default process and return the modified library collection.
+     * If the modified library collection is nil, an error will be returned.
      */
     function onAnimeLibraryCollectionRequested(cb: (event: AnimeLibraryCollectionRequestedEvent) => void);
 
     interface AnimeLibraryCollectionRequestedEvent {
         next();
 
+        libraryCollection?: Anime_LibraryCollection;
+
         animeCollection?: AL_AnimeCollection;
         localFiles?: Array<Anime_LocalFile>;
+
+        preventDefault();
+    }
+
+    /**
+     * @event AnimeLibraryCollectionEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+     */
+    function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void);
+
+    interface AnimeLibraryCollectionEvent {
+        libraryCollection?: Anime_LibraryCollection;
+
+        next();
     }
 
     /**
      * @event AnimeLibraryStreamCollectionRequestedEvent
      * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeLibraryStreamCollectionRequestedEvent is triggered when the user requests the library stream collection.
+     * This is called when the user enables "Include in library" for either debrid/online/torrent streamings.
      */
     function onAnimeLibraryStreamCollectionRequested(cb: (event: AnimeLibraryStreamCollectionRequestedEvent) => void);
 
@@ -382,6 +404,20 @@ declare namespace $app {
 
         animeCollection?: AL_AnimeCollection;
         libraryCollection?: Anime_LibraryCollection;
+    }
+
+    /**
+     * @event AnimeLibraryStreamCollectionEvent
+     * @file internal/library/anime/hook_events.go
+     * @description
+     * AnimeLibraryStreamCollectionEvent is triggered when the library stream collection is being returned.
+     */
+    function onAnimeLibraryStreamCollection(cb: (event: AnimeLibraryStreamCollectionEvent) => void);
+
+    interface AnimeLibraryStreamCollectionEvent {
+        streamCollection?: Anime_StreamCollection;
+
+        next();
     }
 
 
@@ -455,6 +491,58 @@ declare namespace $app {
 
 
     /**
+     * @package continuity
+     */
+
+    /**
+     * @event WatchHistoryItemRequestedEvent
+     * @file internal/continuity/hook_events.go
+     * @description
+     * WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
+     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object
+     *     or set it to nil to indicate that the watch history item was not found.
+     */
+    function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void);
+
+    interface WatchHistoryItemRequestedEvent {
+        mediaId: number;
+        watchHistoryItem?: Continuity_WatchHistoryItem;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
+     * @event WatchHistoryLocalFileEpisodeItemRequestedEvent
+     * @file internal/continuity/hook_events.go
+     */
+    function onWatchHistoryLocalFileEpisodeItemRequested(cb: (event: WatchHistoryLocalFileEpisodeItemRequestedEvent) => void);
+
+    interface WatchHistoryLocalFileEpisodeItemRequestedEvent {
+        Path: string;
+        LocalFiles?: Array<Anime_LocalFile>;
+        watchHistoryItem?: Continuity_WatchHistoryItem;
+
+        next();
+    }
+
+    /**
+     * @event WatchHistoryStreamEpisodeItemRequestedEvent
+     * @file internal/continuity/hook_events.go
+     */
+    function onWatchHistoryStreamEpisodeItemRequested(cb: (event: WatchHistoryStreamEpisodeItemRequestedEvent) => void);
+
+    interface WatchHistoryStreamEpisodeItemRequestedEvent {
+        Episode: number;
+        MediaId: number;
+        watchHistoryItem?: Continuity_WatchHistoryItem;
+
+        next();
+    }
+
+
+    /**
      * @package debrid_client
      */
 
@@ -463,7 +551,7 @@ declare namespace $app {
      * @file internal/debrid/client/hook_events.go
      * @description
      * DebridSendStreamToMediaPlayerEvent is triggered when the debrid client is about to send a stream to the media player.
-     * Prevent default to skip the default playback and override the playback.
+     * Prevent default to skip the playback.
      */
     function onDebridSendStreamToMediaPlayer(cb: (event: DebridSendStreamToMediaPlayerEvent) => void);
 
@@ -507,22 +595,28 @@ declare namespace $app {
      * @event MangaEntryRequestedEvent
      * @file internal/manga/hook_events.go
      * @description
-     * MangaEntryRequestedEvent is triggered when a new media entry is being created.
+     * MangaEntryRequestedEvent is triggered when a manga entry is requested.
+     * Prevent default to skip the default behavior and return the modified entry.
+     * If the modified entry is nil, an error will be returned.
      */
     function onMangaEntryRequested(cb: (event: MangaEntryRequestedEvent) => void);
 
     interface MangaEntryRequestedEvent {
         next();
 
+        entry?: Manga_Entry;
+
         mediaId: number;
         mangaCollection?: AL_MangaCollection;
+
+        preventDefault();
     }
 
     /**
      * @event MangaEntryEvent
      * @file internal/manga/hook_events.go
      * @description
-     * MangaEntryEvent is triggered when the media entry is being returned.
+     * MangaEntryEvent is triggered when the manga entry is being returned.
      */
     function onMangaEntry(cb: (event: MangaEntryEvent) => void);
 
@@ -533,8 +627,24 @@ declare namespace $app {
     }
 
     /**
+     * @event MangaLibraryCollectionRequestedEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaLibraryCollectionRequestedEvent is triggered when the manga library collection is being requested.
+     */
+    function onMangaLibraryCollectionRequested(cb: (event: MangaLibraryCollectionRequestedEvent) => void);
+
+    interface MangaLibraryCollectionRequestedEvent {
+        mangaCollection?: AL_MangaCollection;
+
+        next();
+    }
+
+    /**
      * @event MangaLibraryCollectionEvent
      * @file internal/manga/hook_events.go
+     * @description
+     * MangaLibraryCollectionEvent is triggered when the manga library collection is being returned.
      */
     function onMangaLibraryCollection(cb: (event: MangaLibraryCollectionEvent) => void);
 
@@ -544,16 +654,55 @@ declare namespace $app {
         libraryCollection?: Manga_Collection;
     }
 
-    /**
-     * @event MangaLibraryCollectionRequestedEvent
-     * @file internal/manga/hook_events.go
-     */
-    function onMangaLibraryCollectionRequested(cb: (event: MangaLibraryCollectionRequestedEvent) => void);
 
-    interface MangaLibraryCollectionRequestedEvent {
+    /**
+     * @package mediaplayer
+     */
+
+    /**
+     * @event MediaPlayerLocalFileTrackingRequestedEvent
+     * @file internal/mediaplayers/mediaplayer/hook_events.go
+     * @description
+     * MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file
+     */
+    function onMediaPlayerLocalFileTrackingRequested(cb: (event: MediaPlayerLocalFileTrackingRequestedEvent) => void);
+
+    interface MediaPlayerLocalFileTrackingRequestedEvent {
+        /**
+         * Refresh the status of the player each x seconds
+         */
+        refreshDelay: number;
+        /**
+         * Maximum number of retries
+         */
+        maxRetries: number;
+
+        next();
+    }
+
+    /**
+     * @event MediaPlayerStreamTrackingRequestedEvent
+     * @file internal/mediaplayers/mediaplayer/hook_events.go
+     * @description
+     * MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream
+     */
+    function onMediaPlayerStreamTrackingRequested(cb: (event: MediaPlayerStreamTrackingRequestedEvent) => void);
+
+    interface MediaPlayerStreamTrackingRequestedEvent {
         next();
 
-        mangaCollection?: AL_MangaCollection;
+        /**
+         * Refresh the status of the player each x seconds
+         */
+        refreshDelay: number;
+        /**
+         * Maximum number of retries
+         */
+        maxRetries: number;
+        /**
+         * Maximum number of retries after the player has started
+         */
+        maxRetriesAfterStart: number;
     }
 
 
@@ -565,8 +714,10 @@ declare namespace $app {
      * @event AnimeMetadataRequestedEvent
      * @file internal/api/metadata/hook_events.go
      * @description
-     * AnimeMetadataRequestedEvent is triggered when anime metadata is requested.
-     * Prevent default to skip the default behavior and return the overridden metadata.
+     * AnimeMetadataRequestedEvent is triggered when anime metadata is requested and right before the metadata is processed.
+     * This event is followed by [AnimeMetadataEvent] which is triggered when the metadata is available.
+     * Prevent default to skip the default behavior and return the modified metadata.
+     * If the modified metadata is nil, an error will be returned.
      */
     function onAnimeMetadataRequested(cb: (event: AnimeMetadataRequestedEvent) => void);
 
@@ -576,14 +727,17 @@ declare namespace $app {
         preventDefault();
 
         mediaId: number;
-        overrideAnimeMetadata?: Metadata_AnimeMetadata;
+        animeMetadata?: Metadata_AnimeMetadata;
     }
 
     /**
      * @event AnimeMetadataEvent
      * @file internal/api/metadata/hook_events.go
      * @description
-     * AnimeMetadataEvent is triggered when anime metadata is available.
+     * AnimeMetadataEvent is triggered when anime metadata is available and is about to be returned.
+     * Anime metadata can be requested in many places, ranging from displaying the anime entry to starting a torrent stream.
+     * This event is triggered after [AnimeMetadataRequestedEvent].
+     * If the modified metadata is nil, an error will be returned.
      */
     function onAnimeMetadata(cb: (event: AnimeMetadataEvent) => void);
 
@@ -592,6 +746,46 @@ declare namespace $app {
 
         mediaId: number;
         animeMetadata?: Metadata_AnimeMetadata;
+    }
+
+    /**
+     * @event AnimeEpisodeMetadataRequestedEvent
+     * @file internal/api/metadata/hook_events.go
+     * @description
+     * AnimeEpisodeMetadataRequestedEvent is triggered when anime episode metadata is requested.
+     * Prevent default to skip the default behavior and return the overridden metadata.
+     * This event is triggered before [AnimeEpisodeMetadataEvent].
+     * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
+     */
+    function onAnimeEpisodeMetadataRequested(cb: (event: AnimeEpisodeMetadataRequestedEvent) => void);
+
+    interface AnimeEpisodeMetadataRequestedEvent {
+        animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+        episodeNumber: number;
+        mediaId: number;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
+     * @event AnimeEpisodeMetadataEvent
+     * @file internal/api/metadata/hook_events.go
+     * @description
+     * AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
+     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the
+     *     original AnimeMetadata object is not complete. This event is triggered after [AnimeEpisodeMetadataRequestedEvent]. If the modified episode
+     *     metadata is nil, an empty EpisodeMetadata object will be returned.
+     */
+    function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void);
+
+    interface AnimeEpisodeMetadataEvent {
+        animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+        episodeNumber: number;
+        mediaId: number;
+
+        next();
     }
 
 
@@ -637,20 +831,65 @@ declare namespace $app {
     }
 
     /**
-     * @event PrePlaybackTrackingEvent
+     * @event PlaybackBeforeTrackingEvent
      * @file internal/library/playbackmanager/hook_events.go
      * @description
-     * PrePlaybackTrackingEvent is triggered just before the playback tracking starts.
-     * Prevent default to skip the default playback tracking.
+     * PlaybackBeforeTrackingEvent is triggered just before the playback tracking starts.
+     * Prevent default to skip playback tracking.
      */
-    function onPrePlaybackTracking(cb: (event: PrePlaybackTrackingEvent) => void);
+    function onPlaybackBeforeTracking(cb: (event: PlaybackBeforeTrackingEvent) => void);
 
-    interface PrePlaybackTrackingEvent {
+    interface PlaybackBeforeTrackingEvent {
         next();
 
         preventDefault();
 
         isStream: boolean;
+    }
+
+    /**
+     * @event PlaybackLocalFileDetailsRequestedEvent
+     * @file internal/library/playbackmanager/hook_events.go
+     * @description
+     * PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
+     * This event is triggered right after the media player loads an episode.
+     * The playback manager uses the local files details to track the progress, propose next episodes, etc.
+     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media
+     *     and anime list entry. Prevent default to skip the default fetching and override the details.
+     */
+    function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void);
+
+    interface PlaybackLocalFileDetailsRequestedEvent {
+        path: string;
+        localFiles?: Array<Anime_LocalFile>;
+        animeListEntry?: AL_AnimeListEntry;
+        localFile?: Anime_LocalFile;
+        localFileWrapperEntry?: Anime_LocalFileWrapperEntry;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
+     * @event PlaybackStreamDetailsRequestedEvent
+     * @file internal/library/playbackmanager/hook_events.go
+     * @description
+     * PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
+     * Prevent default to skip the default fetching and override the details.
+     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is
+     *     still tracked.
+     */
+    function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void);
+
+    interface PlaybackStreamDetailsRequestedEvent {
+        animeCollection?: AL_AnimeCollection;
+        mediaId: number;
+        animeListEntry?: AL_AnimeListEntry;
+
+        next();
+
+        preventDefault();
     }
 
 
@@ -662,53 +901,62 @@ declare namespace $app {
      * @event ScanStartedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanStartedEvent is triggered when the scanning process begins
+     * ScanStartedEvent is triggered when the scanning process begins.
+     * Prevent default to skip the rest of the scanning process and return the local files.
      */
     function onScanStarted(cb: (event: ScanStartedEvent) => void);
 
     interface ScanStartedEvent {
         next();
 
-        dirPath: string;
-        otherDirPaths?: Array<string>;
+        libraryPath: string;
+        otherLibraryPaths?: Array<string>;
+        localFiles?: Array<Anime_LocalFile>;
         enhanced: boolean;
         skipLocked: boolean;
         skipIgnored: boolean;
+
+        preventDefault();
     }
 
     /**
      * @event ScanFilePathsRetrievedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved
+     * ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved.
+     * The event includes file paths from all directories to scan.
+     * The event includes file paths of local files that will be skipped.
      */
     function onScanFilePathsRetrieved(cb: (event: ScanFilePathsRetrievedEvent) => void);
 
     interface ScanFilePathsRetrievedEvent {
-        filePaths?: Array<string>;
-
         next();
+
+        filePaths?: Array<string>;
     }
 
     /**
      * @event ScanLocalFilesParsedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects
+     * ScanLocalFilesParsedEvent is triggered right after the file paths are parsed into local file objects.
+     * The event does not include local files that are skipped.
      */
     function onScanLocalFilesParsed(cb: (event: ScanLocalFilesParsedEvent) => void);
 
     interface ScanLocalFilesParsedEvent {
-        localFiles?: Array<Anime_LocalFile>;
-
         next();
+
+        localFiles?: Array<Anime_LocalFile>;
     }
 
     /**
      * @event ScanCompletedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanCompletedEvent is triggered when the scanning process finishes
+     * ScanCompletedEvent is triggered when the scanning process finishes.
+     * The event includes all the local files (skipped and scanned) to be inserted as a new entry.
+     * Right after this event, the local files will be inserted as a new entry.
      */
     function onScanCompleted(cb: (event: ScanCompletedEvent) => void);
 
@@ -726,7 +974,7 @@ declare namespace $app {
      * @event ScanMediaFetcherStartedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanMediaFetcherStartedEvent is triggered when the media fetcher begins
+     * ScanMediaFetcherStartedEvent is triggered right before Seanime starts fetching media to be matched against the local files.
      */
     function onScanMediaFetcherStarted(cb: (event: ScanMediaFetcherStartedEvent) => void);
 
@@ -740,7 +988,9 @@ declare namespace $app {
      * @event ScanMediaFetcherCompletedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes
+     * ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes.
+     * The event includes all the media fetched from AniList.
+     * The event includes the media IDs that are not in the user's collection.
      */
     function onScanMediaFetcherCompleted(cb: (event: ScanMediaFetcherCompletedEvent) => void);
 
@@ -756,7 +1006,7 @@ declare namespace $app {
      * @file internal/library/scanner/hook_events.go
      * @description
      * ScanMatchingStartedEvent is triggered when the matching process begins.
-     * Prevent default to skip the default matching and override the matching.
+     * Prevent default to skip the default matching, in which case modified local files will be used.
      */
     function onScanMatchingStarted(cb: (event: ScanMatchingStartedEvent) => void);
 
@@ -795,7 +1045,7 @@ declare namespace $app {
      * @event ScanMatchingCompletedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanMatchingCompletedEvent is triggered when the matching process completes
+     * ScanMatchingCompletedEvent is triggered when the matching process completes.
      */
     function onScanMatchingCompleted(cb: (event: ScanMatchingCompletedEvent) => void);
 
@@ -809,12 +1059,15 @@ declare namespace $app {
      * @event ScanHydrationStartedEvent
      * @file internal/library/scanner/hook_events.go
      * @description
-     * ScanHydrationStartedEvent is triggered when the file hydration process begins
+     * ScanHydrationStartedEvent is triggered when the file hydration process begins.
+     * Prevent default to skip the rest of the hydration process, in which case the event's local files will be used.
      */
     function onScanHydrationStarted(cb: (event: ScanHydrationStartedEvent) => void);
 
     interface ScanHydrationStartedEvent {
         next();
+
+        preventDefault();
 
         localFiles?: Array<Anime_LocalFile>;
         allMedia?: Array<Anime_NormalizedMedia>;
@@ -852,20 +1105,6 @@ declare namespace $app {
         localFile?: Anime_LocalFile;
         mediaId: number;
         episode: number;
-    }
-
-    /**
-     * @event ScanHydrationCompletedEvent
-     * @file internal/library/scanner/hook_events.go
-     * @description
-     * ScanHydrationCompletedEvent is triggered when the file hydration process completes
-     */
-    function onScanHydrationCompleted(cb: (event: ScanHydrationCompletedEvent) => void);
-
-    interface ScanHydrationCompletedEvent {
-        next();
-
-        localFiles?: Array<Anime_LocalFile>;
     }
 
 
@@ -2137,6 +2376,25 @@ declare namespace $app {
         releaseGroup?: string;
         isBestRelease: boolean;
         confirmed: boolean;
+    }
+
+    /**
+     * - Filepath: internal/continuity/manager.go
+     */
+    export type Continuity_Kind = "onlinestream" | "mediastream" | "external_player";
+
+    /**
+     * - Filepath: internal/continuity/history.go
+     */
+    interface Continuity_WatchHistoryItem {
+        kind: Continuity_Kind;
+        filepath: string;
+        mediaId: number;
+        episodeNumber: number;
+        currentTime: number;
+        duration: number;
+        timeAdded?: string;
+        timeUpdated?: string;
     }
 
     /**

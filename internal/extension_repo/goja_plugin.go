@@ -234,7 +234,7 @@ func (p *GojaPlugin) BindPluginAPIs(vm *goja.Runtime, logger *zerolog.Logger) {
 
 	// Bind permission-specific APIs
 	if p.ext.Plugin != nil {
-		for _, permission := range p.ext.Plugin.Permissions {
+		for _, permission := range p.ext.Plugin.Permissions.Scopes {
 			switch permission {
 			case extension.PluginPermissionStorage: // Storage
 				p.storage = plugin.GlobalAppContext.BindStorage(vm, logger, p.ext, p.scheduler)

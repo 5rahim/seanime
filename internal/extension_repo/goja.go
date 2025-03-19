@@ -7,6 +7,7 @@ import (
 	"io"
 	"reflect"
 	goja_bindings "seanime/internal/goja/goja_bindings"
+	"seanime/internal/library/anime"
 	"seanime/internal/plugin"
 	"time"
 
@@ -164,6 +165,12 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return habari.Parse(filename)
 	})
 	vm.Set("$habari", habariObj)
+
+	animeUtilsObj := vm.NewObject()
+	_ = animeUtilsObj.Set("newLocalFileWrapper", func(lfs []*anime.LocalFile) *anime.LocalFileWrapper {
+		return anime.NewLocalFileWrapper(lfs)
+	})
+	vm.Set("$animeUtils", animeUtilsObj)
 }
 
 // JSVMTypescriptToJS converts typescript to javascript

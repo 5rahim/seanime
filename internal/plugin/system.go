@@ -87,6 +87,36 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		}
 		return os.TempDir(), nil
 	})
+	_ = osObj.Set("configDir", func() (string, error) {
+		configDir, err := os.UserConfigDir()
+		if err != nil {
+			return "", err
+		}
+		if !a.isAllowedPath(ext, configDir, AllowPathRead) {
+			return "", fmt.Errorf("$os.configDir: path (%s) not authorized for read", configDir)
+		}
+		return configDir, nil
+	})
+	_ = osObj.Set("homeDir", func() (string, error) {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		if !a.isAllowedPath(ext, homeDir, AllowPathRead) {
+			return "", fmt.Errorf("$os.homeDir: path (%s) not authorized for read", homeDir)
+		}
+		return homeDir, nil
+	})
+	_ = osObj.Set("cacheDir", func() (string, error) {
+		cacheDir, err := os.UserCacheDir()
+		if err != nil {
+			return "", err
+		}
+		if !a.isAllowedPath(ext, cacheDir, AllowPathRead) {
+			return "", fmt.Errorf("$os.cacheDir: path (%s) not authorized for read", cacheDir)
+		}
+		return cacheDir, nil
+	})
 	_ = osObj.Set("truncate", func(path string, size int64) error {
 		if !a.isAllowedPath(ext, path, AllowPathWrite) {
 			return fmt.Errorf("$os.truncate: path (%s) not authorized for write", path)
@@ -368,6 +398,52 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		return util.UnrarFile(src, dest)
 	})
 
+	osExtraObj.Set("downloadDir", func() (string, error) {
+		donwloadDir, err := util.DownloadDir()
+		if err != nil {
+			return "", err
+		}
+		if !a.isAllowedPath(ext, donwloadDir, AllowPathRead) {
+			return "", fmt.Errorf("$osExtra.downloadDir: path not authorized for read")
+		}
+		return donwloadDir, nil
+	})
+
+	osExtraObj.Set("desktopDir", func() (string, error) {
+		desktopDir, err := util.DesktopDir()
+		if err != nil {
+			return "", err
+		}
+		if !a.isAllowedPath(ext, desktopDir, AllowPathRead) {
+			return "", fmt.Errorf("$osExtra.desktopDir: path not authorized for read")
+		}
+		return desktopDir, nil
+	})
+
+	osExtraObj.Set("documentsDir", func() (string, error) {
+		documentsDir, err := util.DocumentsDir()
+		if err != nil {
+			return "", err
+		}
+		if !a.isAllowedPath(ext, documentsDir, AllowPathRead) {
+			return "", fmt.Errorf("$osExtra.documentsDir: path not authorized for read")
+		}
+		return documentsDir, nil
+	})
+
+	osExtraObj.Set("libraryDirs", func() ([]string, error) {
+		libraryDirs := []string{}
+		if animeLibraryPaths, ok := a.animeLibraryPaths.Get(); ok && len(animeLibraryPaths) > 0 {
+			for _, path := range animeLibraryPaths {
+				if !a.isAllowedPath(ext, path, AllowPathRead) {
+					return nil, fmt.Errorf("$osExtra.libraryDirs: path not authorized for read")
+				}
+				libraryDirs = append(libraryDirs, path)
+			}
+		}
+		return libraryDirs, nil
+	})
+
 	_ = vm.Set("$osExtra", osExtraObj)
 
 	//////////////////////////////////////
@@ -427,6 +503,24 @@ func (a *AppContextImpl) resolveEnvironmentPaths(name string) []string {
 			return []string{}
 		}
 		return []string{configDir}
+	case "DOWNLOADS":
+		downloadDir, err := util.DownloadDir()
+		if err != nil {
+			return []string{}
+		}
+		return []string{downloadDir}
+	case "DESKTOP":
+		desktopDir, err := util.DesktopDir()
+		if err != nil {
+			return []string{}
+		}
+		return []string{desktopDir}
+	case "DOCUMENTS":
+		documentsDir, err := util.DocumentsDir()
+		if err != nil {
+			return []string{}
+		}
+		return []string{documentsDir}
 	}
 
 	return []string{}
@@ -434,16 +528,16 @@ func (a *AppContextImpl) resolveEnvironmentPaths(name string) []string {
 
 func (a *AppContextImpl) isAllowedPath(ext *extension.Extension, path string, mode int) bool {
 	// If the extension doesn't have a plugin manifest or system allowlist, deny access
-	if ext == nil || ext.Plugin == nil || ext.Plugin.SystemAllowlist == nil {
+	if ext == nil || ext.Plugin == nil {
 		return false
 	}
 
 	// Get the appropriate patterns based on the mode
 	var patterns []string
 	if mode == AllowPathRead {
-		patterns = ext.Plugin.SystemAllowlist.AllowReadPaths
+		patterns = ext.Plugin.Permissions.Allow.ReadPaths
 	} else if mode == AllowPathWrite {
-		patterns = ext.Plugin.SystemAllowlist.AllowWritePaths
+		patterns = ext.Plugin.Permissions.Allow.WritePaths
 	} else {
 		// Unknown mode
 		return false
@@ -632,12 +726,12 @@ func (a *AppContextImpl) resolvePattern(pattern string) []string {
 
 func (a *AppContextImpl) isAllowedCommand(ext *extension.Extension, name string, arg ...string) bool {
 	// If the extension doesn't have a plugin manifest or system allowlist, deny access
-	if ext == nil || ext.Plugin == nil || ext.Plugin.SystemAllowlist == nil {
+	if ext == nil || ext.Plugin == nil {
 		return false
 	}
 
 	// Get the system allowlist
-	allowlist := ext.Plugin.SystemAllowlist
+	allowlist := ext.Plugin.Permissions.Allow
 
 	// Check if the command is allowed in any of the command scopes
 	for _, scope := range allowlist.CommandScopes {
@@ -668,6 +762,9 @@ func (a *AppContextImpl) isAllowedCommand(ext *extension.Extension, name string,
 func (a *AppContextImpl) validateCommandArgs(ext *extension.Extension, allowedArgs []extension.CommandArg, providedArgs []string) bool {
 	// If more args are provided than allowed, deny access
 	if len(providedArgs) > len(allowedArgs) {
+		if len(allowedArgs) > 0 && allowedArgs[len(allowedArgs)-1].Validator == "$ARGS" {
+			return true
+		}
 		return false
 	}
 
@@ -688,9 +785,9 @@ func (a *AppContextImpl) validateCommandArgs(ext *extension.Extension, allowedAr
 
 		// If the argument has a validator, check if it matches
 		if allowedArg.Validator != "" {
-			// Special case: $ARGS allows any value
+			// Special case: $ARGS allows any value for the rest of the arguments
 			if allowedArg.Validator == "$ARGS" {
-				continue
+				return true
 			}
 
 			// Special case: $PATH allows any valid file path

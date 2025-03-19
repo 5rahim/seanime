@@ -134,10 +134,10 @@ func (d *Database) insertLocalFiles(files []*anime.LocalFile) ([]*anime.LocalFil
 }
 
 func (d *Database) getAnilistToken() (string, error) {
-	if d.ext.Plugin == nil || len(d.ext.Plugin.Permissions) == 0 {
+	if d.ext.Plugin == nil || len(d.ext.Plugin.Permissions.Scopes) == 0 {
 		return "", errors.New("permission denied")
 	}
-	if !util.Contains(d.ext.Plugin.Permissions, extension.PluginPermissionAnilistToken) {
+	if !util.Contains(d.ext.Plugin.Permissions.Scopes, extension.PluginPermissionAnilistToken) {
 		return "", errors.New("permission denied")
 	}
 	db, ok := d.ctx.database.Get()

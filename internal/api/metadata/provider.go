@@ -77,11 +77,26 @@ func (p *ProviderImpl) GetAnimeMetadata(platform Platform, mId int) (ret *AnimeM
 
 	// Default prevented by hook, return the metadata
 	if reqEvent.DefaultPrevented {
-		if reqEvent.AnimeMetadata != nil {
-			p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), reqEvent.AnimeMetadata, 1*time.Hour)
-			return reqEvent.AnimeMetadata, nil
+		// Override the metadata
+		ret = reqEvent.AnimeMetadata
+
+		// Trigger the event
+		event := &AnimeMetadataEvent{
+			MediaId:       mId,
+			AnimeMetadata: ret,
 		}
-		return nil, errors.New("no metadata was returned")
+		err = hook.GlobalHookManager.OnAnimeMetadataEvent().Trigger(event)
+		if err != nil {
+			return nil, err
+		}
+		ret = event.AnimeMetadata
+		mId = event.MediaId
+
+		if ret == nil {
+			return nil, errors.New("no metadata was returned")
+		}
+		p.animeMetadataCache.SetT(GetAnimeMetadataCacheKey(platform, mId), ret, 1*time.Hour)
+		return ret, nil
 	}
 
 	anizipMedia, err := anizip.FetchAniZipMediaC(string(platform), mId, p.anizipCache)

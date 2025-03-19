@@ -142,7 +142,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	c.domManager.BindToObj(vm, obj)
 
 	if c.ext.Plugin != nil {
-		for _, permission := range c.ext.Plugin.Permissions {
+		for _, permission := range c.ext.Plugin.Permissions.Scopes {
 			switch permission {
 			case extension.PluginPermissionPlayback:
 				// Bind playback to the context object

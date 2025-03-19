@@ -28,15 +28,15 @@ type (
 
 func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOptions) {
 
-	optsEvent := new(anime.AnimeLibraryStreamCollectionRequestedEvent)
-	optsEvent.AnimeCollection = opts.AnimeCollection
-	optsEvent.LibraryCollection = opts.LibraryCollection
-	err := hook.GlobalHookManager.OnAnimeLibraryStreamCollectionRequested().Trigger(optsEvent)
+	reqEvent := new(anime.AnimeLibraryStreamCollectionRequestedEvent)
+	reqEvent.AnimeCollection = opts.AnimeCollection
+	reqEvent.LibraryCollection = opts.LibraryCollection
+	err := hook.GlobalHookManager.OnAnimeLibraryStreamCollectionRequested().Trigger(reqEvent)
 	if err != nil {
 		return
 	}
-	opts.AnimeCollection = optsEvent.AnimeCollection
-	opts.LibraryCollection = optsEvent.LibraryCollection
+	opts.AnimeCollection = reqEvent.AnimeCollection
+	opts.LibraryCollection = reqEvent.LibraryCollection
 
 	lists := opts.AnimeCollection.MediaListCollection.GetLists()
 	// Get the anime that are currently being watched

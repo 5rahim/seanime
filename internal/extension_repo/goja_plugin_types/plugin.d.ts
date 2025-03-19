@@ -244,6 +244,47 @@ declare namespace $ui {
          * @returns A function to remove the event listener
          */
         registerEventListener(id: string, callback: (event: PlaybackEvent) => void): () => void
+
+        /**
+         * Cancels the tracking of the current media being played.
+         * Note that this does not stop/close the media player.
+         * @throws Error if an error occurs, or if the playback is not running
+         */
+        cancel(): void
+
+        /**
+         * Pauses the playback
+         * @throws Error if an error occurs, or if the playback is not running
+         */
+        pause(): void
+
+        /**
+         * Resumes the playback
+         * @throws Error if an error occurs, or if the playback is not paused
+         */
+        resume(): void
+
+        /**
+         * Seeks to a specific position in the playback
+         * @param seconds - The position to seek to
+         * @throws Error if an error occurs, or if the playback is not running
+         */
+        seek(seconds: number): void
+
+        /**
+         * Gets the next episode to play for the current media being played
+         * @returns The next episode to play
+         */
+        getNextEpisode(): $app.Anime_LocalFile | undefined
+
+        /**
+         * Plays the next episode for the current media being played
+         * @throws Error if an error occurs, or if the playback is not running
+         */
+        playNextEpisode(): void
+        
+
+        
     }
 
     interface PlaybackEvent {

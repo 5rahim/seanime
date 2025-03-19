@@ -107,12 +107,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{"$TEMP/*"},
-		AllowWritePaths: []string{"$TEMP/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -206,12 +208,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/*"},
-		AllowWritePaths: []string{tempDir + "/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/*"},
+			WritePaths: []string{tempDir + "/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -297,12 +301,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/*"},
-		AllowWritePaths: []string{tempDir + "/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/*"},
+			WritePaths: []string{tempDir + "/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -377,12 +383,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -438,7 +446,9 @@ function init() {
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
 	// Deliberately NOT including the system permission
-	opts.Permissions = []extension.PluginPermission{}
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{},
+	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
@@ -536,12 +546,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -674,12 +686,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -824,12 +838,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -929,12 +945,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -1109,12 +1127,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, logger, manager, _, _, err := InitTestPlugin(t, opts)
@@ -1305,12 +1325,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -1491,30 +1513,32 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
-		CommandScopes: []*extension.CommandScope{
-			{
-				Command: "ls",
-				Args: []extension.CommandArg{
-					{Value: "-la"},
-					{Validator: "$PATH"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+			CommandScopes: []extension.CommandScope{
+				{
+					Command: "ls",
+					Args: []extension.CommandArg{
+						{Value: "-la"},
+						{Validator: "$PATH"},
+					},
 				},
-			},
-			{
-				Command: "grep",
-				Args: []extension.CommandArg{
-					{Value: "Hello"},
-					{Validator: "$PATH"},
+				{
+					Command: "grep",
+					Args: []extension.CommandArg{
+						{Value: "Hello"},
+						{Validator: "$PATH"},
+					},
 				},
-			},
-			{
-				Command: "sort",
-				Args:    []extension.CommandArg{},
+				{
+					Command: "sort",
+					Args:    []extension.CommandArg{},
+				},
 			},
 		},
 	}
@@ -1636,12 +1660,14 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
-	}
-	opts.SystemAllowlist = &extension.PluginSystemAllowlist{
-		AllowReadPaths:  []string{tempDir + "/**/*"},
-		AllowWritePaths: []string{tempDir + "/**/*"},
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
@@ -1722,8 +1748,10 @@ function init() {
 
 	opts := DefaultTestPluginOptions()
 	opts.Payload = payload
-	opts.Permissions = []extension.PluginPermission{
-		extension.PluginPermissionSystem,
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
 	}
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)

@@ -6,7 +6,7 @@ import (
 )
 
 // DebridSendStreamToMediaPlayerEvent is triggered when the debrid client is about to send a stream to the media player.
-// Prevent default to skip the default playback and override the playback.
+// Prevent default to skip the playback.
 type DebridSendStreamToMediaPlayerEvent struct {
 	hook_resolver.Event
 	WindowTitle  string             `json:"windowTitle"`

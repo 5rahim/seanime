@@ -16,7 +16,7 @@ declare namespace $os {
      * @param args The arguments to pass to the command
      * @returns A command object or an error if the command is not authorized
      */
-    function cmd(name: string, ...args: string[]): Cmd;
+    function cmd(name: string, ...args: string[]): $os.Cmd;
 
     /**
      * Reads the entire file specified by path.
@@ -42,13 +42,35 @@ declare namespace $os {
      * @returns An array of directory entries
      * @throws Error if the path is not authorized for reading
      */
-    function readDir(path: string): DirEntry[];
+    function readDir(path: string): $os.DirEntry[];
 
     /**
      * Returns the default directory to use for temporary files.
      * @returns The temporary directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
      */
     function tempDir(): string;
+
+    /**
+     * Returns the user's configuration directory.
+     * @returns The configuration directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
+     */
+    function configDir(): string;
+
+    /**
+     * Returns the user's home directory.
+     * @returns The home directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
+     */
+    function homeDir(): string;
+
+    /**
+     * Returns the user's cache directory.
+     * @returns The cache directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
+     */
+    function cacheDir(): string;
 
     /**
      * Changes the size of the named file.
@@ -102,7 +124,7 @@ declare namespace $os {
      * @returns Information about the file
      * @throws Error if the path is not authorized for reading
      */
-    function stat(path: string): FileInfo;
+    function stat(path: string): $os.FileInfo;
 
     /**
      * Opens a file for reading and writing.
@@ -111,26 +133,29 @@ declare namespace $os {
      * @param perm The file mode (permissions)
      * @returns A file object or an error if the file is not authorized for writing
      */
-    function openFile(path: string, flag: number, perm: number): File;
+    function openFile(path: string, flag: number, perm: number): $os.File;
 
 
     interface File {
-        chmod(mode: FileMode): void;
+        chmod(mode: $os.FileMode): void;
         chown(uid: number, gid: number): void;
         close(): void;
         fd(): number;
         name(): string;
         read(b: Uint8Array): number;
         readAt(b: Uint8Array, off: number): number;
-        readDir(n: number): DirEntry[];
+
+        readDir(n: number): $os.DirEntry[];
         readFrom(r: io.Reader): number;
-        readdir(n: number): FileInfo[];
+
+        readdir(n: number): $os.FileInfo[];
         readdirnames(n: number): string[];
         seek(offset: number, whence: number): number;
         setDeadline(t: Date): void;
         setReadDeadline(t: Date): void;
         setWriteDeadline(t: Date): void;
-        stat(): FileInfo;
+
+        stat(): $os.FileInfo;
         sync(): void;
         syscallConn(): any; /* Not documented */
         truncate(size: number): void;
@@ -285,7 +310,7 @@ declare namespace $os {
         size(): number;
 
         /** File mode bits */
-        mode(): FileMode;
+        mode(): $os.FileMode;
 
         /** Modification time */
         modTime(): Date;
@@ -308,10 +333,10 @@ declare namespace $os {
         isDir(): boolean;
 
         /** Returns the type bits for the entry */
-        type(): FileMode;
+        type(): $os.FileMode;
 
         /** Returns the FileInfo for the file or subdirectory described by the entry */
-        info(): FileInfo;
+        info(): $os.FileInfo;
     }
 
     /**
@@ -374,6 +399,9 @@ declare namespace $os {
  * Filepath module provides functions to manipulate file paths in a way compatible with the target operating system.
  */
 declare namespace $filepath {
+
+    const skipDir: any
+
     /**
      * Returns the last element of path.
      * @param path The path to get the base name from
@@ -470,20 +498,21 @@ declare namespace $filepath {
     function toSlash(path: string): string;
 
     /**
-     * Walks the file tree rooted at root, calling walkFn for each file or directory.
+     * Walks the file tree rooted at the specificed path, calling walkFn for each file or directory.
+     * It reads entire directories into memory before proceeding.
      * @param root The root directory to start walking from
      * @param walkFn The function to call for each file or directory
      * @throws Error if the root path is not authorized for reading
      */
-    function walk(root: string, walkFn: (path: string, info: FileInfo, err: Error | null) => void): void;
+    function walk(root: string, walkFn: (path: string, info: $os.FileInfo, err: any | null | undefined) => any): void;
 
     /**
-     * Walks the file tree rooted at root, calling walkDirFn for each file or directory.
+     * Walks the file tree rooted at the specificed path, calling walkDirFn for each file or directory.
      * @param root The root directory to start walking from
      * @param walkDirFn The function to call for each file or directory
      * @throws Error if the root path is not authorized for reading
      */
-    function walkDir(root: string, walkDirFn: (path: string, d: DirEntry, err: Error | null) => void): void;
+    function walkDir(root: string, walkDirFn: (path: string, d: $os.DirEntry, err: any | null | undefined) => any): void;
 }
 
 /**
@@ -513,6 +542,27 @@ declare namespace $osExtra {
      * @throws Error if either path is not authorized for writing
      */
     function unrar(src: string, dest: string): void;
+
+    /**
+     * Returns the user's desktop directory.
+     * @returns The desktop directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
+     */
+    function desktopDir(): string;
+
+    /**
+     * Returns the user's documents directory.
+     * @returns The documents directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
+     */
+    function documentsDir(): string;
+
+    /**
+     * Returns the user's downloads directory.
+     * @returns The downloads directory path or empty string if not authorized
+     * @throws Error if the path is not authorized for reading
+     */
+    function downloadDir(): string;
 }
 
 /**

@@ -52,6 +52,11 @@ func (fh *FileHydrator) HydrateMetadata() {
 	fh.LocalFiles = event.LocalFiles
 	fh.AllMedia = event.AllMedia
 
+	// Default prevented, do not hydrate the metadata
+	if event.DefaultPrevented {
+		return
+	}
+
 	// Group local files by media ID
 	groups := lop.GroupBy(fh.LocalFiles, func(localFile *anime.LocalFile) int {
 		return localFile.MediaId

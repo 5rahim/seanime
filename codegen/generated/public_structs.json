@@ -23719,7 +23719,7 @@
       },
       {
         "name": "AnimeMetadata",
-        "jsonName": "overrideAnimeMetadata",
+        "jsonName": "animeMetadata",
         "goType": "AnimeMetadata",
         "typescriptType": "Metadata_AnimeMetadata",
         "usedStructName": "metadata.AnimeMetadata",
@@ -23729,8 +23729,10 @@
       }
     ],
     "comments": [
-      " AnimeMetadataRequestedEvent is triggered when anime metadata is requested.",
-      " Prevent default to skip the default behavior and return the overridden metadata."
+      " AnimeMetadataRequestedEvent is triggered when anime metadata is requested and right before the metadata is processed.",
+      " This event is followed by [AnimeMetadataEvent] which is triggered when the metadata is available.",
+      " Prevent default to skip the default behavior and return the modified metadata.",
+      " If the modified metadata is nil, an error will be returned."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -23764,7 +23766,102 @@
       }
     ],
     "comments": [
-      " AnimeMetadataEvent is triggered when anime metadata is available."
+      " AnimeMetadataEvent is triggered when anime metadata is available and is about to be returned.",
+      " Anime metadata can be requested in many places, ranging from displaying the anime entry to starting a torrent stream.",
+      " This event is triggered after [AnimeMetadataRequestedEvent].",
+      " If the modified metadata is nil, an error will be returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/api/metadata/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEpisodeMetadataRequestedEvent",
+    "formattedName": "Metadata_AnimeEpisodeMetadataRequestedEvent",
+    "package": "metadata",
+    "fields": [
+      {
+        "name": "EpisodeMetadata",
+        "jsonName": "animeEpisodeMetadata",
+        "goType": "EpisodeMetadata",
+        "typescriptType": "Metadata_EpisodeMetadata",
+        "usedStructName": "metadata.EpisodeMetadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEpisodeMetadataRequestedEvent is triggered when anime episode metadata is requested.",
+      " Prevent default to skip the default behavior and return the overridden metadata.",
+      " This event is triggered before [AnimeEpisodeMetadataEvent].",
+      " If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/api/metadata/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeEpisodeMetadataEvent",
+    "formattedName": "Metadata_AnimeEpisodeMetadataEvent",
+    "package": "metadata",
+    "fields": [
+      {
+        "name": "EpisodeMetadata",
+        "jsonName": "animeEpisodeMetadata",
+        "goType": "EpisodeMetadata",
+        "typescriptType": "Metadata_EpisodeMetadata",
+        "usedStructName": "metadata.EpisodeMetadata",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "EpisodeNumber",
+        "jsonName": "episodeNumber",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.",
+      " In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.",
+      " This event is triggered after [AnimeEpisodeMetadataRequestedEvent].",
+      " If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -25038,6 +25135,124 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/continuity/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "WatchHistoryItemRequestedEvent",
+    "formattedName": "Continuity_WatchHistoryItemRequestedEvent",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WatchHistoryItem",
+        "jsonName": "watchHistoryItem",
+        "goType": "WatchHistoryItem",
+        "typescriptType": "Continuity_WatchHistoryItem",
+        "usedStructName": "continuity.WatchHistoryItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.",
+      " Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/continuity/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "WatchHistoryLocalFileEpisodeItemRequestedEvent",
+    "formattedName": "Continuity_WatchHistoryLocalFileEpisodeItemRequestedEvent",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "Path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "LocalFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WatchHistoryItem",
+        "jsonName": "watchHistoryItem",
+        "goType": "WatchHistoryItem",
+        "typescriptType": "Continuity_WatchHistoryItem",
+        "usedStructName": "continuity.WatchHistoryItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/continuity/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "WatchHistoryStreamEpisodeItemRequestedEvent",
+    "formattedName": "Continuity_WatchHistoryStreamEpisodeItemRequestedEvent",
+    "package": "continuity",
+    "fields": [
+      {
+        "name": "Episode",
+        "jsonName": "Episode",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WatchHistoryItem",
+        "jsonName": "watchHistoryItem",
+        "goType": "WatchHistoryItem",
+        "typescriptType": "Continuity_WatchHistoryItem",
+        "usedStructName": "continuity.WatchHistoryItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
   },
   {
     "filepath": "../internal/continuity/manager.go",
@@ -28643,7 +28858,7 @@
     ],
     "comments": [
       " DebridSendStreamToMediaPlayerEvent is triggered when the debrid client is about to send a stream to the media player.",
-      " Prevent default to skip the default playback and override the playback."
+      " Prevent default to skip the playback."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -31859,8 +32074,8 @@
   {
     "filepath": "../internal/extension/extension.go",
     "filename": "extension.go",
-    "name": "PluginPermission",
-    "formattedName": "Extension_PluginPermission",
+    "name": "PluginPermissionScope",
+    "formattedName": "Extension_PluginPermissionScope",
     "package": "extension",
     "fields": [],
     "aliasOf": {
@@ -33541,19 +33756,9 @@
       {
         "name": "Permissions",
         "jsonName": "permissions",
-        "goType": "[]PluginPermission",
-        "typescriptType": "Array\u003cExtension_PluginPermission\u003e",
-        "usedStructName": "extension.PluginPermission",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SystemAllowlist",
-        "jsonName": "systemAllowlist",
-        "goType": "PluginSystemAllowlist",
-        "typescriptType": "Extension_PluginSystemAllowlist",
-        "usedStructName": "extension.PluginSystemAllowlist",
+        "goType": "PluginPermissions",
+        "typescriptType": "Extension_PluginPermissions",
+        "usedStructName": "extension.PluginPermissions",
         "required": false,
         "public": true,
         "comments": []
@@ -33564,13 +33769,43 @@
   {
     "filepath": "../internal/extension/plugin.go",
     "filename": "plugin.go",
-    "name": "PluginSystemAllowlist",
-    "formattedName": "Extension_PluginSystemAllowlist",
+    "name": "PluginPermissions",
+    "formattedName": "Extension_PluginPermissions",
     "package": "extension",
     "fields": [
       {
-        "name": "AllowReadPaths",
-        "jsonName": "allowReadPaths",
+        "name": "Scopes",
+        "jsonName": "scopes",
+        "goType": "[]PluginPermissionScope",
+        "typescriptType": "Array\u003cExtension_PluginPermissionScope\u003e",
+        "usedStructName": "extension.PluginPermissionScope",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Allow",
+        "jsonName": "allow",
+        "goType": "PluginAllowlist",
+        "typescriptType": "Extension_PluginAllowlist",
+        "usedStructName": "extension.PluginAllowlist",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/extension/plugin.go",
+    "filename": "plugin.go",
+    "name": "PluginAllowlist",
+    "formattedName": "Extension_PluginAllowlist",
+    "package": "extension",
+    "fields": [
+      {
+        "name": "ReadPaths",
+        "jsonName": "readPaths",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -33578,8 +33813,8 @@
         "comments": []
       },
       {
-        "name": "AllowWritePaths",
-        "jsonName": "allowWritePaths",
+        "name": "WritePaths",
+        "jsonName": "writePaths",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -33598,7 +33833,7 @@
       }
     ],
     "comments": [
-      " PluginSystemAllowlist is a list of system permissions that the plugin is asking for.",
+      " PluginAllowlist is a list of system permissions that the plugin is asking for.",
       "",
       " The user must acknowledge these permissions before the plugin can be loaded."
     ]
@@ -34127,19 +34362,9 @@
       {
         "name": "Permissions",
         "jsonName": "Permissions",
-        "goType": "[]extension.PluginPermission",
-        "typescriptType": "Array\u003cExtension_PluginPermission\u003e",
-        "usedStructName": "extension.PluginPermission",
-        "required": false,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "SystemAllowlist",
-        "jsonName": "SystemAllowlist",
-        "goType": "extension.PluginSystemAllowlist",
-        "typescriptType": "Extension_PluginSystemAllowlist",
-        "usedStructName": "extension.PluginSystemAllowlist",
+        "goType": "extension.PluginPermissions",
+        "typescriptType": "Extension_PluginPermissions",
+        "usedStructName": "extension.PluginPermissions",
         "required": false,
         "public": true,
         "comments": []
@@ -36297,15 +36522,6 @@
         "comments": []
       },
       {
-        "name": "onScanHydrationCompleted",
-        "jsonName": "onScanHydrationCompleted",
-        "goType": "",
-        "typescriptType": "any",
-        "required": false,
-        "public": false,
-        "comments": []
-      },
-      {
         "name": "onAnimeMetadataRequested",
         "jsonName": "onAnimeMetadataRequested",
         "goType": "",
@@ -36317,6 +36533,24 @@
       {
         "name": "onAnimeMetadataEvent",
         "jsonName": "onAnimeMetadataEvent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEpisodeMetadataRequested",
+        "jsonName": "onAnimeEpisodeMetadataRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAnimeEpisodeMetadataEvent",
+        "jsonName": "onAnimeEpisodeMetadataEvent",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -36369,8 +36603,8 @@
         "comments": []
       },
       {
-        "name": "onPrePlaybackTracking",
-        "jsonName": "onPrePlaybackTracking",
+        "name": "onPlaybackBeforeTracking",
+        "jsonName": "onPlaybackBeforeTracking",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -36380,6 +36614,42 @@
       {
         "name": "onStreamPlaybackRequested",
         "jsonName": "onStreamPlaybackRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPlaybackLocalFileDetailsRequested",
+        "jsonName": "onPlaybackLocalFileDetailsRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onPlaybackStreamDetailsRequested",
+        "jsonName": "onPlaybackStreamDetailsRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMediaPlayerLocalFileTrackingRequested",
+        "jsonName": "onMediaPlayerLocalFileTrackingRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMediaPlayerStreamTrackingRequested",
+        "jsonName": "onMediaPlayerStreamTrackingRequested",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -36407,6 +36677,33 @@
       {
         "name": "onTorrentStreamSendStreamToMediaPlayer",
         "jsonName": "onTorrentStreamSendStreamToMediaPlayer",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onWatchHistoryItemRequested",
+        "jsonName": "onWatchHistoryItemRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onWatchHistoryLocalFileEpisodeItemRequested",
+        "jsonName": "onWatchHistoryLocalFileEpisodeItemRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onWatchHistoryStreamEpisodeItemRequested",
+        "jsonName": "onWatchHistoryStreamEpisodeItemRequested",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -38143,10 +38440,23 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "Entry",
+        "typescriptType": "Anime_Entry",
+        "usedStructName": "anime.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
-      " AnimeEntryRequestedEvent is triggered when a new media entry is being created."
+      " AnimeEntryRequestedEvent is triggered when an anime entry is requested.",
+      " Prevent default to skip the default behavior and return the modified entry.",
+      " This event is triggered before [AnimeEntryEvent].",
+      " If the modified entry is nil, an error will be returned."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38171,7 +38481,8 @@
       }
     ],
     "comments": [
-      " AnimeEntryEvent is triggered when the media entry is being returned."
+      " AnimeEntryEvent is triggered when the media entry is being returned.",
+      " This event is triggered after [AnimeEntryRequestedEvent]."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38197,7 +38508,8 @@
     ],
     "comments": [
       " AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry.",
-      " Prevent default to avoid adding the filler data."
+      " This event is triggered after [AnimeEntryEvent].",
+      " Prevent default to skip the filler data."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38240,7 +38552,8 @@
       }
     ],
     "comments": [
-      " AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry."
+      " AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry.",
+      " This is triggered before [AnimeEntryLibraryDataEvent]."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38265,7 +38578,8 @@
       }
     ],
     "comments": [
-      " AnimeEntryLibraryDataEvent is triggered when the library data is being added to the media entry."
+      " AnimeEntryLibraryDataEvent is triggered when the library data is being added to the media entry.",
+      " This is triggered after [AnimeEntryLibraryDataRequestedEvent]."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38308,7 +38622,8 @@
       }
     ],
     "comments": [
-      " AnimeEntryManualMatchBeforeSaveEvent is triggered when the user manually matches local files to a media entry."
+      " AnimeEntryManualMatchBeforeSaveEvent is triggered when the user manually matches local files to a media entry.",
+      " Prevent default to skip saving the local files."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38349,10 +38664,21 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "MissingEpisodes",
+        "jsonName": "missingEpisodes",
+        "goType": "MissingEpisodes",
+        "typescriptType": "Anime_MissingEpisodes",
+        "usedStructName": "anime.MissingEpisodes",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
-      " MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for a media entry."
+      " MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for the entire library.",
+      " Prevent default to skip the default process and return the modified missing episodes."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -38376,53 +38702,9 @@
         "comments": []
       }
     ],
-    "comments": [],
-    "embeddedStructNames": [
-      "hook_resolver.Event"
-    ]
-  },
-  {
-    "filepath": "../internal/library/anime/hook_events.go",
-    "filename": "hook_events.go",
-    "name": "AnimeLibraryCollectionEvent",
-    "formattedName": "Anime_AnimeLibraryCollectionEvent",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "LibraryCollection",
-        "jsonName": "libraryCollection",
-        "goType": "LibraryCollection",
-        "typescriptType": "Anime_LibraryCollection",
-        "usedStructName": "anime.LibraryCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
+    "comments": [
+      " MissingEpisodesEvent is triggered when the missing episodes are being returned."
     ],
-    "comments": [],
-    "embeddedStructNames": [
-      "hook_resolver.Event"
-    ]
-  },
-  {
-    "filepath": "../internal/library/anime/hook_events.go",
-    "filename": "hook_events.go",
-    "name": "AnimeLibraryStreamCollectionEvent",
-    "formattedName": "Anime_AnimeLibraryStreamCollectionEvent",
-    "package": "anime",
-    "fields": [
-      {
-        "name": "StreamCollection",
-        "jsonName": "streamCollection",
-        "goType": "StreamCollection",
-        "typescriptType": "Anime_StreamCollection",
-        "usedStructName": "anime.StreamCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [],
     "embeddedStructNames": [
       "hook_resolver.Event"
     ]
@@ -38453,9 +38735,48 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "LibraryCollection",
+        "jsonName": "libraryCollection",
+        "goType": "LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
-    "comments": [],
+    "comments": [
+      " AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.",
+      " Prevent default to skip the default process and return the modified library collection.",
+      " If the modified library collection is nil, an error will be returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeLibraryCollectionEvent",
+    "formattedName": "Anime_AnimeLibraryCollectionEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "LibraryCollection",
+        "jsonName": "libraryCollection",
+        "goType": "LibraryCollection",
+        "typescriptType": "Anime_LibraryCollection",
+        "usedStructName": "anime.LibraryCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection."
+    ],
     "embeddedStructNames": [
       "hook_resolver.Event"
     ]
@@ -38488,7 +38809,35 @@
         "comments": []
       }
     ],
-    "comments": [],
+    "comments": [
+      " AnimeLibraryStreamCollectionRequestedEvent is triggered when the user requests the library stream collection.",
+      " This is called when the user enables \"Include in library\" for either debrid/online/torrent streamings."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/anime/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AnimeLibraryStreamCollectionEvent",
+    "formattedName": "Anime_AnimeLibraryStreamCollectionEvent",
+    "package": "anime",
+    "fields": [
+      {
+        "name": "StreamCollection",
+        "jsonName": "streamCollection",
+        "goType": "StreamCollection",
+        "typescriptType": "Anime_StreamCollection",
+        "usedStructName": "anime.StreamCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AnimeLibraryStreamCollectionEvent is triggered when the library stream collection is being returned."
+    ],
     "embeddedStructNames": [
       "hook_resolver.Event"
     ]
@@ -38753,33 +39102,33 @@
     "package": "anime",
     "fields": [
       {
-        "name": "localFiles",
+        "name": "LocalFiles",
         "jsonName": "localFiles",
         "goType": "[]LocalFile",
         "typescriptType": "Array\u003cAnime_LocalFile\u003e",
         "usedStructName": "anime.LocalFile",
         "required": false,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "localEntries",
+        "name": "LocalEntries",
         "jsonName": "localEntries",
         "goType": "[]LocalFileWrapperEntry",
         "typescriptType": "Array\u003cAnime_LocalFileWrapperEntry\u003e",
         "usedStructName": "anime.LocalFileWrapperEntry",
         "required": false,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "unmatchedLocalFiles",
+        "name": "UnmatchedLocalFiles",
         "jsonName": "unmatchedLocalFiles",
         "goType": "[]LocalFile",
         "typescriptType": "Array\u003cAnime_LocalFile\u003e",
         "usedStructName": "anime.LocalFile",
         "required": false,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -38793,22 +39142,22 @@
     "package": "anime",
     "fields": [
       {
-        "name": "mediaId",
+        "name": "MediaId",
         "jsonName": "mediaId",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
-        "public": false,
+        "public": true,
         "comments": []
       },
       {
-        "name": "localFiles",
+        "name": "LocalFiles",
         "jsonName": "localFiles",
         "goType": "[]LocalFile",
         "typescriptType": "Array\u003cAnime_LocalFile\u003e",
         "usedStructName": "anime.LocalFile",
         "required": false,
-        "public": false,
+        "public": true,
         "comments": []
       }
     ],
@@ -39953,8 +40302,8 @@
   {
     "filepath": "../internal/library/playbackmanager/hook_events.go",
     "filename": "hook_events.go",
-    "name": "PrePlaybackTrackingEvent",
-    "formattedName": "PlaybackManager_PrePlaybackTrackingEvent",
+    "name": "PlaybackBeforeTrackingEvent",
+    "formattedName": "PlaybackManager_PlaybackBeforeTrackingEvent",
     "package": "playbackmanager",
     "fields": [
       {
@@ -39968,8 +40317,122 @@
       }
     ],
     "comments": [
-      " PrePlaybackTrackingEvent is triggered just before the playback tracking starts.",
-      " Prevent default to skip the default playback tracking."
+      " PlaybackBeforeTrackingEvent is triggered just before the playback tracking starts.",
+      " Prevent default to skip playback tracking."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PlaybackLocalFileDetailsRequestedEvent",
+    "formattedName": "PlaybackManager_PlaybackLocalFileDetailsRequestedEvent",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "Path",
+        "jsonName": "path",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeListEntry",
+        "jsonName": "animeListEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFile",
+        "jsonName": "localFile",
+        "goType": "anime.LocalFile",
+        "typescriptType": "Anime_LocalFile",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LocalFileWrapperEntry",
+        "jsonName": "localFileWrapperEntry",
+        "goType": "anime.LocalFileWrapperEntry",
+        "typescriptType": "Anime_LocalFileWrapperEntry",
+        "usedStructName": "anime.LocalFileWrapperEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.",
+      " This event is triggered right after the media player loads an episode.",
+      " The playback manager uses the local files details to track the progress, propose next episodes, etc.",
+      " In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.",
+      " Prevent default to skip the default fetching and override the details."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/playbackmanager/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "PlaybackStreamDetailsRequestedEvent",
+    "formattedName": "PlaybackManager_PlaybackStreamDetailsRequestedEvent",
+    "package": "playbackmanager",
+    "fields": [
+      {
+        "name": "AnimeCollection",
+        "jsonName": "animeCollection",
+        "goType": "anilist.AnimeCollection",
+        "typescriptType": "AL_AnimeCollection",
+        "usedStructName": "anilist.AnimeCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "AnimeListEntry",
+        "jsonName": "animeListEntry",
+        "goType": "anilist.AnimeListEntry",
+        "typescriptType": "AL_AnimeListEntry",
+        "usedStructName": "anilist.AnimeListEntry",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.",
+      " Prevent default to skip the default fetching and override the details.",
+      " In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -40898,8 +41361,8 @@
     "package": "scanner",
     "fields": [
       {
-        "name": "DirPath",
-        "jsonName": "dirPath",
+        "name": "LibraryPath",
+        "jsonName": "libraryPath",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -40907,8 +41370,8 @@
         "comments": []
       },
       {
-        "name": "OtherDirPaths",
-        "jsonName": "otherDirPaths",
+        "name": "OtherLibraryPaths",
+        "jsonName": "otherLibraryPaths",
         "goType": "[]string",
         "typescriptType": "Array\u003cstring\u003e",
         "required": false,
@@ -40941,10 +41404,21 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "LocalFiles",
+        "jsonName": "localFiles",
+        "goType": "[]anime.LocalFile",
+        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
+        "usedStructName": "anime.LocalFile",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
-      " ScanStartedEvent is triggered when the scanning process begins"
+      " ScanStartedEvent is triggered when the scanning process begins.",
+      " Prevent default to skip the rest of the scanning process and return the local files."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -40968,7 +41442,9 @@
       }
     ],
     "comments": [
-      " ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved"
+      " ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved.",
+      " The event includes file paths from all directories to scan.",
+      " The event includes file paths of local files that will be skipped."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -40993,7 +41469,8 @@
       }
     ],
     "comments": [
-      " ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects"
+      " ScanLocalFilesParsedEvent is triggered right after the file paths are parsed into local file objects.",
+      " The event does not include local files that are skipped."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41029,7 +41506,9 @@
       }
     ],
     "comments": [
-      " ScanCompletedEvent is triggered when the scanning process finishes"
+      " ScanCompletedEvent is triggered when the scanning process finishes.",
+      " The event includes all the local files (skipped and scanned) to be inserted as a new entry.",
+      " Right after this event, the local files will be inserted as a new entry."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41053,7 +41532,7 @@
       }
     ],
     "comments": [
-      " ScanMediaFetcherStartedEvent is triggered when the media fetcher begins"
+      " ScanMediaFetcherStartedEvent is triggered right before Seanime starts fetching media to be matched against the local files."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41087,7 +41566,9 @@
       }
     ],
     "comments": [
-      " ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes"
+      " ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes.",
+      " The event includes all the media fetched from AniList.",
+      " The event includes the media IDs that are not in the user's collection."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41141,7 +41622,7 @@
     ],
     "comments": [
       " ScanMatchingStartedEvent is triggered when the matching process begins.",
-      " Prevent default to skip the default matching and override the matching."
+      " Prevent default to skip the default matching, in which case modified local files will be used."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41220,7 +41701,7 @@
       }
     ],
     "comments": [
-      " ScanMatchingCompletedEvent is triggered when the matching process completes"
+      " ScanMatchingCompletedEvent is triggered when the matching process completes."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41255,7 +41736,8 @@
       }
     ],
     "comments": [
-      " ScanHydrationStartedEvent is triggered when the file hydration process begins"
+      " ScanHydrationStartedEvent is triggered when the file hydration process begins.",
+      " Prevent default to skip the rest of the hydration process, in which case the event's local files will be used."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -41335,31 +41817,6 @@
     ],
     "comments": [
       " ScanLocalFileHydratedEvent is triggered when a local file's metadata is hydrated"
-    ],
-    "embeddedStructNames": [
-      "hook_resolver.Event"
-    ]
-  },
-  {
-    "filepath": "../internal/library/scanner/hook_events.go",
-    "filename": "hook_events.go",
-    "name": "ScanHydrationCompletedEvent",
-    "formattedName": "Scanner_ScanHydrationCompletedEvent",
-    "package": "scanner",
-    "fields": [
-      {
-        "name": "LocalFiles",
-        "jsonName": "localFiles",
-        "goType": "[]anime.LocalFile",
-        "typescriptType": "Array\u003cAnime_LocalFile\u003e",
-        "usedStructName": "anime.LocalFile",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": [
-      " ScanHydrationCompletedEvent is triggered when the file hydration process completes"
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -43757,10 +44214,22 @@
         "required": false,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "Entry",
+        "jsonName": "entry",
+        "goType": "Entry",
+        "typescriptType": "Manga_Entry",
+        "usedStructName": "manga.Entry",
+        "required": false,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
-      " MangaEntryRequestedEvent is triggered when a new media entry is being created."
+      " MangaEntryRequestedEvent is triggered when a manga entry is requested.",
+      " Prevent default to skip the default behavior and return the modified entry.",
+      " If the modified entry is nil, an error will be returned."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -43785,7 +44254,32 @@
       }
     ],
     "comments": [
-      " MangaEntryEvent is triggered when the media entry is being returned."
+      " MangaEntryEvent is triggered when the manga entry is being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaLibraryCollectionRequestedEvent",
+    "formattedName": "Manga_MangaLibraryCollectionRequestedEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaLibraryCollectionRequestedEvent is triggered when the manga library collection is being requested."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -43809,30 +44303,9 @@
         "comments": []
       }
     ],
-    "comments": [],
-    "embeddedStructNames": [
-      "hook_resolver.Event"
-    ]
-  },
-  {
-    "filepath": "../internal/manga/hook_events.go",
-    "filename": "hook_events.go",
-    "name": "MangaLibraryCollectionRequestedEvent",
-    "formattedName": "Manga_MangaLibraryCollectionRequestedEvent",
-    "package": "manga",
-    "fields": [
-      {
-        "name": "MangaCollection",
-        "jsonName": "mangaCollection",
-        "goType": "anilist.MangaCollection",
-        "typescriptType": "AL_MangaCollection",
-        "usedStructName": "anilist.MangaCollection",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
+    "comments": [
+      " MangaLibraryCollectionEvent is triggered when the manga library collection is being returned."
     ],
-    "comments": [],
     "embeddedStructNames": [
       "hook_resolver.Event"
     ]
@@ -45702,6 +46175,91 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/mediaplayers/mediaplayer/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MediaPlayerLocalFileTrackingRequestedEvent",
+    "formattedName": "MediaPlayerLocalFileTrackingRequestedEvent",
+    "package": "mediaplayer",
+    "fields": [
+      {
+        "name": "RefreshDelay",
+        "jsonName": "refreshDelay",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Refresh the status of the player each x seconds"
+        ]
+      },
+      {
+        "name": "MaxRetries",
+        "jsonName": "maxRetries",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Maximum number of retries"
+        ]
+      }
+    ],
+    "comments": [
+      " MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Resolver"
+    ]
+  },
+  {
+    "filepath": "../internal/mediaplayers/mediaplayer/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MediaPlayerStreamTrackingRequestedEvent",
+    "formattedName": "MediaPlayerStreamTrackingRequestedEvent",
+    "package": "mediaplayer",
+    "fields": [
+      {
+        "name": "RefreshDelay",
+        "jsonName": "refreshDelay",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Refresh the status of the player each x seconds"
+        ]
+      },
+      {
+        "name": "MaxRetries",
+        "jsonName": "maxRetries",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Maximum number of retries"
+        ]
+      },
+      {
+        "name": "MaxRetriesAfterStart",
+        "jsonName": "maxRetriesAfterStart",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " Maximum number of retries after the player has started"
+        ]
+      }
+    ],
+    "comments": [
+      " MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Resolver"
+    ]
   },
   {
     "filepath": "../internal/mediaplayers/mediaplayer/repository.go",

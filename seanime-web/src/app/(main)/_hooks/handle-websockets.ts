@@ -20,6 +20,7 @@ export function useWebsocketSender() {
         } else {
             messageQueue.current.push(data)
         }
+        console.log("messageQueue", messageQueue.current)
     }
 
     useEffect(() => {

@@ -9,7 +9,6 @@ import (
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/hook"
-	"seanime/internal/hook_resolver"
 	"seanime/internal/library/anime"
 	"seanime/internal/library/scanner"
 	"seanime/internal/library/summary"
@@ -77,7 +76,7 @@ func (h *Handler) HandleGetAnimeEntry(c echo.Context) error {
 	}
 	entry = fillerEvent.Entry
 
-	if fillerEvent.DefaultPrevented {
+	if !fillerEvent.DefaultPrevented {
 		h.App.FillerManager.HydrateFillerData(fillerEvent.Entry)
 	}
 
@@ -395,24 +394,31 @@ func (h *Handler) HandleAnimeEntryManualMatch(c echo.Context) error {
 		return true
 	})
 
+	// Event
 	event := new(anime.AnimeEntryManualMatchBeforeSaveEvent)
 	event.MediaId = b.MediaId
 	event.Paths = b.Paths
 	event.MatchedLocalFiles = selectedLfs
-	return hook.GlobalHookManager.OnAnimeEntryManualMatchBeforeSave().Trigger(event, func(resolver hook_resolver.Resolver) error {
-		e := resolver.(*anime.AnimeEntryManualMatchBeforeSaveEvent)
-		// Add the hydrated local files to the slice
-		lfs = append(lfs, e.MatchedLocalFiles...)
+	err = hook.GlobalHookManager.OnAnimeEntryManualMatchBeforeSave().Trigger(event)
+	if err != nil {
+		return h.RespondWithError(c, fmt.Errorf("OnAnimeEntryManualMatchBeforeSave: %w", err))
+	}
 
-		// Update the local files
-		retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
-		if err != nil {
-			return h.RespondWithError(c, err)
-		}
+	// Default prevented, do not save the local files
+	if event.DefaultPrevented {
+		return h.RespondWithData(c, lfs)
+	}
 
-		return h.RespondWithData(c, retLfs)
-	})
+	// Add the hydrated local files to the slice
+	lfs = append(lfs, event.MatchedLocalFiles...)
 
+	// Update the local files
+	retLfs, err := db_bridge.SaveLocalFiles(h.App.Database, lfsId, lfs)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	return h.RespondWithData(c, retLfs)
 }
 
 //----------------------------------------------------------------------------------------------------------------------

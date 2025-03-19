@@ -231,6 +231,39 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	return nil
 }
 
+func (m *Mpv) Pause() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	_, err := m.conn.Call("set_property", "pause", true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Mpv) Resume() error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.conn == nil || m.conn.IsClosed() {
+		return errors.New("mpv is not running")
+	}
+
+	_, err := m.conn.Call("set_property", "pause", false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// SeekTo seeks to the given position in the file by first pausing the player and unpausing it after seeking.
 func (m *Mpv) SeekTo(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -263,14 +296,8 @@ func (m *Mpv) SeekTo(position float64) error {
 	return nil
 }
 
-func (m *Mpv) GetOpenConnection() (*mpvipc.Connection, error) {
-	if m.conn == nil || m.conn.IsClosed() {
-		return nil, errors.New("mpv is not running")
-	}
-	return m.conn, nil
-}
-
-func (m *Mpv) Pause() error {
+// Seek seeks to the given position in the file.
+func (m *Mpv) Seek(position float64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -278,12 +305,27 @@ func (m *Mpv) Pause() error {
 		return errors.New("mpv is not running")
 	}
 
+	// pause the player
 	_, err := m.conn.Call("set_property", "pause", true)
 	if err != nil {
 		return err
 	}
 
+	time.Sleep(100 * time.Millisecond)
+
+	_, err = m.conn.Call("set_property", "time-pos", position)
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (m *Mpv) GetOpenConnection() (*mpvipc.Connection, error) {
+	if m.conn == nil || m.conn.IsClosed() {
+		return nil, errors.New("mpv is not running")
+	}
+	return m.conn, nil
 }
 
 func (m *Mpv) establishConnection() error {

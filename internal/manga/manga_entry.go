@@ -1,6 +1,7 @@
 package manga
 
 import (
+	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/hook"
 	"seanime/internal/platforms/anilist_platform"
@@ -45,16 +46,32 @@ func NewEntry(opts *NewEntryOptions) (entry *Entry, err error) {
 		MediaId: opts.MediaId,
 	}
 
-	optsEvent := new(MangaEntryRequestedEvent)
-	optsEvent.MediaId = opts.MediaId
-	optsEvent.MangaCollection = opts.MangaCollection
+	reqEvent := new(MangaEntryRequestedEvent)
+	reqEvent.MediaId = opts.MediaId
+	reqEvent.MangaCollection = opts.MangaCollection
+	reqEvent.Entry = entry
 
-	err = hook.GlobalHookManager.OnMangaEntryRequested().Trigger(optsEvent)
+	err = hook.GlobalHookManager.OnMangaEntryRequested().Trigger(reqEvent)
 	if err != nil {
 		return nil, err
 	}
-	opts.MediaId = optsEvent.MediaId
-	opts.MangaCollection = optsEvent.MangaCollection
+	opts.MediaId = reqEvent.MediaId                 // Override the media ID
+	opts.MangaCollection = reqEvent.MangaCollection // Override the manga collection
+	entry = reqEvent.Entry                          // Override the entry
+
+	if reqEvent.DefaultPrevented {
+		mangaEvent := new(MangaEntryEvent)
+		mangaEvent.Entry = reqEvent.Entry
+		err = hook.GlobalHookManager.OnMangaEntry().Trigger(mangaEvent)
+		if err != nil {
+			return nil, err
+		}
+
+		if mangaEvent.Entry == nil {
+			return nil, errors.New("no entry was returned")
+		}
+		return mangaEvent.Entry, nil
+	}
 
 	anilistEntry, found := opts.MangaCollection.GetListEntryFromMangaId(opts.MediaId)
 

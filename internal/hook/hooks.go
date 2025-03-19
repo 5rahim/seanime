@@ -66,7 +66,6 @@ type Manager interface {
 	OnScanHydrationStarted() *Hook[hook_resolver.Resolver]
 	OnScanLocalFileHydrationStarted() *Hook[hook_resolver.Resolver]
 	OnScanLocalFileHydrated() *Hook[hook_resolver.Resolver]
-	OnScanHydrationCompleted() *Hook[hook_resolver.Resolver]
 
 	// Anime metadata events
 	OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver]
@@ -82,8 +81,14 @@ type Manager interface {
 
 	// Playback events
 	OnLocalFilePlaybackRequested() *Hook[hook_resolver.Resolver]
-	OnPrePlaybackTracking() *Hook[hook_resolver.Resolver]
+	OnPlaybackBeforeTracking() *Hook[hook_resolver.Resolver]
 	OnStreamPlaybackRequested() *Hook[hook_resolver.Resolver]
+	OnPlaybackLocalFileDetailsRequested() *Hook[hook_resolver.Resolver]
+	OnPlaybackStreamDetailsRequested() *Hook[hook_resolver.Resolver]
+
+	// Media player events
+	OnMediaPlayerLocalFileTrackingRequested() *Hook[hook_resolver.Resolver]
+	OnMediaPlayerStreamTrackingRequested() *Hook[hook_resolver.Resolver]
 
 	// Debrid events
 	OnDebridSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver]
@@ -91,6 +96,11 @@ type Manager interface {
 
 	// Torrent stream events
 	OnTorrentStreamSendStreamToMediaPlayer() *Hook[hook_resolver.Resolver]
+
+	// Continuity events
+	OnWatchHistoryItemRequested() *Hook[hook_resolver.Resolver]
+	OnWatchHistoryLocalFileEpisodeItemRequested() *Hook[hook_resolver.Resolver]
+	OnWatchHistoryStreamEpisodeItemRequested() *Hook[hook_resolver.Resolver]
 }
 
 type ManagerImpl struct {
@@ -144,10 +154,9 @@ type ManagerImpl struct {
 	onScanHydrationStarted          *Hook[hook_resolver.Resolver]
 	onScanLocalFileHydrationStarted *Hook[hook_resolver.Resolver]
 	onScanLocalFileHydrated         *Hook[hook_resolver.Resolver]
-	onScanHydrationCompleted        *Hook[hook_resolver.Resolver]
 	// Anime metadata events
-	onAnimeMetadataRequested *Hook[hook_resolver.Resolver]
-	onAnimeMetadataEvent     *Hook[hook_resolver.Resolver]
+	onAnimeMetadataRequested        *Hook[hook_resolver.Resolver]
+	onAnimeMetadataEvent            *Hook[hook_resolver.Resolver]
 	onAnimeEpisodeMetadataRequested *Hook[hook_resolver.Resolver]
 	onAnimeEpisodeMetadataEvent     *Hook[hook_resolver.Resolver]
 	// Manga events
@@ -156,14 +165,23 @@ type ManagerImpl struct {
 	onMangaLibraryCollectionRequested *Hook[hook_resolver.Resolver]
 	onMangaLibraryCollection          *Hook[hook_resolver.Resolver]
 	// Playback events
-	onLocalFilePlaybackRequested *Hook[hook_resolver.Resolver]
-	onPrePlaybackTracking        *Hook[hook_resolver.Resolver]
-	onStreamPlaybackRequested    *Hook[hook_resolver.Resolver]
+	onLocalFilePlaybackRequested        *Hook[hook_resolver.Resolver]
+	onPlaybackBeforeTracking            *Hook[hook_resolver.Resolver]
+	onStreamPlaybackRequested           *Hook[hook_resolver.Resolver]
+	onPlaybackLocalFileDetailsRequested *Hook[hook_resolver.Resolver]
+	onPlaybackStreamDetailsRequested    *Hook[hook_resolver.Resolver]
+	// Media player events
+	onMediaPlayerLocalFileTrackingRequested *Hook[hook_resolver.Resolver]
+	onMediaPlayerStreamTrackingRequested    *Hook[hook_resolver.Resolver]
 	// Debrid events
 	onDebridSendStreamToMediaPlayer *Hook[hook_resolver.Resolver]
 	onDebridLocalDownloadRequested  *Hook[hook_resolver.Resolver]
 	// Torrent stream events
 	onTorrentStreamSendStreamToMediaPlayer *Hook[hook_resolver.Resolver]
+	// Continuity events
+	onWatchHistoryItemRequested                 *Hook[hook_resolver.Resolver]
+	onWatchHistoryLocalFileEpisodeItemRequested *Hook[hook_resolver.Resolver]
+	onWatchHistoryStreamEpisodeItemRequested    *Hook[hook_resolver.Resolver]
 }
 
 type NewHookManagerOptions struct {
@@ -238,7 +256,6 @@ func (m *ManagerImpl) initHooks() {
 	m.onScanHydrationStarted = &Hook[hook_resolver.Resolver]{}
 	m.onScanLocalFileHydrationStarted = &Hook[hook_resolver.Resolver]{}
 	m.onScanLocalFileHydrated = &Hook[hook_resolver.Resolver]{}
-	m.onScanHydrationCompleted = &Hook[hook_resolver.Resolver]{}
 	// Anime metadata events
 	m.onAnimeMetadataRequested = &Hook[hook_resolver.Resolver]{}
 	m.onAnimeMetadataEvent = &Hook[hook_resolver.Resolver]{}
@@ -251,13 +268,22 @@ func (m *ManagerImpl) initHooks() {
 	m.onMangaLibraryCollection = &Hook[hook_resolver.Resolver]{}
 	// Playback events
 	m.onLocalFilePlaybackRequested = &Hook[hook_resolver.Resolver]{}
-	m.onPrePlaybackTracking = &Hook[hook_resolver.Resolver]{}
+	m.onPlaybackBeforeTracking = &Hook[hook_resolver.Resolver]{}
 	m.onStreamPlaybackRequested = &Hook[hook_resolver.Resolver]{}
+	m.onPlaybackLocalFileDetailsRequested = &Hook[hook_resolver.Resolver]{}
+	m.onPlaybackStreamDetailsRequested = &Hook[hook_resolver.Resolver]{}
+	// Media player events
+	m.onMediaPlayerLocalFileTrackingRequested = &Hook[hook_resolver.Resolver]{}
+	m.onMediaPlayerStreamTrackingRequested = &Hook[hook_resolver.Resolver]{}
 	// Debrid events
 	m.onDebridSendStreamToMediaPlayer = &Hook[hook_resolver.Resolver]{}
 	m.onDebridLocalDownloadRequested = &Hook[hook_resolver.Resolver]{}
 	// Torrent stream events
 	m.onTorrentStreamSendStreamToMediaPlayer = &Hook[hook_resolver.Resolver]{}
+	// Continuity events
+	m.onWatchHistoryItemRequested = &Hook[hook_resolver.Resolver]{}
+	m.onWatchHistoryLocalFileEpisodeItemRequested = &Hook[hook_resolver.Resolver]{}
+	m.onWatchHistoryStreamEpisodeItemRequested = &Hook[hook_resolver.Resolver]{}
 }
 
 func (m *ManagerImpl) OnGetAnime() *Hook[hook_resolver.Resolver] {
@@ -568,13 +594,6 @@ func (m *ManagerImpl) OnScanLocalFileHydrated() *Hook[hook_resolver.Resolver] {
 	return m.onScanLocalFileHydrated
 }
 
-func (m *ManagerImpl) OnScanHydrationCompleted() *Hook[hook_resolver.Resolver] {
-	if m == nil {
-		return &Hook[hook_resolver.Resolver]{}
-	}
-	return m.onScanHydrationCompleted
-}
-
 // Anime metadata events
 
 func (m *ManagerImpl) OnAnimeMetadataRequested() *Hook[hook_resolver.Resolver] {
@@ -644,11 +663,11 @@ func (m *ManagerImpl) OnLocalFilePlaybackRequested() *Hook[hook_resolver.Resolve
 	return m.onLocalFilePlaybackRequested
 }
 
-func (m *ManagerImpl) OnPrePlaybackTracking() *Hook[hook_resolver.Resolver] {
+func (m *ManagerImpl) OnPlaybackBeforeTracking() *Hook[hook_resolver.Resolver] {
 	if m == nil {
 		return &Hook[hook_resolver.Resolver]{}
 	}
-	return m.onPrePlaybackTracking
+	return m.onPlaybackBeforeTracking
 }
 
 func (m *ManagerImpl) OnStreamPlaybackRequested() *Hook[hook_resolver.Resolver] {
@@ -656,6 +675,36 @@ func (m *ManagerImpl) OnStreamPlaybackRequested() *Hook[hook_resolver.Resolver] 
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onStreamPlaybackRequested
+}
+
+func (m *ManagerImpl) OnPlaybackLocalFileDetailsRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onPlaybackLocalFileDetailsRequested
+}
+
+func (m *ManagerImpl) OnPlaybackStreamDetailsRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onPlaybackStreamDetailsRequested
+}
+
+// Media player events
+
+func (m *ManagerImpl) OnMediaPlayerLocalFileTrackingRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMediaPlayerLocalFileTrackingRequested
+}
+
+func (m *ManagerImpl) OnMediaPlayerStreamTrackingRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMediaPlayerStreamTrackingRequested
 }
 
 // Debrid events
@@ -681,4 +730,27 @@ func (m *ManagerImpl) OnTorrentStreamSendStreamToMediaPlayer() *Hook[hook_resolv
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onTorrentStreamSendStreamToMediaPlayer
+}
+
+// Continuity events
+
+func (m *ManagerImpl) OnWatchHistoryItemRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onWatchHistoryItemRequested
+}
+
+func (m *ManagerImpl) OnWatchHistoryLocalFileEpisodeItemRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onWatchHistoryLocalFileEpisodeItemRequested
+}
+
+func (m *ManagerImpl) OnWatchHistoryStreamEpisodeItemRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onWatchHistoryStreamEpisodeItemRequested
 }

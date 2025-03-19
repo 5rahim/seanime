@@ -499,18 +499,23 @@ $app.onPostUpdateEntryRepeat((e) => {
 <a id="onanimeentryrequested"></a>
 ## onAnimeEntryRequested
 
-AnimeEntryRequestedEvent is triggered when a new media entry is being created.
+AnimeEntryRequestedEvent is triggered when an anime entry is requested.
+Prevent default to skip the default behavior and return the modified entry.
+This event is triggered before [AnimeEntryEvent].
+If the modified entry is nil, an error will be returned.
 
-**Can prevent default:** No
+**Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
 interface AnimeEntryRequestedEvent {
     next();
+    preventDefault();
     mediaId: number;
     localFiles?: Array<Anime_LocalFile>;
     animeCollection?: AL_AnimeCollection;
+    entry?: Anime_Entry;
 }
 ```
 
@@ -518,6 +523,7 @@ interface AnimeEntryRequestedEvent {
 
 - [Anime_LocalFile](#anime_LocalFile)
 - [AL_AnimeCollection](#anilist_AnimeCollection)
+- [Anime_Entry](#anime_Entry)
 
 **Example:**
 
@@ -526,6 +532,10 @@ $app.onAnimeEntryRequested((e) => {
     // console.log(e.mediaId);
     // console.log(e.localFiles);
     // console.log(e.animeCollection);
+    // console.log(e.entry);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
     
     e.next();
 });
@@ -537,6 +547,7 @@ $app.onAnimeEntryRequested((e) => {
 ## onAnimeEntry
 
 AnimeEntryEvent is triggered when the media entry is being returned.
+This event is triggered after [AnimeEntryRequestedEvent].
 
 **Can prevent default:** No
 
@@ -569,7 +580,8 @@ $app.onAnimeEntry((e) => {
 ## onAnimeEntryFillerHydration
 
 AnimeEntryFillerHydrationEvent is triggered when the filler data is being added to the media entry.
-Prevent default to avoid adding the filler data.
+This event is triggered after [AnimeEntryEvent].
+Prevent default to skip the filler data.
 
 **Can prevent default:** Yes
 
@@ -606,6 +618,7 @@ $app.onAnimeEntryFillerHydration((e) => {
 ## onAnimeEntryLibraryDataRequested
 
 AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry.
+This is triggered before [AnimeEntryLibraryDataEvent].
 
 **Can prevent default:** No
 
@@ -642,6 +655,7 @@ $app.onAnimeEntryLibraryDataRequested((e) => {
 ## onAnimeEntryLibraryData
 
 AnimeEntryLibraryDataEvent is triggered when the library data is being added to the media entry.
+This is triggered after [AnimeEntryLibraryDataRequestedEvent].
 
 **Can prevent default:** No
 
@@ -674,14 +688,16 @@ $app.onAnimeEntryLibraryData((e) => {
 ## onAnimeEntryManualMatchBeforeSave
 
 AnimeEntryManualMatchBeforeSaveEvent is triggered when the user manually matches local files to a media entry.
+Prevent default to skip saving the local files.
 
-**Can prevent default:** No
+**Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
 interface AnimeEntryManualMatchBeforeSaveEvent {
     next();
+    preventDefault();
     mediaId: number;
     paths?: Array<string>;
     matchedLocalFiles?: Array<Anime_LocalFile>;
@@ -699,6 +715,9 @@ $app.onAnimeEntryManualMatchBeforeSave((e) => {
     // console.log(e.mediaId);
     // console.log(e.paths);
     // console.log(e.matchedLocalFiles);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
     
     e.next();
 });
@@ -709,18 +728,21 @@ $app.onAnimeEntryManualMatchBeforeSave((e) => {
 <a id="onmissingepisodesrequested"></a>
 ## onMissingEpisodesRequested
 
-MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for a media entry.
+MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for the entire library.
+Prevent default to skip the default process and return the modified missing episodes.
 
-**Can prevent default:** No
+**Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
 interface MissingEpisodesRequestedEvent {
     next();
+    preventDefault();
     animeCollection?: AL_AnimeCollection;
     localFiles?: Array<Anime_LocalFile>;
     silencedMediaIds?: Array<number>;
+    missingEpisodes?: Anime_MissingEpisodes;
 }
 ```
 
@@ -728,6 +750,7 @@ interface MissingEpisodesRequestedEvent {
 
 - [AL_AnimeCollection](#anilist_AnimeCollection)
 - [Anime_LocalFile](#anime_LocalFile)
+- [Anime_MissingEpisodes](#anime_MissingEpisodes)
 
 **Example:**
 
@@ -736,6 +759,10 @@ $app.onMissingEpisodesRequested((e) => {
     // console.log(e.animeCollection);
     // console.log(e.localFiles);
     // console.log(e.silencedMediaIds);
+    // console.log(e.missingEpisodes);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
     
     e.next();
 });
@@ -745,6 +772,8 @@ $app.onMissingEpisodesRequested((e) => {
 
 <a id="onmissingepisodes"></a>
 ## onMissingEpisodes
+
+MissingEpisodesEvent is triggered when the missing episodes are being returned.
 
 **Can prevent default:** No
 
@@ -773,8 +802,54 @@ $app.onMissingEpisodes((e) => {
 
 ---
 
+<a id="onanimelibrarycollectionrequested"></a>
+## onAnimeLibraryCollectionRequested
+
+AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
+Prevent default to skip the default process and return the modified library collection.
+If the modified library collection is nil, an error will be returned.
+
+**Can prevent default:** Yes
+
+**Event Interface:**
+
+```typescript
+interface AnimeLibraryCollectionRequestedEvent {
+    next();
+    preventDefault();
+    animeCollection?: AL_AnimeCollection;
+    localFiles?: Array<Anime_LocalFile>;
+    libraryCollection?: Anime_LibraryCollection;
+}
+```
+
+**Referenced types:**
+
+- [AL_AnimeCollection](#anilist_AnimeCollection)
+- [Anime_LocalFile](#anime_LocalFile)
+- [Anime_LibraryCollection](#anime_LibraryCollection)
+
+**Example:**
+
+```typescript
+$app.onAnimeLibraryCollectionRequested((e) => {
+    // console.log(e.animeCollection);
+    // console.log(e.localFiles);
+    // console.log(e.libraryCollection);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
+    
+    e.next();
+});
+```
+
+---
+
 <a id="onanimelibrarycollection"></a>
 ## onAnimeLibraryCollection
+
+AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
 
 **Can prevent default:** No
 
@@ -803,71 +878,11 @@ $app.onAnimeLibraryCollection((e) => {
 
 ---
 
-<a id="onanimelibrarystreamcollection"></a>
-## onAnimeLibraryStreamCollection
-
-**Can prevent default:** No
-
-**Event Interface:**
-
-```typescript
-interface AnimeLibraryStreamCollectionEvent {
-    next();
-    streamCollection?: Anime_StreamCollection;
-}
-```
-
-**Referenced types:**
-
-- [Anime_StreamCollection](#anime_StreamCollection)
-
-**Example:**
-
-```typescript
-$app.onAnimeLibraryStreamCollection((e) => {
-    // console.log(e.streamCollection);
-    
-    e.next();
-});
-```
-
----
-
-<a id="onanimelibrarycollectionrequested"></a>
-## onAnimeLibraryCollectionRequested
-
-**Can prevent default:** No
-
-**Event Interface:**
-
-```typescript
-interface AnimeLibraryCollectionRequestedEvent {
-    next();
-    animeCollection?: AL_AnimeCollection;
-    localFiles?: Array<Anime_LocalFile>;
-}
-```
-
-**Referenced types:**
-
-- [AL_AnimeCollection](#anilist_AnimeCollection)
-- [Anime_LocalFile](#anime_LocalFile)
-
-**Example:**
-
-```typescript
-$app.onAnimeLibraryCollectionRequested((e) => {
-    // console.log(e.animeCollection);
-    // console.log(e.localFiles);
-    
-    e.next();
-});
-```
-
----
-
 <a id="onanimelibrarystreamcollectionrequested"></a>
 ## onAnimeLibraryStreamCollectionRequested
+
+AnimeLibraryStreamCollectionRequestedEvent is triggered when the user requests the library stream collection.
+This is called when the user enables "Include in library" for either debrid/online/torrent streamings.
 
 **Can prevent default:** No
 
@@ -892,6 +907,38 @@ interface AnimeLibraryStreamCollectionRequestedEvent {
 $app.onAnimeLibraryStreamCollectionRequested((e) => {
     // console.log(e.animeCollection);
     // console.log(e.libraryCollection);
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onanimelibrarystreamcollection"></a>
+## onAnimeLibraryStreamCollection
+
+AnimeLibraryStreamCollectionEvent is triggered when the library stream collection is being returned.
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface AnimeLibraryStreamCollectionEvent {
+    next();
+    streamCollection?: Anime_StreamCollection;
+}
+```
+
+**Referenced types:**
+
+- [Anime_StreamCollection](#anime_StreamCollection)
+
+**Example:**
+
+```typescript
+$app.onAnimeLibraryStreamCollection((e) => {
+    // console.log(e.streamCollection);
     
     e.next();
 });
@@ -1048,6 +1095,117 @@ $app.onAutoDownloaderSettingsUpdated((e) => {
 
 ---
 
+<a id="continuity"></a>
+# Continuity
+
+<a id="onwatchhistoryitemrequested"></a>
+## onWatchHistoryItemRequested
+
+WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
+Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found.
+
+**Can prevent default:** Yes
+
+**Event Interface:**
+
+```typescript
+interface WatchHistoryItemRequestedEvent {
+    next();
+    preventDefault();
+    mediaId: number;
+    watchHistoryItem?: Continuity_WatchHistoryItem;
+}
+```
+
+**Referenced types:**
+
+- [Continuity_WatchHistoryItem](#continuity_WatchHistoryItem)
+
+**Example:**
+
+```typescript
+$app.onWatchHistoryItemRequested((e) => {
+    // console.log(e.mediaId);
+    // console.log(e.watchHistoryItem);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onwatchhistorylocalfileepisodeitemrequested"></a>
+## onWatchHistoryLocalFileEpisodeItemRequested
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface WatchHistoryLocalFileEpisodeItemRequestedEvent {
+    next();
+    Path: string;
+    LocalFiles?: Array<Anime_LocalFile>;
+    watchHistoryItem?: Continuity_WatchHistoryItem;
+}
+```
+
+**Referenced types:**
+
+- [Anime_LocalFile](#anime_LocalFile)
+- [Continuity_WatchHistoryItem](#continuity_WatchHistoryItem)
+
+**Example:**
+
+```typescript
+$app.onWatchHistoryLocalFileEpisodeItemRequested((e) => {
+    // console.log(e.Path);
+    // console.log(e.LocalFiles);
+    // console.log(e.watchHistoryItem);
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onwatchhistorystreamepisodeitemrequested"></a>
+## onWatchHistoryStreamEpisodeItemRequested
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface WatchHistoryStreamEpisodeItemRequestedEvent {
+    next();
+    Episode: number;
+    MediaId: number;
+    watchHistoryItem?: Continuity_WatchHistoryItem;
+}
+```
+
+**Referenced types:**
+
+- [Continuity_WatchHistoryItem](#continuity_WatchHistoryItem)
+
+**Example:**
+
+```typescript
+$app.onWatchHistoryStreamEpisodeItemRequested((e) => {
+    // console.log(e.Episode);
+    // console.log(e.MediaId);
+    // console.log(e.watchHistoryItem);
+    
+    e.next();
+});
+```
+
+---
+
 <a id="debrid_client"></a>
 # DebridClient
 
@@ -1055,7 +1213,7 @@ $app.onAutoDownloaderSettingsUpdated((e) => {
 ## onDebridSendStreamToMediaPlayer
 
 DebridSendStreamToMediaPlayerEvent is triggered when the debrid client is about to send a stream to the media player.
-Prevent default to skip the default playback and override the playback.
+Prevent default to skip the playback.
 
 **Can prevent default:** Yes
 
@@ -1142,23 +1300,28 @@ $app.onDebridLocalDownloadRequested((e) => {
 <a id="onmangaentryrequested"></a>
 ## onMangaEntryRequested
 
-MangaEntryRequestedEvent is triggered when a new media entry is being created.
+MangaEntryRequestedEvent is triggered when a manga entry is requested.
+Prevent default to skip the default behavior and return the modified entry.
+If the modified entry is nil, an error will be returned.
 
-**Can prevent default:** No
+**Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
 interface MangaEntryRequestedEvent {
     next();
+    preventDefault();
     mediaId: number;
     mangaCollection?: AL_MangaCollection;
+    entry?: Manga_Entry;
 }
 ```
 
 **Referenced types:**
 
 - [AL_MangaCollection](#anilist_MangaCollection)
+- [Manga_Entry](#manga_Entry)
 
 **Example:**
 
@@ -1166,6 +1329,10 @@ interface MangaEntryRequestedEvent {
 $app.onMangaEntryRequested((e) => {
     // console.log(e.mediaId);
     // console.log(e.mangaCollection);
+    // console.log(e.entry);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
     
     e.next();
 });
@@ -1176,7 +1343,7 @@ $app.onMangaEntryRequested((e) => {
 <a id="onmangaentry"></a>
 ## onMangaEntry
 
-MangaEntryEvent is triggered when the media entry is being returned.
+MangaEntryEvent is triggered when the manga entry is being returned.
 
 **Can prevent default:** No
 
@@ -1205,38 +1372,10 @@ $app.onMangaEntry((e) => {
 
 ---
 
-<a id="onmangalibrarycollection"></a>
-## onMangaLibraryCollection
-
-**Can prevent default:** No
-
-**Event Interface:**
-
-```typescript
-interface MangaLibraryCollectionEvent {
-    next();
-    libraryCollection?: Manga_Collection;
-}
-```
-
-**Referenced types:**
-
-- [Manga_Collection](#manga_Collection)
-
-**Example:**
-
-```typescript
-$app.onMangaLibraryCollection((e) => {
-    // console.log(e.libraryCollection);
-    
-    e.next();
-});
-```
-
----
-
 <a id="onmangalibrarycollectionrequested"></a>
 ## onMangaLibraryCollectionRequested
+
+MangaLibraryCollectionRequestedEvent is triggered when the manga library collection is being requested.
 
 **Can prevent default:** No
 
@@ -1265,14 +1404,139 @@ $app.onMangaLibraryCollectionRequested((e) => {
 
 ---
 
+<a id="onmangalibrarycollection"></a>
+## onMangaLibraryCollection
+
+MangaLibraryCollectionEvent is triggered when the manga library collection is being returned.
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface MangaLibraryCollectionEvent {
+    next();
+    libraryCollection?: Manga_Collection;
+}
+```
+
+**Referenced types:**
+
+- [Manga_Collection](#manga_Collection)
+
+**Example:**
+
+```typescript
+$app.onMangaLibraryCollection((e) => {
+    // console.log(e.libraryCollection);
+    
+    e.next();
+});
+```
+
+---
+
+<a id="mediaplayer"></a>
+# Mediaplayer
+
+<a id="onmediaplayerlocalfiletrackingrequested"></a>
+## onMediaPlayerLocalFileTrackingRequested
+
+MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface MediaPlayerLocalFileTrackingRequestedEvent {
+    next();
+
+    /**
+     * Refresh the status of the player each x seconds
+     */
+    refreshDelay: number;
+
+    /**
+     * Maximum number of retries
+     */
+    maxRetries: number;
+}
+```
+
+**Referenced types:**
+
+
+**Example:**
+
+```typescript
+$app.onMediaPlayerLocalFileTrackingRequested((e) => {
+    // console.log(e.refreshDelay);
+    // console.log(e.maxRetries);
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onmediaplayerstreamtrackingrequested"></a>
+## onMediaPlayerStreamTrackingRequested
+
+MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface MediaPlayerStreamTrackingRequestedEvent {
+    next();
+
+    /**
+     * Refresh the status of the player each x seconds
+     */
+    refreshDelay: number;
+
+    /**
+     * Maximum number of retries
+     */
+    maxRetries: number;
+
+    /**
+     * Maximum number of retries after the player has started
+     */
+    maxRetriesAfterStart: number;
+}
+```
+
+**Referenced types:**
+
+
+**Example:**
+
+```typescript
+$app.onMediaPlayerStreamTrackingRequested((e) => {
+    // console.log(e.refreshDelay);
+    // console.log(e.maxRetries);
+    // console.log(e.maxRetriesAfterStart);
+    
+    e.next();
+});
+```
+
+---
+
 <a id="metadata"></a>
 # Metadata
 
 <a id="onanimemetadatarequested"></a>
 ## onAnimeMetadataRequested
 
-AnimeMetadataRequestedEvent is triggered when anime metadata is requested.
-Prevent default to skip the default behavior and return the overridden metadata.
+AnimeMetadataRequestedEvent is triggered when anime metadata is requested and right before the metadata is processed.
+This event is followed by [AnimeMetadataEvent] which is triggered when the metadata is available.
+Prevent default to skip the default behavior and return the modified metadata.
+If the modified metadata is nil, an error will be returned.
 
 **Can prevent default:** Yes
 
@@ -1283,7 +1547,7 @@ interface AnimeMetadataRequestedEvent {
     next();
     preventDefault();
     mediaId: number;
-    overrideAnimeMetadata?: Metadata_AnimeMetadata;
+    animeMetadata?: Metadata_AnimeMetadata;
 }
 ```
 
@@ -1296,7 +1560,7 @@ interface AnimeMetadataRequestedEvent {
 ```typescript
 $app.onAnimeMetadataRequested((e) => {
     // console.log(e.mediaId);
-    // console.log(e.overrideAnimeMetadata);
+    // console.log(e.animeMetadata);
 
     // Prevent default behavior if needed
     // e.preventDefault();
@@ -1310,7 +1574,10 @@ $app.onAnimeMetadataRequested((e) => {
 <a id="onanimemetadata"></a>
 ## onAnimeMetadata
 
-AnimeMetadataEvent is triggered when anime metadata is available.
+AnimeMetadataEvent is triggered when anime metadata is available and is about to be returned.
+Anime metadata can be requested in many places, ranging from displaying the anime entry to starting a torrent stream.
+This event is triggered after [AnimeMetadataRequestedEvent].
+If the modified metadata is nil, an error will be returned.
 
 **Can prevent default:** No
 
@@ -1334,6 +1601,88 @@ interface AnimeMetadataEvent {
 $app.onAnimeMetadata((e) => {
     // console.log(e.mediaId);
     // console.log(e.animeMetadata);
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onanimeepisodemetadatarequested"></a>
+## onAnimeEpisodeMetadataRequested
+
+AnimeEpisodeMetadataRequestedEvent is triggered when anime episode metadata is requested.
+Prevent default to skip the default behavior and return the overridden metadata.
+This event is triggered before [AnimeEpisodeMetadataEvent].
+If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
+
+**Can prevent default:** Yes
+
+**Event Interface:**
+
+```typescript
+interface AnimeEpisodeMetadataRequestedEvent {
+    next();
+    preventDefault();
+    animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+    episodeNumber: number;
+    mediaId: number;
+}
+```
+
+**Referenced types:**
+
+- [Metadata_EpisodeMetadata](#metadata_EpisodeMetadata)
+
+**Example:**
+
+```typescript
+$app.onAnimeEpisodeMetadataRequested((e) => {
+    // console.log(e.animeEpisodeMetadata);
+    // console.log(e.episodeNumber);
+    // console.log(e.mediaId);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onanimeepisodemetadata"></a>
+## onAnimeEpisodeMetadata
+
+AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
+In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.
+This event is triggered after [AnimeEpisodeMetadataRequestedEvent].
+If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
+
+**Can prevent default:** No
+
+**Event Interface:**
+
+```typescript
+interface AnimeEpisodeMetadataEvent {
+    next();
+    animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+    episodeNumber: number;
+    mediaId: number;
+}
+```
+
+**Referenced types:**
+
+- [Metadata_EpisodeMetadata](#metadata_EpisodeMetadata)
+
+**Example:**
+
+```typescript
+$app.onAnimeEpisodeMetadata((e) => {
+    // console.log(e.animeEpisodeMetadata);
+    // console.log(e.episodeNumber);
+    // console.log(e.mediaId);
     
     e.next();
 });
@@ -1423,18 +1772,18 @@ $app.onStreamPlaybackRequested((e) => {
 
 ---
 
-<a id="onpreplaybacktracking"></a>
-## onPrePlaybackTracking
+<a id="onplaybackbeforetracking"></a>
+## onPlaybackBeforeTracking
 
-PrePlaybackTrackingEvent is triggered just before the playback tracking starts.
-Prevent default to skip the default playback tracking.
+PlaybackBeforeTrackingEvent is triggered just before the playback tracking starts.
+Prevent default to skip playback tracking.
 
 **Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
-interface PrePlaybackTrackingEvent {
+interface PlaybackBeforeTrackingEvent {
     next();
     preventDefault();
     isStream: boolean;
@@ -1447,8 +1796,102 @@ interface PrePlaybackTrackingEvent {
 **Example:**
 
 ```typescript
-$app.onPrePlaybackTracking((e) => {
+$app.onPlaybackBeforeTracking((e) => {
     // console.log(e.isStream);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onplaybacklocalfiledetailsrequested"></a>
+## onPlaybackLocalFileDetailsRequested
+
+PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
+This event is triggered right after the media player loads an episode.
+The playback manager uses the local files details to track the progress, propose next episodes, etc.
+In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.
+Prevent default to skip the default fetching and override the details.
+
+**Can prevent default:** Yes
+
+**Event Interface:**
+
+```typescript
+interface PlaybackLocalFileDetailsRequestedEvent {
+    next();
+    preventDefault();
+    path: string;
+    localFiles?: Array<Anime_LocalFile>;
+    animeListEntry?: AL_AnimeListEntry;
+    localFile?: Anime_LocalFile;
+    localFileWrapperEntry?: Anime_LocalFileWrapperEntry;
+}
+```
+
+**Referenced types:**
+
+- [Anime_LocalFile](#anime_LocalFile)
+- [AL_AnimeListEntry](#anilist_AnimeListEntry)
+- [Anime_LocalFile](#anime_LocalFile)
+- [Anime_LocalFileWrapperEntry](#anime_LocalFileWrapperEntry)
+
+**Example:**
+
+```typescript
+$app.onPlaybackLocalFileDetailsRequested((e) => {
+    // console.log(e.path);
+    // console.log(e.localFiles);
+    // console.log(e.animeListEntry);
+    // console.log(e.localFile);
+    // console.log(e.localFileWrapperEntry);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
+    
+    e.next();
+});
+```
+
+---
+
+<a id="onplaybackstreamdetailsrequested"></a>
+## onPlaybackStreamDetailsRequested
+
+PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
+Prevent default to skip the default fetching and override the details.
+In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked.
+
+**Can prevent default:** Yes
+
+**Event Interface:**
+
+```typescript
+interface PlaybackStreamDetailsRequestedEvent {
+    next();
+    preventDefault();
+    animeCollection?: AL_AnimeCollection;
+    mediaId: number;
+    animeListEntry?: AL_AnimeListEntry;
+}
+```
+
+**Referenced types:**
+
+- [AL_AnimeCollection](#anilist_AnimeCollection)
+- [AL_AnimeListEntry](#anilist_AnimeListEntry)
+
+**Example:**
+
+```typescript
+$app.onPlaybackStreamDetailsRequested((e) => {
+    // console.log(e.animeCollection);
+    // console.log(e.mediaId);
+    // console.log(e.animeListEntry);
 
     // Prevent default behavior if needed
     // e.preventDefault();
@@ -1465,35 +1908,43 @@ $app.onPrePlaybackTracking((e) => {
 <a id="onscanstarted"></a>
 ## onScanStarted
 
-ScanStartedEvent is triggered when the scanning process begins
+ScanStartedEvent is triggered when the scanning process begins.
+Prevent default to skip the rest of the scanning process and return the local files.
 
-**Can prevent default:** No
+**Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
 interface ScanStartedEvent {
     next();
-    dirPath: string;
-    otherDirPaths?: Array<string>;
+    preventDefault();
+    libraryPath: string;
+    otherLibraryPaths?: Array<string>;
     enhanced: boolean;
     skipLocked: boolean;
     skipIgnored: boolean;
+    localFiles?: Array<Anime_LocalFile>;
 }
 ```
 
 **Referenced types:**
 
+- [Anime_LocalFile](#anime_LocalFile)
 
 **Example:**
 
 ```typescript
 $app.onScanStarted((e) => {
-    // console.log(e.dirPath);
-    // console.log(e.otherDirPaths);
+    // console.log(e.libraryPath);
+    // console.log(e.otherLibraryPaths);
     // console.log(e.enhanced);
     // console.log(e.skipLocked);
     // console.log(e.skipIgnored);
+    // console.log(e.localFiles);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
     
     e.next();
 });
@@ -1504,7 +1955,9 @@ $app.onScanStarted((e) => {
 <a id="onscanfilepathsretrieved"></a>
 ## onScanFilePathsRetrieved
 
-ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved
+ScanFilePathsRetrievedEvent is triggered when the file paths to scan are retrieved.
+The event includes file paths from all directories to scan.
+The event includes file paths of local files that will be skipped.
 
 **Can prevent default:** No
 
@@ -1535,7 +1988,8 @@ $app.onScanFilePathsRetrieved((e) => {
 <a id="onscanlocalfilesparsed"></a>
 ## onScanLocalFilesParsed
 
-ScanLocalFilesParsedEvent is triggered when the file paths are parsed into local file objects
+ScanLocalFilesParsedEvent is triggered right after the file paths are parsed into local file objects.
+The event does not include local files that are skipped.
 
 **Can prevent default:** No
 
@@ -1567,7 +2021,9 @@ $app.onScanLocalFilesParsed((e) => {
 <a id="onscancompleted"></a>
 ## onScanCompleted
 
-ScanCompletedEvent is triggered when the scanning process finishes
+ScanCompletedEvent is triggered when the scanning process finishes.
+The event includes all the local files (skipped and scanned) to be inserted as a new entry.
+Right after this event, the local files will be inserted as a new entry.
 
 **Can prevent default:** No
 
@@ -1605,7 +2061,7 @@ $app.onScanCompleted((e) => {
 <a id="onscanmediafetcherstarted"></a>
 ## onScanMediaFetcherStarted
 
-ScanMediaFetcherStartedEvent is triggered when the media fetcher begins
+ScanMediaFetcherStartedEvent is triggered right before Seanime starts fetching media to be matched against the local files.
 
 **Can prevent default:** No
 
@@ -1636,7 +2092,9 @@ $app.onScanMediaFetcherStarted((e) => {
 <a id="onscanmediafetchercompleted"></a>
 ## onScanMediaFetcherCompleted
 
-ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes
+ScanMediaFetcherCompletedEvent is triggered when the media fetcher completes.
+The event includes all the media fetched from AniList.
+The event includes the media IDs that are not in the user's collection.
 
 **Can prevent default:** No
 
@@ -1671,7 +2129,7 @@ $app.onScanMediaFetcherCompleted((e) => {
 ## onScanMatchingStarted
 
 ScanMatchingStartedEvent is triggered when the matching process begins.
-Prevent default to skip the default matching and override the matching.
+Prevent default to skip the default matching, in which case modified local files will be used.
 
 **Can prevent default:** Yes
 
@@ -1758,7 +2216,7 @@ $app.onScanLocalFileMatched((e) => {
 <a id="onscanmatchingcompleted"></a>
 ## onScanMatchingCompleted
 
-ScanMatchingCompletedEvent is triggered when the matching process completes
+ScanMatchingCompletedEvent is triggered when the matching process completes.
 
 **Can prevent default:** No
 
@@ -1790,15 +2248,17 @@ $app.onScanMatchingCompleted((e) => {
 <a id="onscanhydrationstarted"></a>
 ## onScanHydrationStarted
 
-ScanHydrationStartedEvent is triggered when the file hydration process begins
+ScanHydrationStartedEvent is triggered when the file hydration process begins.
+Prevent default to skip the rest of the hydration process, in which case the event's local files will be used.
 
-**Can prevent default:** No
+**Can prevent default:** Yes
 
 **Event Interface:**
 
 ```typescript
 interface ScanHydrationStartedEvent {
     next();
+    preventDefault();
     localFiles?: Array<Anime_LocalFile>;
     allMedia?: Array<Anime_NormalizedMedia>;
 }
@@ -1815,6 +2275,9 @@ interface ScanHydrationStartedEvent {
 $app.onScanHydrationStarted((e) => {
     // console.log(e.localFiles);
     // console.log(e.allMedia);
+
+    // Prevent default behavior if needed
+    // e.preventDefault();
     
     e.next();
 });
@@ -1891,38 +2354,6 @@ $app.onScanLocalFileHydrated((e) => {
     // console.log(e.localFile);
     // console.log(e.mediaId);
     // console.log(e.episode);
-    
-    e.next();
-});
-```
-
----
-
-<a id="onscanhydrationcompleted"></a>
-## onScanHydrationCompleted
-
-ScanHydrationCompletedEvent is triggered when the file hydration process completes
-
-**Can prevent default:** No
-
-**Event Interface:**
-
-```typescript
-interface ScanHydrationCompletedEvent {
-    next();
-    localFiles?: Array<Anime_LocalFile>;
-}
-```
-
-**Referenced types:**
-
-- [Anime_LocalFile](#anime_LocalFile)
-
-**Example:**
-
-```typescript
-$app.onScanHydrationCompleted((e) => {
-    // console.log(e.localFiles);
     
     e.next();
 });
@@ -6680,6 +7111,76 @@ AL_AnimeCollection_MediaListCollection_Lists_Entries
 <TableRow>
 <TableCell className="py-1 px-2 max-w-[200px] break-all">confirmed</TableCell>
 <TableCell className="py-1 px-2 break-all">`boolean`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+</TableBody>
+</Table>
+
+#### Continuity_Kind
+
+<div id="continuity_Kind"></div>
+
+**Filepath:** `internal/continuity/manager.go`
+
+"onlinestream" | "mediastream" | "external_player"
+
+
+#### Continuity_WatchHistoryItem
+
+<div id="continuity_WatchHistoryItem"></div>
+
+**Filepath:** `internal/continuity/history.go`
+
+**Fields:**
+
+<Table>
+<TableCaption>Fields</TableCaption>
+<TableHeader>
+<TableRow>
+<TableHead>Property</TableHead>
+<TableHead>Type</TableHead>
+<TableHead>Description</TableHead>
+</TableRow>
+</TableHeader>
+<TableBody>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">kind</TableCell>
+<TableCell className="py-1 px-2 break-all"><a href="#continuity_WatchHistoryItem">`Continuity_WatchHistoryItem`</a></TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">filepath</TableCell>
+<TableCell className="py-1 px-2 break-all">`string`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">mediaId</TableCell>
+<TableCell className="py-1 px-2 break-all">`number`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">episodeNumber</TableCell>
+<TableCell className="py-1 px-2 break-all">`number`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">currentTime</TableCell>
+<TableCell className="py-1 px-2 break-all">`number`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">duration</TableCell>
+<TableCell className="py-1 px-2 break-all">`number`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">timeAdded</TableCell>
+<TableCell className="py-1 px-2 break-all">`string`</TableCell>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
+</TableRow>
+<TableRow>
+<TableCell className="py-1 px-2 max-w-[200px] break-all">timeUpdated</TableCell>
+<TableCell className="py-1 px-2 break-all">`string`</TableCell>
 <TableCell className="py-1 px-2 max-w-[200px] break-all">-</TableCell>
 </TableRow>
 </TableBody>

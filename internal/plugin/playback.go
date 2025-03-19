@@ -4,6 +4,7 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/extension"
+	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpv"
@@ -40,6 +41,12 @@ func (a *AppContextImpl) BindPlaybackToContextObj(vm *goja.Runtime, obj *goja.Ob
 	_ = playbackObj.Set("playUsingMediaPlayer", p.playUsingMediaPlayer)
 	_ = playbackObj.Set("streamUsingMediaPlayer", p.streamUsingMediaPlayer)
 	_ = playbackObj.Set("registerEventListener", p.registerEventListener)
+	_ = playbackObj.Set("pause", p.pause)
+	_ = playbackObj.Set("resume", p.resume)
+	_ = playbackObj.Set("seek", p.seek)
+	_ = playbackObj.Set("cancel", p.cancel)
+	_ = playbackObj.Set("getNextEpisode", p.getNextEpisode)
+	_ = playbackObj.Set("playNextEpisode", p.playNextEpisode)
 	_ = obj.Set("playback", playbackObj)
 
 	// MPV
@@ -287,4 +294,52 @@ func (p *Playback) registerEventListener(id string, callback func(event *Playbac
 	}
 
 	return cancelFn, nil
+}
+
+func (p *Playback) pause() error {
+	playbackManager, ok := p.ctx.PlaybackManager().Get()
+	if !ok {
+		return errors.New("playback manager not found")
+	}
+	return playbackManager.Pause()
+}
+
+func (p *Playback) resume() error {
+	playbackManager, ok := p.ctx.PlaybackManager().Get()
+	if !ok {
+		return errors.New("playback manager not found")
+	}
+	return playbackManager.Resume()
+}
+
+func (p *Playback) seek(seconds float64) error {
+	playbackManager, ok := p.ctx.PlaybackManager().Get()
+	if !ok {
+		return errors.New("playback manager not found")
+	}
+	return playbackManager.Seek(seconds)
+}
+
+func (p *Playback) cancel() error {
+	playbackManager, ok := p.ctx.PlaybackManager().Get()
+	if !ok {
+		return errors.New("playback manager not found")
+	}
+	return playbackManager.Cancel()
+}
+
+func (p *Playback) getNextEpisode() (*anime.LocalFile, error) {
+	playbackManager, ok := p.ctx.PlaybackManager().Get()
+	if !ok {
+		return nil, errors.New("playback manager not found")
+	}
+	return playbackManager.GetNextEpisode(), nil
+}
+
+func (p *Playback) playNextEpisode() error {
+	playbackManager, ok := p.ctx.PlaybackManager().Get()
+	if !ok {
+		return errors.New("playback manager not found")
+	}
+	return playbackManager.PlayNextEpisode()
 }
