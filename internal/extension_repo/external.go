@@ -73,6 +73,12 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 		return nil, fmt.Errorf("failed sanity check, %w", err)
 	}
 
+	// Check plugin manifest
+	if err = pluginManifestSanityCheck(&ext); err != nil {
+		r.logger.Error().Err(err).Str("uri", manifestURI).Msg("extensions: Failed plugin manifest sanity check")
+		return nil, fmt.Errorf("failed plugin manifest sanity check, %w", err)
+	}
+
 	return &ext, nil
 }
 

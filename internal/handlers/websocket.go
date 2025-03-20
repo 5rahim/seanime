@@ -53,6 +53,24 @@ func (h *Handler) webSocketEventHandler(c echo.Context) error {
 			continue
 		}
 
+		// Handle ping messages
+		if event.Type == "ping" {
+			timestamp := int64(0)
+			if payload, ok := event.Payload.(map[string]interface{}); ok {
+				if ts, ok := payload["timestamp"]; ok {
+					if tsFloat, ok := ts.(float64); ok {
+						timestamp = int64(tsFloat)
+					} else if tsInt, ok := ts.(int64); ok {
+						timestamp = tsInt
+					}
+				}
+			}
+
+			// Send pong response back to the same client
+			h.App.WSEventManager.SendEventTo(event.ClientID, "pong", map[string]int64{"timestamp": timestamp})
+			continue // Skip further processing for ping messages
+		}
+
 		h.HandleClientEvents(event)
 
 		// h.App.Logger.Debug().Msgf("ws: message received: %+v", msg)
