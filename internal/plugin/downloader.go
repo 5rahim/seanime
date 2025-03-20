@@ -27,7 +27,7 @@ const (
 	DownloadStatusError       DownloadStatus = "error"
 )
 
-type downloadProgress struct {
+type DownloadProgress struct {
 	ID             string    `json:"id"`
 	URL            string    `json:"url"`
 	Destination    string    `json:"destination"`
@@ -40,11 +40,11 @@ type downloadProgress struct {
 	LastUpdateTime time.Time `json:"lastUpdate"`
 	StartTime      time.Time `json:"startTime"`
 
-	lastBytes int64
+	lastBytes int64 `json:"-"`
 }
 
 // IsFinished returns true if the download has completed, errored, or been cancelled
-func (p *downloadProgress) IsFinished() bool {
+func (p *DownloadProgress) IsFinished() bool {
 	return p.Status == string(DownloadStatusCompleted) || p.Status == string(DownloadStatusCancelled) || p.Status == string(DownloadStatusError)
 }
 
@@ -55,37 +55,7 @@ type progressSubscriber struct {
 	LastSent time.Time
 }
 
-// BindDownload binds the download module to the Goja runtime.
-//
-// Example
-//
-//	// Start multiple downloads
-//	const id1 = $downloader.download("https://example.com/file1.zip", "/downloads/file1.zip", {
-//	    timeout: 300 // 5 minutes
-//	});
-//	const id2 = $downloader.download("https://example.com/file2.zip", "/downloads/file2.zip", {
-//	   timeout: 300
-//	});
-//
-//	// List all active downloads
-//	const downloads = $downloader.listDownloads();
-//	console.log(`Active downloads: ${downloads.length}`);
-//
-//	// Track specific download
-//	const progress = $downloader.getProgress(id1);
-//	console.log(`Download ${progress.id}: ${progress.percentage}%, Speed: ${progress.speed} bytes/s`);
-//
-//	// Watch download progress
-//	const cancelWatch = $downloader.watch(id1, (progress) => {
-//	    console.log(`Download ${progress.id}: ${progress.percentage}%`);
-//	});
-//
-//	// Cancel specific download
-//	$downloader.cancel(id1);
-//
-//	// Cancel all downloads
-//	$downloader.cancelAll();
-func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
+func (a *AppContextImpl) BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) {
 	downloadObj := vm.NewObject()
 
 	progressMap := sync.Map{}
@@ -126,7 +96,7 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 				case <-ctx.Done():
 					// If download is complete/cancelled/errored, send one last update and stop
 					if progress, ok := progressMap.Load(downloadID); ok {
-						p := progress.(*downloadProgress)
+						p := progress.(*DownloadProgress)
 						scheduler.ScheduleAsync(func() error {
 							p.Speed = 0
 							callback(goja.Undefined(), vm.ToValue(p))
@@ -136,7 +106,7 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 					return
 				case <-ticker.C:
 					if progress, ok := progressMap.Load(downloadID); ok {
-						p := progress.(*downloadProgress)
+						p := progress.(*DownloadProgress)
 						scheduler.ScheduleAsync(func() error {
 							callback(goja.Undefined(), vm.ToValue(p))
 							return nil
@@ -183,7 +153,7 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 
 		// Initialize progress tracking
 		now := time.Now()
-		progress := &downloadProgress{
+		progress := &DownloadProgress{
 			ID:             downloadID,
 			URL:            url,
 			Destination:    destination,
@@ -316,17 +286,17 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 		return downloadID, nil
 	})
 
-	_ = downloadObj.Set("getProgress", func(downloadID string) *downloadProgress {
+	_ = downloadObj.Set("getProgress", func(downloadID string) *DownloadProgress {
 		if progress, ok := progressMap.Load(downloadID); ok {
-			return progress.(*downloadProgress)
+			return progress.(*DownloadProgress)
 		}
 		return nil
 	})
 
-	_ = downloadObj.Set("listDownloads", func() []*downloadProgress {
-		downloads := make([]*downloadProgress, 0)
+	_ = downloadObj.Set("listDownloads", func() []*DownloadProgress {
+		downloads := make([]*DownloadProgress, 0)
 		progressMap.Range(func(key, value interface{}) bool {
-			downloads = append(downloads, value.(*downloadProgress))
+			downloads = append(downloads, value.(*DownloadProgress))
 			return true
 		})
 		return downloads
@@ -354,5 +324,5 @@ func (a *AppContextImpl) bindDownloader(vm *goja.Runtime, logger *zerolog.Logger
 		})
 	})
 
-	_ = vm.Set("$downloader", downloadObj)
+	_ = obj.Set("downloader", downloadObj)
 }

@@ -3,6 +3,7 @@ package plugin
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -17,6 +18,7 @@ import (
 	util "seanime/internal/util"
 	goja_util "seanime/internal/util/goja"
 	"strings"
+	"sync"
 
 	"github.com/bmatcuk/doublestar/v4"
 	"github.com/dop251/goja"
@@ -31,6 +33,14 @@ const (
 	AllowPathRead  = 0
 	AllowPathWrite = 1
 )
+
+type AsyncCmd struct {
+	cmd *exec.Cmd
+
+	appContext *AppContextImpl
+	scheduler  *goja_util.Scheduler
+	vm         *goja.Runtime
+}
 
 // BindSystem binds the system module to the Goja runtime.
 // Permissions needed: system + allowlist
@@ -60,8 +70,12 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 			return nil, fmt.Errorf("command (%s) not authorized", fmt.Sprintf("%s %s", name, strings.Join(arg, " ")))
 		}
 
-		return exec.Command(name, arg...), nil
+		return util.NewCmdCtx(context.Background(), name, arg...), nil
 	})
+
+	_ = osObj.Set("Interrupt", os.Interrupt)
+	_ = osObj.Set("Kill", os.Kill)
+
 	_ = osObj.Set("readFile", func(path string) ([]byte, error) {
 		if !a.isAllowedPath(ext, path, AllowPathRead) {
 			return nil, fmt.Errorf("$os.readFile: path (%s) not authorized for read", path)
@@ -208,7 +222,7 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 	fileModeObj.Set("ModeIrregular", os.ModeIrregular)
 	fileModeObj.Set("ModeType", os.ModeType)
 	fileModeObj.Set("ModePerm", os.ModePerm)
-	_ = vm.Set("$os.FileMode", fileModeObj)
+	_ = osObj.Set("FileMode", fileModeObj)
 
 	_ = vm.Set("$os", osObj)
 
@@ -325,12 +339,6 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 	_ = vm.Set("$bytes", bytesObj)
 
 	//////////////////////////////////////
-	// Downloader
-	//////////////////////////////////////
-
-	a.bindDownloader(vm, logger, ext, scheduler)
-
-	//////////////////////////////////////
 	// Filepath
 	//////////////////////////////////////
 
@@ -444,6 +452,15 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		return libraryDirs, nil
 	})
 
+	_ = osExtraObj.Set("asyncCmd", func(name string, arg ...string) *AsyncCmd {
+		return &AsyncCmd{
+			cmd:        util.NewCmdCtx(context.Background(), name, arg...),
+			appContext: a,
+			scheduler:  scheduler,
+			vm:         vm,
+		}
+	})
+
 	_ = vm.Set("$osExtra", osExtraObj)
 
 	//////////////////////////////////////
@@ -503,7 +520,7 @@ func (a *AppContextImpl) resolveEnvironmentPaths(name string) []string {
 			return []string{}
 		}
 		return []string{configDir}
-	case "DOWNLOADS":
+	case "DOWNLOAD":
 		downloadDir, err := util.DownloadDir()
 		if err != nil {
 			return []string{}
@@ -515,7 +532,7 @@ func (a *AppContextImpl) resolveEnvironmentPaths(name string) []string {
 			return []string{}
 		}
 		return []string{desktopDir}
-	case "DOCUMENTS":
+	case "DOCUMENT":
 		documentsDir, err := util.DocumentsDir()
 		if err != nil {
 			return []string{}
@@ -824,3 +841,153 @@ func (a *AppContextImpl) validateCommandArgs(ext *extension.Extension, allowedAr
 
 	return true
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GetCommand returns the underlying exec.Cmd
+func (c *AsyncCmd) GetCommand() *exec.Cmd {
+	return c.cmd
+}
+
+func (c *AsyncCmd) Run(callback goja.Callable) error {
+
+	stdout, err := c.cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	stderr, err := c.cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	// Start the command
+	err = c.cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	// Use WaitGroup to ensure all goroutines complete before Wait() is called
+	var wg sync.WaitGroup
+	wg.Add(2) // One for stdout, one for stderr
+
+	// Handle stdout
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			data := scanner.Bytes()
+			dataBytes := make([]byte, len(data))
+			copy(dataBytes, data)
+
+			c.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), c.vm.ToValue(dataBytes), goja.Undefined(), goja.Undefined(), goja.Undefined())
+				return err
+			})
+		}
+	}()
+
+	// Handle stderr
+	go func() {
+		defer wg.Done()
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			data := scanner.Bytes()
+			dataBytes := make([]byte, len(data))
+			copy(dataBytes, data)
+
+			c.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), goja.Undefined(), c.vm.ToValue(dataBytes), goja.Undefined(), goja.Undefined())
+				return err
+			})
+		}
+	}()
+
+	// Wait for both stdout and stderr to be fully processed in a separate goroutine
+	go func() {
+		// Wait for stdout and stderr goroutines to complete
+		wg.Wait()
+
+		// Now wait for the command to finish
+		err := c.cmd.Wait()
+
+		_ = stdout.Close()
+		_ = stderr.Close()
+
+		// Process exit code and signal
+		exitCode := 0
+		signal := ""
+
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			exitCode = exitErr.ExitCode()
+			signal = exitErr.String()
+		} else if c.cmd.ProcessState != nil {
+			exitCode = c.cmd.ProcessState.ExitCode()
+			signal = c.cmd.ProcessState.String()
+		}
+
+		// Call callback with exit code and signal
+		c.scheduler.ScheduleAsync(func() error {
+			_, err = callback(goja.Undefined(), goja.Undefined(), goja.Undefined(), c.vm.ToValue(exitCode), c.vm.ToValue(signal))
+			return err
+		})
+	}()
+
+	return nil
+}
+
+// // OnData registers a callback to be called when data is available from the command's stdout
+// func (c *AsyncCmd) OnData(callback func(data []byte)) error {
+// 	stdout, err := c.cmd.StdoutPipe()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	go func() {
+// 		scanner := bufio.NewScanner(stdout)
+// 		for scanner.Scan() {
+// 			c.scheduler.ScheduleAsync(func() error {
+// 				callback(scanner.Bytes())
+// 				return nil
+// 			})
+// 		}
+// 	}()
+
+// 	return nil
+// }
+
+// // OnError registers a callback to be called when data is available from the command's stderr
+// func (c *AsyncCmd) OnError(callback func(data []byte)) error {
+// 	stderr, err := c.cmd.StderrPipe()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	go func() {
+// 		scanner := bufio.NewScanner(stderr)
+// 		for scanner.Scan() {
+// 			c.scheduler.ScheduleAsync(func() error {
+// 				callback(scanner.Bytes())
+// 				return nil
+// 			})
+// 		}
+// 	}()
+
+// 	return nil
+// }
+
+// // OnExit registers a callback to be called when the command exits
+// func (c *AsyncCmd) OnExit(callback func(code int, signal string)) error {
+// 	go func() {
+// 		err := c.cmd.Wait()
+// 		if err != nil {
+// 			return
+// 		}
+// 		c.scheduler.ScheduleAsync(func() error {
+// 			callback(c.cmd.ProcessState.ExitCode(), c.cmd.ProcessState.String())
+// 			return nil
+// 		})
+// 	}()
+// 	return nil
+// }

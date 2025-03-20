@@ -7,7 +7,7 @@ import (
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
-	"seanime/internal/util/goja"
+	goja_util "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
 	"github.com/rs/zerolog"
@@ -55,6 +55,9 @@ type AppContext interface {
 
 	// BindCronToContextObj binds 'cron' to the UI context object
 	BindCronToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler) *Cron
+
+	// BindDownloaderToContextObj binds 'downloader' to the UI context object
+	BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 }
 
 var GlobalAppContext = NewAppContext()

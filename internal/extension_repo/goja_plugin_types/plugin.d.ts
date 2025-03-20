@@ -283,8 +283,6 @@ declare namespace $ui {
          */
         playNextEpisode(): void
         
-
-        
     }
 
     interface PlaybackEvent {

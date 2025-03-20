@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"seanime/internal/extension"
+	"seanime/internal/plugin"
 	"strings"
 	"testing"
 	"time"
@@ -989,7 +990,7 @@ function init() {
 	manager.PrintPluginPoolMetrics(opts.ID)
 }
 
-// TestGojaPluginSystemDownloader tests the $downloader bindings in the Goja plugin system
+// TestGojaPluginSystemDownloader tests the ctx.downloader bindings in the Goja plugin system
 func TestGojaPluginSystemDownloader(t *testing.T) {
 	// Create a temporary directory for testing
 	tempDir := t.TempDir()
@@ -1036,12 +1037,12 @@ func TestGojaPluginSystemDownloader(t *testing.T) {
 	payload := `
 function init() {
 	$ui.register((ctx) => {
-		console.log("Testing $downloader bindings with large file");
+		console.log("Testing ctx.downloader bindings with large file");
 		
 		// Test download
 		const downloadPath = "${TEMP_DIR}/large_download.bin";
 		try {
-			const downloadID = $downloader.download("${SERVER_URL}", downloadPath, {
+			const downloadID = ctx.downloader.download("${SERVER_URL}", downloadPath, {
 				timeout: 60 // 60 second timeout
 			});
 			console.log("Download started with ID:", downloadID);
@@ -1052,7 +1053,7 @@ function init() {
 			
 			// Wait for download to complete
 			let downloadComplete = ctx.state(false);
-			const cancelWatch = $downloader.watch(downloadID, (progress) => {
+			const cancelWatch = ctx.downloader.watch(downloadID, (progress) => {
 				// Store progress update
 				progressUpdates.push({
 					percentage: progress.percentage,
@@ -1095,12 +1096,12 @@ function init() {
 					}
 					
 					// List downloads
-					const downloads = $downloader.listDownloads();
+					const downloads = ctx.downloader.listDownloads();
 					console.log("Active downloads:", downloads.length);
 					$store.set("downloadsCount", downloads.length);
 					
 					// Get progress
-					const progress = $downloader.getProgress(downloadID);
+					const progress = ctx.downloader.getProgress(downloadID);
 					if (progress) {
 						console.log("Final download progress:", progress);
 						$store.set("finalProgress", progress);
@@ -1137,27 +1138,27 @@ function init() {
 		},
 	}
 
-	plugin, logger, manager, _, _, err := InitTestPlugin(t, opts)
+	p, logger, manager, _, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)
 
 	// Wait for the plugin to execute and download to complete
 	time.Sleep(12 * time.Second)
 
 	// Check the store values
-	downloadID, ok := plugin.store.GetOk("downloadID")
+	downloadID, ok := p.store.GetOk("downloadID")
 	require.True(t, ok, "downloadID should be set in store")
 	assert.NotEmpty(t, downloadID)
 
 	// Check if download completed or if there was an error
-	downloadComplete, ok := plugin.store.GetOk("downloadComplete")
+	downloadComplete, ok := p.store.GetOk("downloadComplete")
 	if ok && downloadComplete.(bool) {
 		// If download completed, check file size
-		downloadedSize, ok := plugin.store.GetOk("downloadedSize")
+		downloadedSize, ok := p.store.GetOk("downloadedSize")
 		require.True(t, ok, "downloadedSize should be set in store")
 		assert.Equal(t, int64(totalSize), downloadedSize)
 
 		// Check progress updates
-		progressUpdates, ok := plugin.store.GetOk("progressUpdates")
+		progressUpdates, ok := p.store.GetOk("progressUpdates")
 		require.True(t, ok, "progressUpdates should be set in store")
 		updates, ok := progressUpdates.([]interface{})
 		require.True(t, ok, "progressUpdates should be a slice")
@@ -1175,16 +1176,16 @@ function init() {
 			}
 		}
 
-		finalProgress, ok := plugin.store.GetOk("finalProgress")
+		finalProgress, ok := p.store.GetOk("finalProgress")
 		if ok {
-			progressMap, ok := finalProgress.(map[string]interface{})
-			require.True(t, ok, "finalProgress should be a map")
-			assert.Equal(t, "completed", progressMap["status"])
-			assert.InDelta(t, 100.0, progressMap["percentage"], 0.1)
+			progressMap, ok := finalProgress.(*plugin.DownloadProgress)
+			require.Truef(t, ok, "finalProgress should be a map, got %T", finalProgress)
+			assert.Equal(t, "completed", progressMap.Status)
+			assert.InDelta(t, 100.0, progressMap.Percentage, 0.1)
 		}
 	} else {
 		// If download failed, check error
-		downloadError, _ := plugin.store.GetOk("downloadError")
+		downloadError, _ := p.store.GetOk("downloadError")
 		t.Logf("Download error: %v", downloadError)
 		// Don't fail the test if there was an error, just log it
 	}
@@ -1444,6 +1445,66 @@ function init() {
 			console.log("Command execution error:", e.message);
 			$store.set("commandError", e.message);
 		}
+
+		// Test executing an async command
+		//try {
+		//	// Create a command to list files
+		//	const asyncCmd = $osExtra.asyncCmd("ls", "-la", "${TEMP_DIR}");
+		//	
+		//	
+		//	asyncCmd.run((data, err, exitCode, signal) => {
+		//	// console.log(data, err, exitCode, signal)
+		//		if (data) {
+		//			console.log("Async command data:", $toString(data));
+		//		}
+		//		if (err) {
+		//			console.log("Async command error:", $toString(err));
+		//		}
+		//		if (exitCode) {
+		//			console.log("Async command exit code:", exitCode);
+		//		}
+		//		if (signal) {
+		//			console.log("Async command signal:", signal);
+		//		}
+		//	});
+		//} catch (e) {
+		//	console.log("Command execution error:", e.message);
+		//	$store.set("asyncCommandError", e.message);
+		//}
+
+		// Try unsafe goroutine
+		try {
+			// Create a command to list files
+			const cmd = $os.cmd("ls", "-la", "${TEMP_DIR}");
+			
+			$store.watch("unsafeGoroutineOutput", (output) => {
+				console.log("Unsafe goroutine output:", output);
+			});
+
+			// Read the output using scanner
+			$unsafeGoroutine(function() {
+				// Set up stdout capture
+				const stdoutPipe = cmd.stdoutPipe();
+
+				console.log("Starting unsafe goroutine");
+				const output = $io.readAll(stdoutPipe);
+				$store.set("unsafeGoroutineOutput", $toString(output));
+				console.log("Unsafe goroutine output set", $toString(output));
+
+				cmd.wait();
+			});
+			
+			// Start the command
+			cmd.start();
+			
+			// Check exit code
+			const exitCode = cmd.processState.exitCode();
+			console.log("Command exit code:", exitCode);
+
+		} catch (e) {
+			console.log("Command execution error:", e.message);
+			$store.set("unsafeGoroutineError", e.message);
+		}
 		
 		// Test executing a command with combined output
 		try {
@@ -1594,6 +1655,122 @@ function init() {
 	unauthorizedCommandError, ok := plugin.store.GetOk("unauthorizedCommandError")
 	require.True(t, ok, "unauthorizedCommandError should be set in store")
 	assert.Contains(t, unauthorizedCommandError.(string), "not authorized", "Error should indicate command was not authorized")
+
+	manager.PrintPluginPoolMetrics(opts.ID)
+}
+
+func TestGojaPluginSystemAsyncCommand(t *testing.T) {
+	// Create a temporary directory for testing
+	tempDir := t.TempDir()
+
+	// Create a test file to use with commands
+	testFilePath := filepath.Join(tempDir, "test.txt")
+	err := os.WriteFile(testFilePath, []byte("Hello, world!"), 0644)
+	require.NoError(t, err)
+
+	payload := `
+function init() {
+	$ui.register((ctx) => {
+		console.log("Testing async command execution");
+
+		// Test executing an async command
+		try {
+			// Create a command to list files
+			let asyncCmd = $osExtra.asyncCmd("ls", "-la", "${TEMP_DIR}");
+			
+			let output = "";
+			asyncCmd.run((data, err, exitCode, signal) => {
+				// console.log(data, err, exitCode, signal)
+				if (data) {
+					// console.log("Async command data:", $toString(data));
+					output += $toString(data) + "\n";
+					$store.set("asyncCommandData", $toString(output));
+				}
+				if (err) {
+					console.log("Async command error:", $toString(err));
+					$store.set("asyncCommandError", $toString(err));
+				}
+				if (exitCode !== undefined) {
+					console.log("output 1", output)
+					console.log("Async command exit code:", exitCode);
+					$store.set("asyncCommandExitCode", exitCode);
+					console.log("Async command signal:", signal);
+					$store.set("asyncCommandSignal", signal);
+				}
+			});
+
+			console.log("Running second command")
+
+			let asyncCmd2 = $osExtra.asyncCmd("ls", "-la", "${TEMP_DIR}");
+			
+			let output2 = "";
+			asyncCmd2.run((data, err, exitCode, signal) => {
+				// console.log(data, err, exitCode, signal)
+				if (data) {
+					// console.log("Async command data:", $toString(data));
+					output2 += $toString(data) + "\n";
+					$store.set("asyncCommandData", $toString(output2));
+				}
+				if (err) {
+					console.log("Async command error:", $toString(err));
+					$store.set("asyncCommandError", $toString(err));
+				}
+				if (exitCode !== undefined) {
+					console.log("output 2", output2)
+					console.log("Async command exit code:", exitCode);
+					$store.set("asyncCommandExitCode", exitCode);
+					console.log("Async command signal:", signal);
+					$store.set("asyncCommandSignal", signal);
+				}
+			});
+
+		} catch (e) {
+			console.log("Command execution error:", e.message);
+			$store.set("asyncCommandError", e.message);
+		}
+	});
+}
+	`
+
+	// Replace placeholders with actual paths
+	payload = strings.ReplaceAll(payload, "${TEMP_DIR}", tempDir)
+	payload = strings.ReplaceAll(payload, "${TEST_FILE_PATH}", testFilePath)
+
+	opts := DefaultTestPluginOptions()
+	opts.Payload = payload
+	opts.Permissions = extension.PluginPermissions{
+		Scopes: []extension.PluginPermissionScope{
+			extension.PluginPermissionSystem,
+		},
+		Allow: extension.PluginAllowlist{
+			ReadPaths:  []string{tempDir + "/**/*"},
+			WritePaths: []string{tempDir + "/**/*"},
+			CommandScopes: []extension.CommandScope{
+				{
+					Command: "ls",
+					Args: []extension.CommandArg{
+						{Value: "-la"},
+						{Validator: "$PATH"},
+					},
+				},
+			},
+		},
+	}
+
+	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
+	require.NoError(t, err)
+
+	// Wait for the plugin to execute
+	time.Sleep(2 * time.Second)
+
+	// Check the store values for the ls command
+	asyncCommandData, ok := plugin.store.GetOk("asyncCommandData")
+	require.True(t, ok, "asyncCommandData should be set in store")
+	assert.Contains(t, asyncCommandData.(string), "test.txt", "Command output should contain the test file")
+
+	asyncCommandExitCode, ok := plugin.store.GetOk("asyncCommandExitCode")
+	require.True(t, ok, "asyncCommandExitCode should be set in store")
+	assert.Equal(t, int64(0), asyncCommandExitCode, "Command exit code should be 0")
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 }

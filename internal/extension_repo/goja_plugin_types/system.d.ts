@@ -16,7 +16,7 @@ declare namespace $os {
      * @param args The arguments to pass to the command
      * @returns A command object or an error if the command is not authorized
      */
-    function cmd(name: string, ...args: string[]): $os.Cmd;
+    function cmd(name: string, ...args: string[]): $os.Cmd
 
     /**
      * Reads the entire file specified by path.
@@ -24,7 +24,7 @@ declare namespace $os {
      * @returns The file contents as a byte array
      * @throws Error if the path is not authorized for reading
      */
-    function readFile(path: string): Uint8Array;
+    function readFile(path: string): Uint8Array
 
     /**
      * Writes data to the named file, creating it if necessary.
@@ -34,7 +34,7 @@ declare namespace $os {
      * @param perm The file mode (permissions)
      * @throws Error if the path is not authorized for writing
      */
-    function writeFile(path: string, data: Uint8Array, perm: number): void;
+    function writeFile(path: string, data: Uint8Array, perm: number): void
 
     /**
      * Reads a directory, returning a list of directory entries.
@@ -42,35 +42,35 @@ declare namespace $os {
      * @returns An array of directory entries
      * @throws Error if the path is not authorized for reading
      */
-    function readDir(path: string): $os.DirEntry[];
+    function readDir(path: string): $os.DirEntry[]
 
     /**
      * Returns the default directory to use for temporary files.
      * @returns The temporary directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function tempDir(): string;
+    function tempDir(): string
 
     /**
      * Returns the user's configuration directory.
      * @returns The configuration directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function configDir(): string;
+    function configDir(): string
 
     /**
      * Returns the user's home directory.
      * @returns The home directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function homeDir(): string;
+    function homeDir(): string
 
     /**
      * Returns the user's cache directory.
      * @returns The cache directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function cacheDir(): string;
+    function cacheDir(): string
 
     /**
      * Changes the size of the named file.
@@ -78,7 +78,7 @@ declare namespace $os {
      * @param size The new size of the file
      * @throws Error if the path is not authorized for writing
      */
-    function truncate(path: string, size: number): void;
+    function truncate(path: string, size: number): void
 
     /**
      * Creates a new directory with the specified name and permission bits.
@@ -86,7 +86,7 @@ declare namespace $os {
      * @param perm The permission bits
      * @throws Error if the path is not authorized for writing
      */
-    function mkdir(path: string, perm: number): void;
+    function mkdir(path: string, perm: number): void
 
     /**
      * Creates a directory named path, along with any necessary parents.
@@ -94,7 +94,7 @@ declare namespace $os {
      * @param perm The permission bits
      * @throws Error if the path is not authorized for writing
      */
-    function mkdirAll(path: string, perm: number): void;
+    function mkdirAll(path: string, perm: number): void
 
     /**
      * Renames (moves) oldpath to newpath.
@@ -102,21 +102,21 @@ declare namespace $os {
      * @param newpath The destination path
      * @throws Error if either path is not authorized for writing
      */
-    function rename(oldpath: string, newpath: string): void;
+    function rename(oldpath: string, newpath: string): void
 
     /**
      * Removes the named file or (empty) directory.
      * @param path The path to remove
      * @throws Error if the path is not authorized for writing
      */
-    function remove(path: string): void;
+    function remove(path: string): void
 
     /**
      * Removes path and any children it contains.
      * @param path The path to remove recursively
      * @throws Error if the path is not authorized for writing
      */
-    function removeAll(path: string): void;
+    function removeAll(path: string): void
 
     /**
      * Returns a FileInfo describing the named file.
@@ -124,7 +124,7 @@ declare namespace $os {
      * @returns Information about the file
      * @throws Error if the path is not authorized for reading
      */
-    function stat(path: string): $os.FileInfo;
+    function stat(path: string): $os.FileInfo
 
     /**
      * Opens a file for reading and writing.
@@ -133,36 +133,54 @@ declare namespace $os {
      * @param perm The file mode (permissions)
      * @returns A file object or an error if the file is not authorized for writing
      */
-    function openFile(path: string, flag: number, perm: number): $os.File;
+    function openFile(path: string, flag: number, perm: number): $os.File
 
 
     interface File {
-        chmod(mode: $os.FileMode): void;
-        chown(uid: number, gid: number): void;
-        close(): void;
-        fd(): number;
-        name(): string;
-        read(b: Uint8Array): number;
-        readAt(b: Uint8Array, off: number): number;
+        chmod(mode: $os.FileMode): void
 
-        readDir(n: number): $os.DirEntry[];
-        readFrom(r: io.Reader): number;
+        chown(uid: number, gid: number): void
 
-        readdir(n: number): $os.FileInfo[];
-        readdirnames(n: number): string[];
-        seek(offset: number, whence: number): number;
-        setDeadline(t: Date): void;
-        setReadDeadline(t: Date): void;
-        setWriteDeadline(t: Date): void;
+        close(): void
 
-        stat(): $os.FileInfo;
-        sync(): void;
-        syscallConn(): any; /* Not documented */
-        truncate(size: number): void;
-        write(b: Uint8Array): number;
-        writeAt(b: Uint8Array, off: number): number;
-        writeString(s: string): number;
-        writeTo(w: io.Writer): number;
+        fd(): number
+
+        name(): string
+
+        read(b: Uint8Array): number
+
+        readAt(b: Uint8Array, off: number): number
+
+        readDir(n: number): $os.DirEntry[]
+
+        readFrom(r: io.Reader): number
+
+        readdir(n: number): $os.FileInfo[]
+
+        readdirnames(n: number): string[]
+
+        seek(offset: number, whence: number): number
+
+        setDeadline(t: Date): void
+
+        setReadDeadline(t: Date): void
+
+        setWriteDeadline(t: Date): void
+
+        stat(): $os.FileInfo
+
+        sync(): void
+
+        syscallConn(): any /* Not documented */
+        truncate(size: number): void
+
+        write(b: Uint8Array): number
+
+        writeAt(b: Uint8Array, off: number): number
+
+        writeString(s: string): number
+
+        writeTo(w: io.Writer): number
     }
 
     /**
@@ -175,128 +193,179 @@ declare namespace $os {
          * If the Args field is empty or nil, Run uses {Path}.
          * In typical use, both Path and Args are set by calling Command.
          */
-        args: string[];
+        args: string[]
 
         /**
          * If Cancel is non-nil, the command must have been created with CommandContext
          * and Cancel will be called when the command's Context is done.
          */
-        cancel: (() => void);
+        cancel: () => void
 
         /**
          * Dir specifies the working directory of the command.
          * If Dir is the empty string, Run runs the command in the calling process's current directory.
          */
-        dir: string;
+        dir: string
 
         /**
          * Env specifies the environment of the process.
          * Each entry is of the form "key=value".
          * If Env is nil, the new process uses the current process's environment.
          */
-        env: string[];
+        env: string[]
 
         /** Error information if the command failed */
-        err: Error;
+        err: Error
 
         /**
          * ExtraFiles specifies additional open files to be inherited by the new process.
          * It does not include standard input, standard output, or standard error.
          */
-        extraFiles: any[];
+        extraFiles: $os.File[]
 
         /**
          * Path is the path of the command to run.
          * This is the only field that must be set to a non-zero value.
          */
-        path: string;
+        path: string
 
         /** Process is the underlying process, once started. */
-        process?: any;
+        process?: $os.Process
 
         /** ProcessState contains information about an exited process. */
-        processState?: any;
+        processState?: $os.ProcessState
 
         /** Standard error of the command */
-        stderr: any;
+        stderr: any
 
         /** Standard input of the command */
-        stdin: any;
+        stdin: any
 
         /** Standard output of the command */
-        stdout: any;
+        stdout: any
 
         /** SysProcAttr holds optional, operating system-specific attributes. */
-        sysProcAttr?: any;
+        sysProcAttr?: any
 
         /**
          * If WaitDelay is non-zero, it bounds the time spent waiting on two sources of
          * unexpected delay in Wait: a child process that fails to exit after the associated
          * Context is canceled, and a child process that exits but leaves its I/O pipes unclosed.
          */
-        waitDelay: number;
+        waitDelay: number
 
         /**
          * CombinedOutput runs the command and returns its combined standard output and standard error.
          * @returns The combined output as a string or byte array
          */
-        combinedOutput(): string | number[];
+        combinedOutput(): string | number[]
 
         /**
          * Environ returns a copy of the environment in which the command would be run as it is currently configured.
          * @returns The environment variables as an array of strings
          */
-        environ(): string[];
+        environ(): string[]
 
         /**
          * Output runs the command and returns its standard output.
          * @returns The standard output as a string or byte array
          */
-        output(): string | number[];
+        output(): string | number[]
 
         /**
          * Run starts the specified command and waits for it to complete.
          * The returned error is nil if the command runs, has no problems copying stdin, stdout,
          * and stderr, and exits with a zero exit status.
          */
-        run(): void;
+        run(): void
 
         /**
          * Start starts the specified command but does not wait for it to complete.
          * If Start returns successfully, the c.Process field will be set.
          */
-        start(): void;
+        start(): void
 
         /**
          * StderrPipe returns a pipe that will be connected to the command's standard error when the command starts.
          * @returns A readable stream for the command's standard error
          */
-        stderrPipe(): any;
+        stderrPipe(): any
 
         /**
          * StdinPipe returns a pipe that will be connected to the command's standard input when the command starts.
          * @returns A writable stream for the command's standard input
          */
-        stdinPipe(): any;
+        stdinPipe(): any
 
         /**
          * StdoutPipe returns a pipe that will be connected to the command's standard output when the command starts.
          * @returns A readable stream for the command's standard output
          */
-        stdoutPipe(): any;
+        stdoutPipe(): any
 
         /**
          * String returns a human-readable description of the command.
          * It is intended only for debugging.
          * @returns A string representation of the command
          */
-        string(): string;
+        string(): string
 
         /**
          * Wait waits for the command to exit and waits for any copying to stdin or copying from stdout or stderr to complete.
          * The command must have been started by Start.
          */
-        wait(): void;
+        wait(): void
+    }
+
+    interface Process {
+        kill(): void
+
+        wait(): void
+
+        signal(sig: Signal): void
+    }
+
+    interface Signal {
+        string(): string
+
+        signal(): void
+    }
+
+    const Kill: Signal
+    const Interrupt: Signal
+
+    interface ProcessState {
+        pid(): number
+
+        string(): string
+
+        exitCode(): number
+    }
+
+    /**
+     * AsyncCmd represents an external command being prepared or run asynchronously.
+     */
+    interface AsyncCmd {
+        /**
+         * Get the underlying $os.Cmd.
+         * To start the command, call start() on the underlying command, not run().
+         * @returns The underlying $os.Cmd
+         */
+        getCommand(): $os.Cmd
+
+        /**
+         * Run the command
+         * @param callback The callback to call each time data is available from the command's stdout or stderr
+         * @param data The data from the command's stdout
+         * @param err The data from the command's stderr
+         * @param exitCode The exit code of the command
+         * @param signal The signal that terminated the command
+         */
+        run(callback: (data: Uint8Array | undefined,
+            err: Uint8Array | undefined,
+            exitCode: number | undefined,
+            signal: string | undefined,
+        ) => void): void
     }
 
     /**
@@ -304,22 +373,22 @@ declare namespace $os {
      */
     interface FileInfo {
         /** Base name of the file */
-        name(): string;
+        name(): string
 
-        /** Length in bytes for regular files; system-dependent for others */
-        size(): number;
+        /** Length in bytes for regular files system-dependent for others */
+        size(): number
 
         /** File mode bits */
-        mode(): $os.FileMode;
+        mode(): $os.FileMode
 
         /** Modification time */
-        modTime(): Date;
+        modTime(): Date
 
         /** Abbreviation for mode().isDir() */
-        isDir(): boolean;
+        isDir(): boolean
 
         /** Underlying data source (can return null) */
-        sys(): any;
+        sys(): any
     }
 
     /**
@@ -327,22 +396,22 @@ declare namespace $os {
      */
     interface DirEntry {
         /** Returns the name of the file (or subdirectory) described by the entry */
-        name(): string;
+        name(): string
 
         /** Reports whether the entry describes a directory */
-        isDir(): boolean;
+        isDir(): boolean
 
         /** Returns the type bits for the entry */
-        type(): $os.FileMode;
+        type(): $os.FileMode
 
         /** Returns the FileInfo for the file or subdirectory described by the entry */
-        info(): $os.FileInfo;
+        info(): $os.FileInfo
     }
 
     /**
      * FileMode represents a file's mode and permission bits.
      */
-    type FileMode = number;
+    type FileMode = number
 
     /**
      * Constants for file mode bits
@@ -407,35 +476,35 @@ declare namespace $filepath {
      * @param path The path to get the base name from
      * @returns The base name of the path
      */
-    function base(path: string): string;
+    function base(path: string): string
 
     /**
      * Cleans the path by applying a series of rules.
      * @param path The path to clean
      * @returns The cleaned path
      */
-    function clean(path: string): string;
+    function clean(path: string): string
 
     /**
      * Returns all but the last element of path.
      * @param path The path to get the directory from
      * @returns The directory containing the file
      */
-    function dir(path: string): string;
+    function dir(path: string): string
 
     /**
      * Returns the file extension of path.
      * @param path The path to get the extension from
      * @returns The file extension (including the dot)
      */
-    function ext(path: string): string;
+    function ext(path: string): string
 
     /**
      * Converts path from slash-separated to OS-specific separator.
      * @param path The path to convert
      * @returns The path with OS-specific separators
      */
-    function fromSlash(path: string): string;
+    function fromSlash(path: string): string
 
     /**
      * Returns a list of files matching the pattern in the base directory.
@@ -444,21 +513,21 @@ declare namespace $filepath {
      * @returns An array of matching file paths
      * @throws Error if the base path is not authorized for reading
      */
-    function glob(basePath: string, pattern: string): string[];
+    function glob(basePath: string, pattern: string): string[]
 
     /**
      * Reports whether the path is absolute.
      * @param path The path to check
      * @returns True if the path is absolute
      */
-    function isAbs(path: string): boolean;
+    function isAbs(path: string): boolean
 
     /**
      * Joins any number of path elements into a single path.
      * @param paths The path elements to join
      * @returns The joined path
      */
-    function join(...paths: string[]): string;
+    function join(...paths: string[]): string
 
     /**
      * Reports whether name matches the shell pattern.
@@ -466,7 +535,7 @@ declare namespace $filepath {
      * @param name The string to check
      * @returns True if name matches pattern
      */
-    function match(pattern: string, name: string): boolean;
+    function match(pattern: string, name: string): boolean
 
     /**
      * Returns the relative path from basepath to targpath.
@@ -474,28 +543,28 @@ declare namespace $filepath {
      * @param targpath The target path
      * @returns The relative path
      */
-    function rel(basepath: string, targpath: string): string;
+    function rel(basepath: string, targpath: string): string
 
     /**
      * Splits path into directory and file components.
      * @param path The path to split
      * @returns An array with [directory, file]
      */
-    function split(path: string): [string, string];
+    function split(path: string): [string, string]
 
     /**
      * Splits a list of paths joined by the OS-specific ListSeparator.
      * @param path The path list to split
      * @returns An array of paths
      */
-    function splitList(path: string): string[];
+    function splitList(path: string): string[]
 
     /**
      * Converts path from OS-specific separator to slash-separated.
      * @param path The path to convert
      * @returns The path with forward slashes
      */
-    function toSlash(path: string): string;
+    function toSlash(path: string): string
 
     /**
      * Walks the file tree rooted at the specificed path, calling walkFn for each file or directory.
@@ -504,7 +573,7 @@ declare namespace $filepath {
      * @param walkFn The function to call for each file or directory
      * @throws Error if the root path is not authorized for reading
      */
-    function walk(root: string, walkFn: (path: string, info: $os.FileInfo, err: any | null | undefined) => any): void;
+    function walk(root: string, walkFn: (path: string, info: $os.FileInfo, err: any | null | undefined) => any): void
 
     /**
      * Walks the file tree rooted at the specificed path, calling walkDirFn for each file or directory.
@@ -512,7 +581,7 @@ declare namespace $filepath {
      * @param walkDirFn The function to call for each file or directory
      * @throws Error if the root path is not authorized for reading
      */
-    function walkDir(root: string, walkDirFn: (path: string, d: $os.DirEntry, err: any | null | undefined) => any): void;
+    function walkDir(root: string, walkDirFn: (path: string, d: $os.DirEntry, err: any | null | undefined) => any): void
 }
 
 /**
@@ -525,7 +594,7 @@ declare namespace $osExtra {
      * @param dest The destination directory
      * @throws Error if either path is not authorized for writing
      */
-    function unwrapAndMove(src: string, dest: string): void;
+    function unwrapAndMove(src: string, dest: string): void
 
     /**
      * Extracts a ZIP archive to the destination directory.
@@ -533,7 +602,7 @@ declare namespace $osExtra {
      * @param dest The destination directory
      * @throws Error if either path is not authorized for writing
      */
-    function unzip(src: string, dest: string): void;
+    function unzip(src: string, dest: string): void
 
     /**
      * Extracts a RAR archive to the destination directory.
@@ -541,28 +610,37 @@ declare namespace $osExtra {
      * @param dest The destination directory
      * @throws Error if either path is not authorized for writing
      */
-    function unrar(src: string, dest: string): void;
+    function unrar(src: string, dest: string): void
 
     /**
      * Returns the user's desktop directory.
      * @returns The desktop directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function desktopDir(): string;
+    function desktopDir(): string
 
     /**
      * Returns the user's documents directory.
      * @returns The documents directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function documentsDir(): string;
+    function documentsDir(): string
 
     /**
      * Returns the user's downloads directory.
      * @returns The downloads directory path or empty string if not authorized
      * @throws Error if the path is not authorized for reading
      */
-    function downloadDir(): string;
+    function downloadDir(): string
+
+    /**
+     * Creates a new AsyncCmd instance.
+     * Get the underlying $os.Cmd with getCommand().
+     * @param name The name of the command to execute
+     * @param arg The arguments to pass to the command
+     * @returns A new AsyncCmd instance
+     */
+    function asyncCmd(name: string, arg: string[]): $os.AsyncCmd
 }
 
 /**
@@ -579,27 +657,27 @@ declare namespace $downloader {
      */
     interface DownloadProgress {
         /** Unique download identifier */
-        id: string;
+        id: string
         /** Source URL */
-        url: string;
+        url: string
         /** Destination file path */
-        destination: string;
+        destination: string
         /** Number of bytes downloaded so far */
-        totalBytes: number;
+        totalBytes: number
         /** Total file size in bytes (if known) */
-        totalSize: number;
+        totalSize: number
         /** Download speed in bytes per second */
-        speed: number;
+        speed: number
         /** Download completion percentage (0-100) */
-        percentage: number;
+        percentage: number
         /** Current download status */
-        status: DownloadStatus;
+        status: DownloadStatus
         /** Error message if status is ERROR */
-        error?: string;
+        error?: string
         /** Time of the last progress update */
-        lastUpdate: Date;
+        lastUpdate: Date
         /** Time when the download started */
-        startTime: Date;
+        startTime: Date
     }
 
     /**
@@ -607,9 +685,9 @@ declare namespace $downloader {
      */
     interface DownloadOptions {
         /** Timeout in seconds */
-        timeout?: number;
+        timeout?: number
         /** HTTP headers to send with the request */
-        headers?: Record<string, string>;
+        headers?: Record<string, string>
     }
 
     /**
@@ -620,7 +698,7 @@ declare namespace $downloader {
      * @returns A unique download ID
      * @throws Error if the destination path is not authorized for writing
      */
-    function download(url: string, destination: string, options?: DownloadOptions): string;
+    function download(url: string, destination: string, options?: DownloadOptions): string
 
     /**
      * Watches a download for progress updates.
@@ -628,33 +706,33 @@ declare namespace $downloader {
      * @param callback Function to call with progress updates
      * @returns A function to cancel the watch
      */
-    function watch(downloadId: string, callback: (progress: DownloadProgress | undefined) => void): () => void;
+    function watch(downloadId: string, callback: (progress: DownloadProgress | undefined) => void): () => void
 
     /**
      * Gets the current progress of a download.
      * @param downloadId The download ID to check
      * @returns The current download progress
      */
-    function getProgress(downloadId: string): DownloadProgress | undefined;
+    function getProgress(downloadId: string): DownloadProgress | undefined
 
     /**
      * Lists all active downloads.
      * @returns An array of download progress objects
      */
-    function listDownloads(): DownloadProgress[];
+    function listDownloads(): DownloadProgress[]
 
     /**
      * Cancels a specific download.
      * @param downloadId The download ID to cancel
      * @returns True if the download was cancelled
      */
-    function cancel(downloadId: string): boolean;
+    function cancel(downloadId: string): boolean
 
     /**
      * Cancels all active downloads.
      * @returns The number of downloads cancelled
      */
-    function cancelAll(): number;
+    function cancelAll(): number
 }
 
 /**
@@ -667,5 +745,5 @@ declare namespace $mime {
      * @returns An object containing the media type and parameters
      * @throws Error if parsing fails
      */
-    function parse(contentType: string): { mediaType: string; parameters: Record<string, string> };
+    function parse(contentType: string): { mediaType: string; parameters: Record<string, string> }
 }

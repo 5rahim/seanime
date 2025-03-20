@@ -147,6 +147,8 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionPlayback:
 				// Bind playback to the context object
 				plugin.GlobalAppContext.BindPlaybackToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
+			case extension.PluginPermissionSystem:
+				plugin.GlobalAppContext.BindDownloaderToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			case extension.PluginPermissionCron:
 				// Bind cron to the context object
 				cron := plugin.GlobalAppContext.BindCronToContextObj(vm, obj, c.logger, c.ext, c.scheduler)

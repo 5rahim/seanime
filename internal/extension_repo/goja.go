@@ -9,6 +9,7 @@ import (
 	goja_bindings "seanime/internal/goja/goja_bindings"
 	"seanime/internal/library/anime"
 	"seanime/internal/plugin"
+	"sync"
 	"time"
 
 	"github.com/5rahim/habari"
@@ -38,6 +39,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 
 	fm := goja_bindings.DefaultFieldMapper{}
 	vm.SetFieldNameMapper(fm)
+	goja.TagFieldNameMapper("json", true)
 
 	bindings := []struct {
 		name string
@@ -171,6 +173,25 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 		return anime.NewLocalFileWrapper(lfs)
 	})
 	vm.Set("$animeUtils", animeUtilsObj)
+
+	vm.Set("$waitGroup", func() *sync.WaitGroup {
+		return &sync.WaitGroup{}
+	})
+
+	// Run a function in a new goroutine
+	// The Goja runtime is not thread safe, so nothing related to the VM should be done in this goroutine
+	// You can use the $waitGroup to wait for multiple goroutines to finish
+	// You can use $store to communicate with the main thread
+	vm.Set("$unsafeGoroutine", func(fn func()) {
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					logger.Error().Err(fmt.Errorf("%v", r)).Msg("goroutine panic")
+				}
+			}()
+			fn()
+		}()
+	})
 }
 
 // JSVMTypescriptToJS converts typescript to javascript
