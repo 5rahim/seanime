@@ -60,6 +60,7 @@ type Context struct {
 	toastManager          *ToastManager          // Register and manage toasts
 	commandPaletteManager *CommandPaletteManager // Register and manage command palette
 	domManager            *DOMManager            // DOM manipulation manager
+	notificationManager   *NotificationManager   // Register and manage notifications
 
 	atomicCleanupCounter atomic.Int64
 	onCleanupFns         *result.Map[int64, func()]
@@ -112,6 +113,7 @@ func NewContext(ui *UI) *Context {
 	ret.toastManager = NewToastManager(ret)
 	ret.commandPaletteManager = NewCommandPaletteManager(ret)
 	ret.domManager = NewDOMManager(ret)
+	ret.notificationManager = NewNotificationManager(ret)
 
 	return ret
 }
@@ -153,6 +155,9 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 				// Bind cron to the context object
 				cron := plugin.GlobalAppContext.BindCronToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 				c.cron = mo.Some(cron)
+			case extension.PluginPermissionNotification:
+				// Bind notification to the context object
+				c.notificationManager.bind(obj)
 			}
 		}
 	}

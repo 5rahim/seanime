@@ -79,6 +79,8 @@ function init() {
             // Updates the data on the client
             // This is better than calling ctx.screen.reload()
             $anilist.refreshAnimeCollection()
+
+            ctx.notification.send("Background image saved")
         });
 
         // Tray content

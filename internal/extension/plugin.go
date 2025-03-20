@@ -1,5 +1,9 @@
 package extension
 
+const (
+	PluginManifestVersion = "1"
+)
+
 var (
 	PluginPermissionStorage      PluginPermissionScope = "storage"       // Allows the plugin to store its own data
 	PluginPermissionDatabase     PluginPermissionScope = "database"      // Allows the plugin to read non-auth data from the database and write to it
@@ -8,6 +12,7 @@ var (
 	PluginPermissionAnilistToken PluginPermissionScope = "anilist-token" // Allows the plugin to see and use the Anilist token
 	PluginPermissionSystem       PluginPermissionScope = "system"        // Allows the plugin to use the OS/Filesystem/Filepath functions. SystemPermissions must be granted additionally.
 	PluginPermissionCron         PluginPermissionScope = "cron"          // Allows the plugin to use the cron manager
+	PluginPermissionNotification PluginPermissionScope = "notification"  // Allows the plugin to use the notification manager
 )
 
 type PluginManifest struct {

@@ -37,6 +37,11 @@ declare namespace $ui {
         mpv: MPV
 
         /**
+         * Notifications
+         */
+        notification: Notification
+
+        /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
@@ -731,6 +736,14 @@ declare namespace $ui {
 
         // Events
         addEventListener(event: string, callback: (event: any) => void): () => void
+    }
+
+    interface Notification {
+        /**
+         * Sends a notification
+         * @param message - The message to send
+         */
+        send(message: string): void
     }
 
     // DOM interface

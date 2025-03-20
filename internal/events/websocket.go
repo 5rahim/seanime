@@ -151,7 +151,9 @@ func (m *WSEventManager) SendEventTo(clientId string, t string, payload interfac
 
 	for _, conn := range m.Conns {
 		if conn.ID == clientId {
-			m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+			if t != "pong" {
+				m.Logger.Trace().Str("to", clientId).Str("type", t).Str("payload", spew.Sprint(payload)).Msg("ws: Sending message")
+			}
 			_ = conn.Conn.WriteJSON(WSEvent{
 				Type:    t,
 				Payload: payload,
