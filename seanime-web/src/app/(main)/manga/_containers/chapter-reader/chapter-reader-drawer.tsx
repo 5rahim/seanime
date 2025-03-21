@@ -132,7 +132,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         return currentChapterNumber > entry.listData.progress
     }, [chapterIdToNumbersMap, entry, currentChapter])
 
-    const handleUpdateProgress = () => {
+    const handleUpdateProgress = (goToNext: boolean = true) => {
         if (shouldUpdateProgress && !isUpdatingProgress) {
 
             updateProgress({
@@ -142,12 +142,34 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 totalChapters: entry.media?.chapters || 0,
             }, {
                 onSuccess: () => {
-                    goToChapter("next")
+                    if (goToNext) {
+                        goToChapter("next")
+                    }
                 },
             })
 
         }
     }
+
+    /**
+     * Handle auto-updating progress
+     */
+    const lastUpdatedChapterRef = React.useRef<string | null>(null)
+    React.useEffect(() => {
+        if (
+            serverStatus?.settings?.manga?.mangaAutoUpdateProgress
+            && currentChapter?.chapterId
+            && shouldUpdateProgress
+            && !pageContainerLoading
+            && !pageContainerError
+            && isLastPage
+        ) {
+            if (lastUpdatedChapterRef.current !== currentChapter?.chapterId) {
+                handleUpdateProgress(false)
+                lastUpdatedChapterRef.current = currentChapter?.chapterId
+            }
+        }
+    }, [currentChapter, serverStatus?.settings?.manga?.mangaAutoUpdateProgress, shouldUpdateProgress, isLastPage, pageContainerError, pageContainerLoading])
 
     /**
      * Reset the current page index when the pageContainer or chapterContainer changes
@@ -263,7 +285,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
                 tabIndex={-1}
             >
                 <Button
-                    onClick={handleUpdateProgress}
+                    onClick={() => handleUpdateProgress()}
                     className={cn(
                         process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "rounded-tl-none rounded-tr-none",
                         process.env.NEXT_PUBLIC_PLATFORM === "desktop" && "rounded-bl-none rounded-br-none rounded-tl-none",

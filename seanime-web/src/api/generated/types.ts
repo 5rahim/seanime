@@ -2921,6 +2921,7 @@ export type Models_ListSyncSettings = {
  */
 export type Models_MangaSettings = {
     defaultMangaProvider: string
+    mangaAutoUpdateProgress: boolean
 }
 
 /**

@@ -190,6 +190,7 @@ export default function Page() {
                                     },
                                     manga: {
                                         defaultMangaProvider: data.defaultMangaProvider === "-" ? "" : data.defaultMangaProvider,
+                                        mangaAutoUpdateProgress: data.mangaAutoUpdateProgress ?? false,
                                     },
                                     mediaPlayer: {
                                         host: data.mediaPlayerHost,
@@ -294,6 +295,7 @@ export default function Page() {
                                 disableAutoDownloaderNotifications: status?.settings?.notifications?.disableAutoDownloaderNotifications ?? false,
                                 disableAutoScannerNotifications: status?.settings?.notifications?.disableAutoScannerNotifications ?? false,
                                 defaultMangaProvider: status?.settings?.manga?.defaultMangaProvider || "-",
+                                mangaAutoUpdateProgress: status?.settings?.manga?.mangaAutoUpdateProgress ?? false,
                                 showActiveTorrentCount: status?.settings?.torrent?.showActiveTorrentCount ?? false,
                                 autoPlayNextEpisode: status?.settings?.library?.autoPlayNextEpisode ?? false,
                                 enableWatchContinuity: status?.settings?.library?.enableWatchContinuity ?? false,

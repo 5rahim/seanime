@@ -38,6 +38,12 @@ export function MangaSettings(props: MangaSettingsProps) {
                     label={<span className="flex gap-1 items-center">Enable</span>}
                     help="Read manga series, download chapters and track your progress."
                 />
+                <Field.Switch
+                    side="right"
+                    name="mangaAutoUpdateProgress"
+                    label="Automatically update progress"
+                    help="If enabled, your progress will be automatically updated when you reach the end of a chapter."
+                />
             </SettingsCard>
 
             <SettingsCard title="Sources">

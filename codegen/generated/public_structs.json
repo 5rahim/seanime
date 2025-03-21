@@ -27871,6 +27871,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "AutoUpdateProgress",
+        "jsonName": "mangaAutoUpdateProgress",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
