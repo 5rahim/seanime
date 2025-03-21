@@ -40,6 +40,8 @@ type GoStructField struct {
 	GoType string `json:"goType"`
 	// e.g. User
 	TypescriptType string `json:"typescriptType"`
+	// e.g. TypescriptType = Array<Models_User> => UsedTypescriptType = Models_User
+	UsedTypescriptType string `json:"usedTypescriptType,omitempty"`
 	// e.g. GoType = map[string]models.User => TypescriptType = User => UsedStructType = models.User
 	UsedStructType string `json:"usedStructName,omitempty"`
 	// If no 'omitempty' and not a pointer
@@ -362,15 +364,18 @@ func goStructFromStruct(path string, info os.FileInfo, genDecl *ast.GenDecl, nam
 
 		usedStructType, usedStructPkgName := getUsedStructType(field.Type, packageName)
 
+		tsType := fieldTypeToTypescriptType(field.Type, usedStructPkgName)
+
 		goStructField := &GoStructField{
-			Name:           fieldName,
-			JsonName:       jsonFieldName(field),
-			GoType:         fieldTypeString(field.Type),
-			TypescriptType: fieldTypeToTypescriptType(field.Type, usedStructPkgName),
-			Required:       required,
-			Public:         field.Names[0].IsExported(),
-			UsedStructType: usedStructType,
-			Comments:       comments,
+			Name:               fieldName,
+			JsonName:           jsonFieldName(field),
+			GoType:             fieldTypeString(field.Type),
+			TypescriptType:     tsType,
+			UsedTypescriptType: fieldTypeToUsedTypescriptType(tsType),
+			Required:           required,
+			Public:             field.Names[0].IsExported(),
+			UsedStructType:     usedStructType,
+			Comments:           comments,
 		}
 		goStruct.Fields = append(goStruct.Fields, goStructField)
 	}
@@ -389,6 +394,7 @@ func goStructFromAlias(path string, info os.FileInfo, genDecl *ast.GenDecl, type
 	}
 
 	usedStructType, usedStructPkgName := getUsedStructType(typeSpec.Type, packageName)
+	tsType := fieldTypeToTypescriptType(typeSpec.Type, usedStructPkgName)
 
 	goStruct := &GoStruct{
 		Filepath:      filepath.ToSlash(path),
@@ -399,9 +405,10 @@ func goStructFromAlias(path string, info os.FileInfo, genDecl *ast.GenDecl, type
 		Fields:        make([]*GoStructField, 0),
 		Comments:      comments,
 		AliasOf: &GoAlias{
-			GoType:         alias.Name,
-			TypescriptType: fieldTypeToTypescriptType(typeSpec.Type, usedStructPkgName),
-			UsedStructType: usedStructType,
+			GoType:             alias.Name,
+			TypescriptType:     tsType,
+			UsedTypescriptType: fieldTypeToUsedTypescriptType(tsType),
+			UsedStructType:     usedStructType,
 		},
 	}
 
@@ -702,4 +709,46 @@ func convertGoToJSName(name string) string {
 	}
 
 	return name
+}
+
+// fieldTypeToUsedTypescriptType extracts the core TypeScript type from complex type expressions
+// For example, if the type is Array<Models_User>, it returns Models_User
+// If the type is Record<string, Models_User>, it returns Models_User
+func fieldTypeToUsedTypescriptType(tsType string) string {
+	// Handle arrays: Array<Type> -> Type
+	if strings.HasPrefix(tsType, "Array<") && strings.HasSuffix(tsType, ">") {
+		innerType := strings.TrimPrefix(strings.TrimSuffix(tsType, ">"), "Array<")
+		return fieldTypeToUsedTypescriptType(innerType)
+	}
+
+	// Handle records: Record<Key, Value> -> Value
+	if strings.HasPrefix(tsType, "Record<") && strings.HasSuffix(tsType, ">") {
+		innerType := strings.TrimPrefix(strings.TrimSuffix(tsType, ">"), "Record<")
+		// Find the comma that separates key and value
+		commaIndex := -1
+		bracketCount := 0
+		for i, char := range innerType {
+			if char == '<' {
+				bracketCount++
+			} else if char == '>' {
+				bracketCount--
+			} else if char == ',' && bracketCount == 0 {
+				commaIndex = i
+				break
+			}
+		}
+
+		if commaIndex != -1 {
+			valueType := strings.TrimSpace(innerType[commaIndex+1:])
+			return fieldTypeToUsedTypescriptType(valueType)
+		}
+	}
+
+	// Handle primitive types
+	switch tsType {
+	case "string", "number", "boolean", "any", "null", "undefined":
+		return ""
+	}
+
+	return tsType
 }

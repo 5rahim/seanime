@@ -37,8 +37,8 @@ func GeneratePluginEventFile(inFilePath string, outDir string) {
 
 	// Write imports
 	f.WriteString(`// This file is auto-generated. Do not edit.
-import { useCallback } from "react"
-import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+	import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+	import { useCallback } from "react"
 
 `)
 
@@ -165,7 +165,7 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 						f.WriteString("    }, [])\n")
 						f.WriteString("\n")
 						f.WriteString("    return {\n")
-						f.WriteString(fmt.Sprintf("        send%sEvent\n", toPascalCase(event)))
+						f.WriteString(fmt.Sprintf("        send%sEvent,\n", toPascalCase(event)))
 						f.WriteString("    }\n")
 						f.WriteString("}\n\n")
 					}
@@ -189,7 +189,7 @@ import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(ma
 			f.WriteString("    }, [])\n")
 			f.WriteString("\n")
 			f.WriteString("    return {\n")
-			f.WriteString(fmt.Sprintf("        send%sEvent\n", toPascalCase(event)))
+			f.WriteString(fmt.Sprintf("        send%sEvent,\n", toPascalCase(event)))
 			f.WriteString("    }\n")
 			f.WriteString("}\n\n")
 		}
@@ -644,18 +644,24 @@ func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinit
 			mdFile.WriteString("}\n")
 			mdFile.WriteString("```\n\n")
 
-			// Add a list of referenced structs links
-			mdFile.WriteString("**Referenced types:**\n\n")
+			referenced := make([]*GoStruct, 0)
 			for _, field := range goStruct.Fields {
 				if !isCustomStruct(field.GoType) {
 					continue
 				}
-
 				goStruct, ok := referencedStructsMap[field.UsedStructType]
 				if !ok {
 					continue
 				}
-				mdFile.WriteString(fmt.Sprintf("- [%s](#%s)\n", goStruct.FormattedName, fmt.Sprintf("%s_%s", goStruct.Package, goStruct.Name)))
+				referenced = append(referenced, goStruct)
+			}
+
+			// Add a list of referenced structs links
+			if len(referenced) > 0 {
+				mdFile.WriteString("**Event types:**\n\n")
+			}
+			for _, goStruct := range referenced {
+				mdFile.WriteString(fmt.Sprintf("- [%s](#%s)\n", goStruct.FormattedName, goStruct.FormattedName))
 			}
 			mdFile.WriteString("\n")
 
@@ -688,46 +694,17 @@ func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinit
 	}
 
 	// Write the referenced structs
-	mdFile.WriteString("\n# Referenced Types\n\n")
+	if len(referencedStructs) > 0 {
+		mdFile.WriteString("\n# Referenced Types\n\n")
+	}
 	for _, goStruct := range referencedStructs {
 
 		mdFile.WriteString(fmt.Sprintf("#### %s\n\n", goStruct.FormattedName))
-		mdFile.WriteString(fmt.Sprintf("<div id=\"%s\"></div>\n\n", fmt.Sprintf("%s_%s", goStruct.Package, goStruct.Name)))
+		mdFile.WriteString(fmt.Sprintf("<div id=\"%s\"></div>\n\n", goStruct.FormattedName))
 		mdFile.WriteString(fmt.Sprintf("**Filepath:** `%s`\n\n", strings.TrimPrefix(goStruct.Filepath, "../")))
 
 		if len(goStruct.Fields) > 0 {
 			mdFile.WriteString("**Fields:**\n\n")
-
-			// Write the table of fields
-			/*
-							<Table>
-				      <TableCaption>A list of your recent invoices.</TableCaption>
-				      <TableHeader>
-				        <TableRow>
-				          <TableHead className="w-[100px]">Invoice</TableHead>
-				          <TableHead>Status</TableHead>
-				          <TableHead>Method</TableHead>
-				          <TableHead className="text-right">Amount</TableHead>
-				        </TableRow>
-				      </TableHeader>
-				      <TableBody>
-				        {invoices.map((invoice) => (
-				          <TableRow key={invoice.invoice}>
-				            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-				            <TableCell>{invoice.paymentStatus}</TableCell>
-				            <TableCell>{invoice.paymentMethod}</TableCell>
-				            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-				          </TableRow>
-				        ))}
-				      </TableBody>
-				      <TableFooter>
-				        <TableRow>
-				          <TableCell colSpan={3}>Total</TableCell>
-				          <TableCell className="text-right">$2,500.00</TableCell>
-				        </TableRow>
-				      </TableFooter>
-				    </Table>
-			*/
 
 			mdFile.WriteString("<Table>\n")
 			mdFile.WriteString("<TableCaption>Fields</TableCaption>\n")
@@ -748,7 +725,7 @@ func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinit
 					typeContainsReference = true
 				}
 				if typeContainsReference {
-					link := fmt.Sprintf("<a href=\"#%s\">`%s`</a>", fmt.Sprintf("%s_%s", goStruct.Package, goStruct.Name), goStruct.FormattedName)
+					link := fmt.Sprintf("<a href=\"#%s\">`%s`</a>", field.UsedTypescriptType, field.TypescriptType)
 					mdFile.WriteString(fmt.Sprintf("<TableCell className=\"py-1 px-2 break-all\">%s</TableCell>\n", link))
 				} else {
 					mdFile.WriteString(fmt.Sprintf("<TableCell className=\"py-1 px-2 break-all\">`%s`</TableCell>\n", field.TypescriptType))
@@ -759,27 +736,6 @@ func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinit
 			mdFile.WriteString("</TableBody>\n")
 			mdFile.WriteString("</Table>\n")
 
-			// for _, field := range goStruct.Fields {
-			// 	fieldNameSuffix := ""
-			// 	if !field.Required {
-			// 		fieldNameSuffix = "?"
-			// 	}
-			// 	typeContainsReference := false
-			// 	if field.UsedStructType != "" && isCustomStruct(field.UsedStructType) {
-			// 		typeContainsReference = true
-			// 	}
-
-			// 	cleanTypescriptType := field.TypescriptType
-			// 	cleanTypescriptType = strings.ReplaceAll(cleanTypescriptType, "<", "\\<")
-			// 	cleanTypescriptType = strings.ReplaceAll(cleanTypescriptType, ">", "\\>")
-
-			// 	if !typeContainsReference {
-			// 		mdFile.WriteString(fmt.Sprintf("**%s%s**: `%s`\n", field.JsonName, fieldNameSuffix, cleanTypescriptType))
-			// 	} else {
-			// 		mdFile.WriteString(fmt.Sprintf("**%s%s**: [%s](#%s)\n", field.JsonName, fieldNameSuffix, cleanTypescriptType, strings.ReplaceAll(field.UsedStructType, ".", "_")))
-			// 	}
-			// 	mdFile.WriteString("<Separator />\n")
-			// }
 		}
 
 		if goStruct.AliasOf != nil {
@@ -790,9 +746,9 @@ func writeMarkdownFile(mdFile *os.File, hookEventDefinitions []*HookEventDefinit
 				} else {
 					union = strings.Join(goStruct.AliasOf.DeclaredValues, " | ")
 				}
-				mdFile.WriteString(fmt.Sprintf("%s\n\n", union))
+				mdFile.WriteString(fmt.Sprintf("`%s`\n\n", union))
 			} else {
-				mdFile.WriteString(fmt.Sprintf("%s\n\n", goStruct.AliasOf.TypescriptType))
+				mdFile.WriteString(fmt.Sprintf("`%s`\n\n", goStruct.AliasOf.TypescriptType))
 			}
 		}
 

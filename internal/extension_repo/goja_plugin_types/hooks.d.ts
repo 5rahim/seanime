@@ -227,13 +227,12 @@ declare namespace $app {
     interface AnimeEntryRequestedEvent {
         next();
 
-        entry?: Anime_Entry;
+        preventDefault();
 
         mediaId: number;
         localFiles?: Array<Anime_LocalFile>;
         animeCollection?: AL_AnimeCollection;
-
-        preventDefault();
+        entry?: Anime_Entry;
     }
 
     /**
@@ -332,13 +331,12 @@ declare namespace $app {
     interface MissingEpisodesRequestedEvent {
         next();
 
-        missingEpisodes?: Anime_MissingEpisodes;
+        preventDefault();
 
         animeCollection?: AL_AnimeCollection;
         localFiles?: Array<Anime_LocalFile>;
         silencedMediaIds?: Array<number>;
-
-        preventDefault();
+        missingEpisodes?: Anime_MissingEpisodes;
     }
 
     /**
@@ -368,12 +366,11 @@ declare namespace $app {
     interface AnimeLibraryCollectionRequestedEvent {
         next();
 
-        libraryCollection?: Anime_LibraryCollection;
+        preventDefault();
 
         animeCollection?: AL_AnimeCollection;
         localFiles?: Array<Anime_LocalFile>;
-
-        preventDefault();
+        libraryCollection?: Anime_LibraryCollection;
     }
 
     /**
@@ -499,8 +496,7 @@ declare namespace $app {
      * @file internal/continuity/hook_events.go
      * @description
      * WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
-     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object
-     *     or set it to nil to indicate that the watch history item was not found.
+     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found.
      */
     function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void);
 
@@ -604,12 +600,11 @@ declare namespace $app {
     interface MangaEntryRequestedEvent {
         next();
 
-        entry?: Manga_Entry;
+        preventDefault();
 
         mediaId: number;
         mangaCollection?: AL_MangaCollection;
-
-        preventDefault();
+        entry?: Manga_Entry;
     }
 
     /**
@@ -665,12 +660,12 @@ declare namespace $app {
     function onMangaDownloadedChapterContainersRequested(cb: (event: MangaDownloadedChapterContainersRequestedEvent) => void);
 
     interface MangaDownloadedChapterContainersRequestedEvent {
-        mangaCollection?: AL_MangaCollection;
-        chapterContainers?: Array<Manga_ChapterContainer>;
-
         next();
 
         preventDefault();
+
+        mangaCollection?: AL_MangaCollection;
+        chapterContainers?: Array<Manga_ChapterContainer>;
     }
 
     /**
@@ -682,9 +677,9 @@ declare namespace $app {
     function onMangaDownloadedChapterContainers(cb: (event: MangaDownloadedChapterContainersEvent) => void);
 
     interface MangaDownloadedChapterContainersEvent {
-        chapterContainers?: Array<Manga_ChapterContainer>;
-
         next();
+
+        chapterContainers?: Array<Manga_ChapterContainer>;
     }
 
     /**
@@ -696,9 +691,9 @@ declare namespace $app {
     function onMangaLatestChapterNumbersMap(cb: (event: MangaLatestChapterNumbersMapEvent) => void);
 
     interface MangaLatestChapterNumbersMapEvent {
-        latestChapterNumbersMap?: Record<number, Array<Manga_MangaLatestChapterNumberItem>>;
-
         next();
+
+        latestChapterNumbersMap?: Record<number, Array<Manga_MangaLatestChapterNumberItem>>;
     }
 
     /**
@@ -711,9 +706,9 @@ declare namespace $app {
     function onMangaDownloadMap(cb: (event: MangaDownloadMapEvent) => void);
 
     interface MangaDownloadMapEvent {
-        mediaMap?: Manga_MediaMap;
-
         next();
+
+        mediaMap?: Manga_MediaMap;
     }
 
     /**
@@ -728,15 +723,15 @@ declare namespace $app {
     function onMangaChapterContainerRequested(cb: (event: MangaChapterContainerRequestedEvent) => void);
 
     interface MangaChapterContainerRequestedEvent {
+        next();
+
+        preventDefault();
+
         provider: string;
         mediaId: number;
         titles?: Array<string>;
         year: number;
         chapterContainer?: Manga_ChapterContainer;
-
-        next();
-
-        preventDefault();
     }
 
     /**
@@ -749,9 +744,9 @@ declare namespace $app {
     function onMangaChapterContainer(cb: (event: MangaChapterContainerEvent) => void);
 
     interface MangaChapterContainerEvent {
-        chapterContainer?: Manga_ChapterContainer;
-
         next();
+
+        chapterContainer?: Manga_ChapterContainer;
     }
 
 
@@ -770,13 +765,13 @@ declare namespace $app {
     interface MediaPlayerLocalFileTrackingRequestedEvent {
         next();
 
-        /**
-         * Refresh the status of the player each x seconds
-         */
+    /**
+     * Refresh the status of the player each x seconds
+     */
         refreshDelay: number;
-        /**
-         * Maximum number of retries
-         */
+    /**
+     * Maximum number of retries
+     */
         maxRetries: number;
     }
 
@@ -791,17 +786,17 @@ declare namespace $app {
     interface MediaPlayerStreamTrackingRequestedEvent {
         next();
 
-        /**
-         * Refresh the status of the player each x seconds
-         */
+    /**
+     * Refresh the status of the player each x seconds
+     */
         refreshDelay: number;
-        /**
-         * Maximum number of retries
-         */
+    /**
+     * Maximum number of retries
+     */
         maxRetries: number;
-        /**
-         * Maximum number of retries after the player has started
-         */
+    /**
+     * Maximum number of retries after the player has started
+     */
         maxRetriesAfterStart: number;
     }
 
@@ -874,9 +869,9 @@ declare namespace $app {
      * @file internal/api/metadata/hook_events.go
      * @description
      * AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
-     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the
-     *     original AnimeMetadata object is not complete. This event is triggered after [AnimeEpisodeMetadataRequestedEvent]. If the modified episode
-     *     metadata is nil, an empty EpisodeMetadata object will be returned.
+     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.
+     * This event is triggered after [AnimeEpisodeMetadataRequestedEvent].
+     * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
      */
     function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void);
 
@@ -954,8 +949,8 @@ declare namespace $app {
      * PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
      * This event is triggered right after the media player loads an episode.
      * The playback manager uses the local files details to track the progress, propose next episodes, etc.
-     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media
-     *     and anime list entry. Prevent default to skip the default fetching and override the details.
+     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.
+     * Prevent default to skip the default fetching and override the details.
      */
     function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void);
 
@@ -977,8 +972,7 @@ declare namespace $app {
      * @description
      * PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
      * Prevent default to skip the default fetching and override the details.
-     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is
-     *     still tracked.
+     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked.
      */
     function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void);
 
@@ -1009,15 +1003,14 @@ declare namespace $app {
     interface ScanStartedEvent {
         next();
 
-        localFiles?: Array<Anime_LocalFile>;
+        preventDefault();
 
         libraryPath: string;
         otherLibraryPaths?: Array<string>;
         enhanced: boolean;
         skipLocked: boolean;
         skipIgnored: boolean;
-
-        preventDefault();
+        localFiles?: Array<Anime_LocalFile>;
     }
 
     /**

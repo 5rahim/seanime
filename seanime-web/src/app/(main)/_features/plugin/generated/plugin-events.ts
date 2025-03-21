@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit.
-import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { useCallback } from "react"
+	import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+	import { useCallback } from "react"
 
 export enum PluginClientEvents {
     RenderTray = "tray:render",
@@ -81,7 +81,7 @@ export function usePluginSendRenderTrayEvent() {
     }, [])
 
     return {
-        sendRenderTrayEvent
+        sendRenderTrayEvent,
     }
 }
 
@@ -96,7 +96,7 @@ export function usePluginSendListTrayIconsEvent() {
     }, [])
 
     return {
-        sendListTrayIconsEvent
+        sendListTrayIconsEvent,
     }
 }
 
@@ -111,7 +111,7 @@ export function usePluginSendTrayOpenedEvent() {
     }, [])
 
     return {
-        sendTrayOpenedEvent
+        sendTrayOpenedEvent,
     }
 }
 
@@ -126,7 +126,7 @@ export function usePluginSendTrayClosedEvent() {
     }, [])
 
     return {
-        sendTrayClosedEvent
+        sendTrayClosedEvent,
     }
 }
 
@@ -141,7 +141,7 @@ export function usePluginSendTrayClickedEvent() {
     }, [])
 
     return {
-        sendTrayClickedEvent
+        sendTrayClickedEvent,
     }
 }
 
@@ -156,7 +156,7 @@ export function usePluginSendListCommandPalettesEvent() {
     }, [])
 
     return {
-        sendListCommandPalettesEvent
+        sendListCommandPalettesEvent,
     }
 }
 
@@ -171,7 +171,7 @@ export function usePluginSendCommandPaletteOpenedEvent() {
     }, [])
 
     return {
-        sendCommandPaletteOpenedEvent
+        sendCommandPaletteOpenedEvent,
     }
 }
 
@@ -186,7 +186,7 @@ export function usePluginSendCommandPaletteClosedEvent() {
     }, [])
 
     return {
-        sendCommandPaletteClosedEvent
+        sendCommandPaletteClosedEvent,
     }
 }
 
@@ -201,7 +201,7 @@ export function usePluginSendRenderCommandPaletteEvent() {
     }, [])
 
     return {
-        sendRenderCommandPaletteEvent
+        sendRenderCommandPaletteEvent,
     }
 }
 
@@ -217,7 +217,7 @@ export function usePluginSendCommandPaletteInputEvent() {
     }, [])
 
     return {
-        sendCommandPaletteInputEvent
+        sendCommandPaletteInputEvent,
     }
 }
 
@@ -233,7 +233,7 @@ export function usePluginSendCommandPaletteItemSelectedEvent() {
     }, [])
 
     return {
-        sendCommandPaletteItemSelectedEvent
+        sendCommandPaletteItemSelectedEvent,
     }
 }
 
@@ -248,7 +248,7 @@ export function usePluginSendActionRenderAnimePageButtonsEvent() {
     }, [])
 
     return {
-        sendActionRenderAnimePageButtonsEvent
+        sendActionRenderAnimePageButtonsEvent,
     }
 }
 
@@ -263,7 +263,7 @@ export function usePluginSendActionRenderAnimePageDropdownItemsEvent() {
     }, [])
 
     return {
-        sendActionRenderAnimePageDropdownItemsEvent
+        sendActionRenderAnimePageDropdownItemsEvent,
     }
 }
 
@@ -278,7 +278,7 @@ export function usePluginSendActionRenderMangaPageButtonsEvent() {
     }, [])
 
     return {
-        sendActionRenderMangaPageButtonsEvent
+        sendActionRenderMangaPageButtonsEvent,
     }
 }
 
@@ -293,7 +293,7 @@ export function usePluginSendActionRenderMediaCardContextMenuItemsEvent() {
     }, [])
 
     return {
-        sendActionRenderMediaCardContextMenuItemsEvent
+        sendActionRenderMediaCardContextMenuItemsEvent,
     }
 }
 
@@ -308,7 +308,7 @@ export function usePluginSendActionRenderAnimeLibraryDropdownItemsEvent() {
     }, [])
 
     return {
-        sendActionRenderAnimeLibraryDropdownItemsEvent
+        sendActionRenderAnimeLibraryDropdownItemsEvent,
     }
 }
 
@@ -325,7 +325,7 @@ export function usePluginSendActionClickedEvent() {
     }, [])
 
     return {
-        sendActionClickedEvent
+        sendActionClickedEvent,
     }
 }
 
@@ -342,7 +342,7 @@ export function usePluginSendFormSubmittedEvent() {
     }, [])
 
     return {
-        sendFormSubmittedEvent
+        sendFormSubmittedEvent,
     }
 }
 
@@ -359,7 +359,7 @@ export function usePluginSendScreenChangedEvent() {
     }, [])
 
     return {
-        sendScreenChangedEvent
+        sendScreenChangedEvent,
     }
 }
 
@@ -376,7 +376,7 @@ export function usePluginSendEventHandlerTriggeredEvent() {
     }, [])
 
     return {
-        sendEventHandlerTriggeredEvent
+        sendEventHandlerTriggeredEvent,
     }
 }
 
@@ -393,7 +393,7 @@ export function usePluginSendFieldRefSendValueEvent() {
     }, [])
 
     return {
-        sendFieldRefSendValueEvent
+        sendFieldRefSendValueEvent,
     }
 }
 
@@ -517,7 +517,8 @@ export function usePluginSendDOMEventTriggeredEvent() {
     }
 }
 
-export type Plugin_Client_DOMReadyEventPayload = {}
+export type Plugin_Client_DOMReadyEventPayload = {
+}
 
 export function usePluginSendDOMReadyEvent() {
     const { sendPluginMessage } = useWebsocketSender()
@@ -570,9 +571,7 @@ export type Plugin_Server_TrayBadgeUpdatedEventPayload = {
     badgeIntent: string
 }
 
-export function usePluginListenTrayBadgeUpdatedEvent(cb: (payload: Plugin_Server_TrayBadgeUpdatedEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenTrayBadgeUpdatedEvent(cb: (payload: Plugin_Server_TrayBadgeUpdatedEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayBadgeUpdatedEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.TrayBadgeUpdated,
@@ -580,7 +579,8 @@ export function usePluginListenTrayBadgeUpdatedEvent(cb: (payload: Plugin_Server
     })
 }
 
-export type Plugin_Server_TrayOpenEventPayload = {}
+export type Plugin_Server_TrayOpenEventPayload = {
+}
 
 export function usePluginListenTrayOpenEvent(cb: (payload: Plugin_Server_TrayOpenEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayOpenEventPayload>({
@@ -590,7 +590,8 @@ export function usePluginListenTrayOpenEvent(cb: (payload: Plugin_Server_TrayOpe
     })
 }
 
-export type Plugin_Server_TrayCloseEventPayload = {}
+export type Plugin_Server_TrayCloseEventPayload = {
+}
 
 export function usePluginListenTrayCloseEvent(cb: (payload: Plugin_Server_TrayCloseEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_TrayCloseEventPayload>({
@@ -805,11 +806,10 @@ export function usePluginListenScreenReloadEvent(cb: (payload: Plugin_Server_Scr
     })
 }
 
-export type Plugin_Server_ScreenGetCurrentEventPayload = {}
+export type Plugin_Server_ScreenGetCurrentEventPayload = {
+}
 
-export function usePluginListenScreenGetCurrentEvent(cb: (payload: Plugin_Server_ScreenGetCurrentEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenScreenGetCurrentEvent(cb: (payload: Plugin_Server_ScreenGetCurrentEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_ScreenGetCurrentEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.ScreenGetCurrent,
@@ -835,9 +835,7 @@ export type Plugin_Server_DOMQueryOneEventPayload = {
     requestId: string
 }
 
-export function usePluginListenDOMQueryOneEvent(cb: (payload: Plugin_Server_DOMQueryOneEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenDOMQueryOneEvent(cb: (payload: Plugin_Server_DOMQueryOneEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_DOMQueryOneEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DOMQueryOne,
@@ -850,9 +848,7 @@ export type Plugin_Server_DOMObserveEventPayload = {
     observerID: string
 }
 
-export function usePluginListenDOMObserveEvent(cb: (payload: Plugin_Server_DOMObserveEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenDOMObserveEvent(cb: (payload: Plugin_Server_DOMObserveEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_DOMObserveEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DOMObserve,
@@ -864,9 +860,7 @@ export type Plugin_Server_DOMStopObserveEventPayload = {
     observerID: string
 }
 
-export function usePluginListenDOMStopObserveEvent(cb: (payload: Plugin_Server_DOMStopObserveEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenDOMStopObserveEvent(cb: (payload: Plugin_Server_DOMStopObserveEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_DOMStopObserveEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DOMStopObserve,
@@ -893,9 +887,7 @@ export type Plugin_Server_DOMManipulateEventPayload = {
     params: Record<string, any>
 }
 
-export function usePluginListenDOMManipulateEvent(cb: (payload: Plugin_Server_DOMManipulateEventPayload, extensionId: string) => void,
-    extensionID: string,
-) {
+export function usePluginListenDOMManipulateEvent(cb: (payload: Plugin_Server_DOMManipulateEventPayload, extensionId: string) => void, extensionID: string) {
     return useWebsocketPluginMessageListener<Plugin_Server_DOMManipulateEventPayload>({
         extensionId: extensionID,
         type: PluginServerEvents.DOMManipulate,
