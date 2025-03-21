@@ -204,6 +204,7 @@ func (a *App) initModulesOnce() {
 	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
 		MediaPlayerRepository: a.MediaPlayerRepository,
 		PlaybackManager:       a.PlaybackManager,
+		MangaRepository:       a.MangaRepository,
 	})
 
 }

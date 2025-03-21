@@ -3,17 +3,19 @@ package manga
 import (
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
 	"os"
 	"seanime/internal/api/anilist"
 	"seanime/internal/database/db"
 	"seanime/internal/database/models"
 	"seanime/internal/events"
-	"seanime/internal/manga/downloader"
-	"seanime/internal/manga/providers"
+	"seanime/internal/hook"
+	chapter_downloader "seanime/internal/manga/downloader"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"sync"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -432,6 +434,16 @@ func (d *Downloader) hydrateMediaMap() {
 		}(file)
 	}
 	wg.Wait()
+
+	// Trigger hook event
+	ev := &MangaDownloadMapEvent{
+		MediaMap: &ret,
+	}
+	_ = hook.GlobalHookManager.OnMangaDownloadMap().Trigger(ev) // ignore the error
+	// make sure the media map is not nil
+	if ev.MediaMap != nil {
+		ret = *ev.MediaMap
+	}
 
 	d.mediaMap = &ret
 

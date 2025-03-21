@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"seanime/internal/extension"
+	"seanime/internal/hook"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
 	"seanime/internal/util/result"
@@ -60,6 +61,36 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 	chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
 
 	// +---------------------+
+	// |     Hook event      |
+	// +---------------------+
+
+	// Trigger hook event
+	reqEvent := &MangaChapterContainerRequestedEvent{
+		Provider: provider,
+		MediaId:  mediaId,
+		Titles:   titles,
+		Year:     opts.Year,
+		ChapterContainer: &ChapterContainer{
+			MediaId:  mediaId,
+			Provider: provider,
+			Chapters: []*hibikemanga.ChapterDetails{},
+		},
+	}
+	err = hook.GlobalHookManager.OnMangaChapterContainerRequested().Trigger(reqEvent)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Exception occurred while triggering hook event")
+		return nil, fmt.Errorf("manga: Error in hook, %w", err)
+	}
+
+	// Default prevented, return the chapter container
+	if reqEvent.DefaultPrevented {
+		if reqEvent.ChapterContainer == nil {
+			return nil, fmt.Errorf("manga: No chapter container returned by hook event")
+		}
+		return reqEvent.ChapterContainer, nil
+	}
+
+	// +---------------------+
 	// |       Cache         |
 	// +---------------------+
 
@@ -69,6 +100,17 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 	// Check if the container is in the cache
 	if found, _ := r.fileCacher.Get(containerBucket, chapterContainerKey, &container); found {
 		r.logger.Info().Str("bucket", containerBucket.Name()).Msg("manga: Chapter Container Cache HIT")
+
+		// Trigger hook event
+		ev := &MangaChapterContainerEvent{
+			ChapterContainer: container,
+		}
+		err = hook.GlobalHookManager.OnMangaChapterContainer().Trigger(ev)
+		if err != nil {
+			r.logger.Error().Err(err).Msg("manga: Exception occurred while triggering hook event")
+		}
+		container = ev.ChapterContainer
+
 		return container, nil
 	}
 
@@ -166,14 +208,25 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 		Chapters: chapterList,
 	}
 
-	// DEVNOTE: This might cache container with empty chapters, however the user can reload sources, so it's fine
-	err = r.fileCacher.Set(containerBucket, chapterContainerKey, container)
+	// Trigger hook event
+	ev := &MangaChapterContainerEvent{
+		ChapterContainer: container,
+	}
+	err = hook.GlobalHookManager.OnMangaChapterContainer().Trigger(ev)
 	if err != nil {
-		r.logger.Warn().Err(err).Msg("manga: Failed to populate cache")
+		r.logger.Error().Err(err).Msg("manga: Exception occurred while triggering hook event")
+	}
+	container = ev.ChapterContainer
+
+	// Cache the container only if it has chapters
+	if len(container.Chapters) > 0 {
+		err = r.fileCacher.Set(containerBucket, chapterContainerKey, container)
+		if err != nil {
+			r.logger.Warn().Err(err).Msg("manga: Failed to populate cache")
+		}
 	}
 
 	r.logger.Info().Str("bucket", containerBucket.Name()).Msg("manga: Retrieved chapters")
-
 	return container, nil
 }
 
@@ -264,8 +317,17 @@ func (r *Repository) GetMangaLatestChapterNumbersMap() (ret map[int][]MangaLates
 		}
 	}
 
-	mangaLatestChapterNumberMap.Set(ChapterCountMapCacheKey, ret)
+	// Trigger hook event
+	ev := &MangaLatestChapterNumbersMapEvent{
+		LatestChapterNumbersMap: ret,
+	}
+	err = hook.GlobalHookManager.OnMangaLatestChapterNumbersMap().Trigger(ev)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("manga: Exception occurred while triggering hook event")
+	}
+	ret = ev.LatestChapterNumbersMap
 
+	mangaLatestChapterNumberMap.Set(ChapterCountMapCacheKey, ret)
 	return
 }
 

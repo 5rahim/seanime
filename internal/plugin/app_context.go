@@ -5,6 +5,7 @@ import (
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
+	"seanime/internal/manga"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/platforms/platform"
 	goja_util "seanime/internal/util/goja"
@@ -20,6 +21,7 @@ type AppContextModules struct {
 	AnilistPlatform                 platform.Platform
 	PlaybackManager                 *playbackmanager.PlaybackManager
 	MediaPlayerRepository           *mediaplayer.Repository
+	MangaRepository                 *manga.Repository
 	WSEventManager                  events.WSEventManagerInterface
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
@@ -58,6 +60,9 @@ type AppContext interface {
 
 	// BindDownloaderToContextObj binds 'downloader' to the UI context object
 	BindDownloaderToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindMangaToContextObj binds 'manga' to the UI context object
+	BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
 }
 
 var GlobalAppContext = NewAppContext()
@@ -73,6 +78,7 @@ type AppContextImpl struct {
 	database        mo.Option[*db.Database]
 	playbackManager mo.Option[*playbackmanager.PlaybackManager]
 	mediaplayerRepo mo.Option[*mediaplayer.Repository]
+	mangaRepository mo.Option[*manga.Repository]
 	anilistPlatform mo.Option[platform.Platform]
 
 	onRefreshAnilistAnimeCollection mo.Option[func()]
@@ -87,6 +93,7 @@ func NewAppContext() AppContext {
 		playbackManager: mo.None[*playbackmanager.PlaybackManager](),
 		mediaplayerRepo: mo.None[*mediaplayer.Repository](),
 		anilistPlatform: mo.None[platform.Platform](),
+		mangaRepository: mo.None[*manga.Repository](),
 	}
 
 	return appCtx
@@ -139,6 +146,10 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 
 	if modules.OnRefreshAnilistMangaCollection != nil {
 		a.onRefreshAnilistMangaCollection = mo.Some(modules.OnRefreshAnilistMangaCollection)
+	}
+
+	if modules.MangaRepository != nil {
+		a.mangaRepository = mo.Some(modules.MangaRepository)
 	}
 
 	if modules.WSEventManager != nil {

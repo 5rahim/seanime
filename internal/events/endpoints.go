@@ -131,6 +131,7 @@ const (
 	PopulateFillerDataEndpoint                         = "METADATA-populate-filler-data"
 	PopulateTVDBEpisodesEndpoint                       = "METADATA-populate-tvdb-episodes"
 	PreloadMediastreamMediaContainerEndpoint           = "MEDIASTREAM-preload-mediastream-media-container"
+	RefetchMangaChapterContainersEndpoint              = "MANGA-refetch-manga-chapter-containers"
 	ReloadExternalExtensionEndpoint                    = "EXTENSIONS-reload-external-extension"
 	ReloadExternalExtensionsEndpoint                   = "EXTENSIONS-reload-external-extensions"
 	RemoveEmptyDirectoriesEndpoint                     = "LOCALFILES-remove-empty-directories"

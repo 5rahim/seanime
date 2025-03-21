@@ -858,6 +858,11 @@ export const API_ENDPOINTS = {
             methods: ["GET"],
             endpoint: "/api/v1/manga/latest-chapter-numbers",
         },
+        RefetchMangaChapterContainers: {
+            key: "MANGA-refetch-manga-chapter-containers",
+            methods: ["POST"],
+            endpoint: "/api/v1/manga/refetch-chapter-containers",
+        },
         /**
          *  @description
          *  Route empties the cache for a manga entry.

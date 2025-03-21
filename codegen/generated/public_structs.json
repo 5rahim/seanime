@@ -36594,6 +36594,60 @@
         "comments": []
       },
       {
+        "name": "onMangaDownloadedChapterContainersRequested",
+        "jsonName": "onMangaDownloadedChapterContainersRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMangaDownloadedChapterContainers",
+        "jsonName": "onMangaDownloadedChapterContainers",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMangaLatestChapterNumbersMap",
+        "jsonName": "onMangaLatestChapterNumbersMap",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMangaDownloadMap",
+        "jsonName": "onMangaDownloadMap",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMangaChapterContainerRequested",
+        "jsonName": "onMangaChapterContainerRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onMangaChapterContainer",
+        "jsonName": "onMangaChapterContainer",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onLocalFilePlaybackRequested",
         "jsonName": "onLocalFilePlaybackRequested",
         "goType": "",
@@ -44357,6 +44411,209 @@
     ]
   },
   {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaDownloadedChapterContainersRequestedEvent",
+    "formattedName": "Manga_MangaDownloadedChapterContainersRequestedEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MangaCollection",
+        "jsonName": "mangaCollection",
+        "goType": "anilist.MangaCollection",
+        "typescriptType": "AL_MangaCollection",
+        "usedStructName": "anilist.MangaCollection",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterContainers",
+        "jsonName": "chapterContainers",
+        "goType": "[]ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaDownloadedChapterContainersRequestedEvent is triggered when the manga downloaded chapter containers are being requested.",
+      " Prevent default to skip the default behavior and return the modified chapter containers.",
+      " If the modified chapter containers are nil, an error will be returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaDownloadedChapterContainersEvent",
+    "formattedName": "Manga_MangaDownloadedChapterContainersEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "ChapterContainers",
+        "jsonName": "chapterContainers",
+        "goType": "[]ChapterContainer",
+        "typescriptType": "Array\u003cManga_ChapterContainer\u003e",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaDownloadedChapterContainersEvent is triggered when the manga downloaded chapter containers are being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaLatestChapterNumbersMapEvent",
+    "formattedName": "Manga_MangaLatestChapterNumbersMapEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "LatestChapterNumbersMap",
+        "jsonName": "latestChapterNumbersMap",
+        "goType": "map[int][]MangaLatestChapterNumberItem",
+        "typescriptType": "Record\u003cnumber, Array\u003cManga_MangaLatestChapterNumberItem\u003e\u003e",
+        "usedStructName": "manga.MangaLatestChapterNumberItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaLatestChapterNumbersMapEvent is triggered when the manga latest chapter numbers map is being returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaDownloadMapEvent",
+    "formattedName": "Manga_MangaDownloadMapEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "MediaMap",
+        "jsonName": "mediaMap",
+        "goType": "MediaMap",
+        "typescriptType": "Manga_MediaMap",
+        "usedStructName": "manga.MediaMap",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaDownloadMapEvent is triggered when the manga download map has been updated.",
+      " This map is used to tell the client which chapters have been downloaded."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaChapterContainerRequestedEvent",
+    "formattedName": "Manga_MangaChapterContainerRequestedEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "MediaId",
+        "jsonName": "mediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Titles",
+        "jsonName": "titles",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ChapterContainer",
+        "jsonName": "chapterContainer",
+        "goType": "ChapterContainer",
+        "typescriptType": "Manga_ChapterContainer",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaChapterContainerRequestedEvent is triggered when the manga chapter container is being requested.",
+      " This event happens before the chapter container is fetched from the cache or provider.",
+      " Prevent default to skip the default behavior and return the modified chapter container.",
+      " If the modified chapter container is nil, an error will be returned."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/manga/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "MangaChapterContainerEvent",
+    "formattedName": "Manga_MangaChapterContainerEvent",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "ChapterContainer",
+        "jsonName": "chapterContainer",
+        "goType": "ChapterContainer",
+        "typescriptType": "Manga_ChapterContainer",
+        "usedStructName": "manga.ChapterContainer",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " MangaChapterContainerEvent is triggered when the manga chapter container is being returned.",
+      " This event happens after the chapter container is fetched from the cache or provider."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
     "filepath": "../internal/manga/manga_entry.go",
     "filename": "manga_entry.go",
     "name": "Entry",
@@ -51429,6 +51686,16 @@
         "comments": []
       },
       {
+        "name": "MangaRepository",
+        "jsonName": "MangaRepository",
+        "goType": "manga.Repository",
+        "typescriptType": "Manga_Repository",
+        "usedStructName": "manga.Repository",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "WSEventManager",
         "jsonName": "WSEventManager",
         "goType": "events.WSEventManagerInterface",
@@ -51515,6 +51782,15 @@
       {
         "name": "mediaplayerRepo",
         "jsonName": "mediaplayerRepo",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "mangaRepository",
+        "jsonName": "mangaRepository",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -51988,6 +52264,66 @@
         "goType": "int64",
         "typescriptType": "number",
         "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/manga.go",
+    "filename": "manga.go",
+    "name": "Manga",
+    "formattedName": "Manga",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "AppContextImpl",
+        "typescriptType": "AppContextImpl",
+        "usedStructName": "plugin.AppContextImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "logger",
+        "jsonName": "logger",
+        "goType": "zerolog.Logger",
+        "typescriptType": "Logger",
+        "usedStructName": "zerolog.Logger",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "ext",
+        "jsonName": "ext",
+        "goType": "extension.Extension",
+        "typescriptType": "Extension_Extension",
+        "usedStructName": "extension.Extension",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "goja_util.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedStructName": "goja_util.Scheduler",
+        "required": false,
         "public": false,
         "comments": []
       }

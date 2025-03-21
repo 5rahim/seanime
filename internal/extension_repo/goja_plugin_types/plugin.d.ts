@@ -899,23 +899,23 @@ declare namespace $anilist {
      * Get the user's anime collection.
      * This collection does not include lists with no status (custom lists).
      */
-    function getAnimeCollection(): $app.AL_AnimeCollection
+    function getAnimeCollection(bypassCache: boolean): $app.AL_AnimeCollection
 
     /**
      * Same as [$anilist.getAnimeCollection] but includes lists with no status (custom lists).
      */
-    function getRawAnimeCollection(): $app.AL_AnimeCollection
+    function getRawAnimeCollection(bypassCache: boolean): $app.AL_AnimeCollection
 
     /**
      * Get the user's manga collection.
      * This collection does not include lists with no status (custom lists).
      */
-    function getMangaCollection(): $app.AL_MangaCollection
+    function getMangaCollection(bypassCache: boolean): $app.AL_MangaCollection
 
     /**
      * Same as [$anilist.getMangaCollection] but includes lists with no status (custom lists).
      */
-    function getRawMangaCollection(): $app.AL_MangaCollection
+    function getRawMangaCollection(bypassCache: boolean): $app.AL_MangaCollection
 
     /**
      * Get anime by ID

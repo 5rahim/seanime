@@ -78,6 +78,12 @@ type Manager interface {
 	OnMangaEntry() *Hook[hook_resolver.Resolver]
 	OnMangaLibraryCollectionRequested() *Hook[hook_resolver.Resolver]
 	OnMangaLibraryCollection() *Hook[hook_resolver.Resolver]
+	OnMangaDownloadedChapterContainersRequested() *Hook[hook_resolver.Resolver]
+	OnMangaDownloadedChapterContainers() *Hook[hook_resolver.Resolver]
+	OnMangaLatestChapterNumbersMap() *Hook[hook_resolver.Resolver]
+	OnMangaDownloadMap() *Hook[hook_resolver.Resolver]
+	OnMangaChapterContainerRequested() *Hook[hook_resolver.Resolver]
+	OnMangaChapterContainer() *Hook[hook_resolver.Resolver]
 
 	// Playback events
 	OnLocalFilePlaybackRequested() *Hook[hook_resolver.Resolver]
@@ -160,10 +166,16 @@ type ManagerImpl struct {
 	onAnimeEpisodeMetadataRequested *Hook[hook_resolver.Resolver]
 	onAnimeEpisodeMetadataEvent     *Hook[hook_resolver.Resolver]
 	// Manga events
-	onMangaEntryRequested             *Hook[hook_resolver.Resolver]
-	onMangaEntry                      *Hook[hook_resolver.Resolver]
-	onMangaLibraryCollectionRequested *Hook[hook_resolver.Resolver]
-	onMangaLibraryCollection          *Hook[hook_resolver.Resolver]
+	onMangaEntryRequested                       *Hook[hook_resolver.Resolver]
+	onMangaEntry                                *Hook[hook_resolver.Resolver]
+	onMangaLibraryCollectionRequested           *Hook[hook_resolver.Resolver]
+	onMangaLibraryCollection                    *Hook[hook_resolver.Resolver]
+	onMangaDownloadedChapterContainersRequested *Hook[hook_resolver.Resolver]
+	onMangaDownloadedChapterContainers          *Hook[hook_resolver.Resolver]
+	onMangaLatestChapterNumbersMap              *Hook[hook_resolver.Resolver]
+	onMangaDownloadMap                          *Hook[hook_resolver.Resolver]
+	onMangaChapterContainerRequested            *Hook[hook_resolver.Resolver]
+	onMangaChapterContainer                     *Hook[hook_resolver.Resolver]
 	// Playback events
 	onLocalFilePlaybackRequested        *Hook[hook_resolver.Resolver]
 	onPlaybackBeforeTracking            *Hook[hook_resolver.Resolver]
@@ -266,6 +278,12 @@ func (m *ManagerImpl) initHooks() {
 	m.onMangaEntry = &Hook[hook_resolver.Resolver]{}
 	m.onMangaLibraryCollectionRequested = &Hook[hook_resolver.Resolver]{}
 	m.onMangaLibraryCollection = &Hook[hook_resolver.Resolver]{}
+	m.onMangaDownloadedChapterContainersRequested = &Hook[hook_resolver.Resolver]{}
+	m.onMangaDownloadedChapterContainers = &Hook[hook_resolver.Resolver]{}
+	m.onMangaLatestChapterNumbersMap = &Hook[hook_resolver.Resolver]{}
+	m.onMangaDownloadMap = &Hook[hook_resolver.Resolver]{}
+	m.onMangaChapterContainerRequested = &Hook[hook_resolver.Resolver]{}
+	m.onMangaChapterContainer = &Hook[hook_resolver.Resolver]{}
 	// Playback events
 	m.onLocalFilePlaybackRequested = &Hook[hook_resolver.Resolver]{}
 	m.onPlaybackBeforeTracking = &Hook[hook_resolver.Resolver]{}
@@ -652,6 +670,48 @@ func (m *ManagerImpl) OnMangaLibraryCollection() *Hook[hook_resolver.Resolver] {
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onMangaLibraryCollection
+}
+
+func (m *ManagerImpl) OnMangaDownloadedChapterContainersRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaDownloadedChapterContainersRequested
+}
+
+func (m *ManagerImpl) OnMangaDownloadedChapterContainers() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaDownloadedChapterContainers
+}
+
+func (m *ManagerImpl) OnMangaLatestChapterNumbersMap() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaLatestChapterNumbersMap
+}
+
+func (m *ManagerImpl) OnMangaDownloadMap() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaDownloadMap
+}
+
+func (m *ManagerImpl) OnMangaChapterContainerRequested() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaChapterContainerRequested
+}
+
+func (m *ManagerImpl) OnMangaChapterContainer() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onMangaChapterContainer
 }
 
 // Playback events

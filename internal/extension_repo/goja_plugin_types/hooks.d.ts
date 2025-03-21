@@ -654,6 +654,106 @@ declare namespace $app {
         libraryCollection?: Manga_Collection;
     }
 
+    /**
+     * @event MangaDownloadedChapterContainersRequestedEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaDownloadedChapterContainersRequestedEvent is triggered when the manga downloaded chapter containers are being requested.
+     * Prevent default to skip the default behavior and return the modified chapter containers.
+     * If the modified chapter containers are nil, an error will be returned.
+     */
+    function onMangaDownloadedChapterContainersRequested(cb: (event: MangaDownloadedChapterContainersRequestedEvent) => void);
+
+    interface MangaDownloadedChapterContainersRequestedEvent {
+        mangaCollection?: AL_MangaCollection;
+        chapterContainers?: Array<Manga_ChapterContainer>;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
+     * @event MangaDownloadedChapterContainersEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaDownloadedChapterContainersEvent is triggered when the manga downloaded chapter containers are being returned.
+     */
+    function onMangaDownloadedChapterContainers(cb: (event: MangaDownloadedChapterContainersEvent) => void);
+
+    interface MangaDownloadedChapterContainersEvent {
+        chapterContainers?: Array<Manga_ChapterContainer>;
+
+        next();
+    }
+
+    /**
+     * @event MangaLatestChapterNumbersMapEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaLatestChapterNumbersMapEvent is triggered when the manga latest chapter numbers map is being returned.
+     */
+    function onMangaLatestChapterNumbersMap(cb: (event: MangaLatestChapterNumbersMapEvent) => void);
+
+    interface MangaLatestChapterNumbersMapEvent {
+        latestChapterNumbersMap?: Record<number, Array<Manga_MangaLatestChapterNumberItem>>;
+
+        next();
+    }
+
+    /**
+     * @event MangaDownloadMapEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaDownloadMapEvent is triggered when the manga download map has been updated.
+     * This map is used to tell the client which chapters have been downloaded.
+     */
+    function onMangaDownloadMap(cb: (event: MangaDownloadMapEvent) => void);
+
+    interface MangaDownloadMapEvent {
+        mediaMap?: Manga_MediaMap;
+
+        next();
+    }
+
+    /**
+     * @event MangaChapterContainerRequestedEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaChapterContainerRequestedEvent is triggered when the manga chapter container is being requested.
+     * This event happens before the chapter container is fetched from the cache or provider.
+     * Prevent default to skip the default behavior and return the modified chapter container.
+     * If the modified chapter container is nil, an error will be returned.
+     */
+    function onMangaChapterContainerRequested(cb: (event: MangaChapterContainerRequestedEvent) => void);
+
+    interface MangaChapterContainerRequestedEvent {
+        provider: string;
+        mediaId: number;
+        titles?: Array<string>;
+        year: number;
+        chapterContainer?: Manga_ChapterContainer;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
+     * @event MangaChapterContainerEvent
+     * @file internal/manga/hook_events.go
+     * @description
+     * MangaChapterContainerEvent is triggered when the manga chapter container is being returned.
+     * This event happens after the chapter container is fetched from the cache or provider.
+     */
+    function onMangaChapterContainer(cb: (event: MangaChapterContainerEvent) => void);
+
+    interface MangaChapterContainerEvent {
+        chapterContainer?: Manga_ChapterContainer;
+
+        next();
+    }
+
 
     /**
      * @package mediaplayer
@@ -2399,6 +2499,31 @@ declare namespace $app {
     }
 
     /**
+     * - Filepath: internal/extension/hibike/manga/types.go
+     */
+    interface HibikeManga_ChapterDetails {
+        provider: string;
+        id: string;
+        url: string;
+        title: string;
+        chapter: string;
+        index: number;
+        scanlator?: string;
+        language?: string;
+        rating?: number;
+        updatedAt?: string;
+    }
+
+    /**
+     * - Filepath: internal/manga/chapter_container.go
+     */
+    interface Manga_ChapterContainer {
+        mediaId: number;
+        provider: string;
+        chapters?: Array<HibikeManga_ChapterDetails>;
+    }
+
+    /**
      * - Filepath: internal/manga/collection.go
      */
     interface Manga_Collection {
@@ -2445,6 +2570,34 @@ declare namespace $app {
         repeat?: number;
         startedAt?: string;
         completedAt?: string;
+    }
+
+    /**
+     * - Filepath: internal/manga/chapter_container.go
+     */
+    interface Manga_MangaLatestChapterNumberItem {
+        provider: string;
+        scanlator: string;
+        language: string;
+        number: number;
+    }
+
+    /**
+     * - Filepath: internal/manga/download.go
+     */
+    export type Manga_MediaMap = Record<number, Manga_ProviderDownloadMap>;
+
+    /**
+     * - Filepath: internal/manga/download.go
+     */
+    export type Manga_ProviderDownloadMap = Record<string, Array<Manga_ProviderDownloadMapChapterInfo>>;
+
+    /**
+     * - Filepath: internal/manga/download.go
+     */
+    interface Manga_ProviderDownloadMapChapterInfo {
+        chapterId: string;
+        chapterNumber: string;
     }
 
     /**

@@ -3,6 +3,7 @@ package codegen
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -390,7 +391,8 @@ func generateHooksFile(f *os.File, groupedHandlers map[string][]*RouteHandler, f
 }
 
 func generateEventFile(eventDir string, endpointsMap map[string]string) {
-	file, err := os.Create(filepath.Join(eventDir, goEndpointsFileName))
+	fp := filepath.Join(eventDir, goEndpointsFileName)
+	file, err := os.Create(fp)
 	if err != nil {
 		panic(err)
 	}
@@ -409,11 +411,16 @@ func generateEventFile(eventDir string, endpointsMap map[string]string) {
 		return strings.Compare(i, j)
 	})
 
+	goFmtSpacing := ""
+
 	file.WriteString("const (\n")
 	for _, endpoint := range endpoints {
-		file.WriteString(fmt.Sprintf("    %sEndpoint = \"%s\"\n", endpoint, endpointsMap[endpoint]))
+		file.WriteString(fmt.Sprintf("    %sEndpoint%s= \"%s\"\n", endpoint, goFmtSpacing, endpointsMap[endpoint]))
 	}
 	file.WriteString(")\n")
+
+	cmd := exec.Command("gofmt", "-w", fp)
+	cmd.Run()
 
 }
 

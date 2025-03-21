@@ -4028,6 +4028,43 @@
     }
   },
   {
+    "name": "HandleRefetchMangaChapterContainers",
+    "trimmedName": "RefetchMangaChapterContainers",
+    "comments": [
+      "HandleRefetchMangaChapterContainers",
+      "",
+      "\t@summary refetches the chapter containers for selected manga entries.",
+      "\t@route /api/v1/manga/refetch-chapter-containers [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "refetches the chapter containers for selected manga entries.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/refetch-chapter-containers",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "MediaIds",
+          "jsonName": "mediaIds",
+          "goType": "[]int",
+          "usedStructType": "",
+          "typescriptType": "Array\u003cnumber\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleEmptyMangaEntryCache",
     "trimmedName": "EmptyMangaEntryCache",
     "comments": [

@@ -76,3 +76,5 @@ seanime-web/logs
 seanime-web/analyze
 seanime-web/TODO-priv.md
 seanime-web/CHANGELOG-priv.md
+
+codegen/generated/hooks.mdx
