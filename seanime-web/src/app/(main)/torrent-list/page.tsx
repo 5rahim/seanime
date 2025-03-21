@@ -71,6 +71,22 @@ function Content() {
         mutate(props)
     }, [mutate])
 
+
+    const confirmStopAllSeedingProps = useConfirmationDialog({
+        title: "Stop seeding all torrents",
+        description: "This action will cause seeding to stop for all completed torrents.",
+        actionIntent: "warning",
+        onConfirm: () => {
+            for (const torrent of data ?? []) {
+                handleTorrentAction({
+                    hash: torrent.hash,
+                    action: "pause",
+                    dir: torrent.contentPath,
+                })
+            }
+        },
+    })
+
     if (!enabled) return <LuffyError title="Failed to connect">
         <div className="flex flex-col gap-4 items-center">
             <p className="max-w-md">Failed to connect to the torrent client, verify your settings and make sure it is running.</p>
@@ -91,6 +107,13 @@ function Content() {
                 <ul className="text-[--muted] flex flex-wrap gap-4">
                     <li>Downloading: {data?.filter(t => t.status === "downloading" || t.status === "paused")?.length ?? 0}</li>
                     <li>Seeding: {data?.filter(t => t.status === "seeding")?.length ?? 0}</li>
+                    {!!data?.filter(t => t.status === "seeding")?.length && <li>
+                        <Button
+                            size="xs"
+                            intent="primary-link"
+                            onClick={() => confirmStopAllSeedingProps.open()}
+                        >Stop seeding</Button>
+                    </li>}
                 </ul>
             </div>
 
@@ -103,6 +126,8 @@ function Content() {
                 />
             })}
             {(!isLoading && !data?.length) && <LuffyError title="Nothing to see">No active torrents</LuffyError>}
+
+            <ConfirmationDialog {...confirmStopAllSeedingProps} />
         </AppLayoutStack>
     )
 
