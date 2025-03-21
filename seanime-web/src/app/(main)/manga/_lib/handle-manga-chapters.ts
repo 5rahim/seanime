@@ -2,7 +2,7 @@ import { useGetMangaEntryChapters } from "@/api/hooks/manga.hooks"
 import { useHandleMangaProviderExtensions } from "@/app/(main)/manga/_lib/handle-manga-providers"
 import { useSelectedMangaFilters, useSelectedMangaProvider } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import { LANGUAGES_LIST } from "@/app/(main)/manga/_lib/language-map"
-import { uniq } from "lodash"
+import { uniq, uniqBy } from "lodash"
 import React from "react"
 
 export function useHandleMangaChapters(
@@ -36,21 +36,31 @@ export function useHandleMangaChapters(
         provider: selectedProvider || undefined,
     })
 
-    const languageOptions = React.useMemo(() => {
-        if (!selectedExtension) return []
-        if (!selectedExtension.settings?.supportsMultiLanguage) return []
 
-        const languages = uniq(chapterContainer?.chapters?.map(chapter => chapter.language)?.filter(Boolean) || [])
-        return languages.map(lang => ({ value: lang, label: ((LANGUAGES_LIST as any)[lang as any] as any)?.nativeName || lang }))
-    }, [selectedExtension, chapterContainer])
-
-    const scanlatorOptions = React.useMemo(() => {
+    const _scanlatorOptions = React.useMemo(() => {
         if (!selectedExtension) return []
         if (!selectedExtension.settings?.supportsMultiScanlator) return []
 
         const scanlators = uniq(chapterContainer?.chapters?.map(chapter => chapter.scanlator)?.filter(Boolean) || [])
         return scanlators.map(scanlator => ({ value: scanlator, label: scanlator }))
     }, [selectedExtension, chapterContainer])
+
+    const _languageOptions = React.useMemo(() => {
+        if (!selectedExtension) return []
+        if (!selectedExtension.settings?.supportsMultiLanguage) return []
+
+        const languages = chapterContainer?.chapters?.map(chapter => {
+            const language = chapter.language
+            if (!language) return null
+            return {
+                language: language,
+                scanlator: chapter.scanlator,
+            }
+        })?.filter(Boolean) || []
+
+        return languages.map(lang => ({ value: lang, label: ((LANGUAGES_LIST as any)[lang.language as any] as any)?.nativeName || lang }))
+    }, [selectedExtension, chapterContainer])
+
 
 
     /**
@@ -60,8 +70,8 @@ export function useHandleMangaChapters(
         mediaId,
         selectedExtension,
         selectedProvider,
-        languageOptions.map(n => n.value),
-        scanlatorOptions.map(n => n.value),
+        // languageOptions.map(n => n.value),
+        // scanlatorOptions.map(n => n.value),
         !chapterContainerLoading,
     )
 
@@ -86,6 +96,29 @@ export function useHandleMangaChapters(
             chapters: filteredChapters,
         }
     }, [chapterContainer, selectedExtension, selectedFilters])
+
+    // Filter language options based on scanlator
+    const languageOptions = React.useMemo(() => {
+        return uniqBy(_languageOptions.filter(lang => {
+            if (!!selectedFilters?.scanlators?.[0]?.length) {
+                return lang.value.scanlator === selectedFilters.scanlators[0]
+            }
+            return true
+        })?.map(lang => ({ value: lang.value.language, label: lang.label })) || [], "value")
+    }, [_languageOptions, selectedFilters])
+
+    // Filter scanlator options based on language
+    const scanlatorOptions = React.useMemo(() => {
+        return uniqBy(_scanlatorOptions.filter(scanlator => {
+            if (!!selectedFilters?.language?.length) {
+                return _languageOptions.filter(n =>
+                    n.value.scanlator === scanlator.value
+                    && n.value.language === selectedFilters.language,
+                ).length > 0
+            }
+            return true
+        })?.map(scanlator => ({ value: scanlator.value, label: scanlator.label })) || [], "value")
+    }, [_scanlatorOptions, selectedFilters, _languageOptions])
 
     return {
         selectedExtension,

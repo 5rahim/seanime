@@ -316,6 +316,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Manga.POST("/anilist/list", h.HandleAnilistListManga)
 	v1Manga.GET("/collection", h.HandleGetMangaCollection)
 	v1Manga.GET("/chapter-counts", h.HandleGetMangaChapterCountMap)
+	v1Manga.GET("/latest-chapter-numbers", h.HandleGetMangaLatestChapterNumbersMap)
 	v1Manga.GET("/entry/:id", h.HandleGetMangaEntry)
 	v1Manga.GET("/entry/:id/details", h.HandleGetMangaEntryDetails)
 	v1Manga.DELETE("/entry/cache", h.HandleEmptyMangaEntryCache)

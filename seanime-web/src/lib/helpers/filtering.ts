@@ -8,7 +8,9 @@ import {
     AL_MediaStatus,
     Anime_Episode,
     Anime_LibraryCollectionEntry,
+    Manga_MangaLatestChapterNumberItem,
 } from "@/api/generated/types"
+import { getMangaEntryLatestChapterNumber, MangaEntryFilters } from "@/app/(main)/manga/_lib/handle-manga-selected-provider"
 import sortBy from "lodash/sortBy"
 import { anilist_getUnwatchedCount } from "./media"
 
@@ -379,8 +381,10 @@ export function filterAnimeCollectionEntries<T extends Anime_LibraryCollectionEn
 }
 
 
-/** */
-export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEntry[]>(
+/**
+ * @deprecated
+ */
+export function legacy_filterMangaCollectionEntries<T extends Anime_LibraryCollectionEntry[]>(
     entries: T | null | undefined,
     params: CollectionParams<"manga">,
     showAdultContent: boolean | undefined,
@@ -405,6 +409,48 @@ export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEn
     if (getParamValue(params.sorting) === "UNREAD_CHAPTERS_DESC") {
         arr = sortBy(arr, n => {
             const mangaChapterCount = chapterCounts?.[n.media?.id!] || 0
+            return mangaChapterCount - (n.listData?.progress || 0)
+        }).reverse()
+    }
+
+    return arr
+}
+
+/** */
+export function filterMangaCollectionEntries<T extends Anime_LibraryCollectionEntry[]>(
+    entries: T | null | undefined,
+    params: CollectionParams<"manga">,
+    showAdultContent: boolean | undefined,
+    storedProviders: Record<string, string> | null | undefined,
+    storedProviderFilters: Record<number, MangaEntryFilters> | null | undefined,
+    latestChapterNumbers: Record<number, Manga_MangaLatestChapterNumberItem[]> | null | undefined,
+) {
+    if (!latestChapterNumbers || !storedProviders || !storedProviderFilters) return []
+    let arr = filterCollectionEntries("manga", entries, params, showAdultContent)
+
+
+    if (params.unreadOnly) {
+        arr = arr.filter(n => {
+            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
+            const mangaChapterCount = latestChapterNumber || 999999
+            return mangaChapterCount - (n.listData?.progress || 0) > 0
+        })
+    }
+
+    // Sort by unwatched chapters
+    if (getParamValue(params.sorting) === "UNREAD_CHAPTERS") {
+        arr = sortBy(arr, n => {
+            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
+            // console.log(n.media?.id, latestChapterNumber)
+            const mangaChapterCount = latestChapterNumber || 999999
+            return mangaChapterCount - (n.listData?.progress || 0)
+        })
+    }
+    if (getParamValue(params.sorting) === "UNREAD_CHAPTERS_DESC") {
+        arr = sortBy(arr, n => {
+            const latestChapterNumber = getMangaEntryLatestChapterNumber(n.media?.id!, latestChapterNumbers, storedProviders, storedProviderFilters)
+            // console.log(n.media?.id, latestChapterNumber)
+            const mangaChapterCount = latestChapterNumber || 0
             return mangaChapterCount - (n.listData?.progress || 0)
         }).reverse()
     }

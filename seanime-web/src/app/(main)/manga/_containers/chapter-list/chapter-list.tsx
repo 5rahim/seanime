@@ -348,21 +348,6 @@ export function ChapterList(props: ChapterListProps) {
             {(selectedExtension?.settings?.supportsMultiLanguage || selectedExtension?.settings?.supportsMultiScanlator) && (
                 <div>
                     <div className="flex gap-2 items-center">
-                        {selectedExtension?.settings?.supportsMultiLanguage && (
-                            <Select
-                                fieldClass="w-64"
-                                options={languageOptions}
-                                placeholder="All"
-                                value={selectedFilters.language}
-                                onValueChange={v => setSelectedLanguage({
-                                    mId: mediaId,
-                                    language: v,
-                                })}
-                                leftAddon="Language"
-                                // intent="filled"
-                                // size="sm"
-                            />
-                        )}
                         {selectedExtension?.settings?.supportsMultiScanlator && (
                             <>
                                 <Select
@@ -379,6 +364,21 @@ export function ChapterList(props: ChapterListProps) {
                                     // size="sm"
                                 />
                             </>
+                        )}
+                        {selectedExtension?.settings?.supportsMultiLanguage && (
+                            <Select
+                                fieldClass="w-64"
+                                options={languageOptions}
+                                placeholder="All"
+                                value={selectedFilters.language}
+                                onValueChange={v => setSelectedLanguage({
+                                    mId: mediaId,
+                                    language: v,
+                                })}
+                                leftAddon="Language"
+                                // intent="filled"
+                                // size="sm"
+                            />
                         )}
                     </div>
                 </div>

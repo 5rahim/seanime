@@ -76,6 +76,7 @@ const (
 	GetMangaEntryDetailsEndpoint                       = "MANGA-get-manga-entry-details"
 	GetMangaEntryDownloadedChaptersEndpoint            = "MANGA-get-manga-entry-downloaded-chapters"
 	GetMangaEntryPagesEndpoint                         = "MANGA-get-manga-entry-pages"
+	GetMangaLatestChapterNumbersMapEndpoint            = "MANGA-get-manga-latest-chapter-numbers-map"
 	GetMangaMappingEndpoint                            = "MANGA-get-manga-mapping"
 	GetMediastreamSettingsEndpoint                     = "MEDIASTREAM-get-mediastream-settings"
 	GetMissingEpisodesEndpoint                         = "ANIME-ENTRIES-get-missing-episodes"

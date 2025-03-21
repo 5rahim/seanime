@@ -43090,6 +43090,52 @@
     "comments": []
   },
   {
+    "filepath": "../internal/manga/chapter_container.go",
+    "filename": "chapter_container.go",
+    "name": "MangaLatestChapterNumberItem",
+    "formattedName": "Manga_MangaLatestChapterNumberItem",
+    "package": "manga",
+    "fields": [
+      {
+        "name": "Provider",
+        "jsonName": "provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Scanlator",
+        "jsonName": "scanlator",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Language",
+        "jsonName": "language",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Number",
+        "jsonName": "number",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/manga/chapter_container_mapping.go",
     "filename": "chapter_container_mapping.go",
     "name": "MappingResponse",
@@ -51829,6 +51875,126 @@
     "comments": []
   },
   {
+    "filepath": "../internal/plugin/downloader.go",
+    "filename": "downloader.go",
+    "name": "DownloadProgress",
+    "formattedName": "DownloadProgress",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "ID",
+        "jsonName": "id",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "URL",
+        "jsonName": "url",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Destination",
+        "jsonName": "destination",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalBytes",
+        "jsonName": "totalBytes",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "TotalSize",
+        "jsonName": "totalSize",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Speed",
+        "jsonName": "speed",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Percentage",
+        "jsonName": "percentage",
+        "goType": "float64",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Status",
+        "jsonName": "status",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Error",
+        "jsonName": "error",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "LastUpdateTime",
+        "jsonName": "lastUpdate",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "StartTime",
+        "jsonName": "startTime",
+        "goType": "time.Time",
+        "typescriptType": "string",
+        "usedStructName": "time.Time",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "lastBytes",
+        "jsonName": "",
+        "goType": "int64",
+        "typescriptType": "number",
+        "required": true,
+        "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/plugin/playback.go",
     "filename": "playback.go",
     "name": "Playback",
@@ -52200,6 +52366,56 @@
         "typescriptType": "any",
         "required": true,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/system.go",
+    "filename": "system.go",
+    "name": "AsyncCmd",
+    "formattedName": "AsyncCmd",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "cmd",
+        "jsonName": "cmd",
+        "goType": "exec.Cmd",
+        "typescriptType": "Cmd",
+        "usedStructName": "exec.Cmd",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "appContext",
+        "jsonName": "appContext",
+        "goType": "AppContextImpl",
+        "typescriptType": "AppContextImpl",
+        "usedStructName": "plugin.AppContextImpl",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "scheduler",
+        "jsonName": "scheduler",
+        "goType": "goja_util.Scheduler",
+        "typescriptType": "Scheduler",
+        "usedStructName": "goja_util.Scheduler",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "vm",
+        "jsonName": "vm",
+        "goType": "goja.Runtime",
+        "typescriptType": "Runtime",
+        "usedStructName": "goja.Runtime",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],
@@ -53204,6 +53420,18 @@
         "public": false,
         "comments": [
           " DOM manipulation manager"
+        ]
+      },
+      {
+        "name": "notificationManager",
+        "jsonName": "notificationManager",
+        "goType": "NotificationManager",
+        "typescriptType": "NotificationManager",
+        "usedStructName": "plugin_ui.NotificationManager",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Register and manage notifications"
         ]
       },
       {
@@ -55022,6 +55250,26 @@
         "usedStructName": "plugin_ui.FormField",
         "required": false,
         "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/notification.go",
+    "filename": "notification.go",
+    "name": "NotificationManager",
+    "formattedName": "NotificationManager",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "ctx",
+        "jsonName": "ctx",
+        "goType": "Context",
+        "typescriptType": "Context",
+        "usedStructName": "plugin_ui.Context",
+        "required": false,
+        "public": false,
         "comments": []
       }
     ],

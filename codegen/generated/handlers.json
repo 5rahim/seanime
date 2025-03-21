@@ -4001,6 +4001,33 @@
     }
   },
   {
+    "name": "HandleGetMangaLatestChapterNumbersMap",
+    "trimmedName": "GetMangaLatestChapterNumbersMap",
+    "comments": [
+      "HandleGetMangaLatestChapterNumbersMap",
+      "",
+      "\t@summary returns the latest chapter number for all manga entries.",
+      "\t@route /api/v1/manga/latest-chapter-numbers [GET]",
+      "\t@returns map[int][]manga.MangaLatestChapterNumberItem",
+      ""
+    ],
+    "filepath": "internal/handlers/manga.go",
+    "filename": "manga.go",
+    "api": {
+      "summary": "returns the latest chapter number for all manga entries.",
+      "descriptions": [],
+      "endpoint": "/api/v1/manga/latest-chapter-numbers",
+      "methods": [
+        "GET"
+      ],
+      "params": [],
+      "bodyFields": [],
+      "returns": "map[int][]manga.MangaLatestChapterNumberItem",
+      "returnGoType": "manga.MangaLatestChapterNumberItem",
+      "returnTypescriptType": "Record\u003cnumber, Array\u003cManga_MangaLatestChapterNumberItem\u003e\u003e"
+    }
+  },
+  {
     "name": "HandleEmptyMangaEntryCache",
     "trimmedName": "EmptyMangaEntryCache",
     "comments": [

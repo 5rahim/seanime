@@ -2093,7 +2093,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Package: extension
  * @description
  *  PluginAllowlist is a list of system permissions that the plugin is asking for.
- *
+ *  
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
@@ -2660,6 +2660,18 @@ export type Manga_EntryListData = {
     repeat?: number
     startedAt?: string
     completedAt?: string
+}
+
+/**
+ * - Filepath: internal/manga/chapter_container.go
+ * - Filename: chapter_container.go
+ * - Package: manga
+ */
+export type Manga_MangaLatestChapterNumberItem = {
+    provider: string
+    scanlator: string
+    language: string
+    number: number
 }
 
 /**

@@ -2,15 +2,18 @@ package manga
 
 import (
 	"cmp"
-	"github.com/goccy/go-json"
 	"os"
 	"path/filepath"
 	"seanime/internal/api/anilist"
 	hibikemanga "seanime/internal/extension/hibike/manga"
-	"seanime/internal/manga/downloader"
+	chapter_downloader "seanime/internal/manga/downloader"
 	"slices"
+
+	"github.com/goccy/go-json"
 )
 
+// GetDownloadedMangaChapterContainers retrieves downloaded chapter containers for a specific manga ID.
+// It filters the complete set of downloaded chapters to return only those matching the provided manga ID.
 func (r *Repository) GetDownloadedMangaChapterContainers(mId int, mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
 	containers, err := r.GetDownloadedChapterContainers(mangaCollection)
 	if err != nil {
@@ -26,6 +29,11 @@ func (r *Repository) GetDownloadedMangaChapterContainers(mId int, mangaCollectio
 	return ret, nil
 }
 
+// GetDownloadedChapterContainers retrieves all downloaded manga chapter containers.
+// It scans the download directory for chapter folders, matches them with manga collection entries,
+// and collects chapter details from file cache or provider API when necessary.
+//
+// Ideally, the provider API should never be called assuming the chapter details are cached.
 func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.MangaCollection) (ret []*ChapterContainer, err error) {
 	ret = make([]*ChapterContainer, 0)
 
@@ -146,7 +154,9 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// getDownloadedMangaPageContainer returns the PageContainer for a downloaded manga chapter based on the provider.
+// getDownloadedMangaPageContainer retrieves page information for a downloaded manga chapter.
+// It reads the chapter directory and parses the registry file to build a PageContainer
+// with details about each downloaded page including dimensions and file paths.
 func (r *Repository) getDownloadedMangaPageContainer(
 	provider string,
 	mediaId int,

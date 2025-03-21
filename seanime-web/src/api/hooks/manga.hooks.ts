@@ -20,6 +20,7 @@ import {
     Manga_ChapterContainer,
     Manga_Collection,
     Manga_Entry,
+    Manga_MangaLatestChapterNumberItem,
     Manga_MappingResponse,
     Manga_PageContainer,
     Nullish,
@@ -199,5 +200,14 @@ export function useGetMangaEntryDownloadedChapters(mId: Nullish<string | number>
         endpoint: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.endpoint.replace("{id}", String(mId)),
         method: API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryDownloadedChapters.key, String(mId)],
+    })
+}
+
+export function useGetMangaLatestChapterNumbersMap() {
+    return useServerQuery<Record<number, Array<Manga_MangaLatestChapterNumberItem>>>({
+        endpoint: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.endpoint,
+        method: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.methods[0],
+        queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key],
+        enabled: true,
     })
 }

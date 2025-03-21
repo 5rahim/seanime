@@ -385,9 +385,9 @@ declare namespace $app {
     function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void);
 
     interface AnimeLibraryCollectionEvent {
-        libraryCollection?: Anime_LibraryCollection;
-
         next();
+
+        libraryCollection?: Anime_LibraryCollection;
     }
 
     /**
@@ -415,9 +415,9 @@ declare namespace $app {
     function onAnimeLibraryStreamCollection(cb: (event: AnimeLibraryStreamCollectionEvent) => void);
 
     interface AnimeLibraryStreamCollectionEvent {
-        streamCollection?: Anime_StreamCollection;
-
         next();
+
+        streamCollection?: Anime_StreamCollection;
     }
 
 
@@ -505,12 +505,12 @@ declare namespace $app {
     function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void);
 
     interface WatchHistoryItemRequestedEvent {
-        mediaId: number;
-        watchHistoryItem?: Continuity_WatchHistoryItem;
-
         next();
 
         preventDefault();
+
+        mediaId: number;
+        watchHistoryItem?: Continuity_WatchHistoryItem;
     }
 
     /**
@@ -520,11 +520,11 @@ declare namespace $app {
     function onWatchHistoryLocalFileEpisodeItemRequested(cb: (event: WatchHistoryLocalFileEpisodeItemRequestedEvent) => void);
 
     interface WatchHistoryLocalFileEpisodeItemRequestedEvent {
+        next();
+
         Path: string;
         LocalFiles?: Array<Anime_LocalFile>;
         watchHistoryItem?: Continuity_WatchHistoryItem;
-
-        next();
     }
 
     /**
@@ -534,11 +534,11 @@ declare namespace $app {
     function onWatchHistoryStreamEpisodeItemRequested(cb: (event: WatchHistoryStreamEpisodeItemRequestedEvent) => void);
 
     interface WatchHistoryStreamEpisodeItemRequestedEvent {
+        next();
+
         Episode: number;
         MediaId: number;
         watchHistoryItem?: Continuity_WatchHistoryItem;
-
-        next();
     }
 
 
@@ -635,9 +635,9 @@ declare namespace $app {
     function onMangaLibraryCollectionRequested(cb: (event: MangaLibraryCollectionRequestedEvent) => void);
 
     interface MangaLibraryCollectionRequestedEvent {
-        mangaCollection?: AL_MangaCollection;
-
         next();
+
+        mangaCollection?: AL_MangaCollection;
     }
 
     /**
@@ -668,6 +668,8 @@ declare namespace $app {
     function onMediaPlayerLocalFileTrackingRequested(cb: (event: MediaPlayerLocalFileTrackingRequestedEvent) => void);
 
     interface MediaPlayerLocalFileTrackingRequestedEvent {
+        next();
+
         /**
          * Refresh the status of the player each x seconds
          */
@@ -676,8 +678,6 @@ declare namespace $app {
          * Maximum number of retries
          */
         maxRetries: number;
-
-        next();
     }
 
     /**
@@ -760,13 +760,13 @@ declare namespace $app {
     function onAnimeEpisodeMetadataRequested(cb: (event: AnimeEpisodeMetadataRequestedEvent) => void);
 
     interface AnimeEpisodeMetadataRequestedEvent {
-        animeEpisodeMetadata?: Metadata_EpisodeMetadata;
-        episodeNumber: number;
-        mediaId: number;
-
         next();
 
         preventDefault();
+
+        animeEpisodeMetadata?: Metadata_EpisodeMetadata;
+        episodeNumber: number;
+        mediaId: number;
     }
 
     /**
@@ -781,11 +781,11 @@ declare namespace $app {
     function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void);
 
     interface AnimeEpisodeMetadataEvent {
+        next();
+
         animeEpisodeMetadata?: Metadata_EpisodeMetadata;
         episodeNumber: number;
         mediaId: number;
-
-        next();
     }
 
 
@@ -860,15 +860,15 @@ declare namespace $app {
     function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void);
 
     interface PlaybackLocalFileDetailsRequestedEvent {
+        next();
+
+        preventDefault();
+
         path: string;
         localFiles?: Array<Anime_LocalFile>;
         animeListEntry?: AL_AnimeListEntry;
         localFile?: Anime_LocalFile;
         localFileWrapperEntry?: Anime_LocalFileWrapperEntry;
-
-        next();
-
-        preventDefault();
     }
 
     /**
@@ -883,13 +883,13 @@ declare namespace $app {
     function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void);
 
     interface PlaybackStreamDetailsRequestedEvent {
-        animeCollection?: AL_AnimeCollection;
-        mediaId: number;
-        animeListEntry?: AL_AnimeListEntry;
-
         next();
 
         preventDefault();
+
+        animeCollection?: AL_AnimeCollection;
+        mediaId: number;
+        animeListEntry?: AL_AnimeListEntry;
     }
 
 
@@ -909,9 +909,10 @@ declare namespace $app {
     interface ScanStartedEvent {
         next();
 
+        localFiles?: Array<Anime_LocalFile>;
+
         libraryPath: string;
         otherLibraryPaths?: Array<string>;
-        localFiles?: Array<Anime_LocalFile>;
         enhanced: boolean;
         skipLocked: boolean;
         skipIgnored: boolean;

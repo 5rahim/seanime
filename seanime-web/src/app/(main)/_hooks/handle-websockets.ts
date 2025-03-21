@@ -24,7 +24,7 @@ export function useWebsocketSender() {
         latestSocketRef.current = socket
 
         // Log socket changes
-        logger("WebsocketSender").info(`Socket updated: ${socket ? getReadyStateString(socket.readyState) : "null"}`)
+        // logger("WebsocketSender").info(`Socket updated: ${socket ? getReadyStateString(socket.readyState) : "null"}`)
 
         // When socket becomes available and open, immediately process any queued messages
         if (socket && socket.readyState === WebSocket.OPEN && messageQueue.current.length > 0) {
@@ -36,11 +36,11 @@ export function useWebsocketSender() {
     // Add debug log for socket state changes
     useEffect(() => {
         if (socket) {
-            logger("WebsocketSender").info(`Socket state changed: ${getReadyStateString(socket.readyState)}`)
+            // logger("WebsocketSender").info(`Socket state changed: ${getReadyStateString(socket.readyState)}`)
 
             // If socket becomes open, process queue immediately
             if (socket.readyState === WebSocket.OPEN && messageQueue.current.length > 0) {
-                logger("WebsocketSender").info(`Socket became OPEN with ${messageQueue.current.length} messages in queue`)
+                // logger("WebsocketSender").info(`Socket became OPEN with ${messageQueue.current.length} messages in queue`)
                 setTimeout(() => processQueue(), 100) // Small delay to ensure socket is fully established
             }
         }

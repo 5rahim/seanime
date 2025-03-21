@@ -1032,6 +1032,15 @@
 //     })
 // }
 
+// export function useGetMangaLatestChapterNumbersMap() {
+//     return useServerQuery<Record<number, Array<Manga_MangaLatestChapterNumberItem>>>({
+//         endpoint: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.endpoint,
+//         method: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.methods[0],
+//         queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useEmptyMangaEntryCache() {
 //     return useServerMutation<boolean, EmptyMangaEntryCache_Variables>({
 //         endpoint: API_ENDPOINTS.MANGA.EmptyMangaEntryCache.endpoint,
