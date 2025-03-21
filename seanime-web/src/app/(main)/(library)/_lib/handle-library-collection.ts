@@ -1,4 +1,5 @@
 import { useGetLibraryCollection } from "@/api/hooks/anime_collection.hooks"
+import { useGetContinuityWatchHistory } from "@/api/hooks/continuity.hooks"
 import { animeLibraryCollectionAtom } from "@/app/(main)/_atoms/anime-library-collection.atoms"
 import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import {
@@ -28,6 +29,8 @@ export function useHandleLibraryCollection() {
     const atom_setLibraryCollection = useSetAtom(animeLibraryCollectionAtom)
 
     const { animeLibraryCollectionDefaultSorting, continueWatchingDefaultSorting } = useThemeSettings()
+
+    const { data: watchHistory } = useGetContinuityWatchHistory()
 
     /**
      * Fetch the library collection data
@@ -82,19 +85,21 @@ export function useHandleLibraryCollection() {
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
 
-            const newParams = { ...params, sorting: animeLibraryCollectionDefaultSorting as any }
+            const newParams = { ...params, sorting: animeLibraryCollectionDefaultSorting as any } as CollectionParams<"anime">
             let arr = filterAnimeCollectionEntries(obj.entries,
                 newParams,
                 serverStatus?.settings?.anilist?.enableAdultContent,
-                data.continueWatchingList)
+                data.continueWatchingList,
+                watchHistory)
 
-            // Reset `continueWatchingOnly` if it's about to make the list disappear
+            // Reset `continueWatchingOnly` to false if it's about to make the list disappear
             if (arr.length === 0 && newParams.continueWatchingOnly) {
-                const newParams = { ...params, continueWatchingOnly: false, sorting: animeLibraryCollectionDefaultSorting as any }
+                const newParams = { ...params, continueWatchingOnly: false, sorting: animeLibraryCollectionDefaultSorting } as CollectionParams<"anime">
                 arr = filterAnimeCollectionEntries(obj.entries,
                     newParams,
                     serverStatus?.settings?.anilist?.enableAdultContent,
-                    data.continueWatchingList)
+                    data.continueWatchingList,
+                    watchHistory)
             }
 
             return {
@@ -117,11 +122,12 @@ export function useHandleLibraryCollection() {
 
         let _lists = data.lists.map(obj => {
             if (!obj) return obj
-            const newParams = { ...params, sorting: animeLibraryCollectionDefaultSorting as any }
+            const newParams = { ...params, sorting: animeLibraryCollectionDefaultSorting } as CollectionParams<"anime">
             const arr = filterAnimeCollectionEntries(obj.entries,
                 newParams,
                 serverStatus?.settings?.anilist?.enableAdultContent,
-                data.continueWatchingList)
+                data.continueWatchingList,
+                watchHistory)
             return {
                 type: obj.type,
                 status: obj.status,
@@ -135,7 +141,7 @@ export function useHandleLibraryCollection() {
             _lists.find(n => n.type === "COMPLETED"),
             _lists.find(n => n.type === "DROPPED"),
         ].filter(Boolean)
-    }, [data, params, serverStatus?.settings?.anilist?.enableAdultContent])
+    }, [data, params, serverStatus?.settings?.anilist?.enableAdultContent, watchHistory])
 
     const continueWatchingList = React.useMemo(() => {
         if (!data?.continueWatchingList) return []
@@ -151,7 +157,7 @@ export function useHandleLibraryCollection() {
 
         const entries = sortedCollection.flatMap(n => n.entries)
 
-        list = sortContinueWatchingEntries(list, continueWatchingDefaultSorting as any, entries)
+        list = sortContinueWatchingEntries(list, continueWatchingDefaultSorting as any, entries, watchHistory)
 
         if (!serverStatus?.settings?.anilist?.enableAdultContent || serverStatus?.settings?.anilist?.blurAdultContent) {
             return list.filter(entry => entry.baseAnime?.isAdult === false)
@@ -165,6 +171,7 @@ export function useHandleLibraryCollection() {
         continueWatchingDefaultSorting,
         serverStatus?.settings?.anilist?.enableAdultContent,
         serverStatus?.settings?.anilist?.blurAdultContent,
+        watchHistory,
     ])
 
     return {

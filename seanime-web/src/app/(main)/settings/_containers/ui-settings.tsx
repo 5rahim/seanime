@@ -24,6 +24,8 @@ import { UseFormReturn } from "react-hook-form"
 import { toast } from "sonner"
 import { SettingsCard } from "../_components/settings-card"
 import { SettingsIsDirty } from "../_components/settings-submit-button"
+import { useServerStatus } from "../../_hooks/use-server-status"
+import { Alert } from "@/components/ui/alert"
 
 const themeSchema = defineSchema(({ z }) => z.object({
     animeEntryScreenLayout: z.string().min(0).default(THEME_DEFAULT_VALUES.animeEntryScreenLayout),
@@ -78,6 +80,7 @@ const tabsListClass = cn(
 
 export function UISettings() {
     const themeSettings = useThemeSettings()
+    const serverStatus = useServerStatus()
 
     const { mutate, isPending } = useUpdateTheme()
     const [fixBorderRenderingArtifacts, setFixBorerRenderingArtifacts] = useAtom(__ui_fixBorderRenderingArtifacts)
@@ -331,6 +334,16 @@ export function UISettings() {
                         <TabsContent value="media" className="space-y-4">
 
                             <SettingsCard title="Collection screens">
+
+                                {!serverStatus?.settings?.library?.enableWatchContinuity && (
+                                    f.watch('continueWatchingDefaultSorting').includes("LAST_WATCHED") ||
+                                    f.watch('animeLibraryCollectionDefaultSorting').includes("LAST_WATCHED")
+                                ) && (
+                                        <Alert
+                                            intent="alert"
+                                            description="Watch continuity needs to be enabled to use the last watched sorting options."
+                                        />
+                                    )}
 
                                 <Field.RadioCards
                                     label="Banner type"
