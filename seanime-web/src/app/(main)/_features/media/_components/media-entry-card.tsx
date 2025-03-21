@@ -307,7 +307,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         forceShowTotal={type === "manga"}
                         // forceShowProgress={listData?.status === "CURRENT"}
                         top={<>
-                            {(type === "anime" && listData?.status === "CURRENT") && (
+                            {(type === "anime" && (listData?.status === "CURRENT" || listData?.status === "REPEATING")) && (
                                 <AnimeEntryCardUnwatchedBadge
                                     progress={listData?.progress || 0}
                                     media={media}

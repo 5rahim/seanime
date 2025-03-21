@@ -11,7 +11,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper"
 import { TextGenerateEffect } from "@/components/shared/text-generate-effect"
 import { Carousel, CarouselContent, CarouselDotButtons, CarouselItem } from "@/components/ui/carousel"
 import { useDebounce } from "@/hooks/use-debounce"
-import { anilist_animeIsSingleEpisode } from "@/lib/helpers/media"
+import { anilist_animeIsMovie, anilist_animeIsSingleEpisode } from "@/lib/helpers/media"
 import { ThemeLibraryScreenBannerType, useThemeSettings } from "@/lib/theme/hooks"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { atom } from "jotai/index"
@@ -142,8 +142,8 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
         inject("continue-watching", {
             items: episodes.map(episode => ({
                 data: episode,
-                id: `${episode.localFile?.path || ""}-${episode.episodeNumber}`,
-                value: `${episode.episodeNumber}`,
+                id: `${episode.localFile?.path || ""}-${episode.episodeNumber || 1}`,
+                value: `${episode.episodeNumber || 1}`,
                 heading: "Continue Watching",
                 priority: 100,
                 render: () => (
@@ -158,8 +158,10 @@ export function ContinueWatching({ episodes, isLoading, linkTemplate }: {
                         </div>
                         <div className="flex gap-1 items-center w-full">
                             <p className="max-w-[70%] truncate">{episode.baseAnime?.title?.userPreferred || ""}</p>&nbsp;-&nbsp;
-                            {!anilist_animeIsSingleEpisode(episode.baseAnime) && <>
+                            {!anilist_animeIsMovie(episode.baseAnime) ? <>
                                 <p className="text-[--muted]">Ep</p><span>{episode.episodeNumber}</span>
+                            </> : <>
+                                <p className="text-[--muted]">Movie</p>
                             </>}
 
                         </div>
