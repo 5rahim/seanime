@@ -16,7 +16,7 @@ export function DiscoverMissedSequelsSection() {
     if (!data?.length) return null
 
     return (
-        <div className="space-y-2 z-[5] relative">
+        <div className="space-y-2 z-[5] relative" data-discover-missed-sequels-container>
             <h2>You might have missed</h2>
             <Carousel
                 className="w-full max-w-full"

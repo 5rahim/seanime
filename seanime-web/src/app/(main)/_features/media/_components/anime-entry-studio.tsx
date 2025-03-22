@@ -24,6 +24,7 @@ export function AnimeEntryStudio(props: AnimeEntryStudioProps) {
                 size="lg"
                 intent="gray"
                 className="rounded-full px-0 border-transparent bg-transparent cursor-pointer transition-all hover:bg-transparent hover:text-white hover:-translate-y-0.5"
+                data-anime-entry-studio-badge
             >
                 {studios?.nodes?.[0]?.name}
             </Badge>
@@ -49,8 +50,9 @@ function AnimeEntryStudioDetailsModal(props: AnimeEntryStudioProps & { children:
                 trigger={children}
                 size="xl"
                 title={studio.name}
+                data-anime-entry-studio-details-modal
             >
-                <div className="py-4"></div>
+                <div data-anime-entry-studio-details-modal-top-padding className="py-4"></div>
                 <AnimeEntryStudioDetailsModalContent studios={studios} />
             </Drawer>
         </>
@@ -69,18 +71,19 @@ function AnimeEntryStudioDetailsModalContent(props: AnimeEntryStudioProps) {
     if (isLoading) return <LoadingSpinner />
 
     return (
-        <div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-                {data?.Studio?.media?.nodes?.map(media => {
-                    return <div key={media?.id!} className="col-span-1">
-                        <MediaEntryCard
-                            media={media}
-                            type="anime"
-                            showLibraryBadge
-                        />
-                    </div>
-                })}
-            </div>
+        <div
+            data-anime-entry-studio-details-modal-content
+            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4"
+        >
+            {data?.Studio?.media?.nodes?.map(media => {
+                return <div key={media?.id!} className="col-span-1" data-anime-entry-studio-details-modal-content-media-entry-card>
+                    <MediaEntryCard
+                        media={media}
+                        type="anime"
+                        showLibraryBadge
+                    />
+                </div>
+            })}
         </div>
     )
 }

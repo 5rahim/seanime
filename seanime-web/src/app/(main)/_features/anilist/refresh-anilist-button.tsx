@@ -22,8 +22,10 @@ export const RefreshAnilistButton: React.FC<RefreshAnilistButtonProps> = (props)
     return (
         <>
             <Tooltip
+                data-refresh-anilist-button-tooltip
                 trigger={
                     <Button
+                        data-refresh-anilist-button
                         onClick={() => mutate()}
                         intent="warning-subtle"
                         size="sm"

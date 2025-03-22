@@ -38,7 +38,7 @@ export function EmptyLibraryView(props: EmptyLibraryViewProps) {
     return (
         <>
             <DiscoverPageHeader />
-            <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8 relative z-[4]">
+            <PageWrapper className="p-4 sm:p-8 pt-0 space-y-8 relative z-[4]" data-empty-library-view-container>
                 <div className="text-center space-y-4">
                     <div className="w-fit mx-auto space-y-4">
                         {!!serverStatus?.settings?.library?.libraryPath ? <>

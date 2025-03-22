@@ -34,7 +34,7 @@ type EpisodeCardProps = {
     percentageComplete?: number
     minutesRemaining?: number
     anime?: {
-        id: number
+        id?: number
         image?: string
         title?: string
     }
@@ -78,11 +78,14 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
     const Meta = () => (
-        <div data-sea-episode-card-meta className="relative z-[3] w-full space-y-0">
-            <p data-sea-episode-card-meta-title className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold">
+        <div data-episode-card-meta className="relative z-[3] w-full space-y-0">
+            <p
+                data-episode-card-meta-title
+                className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold"
+            >
                 {topTitle?.replaceAll("`", "'")}</p>
-            <div data-sea-episode-card-meta-content className="w-full justify-between flex flex-none items-center">
-                <p data-sea-episode-card-meta-title-content className="line-clamp-1 flex items-center">
+            <div data-episode-card-meta-content className="w-full justify-between flex flex-none items-center">
+                <p data-episode-card-meta-title-content className="line-clamp-1 flex items-center">
                     <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
                         <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                         : ``}</span>
@@ -90,7 +93,8 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         ? "- " + anime.title
                         : ""}</span>
                 </p>
-                {(!!meta || !!length) && <p data-sea-episode-card-meta-length className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
+                {(!!meta || !!length) &&
+                    <p data-episode-card-meta-length className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
                     {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
                 </p>}
             </div>
@@ -134,16 +138,16 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         containerClass,
                     )}
                     onClick={onClick}
-                    data-sea-episode-card
+                    data-episode-card
                     data-episode-number={episodeNumber}
                     data-anime-id={anime?.id}
                     data-progress-total={progressTotal}
                     data-progress-number={progressNumber}
                     {...rest}
                 >
-                    <div data-sea-episode-card-image-container className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
+                    <div data-episode-card-image-container className="w-full h-full rounded-lg overflow-hidden z-[1] aspect-[4/2] relative">
                         {!!image ? <Image
-                            data-sea-episode-card-image
+                            data-episode-card-image
                             src={getImageUrl(image)}
                             alt={""}
                             fill
@@ -155,7 +159,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 imageClass,
                             )}
                         /> : <div
-                            data-sea-episode-card-image-bottom-gradient
+                            data-episode-card-image-bottom-gradient
                             className="h-full block rounded-lg absolute w-full bg-gradient-to-t from-gray-800 to-transparent z-[2]"
                         ></div>}
                         {/*[CUSTOM UI] BOTTOM GRADIENT*/}
@@ -163,7 +167,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
 
                         {(serverStatus?.settings?.library?.enableWatchContinuity && !!percentageComplete) &&
                             <div
-                                data-sea-episode-card-progress-bar-container
+                                data-episode-card-progress-bar-container
                                 className="absolute bottom-0 left-0 w-full z-[3]"
                                 data-episode-number={episodeNumber}
                                 data-anime-id={anime?.id}
@@ -177,7 +181,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             </div>}
 
                         <div
-                            data-sea-episode-card-action-icon
+                            data-episode-card-action-icon
                             className={cn(
                                 "group-hover/episode-card:opacity-100 text-6xl text-gray-200",
                                 "cursor-pointer opacity-0 transition-opacity bg-gray-950 bg-opacity-60 z-[2] absolute w-[105%] h-[105%] items-center justify-center",
@@ -187,12 +191,17 @@ export function EpisodeCard(props: EpisodeCardProps) {
                             {actionIcon && actionIcon}
                         </div>
 
-                        {isInvalid && <p data-sea-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata found</p>}
+                        {isInvalid &&
+                            <p data-episode-card-invalid-metadata className="text-red-300 opacity-50 absolute left-2 bottom-2 z-[2]">No metadata
+                                                                                                                                     found</p>}
                     </div>
-                    {(showAnimeInfo) ? <div data-sea-episode-card-anime-info-container className="flex gap-3 items-center">
-                        <div data-sea-episode-card-anime-image-container className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative">
+                    {(showAnimeInfo) ? <div data-episode-card-anime-info-container className="flex gap-3 items-center">
+                        <div
+                            data-episode-card-anime-image-container
+                            className="flex-none w-12 aspect-[5/6] rounded-lg overflow-hidden z-[1] relative"
+                        >
                             {!!anime?.image && <Image
-                                data-sea-episode-card-anime-image
+                                data-episode-card-anime-image
                                 src={getImageUrl(anime.image)}
                                 alt={""}
                                 fill

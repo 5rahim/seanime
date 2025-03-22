@@ -50,7 +50,7 @@ export default function Page() {
     return (
         <>
             <CustomLibraryBanner discrete />
-            <PageWrapper className="space-y-6 px-4 md:p-8 pt-0 pb-10">
+            <PageWrapper data-search-page-container className="space-y-6 px-4 md:p-8 pt-0 pb-10">
                 <div className="flex items-center gap-4">
                     <SeaLink href={`/discover`}>
                         <Button leftIcon={<AiOutlineArrowLeft />} rounded intent="gray-outline" size="md">
@@ -59,12 +59,12 @@ export default function Page() {
                     </SeaLink>
                     {/*<h3>Discover</h3>*/}
                 </div>
-                <div className="text-center xl:text-left">
+                <div data-search-page-title className="text-center xl:text-left">
                     <AdvancedSearchPageTitle />
                 </div>
                 <AppLayoutGrid cols={6} spacing="lg">
                     <AdvancedSearchOptions />
-                    <div className="col-span-5">
+                    <div data-search-page-list className="col-span-5">
                         <AdvancedSearchList />
                     </div>
                 </AppLayoutGrid>

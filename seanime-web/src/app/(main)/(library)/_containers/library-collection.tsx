@@ -19,6 +19,7 @@ export function LibraryCollectionLists({ collectionList, isLoading }: {
         <PageWrapper
             key="library-collection-lists"
             className="space-y-8"
+            data-library-collection-lists
             {...{
                 initial: { opacity: 0, y: 60 },
                 animate: { opacity: 1, y: 0 },
@@ -47,6 +48,7 @@ export function LibraryCollectionFilteredLists({ collectionList, isLoading }: {
         <PageWrapper
             key="library-filtered-lists"
             className="space-y-8"
+            data-library-filtered-lists
             {...{
                 initial: { opacity: 0, y: 60 },
                 animate: { opacity: 1, y: 0 },
@@ -76,7 +78,7 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
 
     return (
         <React.Fragment key={list.type}>
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3 items-center" data-library-collection-list-item-header data-list-type={list.type}>
                 <h2 className="p-0 m-0">{getLibraryCollectionTitle(list.type)}</h2>
                 <div className="flex flex-1"></div>
                 {isCurrentlyWatching && <DropdownMenu
@@ -99,7 +101,11 @@ export const LibraryCollectionListItem = React.memo(({ list }: { list: Anime_Lib
                     </DropdownMenuItem>
                 </DropdownMenu>}
             </div>
-            <MediaCardLazyGrid itemCount={list?.entries?.length || 0}>
+            <MediaCardLazyGrid
+                itemCount={list?.entries?.length || 0}
+                data-library-collection-list-item-media-card-lazy-grid
+                data-list-type={list.type}
+            >
                 {list.entries?.map(entry => {
                     return <LibraryCollectionEntryItem key={entry.mediaId} entry={entry} />
                 })}

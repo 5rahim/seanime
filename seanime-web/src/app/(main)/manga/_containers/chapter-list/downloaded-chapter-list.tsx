@@ -163,7 +163,7 @@ export function DownloadedChapterList(props: DownloadedChapterListProps) {
         <>
             <h3 className="pt-8">Downloaded chapters</h3>
 
-            <div className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
+            <div data-downloaded-chapter-list-container className="space-y-4 border rounded-[--radius-md] bg-[--paper] p-4">
 
                 <div className="flex flex-wrap items-center gap-4">
                     <Checkbox

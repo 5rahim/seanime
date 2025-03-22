@@ -43,11 +43,12 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
     if (unread <= 0) return null
 
     return (
-        <div className="flex w-full z-[5]">
+        <div className="flex w-full z-[5]" data-manga-entry-card-unread-badge-container>
             <Badge
                 intent="unstyled"
                 size="lg"
                 className="text-sm tracking-wide rounded-[--radius-md] flex gap-1 items-center rounded-tr-none rounded-bl-none border-0 px-1.5"
+                data-manga-entry-card-unread-badge
             >
                 <IoBookOutline className="text-sm" /><span className="text-[--foreground] font-normal">{unread}</span>
             </Badge>

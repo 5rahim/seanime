@@ -6,11 +6,12 @@ export const TextGenerateEffect = ({
     words,
     className,
     style,
+    ...rest
 }: {
     words: string;
     className?: string;
     style?: any
-}) => {
+} & React.HTMLAttributes<HTMLDivElement>) => {
     const [scope, animate] = useAnimate()
     let wordsArray = words.split(" ")
 
@@ -45,7 +46,7 @@ export const TextGenerateEffect = ({
     }
 
     return (
-        <div className={cn("font-bold", className)} style={style}>
+        <div className={cn("font-bold", className)} style={style} {...rest}>
             {renderWords()}
         </div>
     )

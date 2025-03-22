@@ -37,8 +37,8 @@ export function AdvancedSearchPageTitle() {
     // }, [params.genre, params.season, params.year])
 
     return (
-        <div>
-            <h2 className="line-clamp-2">{title}</h2>
+        <div data-advanced-search-page-title-container>
+            <h2 data-advanced-search-page-title className="line-clamp-2">{title}</h2>
             {/*{secondaryTitle && <p className="text-xl line-clamp-1">{secondaryTitle}</p>}*/}
         </div>
     )

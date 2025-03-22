@@ -43,6 +43,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
             <PageWrapper
                 key="lists"
                 className="relative 2xl:order-first pb-10 p-4"
+                data-manga-library-view-container
             >
                 <div className="w-full flex justify-end">
                     {/*<Tooltip*/}
@@ -77,6 +78,7 @@ export function CollectionLists({ collectionList, genres }: {
     return (
         <PageWrapper
             className="p-4 space-y-8 relative z-[4]"
+            data-manga-library-view-collection-lists-container
             {...{
                 initial: { opacity: 0, y: 60 },
                 animate: { opacity: 1, y: 0 },
@@ -113,6 +115,7 @@ export function FilteredCollectionLists({ collectionList, genres }: {
     return (
         <PageWrapper
             className="p-4 space-y-8 relative z-[4]"
+            data-manga-library-view-filtered-collection-lists-container
             {...{
                 initial: { opacity: 0, y: 60 },
                 animate: { opacity: 1, y: 0 },
@@ -196,9 +199,10 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     return (
         <React.Fragment>
 
-            <div className="flex gap-3 items-center">
-                <h2>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(list.type)}</h2>
-                <div className="flex flex-1"></div>
+            <div className="flex gap-3 items-center" data-manga-library-view-collection-list-item-header-container>
+                <h2 data-manga-library-view-collection-list-item-header-title>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(
+                    list.type)}</h2>
+                <div className="flex flex-1" data-manga-library-view-collection-list-item-header-spacer></div>
                 {list.type === "CURRENT" && <DropdownMenu
                     trigger={<IconButton
                         intent="white-basic"
@@ -222,6 +226,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
 
             {(list.type === "CURRENT" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&
                 <TextGenerateEffect
+                    data-manga-library-view-collection-list-item-header-media-title
                     words={headerManga?.title?.userPreferred || ""}
                     className="w-full text-xl lg:text-5xl lg:max-w-[50%] h-[3.2rem] !mt-1 line-clamp-1 truncate text-ellipsis hidden lg:block pb-1"
                 />

@@ -44,6 +44,7 @@ export function DiscoverPageHeader() {
     const shouldBlurBanner = (ts.mediaPageBannerType === ThemeMediaPageBannerType.BlurWhenUnavailable && !randomTrending?.bannerImage)
     return (
         <motion.div
+            data-discover-page-header
             className={cn(
                 "__header lg:h-[28rem]",
                 ts.hideTopNavbar && "lg:h-[32rem]",
@@ -61,6 +62,7 @@ export function DiscoverPageHeader() {
             }}
         >
             <div
+                data-discover-page-header-banner-image-container
                 className={cn(
                     "lg:h-[35rem] w-full overflow-hidden flex-none object-cover object-center absolute top-0 bg-[--background]",
                     !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
@@ -69,15 +71,18 @@ export function DiscoverPageHeader() {
                 )}
             >
                 <div
+                    data-discover-page-header-banner-image-top-gradient
                     className={cn(
                         "w-full z-[2] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
                     )}
                 />
 
                 <div
+                    data-discover-page-header-banner-image-top-gradient-2
                     className="w-full absolute z-[2] top-0 h-[10rem] opacity-50 bg-gradient-to-b from-[--background] to-transparent via"
                 />
                 <div
+                    data-discover-page-header-banner-image-background
                     className={cn(
                         "opacity-0 duration-1000 bg-[var(--background)] w-full h-full absolute z-[2]",
                         isTransitioning && "opacity-70",
@@ -86,6 +91,7 @@ export function DiscoverPageHeader() {
                 <AnimatePresence>
                     {(!!bannerImage) && (
                         <MotionImage
+                            data-discover-page-header-banner-image
                             src={bannerImage}
                             alt="banner image"
                             fill
@@ -101,11 +107,13 @@ export function DiscoverPageHeader() {
                     )}
                 </AnimatePresence>
                 {shouldBlurBanner && <div
+                    data-discover-page-header-banner-image-blur
                     className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2] "
                 ></div>}
 
                 {/*RIGHT FADE*/}
                 <div
+                    data-discover-page-header-banner-image-right-gradient
                     className={cn(
                         "hidden lg:block max-w-[60rem] w-full z-[2] h-full absolute right-0 bg-gradient-to-l from-[--background] from-5% via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
                         "opacity-100 duration-500",
@@ -114,18 +122,21 @@ export function DiscoverPageHeader() {
 
                 {/*LEFT FADE IF SIDEBAR IS TRANSPARENT*/}
                 {!ts.disableSidebarTransparency && <div
+                    data-discover-page-header-banner-image-left-gradient
                     className={cn(
                         "hidden lg:block max-w-[10rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] via-[--background] transition-opacity via-opacity-50 via-5% to-transparent",
                         "opacity-70 duration-500",
                     )}
                 />}
                 <div
+                    data-discover-page-header-banner-image-bottom-gradient
                     className="w-full z-[2] absolute bottom-0 h-[20rem] bg-gradient-to-t from-[--background] via-[--background] via-opacity-50 via-10% to-transparent"
                 />
             </div>
             <AnimatePresence>
                 {(!!randomTrending && !isTransitioning && (pageType === "anime" || pageType === "manga")) && (
                     <motion.div
+                        data-discover-page-header-metadata-container
                         {...{
                             initial: { opacity: 0, x: -40 },
                             animate: { opacity: 1, x: 0 },
@@ -147,6 +158,7 @@ export function DiscoverPageHeader() {
                         )}
                     >
                         <div
+                            data-discover-page-header-metadata-inner-container
                             className="flex flex-row-reverse items-center relative gap-6 p-6 pr-3 w-fit overflow-hidden"
                             onMouseEnter={() => setHoveringHeader(true)}
                             onMouseLeave={() => setHoveringHeader(false)}

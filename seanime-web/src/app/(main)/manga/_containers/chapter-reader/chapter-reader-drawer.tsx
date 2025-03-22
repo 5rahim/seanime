@@ -259,6 +259,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
     return (
         <Drawer
+            data-chapter-reader-drawer
             open={!!currentChapter}
             onOpenChange={() => setCurrentChapter(undefined)}
             size="full"
@@ -273,6 +274,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
         >
 
             <div
+                data-chapter-reader-drawer-progress-container
                 className={cn(
                     "fixed left-0 w-full z-[6] opacity-0 transition-opacity hidden duration-500",
                     process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "top-0 justify-center",
@@ -300,7 +302,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
             </div>
 
             {/*Exit fullscreen button*/}
-            {hiddenBar && <div className="fixed right-0 bottom-4 group/hiddenBarArea z-[10] px-4">
+            {hiddenBar && <div data-chapter-reader-drawer-exit-fullscreen-button className="fixed right-0 bottom-4 group/hiddenBarArea z-[10] px-4">
                 <IconButton
                     rounded
                     icon={<TbLayoutBottombarExpandFilled />}
@@ -321,6 +323,7 @@ export function ChapterReaderDrawer(props: ChapterDrawerProps) {
 
 
             <div
+                data-chapter-reader-drawer-content
                 className={cn(
                     "max-h-[calc(100dvh-3rem)] h-full",
                     hiddenBar && "max-h-dvh",

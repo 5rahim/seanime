@@ -11,7 +11,7 @@ function init() {
             withContent: false,
         })
 
-        ctx.dom.observe("[data-sea-episode-card-image]", (elements) => {
+        ctx.dom.observe("[data-episode-card-image]", (elements) => {
             elements.forEach((element) => {
                 console.log(element.getStyle())
                 element.setStyle("filter", "blur(24px)")

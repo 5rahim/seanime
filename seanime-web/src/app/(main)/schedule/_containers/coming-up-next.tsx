@@ -89,6 +89,11 @@ export function ComingUpNext() {
                                             onClick={() => {
                                                 router.push(`/entry?id=${item.id}`)
                                             }}
+                                            anime={{
+                                                id: item.id,
+                                                image: item.bannerImage || item.coverImage?.large,
+                                                title: item.title?.userPreferred,
+                                            }}
                                         />
                                     </CarouselItem>
                                 )

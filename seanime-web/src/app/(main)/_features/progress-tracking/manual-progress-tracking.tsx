@@ -34,6 +34,7 @@ export function ManualProgressTrackingButton(props: ManualProgressTrackingProps)
                 <>
                     {asSidebarButton ? (
                         <IconButton
+                            data-manual-progress-tracking-button
                             intent="primary-subtle"
                             className={cn("animate-pulse")}
                             icon={<PiPopcornFill />}
@@ -41,6 +42,7 @@ export function ManualProgressTrackingButton(props: ManualProgressTrackingProps)
                         />
                     ) : (
                         <Button
+                            data-manual-progress-tracking-button
                             intent="primary"
                             className={cn("animate-pulse")}
                             leftIcon={<PiPopcornFill />}
@@ -104,13 +106,14 @@ export function ManualProgressTracking() {
     return (
         <>
             <Modal
+                data-manual-progress-tracking-modal
                 open={showModal && isWatching}
                 onOpenChange={v => setShowModal(v)}
                 // title="Progress"
                 titleClass="text-center"
                 contentClass="!space-y-2 relative max-w-2xl"
             >
-                {state && <div className="text-center relative overflow-hidden space-y-2">
+                {state && <div data-manual-progress-tracking-modal-content className="text-center relative overflow-hidden space-y-2">
                     <p className="text-[--muted]">Playing externally</p>
                     {state.mediaCoverImage && <div className="size-16 rounded-full relative mx-auto overflow-hidden mb-3">
                         <Image src={state.mediaCoverImage} alt="cover image" fill className="object-cover object-center" />
@@ -122,7 +125,7 @@ export function ManualProgressTracking() {
                             : "-"}</span></p>
                 </div>}
 
-                <div className="flex gap-2 w-full">
+                <div data-manual-progress-tracking-modal-buttons className="flex gap-2 w-full">
                     <Button
                         intent="primary-subtle"
                         disabled={isSyncing || isStarting || isCanceling}

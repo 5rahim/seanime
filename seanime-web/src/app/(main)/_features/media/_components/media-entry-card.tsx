@@ -155,7 +155,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     if (!media) return null
 
     return (
-        <MediaEntryCardContainer mRef={ref} className={props.containerClassName}>
+        <MediaEntryCardContainer data-media-id={media.id} data-media-type={type} mRef={ref} className={props.containerClassName}>
 
             <MediaEntryCardOverlay overlay={overlay} />
 
@@ -300,7 +300,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                 showLibraryBadge={showLibraryBadge}
                 blurAdultContent={serverStatus?.settings?.anilist?.blurAdultContent}
             >
-                <div className="absolute z-[10] left-0 bottom-0 flex items-end">
+                <div data-media-entry-card-body-progress-badge-container className="absolute z-[10] left-0 bottom-0 flex items-end">
                     <MediaEntryProgressBadge
                         progress={listData?.progress}
                         progressTotal={progressTotal}
@@ -319,13 +319,16 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         </>}
                     />
                 </div>
-                <div className="absolute z-[10] right-1 bottom-1">
+                <div data-media-entry-card-body-score-badge-container className="absolute z-[10] right-1 bottom-1">
                     <MediaEntryScoreBadge
                         score={listData?.score}
                     />
                 </div>
                 {(type === "anime" && !!libraryData && missingEpisodes.find(n => n.baseAnime?.id === media.id)) && (
-                    <div className="absolute z-[10] w-full flex justify-center left-1 bottom-0">
+                    <div
+                        data-media-entry-card-body-missing-episodes-badge-container
+                        className="absolute z-[10] w-full flex justify-center left-1 bottom-0"
+                    >
                         <Badge
                             className="font-semibold animate-pulse text-white bg-gray-950 !bg-opacity-90 rounded-[--radius-md] text-base rounded-bl-none rounded-br-none"
                             intent="gray-solid"

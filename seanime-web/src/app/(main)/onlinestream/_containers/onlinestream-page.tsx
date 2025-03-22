@@ -165,7 +165,7 @@ export function OnlinestreamPage({ animeEntry, animeEntryLoading, hideBackButton
         return () => clearTimeout(t)
     }, [opts.hasCustomQualities, url, episodeLoading])
 
-    if (!loadPage || !media || animeEntryLoading) return <div className="space-y-4">
+    if (!loadPage || !media || animeEntryLoading) return <div data-onlinestream-page-loading-container className="space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>

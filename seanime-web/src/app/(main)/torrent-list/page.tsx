@@ -27,16 +27,17 @@ export default function Page() {
         <>
             <CustomLibraryBanner discrete />
             <PageWrapper
+                data-torrent-list-page-container
                 className="space-y-4 p-4 sm:p-8"
             >
-                <div className="flex items-center w-full justify-between">
-                    <div>
+                <div data-torrent-list-page-header className="flex items-center w-full justify-between">
+                    <div data-torrent-list-page-header-title>
                         <h2>Active torrents</h2>
                         <p className="text-[--muted]">
                             See torrents currently being downloaded
                         </p>
                     </div>
-                    <div>
+                    <div data-torrent-list-page-header-actions>
                         {/*Show embedded client button only for qBittorrent*/}
                         {serverStatus?.settings?.torrent?.defaultTorrentClient === "qbittorrent" && <SeaLink href={`/qbittorrent`}>
                             <Button intent="white" rightIcon={<BiLinkExternal />}>Embedded client</Button>
@@ -44,7 +45,7 @@ export default function Page() {
                     </div>
                 </div>
 
-                <div className="pb-10">
+                <div data-torrent-list-page-content className="pb-10">
                     <Content />
                 </div>
             </PageWrapper>
@@ -157,8 +158,8 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
     })
 
     return (
-        <div className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
-            <div className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
+        <div data-torrent-item-container className="p-4 border rounded-[--radius-md]  overflow-hidden relative flex gap-2">
+            <div data-torrent-item-progress-bar className="absolute top-0 w-full h-1 z-[1] bg-gray-700 left-0">
                 <div
                     className={cn(
                         "h-1 absolute z-[2] left-0 bg-gray-200 transition-all",
@@ -171,13 +172,13 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     style={{ width: `${String(Math.floor(torrent.progress * 100))}%` }}
                 ></div>
             </div>
-            <div className="w-full">
+            <div data-torrent-item-title-container className="w-full">
                 <div
                     className={cn({
                         "opacity-50": torrent.status === "paused",
                     })}
                 >{torrent.name}</div>
-                <div className="text-[--muted]">
+                <div data-torrent-item-info className="text-[--muted]">
                     <span className={cn({ "text-green-300": torrent.status === "downloading" })}>{progress}</span>
                     {` `}
                     <BiDownArrow className="inline-block mx-2" />
@@ -200,7 +201,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     >{capitalize(torrent.status)}</strong>
                 </div>
             </div>
-            <div className="flex-none flex gap-2 items-center">
+            <div data-torrent-item-actions className="flex-none flex gap-2 items-center">
                 {torrent.status !== "seeding" ? (
                     <>
                         {torrent.status !== "paused" && <Tooltip
@@ -255,7 +256,7 @@ const TorrentItem = React.memo(function TorrentItem({ torrent, onTorrentAction, 
                     />}
                 >End</Tooltip>}
 
-                <div className="flex-none flex gap-2 items-center">
+                <div data-torrent-item-actions-buttons className="flex-none flex gap-2 items-center">
                     <IconButton
                         icon={<BiFolder />}
                         size="sm"

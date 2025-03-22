@@ -22,11 +22,13 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
 
     return (
         <>
-            <div className={cn("w-full flex flex-col items-center mt-10 space-y-4", className)}>
+            <div data-luffy-error className={cn("w-full flex flex-col items-center mt-10 space-y-4", className)}>
                 {<div
+                    data-luffy-error-image-container
                     className="size-[8rem] mx-auto flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden"
                 >
                     <Image
+                        data-luffy-error-image
                         src="/luffy-01.png"
                         alt={""}
                         fill
@@ -36,15 +38,15 @@ export const LuffyError: React.FC<LuffyErrorProps> = (props) => {
                         className="object-contain object-top"
                     />
                 </div>}
-                <div className="text-center space-y-4">
-                    {!!title && <h3>{title}</h3>}
-                    <div>{children}</div>
-                    <div>
+                <div data-luffy-error-content className="text-center space-y-4">
+                    {!!title && <h3 data-luffy-error-title>{title}</h3>}
+                    <div data-luffy-error-content-children>{children}</div>
+                    <div data-luffy-error-content-buttons>
                         {(showRefreshButton && !reset) && (
-                            <Button intent="warning-subtle" onClick={() => router.refresh()}>Retry</Button>
+                            <Button data-luffy-error-content-button-refresh intent="warning-subtle" onClick={() => router.refresh()}>Retry</Button>
                         )}
                         {!!reset && (
-                            <Button intent="warning-subtle" onClick={reset}>Retry</Button>
+                            <Button data-luffy-error-content-button-reset intent="warning-subtle" onClick={reset}>Retry</Button>
                         )}
                     </div>
                 </div>

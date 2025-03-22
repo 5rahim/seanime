@@ -62,6 +62,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
             className="__meta-page-header relative group/media-page-header"
+            data-media-page-header
         >
 
             {/*<div*/}
@@ -69,12 +70,14 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             {/*/>*/}
 
             {(ts.enableMediaPageBlurredBackground) && <div
+                data-media-page-header-blurred-background
                 className={cn(
                     "fixed opacity-0 transition-opacity duration-1000 top-0 left-0 w-full h-full z-[4] bg-[--background] rounded-xl",
                     shouldShowBlurredBackground && "opacity-100",
                 )}
             >
                 <Image
+                    data-media-page-header-blurred-background-image
                     src={getImageUrl(bannerImage || "")}
                     alt={""}
                     fill
@@ -87,6 +90,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
+                    data-media-page-header-blurred-background-blur
                     className="absolute top-0 w-full h-full backdrop-blur-2xl z-[2]"
                 ></div>
             </div>}
@@ -94,6 +98,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             {children}
 
             <div
+                data-media-page-header-banner
                 className={cn(
                     "w-full scroll-locked-offset flex-none object-cover object-center z-[3] bg-[--background] h-[20rem]",
                     ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small ? "lg:h-[28rem]" : "h-[20rem] lg:h-[32rem] 2xl:h-[40rem]",
@@ -107,6 +112,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
             >
                 {/*TOP FADE*/}
                 <div
+                    data-media-page-header-banner-top-gradient
                     className={cn(
                         "w-full absolute z-[2] top-0 h-[8rem] opacity-40 bg-gradient-to-b from-[--background] to-transparent via",
                     )}
@@ -114,6 +120,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 {/*BOTTOM OVERFLOW FADE*/}
                 <div
+                    data-media-page-header-banner-bottom-gradient
                     className={cn(
                         "w-full z-[2] absolute scroll-locked-offset bottom-[-5rem] h-[5em] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
                         !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
@@ -122,6 +129,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
+                    data-media-page-header-banner-image-container
                     className={cn(
                         "absolute top-0 left-0 scroll-locked-offset w-full h-full",
                         // shouldBlurBanner && "blur-xl",
@@ -129,6 +137,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     )}
                 >
                     {(!!bannerImage) && <Image
+                        data-media-page-header-banner-image
                         src={getImageUrl(bannerImage || "")}
                         alt="banner image"
                         fill
@@ -142,11 +151,13 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                     />}
 
                     {shouldBlurBanner && <div
+                        data-media-page-header-banner-blur
                         className="absolute top-0 w-full h-full backdrop-blur-xl z-[2] "
                     ></div>}
 
                     {/*LEFT MASK*/}
                     <div
+                        data-media-page-header-banner-left-gradient
                         className={cn(
                             "hidden lg:block max-w-[60rem] xl:max-w-[100rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background]  transition-opacity to-transparent",
                             "opacity-85 duration-1000",
@@ -154,6 +165,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                         )}
                     />
                     <div
+                        data-media-page-header-banner-right-gradient
                         className={cn(
                             "hidden lg:block max-w-[60rem] xl:max-w-[80rem] w-full z-[2] h-full absolute left-0 bg-gradient-to-r from-[--background] from-25% transition-opacity to-transparent",
                             "opacity-50 duration-500",
@@ -163,6 +175,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
 
                 {/*BOTTOM FADE*/}
                 <div
+                    data-media-page-header-banner-bottom-gradient
                     className={cn(
                         "w-full z-[3] absolute bottom-0 h-[50%] bg-gradient-to-t from-[--background] via-transparent via-100% to-transparent",
                         shouldHideBanner && "hidden",
@@ -170,6 +183,7 @@ export function MediaPageHeader(props: MediaPageHeaderProps) {
                 />
 
                 <div
+                    data-media-page-header-banner-dim
                     className={cn(
                         "absolute h-full w-full block lg:hidden bg-[--background] opacity-70 z-[2]",
                         shouldHideBanner && "hidden",

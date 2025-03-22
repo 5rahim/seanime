@@ -102,7 +102,7 @@ export default function Page() {
     return (
         <>
             <CustomLibraryBanner discrete />
-            <PageWrapper className="p-4 sm:p-8 space-y-4">
+            <PageWrapper data-settings-page-container className="p-4 sm:p-8 space-y-4">
                 {/*<Separator/>*/}
 
 
@@ -113,6 +113,7 @@ export default function Page() {
                     className={tabsRootClass}
                     triggerClass={tabsTriggerClass}
                     listClass={tabsListClass}
+                    data-settings-page-tabs
                 >
                     <TabsList className="flex-wrap max-w-full lg:space-y-2">
                         <SettingsNavCard>

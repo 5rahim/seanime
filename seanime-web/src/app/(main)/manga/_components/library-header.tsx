@@ -70,6 +70,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
     return (
         <>
             <div
+                data-library-header-container
                 className={cn(
                     "LIB_HEADER_CONTAINER __header h-[25rem] z-[1] top-0 w-full absolute group/library-header",
                     // Make it not fixed when the user scrolls down if a background image is set
@@ -77,6 +78,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                 )}
             >
                 <div
+                    data-library-header-banner-top-gradient
                     className={cn(
                         "w-full z-[3] absolute bottom-[-10rem] h-[10rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent",
                         !ts.disableSidebarTransparency && TRANSPARENT_SIDEBAR_BANNER_IMG_STYLE,
@@ -84,6 +86,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                 />
 
                 <motion.div
+                    data-library-header-inner-container
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
@@ -95,10 +98,12 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                 >
 
                     {!ts.disableSidebarTransparency && <div
+                        data-library-header-banner-top-gradient
                         className="hidden lg:block h-full absolute z-[2] w-[20%] opacity-70 left-0 top-0 bg-gradient bg-gradient-to-r from-[var(--background)] to-transparent"
                     />}
 
                     <div
+                        data-library-header-banner-bottom-gradient
                         className="w-full z-[3] opacity-70 lg:opacity-50 absolute top-0 h-[5rem] bg-gradient-to-b from-[--background] via-transparent via-100% to-transparent"
                     />
 
@@ -106,6 +111,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                     {/*    className="LIB_HEADER_TOP_FADE w-full absolute z-[2] top-0 h-[10rem] opacity-20 bg-gradient-to-b from-[var(--background)] to-transparent via"*/}
                     {/*/>*/}
                     <Transition
+                        data-library-header-banner-image-container
                         show={!!actualImage}
                         enter="transition-opacity duration-500"
                         enterFrom="opacity-0"
@@ -115,6 +121,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         leaveTo="opacity-0"
                     >
                         {(actualImage || prevImage) && <Image
+                            data-library-header-banner-image
                             src={getImageUrl(actualImage || prevImage!)}
                             alt="banner image"
                             fill
@@ -128,6 +135,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         />}
                     </Transition>
                     {prevImage && <Image
+                        data-library-header-banner-previous-image
                         src={getImageUrl(prevImage)}
                         alt="banner image"
                         fill
@@ -140,6 +148,7 @@ export function LibraryHeader({ manga }: { manga: AL_BaseManga[] }) {
                         )}
                     />}
                     <div
+                        data-library-header-banner-bottom-fade
                         className="LIB_HEADER_IMG_BOTTOM_FADE w-full z-[2] absolute bottom-0 h-[20rem] lg:h-[15rem] bg-gradient-to-t from-[--background] lg:via-opacity-50 lg:via-10% to-transparent"
                     />
                 </motion.div>

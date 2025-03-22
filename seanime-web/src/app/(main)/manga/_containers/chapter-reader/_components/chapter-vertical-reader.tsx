@@ -158,6 +158,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
 
     return (
         <div
+            data-chapter-vertical-reader-container
             className={cn(
                 "max-h-[calc(100dvh-3rem)] overflow-hidden relative focus-visible:outline-none",
                 hiddenBar && "h-full max-h-full",
@@ -169,6 +170,7 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
             }}
         >
             <div
+                data-chapter-vertical-reader-inner-container
                 className={cn(
                     "w-full h-[calc(100dvh-3rem)] overflow-y-auto overflow-x-hidden px-4 select-none relative focus-visible:outline-none",
                     hiddenBar && "h-dvh",
@@ -177,7 +179,11 @@ export function MangaVerticalReader({ pageContainer }: MangaVerticalReaderProps)
                 ref={containerRef}
                 tabIndex={-1}
             >
-                <div className="absolute w-full h-full z-[5] focus-visible:outline-none" tabIndex={-1}>
+                <div
+                    data-chapter-vertical-reader-inner-container-spacer
+                    className="absolute w-full h-full z-[5] focus-visible:outline-none"
+                    tabIndex={-1}
+                >
 
                 </div>
                 {pageContainer?.pages?.map((page, index) => (

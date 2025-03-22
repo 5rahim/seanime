@@ -34,13 +34,14 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     if (serverStatus?.isOffline) {
         return (
             <>
-                <div className={cn("Sea-MediaEntryGenresList__container items-center flex flex-wrap gap-3", className)}>
+                <div data-media-entry-genres-list-container className={cn("items-center flex flex-wrap gap-3", className)}>
                     {genres?.map(genre => {
                         return <Badge
                             key={genre!}
                             className={cn(
                                 "opacity-75 hover:opacity-100 transition-all px-0 border-transparent bg-transparent hover:bg-transparent hover:text-white")}
                             size="lg"
+                            data-media-entry-genres-list-item
                         >
                             {genre}
                         </Badge>
@@ -51,13 +52,14 @@ export function MediaEntryGenresList(props: MediaEntryGenresListProps) {
     } else {
         return (
             <>
-                <div className={cn("Sea-MediaEntryGenresList__container items-center flex flex-wrap gap-3", className)}>
+                <div data-media-entry-genres-list className={cn("items-center flex flex-wrap gap-3", className)}>
                     {genres?.map(genre => {
                         return <SeaLink href={`/search?genre=${genre}&sorting=TRENDING_DESC${type === "manga" ? "&format=MANGA" : ""}`} key={genre!}>
                             <Badge
                                 className={cn(
                                     "opacity-75 hover:opacity-100 transition-all px-0 border-transparent bg-transparent hover:bg-transparent hover:text-white")}
                                 size="lg"
+                                data-media-entry-genres-list-item
                             >
                                 {genre}
                             </Badge>

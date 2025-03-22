@@ -61,6 +61,7 @@ export function UnknownMediaManager(props: UnknownMediaManagerProps) {
 
     return (
         <Drawer
+            data-unknown-media-manager-drawer
             open={isOpen}
             onOpenChange={o => {
                 if (!isAdding) {

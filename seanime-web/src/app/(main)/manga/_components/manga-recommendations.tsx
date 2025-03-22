@@ -26,7 +26,7 @@ export function MangaRecommendations(props: MangaRecommendationsProps) {
     if (!entry || !details) return null
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4" data-manga-recommendations-container>
             {!!anime?.length && (
                 <>
                     <h2>Relations</h2>

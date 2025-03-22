@@ -27,6 +27,7 @@ export function MediaCardGrid(props: MediaCardGridProps) {
     return (
         <>
             <div
+                data-media-card-grid
                 className={cn(gridClass)}
                 {...rest}
             >
@@ -163,14 +164,15 @@ export function MediaCardLazyGridRenderer({
     }, [])
 
     return (
-        <div {...rest}>
-            <div className={cn(gridClass)} ref={gridRef}>
+        <div data-media-card-lazy-grid-renderer {...rest}>
+            <div data-media-card-lazy-grid className={cn(gridClass)} ref={gridRef}>
                 {React.Children.map(children, (child, index) => {
                     const isVisible = visibleIndices.has(index)
                     const storedHeight = itemHeights.get(index)
 
                     return (
                         <div
+                            data-media-card-lazy-grid-item
                             ref={el => itemRefs.current[index] = el}
                             data-index={index}
                             key={!!(child as React.ReactElement)?.key ? (child as React.ReactElement)?.key : index}
@@ -178,6 +180,7 @@ export function MediaCardLazyGridRenderer({
                         >
                             {isVisible ? (
                                 <div
+                                    data-media-card-lazy-grid-item-content
                                     ref={(el) => {
                                         // Measure and store height when first rendered
                                         if (el && !storedHeight) {
@@ -189,6 +192,7 @@ export function MediaCardLazyGridRenderer({
                                 </div>
                             ) : (
                                 <Skeleton
+                                    data-media-card-lazy-grid-item-skeleton
                                     className="w-full"
                                     style={{
                                         height: storedHeight || "300px",

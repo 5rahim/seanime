@@ -15,7 +15,7 @@ export default function Page() {
     const mediaId = searchParams.get("id")
     const { data: animeEntry, isLoading: animeEntryLoading } = useGetAnimeEntry(mediaId)
 
-    if (!animeEntry || animeEntryLoading) return <div className="px-4 lg:px-8 space-y-4">
+    if (!animeEntry || animeEntryLoading) return <div data-onlinestream-page-loading-container className="px-4 lg:px-8 space-y-4">
         <div className="flex gap-4 items-center relative">
             <Skeleton className="h-12" />
         </div>
@@ -33,7 +33,7 @@ export default function Page() {
 
     return (
         <>
-            <div className="relative p-4 lg:p-8 z-[5] space-y-4">
+            <div data-onlinestream-page-container className="relative p-4 lg:p-8 z-[5] space-y-4">
                 <OnlinestreamPage animeEntry={animeEntry} animeEntryLoading={animeEntryLoading} />
             </div>
             <MediaEntryPageSmallBanner bannerImage={animeEntry?.media?.bannerImage || animeEntry?.media?.coverImage?.extraLarge} />

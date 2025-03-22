@@ -316,11 +316,13 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
         <>
             <DropdownMenu
                 trigger={<IconButton
+                    data-chapter-reader-settings-dropdown-menu-trigger
                     icon={<BiCog />}
                     intent="gray-basic"
                     className="flex lg:hidden"
                 />}
                 className="block lg:hidden"
+                data-chapter-reader-settings-dropdown-menu
             >
                 <DropdownMenuItem
                     onClick={() => setOpen(true)}
@@ -344,8 +346,9 @@ export function ChapterReaderSettings(props: ChapterReaderSettingsProps) {
                 onOpenChange={setOpen}
                 size="lg"
                 contentClass="z-[51]"
+                data-chapter-reader-settings-drawer
             >
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 py-4" data-chapter-reader-settings-drawer-content>
 
                     <RadioGroup
                         {...radioGroupClasses}

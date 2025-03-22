@@ -23,12 +23,13 @@ export function MediaGenreSelector(props: MediaGenreSelectorProps) {
     return (
         <>
             <HorizontalDraggableScroll
+                data-media-genre-selector
                 className={cn(
                     "scroll-pb-1 flex",
                     className,
                 )}
             >
-                <div className="flex flex-1"></div>
+                <div data-media-genre-selector-scroll-container className="flex flex-1"></div>
                 <StaticTabs
                     className={cn(
                         "px-2 overflow-visible gap-2 py-4 w-fit",
@@ -40,7 +41,7 @@ export function MediaGenreSelector(props: MediaGenreSelectorProps) {
                     )}
                     items={items}
                 />
-                <div className="flex flex-1"></div>
+                <div data-media-genre-selector-scroll-container-end className="flex flex-1"></div>
             </HorizontalDraggableScroll>
         </>
     )

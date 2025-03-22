@@ -89,6 +89,11 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                                 onClick={() => {
                                     onEpisodeClick(episode)
                                 }}
+                                anime={{
+                                    id: entry.mediaId,
+                                    image: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge,
+                                    title: episode?.baseAnime?.title?.userPreferred,
+                                }}
                             />
                         </CarouselItem>
                     ))}

@@ -45,12 +45,13 @@ export default function Page() {
     if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <MediaEntryPageLoadingDisplay />
 
     return (
-        <div>
+        <div data-manga-entry-page-container>
             <MetaSection entry={mangaEntry} details={mangaDetails} />
 
-            <div className="px-4 md:px-8 relative z-[8]">
+            <div data-manga-entry-page-inner-container className="px-4 md:px-8 relative z-[8]">
 
                 <PageWrapper
+                    data-manga-entry-page-wrapper
                     key="chapter-list"
                     className="relative 2xl:order-first pb-10 pt-4 space-y-10"
                     {...{
@@ -67,6 +68,7 @@ export default function Page() {
                 >
 
                     <div
+                        data-manga-entry-page-grid
                         className="grid gap-8 xl:grid-cols-[1fr,480px] 2xl:grid-cols-[1fr,650px]"
                     >
                         <div className="space-y-2">
@@ -79,7 +81,7 @@ export default function Page() {
                             />
                         </div>
 
-                        <div className="pt-12">
+                        <div data-manga-entry-page-characters-section-container className="pt-12">
                             <MediaEntryCharactersSection details={mangaDetails} isMangaPage />
                         </div>
                     </div>

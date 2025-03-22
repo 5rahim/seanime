@@ -73,7 +73,7 @@ export function MetaSection(props: { entry: Manga_Entry | undefined, details: AL
                 {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
 
-                <div className="w-full flex flex-wrap gap-4 items-center">
+                <div className="w-full flex flex-wrap gap-4 items-center" data-manga-meta-section-buttons-container>
 
                     <SeaLink href={`https://anilist.co/manga/${entry.mediaId}`} target="_blank">
                         <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />

@@ -32,6 +32,7 @@ export function MangaManualMappingModal(props: MangaManualMappingModalProps) {
     return (
         <>
             <Modal
+                data-manga-manual-mapping-modal
                 title="Manual match"
                 trigger={children}
                 contentClass="max-w-4xl"

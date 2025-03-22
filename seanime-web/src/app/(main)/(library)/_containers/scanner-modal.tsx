@@ -75,6 +75,7 @@ export function ScannerModal() {
     return (
         <>
             <Modal
+                data-scanner-modal
                 open={isOpen}
                 onOpenChange={o => {
                     // if (!isScanning) {
@@ -88,6 +89,7 @@ export function ScannerModal() {
             >
 
                 <div
+                    data-scanner-modal-top-pattern
                     className="!mt-0 bg-[url(/pattern-2.svg)] z-[-1] w-full h-[4rem] absolute opacity-40 top-0 left-0 bg-no-repeat bg-right bg-cover"
                 >
                     <div
@@ -95,7 +97,7 @@ export function ScannerModal() {
                     />
                 </div>
 
-                <div className="space-y-4 mt-6">
+                <div className="space-y-4 mt-6" data-scanner-modal-content>
 
                     <AppLayoutStack className="space-y-2">
                         <h5 className="text-[--muted]">Local files</h5>

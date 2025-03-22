@@ -64,6 +64,7 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>((p
 
     return (
         <ProgressPrimitive.Root
+            data-progress-bar
             ref={ref}
             className={cn(ProgressBarAnatomy.root({ size }), className)}
             {...rest}

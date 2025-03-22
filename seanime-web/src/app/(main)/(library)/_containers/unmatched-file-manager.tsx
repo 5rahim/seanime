@@ -150,6 +150,7 @@ export function UnmatchedFileManager(props: UnmatchedFileManagerProps) {
 
     return (
         <Drawer
+            data-unmatched-file-manager-drawer
             open={isOpen}
             onOpenChange={() => setIsOpen(false)}
             // contentClass="max-w-5xl"

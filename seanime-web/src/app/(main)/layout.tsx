@@ -20,9 +20,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         return (
             <ServerDataWrapper host={host}>
                 <OfflineLayout>
-                    <div className="h-auto">
+                    <div data-offline-layout-container className="h-auto">
                         <TopNavbar />
-                        <div>
+                        <div data-offline-layout-content>
                             {children}
                         </div>
                     </div>
@@ -34,9 +34,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <ServerDataWrapper host={host}>
             <MainLayout>
-                <div className="h-auto">
+                <div data-main-layout-container className="h-auto">
                     <TopNavbar />
-                    <div>
+                    <div data-main-layout-content>
                         {children}
                     </div>
                 </div>

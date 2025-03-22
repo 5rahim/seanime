@@ -23,13 +23,14 @@ export default function Page() {
     if (!mangaCollection || mangaCollectionLoading) return <MediaEntryPageLoadingDisplay />
 
     return (
-        <div>
+        <div data-manga-page-container>
             {(
                 (!!ts.libraryScreenCustomBannerImage && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom)
             ) && (
                 <>
                     <CustomLibraryBanner isLibraryScreen />
                     <div
+                        data-manga-page-custom-banner-spacer
                         className={cn("h-14")}
                     ></div>
                 </>
@@ -38,6 +39,7 @@ export default function Page() {
                 <>
                     <LibraryHeader manga={mangaCollection?.lists?.flatMap(l => l.entries)?.flatMap(e => e?.media)?.filter(Boolean) || []} />
                     <div
+                        data-manga-page-dynamic-banner-spacer
                         className={cn(
                             process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && "h-28",
                             (process.env.NEXT_PUBLIC_PLATFORM !== "desktop" && ts.hideTopNavbar) && "h-40",
