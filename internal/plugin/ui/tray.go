@@ -36,6 +36,10 @@ func (t *TrayManager) renderTrayScheduled() {
 		return
 	}
 
+	if !tray.WithContent {
+		return
+	}
+
 	// Rate limit updates
 	//if time.Since(t.lastUpdatedAt) < time.Millisecond*200 {
 	//	return

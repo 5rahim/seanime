@@ -71,6 +71,7 @@ export const ProgressBar = React.forwardRef<HTMLDivElement, ProgressBarProps>((p
             <ProgressPrimitive.Indicator
                 className={cn(ProgressBarAnatomy.indicator({ isIndeterminate }), indicatorClass)}
                 style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+                data-progress-value={value}
             />
         </ProgressPrimitive.Root>
     )

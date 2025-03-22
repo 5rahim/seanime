@@ -197,14 +197,54 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 		ObserverID: observerID,
 	})
 
+	// Start a goroutine to handle observer updates
+	listener := d.ctx.RegisterEventListener(ClientDOMObserveResultEvent)
+
+	var payload ClientDOMObserveResultEventPayload
+
+	go func() {
+		defer d.ctx.UnregisterEventListener(listener.ID)
+
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMObserveResultEvent, &payload) && payload.ObserverID == observerID {
+				d.HandleObserverUpdate(observerID, payload.Elements)
+			}
+		}
+	}()
+
+	// Listen for DOM ready events to re-observe elements after page reload
+	domReadyListener := d.ctx.RegisterEventListener(ClientDOMReadyEvent)
+
+	go func() {
+		defer d.ctx.UnregisterEventListener(domReadyListener.ID)
+
+		for event := range domReadyListener.Channel {
+			if event.Type == ClientDOMReadyEvent {
+				// Re-send the observe request when the DOM is ready
+				d.ctx.SendEventToClient(ServerDOMObserveEvent, &ServerDOMObserveEventPayload{
+					Selector:   selector,
+					ObserverID: observerID,
+				})
+			}
+		}
+	}()
+
 	// Return a function to stop observing
-	return d.ctx.vm.ToValue(func() {
+	cancelFn := func() {
+		d.ctx.UnregisterEventListener(listener.ID)
+		d.ctx.UnregisterEventListener(domReadyListener.ID)
 		d.elementObservers.Delete(observerID)
 
 		d.ctx.SendEventToClient(ServerDOMStopObserveEvent, &ServerDOMStopObserveEventPayload{
 			ObserverID: observerID,
 		})
+	}
+
+	d.ctx.registerOnCleanup(func() {
+		cancelFn()
 	})
+
+	return d.ctx.vm.ToValue(cancelFn)
 }
 
 // jsCreateElement creates a new DOM element
@@ -256,11 +296,14 @@ func (d *DOMManager) HandleObserverUpdate(observerID string, elements []interfac
 
 	// Convert elements to DOM element objects
 	elemObjs := make([]interface{}, 0, len(elements))
-	for _, elem := range elements {
-		if elemData, ok := elem.(map[string]interface{}); ok {
-			elemObjs = append(elemObjs, d.createDOMElementObject(elemData))
+	d.ctx.scheduler.ScheduleAsync(func() error {
+		for _, elem := range elements {
+			if elemData, ok := elem.(map[string]interface{}); ok {
+				elemObjs = append(elemObjs, d.createDOMElementObject(elemData))
+			}
 		}
-	}
+		return nil
+	})
 
 	// Schedule callback execution in the VM
 	d.ctx.scheduler.ScheduleAsync(func() error {
@@ -353,12 +396,28 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 		return d.getElementAttribute(elementID, name)
 	})
 
+	_ = elementObj.Set("getAttributes", func() interface{} {
+		return d.getElementAttributes(elementID)
+	})
+
 	_ = elementObj.Set("setAttribute", func(name, value string) {
 		d.setElementAttribute(elementID, name, value)
 	})
 
 	_ = elementObj.Set("removeAttribute", func(name string) {
 		d.removeElementAttribute(elementID, name)
+	})
+
+	_ = elementObj.Set("hasAttribute", func(name string) bool {
+		return d.hasElementAttribute(elementID, name)
+	})
+
+	_ = elementObj.Set("getProperty", func(name string) interface{} {
+		return d.getElementProperty(elementID, name)
+	})
+
+	_ = elementObj.Set("setProperty", func(name string, value interface{}) {
+		d.setElementProperty(elementID, name, value)
 	})
 
 	_ = elementObj.Set("addClass", func(className string) {
@@ -377,8 +436,12 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 		d.setElementStyle(elementID, property, value)
 	})
 
-	_ = elementObj.Set("getStyle", func(property string) string {
-		return d.getElementStyle(elementID, property)
+	_ = elementObj.Set("getStyle", func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) > 0 && !goja.IsUndefined(call.Argument(0)) {
+			property := call.Argument(0).String()
+			return d.ctx.vm.ToValue(d.getElementStyle(elementID, property))
+		}
+		return d.ctx.vm.ToValue(d.getElementStyles(elementID))
 	})
 
 	_ = elementObj.Set("getComputedStyle", func(property string) string {
@@ -414,6 +477,34 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 
 	_ = elementObj.Set("addEventListener", func(event string, callback goja.Callable) func() {
 		return d.addElementEventListener(elementID, event, callback)
+	})
+
+	_ = elementObj.Set("getDataAttribute", func(key string) interface{} {
+		return d.getElementDataAttribute(elementID, key)
+	})
+
+	_ = elementObj.Set("getDataAttributes", func() interface{} {
+		return d.getElementDataAttributes(elementID)
+	})
+
+	_ = elementObj.Set("setDataAttribute", func(key, value string) {
+		d.setElementDataAttribute(elementID, key, value)
+	})
+
+	_ = elementObj.Set("removeDataAttribute", func(key string) {
+		d.removeElementDataAttribute(elementID, key)
+	})
+
+	_ = elementObj.Set("hasDataAttribute", func(key string) bool {
+		return d.hasElementDataAttribute(elementID, key)
+	})
+
+	_ = elementObj.Set("hasStyle", func(property string) bool {
+		return d.hasElementStyle(elementID, property)
+	})
+
+	_ = elementObj.Set("removeStyle", func(property string) {
+		d.removeElementStyle(elementID, property)
 	})
 
 	return elementObj
@@ -828,4 +919,332 @@ func (d *DOMManager) addElementEventListener(elementID, event string, callback g
 			},
 		})
 	}
+}
+
+func (d *DOMManager) getElementAttributes(elementID string) interface{} {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan interface{})
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "getAttributes" && payload.ElementID == elementID {
+					doneCh <- payload.Result
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "getAttributes",
+		Params:    map[string]interface{}{},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return nil
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) hasElementAttribute(elementID, name string) bool {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan bool)
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "hasAttribute" && payload.ElementID == elementID {
+					if v, ok := payload.Result.(bool); ok {
+						doneCh <- v
+					} else {
+						doneCh <- false
+					}
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "hasAttribute",
+		Params: map[string]interface{}{
+			"name": name,
+		},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return false
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) getElementProperty(elementID, name string) interface{} {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan interface{})
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "getProperty" && payload.ElementID == elementID {
+					doneCh <- payload.Result
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "getProperty",
+		Params: map[string]interface{}{
+			"name": name,
+		},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return nil
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) setElementProperty(elementID, name string, value interface{}) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "setProperty",
+		Params: map[string]interface{}{
+			"name":  name,
+			"value": value,
+		},
+	})
+}
+
+func (d *DOMManager) getElementStyles(elementID string) interface{} {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan interface{})
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "getStyle" && payload.ElementID == elementID && payload.Result != nil {
+					doneCh <- payload.Result
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "getStyle",
+		Params:    map[string]interface{}{},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return nil
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) getElementDataAttribute(elementID, key string) interface{} {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan interface{})
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "getDataAttribute" && payload.ElementID == elementID {
+					doneCh <- payload.Result
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "getDataAttribute",
+		Params: map[string]interface{}{
+			"key": key,
+		},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return nil
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) getElementDataAttributes(elementID string) interface{} {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan interface{})
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "getDataAttributes" && payload.ElementID == elementID {
+					doneCh <- payload.Result
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "getDataAttributes",
+		Params:    map[string]interface{}{},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return nil
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) setElementDataAttribute(elementID, key, value string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "setDataAttribute",
+		Params: map[string]interface{}{
+			"key":   key,
+			"value": value,
+		},
+	})
+}
+
+func (d *DOMManager) removeElementDataAttribute(elementID, key string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "removeDataAttribute",
+		Params: map[string]interface{}{
+			"key": key,
+		},
+	})
+}
+
+func (d *DOMManager) hasElementDataAttribute(elementID, key string) bool {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan bool)
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "hasDataAttribute" && payload.ElementID == elementID {
+					if v, ok := payload.Result.(bool); ok {
+						doneCh <- v
+					} else {
+						doneCh <- false
+					}
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "hasDataAttribute",
+		Params: map[string]interface{}{
+			"key": key,
+		},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return false
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) hasElementStyle(elementID, property string) bool {
+	listener := d.ctx.RegisterEventListener(ClientDOMElementUpdatedEvent)
+	defer d.ctx.UnregisterEventListener(listener.ID)
+
+	var payload ClientDOMElementUpdatedEventPayload
+	doneCh := make(chan bool)
+
+	go func() {
+		for event := range listener.Channel {
+			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
+				if payload.Action == "hasStyle" && payload.ElementID == elementID {
+					if v, ok := payload.Result.(bool); ok {
+						doneCh <- v
+					} else {
+						doneCh <- false
+					}
+				}
+			}
+		}
+	}()
+
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "hasStyle",
+		Params: map[string]interface{}{
+			"property": property,
+		},
+	})
+
+	timeout := time.After(4 * time.Second)
+
+	select {
+	case <-timeout:
+		return false
+	case res := <-doneCh:
+		return res
+	}
+}
+
+func (d *DOMManager) removeElementStyle(elementID, property string) {
+	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
+		ElementID: elementID,
+		Action:    "removeStyle",
+		Params: map[string]interface{}{
+			"property": property,
+		},
+	})
 }

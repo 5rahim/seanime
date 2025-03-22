@@ -28,7 +28,7 @@ export function useWebsocketSender() {
 
         // When socket becomes available and open, immediately process any queued messages
         if (socket && socket.readyState === WebSocket.OPEN && messageQueue.current.length > 0) {
-            logger("WebsocketSender").info(`New socket connected with ${messageQueue.current.length} queued messages, processing immediately`)
+            // logger("WebsocketSender").info(`New socket connected with ${messageQueue.current.length} queued messages, processing immediately`)
             setTimeout(() => processQueue(), 100) // Small delay to ensure socket is fully established
         }
     }, [socket])
@@ -113,7 +113,7 @@ export function useWebsocketSender() {
 
         // Process the queue if socket is connected
         if (currentSocket && currentSocket.readyState === WebSocket.OPEN && messageQueue.current.length > 0) {
-            logger("WebsocketSender").info(`Processing ${messageQueue.current.length} queued messages`)
+            // logger("WebsocketSender").info(`Processing ${messageQueue.current.length} queued messages`)
 
             // Create a copy of the queue to avoid modification issues during iteration
             const queueCopy = [...messageQueue.current]
@@ -136,8 +136,7 @@ export function useWebsocketSender() {
             if (successfulMessages.length > 0) {
                 // Create a new array without the successfully sent messages
                 messageQueue.current = queueCopy.filter((_, index) => !successfulMessages.includes(index))
-                logger("WebsocketSender")
-                    .info(`Sent ${successfulMessages.length}/${queueCopy.length} queued messages, ${messageQueue.current.length} remaining`)
+                // logger("WebsocketSender").info(`Sent ${successfulMessages.length}/${queueCopy.length} queued messages, ${messageQueue.current.length} remaining`)
             }
         } else {
             // const reason = !currentSocket ? "no socket" :
@@ -161,7 +160,7 @@ export function useWebsocketSender() {
     // Process queue whenever connection status changes
     useEffect(() => {
         if (isConnected && latestSocketRef.current?.readyState === WebSocket.OPEN) {
-            logger("WebsocketSender").info(`Connection reestablished, processing message queue (${messageQueue.current.length} messages)`)
+            // logger("WebsocketSender").info(`Connection reestablished, processing message queue (${messageQueue.current.length} messages)`)
             // Force immediate processing with a small delay to ensure everything is ready
             setTimeout(() => processQueue(), 100)
         }

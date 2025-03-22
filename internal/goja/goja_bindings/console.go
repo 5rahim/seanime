@@ -96,15 +96,20 @@ func (c *console) logFunc(t string) (ret func(c goja.FunctionCall) goja.Value) {
 			case []byte:
 				ret = append(ret, fmt.Sprintf("Uint8Array %s", fmt.Sprint(v)))
 			case map[string]interface{}:
-				ret = append(ret, fmt.Sprintf("%+v", v))
-			default:
-				// TODO change back
-				// ret = append(ret, fmt.Sprintf("%+v", v))
+				// Try to marshal the value to JSON
 				bs, err := json.Marshal(v)
 				if err != nil {
 					ret = append(ret, fmt.Sprintf("%+v", v))
 				} else {
-					ret = append(ret, string(bs))
+					ret = append(ret, fmt.Sprintf("%s", string(bs)))
+				}
+			default:
+				// Try to marshal the value to JSON
+				bs, err := json.Marshal(v)
+				if err != nil {
+					ret = append(ret, fmt.Sprintf("%+v", v))
+				} else {
+					ret = append(ret, fmt.Sprintf("%s", string(bs)))
 				}
 			}
 		}

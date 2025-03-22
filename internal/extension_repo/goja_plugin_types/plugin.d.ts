@@ -663,6 +663,12 @@ declare namespace $ui {
         getAttribute(name: string): any
 
         /**
+         * Gets all attributes of the element
+         * @returns Record of all attributes
+         */
+        getAttributes(): Record<string, string>
+
+        /**
          * Sets the value of an attribute
          * @param name - The name of the attribute
          * @param value - The value to set
@@ -674,6 +680,27 @@ declare namespace $ui {
          * @param name - The name of the attribute
          */
         removeAttribute(name: string): void
+
+        /**
+         * Checks if the element has an attribute
+         * @param name - The name of the attribute
+         * @returns True if the attribute exists
+         */
+        hasAttribute(name: string): boolean
+
+        /**
+         * Gets a property of the element
+         * @param name - The name of the property
+         * @returns The value of the property
+         */
+        getProperty(name: string): any
+
+        /**
+         * Sets a property of the element
+         * @param name - The name of the property
+         * @param value - The value to set
+         */
+        setProperty(name: string, value: any): void
 
         /**
          * Adds a class to the element
@@ -696,10 +723,66 @@ declare namespace $ui {
 
         /**
          * Gets the style of the element
-         * @param property - The property to get
+         * @param property - Optional property to get. If omitted, returns all styles.
+         * @returns The value of the property or record of all styles
+         */
+        getStyle(property?: string): string | Record<string, string>
 
-         // DOM manipulation
-         /**
+        /**
+         * Checks if the element has a style property set
+         * @param property - The property to check
+         * @returns True if the property is set
+         */
+        hasStyle(property: string): boolean
+
+        /**
+         * Removes a style property
+         * @param property - The property to remove
+         */
+        removeStyle(property: string): void
+
+        /**
+         * Gets the computed style of the element
+         * @param property - The property to get
+         * @returns The computed value of the property
+         */
+        getComputedStyle(property: string): string
+
+        /**
+         * Gets a data attribute (data-* attribute)
+         * @param key - The data attribute key (without the data- prefix)
+         * @returns The data attribute value
+         */
+        getDataAttribute(key: string): string
+
+        /**
+         * Gets all data attributes (data-* attributes)
+         * @returns Record of all data attributes
+         */
+        getDataAttributes(): Record<string, string>
+
+        /**
+         * Sets a data attribute (data-* attribute)
+         * @param key - The data attribute key (without the data- prefix)
+         * @param value - The value to set
+         */
+        setDataAttribute(key: string, value: string): void
+
+        /**
+         * Removes a data attribute (data-* attribute)
+         * @param key - The data attribute key (without the data- prefix)
+         */
+        removeDataAttribute(key: string): void
+
+        /**
+         * Checks if the element has a data attribute
+         * @param key - The data attribute key (without the data- prefix)
+         * @returns True if the data attribute exists
+         */
+        hasDataAttribute(key: string): boolean
+
+        // DOM manipulation
+        /**
          * Appends a child to the element
          * @param child - The child to append
          */

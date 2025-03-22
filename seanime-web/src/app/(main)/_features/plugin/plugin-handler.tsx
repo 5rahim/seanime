@@ -15,7 +15,6 @@ export function PluginHandler({ extensionId }: { extensionId: string }) {
         cleanup: cleanupDOMManager,
     } = useDOMManager(extensionId)
 
-
     // Listen for DOM events
     useWebsocketPluginMessageListener({
         extensionId,
@@ -69,12 +68,7 @@ export function PluginHandler({ extensionId }: { extensionId: string }) {
         },
     })
 
-    // Clean up
-    useEffect(() => {
-        return () => {
-            cleanupDOMManager()
-        }
-    }, [])
-
+    // No need for cleanup useEffect anymore as the useDOMManager hook handles its own cleanup
+    
     return null
 }
