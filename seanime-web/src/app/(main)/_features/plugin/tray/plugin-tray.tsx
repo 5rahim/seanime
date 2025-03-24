@@ -115,16 +115,18 @@ export function PluginTray(props: TrayPluginProps) {
     const TrayIcon = () => {
         return (
             <div
+                data-plugin-tray-icon
                 className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 cursor-pointer transition-all relative"
                 onClick={handleClick}
             >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative" data-plugin-tray-icon-inner-container>
                     {props.trayIcon.iconUrl ? <Image
                         src={props.trayIcon.iconUrl}
                         alt="logo"
                         fill
                         className="p-1 w-full h-full object-contain"
-                    /> : <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                        data-plugin-tray-icon-image
+                    /> : <div className="w-8 h-8 rounded-full flex items-center justify-center" data-plugin-tray-icon-image-fallback>
                         <LuCircleDashed className="text-2xl" />
                     </div>}
                 </div>
@@ -132,6 +134,7 @@ export function PluginTray(props: TrayPluginProps) {
                     intent={`${badgeIntent}-solid` as any}
                     size="sm"
                     className="absolute -top-2 -right-2 z-10 select-none pointer-events-none"
+                    data-plugin-tray-icon-badge
                 >
                     {badgeNumber}
                 </Badge>}
@@ -143,9 +146,10 @@ export function PluginTray(props: TrayPluginProps) {
         return <div className="cursor-pointer">
             {!!props.trayIcon.tooltipText ? <Tooltip
                 side="right"
-                trigger={<div>
+                trigger={<div data-plugin-tray-icon-tooltip-trigger>
                     <TrayIcon />
                 </div>}
+                data-plugin-tray-icon-tooltip
             >
                 {props.trayIcon.tooltipText}
             </Tooltip> : <TrayIcon />}
@@ -171,12 +175,13 @@ export function PluginTray(props: TrayPluginProps) {
                 <PopoverPrimitive.Trigger
                     asChild
                 >
-                    <div>
+                    <div data-plugin-tray-icon-trigger>
                         {!!props.trayIcon.tooltipText ? <Tooltip
                             side={props.place === "sidebar" ? "right" : "bottom"}
-                            trigger={<div>
+                            trigger={<div data-plugin-tray-icon-tooltip-trigger>
                                 <TrayIcon />
                             </div>}
+                            data-plugin-tray-icon-tooltip
                         >
                             {props.trayIcon.tooltipText}
                         </Tooltip> : <TrayIcon />}

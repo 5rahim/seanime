@@ -155,26 +155,26 @@ export function useDOMManager(extensionId: string) {
 
                 // Check if any of the processed elements match our selector
                 processedElements.forEach(element => {
-                    // Ensure element has an ID before matching
-                    if (!element.id) {
-                        element.id = `plugin-element-${uuidv4()}`
-                    }
-
                     if (element.matches(observer.selector)) {
+                        // Only assign ID if element matches the selector
+                        if (!element.id) {
+                            element.id = `plugin-element-${uuidv4()}`
+                        }
                         matchedElements.push(element)
                     }
                 })
 
                 // Also do a general query to catch any elements that might match but weren't directly modified
                 document.querySelectorAll(observer.selector).forEach(element => {
-                    // Ensure element has an ID
-                    if (!element.id) {
+                    const id = element.id
+
+                    // If element matches and doesn't have an ID, assign one
+                    if (!id) {
                         element.id = `plugin-element-${uuidv4()}`
                     }
 
-                    const id = element.id
                     // If we haven't seen this element before, add it
-                    if (!observedSet.has(id) && !matchedElements.includes(element)) {
+                    if (!observedSet.has(element.id) && !matchedElements.includes(element)) {
                         matchedElements.push(element)
                     }
                 })
@@ -247,7 +247,7 @@ export function useDOMManager(extensionId: string) {
             selector,
             callback: (elements) => {
                 // This callback is called when elements matching the selector are found
-                console.log(`Observer ${observerId} callback with ${elements.length} elements matching ${selector}`, elements.map(e => e.id))
+                // console.log(`Observer ${observerId} callback with ${elements.length} elements matching ${selector}`, elements.map(e => e.id))
             },
         })
 

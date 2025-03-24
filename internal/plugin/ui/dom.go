@@ -66,7 +66,6 @@ func (d *DOMManager) jsOnReady(call goja.FunctionCall) goja.Value {
 			}
 			return nil
 		})
-		d.ctx.UnregisterEventListener(listener.ID)
 	})
 
 	return d.ctx.vm.ToValue(nil)
@@ -216,7 +215,6 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 			Selector:   selector,
 			ObserverID: observerID,
 		})
-		d.ctx.UnregisterEventListener(domReadyListener.ID)
 	})
 
 	// Return a function to stop observing
@@ -319,15 +317,19 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 	}
 
 	if attributes, ok := elemData["attributes"].(map[string]interface{}); ok {
+		attributesObj := d.ctx.vm.NewObject()
 		for key, value := range attributes {
-			_ = elementObj.Set(key, value)
+			_ = attributesObj.Set(key, value)
 		}
+		_ = elementObj.Set("attributes", attributesObj)
 	}
 
 	if style, ok := elemData["style"].(map[string]interface{}); ok {
+		styleObj := d.ctx.vm.NewObject()
 		for key, value := range style {
-			_ = elementObj.Set(key, value)
+			_ = styleObj.Set(key, value)
 		}
+		_ = styleObj.Set("style", styleObj)
 	}
 
 	if className, ok := elemData["className"].(string); ok {

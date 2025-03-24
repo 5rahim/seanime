@@ -65,6 +65,7 @@ export const TopMenu: React.FC<TopMenuProps> = (props) => {
             className="p-0 hidden lg:inline-block"
             itemClass="text-xl"
             items={navigationItems}
+            data-top-menu
         />
     )
 

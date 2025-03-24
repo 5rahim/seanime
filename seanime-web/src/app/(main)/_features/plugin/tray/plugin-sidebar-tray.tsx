@@ -48,7 +48,7 @@ const ExtensionList = ({
                     side={place === "top" ? "bottom" : "right"}
                     trigger={<div>
                         <IconButton
-                            intent="gray-basic"
+                            intent="alert-subtle"
                             size="sm"
                             icon={<LuBug className="size-4 text-[--orange]" />}
                             className="rounded-full"

@@ -162,7 +162,7 @@ func (s *Scheduler) ScheduleAsync(fn func() error) {
 		return
 	case s.jobQueue <- job:
 		// Job queued successfully
-		fmt.Printf("job queued successfully, length: %d\n", len(s.jobQueue))
+		// fmt.Printf("job queued successfully, length: %d\n", len(s.jobQueue))
 		return
 	default:
 		// Queue is full, log an error

@@ -12,49 +12,56 @@ function init() {
         })
 
         const [, refetchEpisodeCard] = ctx.dom.observe("[data-episode-card]", async (episodeCards) => {
-            const blurThumbnails = $storage.get("params.blurThumbnails") || false
-            const blurTitles = $storage.get("params.blurTitles") || false
-            const blurDescriptions = $storage.get("params.blurDescriptions") || false
+            try {
+                const blurThumbnails = $storage.get("params.blurThumbnails") || false
+                const blurTitles = $storage.get("params.blurTitles") || false
+                const blurDescriptions = $storage.get("params.blurDescriptions") || false
 
-            const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
-            if (!listDataElement) {
-                console.error("listDataElement not found")
-                return
-            }
-            const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
-            const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
+                const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
+                if (!listDataElement) {
+                    console.error("listDataElement not found")
+                    return
+                }
+                const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
+                const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
 
-            await Promise.all(episodeCards.map(async (episodeCard) => {
-                const episodeNumberStr = await episodeCard.getAttribute("data-episode-number")
+                const progress = Number(listData?.progress || 0)
+                await Promise.all(episodeCards.map(async (episodeCard) => {
+                    // const episodeNumberStr = await episodeCard.getAttribute("data-episode-number")
+                    const episodeNumberStr = episodeCard.attributes["data-episode-number"]
 
-                const episodeNumber = Number(episodeNumberStr)
-                if (!isNaN(episodeNumber)) {
-                    const image = await episodeCard.queryOne("[data-episode-card-image]")
-                    if (image) {
-                        if (blurThumbnails) {
-                            if (episodeNumber > Number(listData.progress)) {
-                                image.setStyle("filter", "blur(24px)")
+                    const episodeNumber = Number(episodeNumberStr)
+                    if (!isNaN(episodeNumber)) {
+                        const image = await episodeCard.queryOne("[data-episode-card-image]")
+                        if (image) {
+                            if (blurThumbnails) {
+                                if (episodeNumber > progress) {
+                                    image.setStyle("filter", "blur(24px)")
+                                } else {
+                                    image.removeStyle("filter")
+                                }
                             } else {
                                 image.removeStyle("filter")
                             }
-                        } else {
-                            image.removeStyle("filter")
                         }
-                    }
-                    const title = await episodeCard.queryOne("[data-episode-card-title]")
-                    if (title) {
-                        if (blurTitles) {
-                            if (episodeNumber > Number(listData.progress)) {
-                                title.setStyle("filter", "blur(4px)")
+                        const title = await episodeCard.queryOne("[data-episode-card-title]")
+                        if (title) {
+                            if (blurTitles) {
+                                if (episodeNumber > progress) {
+                                    title.setStyle("filter", "blur(4px)")
+                                } else {
+                                    title.removeStyle("filter")
+                                }
                             } else {
                                 title.removeStyle("filter")
                             }
-                        } else {
-                            title.removeStyle("filter")
                         }
                     }
-                }
-            }))
+                }))
+            }
+            catch (e) {
+                console.error("Error processing episodeCard", e)
+            }
         })
 
         const [, refetchEpisodeGridItem] = ctx.dom.observe("[data-episode-grid-item]", async (episodeGridItems) => {
@@ -71,16 +78,17 @@ function init() {
                 const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
                 const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
 
-                console.log("observe episodeGridItem", episodeGridItems.length)
+                const progress = Number(listData?.progress || 0)
 
                 for (const episodeGridItem of episodeGridItems) {
-                    const episodeNumberStr = await episodeGridItem.getAttribute("data-episode-number")
+                    // const episodeNumberStr = await episodeGridItem.getAttribute("data-episode-number")
+                    const episodeNumberStr = episodeGridItem.attributes["data-episode-number"]
                     const episodeNumber = Number(episodeNumberStr)
                     if (!isNaN(episodeNumber)) {
                         const image = await episodeGridItem.queryOne("[data-episode-grid-item-image]")
                         if (image) {
                             if (blurThumbnails) {
-                                if (episodeNumber > Number(listData.progress)) {
+                                if (episodeNumber > progress) {
                                     image.setStyle("filter", "blur(24px)")
                                 } else {
                                     image.removeStyle("filter")
@@ -94,7 +102,7 @@ function init() {
                         const title = await episodeGridItem.queryOne("[data-episode-grid-item-episode-title]")
                         if (title) {
                             if (blurTitles) {
-                                if (episodeNumber > Number(listData.progress)) {
+                                if (episodeNumber > progress) {
                                     title.setStyle("filter", "blur(4px)")
                                 } else {
                                     title.removeStyle("filter")
@@ -108,7 +116,7 @@ function init() {
                         const description = await episodeGridItem.queryOne("[data-episode-grid-item-episode-description]")
                         if (description) {
                             if (blurDescriptions) {
-                                if (episodeNumber > Number(listData.progress)) {
+                                if (episodeNumber > progress) {
                                     description.setStyle("filter", "blur(4px)")
                                 } else {
                                     description.removeStyle("filter")
@@ -164,6 +172,8 @@ function init() {
 
         ctx.dom.onReady(() => {
             console.log("ready")
+            refetchEpisodeCard()
+            refetchEpisodeGridItem()
         })
     });
 }

@@ -169,14 +169,17 @@ export function DiscoverPageHeader() {
                                 animate={{ opacity: 1, scale: 1, skew: 0 }}
                                 exit={{ opacity: 1, scale: 1, skewY: 1 }}
                                 transition={{ duration: 0.5 }}
+                                data-discover-page-header-metadata-media-image-container
                             >
                                 <SeaLink
                                     href={pageType === "anime"
                                         ? `/entry?id=${randomTrending.id}`
                                         : `/manga/entry?id=${randomTrending.id}`}
+                                    data-discover-page-header-metadata-media-image-link
                                 >
                                     {randomTrending.coverImage?.large && <div
                                         className="w-[190px] h-[290px] relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md"
+                                        data-discover-page-header-metadata-media-image-inner-container
                                     >
                                         <Image
                                             src={randomTrending.coverImage.large}
@@ -189,6 +192,7 @@ export function DiscoverPageHeader() {
                                                 isTransitioning && "opacity-30",
                                                 !isTransitioning && "opacity-100",
                                             )}
+                                            data-discover-page-header-metadata-media-image
                                         />
                                     </div>}
                                 </SeaLink>
@@ -198,11 +202,13 @@ export function DiscoverPageHeader() {
                                 initial={{ opacity: 0, x: 10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.5, delay: 0.6 }}
+                                data-discover-page-header-metadata-container
                             >
                                 <SeaLink
                                     href={pageType === "anime"
                                         ? `/entry?id=${randomTrending.id}`
                                         : `/manga/entry?id=${randomTrending.id}`}
+                                    data-discover-page-header-metadata-media-title
                                 >
                                     <TextGenerateEffect
                                         className="[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white leading-8 line-clamp-2 pb-1 text-center max-w-md text-pretty text-3xl overflow-ellipsis"
@@ -210,13 +216,16 @@ export function DiscoverPageHeader() {
                                     />
                                 </SeaLink>
                                 {/*<h1 className="text-3xl text-gray-200 leading-8 line-clamp-2 font-bold max-w-md">{randomTrending.title?.userPreferred}</h1>*/}
-                                <div className="flex justify-center items-center max-w-md gap-4">
+                                <div className="flex justify-center items-center max-w-md gap-4" data-discover-page-header-metadata-media-info>
                                     {!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode?.airingAt &&
-                                        <p className="text-lg text-brand-200 inline-flex items-center gap-1.5">
+                                        <p
+                                            className="text-lg text-brand-200 inline-flex items-center gap-1.5"
+                                            data-discover-page-header-metadata-media-airing-now
+                                        >
                                             <RiSignalTowerLine /> Releasing now
                                         </p>}
                                     {((!!(randomTrending as AL_BaseAnime)?.nextAiringEpisode || !!(randomTrending as AL_BaseAnime).episodes) && (randomTrending as AL_BaseAnime)?.format !== "MOVIE") && (
-                                        <p className="text-lg font-semibold">
+                                        <p className="text-lg font-semibold" data-discover-page-header-metadata-media-episodes>
                                             {!!(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode ?
                                                 <span>{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1} episode{(randomTrending as AL_BaseAnime).nextAiringEpisode?.episode! - 1 === 1
                                                     ? ""
@@ -227,7 +236,8 @@ export function DiscoverPageHeader() {
                                                         : "s"}</span>}
                                         </p>
                                     )}
-                                    {randomTrending.meanScore && <div className="rounded-full w-fit inline-block">
+                                    {randomTrending.meanScore &&
+                                        <div className="rounded-full w-fit inline-block" data-discover-page-header-metadata-media-score>
                                         <MediaEntryAudienceScore
                                             meanScore={randomTrending.meanScore}
                                         />
@@ -238,8 +248,12 @@ export function DiscoverPageHeader() {
                                     initial={{ opacity: 0, x: 10 }}
                                     animate={{ opacity: 1, x: 10 }}
                                     transition={{ duration: 0.5, delay: 0.7 }}
+                                    data-discover-page-header-metadata-media-description-container
                                 >
-                                    <ScrollArea className="max-w-md leading-6 h-[72px] mb-4">{(randomTrending as any)?.description?.replace(
+                                    <ScrollArea
+                                        data-discover-page-header-metadata-media-description-scroll-area
+                                        className="max-w-md leading-6 h-[72px] mb-4"
+                                    >{(randomTrending as any)?.description?.replace(
                                         /(<([^>]+)>)/ig,
                                         "")}</ScrollArea>
                                     {/*<SeaLink*/}
