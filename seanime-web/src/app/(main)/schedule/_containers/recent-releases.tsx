@@ -78,7 +78,7 @@ export function RecentReleases() {
                                             actionIcon={null}
                                             anime={{
                                                 id: item.media?.id,
-                                                image: item.media?.bannerImage || item.media?.coverImage?.large,
+                                                image: item.media?.coverImage?.medium,
                                                 title: item.media?.title?.userPreferred,
                                             }}
                                         />

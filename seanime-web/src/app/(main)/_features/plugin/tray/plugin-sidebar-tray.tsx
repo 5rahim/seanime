@@ -36,15 +36,13 @@ const ExtensionList = ({
     return (
         <>
             <div
+                data-plugin-sidebar-tray
                 className={cn(
                     "w-10 mx-auto p-1 my-2",
                     "flex flex-col gap-1 items-center justify-center rounded-full border hover:border-[--border] transition-all duration-300",
                     place === "top" && "flex-row w-auto my-0 justify-start px-2 py-2 border-none",
                 )}
             >
-                {trayIcons.map((trayIcon, index) => (
-                    <PluginTray trayIcon={trayIcon} key={index} place={place} width={width} />
-                ))}
 
                 <Popover
                     side={place === "top" ? "bottom" : "right"}
@@ -52,13 +50,14 @@ const ExtensionList = ({
                         <IconButton
                             intent="gray-basic"
                             size="sm"
-                            icon={<LuBug />}
+                            icon={<LuBug className="size-4 text-[--orange]" />}
                             className="rounded-full"
                         />
                     </div>}
                     className="p-2"
+                    data-plugin-sidebar-debug-popover
                 >
-                    <div className="space-y-2">
+                    <div className="space-y-2" data-plugin-sidebar-debug-popover-content>
                         {developmentModeExtensions?.map(extension => (
                             <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
                                 <p className="text-sm font-medium">{extension.id}</p>
@@ -76,6 +75,10 @@ const ExtensionList = ({
                         ))}
                     </div>
                 </Popover>
+
+                {trayIcons.map((trayIcon, index) => (
+                    <PluginTray trayIcon={trayIcon} key={index} place={place} width={width} />
+                ))}
             </div>
         </>
     )

@@ -34,6 +34,7 @@ export function DebridStreamButton(props: DebridStreamButtonProps) {
     return (
         <>
             <AnimeMetaActionButton
+                data-debrid-stream-button
                 intent={isDebridStreamingView ? "gray-subtle" : "white-subtle"}
                 size="md"
                 leftIcon={isDebridStreamingView ? <AiOutlineArrowLeft className="text-xl" /> : <HiOutlineServerStack className="text-2xl" />}

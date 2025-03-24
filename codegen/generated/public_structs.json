@@ -37295,6 +37295,24 @@
         "comments": []
       },
       {
+        "name": "onAutoDownloaderBeforeDownloadTorrent",
+        "jsonName": "onAutoDownloaderBeforeDownloadTorrent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onAutoDownloaderAfterDownloadTorrent",
+        "jsonName": "onAutoDownloaderAfterDownloadTorrent",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onScanStarted",
         "jsonName": "onScanStarted",
         "goType": "",
@@ -40805,7 +40823,7 @@
       }
     ],
     "comments": [
-      " AutoDownloaderTorrentsFetchedEvent is triggered when the autodownloader fetches torrents from the provider."
+      " AutoDownloaderTorrentsFetchedEvent is triggered at the beginning of a run, when the autodownloader fetches torrents from the provider."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -40872,8 +40890,8 @@
         "comments": []
       },
       {
-        "name": "Ok",
-        "jsonName": "ok",
+        "name": "MatchFound",
+        "jsonName": "matchFound",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -40882,7 +40900,8 @@
       }
     ],
     "comments": [
-      " AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule."
+      " AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule.",
+      " Prevent default to abort the download if the match is found."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"
@@ -40909,6 +40928,92 @@
     ],
     "comments": [
       " AutoDownloaderSettingsUpdatedEvent is triggered when the autodownloader settings are updated"
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderBeforeDownloadTorrentEvent",
+    "formattedName": "AutoDownloader_AutoDownloaderBeforeDownloadTorrentEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "NormalizedTorrent",
+        "typescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedTypescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedStructName": "autodownloader.NormalizedTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rule",
+        "jsonName": "rule",
+        "goType": "anime.AutoDownloaderRule",
+        "typescriptType": "Anime_AutoDownloaderRule",
+        "usedTypescriptType": "Anime_AutoDownloaderRule",
+        "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Items",
+        "jsonName": "items",
+        "goType": "[]models.AutoDownloaderItem",
+        "typescriptType": "Array\u003cModels_AutoDownloaderItem\u003e",
+        "usedTypescriptType": "Models_AutoDownloaderItem",
+        "usedStructName": "models.AutoDownloaderItem",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderBeforeDownloadTorrentEvent is triggered when the autodownloader is about to download a torrent.",
+      " Prevent default to abort the download."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/library/autodownloader/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "AutoDownloaderAfterDownloadTorrentEvent",
+    "formattedName": "AutoDownloader_AutoDownloaderAfterDownloadTorrentEvent",
+    "package": "autodownloader",
+    "fields": [
+      {
+        "name": "Torrent",
+        "jsonName": "torrent",
+        "goType": "NormalizedTorrent",
+        "typescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedTypescriptType": "AutoDownloader_NormalizedTorrent",
+        "usedStructName": "autodownloader.NormalizedTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Rule",
+        "jsonName": "rule",
+        "goType": "anime.AutoDownloaderRule",
+        "typescriptType": "Anime_AutoDownloaderRule",
+        "usedTypescriptType": "Anime_AutoDownloaderRule",
+        "usedStructName": "anime.AutoDownloaderRule",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " AutoDownloaderAfterDownloadTorrentEvent is triggered when the autodownloader has downloaded a torrent."
     ],
     "embeddedStructNames": [
       "hook_resolver.Event"

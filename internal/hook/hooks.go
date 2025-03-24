@@ -52,6 +52,8 @@ type Manager interface {
 	OnAutoDownloaderMatchVerified() *Hook[hook_resolver.Resolver]
 	OnAutoDownloaderSettingsUpdated() *Hook[hook_resolver.Resolver]
 	OnAutoDownloaderTorrentsFetched() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderBeforeDownloadTorrent() *Hook[hook_resolver.Resolver]
+	OnAutoDownloaderAfterDownloadTorrent() *Hook[hook_resolver.Resolver]
 
 	// Scanner events
 	OnScanStarted() *Hook[hook_resolver.Resolver]
@@ -142,11 +144,13 @@ type ManagerImpl struct {
 	onAnimeLibraryStreamCollectionRequested *Hook[hook_resolver.Resolver]
 	onAnimeLibraryStreamCollection          *Hook[hook_resolver.Resolver]
 	// Auto Downloader events
-	onAutoDownloaderMatchVerified   *Hook[hook_resolver.Resolver]
-	onAutoDownloaderRunStarted      *Hook[hook_resolver.Resolver]
-	onAutoDownloaderRunCompleted    *Hook[hook_resolver.Resolver]
-	onAutoDownloaderSettingsUpdated *Hook[hook_resolver.Resolver]
-	onAutoDownloaderTorrentsFetched *Hook[hook_resolver.Resolver]
+	onAutoDownloaderMatchVerified         *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRunStarted            *Hook[hook_resolver.Resolver]
+	onAutoDownloaderRunCompleted          *Hook[hook_resolver.Resolver]
+	onAutoDownloaderSettingsUpdated       *Hook[hook_resolver.Resolver]
+	onAutoDownloaderTorrentsFetched       *Hook[hook_resolver.Resolver]
+	onAutoDownloaderBeforeDownloadTorrent *Hook[hook_resolver.Resolver]
+	onAutoDownloaderAfterDownloadTorrent  *Hook[hook_resolver.Resolver]
 	// Scanner events
 	onScanStarted                   *Hook[hook_resolver.Resolver]
 	onScanFilePathsRetrieved        *Hook[hook_resolver.Resolver]
@@ -255,6 +259,8 @@ func (m *ManagerImpl) initHooks() {
 	m.onAutoDownloaderRunCompleted = &Hook[hook_resolver.Resolver]{}
 	m.onAutoDownloaderSettingsUpdated = &Hook[hook_resolver.Resolver]{}
 	m.onAutoDownloaderTorrentsFetched = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderBeforeDownloadTorrent = &Hook[hook_resolver.Resolver]{}
+	m.onAutoDownloaderAfterDownloadTorrent = &Hook[hook_resolver.Resolver]{}
 	// Scanner events
 	m.onScanStarted = &Hook[hook_resolver.Resolver]{}
 	m.onScanFilePathsRetrieved = &Hook[hook_resolver.Resolver]{}
@@ -525,6 +531,20 @@ func (m *ManagerImpl) OnAutoDownloaderTorrentsFetched() *Hook[hook_resolver.Reso
 		return &Hook[hook_resolver.Resolver]{}
 	}
 	return m.onAutoDownloaderTorrentsFetched
+}
+
+func (m *ManagerImpl) OnAutoDownloaderBeforeDownloadTorrent() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderBeforeDownloadTorrent
+}
+
+func (m *ManagerImpl) OnAutoDownloaderAfterDownloadTorrent() *Hook[hook_resolver.Resolver] {
+	if m == nil {
+		return &Hook[hook_resolver.Resolver]{}
+	}
+	return m.onAutoDownloaderAfterDownloadTorrent
 }
 
 // Scanner events

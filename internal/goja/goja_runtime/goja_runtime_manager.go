@@ -39,6 +39,7 @@ func (m *Manager) GetOrCreatePrivatePool(extID string, initFn func() *goja.Runti
 }
 
 func (m *Manager) DeletePluginPool(extID string) {
+	m.logger.Trace().Msgf("plugin: Deleting pool for extension %s", extID)
 	if m.pluginPools == nil {
 		return
 	}

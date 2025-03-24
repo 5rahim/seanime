@@ -78,14 +78,15 @@ export function EpisodeCard(props: EpisodeCardProps) {
     const offset = React.useMemo(() => hasDiscrepancy ? 1 : 0, [hasDiscrepancy])
 
     const Meta = () => (
-        <div data-episode-card-meta className="relative z-[3] w-full space-y-0">
+        <div data-episode-card-info-container className="relative z-[3] w-full space-y-0">
             <p
-                data-episode-card-meta-title
+                data-episode-card-title
                 className="w-[80%] line-clamp-1 text-md md:text-lg transition-colors duration-200 text-[--foreground] font-semibold"
             >
-                {topTitle?.replaceAll("`", "'")}</p>
-            <div data-episode-card-meta-content className="w-full justify-between flex flex-none items-center">
-                <p data-episode-card-meta-title-content className="line-clamp-1 flex items-center">
+                {topTitle?.replaceAll("`", "'")}
+            </p>
+            <div data-episode-card-info-content className="w-full justify-between flex flex-none items-center">
+                <p data-episode-card-subtitle className="line-clamp-1 flex items-center">
                     <span className="flex-none text-base md:text-xl font-medium">{title}{showTotalEpisodes ?
                         <span className="opacity-40">{` / `}{progressTotal! - offset}</span>
                         : ``}</span>
@@ -93,10 +94,10 @@ export function EpisodeCard(props: EpisodeCardProps) {
                         ? "- " + anime.title
                         : ""}</span>
                 </p>
-                {(!!meta || !!length) &&
-                    <p data-episode-card-meta-length className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
-                    {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
-                </p>}
+                {(!!meta || !!length) && (
+                    <p data-episode-card-meta-text className="text-[--muted] flex-none ml-2 text-sm md:text-base line-clamp-2 text-right">
+                        {meta}{!!meta && !!length && `  • `}{length ? `${length}m` : ""}
+                    </p>)}
             </div>
         </div>
     )

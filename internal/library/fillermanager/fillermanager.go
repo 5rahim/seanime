@@ -3,7 +3,6 @@ package fillermanager
 import (
 	"github.com/rs/zerolog"
 	lop "github.com/samber/lo/parallel"
-	"github.com/samber/mo"
 	"seanime/internal/api/filler"
 	"seanime/internal/database/db"
 	"seanime/internal/library/anime"
@@ -77,7 +76,7 @@ func (fm *FillerManager) RefetchFillerData() error {
 			}
 
 			// Update the filler data
-			mf.FillerEpisodes = mo.Some(fillerData.FillerEpisodes)
+			mf.FillerEpisodes = fillerData.FillerEpisodes
 
 		}(mf)
 	}
@@ -165,11 +164,11 @@ func (fm *FillerManager) IsEpisodeFiller(mediaId int, episodeNumber int) bool {
 		return false
 	}
 
-	if mediaFillerData.FillerEpisodes.IsAbsent() {
+	if len(mediaFillerData.FillerEpisodes) == 0 {
 		return false
 	}
 
-	for _, ep := range mediaFillerData.FillerEpisodes.MustGet() {
+	for _, ep := range mediaFillerData.FillerEpisodes {
 		if ep == strconv.Itoa(episodeNumber) {
 			return true
 		}

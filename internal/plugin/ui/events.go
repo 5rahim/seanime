@@ -103,7 +103,7 @@ type ClientCommandPaletteInputEventPayload struct {
 }
 
 type ClientDOMEventTriggeredEventPayload struct {
-	ElementID string                 `json:"elementID"`
+	ElementID string                 `json:"elementId"`
 	EventType string                 `json:"eventType"`
 	Event     map[string]interface{} `json:"event"`
 }
@@ -129,9 +129,10 @@ type ClientDOMCreateResultEventPayload struct {
 }
 
 type ClientDOMElementUpdatedEventPayload struct {
-	ElementID string      `json:"elementID"`
+	ElementID string      `json:"elementId"`
 	Action    string      `json:"action"`
 	Result    interface{} `json:"result"`
+	RequestID string      `json:"requestId"`
 }
 
 type ClientDOMStopObserveEventPayload struct {
@@ -350,7 +351,8 @@ type ServerDOMCreateEventPayload struct {
 }
 
 type ServerDOMManipulateEventPayload struct {
-	ElementID string                 `json:"elementID"`
+	ElementID string                 `json:"elementId"`
 	Action    string                 `json:"action"`
 	Params    map[string]interface{} `json:"params"`
+	RequestID string                 `json:"requestId"`
 }

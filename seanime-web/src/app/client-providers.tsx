@@ -8,6 +8,7 @@ import { Provider as JotaiProvider } from "jotai/react"
 import { ThemeProvider } from "next-themes"
 import { usePathname } from "next/navigation"
 import React from "react"
+import { CookiesProvider } from "react-cookie"
 
 interface ClientProvidersProps {
     children?: React.ReactNode
@@ -28,18 +29,20 @@ export const ClientProviders: React.FC<ClientProvidersProps> = ({ children }) =>
 
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme={(pathname === "/docs") ? "light" : "dark"}>
-            <JotaiProvider store={store}>
-                <QueryClientProvider client={queryClient}>
-                    <WebsocketProvider>
-                        {children}
-                        <CustomThemeProvider />
-                        <Toaster />
-                    </WebsocketProvider>
-                    {/*{process.env.NODE_ENV === "development" && <React.Suspense fallback={null}>*/}
-                    {/*    <ReactQueryDevtools />*/}
-                    {/*</React.Suspense>}*/}
-                </QueryClientProvider>
-            </JotaiProvider>
+            <CookiesProvider>
+                <JotaiProvider store={store}>
+                    <QueryClientProvider client={queryClient}>
+                        <WebsocketProvider>
+                            {children}
+                            <CustomThemeProvider />
+                            <Toaster />
+                        </WebsocketProvider>
+                        {/*{process.env.NODE_ENV === "development" && <React.Suspense fallback={null}>*/}
+                        {/*    <ReactQueryDevtools />*/}
+                        {/*</React.Suspense>}*/}
+                    </QueryClientProvider>
+                </JotaiProvider>
+            </CookiesProvider>
         </ThemeProvider>
     )
 

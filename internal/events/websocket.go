@@ -27,11 +27,14 @@ type (
 		Logger                 *zerolog.Logger
 		hasHadConnection       bool
 		mu                     sync.Mutex
+		eventMu                sync.RWMutex
 		clientEventSubscribers *result.Map[string, *ClientEventSubscriber]
 	}
 
 	ClientEventSubscriber struct {
 		Channel chan *WebsocketClientEvent
+		mu      sync.RWMutex
+		closed  bool
 	}
 
 	WSConn struct {
@@ -163,21 +166,37 @@ func (m *WSEventManager) SendEventTo(clientId string, t string, payload interfac
 }
 
 func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
+	m.eventMu.RLock()
+	defer m.eventMu.RUnlock()
 	m.clientEventSubscribers.Range(func(key string, subscriber *ClientEventSubscriber) bool {
-		subscriber.Channel <- event
+		go func() {
+			defer util.HandlePanicInModuleThen("events/OnClientEvent", func() {})
+			subscriber.mu.RLock()
+			defer subscriber.mu.RUnlock()
+			if !subscriber.closed {
+				select {
+				case subscriber.Channel <- event:
+				default:
+					// Channel is blocked, skip sending
+					m.Logger.Warn().Msg("ws: Client event channel is blocked, skipping send")
+				}
+			}
+		}()
 		return true
 	})
 }
 
 func (m *WSEventManager) SubscribeToClientEvents(id string) *ClientEventSubscriber {
 	subscriber := &ClientEventSubscriber{
-		Channel: make(chan *WebsocketClientEvent),
+		Channel: make(chan *WebsocketClientEvent, 100),
 	}
 	m.clientEventSubscribers.Set(id, subscriber)
 	return subscriber
 }
 
 func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
+	m.eventMu.Lock()
+	defer m.eventMu.Unlock()
 	defer func() {
 		if r := recover(); r != nil {
 			m.Logger.Warn().Msg("ws: Failed to unsubscribe from client events")
@@ -185,7 +204,10 @@ func (m *WSEventManager) UnsubscribeFromClientEvents(id string) {
 	}()
 	subscriber, ok := m.clientEventSubscribers.Get(id)
 	if ok {
+		subscriber.mu.Lock()
+		defer subscriber.mu.Unlock()
+		subscriber.closed = true
+		m.clientEventSubscribers.Delete(id)
 		close(subscriber.Channel)
 	}
-	m.clientEventSubscribers.Delete(id)
 }

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/util"
@@ -341,6 +342,8 @@ func (r *Repository) ReloadExternalExtensions() {
 
 func (r *Repository) ReloadExternalExtension(id string) {
 	r.reloadExtension(id)
+
+	runtime.GC()
 }
 
 // killGojaVMs kills all VMs from currently loaded Goja extensions & clears the Goja extensions map.
@@ -526,19 +529,11 @@ func (r *Repository) loadExternalExtension(filePath string) {
 	}
 
 	r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded external extension")
-
-	return
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Reload specific extension
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// ReloadExtension reloads a specific extension by ID.
-func (r *Repository) ReloadExtension(id string) error {
-	r.reloadExtension(id)
-	return nil
-}
 
 func (r *Repository) reloadExtension(id string) {
 	r.logger.Trace().Str("id", id).Msg("extensions: Reloading extension")
@@ -547,27 +542,19 @@ func (r *Repository) reloadExtension(id string) {
 
 	// Remove extension from bank
 	r.extensionBank.Delete(id)
+
 	// Kill Goja VM if it exists
-	r.gojaExtensions.Range(func(key string, ext GojaExtension) bool {
-		defer util.HandlePanicInModuleThen(fmt.Sprintf("extension_repo/reloadExtension/%s", key), func() {})
-		if key != id {
-			return true
-		}
+	gojaExtension, ok := r.gojaExtensions.Get(id)
+	if ok {
 		// Interrupt the extension's runtime and running processed before unloading
-		ext.ClearInterrupt()
+		gojaExtension.ClearInterrupt()
 		r.logger.Trace().Str("id", id).Msg("extensions: Killed extension's runtime")
-		return false
-	})
-	r.gojaExtensions.Delete(id)
+		r.gojaExtensions.Delete(id)
+	}
 	// Remove from invalid extensions
 	r.invalidExtensions.Delete(id)
-	//r.invalidExtensions.Range(func(key string, ext *extension.InvalidExtension) bool {
-	//	if ext.Extension.ID == id {
-	//		r.invalidExtensions.Delete(key)
-	//		return false
-	//	}
-	//	return true
-	//})
+
+	time.Sleep(200 * time.Millisecond)
 
 	// 2. Load the extension back
 
@@ -588,6 +575,4 @@ func (r *Repository) reloadExtension(id string) {
 
 	r.logger.Debug().Str("id", id).Msg("extensions: Reloaded extension")
 	r.wsEventManager.SendEvent(events.ExtensionsReloaded, nil)
-
-	return
 }

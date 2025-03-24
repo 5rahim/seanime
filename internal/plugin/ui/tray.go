@@ -199,7 +199,7 @@ func (t *Tray) jsUpdate(call goja.FunctionCall) goja.Value {
 	return goja.Undefined()
 }
 
-// jsOnOpen
+// jsOpen
 //
 //	Example:
 //	tray.open()
@@ -270,19 +270,18 @@ func (t *Tray) jsOnOpen(call goja.FunctionCall) goja.Value {
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayOpenedEvent)
 	payload := ClientTrayOpenedEventPayload{}
 
-	go func() {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientTrayOpenedEvent, &payload) {
-				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
-					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
-					if err != nil {
-						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray open callback")
-					}
-					return err
-				})
-			}
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientTrayOpenedEvent, &payload) {
+			t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
+				if err != nil {
+					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray open callback")
+				}
+				return err
+			})
 		}
-	}()
+	})
+
 	return goja.Undefined()
 }
 
@@ -305,19 +304,17 @@ func (t *Tray) jsOnClick(call goja.FunctionCall) goja.Value {
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClickedEvent)
 	payload := ClientTrayClickedEventPayload{}
 
-	go func() {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientTrayClickedEvent, &payload) {
-				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
-					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
-					if err != nil {
-						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray click callback")
-					}
-					return err
-				})
-			}
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientTrayClickedEvent, &payload) {
+			t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
+				if err != nil {
+					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray click callback")
+				}
+				return err
+			})
 		}
-	}()
+	})
 
 	return goja.Undefined()
 }
@@ -341,19 +338,17 @@ func (t *Tray) jsOnClose(call goja.FunctionCall) goja.Value {
 	eventListener := t.trayManager.ctx.RegisterEventListener(ClientTrayClosedEvent)
 	payload := ClientTrayClosedEventPayload{}
 
-	go func() {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientTrayClosedEvent, &payload) {
-				t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
-					_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
-					if err != nil {
-						t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray close callback")
-					}
-					return err
-				})
-			}
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientTrayClosedEvent, &payload) {
+			t.trayManager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), t.trayManager.ctx.vm.ToValue(map[string]interface{}{}))
+				if err != nil {
+					t.trayManager.ctx.logger.Error().Err(err).Msg("plugin: Error running tray close callback")
+				}
+				return err
+			})
 		}
-	}()
+	})
 
 	return goja.Undefined()
 }

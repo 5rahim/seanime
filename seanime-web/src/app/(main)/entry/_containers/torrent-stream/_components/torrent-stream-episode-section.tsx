@@ -91,7 +91,7 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                                 }}
                                 anime={{
                                     id: entry.mediaId,
-                                    image: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge,
+                                    image: episode.baseAnime?.coverImage?.medium,
                                     title: episode?.baseAnime?.title?.userPreferred,
                                 }}
                             />
@@ -116,6 +116,8 @@ export function TorrentStreamEpisodeSection(props: TorrentStreamEpisodeSectionPr
                         length={episode?.episodeMetadata?.length}
                         isWatched={!!entry.listData?.progress && entry.listData.progress >= episode?.progressNumber}
                         className="flex-none w-full"
+                        episodeNumber={episode.episodeNumber}
+                        progressNumber={episode.progressNumber}
                         action={<>
                             <MediaEpisodeInfoModal
                                 title={episode.displayTitle}

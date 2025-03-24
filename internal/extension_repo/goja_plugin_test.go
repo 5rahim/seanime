@@ -69,6 +69,7 @@ func InitTestPlugin(t testing.TB, opts TestPluginOptions) (*GojaPlugin, *zerolog
 		ID:       opts.ID,
 		Payload:  opts.Payload,
 		Language: opts.Language,
+		Plugin:   &extension.PluginManifest{},
 	}
 
 	if len(opts.Permissions.Scopes) > 0 {
@@ -273,7 +274,7 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 		});
 
 		$ui.register((ctx) => {
-			console.log("%s");
+			const url = "%s"
 			console.log("this is the start");
 
 			const count = ctx.state(0)
@@ -283,15 +284,15 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 				ctx.setTimeout(() => {
 					console.log("1s elapsed since first effect called")
 				}, 1000)
-				const [a, b, c] = await Promise.all([
+				const [a, b, c, d, e, f] = await Promise.all([
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/1"),
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/2"),
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
 					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
-					ctx.fetch("https://jsonplaceholder.typicode.com/todos/3"),
+					ctx.fetch(url),
 				])
-				console.log("fetch results", a.json(), b.json(), c.json())
+				console.log("fetch results", a.json(), b.json(), c.json(), d.json(), e.json(), f.json())
 			}, [count])
 
 			ctx.effect(() => {
@@ -327,7 +328,7 @@ func TestGojaPluginUIAndHooks(t *testing.T) {
 
 	manager.PrintPluginPoolMetrics(opts.ID)
 
-	time.Sleep(8 * time.Second)
+	time.Sleep(3 * time.Second)
 }
 
 func TestGojaPluginStore(t *testing.T) {

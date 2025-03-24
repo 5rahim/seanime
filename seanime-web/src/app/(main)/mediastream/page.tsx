@@ -273,6 +273,8 @@ export default function Page() {
                             isSelected={episode.localFile?.path === filePath}
                             length={episode.episodeMetadata?.length}
                             className="flex-none w-full"
+                            episodeNumber={episode.episodeNumber}
+                            progressNumber={episode.progressNumber}
                             action={<>
                                 <MediaEpisodeInfoModal
                                     title={episode.displayTitle}

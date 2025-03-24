@@ -30,7 +30,7 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
     if (!episodes?.length) return null
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4" data-undownloaded-episode-list>
             <p className={""}>
                 {text}
             </p>
@@ -46,22 +46,25 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                             isInvalid={episode.isInvalid}
                             title={episode.displayTitle}
                             episodeTitle={episode.episodeTitle}
-                            action={<div className={""}>
+                            episodeNumber={episode.episodeNumber}
+                            progressNumber={episode.progressNumber}
+                            action={<div data-undownloaded-episode-list-action>
                                 {hasTorrentProvider && <div
+                                    data-undownloaded-episode-list-action-download-button
                                     onClick={() => {
                                         setTorrentSearchEpisode(episode.episodeNumber)
                                         startTransition(() => {
                                             setTorrentSearchIsOpen("download")
                                         })
                                     }}
-                                    className="inline-block text-orange-200 absolue top-1 right-1 text-3xl absolute animate-pulse cursor-pointer"
+                                    className="inline-block text-orange-200 absolute top-1 right-1 text-3xl animate-pulse cursor-pointer"
                                 >
                                     <BiDownload />
                                 </div>}
                             </div>}
                         >
-                            <div className="mt-1">
-                                <p className="flex gap-1 items-center text-sm text-[--muted]">
+                            <div data-undownloaded-episode-list-episode-metadata-container className="mt-1">
+                                <p data-undownloaded-episode-list-episode-metadata-text className="flex gap-1 items-center text-sm text-[--muted]">
                                     <BiCalendarAlt /> {episode.episodeMetadata?.airDate
                                     ? `Aired on ${new Date(episode.episodeMetadata?.airDate).toLocaleDateString()}`
                                     : "Aired"}

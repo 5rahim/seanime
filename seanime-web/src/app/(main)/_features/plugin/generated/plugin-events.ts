@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit.
-	import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-	import { useCallback } from "react"
+import { useWebsocketPluginMessageListener, useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { useCallback } from "react"
 
 export enum PluginClientEvents {
     RenderTray = "tray:render",
@@ -482,7 +482,7 @@ export function usePluginSendDOMCreateResultEvent() {
 }
 
 export type Plugin_Client_DOMElementUpdatedEventPayload = {
-    elementID: string
+    elementId: string
     action: string
     result: any
 }
@@ -500,7 +500,7 @@ export function usePluginSendDOMElementUpdatedEvent() {
 }
 
 export type Plugin_Client_DOMEventTriggeredEventPayload = {
-    elementID: string
+    elementId: string
     eventType: string
     event: Record<string, any>
 }
@@ -882,7 +882,7 @@ export function usePluginListenDOMCreateEvent(cb: (payload: Plugin_Server_DOMCre
 }
 
 export type Plugin_Server_DOMManipulateEventPayload = {
-    elementID: string
+    elementId: string
     action: string
     params: Record<string, any>
 }

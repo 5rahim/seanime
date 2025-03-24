@@ -63,7 +63,7 @@ export function MissingEpisodes({ isLoading, data }: {
                                             }}
                                             anime={{
                                                 id: episode.baseAnime?.id,
-                                                image: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge,
+                                                image: episode.baseAnime?.coverImage?.medium,
                                                 title: episode.baseAnime?.title?.userPreferred,
                                             }}
                                         />
@@ -121,7 +121,7 @@ export function MissingEpisodes({ isLoading, data }: {
                                                             }}
                                                             anime={{
                                                                 id: episode.baseAnime?.id,
-                                                                image: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge,
+                                                                image: episode.baseAnime?.coverImage?.medium,
                                                                 title: episode.baseAnime?.title?.userPreferred,
                                                             }}
                                                         />

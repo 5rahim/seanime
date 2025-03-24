@@ -45,13 +45,13 @@ export default function Page() {
     if (!mangaEntry || mangaEntryLoading || mangaDetailsLoading) return <MediaEntryPageLoadingDisplay />
 
     return (
-        <div data-manga-entry-page-container>
+        <div data-manga-entry-page data-media={JSON.stringify(mangaEntry.media)} data-manga-entry-list-data={JSON.stringify(mangaEntry.listData)}>
             <MetaSection entry={mangaEntry} details={mangaDetails} />
 
-            <div data-manga-entry-page-inner-container className="px-4 md:px-8 relative z-[8]">
+            <div data-manga-entry-page-content-container className="px-4 md:px-8 relative z-[8]">
 
                 <PageWrapper
-                    data-manga-entry-page-wrapper
+                    data-manga-entry-page-content
                     key="chapter-list"
                     className="relative 2xl:order-first pb-10 pt-4 space-y-10"
                     {...{

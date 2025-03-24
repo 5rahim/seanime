@@ -62,6 +62,8 @@ export const EpisodeItem = memo(({ episode, media, isWatched, onPlay, percentage
                 length={episode.episodeMetadata?.length}
                 percentageComplete={percentageComplete}
                 minutesRemaining={minutesRemaining}
+                episodeNumber={episode.episodeNumber}
+                progressNumber={episode.progressNumber}
                 action={<>
                     <IconButton
                         icon={episode.localFile?.locked ? <VscVerified /> : <BiLockOpenAlt />}

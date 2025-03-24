@@ -168,30 +168,45 @@ func validateType(expectedType string) func(interface{}) error {
 		case "string":
 			_, ok := value.(string)
 			if !ok {
+				if value == nil {
+					return nil
+				}
 				return fmt.Errorf("expected string, got %T", value)
 			}
 			return nil
 		case "number":
 			_, ok := value.(float64)
 			if !ok {
+				if value == nil {
+					return nil
+				}
 				return fmt.Errorf("expected number, got %T", value)
 			}
 			return nil
 		case "boolean":
 			_, ok := value.(bool)
 			if !ok {
+				if value == nil {
+					return nil
+				}
 				return fmt.Errorf("expected boolean, got %T", value)
 			}
 			return nil
 		case "array":
 			_, ok := value.([]interface{})
 			if !ok {
+				if value == nil {
+					return nil
+				}
 				return fmt.Errorf("expected array, got %T", value)
 			}
 			return nil
 		case "object":
 			_, ok := value.(map[string]interface{})
 			if !ok {
+				if value == nil {
+					return nil
+				}
 				return fmt.Errorf("expected object, got %T", value)
 			}
 			return nil

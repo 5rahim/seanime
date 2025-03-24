@@ -287,7 +287,7 @@ declare namespace $ui {
          * @throws Error if an error occurs, or if the playback is not running
          */
         playNextEpisode(): void
-        
+
     }
 
     interface PlaybackEvent {
@@ -589,9 +589,9 @@ declare namespace $ui {
     type ComponentProps = {
         style?: Record<string, string>,
     }
-    type FieldComponentProps = {
+    type FieldComponentProps<V = string> = {
         fieldRef?: string,
-        value?: string,
+        value?: V,
         onChange?: string,
     } & ComponentProps
 
@@ -625,29 +625,33 @@ declare namespace $ui {
         (label: string, options: { placeholder?: string, value?: string }[], props?: FieldComponentProps): void
     }
     type CheckboxComponentFunction = {
-        (props: { label?: string } & FieldComponentProps): void
-        (label: string, props?: FieldComponentProps): void
+        (props: { label?: string } & FieldComponentProps<boolean>): void
+        (label: string, props?: FieldComponentProps<boolean>): void
     }
     type RadioGroupComponentFunction = {
         (props: { label?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
         (label: string, options: { label: string, value: string }[], props?: FieldComponentProps): void
     }
     type SwitchComponentFunction = {
-        (props: { label?: string } & FieldComponentProps): void
-        (label: string, props?: FieldComponentProps): void
+        (props: { label?: string } & FieldComponentProps<boolean>): void
+        (label: string, props?: FieldComponentProps<boolean>): void
     }
 
     // DOM Element interface
     interface DOMElement {
         id: string
         tagName: string
+        attributes: Record<string, string>
+        children: DOMElement[]
+        textContent?: string
+        innerHTML?: string
 
         // Properties
         /**
          * Gets the text content of the element
-         * @returns The text content of the element
+         * @returns A promise that resolves to the text content of the element
          */
-        getText(): string
+        getText(): Promise<string>
 
         /**
          * Sets the text content of the element
@@ -658,15 +662,15 @@ declare namespace $ui {
         /**
          * Gets the value of an attribute
          * @param name - The name of the attribute
-         * @returns The value of the attribute
+         * @returns A promise that resolves to the value of the attribute
          */
-        getAttribute(name: string): any
+        getAttribute(name: string): Promise<string | null>
 
         /**
          * Gets all attributes of the element
-         * @returns Record of all attributes
+         * @returns A promise that resolves to a record of all attributes
          */
-        getAttributes(): Record<string, string>
+        getAttributes(): Promise<Record<string, string>>
 
         /**
          * Sets the value of an attribute
@@ -684,16 +688,16 @@ declare namespace $ui {
         /**
          * Checks if the element has an attribute
          * @param name - The name of the attribute
-         * @returns True if the attribute exists
+         * @returns A promise that resolves to true if the attribute exists
          */
-        hasAttribute(name: string): boolean
+        hasAttribute(name: string): Promise<boolean>
 
         /**
          * Gets a property of the element
          * @param name - The name of the property
-         * @returns The value of the property
+         * @returns A promise that resolves to the value of the property
          */
-        getProperty(name: string): any
+        getProperty(name: string): Promise<string | null>
 
         /**
          * Sets a property of the element
@@ -711,8 +715,9 @@ declare namespace $ui {
         /**
          * Checks if the element has a class
          * @param className - The class to check
+         * @returns A promise that resolves to true if the class exists
          */
-        hasClass(className: string): boolean
+        hasClass(className: string): Promise<boolean>
 
         /**
          * Sets the style of the element
@@ -724,16 +729,16 @@ declare namespace $ui {
         /**
          * Gets the style of the element
          * @param property - Optional property to get. If omitted, returns all styles.
-         * @returns The value of the property or record of all styles
+         * @returns A promise that resolves to the value of the property or record of all styles
          */
-        getStyle(property?: string): string | Record<string, string>
+        getStyle(property?: string): Promise<string | Record<string, string>>
 
         /**
          * Checks if the element has a style property set
          * @param property - The property to check
-         * @returns True if the property is set
+         * @returns A promise that resolves to true if the property is set
          */
-        hasStyle(property: string): boolean
+        hasStyle(property: string): Promise<boolean>
 
         /**
          * Removes a style property
@@ -744,22 +749,22 @@ declare namespace $ui {
         /**
          * Gets the computed style of the element
          * @param property - The property to get
-         * @returns The computed value of the property
+         * @returns A promise that resolves to the computed value of the property
          */
-        getComputedStyle(property: string): string
+        getComputedStyle(property: string): Promise<string>
 
         /**
          * Gets a data attribute (data-* attribute)
          * @param key - The data attribute key (without the data- prefix)
-         * @returns The data attribute value
+         * @returns A promise that resolves to the data attribute value
          */
-        getDataAttribute(key: string): string
+        getDataAttribute(key: string): Promise<string | null>
 
         /**
          * Gets all data attributes (data-* attributes)
-         * @returns Record of all data attributes
+         * @returns A promise that resolves to a record of all data attributes
          */
-        getDataAttributes(): Record<string, string>
+        getDataAttributes(): Promise<Record<string, string>>
 
         /**
          * Sets a data attribute (data-* attribute)
@@ -777,9 +782,9 @@ declare namespace $ui {
         /**
          * Checks if the element has a data attribute
          * @param key - The data attribute key (without the data- prefix)
-         * @returns True if the data attribute exists
+         * @returns A promise that resolves to true if the data attribute exists
          */
-        hasDataAttribute(key: string): boolean
+        hasDataAttribute(key: string): Promise<boolean>
 
         // DOM manipulation
         /**
@@ -819,6 +824,20 @@ declare namespace $ui {
 
         // Events
         addEventListener(event: string, callback: (event: any) => void): () => void
+
+        /**
+         * Queries the DOM for elements that are descendants of this element and match the selector
+         * @param selector - The selector to query
+         * @returns A promise that resolves to an array of DOM elements
+         */
+        query(selector: string): Promise<DOMElement[]>
+
+        /**
+         * Queries the DOM for a single element that is a descendant of this element and matches the selector
+         * @param selector - The selector to query
+         * @returns A promise that resolves to a DOM element or null if no element is found
+         */
+        queryOne(selector: string): Promise<DOMElement | null>
     }
 
     interface Notification {
@@ -849,9 +868,9 @@ declare namespace $ui {
          * Observes changes to the DOM
          * @param selector - The selector to observe
          * @param callback - The callback to call when the DOM changes
-         * @returns A function to stop observing the DOM
+         * @returns A tuple containing a function to stop observing the DOM and a function to refetch observed elements
          */
-        observe(selector: string, callback: (elements: DOMElement[]) => void): () => void
+        observe(selector: string, callback: (elements: DOMElement[]) => void): [() => void, () => void]
 
         /**
          * Creates a new DOM element
@@ -1275,6 +1294,152 @@ declare namespace $database {
          * Get the Anilist username
          */
         function getUsername(): string
+    }
+
+    declare namespace autoDownloaderRules {
+        /**
+         * Gets all auto downloader rules
+         */
+        function getAll(): $app.Anime_AutoDownloaderRule[]
+
+        /**
+         * Gets an auto downloader rule by the database id
+         * @param id - The id of the auto downloader rule in the database
+         * @returns The auto downloader rule
+         */
+        function get(id: number): $app.Anime_AutoDownloaderRule | undefined
+
+        /**
+         * Gets all auto downloader rules by media id
+         * @param mediaId - The id of the media
+         * @returns The auto downloader rules
+         */
+        function getByMediaId(mediaId: number): $app.Anime_AutoDownloaderRule[]
+
+        /**
+         * Inserts an auto downloader rule
+         * @param rule - The auto downloader rule to insert
+         */
+        function insert(rule: $app.Anime_AutoDownloaderRule): void
+
+        /**
+         * Updates an auto downloader rule
+         * @param id - The id of the auto downloader rule in the database
+         * @param rule - The auto downloader rule to update
+         */
+        function update(id: number, rule: $app.Anime_AutoDownloaderRule): void
+
+        /**
+         * Deletes an auto downloader rule
+         * @param id - The id of the auto downloader rule in the database
+         */
+        function remove(id: number): void
+    }
+
+    declare namespace autoDownloaderItems {
+        /**
+         * Gets all auto downloader items
+         */
+        function getAll(): $app.Models_AutoDownloaderItem[]
+
+        /**
+         * Gets an auto downloader item by id
+         * @param id - The id of the auto downloader item in the database
+         */
+        function get(id: number): $app.Models_AutoDownloaderItem | undefined
+
+        /**
+         * Gets all auto downloader items by media id
+         * @param mediaId - The id of the media
+         */
+        function getByMediaId(mediaId: number): $app.Models_AutoDownloaderItem[]
+
+        /**
+         * Inserts an auto downloader item
+         * @param item - The auto downloader item to insert
+         */
+        function insert(item: $app.Models_AutoDownloaderItem): void
+
+        /**
+         * Deletes an auto downloader item
+         * @param id - The id of the auto downloader item in the database
+         */
+        function remove(id: number): void
+    }
+
+    declare namespace silencedMediaEntries {
+        /**
+         * Gets all silenced media entry ids
+         */
+        function getAllIds(): number[]
+
+        /**
+         * Checks if a media entry is silenced
+         * @param mediaId - The id of the media
+         * @returns True if the media entry is silenced, false otherwise
+         */
+        function isSilenced(mediaId: number): boolean
+
+        /**
+         * Sets a media entry as silenced
+         * @param mediaId - The id of the media
+         */
+        function setSilenced(mediaId: number, silenced: boolean): void
+    }
+
+    declare namespace mediaFillers {
+        /**
+         * Gets all media fillers
+         */
+        function getAll(): Record<number, MediaFillerItem>
+
+        /**
+         * Gets a media filler by media id
+         * @param mediaId - The id of the media
+         */
+        function get(mediaId: number): MediaFillerItem | undefined
+
+        /**
+         * Inserts a media filler
+         * @param provider - The provider of the media filler
+         * @param mediaId - The id of the media
+         * @param slug - The slug of the media filler
+         * @param fillerEpisodes - The filler episodes
+         */
+        function insert(provider: string, mediaId: number, slug: string, fillerEpisodes: string[]): void
+
+        /**
+         * Deletes a media filler
+         * @param mediaId - The id of the media
+         */
+        function remove(mediaId: number): void
+    }
+
+    declare interface MediaFillerItem {
+        /**
+         * The id of the media filler in the database
+         */
+        dbId: number
+        /**
+         * The provider of the media filler
+         */
+        provider: string
+        /**
+         * The id of the media
+         */
+        mediaId: number
+        /**
+         * The slug of the media filler
+         */
+        slug: string
+        /**
+         * The filler episodes
+         */
+        fillerEpisodes: string[]
+        /**
+         * Date and time the filler data was last fetched
+         */
+        lastFetchedAt: string
     }
 }
 

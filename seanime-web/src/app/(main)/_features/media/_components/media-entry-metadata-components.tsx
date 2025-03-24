@@ -92,12 +92,13 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
 
     return (
         <>
-            {hideAudienceScore ? <Disclosure type="single" collapsible>
+            {hideAudienceScore ? <Disclosure type="single" collapsible data-media-entry-audience-score-disclosure>
                 <DisclosureItem value="item-1" className="flex items-center gap-0">
                     <Tooltip
                         side="right"
-                        trigger={<DisclosureTrigger>
+                        trigger={<DisclosureTrigger asChild>
                             <IconButton
+                                data-media-entry-audience-score-disclosure-trigger
                                 intent="gray-basic"
                                 icon={<BiHide className="text-sm" />}
                                 rounded
@@ -107,6 +108,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                     >Show audience score</Tooltip>
                     <DisclosureContent>
                         <Badge
+                            data-media-entry-audience-score
                             intent="unstyled"
                             size="lg"
                             className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
@@ -115,6 +117,7 @@ export function MediaEntryAudienceScore(props: MediaEntryAudienceScoreProps) {
                     </DisclosureContent>
                 </DisclosureItem>
             </Disclosure> : <Badge
+                data-media-entry-audience-score
                 intent="unstyled"
                 size="lg"
                 className={cn(getScoreColor(meanScore, "audience"), badgeClass)}
@@ -159,9 +162,12 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
 
     return (
         <>
-            {(!!allTimeHighestRated || !!seasonMostPopular) && <div className="Sea-AnimeEntryRankings__container flex-wrap gap-2 hidden md:flex">
+            {(!!allTimeHighestRated || !!seasonMostPopular) &&
+                <div className="Sea-AnimeEntryRankings__container flex-wrap gap-2 hidden md:flex" data-anime-entry-rankings>
                 {allTimeHighestRated && <Link
                     href={`/search?sorting=SCORE_DESC${allTimeHighestRated.format ? `&format=${allTimeHighestRated.format}` : ""}`}
+                    data-anime-entry-rankings-item
+                    data-anime-entry-rankings-item-all-time-highest-rated
                 >
                     <Badge
                         size="lg"
@@ -179,6 +185,8 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                     href={`/search?sorting=SCORE_DESC${seasonHighestRated.format
                         ? `&format=${seasonHighestRated.format}`
                         : ""}${seasonHighestRated.season ? `&season=${seasonHighestRated.season}` : ""}&year=${seasonHighestRated.year}`}
+                    data-anime-entry-rankings-item
+                    data-anime-entry-rankings-item-season-highest-rated
                 >
                     <Badge
                         size="lg"
@@ -197,6 +205,8 @@ export function AnimeEntryRankings(props: AnimeEntryRankingsProps) {
                         : ""}${seasonMostPopular.year ? `&year=${seasonMostPopular.year}` : ""}${seasonMostPopular.season
                         ? `&season=${seasonMostPopular.season}`
                         : ""}`}
+                    data-anime-entry-rankings-item
+                    data-anime-entry-rankings-item-season-most-popular
                 >
                     <Badge
                         size="lg"

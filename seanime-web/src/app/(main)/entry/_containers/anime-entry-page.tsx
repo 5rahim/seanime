@@ -179,11 +179,12 @@ export function AnimeEntryPage() {
     if (!animeEntry) return null
 
     return (
-        <div>
+        <div data-anime-entry-page data-media={JSON.stringify(animeEntry.media)} data-anime-entry-list-data={JSON.stringify(animeEntry.listData)}>
             <MetaSection entry={animeEntry} details={animeDetails} />
 
-            <div className="px-4 md:px-8 relative z-[8]">
+            <div className="px-4 md:px-8 relative z-[8]" data-anime-entry-page-content-container>
                 <PageWrapper
+                    data-anime-entry-page-content
                     className="relative 2xl:order-first pb-10"
                     {...{
                         initial: { opacity: 0, y: 60 },
@@ -203,6 +204,7 @@ export function AnimeEntryPage() {
                     <AnimatePresence mode="wait" initial={false}>
 
                         {(currentView === "library") && <PageWrapper
+                            data-anime-entry-page-episode-list-view
                             key="episode-list"
                             className="relative 2xl:order-first pb-10"
                             {...{
@@ -225,6 +227,7 @@ export function AnimeEntryPage() {
                         </PageWrapper>}
 
                         {currentView === "torrentstream" && <PageWrapper
+                            data-anime-entry-page-torrent-stream-view
                             key="torrent-streaming-episodes"
                             className="relative 2xl:order-first pb-10 lg:pt-0"
                             {...{
@@ -246,6 +249,7 @@ export function AnimeEntryPage() {
                         </PageWrapper>}
 
                         {currentView === "debridstream" && <PageWrapper
+                            data-anime-entry-page-debrid-stream-view
                             key="torrent-streaming-episodes"
                             className="relative 2xl:order-first pb-10 lg:pt-0"
                             {...{
@@ -267,6 +271,7 @@ export function AnimeEntryPage() {
                         </PageWrapper>}
 
                         {currentView === "onlinestream" && <PageWrapper
+                            data-anime-entry-page-online-streaming-view
                             key="online-streaming-episodes"
                             className="relative 2xl:order-first pb-10 lg:pt-0"
                             {...{
@@ -278,8 +283,8 @@ export function AnimeEntryPage() {
                                 },
                             }}
                         >
-                            <div className="space-y-4">
-                                <div className="absolute right-0 top-[-3rem]">
+                            <div className="space-y-4" data-anime-entry-page-online-streaming-view-content>
+                                <div className="absolute right-0 top-[-3rem]" data-anime-entry-page-online-streaming-view-content-title-container>
                                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Online streaming</h2>
                                 </div>
                                 <OnlinestreamPage

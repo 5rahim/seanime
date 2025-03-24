@@ -218,8 +218,10 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="relative z-[4]"
+                data-media-page-header-details-container
             >
                 <div
+                    data-media-page-header-details-inner-container
                     className={cn(
                         "space-y-8 p-6 sm:p-8 relative",
                         ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "p-6 sm:py-4 sm:px-8",
@@ -241,6 +243,7 @@ export function MediaPageHeaderDetailsContainer(props: MediaPageHeaderDetailsCon
                             },
                         }}
                         className="space-y-4"
+                        data-media-page-header-details-motion-container
                     >
 
                         {children}
@@ -304,9 +307,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
     return (
         <>
-            <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col lg:flex-row gap-8" data-media-page-header-entry-details>
 
                 {!!coverImage && <div
+                    data-media-page-header-entry-details-cover-image-container
                     className={cn(
                         "flex-none aspect-[6/8] max-w-[150px] mx-auto lg:m-0 h-auto sm:max-w-[200px] lg:max-w-[230px] w-full relative rounded-[--radius-md] overflow-hidden bg-[--background] shadow-md block",
                         ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small && "max-w-[150px] lg:m-0 h-auto sm:max-w-[195px] lg:max-w-[210px] -top-1",
@@ -315,6 +319,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                     )}
                 >
                     <Image
+                        data-media-page-header-entry-details-cover-image
                         src={getImageUrl(coverImage)}
                         alt="cover image"
                         fill
@@ -325,13 +330,14 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
 
                 <div
+                    data-media-page-header-entry-details-content
                     className={cn(
                         "space-y-2 lg:space-y-4",
                         (ts.mediaPageBannerSize === ThemeMediaPageBannerSize.Small || ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid) && "lg:space-y-3",
                     )}
                 >
                     {/*TITLE*/}
-                    <div className="space-y-2">
+                    <div className="space-y-2" data-media-page-header-entry-details-title-container>
                         <TextGenerateEffect
                             className={cn(
                                 "[text-shadow:_0_1px_10px_rgb(0_0_0_/_20%)] text-white line-clamp-2 pb-1 text-center lg:text-left text-pretty text-3xl 2xl:text-5xl xl:max-w-[50vw]",
@@ -347,7 +353,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
                     {/*DATE*/}
                     {!!startDate?.year && (
-                        <div className="flex gap-4 items-center flex-wrap justify-center lg:justify-start">
+                        <div
+                            className="flex gap-4 items-center flex-wrap justify-center lg:justify-start"
+                            data-media-page-header-entry-details-date-container
+                        >
                             <p className="text-lg text-white flex gap-1 items-center">
                                 <BiCalendarAlt /> {new Intl.DateTimeFormat("en-US", {
                                 year: "numeric",
@@ -362,6 +371,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                 intent={status === "RELEASING" ? "primary" : "gray"}
                                 className="bg-transparent border-transparent dark:text-brand-200 px-0 rounded-none"
                                 leftIcon={<RiSignalTowerFill />}
+                                data-media-page-header-entry-details-date-badge
                             >
                                 {capitalize(status || "")?.replaceAll("_", " ")}
                             </Badge>}
@@ -384,7 +394,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
 
 
                     {/*LIST*/}
-                    <div className="flex gap-2 md:gap-4 items-center justify-center lg:justify-start">
+                    <div className="flex gap-2 md:gap-4 items-center justify-center lg:justify-start" data-media-page-header-entry-details-more-info>
 
                         <MediaPageHeaderScoreAndProgress
                             score={listData?.score}
@@ -395,7 +405,10 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                         <AnilistMediaEntryModal listData={listData} media={media} type={type} />
 
                         {(listData?.status || listData?.repeat) &&
-                            <div className="text-base text-white md:text-lg flex items-center">{capitalize(listData?.status === "CURRENT"
+                            <div
+                                data-media-page-header-entry-details-status
+                                className="text-base text-white md:text-lg flex items-center"
+                            >{capitalize(listData?.status === "CURRENT"
                                 ? type === "anime" ? "watching" : "reading"
                                 : listData?.status)}
                                 {listData?.repeat && <Tooltip
@@ -403,6 +416,7 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                         size="md"
                                         intent="gray"
                                         className="ml-3"
+                                        data-media-page-header-entry-details-repeating-badge
                                     >
                                         {listData?.repeat}
 
@@ -422,10 +436,12 @@ export function MediaPageHeaderEntryDetails(props: MediaPageHeaderEntryDetailsPr
                                 "cursor-pointer max-h-16 line-clamp-3 col-span-2 left-[-.5rem] text-[--muted] 2xl:max-w-[50vw] hover:text-white transition-colors duration-500 text-sm pr-2",
                                 "bg-transparent rounded-[--radius-md] text-center lg:text-left",
                             )}
+                            data-media-page-header-details-description-trigger
                         >
                             {description?.replace(/(<([^>]+)>)/ig, "")}
                         </div>}
                         className="max-w-[40rem] bg-[--background] p-4 w-[20rem] lg:w-[40rem] text-md"
+                        data-media-page-header-details-description-popover
                     >
                         <span className="transition-colors">{description?.replace(/(<([^>]+)>)/ig, "")}</span>
                     </Popover>}
@@ -456,6 +472,7 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
                 size="xl"
                 intent="unstyled"
                 className={getScoreColor(score, "user")}
+                data-media-page-header-score-badge
             >
                 {score / 10}
             </Badge>}
@@ -463,8 +480,10 @@ export function MediaPageHeaderScoreAndProgress({ score, progress, episodes }: {
                 size="xl"
                 intent="basic"
                 className="!text-xl font-bold !text-white px-0 gap-0 rounded-none"
+                data-media-page-header-progress-badge
             >
-                {`${progress ?? 0}`}<span
+                <span data-media-page-header-progress-badge-progress>{`${progress ?? 0}`}</span><span
+                data-media-page-header-progress-total
                 className={cn(
                     (!progress || progress !== episodes) && "opacity-60",
                 )}

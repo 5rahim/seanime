@@ -30,17 +30,16 @@ interface ButtonProps {
 
 export function PluginButton(props: ButtonProps) {
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
-
+    const { trayIcon } = usePluginTray()
+    
     function handleClick() {
         if (props.onClick) {
             sendEventHandlerTriggeredEvent({
                 handlerName: props.onClick,
                 event: {},
-            })
+            }, trayIcon.extensionId)
         }
     }
-
-
     return (
         <Button
             intent="white-subtle"
@@ -86,13 +85,13 @@ export function PluginInput(props: InputProps) {
                 event: {
                     value: debouncedValue,
                 },
-            })
+            }, trayIcon.extensionId)
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
                 fieldRef: props.fieldRef,
                 value: debouncedValue,
-            })
+            }, trayIcon.extensionId)
         }
     }, [debouncedValue])
 
@@ -132,23 +131,29 @@ interface SelectProps {
 }
 
 export function PluginSelect(props: SelectProps) {
+    const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
+    const firstRender = React.useRef(true)
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false
+            return
+        }
         if (props.onChange) {
             sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: debouncedValue },
-            })
+            }, trayIcon.extensionId)
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
                 fieldRef: props.fieldRef,
                 value: debouncedValue,
-            })
+            }, trayIcon.extensionId)
         }
     }, [debouncedValue])
 
@@ -178,23 +183,29 @@ interface CheckboxProps {
 }
 
 export function PluginCheckbox(props: CheckboxProps) {
+    const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
+    const firstRender = React.useRef(true)
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false
+            return
+        }
         if (props.onChange) {
             sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: value },
-            })
+            }, trayIcon.extensionId)
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
                 fieldRef: props.fieldRef,
                 value: value,
-            })
+            }, trayIcon.extensionId)
         }
     }, [debouncedValue])
 
@@ -223,23 +234,29 @@ interface SwitchProps {
 }
 
 export function PluginSwitch(props: SwitchProps) {
+    const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
+    const firstRender = React.useRef(true)
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false
+            return
+        }
         if (props.onChange) {
             sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: value },
-            })
+            }, trayIcon.extensionId)
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
                 fieldRef: props.fieldRef,
                 value: value,
-            })
+            }, trayIcon.extensionId)
         }
     }, [debouncedValue])
 
@@ -272,23 +289,29 @@ interface RadioGroupProps {
 }
 
 export function PluginRadioGroup(props: RadioGroupProps) {
+    const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
     const [value, setValue] = React.useState(props.value)
     const debouncedValue = useDebounce(value, 200)
 
+    const firstRender = React.useRef(true)
     useEffect(() => {
+        if (firstRender.current) {
+            firstRender.current = false
+            return
+        }
         if (props.onChange) {
             sendEventHandlerTriggeredEvent({
                 handlerName: props.onChange,
                 event: { value: value },
-            })
+            }, trayIcon.extensionId)
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
                 fieldRef: props.fieldRef,
                 value: value,
-            })
+            }, trayIcon.extensionId)
         }
     }, [debouncedValue])
 

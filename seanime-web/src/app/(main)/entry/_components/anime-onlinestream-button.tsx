@@ -48,6 +48,7 @@ export function AnimeOnlinestreamButton(props: AnimeOnlinestreamButtonProps) {
 
     return (
         <AnimeMetaActionButton
+            data-anime-onlinestream-button
             intent={isOnlineStreamingView ? "gray-subtle" : "white-subtle"}
             // className={cn((status?.settings?.library?.includeOnlineStreamingInLibrary || isOnlineStreamingView) && "w-full")}
             size="md"

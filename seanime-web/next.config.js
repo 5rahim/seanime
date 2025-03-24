@@ -19,9 +19,7 @@ const nextConfig = {
     experimental: {
         reactCompiler: true,
     },
-    devIndicators: {
-        appIsrStatus: false,
-    }
+    devIndicators: false,
 }
 
 module.exports = nextConfig

@@ -1,5 +1,4 @@
 import { useWebsocketPluginMessageListener } from "@/app/(main)/_hooks/handle-websockets"
-import { useEffect } from "react"
 import { useDOMManager } from "./dom-manager"
 import { PluginServerEvents } from "./generated/plugin-events"
 
@@ -61,14 +60,15 @@ export function PluginHandler({ extensionId }: { extensionId: string }) {
         type: PluginServerEvents.DOMManipulate,
         onMessage: (payload: any) => {
             handleDOMManipulate({
-                elementId: payload.elementID,
+                elementId: payload.elementId,
                 action: payload.action,
                 params: payload.params,
+                requestId: payload.requestId,
             })
         },
     })
 
     // No need for cleanup useEffect anymore as the useDOMManager hook handles its own cleanup
-    
+
     return null
 }

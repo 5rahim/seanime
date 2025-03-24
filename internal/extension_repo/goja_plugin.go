@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"runtime"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	goja_bindings "seanime/internal/goja/goja_bindings"
@@ -69,6 +68,10 @@ func (p *GojaPlugin) PutVM(vm *goja.Runtime) {
 // ClearInterrupt stops the UI VM and other modules.
 // It is called when the extension is unloaded.
 func (p *GojaPlugin) ClearInterrupt() {
+	if p.interrupted {
+		return
+	}
+
 	p.interrupted = true
 
 	p.logger.Debug().Msg("plugin: Interrupting plugin")
@@ -92,12 +95,13 @@ func (p *GojaPlugin) ClearInterrupt() {
 	if p.runtimeManager != nil {
 		p.runtimeManager.DeletePluginPool(p.ext.ID)
 	}
+	p.logger.Debug().Msgf("plugin: Unbinding hooks (%d)", len(p.unbindHookFuncs))
 	// Unbind all hooks
 	for _, unbindHookFunc := range p.unbindHookFuncs {
 		unbindHookFunc()
 	}
 	// Run garbage collection
-	runtime.GC()
+	// runtime.GC()
 	p.logger.Debug().Msg("plugin: Interrupted plugin")
 }
 

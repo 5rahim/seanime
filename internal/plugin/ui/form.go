@@ -115,24 +115,33 @@ func (f *Form) jsOnSubmit(call goja.FunctionCall) goja.Value {
 		f.manager.ctx.handleTypeError("onSubmit requires a callback function")
 	}
 
-	eventListener := f.manager.ctx.RegisterEventListener()
-	var payload ClientFormSubmittedEventPayload
+	eventListener := f.manager.ctx.RegisterEventListener(ClientFormSubmittedEvent)
 
-	go func() {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientFormSubmittedEvent, &payload) {
-				if payload.FormName == f.Name {
-					f.manager.ctx.scheduler.ScheduleAsync(func() error {
-						_, err := callback(goja.Undefined(), f.manager.ctx.vm.ToValue(payload.Data))
-						if err != nil {
-							f.manager.ctx.logger.Error().Err(err).Msg("error running form submit callback")
-						}
-						return err
-					})
-				}
-			}
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		var payload ClientFormSubmittedEventPayload
+		if event.ParsePayloadAs(ClientFormSubmittedEvent, &payload) && payload.FormName == f.Name {
+			f.manager.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), f.manager.ctx.vm.ToValue(payload.Data))
+				return err
+			})
 		}
-	}()
+	})
+
+	// go func() {
+	// 	for event := range eventListener.Channel {
+	// 		if event.ParsePayloadAs(ClientFormSubmittedEvent, &payload) {
+	// 			if payload.FormName == f.Name {
+	// 				f.manager.ctx.scheduler.ScheduleAsync(func() error {
+	// 					_, err := callback(goja.Undefined(), f.manager.ctx.vm.ToValue(payload.Data))
+	// 					if err != nil {
+	// 						f.manager.ctx.logger.Error().Err(err).Msg("error running form submit callback")
+	// 					}
+	// 					return err
+	// 				})
+	// 			}
+	// 		}
+	// 	}
+	// }()
 
 	return goja.Undefined()
 }

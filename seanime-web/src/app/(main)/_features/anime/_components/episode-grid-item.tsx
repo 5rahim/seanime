@@ -34,6 +34,8 @@ type EpisodeGridItemProps = {
     episodeTitleClassName?: string
     percentageComplete?: number
     minutesRemaining?: number
+    episodeNumber?: number
+    progressNumber?: number
 }
 
 export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPropsWithoutRef<"div">> = (props) => {
@@ -62,6 +64,8 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
         episodeTitleClassName,
         percentageComplete,
         minutesRemaining,
+        episodeNumber,
+        progressNumber,
         ...rest
     } = props
 
@@ -71,6 +75,11 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
     return <>
         <div
             data-episode-grid-item
+            data-media-id={media.id}
+            data-media-type={media.type}
+            data-filename={fileName}
+            data-episode-number={episodeNumber}
+            data-progress-number={progressNumber}
             className={cn(
                 "max-w-full",
                 "rounded-lg relative transition group/episode-list-item select-none",
@@ -182,9 +191,10 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         >{episodeTitle?.replaceAll("`", "'")}</p>}
 
 
-                    {!!fileName && <p data-episode-grid-item-file-name className="text-sm tracking-wide text-[--muted] line-clamp-1">{fileName}</p>}
+                    {!!fileName && <p data-episode-grid-item-filename className="text-sm tracking-wide text-[--muted] line-clamp-1">{fileName}</p>}
                     {!!description &&
-                        <p data-episode-grid-item-description className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`", "'")}</p>}
+                        <p data-episode-grid-item-episode-description className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`",
+                            "'")}</p>}
                     {children && children}
                 </div>
             </div>

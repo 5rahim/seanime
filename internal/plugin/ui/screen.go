@@ -65,19 +65,28 @@ func (s *ScreenManager) jsLoadCurrent() {
 //	ctx.screen.onNavigate(onNavigate);
 func (s *ScreenManager) jsOnNavigate(callback goja.Callable) {
 	eventListener := s.ctx.RegisterEventListener(ClientScreenChangedEvent)
-	var payload ClientScreenChangedEventPayload
 
-	go func(payload ClientScreenChangedEventPayload) {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientScreenChangedEvent, &payload) {
-				s.ctx.scheduler.ScheduleAsync(func() error {
-					_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
-					if err != nil {
-						s.ctx.logger.Error().Err(err).Msg("error running screen navigation callback")
-					}
-					return err
-				})
-			}
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		var payload ClientScreenChangedEventPayload
+		if event.ParsePayloadAs(ClientScreenChangedEvent, &payload) {
+			s.ctx.scheduler.ScheduleAsync(func() error {
+				_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
+				return err
+			})
 		}
-	}(payload)
+	})
+
+	// go func(payload ClientScreenChangedEventPayload) {
+	// 	for event := range eventListener.Channel {
+	// 		if event.ParsePayloadAs(ClientScreenChangedEvent, &payload) {
+	// 			s.ctx.scheduler.ScheduleAsync(func() error {
+	// 				_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
+	// 				if err != nil {
+	// 					s.ctx.logger.Error().Err(err).Msg("error running screen navigation callback")
+	// 				}
+	// 				return err
+	// 			})
+	// 		}
+	// 	}
+	// }(payload)
 }

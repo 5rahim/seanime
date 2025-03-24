@@ -474,21 +474,30 @@ func (a *ActionManager) bindSharedToObject(obj *goja.Object, action interface{})
 		}
 
 		eventListener := a.ctx.RegisterEventListener(ClientActionClickedEvent)
-		payload := ClientActionClickedEventPayload{}
 
-		go func() {
-			for event := range eventListener.Channel {
-				if event.ParsePayloadAs(ClientActionClickedEvent, &payload) && payload.ActionID == id {
-					a.ctx.scheduler.ScheduleAsync(func() error {
-						_, err := callback(goja.Undefined(), a.ctx.vm.ToValue(payload.Event))
-						if err != nil {
-							a.ctx.logger.Error().Err(err).Msg("plugin: Error running action click callback")
-						}
-						return err
-					})
-				}
+		eventListener.SetCallback(func(event *ClientPluginEvent) {
+			payload := ClientActionClickedEventPayload{}
+			if event.ParsePayloadAs(ClientActionClickedEvent, &payload) && payload.ActionID == id {
+				a.ctx.scheduler.ScheduleAsync(func() error {
+					_, err := callback(goja.Undefined(), a.ctx.vm.ToValue(payload.Event))
+					return err
+				})
 			}
-		}()
+		})
+
+		// go func() {
+		// 	for event := range eventListener.Channel {
+		// 		if event.ParsePayloadAs(ClientActionClickedEvent, &payload) && payload.ActionID == id {
+		// 			a.ctx.scheduler.ScheduleAsync(func() error {
+		// 				_, err := callback(goja.Undefined(), a.ctx.vm.ToValue(payload.Event))
+		// 				if err != nil {
+		// 					a.ctx.logger.Error().Err(err).Msg("plugin: Error running action click callback")
+		// 				}
+		// 				return err
+		// 			})
+		// 		}
+		// 	}
+		// }()
 
 		return goja.Undefined()
 	})

@@ -146,7 +146,7 @@ export function EpisodeSection({ entry, details, bottomSection }: EpisodeSection
                                             onClick={() => playMediaFile({ path: episode.localFile?.path ?? "", mediaId: entry.mediaId })}
                                             anime={{
                                                 id: entry.mediaId,
-                                                image: episode.baseAnime?.bannerImage || episode.baseAnime?.coverImage?.extraLarge,
+                                                image: episode.baseAnime?.coverImage?.medium,
                                                 title: episode?.baseAnime?.title?.userPreferred,
                                             }}
                                         />

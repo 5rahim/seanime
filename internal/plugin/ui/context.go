@@ -35,7 +35,7 @@ type Context struct {
 	stateSubscribers []chan *State
 	scheduler        *goja_util.Scheduler // Schedule VM executions concurrently and execute them in order.
 	wsSubscriber     *events.ClientEventSubscriber
-	eventListeners   *result.Map[string, *EventListener] // Event listeners registered by plugin functions
+	eventBus         *result.Map[ClientEventType, *result.Map[string, *EventListener]] // map[string]map[string]*EventListener (event -> listenerID -> listener)
 	contextObj       *goja.Object
 
 	fieldRefCount  int                    // Number of field refs registered
@@ -75,8 +75,9 @@ type State struct {
 // EventListener is used by Goja methods to listen for events from the client
 type EventListener struct {
 	ID       string
-	ListenTo []ClientEventType       // Optional event type to listen for
-	Channel  chan *ClientPluginEvent // Channel for the event payload
+	ListenTo []ClientEventType        // Optional event type to listen for
+	queue    []*ClientPluginEvent     // Queue for event payloads
+	callback func(*ClientPluginEvent) // Callback function to process events
 	closed   bool
 	mu       sync.Mutex
 }
@@ -90,7 +91,7 @@ func NewContext(ui *UI) *Context {
 		states:               result.NewResultMap[string, *State](),
 		fetchSem:             make(chan struct{}, MaxConcurrentFetchRequests),
 		stateSubscribers:     make([]chan *State, 0),
-		eventListeners:       result.NewResultMap[string, *EventListener](),
+		eventBus:             result.NewResultMap[ClientEventType, *result.Map[string, *EventListener]](),
 		wsEventManager:       ui.wsEventManager,
 		effectStack:          make(map[string]bool),
 		effectCalls:          make(map[string][]time.Time),
@@ -173,47 +174,143 @@ func (c *Context) RegisterEventListener(events ...ClientEventType) *EventListene
 	listener := &EventListener{
 		ID:       id,
 		ListenTo: events,
-		Channel:  make(chan *ClientPluginEvent),
+		queue:    make([]*ClientPluginEvent, 0),
+		closed:   false,
 	}
-	c.eventListeners.Set(id, listener)
+
+	// Register the listener for each event type
+	for _, event := range events {
+		if !c.eventBus.Has(event) {
+			c.eventBus.Set(event, result.NewResultMap[string, *EventListener]())
+		}
+		listeners, _ := c.eventBus.Get(event)
+		listeners.Set(id, listener)
+	}
+
 	return listener
 }
 
 func (c *Context) UnregisterEventListener(id string) {
-	listener, ok := c.eventListeners.Get(id)
-	if !ok {
+	c.eventBus.Range(func(key ClientEventType, listenerMap *result.Map[string, *EventListener]) bool {
+		listener, ok := listenerMap.Get(id)
+		if !ok {
+			return true
+		}
+
+		// Close the listener first before removing it
+		listener.Close()
+
+		listenerMap.Delete(id)
+
+		return true
+	})
+}
+
+func (c *Context) UnregisterEventListenerE(e *EventListener) {
+	if e == nil {
 		return
 	}
-	listener.Close()
-	c.eventListeners.Delete(id)
+
+	for _, event := range e.ListenTo {
+		listeners, ok := c.eventBus.Get(event)
+		if !ok {
+			continue
+		}
+
+		listener, ok := listeners.Get(e.ID)
+		if !ok {
+			continue
+		}
+
+		// Close the listener first before removing it
+		listener.Close()
+
+		listeners.Delete(e.ID)
+	}
 }
 
 func (e *EventListener) Close() {
-	defer func() {
-		if r := recover(); r != nil {
-		}
-	}()
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.closed {
 		return
 	}
 	e.closed = true
-	close(e.Channel)
+	e.queue = nil // Clear the queue
 }
 
 func (e *EventListener) Send(event *ClientPluginEvent) {
 	defer func() {
 		if r := recover(); r != nil {
+			fmt.Printf("plugin: Error sending event %s\n", event.Type)
 		}
 	}()
 
 	e.mu.Lock()
-	defer e.mu.Unlock()
+
 	if e.closed {
+		e.mu.Unlock()
 		return
 	}
-	e.Channel <- event
+
+	// Add event to queue
+	e.queue = append(e.queue, event)
+	hasCallback := e.callback != nil
+
+	e.mu.Unlock()
+
+	// Process immediately if callback is set - call after releasing the lock
+	if hasCallback {
+		go e.processEvents()
+	}
+}
+
+// SetCallback sets a function to call when events are received
+func (e *EventListener) SetCallback(callback func(*ClientPluginEvent)) {
+	e.mu.Lock()
+
+	e.callback = callback
+	hasEvents := len(e.queue) > 0 && !e.closed
+
+	e.mu.Unlock()
+
+	// Process any existing events in the queue - call after releasing the lock
+	if hasEvents {
+		go e.processEvents()
+	}
+}
+
+// processEvents processes all events in the queue
+func (e *EventListener) processEvents() {
+	var _events []*ClientPluginEvent
+	var callback func(*ClientPluginEvent)
+
+	e.mu.Lock()
+	if e.closed || e.callback == nil {
+		e.mu.Unlock()
+		return
+	}
+
+	// Get all _events from the queue and the callback
+	_events = make([]*ClientPluginEvent, len(e.queue))
+	copy(_events, e.queue)
+	e.queue = e.queue[:0] // Clear the queue
+	callback = e.callback // Make a copy of the callback
+
+	e.mu.Unlock()
+
+	// Process _events outside the lock with the copied callback
+	for _, event := range _events {
+		// Wrap each callback in a recover to prevent one bad event from stopping all processing
+		func(evt *ClientPluginEvent) {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Printf("plugin: Error processing event: %v\n", r)
+				}
+			}()
+			callback(evt)
+		}(event)
+	}
 }
 
 // SendEventToClient sends an event to the client
@@ -646,20 +743,18 @@ func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
 
 	globalObj := c.vm.GlobalObject()
 
-	go func(handlerCallback goja.Callable, globalObj goja.Value) {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) {
-				// Check if the handler name matches
-				if payload.HandlerName == handlerName {
-					c.scheduler.ScheduleAsync(func() error {
-						// Trigger the callback with the event payload
-						_, err := handlerCallback(globalObj, c.vm.ToValue(payload.Event))
-						return err
-					})
-				}
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientEventHandlerTriggeredEvent, &payload) {
+			// Check if the handler name matches
+			if payload.HandlerName == handlerName {
+				c.scheduler.ScheduleAsync(func() error {
+					// Trigger the callback with the event payload
+					_, err := handlerCallback(globalObj, c.vm.ToValue(payload.Event))
+					return err
+				})
 			}
 		}
-	}(handlerCallback, globalObj)
+	})
 
 	return goja.Undefined()
 }
@@ -711,32 +806,32 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 
 	// Listen for changes from the client
 	eventListener := c.RegisterEventListener(ClientFieldRefSendValueEvent, ClientRenderTrayEvent)
+
 	payload := ClientFieldRefSendValueEventPayload{}
 	renderPayload := ClientRenderTrayEventPayload{}
 
-	globalObj := c.vm.GlobalObject()
-
-	go func(eventListener *EventListener, globalObj goja.Value) {
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) {
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
+		if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) && payload.FieldRef == fieldRefName {
+			fmt.Printf("Ref before: %s, Value: %v\n", fieldRefName, payload.Value)
+			c.scheduler.ScheduleAsync(func() error {
 				if payload.Value != nil {
+					fmt.Printf("Ref scheduled: %s, Value: %v\n", fieldRefName, payload.Value)
 					// Schedule the update of the object
-					c.scheduler.ScheduleAsync(func() error {
-						fieldRefObj.Set("current", payload.Value)
-						return nil
-					})
+					fieldRefObj.Set("current", payload.Value)
 				}
-			}
-			// Check if the client is requesting a render
-			// If it is, we send the current value to the client
-			if event.ParsePayloadAs(ClientRenderTrayEvent, &renderPayload) {
-				c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{
-					FieldRef: fieldRefName,
-					Value:    valueRef,
-				})
-			}
+				return nil
+			})
 		}
-	}(eventListener, globalObj)
+
+		// Check if the client is requesting a render
+		// If it is, we send the current value to the client
+		if event.ParsePayloadAs(ClientRenderTrayEvent, &renderPayload) {
+			c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{
+				FieldRef: fieldRefName,
+				Value:    valueRef,
+			})
+		}
+	})
 
 	return fieldRefObj
 }
@@ -857,31 +952,54 @@ func (c *Context) Stop() {
 	c.logger.Debug().Msg("plugin: Stopping context")
 
 	if c.updateBatchTimer != nil {
+		c.logger.Trace().Msg("plugin: Stopping update batch timer")
 		c.updateBatchTimer.Stop()
 	}
 
 	// Stop the scheduler
+	c.logger.Trace().Msg("plugin: Stopping scheduler")
 	c.scheduler.Stop()
 
 	// Stop the cron
 	if cron, hasCron := c.cron.Get(); hasCron {
+		c.logger.Trace().Msg("plugin: Stopping cron")
 		cron.Stop()
 	}
 
 	// Stop all event listeners
-	for _, listener := range c.eventListeners.Values() {
-		go func(listener *EventListener) {
+	c.logger.Trace().Msg("plugin: Stopping event listeners")
+	eventListenersToClose := make([]*EventListener, 0)
+
+	// First collect all listeners to avoid modification during iteration
+	c.eventBus.Range(func(_ ClientEventType, listenerMap *result.Map[string, *EventListener]) bool {
+		listenerMap.Range(func(_ string, listener *EventListener) bool {
+			eventListenersToClose = append(eventListenersToClose, listener)
+			return true
+		})
+		return true
+	})
+
+	// Then close them all outside the locks
+	for _, listener := range eventListenersToClose {
+		func(l *EventListener) {
 			defer func() {
 				if r := recover(); r != nil {
 					c.logger.Error().Err(fmt.Errorf("%v", r)).Msg("plugin: Error stopping event listener")
 				}
 			}()
-			listener.Close()
+			l.Close()
 		}(listener)
 	}
-	c.eventListeners.Clear()
+
+	// Finally clear the maps
+	c.eventBus.Range(func(_ ClientEventType, listenerMap *result.Map[string, *EventListener]) bool {
+		listenerMap.Clear()
+		return true
+	})
+	c.eventBus.Clear()
 
 	// Stop all state subscribers
+	c.logger.Trace().Msg("plugin: Stopping state subscribers")
 	for _, sub := range c.stateSubscribers {
 		go func(sub chan *State) {
 			defer func() {

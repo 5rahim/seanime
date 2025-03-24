@@ -185,20 +185,12 @@ func (u *UI) Register(callback string) error {
 							u.context.commandPaletteManager.sendInfoToClient()
 
 						default:
-							u.context.eventListeners.Range(func(key string, listener *EventListener) bool {
-								if len(listener.ListenTo) > 0 {
-									// Check if the event type is in the listener's list of event types
-									for _, eventType := range listener.ListenTo {
-										if eventType == clientEvent.Type {
-											// Only send the event to the listener if the event type is in the list
-											//go listener.Send(clientEvent)
-											listener.Send(clientEvent)
-										}
-									}
-								} else {
-									//go listener.Send(clientEvent)
-									listener.Send(clientEvent)
-								}
+							eventListeners, ok := u.context.eventBus.Get(clientEvent.Type)
+							if !ok {
+								continue
+							}
+							eventListeners.Range(func(key string, listener *EventListener) bool {
+								listener.Send(clientEvent)
 								return true
 							})
 						}

@@ -9,12 +9,12 @@ import (
 )
 
 type MediaFillerItem struct {
-	DbId           uint
-	Provider       string
-	Slug           string
-	MediaId        int
-	LastFetchedAt  time.Time
-	FillerEpisodes mo.Option[[]string]
+	DbId           uint      `json:"dbId"`
+	Provider       string    `json:"provider"`
+	Slug           string    `json:"slug"`
+	MediaId        int       `json:"mediaId"`
+	LastFetchedAt  time.Time `json:"lastFetchedAt"`
+	FillerEpisodes []string  `json:"fillerEpisodes"`
 }
 
 // GetCachedMediaFillers will return all the media fillers (cache-first).
@@ -52,7 +52,7 @@ func (db *Database) GetCachedMediaFillers() (map[int]*MediaFillerItem, error) {
 			MediaId:        mf.MediaID,
 			Slug:           mf.Slug,
 			LastFetchedAt:  mf.LastFetchedAt,
-			FillerEpisodes: mo.Some(fillerEpisodes),
+			FillerEpisodes: fillerEpisodes,
 		}
 	}
 
@@ -127,12 +127,12 @@ func (db *Database) SaveCachedMediaFillerItems() error {
 	}
 
 	for _, mf := range mediaFillers {
-		if mf.FillerEpisodes.IsAbsent() {
+		if len(mf.FillerEpisodes) == 0 {
 			continue
 		}
 		// Marshal the filler data
 		fillerData := filler.Data{
-			FillerEpisodes: mf.FillerEpisodes.MustGet(),
+			FillerEpisodes: mf.FillerEpisodes,
 		}
 
 		fillerDataBytes, err := json.Marshal(fillerData)

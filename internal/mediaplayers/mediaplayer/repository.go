@@ -549,6 +549,11 @@ func (m *Repository) StartTracking() {
 	maxTries := hookEvent.MaxRetries
 	refreshDelay := hookEvent.RefreshDelay
 
+	if hookEvent.DefaultPrevented {
+		m.Logger.Debug().Msg("media player: Tracking cancelled by hook")
+		return
+	}
+
 	m.isRunning = true
 
 	m.mu.Unlock()

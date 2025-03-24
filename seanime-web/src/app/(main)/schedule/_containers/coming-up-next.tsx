@@ -91,7 +91,7 @@ export function ComingUpNext() {
                                             }}
                                             anime={{
                                                 id: item.id,
-                                                image: item.bannerImage || item.coverImage?.large,
+                                                image: item.coverImage?.large,
                                                 title: item.title?.userPreferred,
                                             }}
                                         />

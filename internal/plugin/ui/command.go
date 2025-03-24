@@ -176,18 +176,24 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 
 		eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteInputEvent)
 		defer c.ctx.UnregisterEventListener(eventListener.ID)
-		payload := ClientCommandPaletteInputEventPayload{}
 
 		timeout := time.After(1500 * time.Millisecond)
 		input := make(chan string)
 
-		go func() {
-			for event := range eventListener.Channel {
-				if event.ParsePayloadAs(ClientCommandPaletteInputEvent, &payload) {
-					input <- payload.Value
-				}
+		eventListener.SetCallback(func(event *ClientPluginEvent) {
+			payload := ClientCommandPaletteInputEventPayload{}
+			if event.ParsePayloadAs(ClientCommandPaletteInputEvent, &payload) {
+				input <- payload.Value
 			}
-		}()
+		})
+
+		// go func() {
+		// 	for event := range eventListener.Channel {
+		// 		if event.ParsePayloadAs(ClientCommandPaletteInputEvent, &payload) {
+		// 			input <- payload.Value
+		// 		}
+		// 	}
+		// }()
 
 		select {
 		case <-timeout:
@@ -214,21 +220,30 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 		}
 
 		eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteOpenedEvent)
-		payload := ClientCommandPaletteOpenedEventPayload{}
 
-		go func() {
-			for event := range eventListener.Channel {
-				if event.ParsePayloadAs(ClientCommandPaletteOpenedEvent, &payload) {
-					c.ctx.scheduler.ScheduleAsync(func() error {
-						_, err := callback(goja.Undefined(), c.ctx.vm.ToValue(map[string]interface{}{}))
-						if err != nil {
-							c.ctx.logger.Error().Err(err).Msg("plugin: Error running command palette open callback")
-						}
-						return err
-					})
-				}
+		eventListener.SetCallback(func(event *ClientPluginEvent) {
+			payload := ClientCommandPaletteOpenedEventPayload{}
+			if event.ParsePayloadAs(ClientCommandPaletteOpenedEvent, &payload) {
+				c.ctx.scheduler.ScheduleAsync(func() error {
+					_, err := callback(goja.Undefined(), c.ctx.vm.ToValue(map[string]interface{}{}))
+					return err
+				})
 			}
-		}()
+		})
+
+		// go func() {
+		// 	for event := range eventListener.Channel {
+		// 		if event.ParsePayloadAs(ClientCommandPaletteOpenedEvent, &payload) {
+		// 			c.ctx.scheduler.ScheduleAsync(func() error {
+		// 				_, err := callback(goja.Undefined(), c.ctx.vm.ToValue(map[string]interface{}{}))
+		// 				if err != nil {
+		// 					c.ctx.logger.Error().Err(err).Msg("plugin: Error running command palette open callback")
+		// 				}
+		// 				return err
+		// 			})
+		// 		}
+		// 	}
+		// }()
 		return goja.Undefined()
 	})
 
@@ -249,40 +264,62 @@ func (c *CommandPaletteManager) jsNewCommandPalette(options NewCommandPaletteOpt
 		}
 
 		eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteClosedEvent)
-		payload := ClientCommandPaletteClosedEventPayload{}
 
-		go func() {
-			for event := range eventListener.Channel {
-				if event.ParsePayloadAs(ClientCommandPaletteClosedEvent, &payload) {
-					c.ctx.scheduler.ScheduleAsync(func() error {
-						_, err := callback(goja.Undefined(), c.ctx.vm.ToValue(map[string]interface{}{}))
-						if err != nil {
-							c.ctx.logger.Error().Err(err).Msg("plugin: Error running command palette close callback")
-						}
-						return err
-					})
-				}
+		eventListener.SetCallback(func(event *ClientPluginEvent) {
+			payload := ClientCommandPaletteClosedEventPayload{}
+			if event.ParsePayloadAs(ClientCommandPaletteClosedEvent, &payload) {
+				c.ctx.scheduler.ScheduleAsync(func() error {
+					_, err := callback(goja.Undefined(), c.ctx.vm.ToValue(map[string]interface{}{}))
+					return err
+				})
 			}
-		}()
+		})
+
+		// go func() {
+		// 	for event := range eventListener.Channel {
+		// 		if event.ParsePayloadAs(ClientCommandPaletteClosedEvent, &payload) {
+		// 			c.ctx.scheduler.ScheduleAsync(func() error {
+		// 				_, err := callback(goja.Undefined(), c.ctx.vm.ToValue(map[string]interface{}{}))
+		// 				if err != nil {
+		// 					c.ctx.logger.Error().Err(err).Msg("plugin: Error running command palette close callback")
+		// 				}
+		// 				return err
+		// 			})
+		// 		}
+		// 	}
+		// }()
 		return goja.Undefined()
 	})
 
-	go func() {
-		eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteItemSelectedEvent)
+	eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteItemSelectedEvent)
+	eventListener.SetCallback(func(event *ClientPluginEvent) {
 		payload := ClientCommandPaletteItemSelectedEventPayload{}
-
-		for event := range eventListener.Channel {
-			if event.ParsePayloadAs(ClientCommandPaletteItemSelectedEvent, &payload) {
+		if event.ParsePayloadAs(ClientCommandPaletteItemSelectedEvent, &payload) {
+			c.ctx.scheduler.ScheduleAsync(func() error {
 				item, found := c.items.Get(payload.ItemID)
 				if found {
-					c.ctx.scheduler.ScheduleAsync(func() error {
-						_ = item.onSelectFunc(goja.FunctionCall{})
-						return nil
-					})
+					_ = item.onSelectFunc(goja.FunctionCall{})
 				}
-			}
+				return nil
+			})
 		}
-	}()
+	})
+	// go func() {
+	// 	eventListener := c.ctx.RegisterEventListener(ClientCommandPaletteItemSelectedEvent)
+	// 	payload := ClientCommandPaletteItemSelectedEventPayload{}
+
+	// 	for event := range eventListener.Channel {
+	// 		if event.ParsePayloadAs(ClientCommandPaletteItemSelectedEvent, &payload) {
+	// 			item, found := c.items.Get(payload.ItemID)
+	// 			if found {
+	// 				c.ctx.scheduler.ScheduleAsync(func() error {
+	// 					_ = item.onSelectFunc(goja.FunctionCall{})
+	// 					return nil
+	// 				})
+	// 			}
+	// 		}
+	// 	}
+	// }()
 
 	// Register components
 	_ = cmdObj.Set("div", c.componentManager.jsDiv)

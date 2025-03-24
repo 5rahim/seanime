@@ -146,12 +146,12 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
 
     return (
         <>
-            <AppLayoutStack>
-                <div className="absolute right-0 top-[-3rem]">
+            <AppLayoutStack data-debrid-stream-page>
+                <div className="absolute right-0 top-[-3rem]" data-debrid-stream-page-title-container>
                     <h2 className="text-xl lg:text-3xl flex items-center gap-3">Debrid streaming</h2>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-6 pb-6 2xl:py-0">
+                <div className="flex flex-col md:flex-row gap-6 pb-6 2xl:py-0" data-debrid-stream-page-content-actions-container>
                     <Switch
                         label="Auto-select"
                         value={autoSelect}
@@ -176,7 +176,7 @@ export function DebridStreamPage(props: DebridStreamPageProps) {
                 </div>
 
                 {episodeCollection?.hasMappingError && (
-                    <div className="">
+                    <div data-debrid-stream-page-no-metadata-message-container>
                         <p className="text-red-200 opacity-50">
                             No metadata info available for this anime. You may need to manually select the file to stream.
                         </p>

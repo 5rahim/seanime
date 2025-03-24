@@ -59,13 +59,14 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
     const ActionButtons = () => (
         <div
+            data-anime-meta-section-action-buttons
             className={cn(
                 "w-full flex flex-wrap gap-4 items-center",
                 ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "w-auto flex-nowrap",
             )}
         >
 
-            <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
+            <div className="flex items-center gap-4 justify-center w-full lg:w-fit" data-anime-meta-section-action-buttons-inner-container>
 
                 <SeaLink href={`https://anilist.co/anime/${entry.mediaId}`} target="_blank">
                     <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
@@ -79,9 +80,10 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 />}
             </div>
 
-            {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <div className="flex-1 hidden lg:flex"></div>}
+            {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid &&
+                <div className="flex-1 hidden lg:flex" data-anime-meta-section-action-buttons-spacer></div>}
 
-            <div className="flex items-center gap-4 justify-center w-full lg:w-fit">
+            <div className="flex items-center gap-4 justify-center w-full lg:w-fit" data-anime-meta-section-action-buttons-inner-container>
                 <AnimeAutoDownloaderButton entry={entry} size="md" />
 
                 {!!entry.libraryData && <>
@@ -102,6 +104,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
 
     const Details = () => (
         <div
+            data-anime-meta-section-details
             className={cn(
                 "flex gap-3 flex-wrap items-center",
                 ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "justify-center lg:justify-start lg:max-w-[65vw]",
@@ -114,6 +117,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
             <MediaEntryGenresList genres={details?.genres} />
 
             <div
+                data-anime-meta-section-rankings-container
                 className={cn(
                     ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid ? "w-full" : "contents",
                 )}
@@ -152,6 +156,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                 {ts.mediaPageBannerInfoBoxSize !== ThemeMediaPageInfoBoxSize.Fluid && <Details />}
 
                 <div
+                    data-anime-meta-section-buttons-container
                     className={cn(
                         "flex flex-col lg:flex-row w-full gap-3 items-center",
                         ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "flex-wrap",
@@ -193,6 +198,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                         "text-[--muted] text-sm text-center mb-3",
                         ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "text-left",
                     )}
+                    data-anime-meta-section-inaccurate-schedule-message
                 >
                     <span className="block">Could not retrieve accurate scheduling information for this show.</span>
                     <span className="block text-[--muted]">Please check the schedule online for more information.</span>
@@ -206,6 +212,7 @@ export function MetaSection(props: { entry: Anime_Entry, details: AL_AnimeDetail
                             "text-center text-red-300 opacity-50",
                             ts.mediaPageBannerInfoBoxSize === ThemeMediaPageInfoBoxSize.Fluid && "text-left",
                         )}
+                        data-anime-meta-section-no-metadata-message
                     >
                         No metadata found on AniDB
                     </p>

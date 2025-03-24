@@ -443,7 +443,7 @@ declare namespace $app {
      * @event AutoDownloaderTorrentsFetchedEvent
      * @file internal/library/autodownloader/hook_events.go
      * @description
-     * AutoDownloaderTorrentsFetchedEvent is triggered when the autodownloader fetches torrents from the provider.
+     * AutoDownloaderTorrentsFetchedEvent is triggered at the beginning of a run, when the autodownloader fetches torrents from the provider.
      */
     function onAutoDownloaderTorrentsFetched(cb: (event: AutoDownloaderTorrentsFetchedEvent) => void);
 
@@ -458,18 +458,22 @@ declare namespace $app {
      * @file internal/library/autodownloader/hook_events.go
      * @description
      * AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule.
+     * Prevent default to abort the download if the match is found.
      */
     function onAutoDownloaderMatchVerified(cb: (event: AutoDownloaderMatchVerifiedEvent) => void);
 
     interface AutoDownloaderMatchVerifiedEvent {
         next();
 
+        matchFound: boolean;
+
         torrent?: AutoDownloader_NormalizedTorrent;
         rule?: Anime_AutoDownloaderRule;
         listEntry?: AL_AnimeListEntry;
         localEntry?: Anime_LocalFileWrapperEntry;
         episode: number;
-        ok: boolean;
+
+        preventDefault();
     }
 
     /**
@@ -486,6 +490,40 @@ declare namespace $app {
         settings?: Models_AutoDownloaderSettings;
     }
 
+    /**
+     * @event AutoDownloaderBeforeDownloadTorrentEvent
+     * @file internal/library/autodownloader/hook_events.go
+     * @description
+     * AutoDownloaderBeforeDownloadTorrentEvent is triggered when the autodownloader is about to download a torrent.
+     * Prevent default to abort the download.
+     */
+    function onAutoDownloaderBeforeDownloadTorrent(cb: (event: AutoDownloaderBeforeDownloadTorrentEvent) => void);
+
+    interface AutoDownloaderBeforeDownloadTorrentEvent {
+        torrent?: AutoDownloader_NormalizedTorrent;
+        rule?: Anime_AutoDownloaderRule;
+        items?: Array<Models_AutoDownloaderItem>;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
+     * @event AutoDownloaderAfterDownloadTorrentEvent
+     * @file internal/library/autodownloader/hook_events.go
+     * @description
+     * AutoDownloaderAfterDownloadTorrentEvent is triggered when the autodownloader has downloaded a torrent.
+     */
+    function onAutoDownloaderAfterDownloadTorrent(cb: (event: AutoDownloaderAfterDownloadTorrentEvent) => void);
+
+    interface AutoDownloaderAfterDownloadTorrentEvent {
+        torrent?: AutoDownloader_NormalizedTorrent;
+        rule?: Anime_AutoDownloaderRule;
+
+        next();
+    }
+
 
     /**
      * @package continuity
@@ -496,7 +534,8 @@ declare namespace $app {
      * @file internal/continuity/hook_events.go
      * @description
      * WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
-     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found.
+     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object
+     *     or set it to nil to indicate that the watch history item was not found.
      */
     function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void);
 
@@ -869,9 +908,9 @@ declare namespace $app {
      * @file internal/api/metadata/hook_events.go
      * @description
      * AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
-     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.
-     * This event is triggered after [AnimeEpisodeMetadataRequestedEvent].
-     * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
+     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the
+     *     original AnimeMetadata object is not complete. This event is triggered after [AnimeEpisodeMetadataRequestedEvent]. If the modified episode
+     *     metadata is nil, an empty EpisodeMetadata object will be returned.
      */
     function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void);
 
@@ -949,8 +988,8 @@ declare namespace $app {
      * PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
      * This event is triggered right after the media player loads an episode.
      * The playback manager uses the local files details to track the progress, propose next episodes, etc.
-     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.
-     * Prevent default to skip the default fetching and override the details.
+     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media
+     *     and anime list entry. Prevent default to skip the default fetching and override the details.
      */
     function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void);
 
@@ -972,7 +1011,8 @@ declare namespace $app {
      * @description
      * PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
      * Prevent default to skip the default fetching and override the details.
-     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked.
+     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is
+     *     still tracked.
      */
     function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void);
 
@@ -2639,6 +2679,23 @@ declare namespace $app {
         seasonNumber: number;
         absoluteEpisodeNumber: number;
         anidbEid: number;
+    }
+
+    /**
+     * - Filepath: internal/database/models/models.go
+     */
+    interface Models_AutoDownloaderItem {
+        ruleId: number;
+        mediaId: number;
+        episode: number;
+        link: string;
+        hash: string;
+        magnet: string;
+        torrentName: string;
+        downloaded: boolean;
+        id: number;
+        createdAt?: string;
+        updatedAt?: string;
     }
 
     /**

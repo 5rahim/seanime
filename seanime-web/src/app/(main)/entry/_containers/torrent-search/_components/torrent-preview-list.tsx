@@ -48,8 +48,10 @@ export const TorrentPreviewList = React.memo((
     }
 
     return (
-        <div className="space-y-2">
-            <p className="text-sm text-[--muted]">{previews?.length} results</p>
+        <div className="space-y-2" data-torrent-preview-list>
+            <p className="text-sm text-[--muted]" data-torrent-preview-list-results-count>
+                {previews?.length} results
+            </p>
             {/*<ScrollAreaBox className="h-[calc(100dvh_-_25rem)]">*/}
             {/*<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">*/}
             {previews.filter(Boolean).map(item => {

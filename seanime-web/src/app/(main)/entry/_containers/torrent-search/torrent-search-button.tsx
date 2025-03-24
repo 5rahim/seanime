@@ -13,13 +13,14 @@ export function TorrentSearchButton({ entry }: { entry: Anime_Entry }) {
     const isMovie = useMemo(() => entry.media?.format === "MOVIE", [entry.media?.format])
 
     return (
-        <div className="contents">
+        <div className="contents" data-torrent-search-button-container>
             <AnimeMetaActionButton
                 intent={!entry.downloadInfo?.hasInaccurateSchedule ? (!!count ? "white" : "gray-subtle") : "white-subtle"}
                 size="md"
                 leftIcon={(!!count) ? <BiDownload /> : <FiSearch />}
                 iconClass="text-2xl"
                 onClick={() => setter("download")}
+                data-torrent-search-button
             >
                 {(!entry.downloadInfo?.hasInaccurateSchedule && !!count) ? <>
                     {(!isMovie) && `Download ${entry.downloadInfo?.batchAll ? "batch /" : "next"} ${count > 1 ? `${count} episodes` : "episode"}`}

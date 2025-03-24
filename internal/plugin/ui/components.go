@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	MAX_FIELD_REFS = 20
+	MAX_FIELD_REFS = 100
 )
 
 // ComponentManager is used to register components.

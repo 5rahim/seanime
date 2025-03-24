@@ -1,8 +1,8 @@
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
+import { logger } from "@/lib/helpers/debug"
+import { useEffect, useRef } from "react"
 import { PluginDOMElement, PluginDOMManipulateOptions } from "./generated/plugin-dom-types"
 import { PluginClientEvents } from "./generated/plugin-events"
-import { useEffect, useRef } from "react"
-import { logger } from "@/lib/helpers/debug"
 
 function uuidv4(): string {
     // @ts-ignore
@@ -17,7 +17,7 @@ function uuidv4(): string {
  */
 export function useDOMManager(extensionId: string) {
     const { sendPluginMessage } = useWebsocketSender()
-    
+
     const elementObserversRef = useRef<Map<string, { selector: string; callback: (elements: Element[]) => void }>>(new Map())
     const observedElementsRef = useRef<Map<string, Set<string>>>(new Map()) // Track observed elements by observerId
     const eventListenersRef = useRef<Map<string, { elementId: string; eventType: string; callback: (event: Event) => void }>>(new Map())
@@ -48,10 +48,12 @@ export function useDOMManager(extensionId: string) {
         }
 
         // Ensure the element has an ID
-        if (!attributes.id) {
+        if (!element.id) {
             const id = `plugin-element-${uuidv4()}`
             element.setAttribute("id", id)
             attributes.id = id
+        } else {
+            attributes.id = element.id
         }
 
         // Add dataset as attributes with data- prefix
@@ -67,9 +69,10 @@ export function useDOMManager(extensionId: string) {
             id: attributes.id,
             tagName: element.tagName.toLowerCase(),
             attributes,
-            textContent: element.textContent || undefined,
-            innerHTML: element.innerHTML || undefined,
-            children: Array.from(element.children).map(child => elementToDOMElement(child)),
+            // textContent: element.textContent || undefined,
+            // innerHTML: element.innerHTML || undefined,
+            children: [],
+            // children: Array.from(element.children).map(child => elementToDOMElement(child)),
         }
     }
 
@@ -118,39 +121,84 @@ export function useDOMManager(extensionId: string) {
 
         mutationObserverRef.current = new MutationObserver((mutations) => {
             if (disposedRef.current) return // Skip processing if disposed
-            
-            // For each observer, check if any elements match the selector
-            elementObserversRef.current.forEach((observer, observerId) => {
-                const elements = document.querySelectorAll(observer.selector)
-                if (elements.length > 0) {
-                    // Get currently observed elements for this observer
-                    const observedSet = observedElementsRef.current.get(observerId) || new Set()
-                    
-                    // Filter out elements that have already been observed
-                    const newElements = Array.from(elements).filter(element => {
-                        const id = element.id || `plugin-element-${uuidv4()}`
-                        if (!element.id) element.id = id
-                        return !observedSet.has(id)
+
+            // Process each mutation to find modified elements that match our selectors
+            const processedElements = new Set<Element>()
+
+            mutations.forEach(mutation => {
+                // Handle added nodes
+                if (mutation.type === "childList") {
+                    mutation.addedNodes.forEach(node => {
+                        if (node instanceof Element) {
+                            processedElements.add(node)
+                            // Also check descendant elements
+                            node.querySelectorAll("*").forEach(el => processedElements.add(el))
+                        }
                     })
-                    
-                    // If there are new elements, process them
-                    if (newElements.length > 0) {
-                        // Convert elements to DOM elements
-                        const domElements = newElements.map(e => elementToDOMElement(e))
-                        
-                        // Add new elements to the observed set
-                        domElements.forEach(elem => observedSet.add(elem.id))
-                        observedElementsRef.current.set(observerId, observedSet)
-                        
-                        // Call the callback
-                        observer.callback(newElements)
-                        
-                        // Send the elements to the plugin
-                        safeSendPluginMessage(PluginClientEvents.DOMObserveResult, {
-                            observerId,
-                            elements: domElements,
-                        })
+                }
+
+                // Handle modified nodes (attributes or character data)
+                if (mutation.type === "attributes" || mutation.type === "characterData") {
+                    const target = mutation.target instanceof Element ?
+                        mutation.target :
+                        mutation.target.parentElement
+
+                    if (target) processedElements.add(target)
+                }
+            })
+
+            // Check each observer against processed elements
+            elementObserversRef.current.forEach((observer, observerId) => {
+                // Track newly matched elements for this observer
+                const matchedElements: Element[] = []
+                const observedSet = observedElementsRef.current.get(observerId) || new Set()
+
+                // Check if any of the processed elements match our selector
+                processedElements.forEach(element => {
+                    // Ensure element has an ID before matching
+                    if (!element.id) {
+                        element.id = `plugin-element-${uuidv4()}`
                     }
+
+                    if (element.matches(observer.selector)) {
+                        matchedElements.push(element)
+                    }
+                })
+
+                // Also do a general query to catch any elements that might match but weren't directly modified
+                document.querySelectorAll(observer.selector).forEach(element => {
+                    // Ensure element has an ID
+                    if (!element.id) {
+                        element.id = `plugin-element-${uuidv4()}`
+                    }
+
+                    const id = element.id
+                    // If we haven't seen this element before, add it
+                    if (!observedSet.has(id) && !matchedElements.includes(element)) {
+                        matchedElements.push(element)
+                    }
+                })
+
+                if (matchedElements.length > 0) {
+                    // Convert to DOM elements
+                    const domElements = matchedElements.map(e => {
+                        // Ensure ID
+                        if (!e.id) e.id = `plugin-element-${uuidv4()}`
+                        return elementToDOMElement(e)
+                    })
+
+                    // Update observed set with any new elements
+                    domElements.forEach(elem => observedSet.add(elem.id))
+                    observedElementsRef.current.set(observerId, observedSet)
+
+                    // Call the callback
+                    observer.callback(matchedElements)
+
+                    // Send the elements to the plugin
+                    safeSendPluginMessage(PluginClientEvents.DOMObserveResult, {
+                        observerId,
+                        elements: domElements,
+                    })
                 }
             })
         })
@@ -188,30 +236,43 @@ export function useDOMManager(extensionId: string) {
 
     const handleDOMObserve = (selector: string, observerId: string) => {
         if (disposedRef.current) return
-        
-        // console.log(`Registering observer ${observerId} for selector ${selector}`)
-        
+
+        console.log(`Registering observer ${observerId} for selector ${selector}`)
+
         // Initialize set to track observed elements for this observer
         observedElementsRef.current.set(observerId, new Set())
-        
+
         // Store the observer
         elementObserversRef.current.set(observerId, {
             selector,
             callback: (elements) => {
                 // This callback is called when elements matching the selector are found
-                // console.log(`Observer ${observerId} callback with ${elements.length} elements matching ${selector}`)
+                console.log(`Observer ${observerId} callback with ${elements.length} elements matching ${selector}`, elements.map(e => e.id))
             },
         })
 
         // Immediately check for matching elements
         const elements = document.querySelectorAll(selector)
         if (elements.length > 0) {
-            const domElements = Array.from(elements).map(e => elementToDOMElement(e))
-            
+            // Ensure each element has an ID and add to matched set
+            const matchedElements = Array.from(elements).map(element => {
+                if (!element.id) {
+                    element.id = `plugin-element-${uuidv4()}`
+                }
+                return element
+            })
+
+            // Convert to DOM elements for sending to plugin
+            const domElements = matchedElements.map(e => elementToDOMElement(e))
+
             // Track these elements as observed
             const observedSet = observedElementsRef.current.get(observerId)!
             domElements.forEach(elem => observedSet.add(elem.id))
-            
+
+            // Call the callback
+            elementObserversRef.current.get(observerId)?.callback(matchedElements)
+
+            // Send matched elements to the plugin
             safeSendPluginMessage(PluginClientEvents.DOMObserveResult, {
                 observerId,
                 elements: domElements,
@@ -248,19 +309,27 @@ export function useDOMManager(extensionId: string) {
 
     const handleDOMManipulate = (options: PluginDOMManipulateOptions) => {
         if (disposedRef.current) return
-        const { elementId, action, params } = options
+        const { elementId, action, params, requestId } = options
         const element = document.getElementById(elementId)
 
         if (!element) {
             console.error(`Element with ID ${elementId} not found`)
+            safeSendPluginMessage(PluginClientEvents.DOMElementUpdated, {
+                elementId,
+                action,
+                result: { error: "Element not found" },
+                requestId,
+            })
             return
         }
+
 
         let result: any = null
 
         switch (action) {
             case "setAttribute":
                 element.setAttribute(params.name, params.value)
+                result = true
                 break
             case "removeAttribute":
                 element.removeAttribute(params.name)
@@ -358,6 +427,29 @@ export function useDOMManager(extensionId: string) {
             case "getChildren":
                 result = Array.from(element.children).map(e => elementToDOMElement(e))
                 break
+            case "query":
+                // Find elements within the current element using the provided selector
+                const queryElements = element.querySelectorAll(params.selector)
+                const queryDomElements = Array.from(queryElements).map(e => elementToDOMElement(e))
+
+                // Send the results back using the DOMQueryResult event
+                safeSendPluginMessage(PluginClientEvents.DOMQueryResult, {
+                    requestId: params.requestId,
+                    elements: queryDomElements,
+                })
+                return // Return early since we're sending separate event
+            case "queryOne":
+                // Find a single element within the current element using the provided selector
+                const queryOneElement = element.querySelector(params.selector)
+                const _queryOneElements = element.querySelectorAll(params.selector)
+                const queryOneDomElement = queryOneElement ? elementToDOMElement(queryOneElement) : null
+
+                // Send the result back using the DOMQueryOneResult event
+                safeSendPluginMessage(PluginClientEvents.DOMQueryOneResult, {
+                    requestId: params.requestId,
+                    element: queryOneDomElement,
+                })
+                return // Return early since we're sending separate event
             case "addEventListener":
                 const listenerId = params.listenerId
                 const eventType = params.event
@@ -434,11 +526,14 @@ export function useDOMManager(extensionId: string) {
                 console.warn(`Unknown DOM action: ${action}`)
         }
 
+        // console.log(`DOMElementUpdated: ${elementId} ${action} ${requestId}`)
+
         // Send the result back to the plugin
         safeSendPluginMessage(PluginClientEvents.DOMElementUpdated, {
             elementId,
             action,
             result,
+            requestId,
         })
     }
 
@@ -447,7 +542,7 @@ export function useDOMManager(extensionId: string) {
         // Mark as disposed to prevent further message sending
         disposedRef.current = true
         domReadySentRef.current = false
-        
+
         // Stop the mutation observer
         if (mutationObserverRef.current) {
             mutationObserverRef.current.disconnect()
@@ -466,7 +561,7 @@ export function useDOMManager(extensionId: string) {
         elementObserversRef.current.clear()
         eventListenersRef.current.clear()
         observedElementsRef.current.clear()
-        
+
         // Remove plugin container if it exists
         const container = document.getElementById("plugin-dom-container")
         if (container) {
@@ -476,7 +571,7 @@ export function useDOMManager(extensionId: string) {
 
     useEffect(() => {
         logger("DOMManager").info("DOMManager hook initialized for extension", extensionId)
-        
+
         // Send DOM ready event if document is already loaded
         if (document.readyState === "complete") {
             sendDOMReadyEvent()

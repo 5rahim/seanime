@@ -57,6 +57,8 @@ function PluginTrayProvider(props: { children: React.ReactNode, props: TrayPlugi
     </PluginTrayContext.Provider>
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 export function usePluginTray() {
     const context = React.useContext(PluginTrayContext)
     if (!context) {
@@ -235,11 +237,6 @@ function PluginTrayContent(props: PluginTrayContentProps) {
 
     return (
         <div>
-            {/*<p className="font-bold">*/}
-            {/*    Extension name*/}
-            {/*</p>*/}
-            {/*<Separator className="my-2" />*/}
-
             <div
                 className={cn(
                     "max-h-[35rem] overflow-y-auto p-3",

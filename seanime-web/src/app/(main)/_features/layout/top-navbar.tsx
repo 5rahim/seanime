@@ -99,6 +99,7 @@ export function SidebarNavbar(props: SidebarNavbarProps) {
                 <Separator className="px-4" />
             </div>
             {!serverStatus?.isOffline && <VerticalMenu
+                data-sidebar-navbar-vertical-menu
                 className="px-4"
                 collapsed={isCollapsed}
                 itemClass="relative"
