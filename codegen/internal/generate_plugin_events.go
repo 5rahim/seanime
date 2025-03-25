@@ -16,6 +16,12 @@ import (
 	"golang.org/x/text/language"
 )
 
+var (
+	additionalStructNamesForHooks = []string{
+		"manga.MangaLatestChapterNumberItem",
+	}
+)
+
 func GeneratePluginEventFile(inFilePath string, outDir string) {
 	// Parse the input file
 	file, err := parser.ParseFile(token.NewFileSet(), inFilePath, nil, parser.ParseComments)
@@ -389,6 +395,13 @@ func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath stri
 					}
 				}
 			}
+		}
+	}
+
+	// Add additional structs to otherStructs
+	for _, structName := range additionalStructNamesForHooks {
+		if _, ok := sharedStructsMap[structName]; !ok {
+			sharedStructsMap[structName] = goStructsMap[structName]
 		}
 	}
 

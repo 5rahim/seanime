@@ -42,6 +42,11 @@ declare namespace $ui {
         notification: Notification
 
         /**
+         * Manga
+         */
+        manga: Manga
+
+        /**
          * Creates a new state object with an initial value.
          * @param initialValue - The initial value for the state
          * @returns A state object that can be used to get and set values
@@ -905,6 +910,26 @@ declare namespace $ui {
          * @param message - The message to send
          */
         send(message: string): void
+    }
+
+    interface Manga {
+        /**
+         * Get the downloaded chapter containers
+         * @returns A promise that resolves to an array of chapter containers
+         */
+        getDownloadedChapterContainers(): Promise<$app.Manga_ChapterContainer[]>
+
+        /**
+         * Get the manga collection
+         * @returns A promise that resolves to a manga collection
+         */
+        getCollection(): Promise<$app.Manga_Collection>
+
+        /**
+         * Refreshes all the previously cached chapter containers
+         * @returns A promise that resolves to void
+         */
+        refreshChapterContainers(): Promise<void>
     }
 
     type Intent =

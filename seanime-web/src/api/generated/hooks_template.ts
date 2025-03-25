@@ -1023,15 +1023,6 @@
 //     })
 // }
 
-// export function useGetMangaChapterCountMap() {
-//     return useServerQuery<Record<number, number>>({
-//         endpoint: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.endpoint,
-//         method: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.methods[0],
-//         queryKey: [API_ENDPOINTS.MANGA.GetMangaChapterCountMap.key],
-//         enabled: true,
-//     })
-// }
-
 // export function useGetMangaLatestChapterNumbersMap() {
 //     return useServerQuery<Record<number, Array<Manga_MangaLatestChapterNumberItem>>>({
 //         endpoint: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.endpoint,
@@ -1042,7 +1033,7 @@
 // }
 
 // export function useRefetchMangaChapterContainers() {
-//     return useServerMutation<boolean, RefetchMangaChapterContainers_Variables>({
+//     return useServerMutation<boolean>({
 //         endpoint: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.endpoint,
 //         method: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.key],

@@ -58,6 +58,14 @@ const ExtensionList = ({
                     data-plugin-sidebar-debug-popover
                 >
                     <div className="space-y-2" data-plugin-sidebar-debug-popover-content>
+                        <div className="text-sm space-y-1">
+                            <p className="font-bold">
+                                Debug
+                            </p>
+                            <p className="text-xs text-[--muted]">
+                                These extensions are loaded in development mode.
+                            </p>
+                        </div>
                         {developmentModeExtensions?.map(extension => (
                             <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
                                 <p className="text-sm font-medium">{extension.id}</p>

@@ -12,58 +12,65 @@ function init() {
             withContent: true,
         })
 
-        // const [, refetchEpisodeCard] = ctx.dom.observe("[data-episode-card]", async (episodeCards) => {
-        //     try {
-        //         const blurThumbnails = $storage.get("params.blurThumbnails") || false
-        //         const blurTitles = $storage.get("params.blurTitles") || false
-        //         const blurDescriptions = $storage.get("params.blurDescriptions") || false
+        const [, refetchEpisodeCard] = ctx.dom.observe("[data-episode-card]", async (episodeCards) => {
+            try {
+                const blurThumbnails = $storage.get("params.blurThumbnails") || false
+                const blurTitles = $storage.get("params.blurTitles") || false
 
-        //         const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
-        //         if (!listDataElement) {
-        //             console.error("listDataElement not found")
-        //             return
-        //         }
-        //         const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
-        //         const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
+                const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
+                if (!listDataElement) {
+                    console.error("listDataElement not found")
+                    return
+                }
+                const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
+                const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
 
-        //         const progress = Number(listData?.progress || 0)
-        //         await Promise.all(episodeCards.map(async (episodeCard) => {
-        //             // const episodeNumberStr = await episodeCard.getAttribute("data-episode-number")
-        //             const episodeNumberStr = episodeCard.attributes["data-episode-number"]
+                const progress = Number(listData?.progress || 0)
 
-        //             const episodeNumber = Number(episodeNumberStr)
-        //             if (!isNaN(episodeNumber)) {
-        //                 const image = await episodeCard.queryOne("[data-episode-card-image]")
-        //                 if (image) {
-        //                     if (blurThumbnails) {
-        //                         if (episodeNumber > progress) {
-        //                             image.setStyle("filter", "blur(24px)")
-        //                         } else {
-        //                             image.removeStyle("filter")
-        //                         }
-        //                     } else {
-        //                         image.removeStyle("filter")
-        //                     }
-        //                 }
-        //                 const title = await episodeCard.queryOne("[data-episode-card-title]")
-        //                 if (title) {
-        //                     if (blurTitles) {
-        //                         if (episodeNumber > progress) {
-        //                             title.setStyle("filter", "blur(4px)")
-        //                         } else {
-        //                             title.removeStyle("filter")
-        //                         }
-        //                     } else {
-        //                         title.removeStyle("filter")
-        //                     }
-        //                 }
-        //             }
-        //         }))
-        //     }
-        //     catch (e) {
-        //         console.error("Error processing episodeCard", e)
-        //     }
-        // })
+                for (const episodeCard of episodeCards) {
+                    const episodeNumberStr = episodeCard.attributes["data-episode-number"]
+                    const episodeNumber = Number(episodeNumberStr)
+                    if (!isNaN(episodeNumber)) {
+                        const $ = LoadDoc(episodeCard.innerHTML!)
+                        const imageSelection = $("[data-episode-card-image]")
+                        if (imageSelection.length() === 0 || !imageSelection.attr("id")) {
+                            continue
+                        }
+
+                        const image = ctx.dom.asElement(imageSelection.attr("id")!)
+
+                        if (blurThumbnails) {
+                            if (episodeNumber > progress) {
+                                image.setStyle("filter", "blur(24px)")
+                            } else {
+                                image.removeStyle("filter")
+                            }
+                        } else {
+                            image.removeStyle("filter")
+                        }
+                        const titleSelection = $("[data-episode-card-title]")
+                        if (titleSelection.length() === 0 || !titleSelection.attr("id")) {
+                            continue
+                        }
+
+                        const title = ctx.dom.asElement(titleSelection.attr("id")!)
+
+                        if (blurTitles) {
+                            if (episodeNumber > progress) {
+                                title.setStyle("filter", "blur(4px)")
+                            } else {
+                                title.removeStyle("filter")
+                            }
+                        } else {
+                            title.removeStyle("filter")
+                        }
+                    }
+                }
+            }
+            catch (e) {
+                console.error("Error processing episodeCard", e)
+            }
+        }, { withInnerHTML: true, identifyChildren: true })
 
 
         const [, refetchEpisodeGridItem] = ctx.dom.observe("[data-episode-grid-item]", async (episodeGridItems) => {
@@ -169,7 +176,7 @@ function init() {
                 blurDescriptions: blurDescriptionsRef.current,
             })
             updateForm()
-            // refetchEpisodeCard()
+            refetchEpisodeCard()
             refetchEpisodeGridItem()
             ctx.toast.success("Settings saved")
         })
@@ -184,7 +191,7 @@ function init() {
 
         ctx.dom.onReady(() => {
             console.log("ready")
-            // refetchEpisodeCard()
+            refetchEpisodeCard()
             refetchEpisodeGridItem()
         })
     });

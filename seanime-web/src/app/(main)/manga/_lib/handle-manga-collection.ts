@@ -146,5 +146,7 @@ export function useHandleMangaCollection() {
         mangaCollection: sortedCollection,
         filteredMangaCollection: filteredCollection,
         mangaCollectionLoading: isLoading,
+        storedFilters,
+        storedProviders,
     }
 }

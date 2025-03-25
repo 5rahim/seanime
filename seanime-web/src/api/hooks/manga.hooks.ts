@@ -88,15 +88,6 @@ export function useEmptyMangaEntryCache() {
     })
 }
 
-export function useGetMangaChapterCountMap() {
-    return useServerQuery<Record<number, number>>({
-        endpoint: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.endpoint,
-        method: API_ENDPOINTS.MANGA.GetMangaChapterCountMap.methods[0],
-        queryKey: [API_ENDPOINTS.MANGA.GetMangaChapterCountMap.key],
-        enabled: true,
-    })
-}
-
 export function useGetMangaEntryChapters(variables: Partial<GetMangaEntryChapters_Variables>) {
     return useServerQuery<Manga_ChapterContainer, GetMangaEntryChapters_Variables>({
         endpoint: API_ENDPOINTS.MANGA.GetMangaEntryChapters.endpoint,
@@ -209,5 +200,21 @@ export function useGetMangaLatestChapterNumbersMap() {
         method: API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.methods[0],
         queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key],
         enabled: true,
+    })
+}
+
+export function useRefetchMangaChapterContainers() {
+    const queryClient = useQueryClient()
+
+    return useServerMutation<boolean>({
+        endpoint: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.endpoint,
+        method: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.methods[0],
+        mutationKey: [API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.key],
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaLatestChapterNumbersMap.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryChapters.key] })
+            await queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.MANGA.GetMangaEntryPages.key] })
+            toast.success("Sources refreshed")
+        },
     })
 }

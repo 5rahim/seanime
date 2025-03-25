@@ -66,7 +66,6 @@ const (
 	GetLibraryCollectionEndpoint                       = "ANIME-COLLECTION-get-library-collection"
 	GetLocalFilesEndpoint                              = "LOCALFILES-get-local-files"
 	GetLogFilenamesEndpoint                            = "STATUS-get-log-filenames"
-	GetMangaChapterCountMapEndpoint                    = "MANGA-get-manga-chapter-count-map"
 	GetMangaCollectionEndpoint                         = "MANGA-get-manga-collection"
 	GetMangaDownloadDataEndpoint                       = "MANGA-DOWNLOAD-get-manga-download-data"
 	GetMangaDownloadQueueEndpoint                      = "MANGA-DOWNLOAD-get-manga-download-queue"

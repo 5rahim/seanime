@@ -276,7 +276,7 @@ export function useDOMManager(extensionId: string) {
         const { selector, observerId, withInnerHTML, identifyChildren } = payload
         if (disposedRef.current) return
 
-        console.log(`Registering observer ${observerId} for selector ${selector}`)
+        // console.log(`Registering observer ${observerId} for selector ${selector}`)
 
         // Initialize set to track observed elements for this observer
         observedElementsRef.current.set(observerId, new Set())
@@ -356,11 +356,11 @@ export function useDOMManager(extensionId: string) {
         const element = document.getElementById(elementId)
 
         if (!element) {
-            console.error(`Element with ID ${elementId} not found`)
+            // console.error(`Element with ID ${elementId} not found`)
             safeSendPluginMessage(PluginClientEvents.DOMElementUpdated, {
                 elementId,
                 action,
-                result: { error: "Element not found" },
+                result: undefined,
                 requestId,
             })
             return

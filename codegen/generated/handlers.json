@@ -3974,33 +3974,6 @@
     }
   },
   {
-    "name": "HandleGetMangaChapterCountMap",
-    "trimmedName": "GetMangaChapterCountMap",
-    "comments": [
-      "HandleGetMangaChapterCountMap",
-      "",
-      "\t@summary returns the chapter count map for all manga entries.",
-      "\t@route /api/v1/manga/chapter-counts [GET]",
-      "\t@returns map[int]int",
-      ""
-    ],
-    "filepath": "internal/handlers/manga.go",
-    "filename": "manga.go",
-    "api": {
-      "summary": "returns the chapter count map for all manga entries.",
-      "descriptions": [],
-      "endpoint": "/api/v1/manga/chapter-counts",
-      "methods": [
-        "GET"
-      ],
-      "params": [],
-      "bodyFields": [],
-      "returns": "map[int]int",
-      "returnGoType": "int",
-      "returnTypescriptType": "Record\u003cnumber, number\u003e"
-    }
-  },
-  {
     "name": "HandleGetMangaLatestChapterNumbersMap",
     "trimmedName": "GetMangaLatestChapterNumbersMap",
     "comments": [
@@ -4048,17 +4021,7 @@
         "POST"
       ],
       "params": [],
-      "bodyFields": [
-        {
-          "name": "MediaIds",
-          "jsonName": "mediaIds",
-          "goType": "[]int",
-          "usedStructType": "",
-          "typescriptType": "Array\u003cnumber\u003e",
-          "required": true,
-          "descriptions": []
-        }
-      ],
+      "bodyFields": [],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"

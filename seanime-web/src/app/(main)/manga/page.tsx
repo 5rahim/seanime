@@ -16,6 +16,8 @@ export default function Page() {
         filteredMangaCollection,
         genres,
         mangaCollectionLoading,
+        storedFilters,
+        storedProviders,
     } = useHandleMangaCollection()
 
     const ts = useThemeSettings()
@@ -23,7 +25,11 @@ export default function Page() {
     if (!mangaCollection || mangaCollectionLoading) return <MediaEntryPageLoadingDisplay />
 
     return (
-        <div data-manga-page-container>
+        <div
+            data-manga-page-container
+            data-stored-filters={JSON.stringify(storedFilters)}
+            data-stored-providers={JSON.stringify(storedProviders)}
+        >
             {(
                 (!!ts.libraryScreenCustomBannerImage && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Custom)
             ) && (

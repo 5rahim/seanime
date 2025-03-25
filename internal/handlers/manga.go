@@ -152,20 +152,6 @@ func (h *Handler) HandleGetMangaEntryDetails(c echo.Context) error {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// HandleGetMangaChapterCountMap
-//
-//	@summary returns the chapter count map for all manga entries.
-//	@route /api/v1/manga/chapter-counts [GET]
-//	@returns map[int]int
-func (h *Handler) HandleGetMangaChapterCountMap(c echo.Context) error {
-	ret, err := h.App.MangaRepository.GetMangaLatestChapterNumberMap()
-	if err != nil {
-		return h.RespondWithError(c, err)
-	}
-
-	return h.RespondWithData(c, ret)
-}
-
 // HandleGetMangaLatestChapterNumbersMap
 //
 //	@summary returns the latest chapter number for all manga entries.
@@ -182,22 +168,19 @@ func (h *Handler) HandleGetMangaLatestChapterNumbersMap(c echo.Context) error {
 
 // HandleRefetchMangaChapterContainers
 //
-//	@summary refetches the chapter containers for selected manga entries.
+//	@summary refetches the chapter containers for all manga entries previously cached.
 //	@route /api/v1/manga/refetch-chapter-containers [POST]
 //	@returns bool
 func (h *Handler) HandleRefetchMangaChapterContainers(c echo.Context) error {
-
-	type body struct {
-		MediaIds []int `json:"mediaIds"`
-	}
-
-	var b body
-	if err := c.Bind(&b); err != nil {
+	mangaCollection, err := h.App.GetMangaCollection(false)
+	if err != nil {
 		return h.RespondWithError(c, err)
 	}
 
-	// TODO
-	// err := h.App.MangaRepository.RefetchMangaChapterContainers(b.MediaIds)
+	err = h.App.MangaRepository.RefreshChapterContainers(mangaCollection)
+	if err != nil {
+		return h.RespondWithError(c, err)
+	}
 
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"seanime/internal/api/anilist"
 	"seanime/internal/extension"
 	"seanime/internal/hook"
 	"seanime/internal/util"
@@ -115,7 +116,6 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 	}
 
 	// Delete the map cache
-	mangaChapterCountMap.Delete(ChapterCountMapCacheKey)
 	mangaLatestChapterNumberMap.Delete(ChapterCountMapCacheKey)
 
 	providerExtension, ok := extension.GetExtension[extension.MangaProviderExtension](r.providerExtensionBank, provider)
@@ -232,9 +232,69 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// RefreshChapterContainers refreshes the chapter containers previously cached for the manga in the collection.
+func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaCollection) (err error) {
+	defer util.HandlePanicInModuleWithError("manga/RefreshChapterContainers", &err)
+
+	// Read the cache directory
+	entries, err := os.ReadDir(r.cacheDir)
+	if err != nil {
+		return err
+	}
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(entries))
+	for _, entry := range entries {
+		go func(entry os.DirEntry) {
+			defer wg.Done()
+
+			if entry.IsDir() {
+				return
+			}
+
+			provider, bucketType, mediaId, ok := ParseChapterContainerFileName(entry.Name())
+			if !ok {
+				return
+			}
+			// If the bucket type is not chapter, skip
+			if bucketType != bucketTypeChapter {
+				return
+			}
+
+			r.logger.Trace().Str("provider", provider).Int("mediaId", mediaId).Msg("manga: Refetching chapter container")
+
+			// Remove the container from the cache
+			r.EmptyMangaCache(mediaId)
+			// Get the manga from the collection
+			mangaEntry, found := mangaCollection.GetListEntryFromMangaId(mediaId)
+			if !found {
+				return
+			}
+
+			// Refetch the container
+			_, err = r.GetMangaChapterContainer(&GetMangaChapterContainerOptions{
+				Provider: provider,
+				MediaId:  mediaId,
+				Titles:   mangaEntry.GetMedia().GetAllTitles(),
+				Year:     mangaEntry.GetMedia().GetStartYearSafe(),
+			})
+			if err != nil {
+				r.logger.Error().Err(err).Msg("manga: Failed to refetch chapter container")
+				return
+			}
+
+			r.logger.Trace().Str("provider", provider).Int("mediaId", mediaId).Msg("manga: Refetched chapter container")
+		}(entry)
+	}
+	wg.Wait()
+
+	return nil
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const ChapterCountMapCacheKey = 1
 
-var mangaChapterCountMap = result.NewResultMap[int, map[int]int]()
 var mangaLatestChapterNumberMap = result.NewResultMap[int, map[int][]MangaLatestChapterNumberItem]()
 
 type MangaLatestChapterNumberItem struct {
@@ -273,8 +333,6 @@ func (r *Repository) GetMangaLatestChapterNumbersMap() (ret map[int][]MangaLates
 		if !ok {
 			continue
 		}
-
-		fmt.Println(entry.Name(), provider, mediaId)
 
 		containerBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
 
@@ -331,62 +389,7 @@ func (r *Repository) GetMangaLatestChapterNumbersMap() (ret map[int][]MangaLates
 	return
 }
 
-// GetMangaLatestChapterNumberMap retrieves the latest chapter number for all manga entries.
-// It scans the cache directory for chapter containers and counts the number of chapters fetched from the provider for each manga.
-//
-// Note that this doesn't take into account selected scanlators, so the chapter count might be inaccurate.
-func (r *Repository) GetMangaLatestChapterNumberMap() (ret map[int]int, err error) {
-	defer util.HandlePanicInModuleThen("manga/GetMangaCurrentChapterCountMap", func() {})
-	ret = make(map[int]int)
-
-	if m, ok := mangaChapterCountMap.Get(ChapterCountMapCacheKey); ok {
-		ret = m
-		return
-	}
-
-	// Go through all chapter container caches
-	entries, err := os.ReadDir(r.cacheDir)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		// Get the provider and mediaId from the file cache name
-		provider, mediaId, ok := parseChapterFileName(entry.Name())
-		if !ok {
-			continue
-		}
-
-		containerBucket := r.getFcProviderBucket(provider, mediaId, bucketTypeChapter)
-
-		// Get the container from the file cache
-		var container *ChapterContainer
-		chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
-		if found, _ := r.fileCacher.Get(containerBucket, chapterContainerKey, &container); !found {
-			continue
-		}
-
-		// Get the last chapter from the container by sorting the chapters by index
-		// This is more accurate than counting the number of chapters in the container
-		lastChapter := slices.MaxFunc(container.Chapters, func(a *hibikemanga.ChapterDetails, b *hibikemanga.ChapterDetails) int {
-			return cmp.Compare(a.Index, b.Index)
-		})
-
-		// Convert the last chapter number to a float and round down to get the chapter count
-		chapterNumFloat, _ := strconv.ParseFloat(lastChapter.Chapter, 32)
-		chapterCount := int(math.Floor(chapterNumFloat))
-
-		ret[mediaId] = chapterCount
-	}
-
-	mangaChapterCountMap.Set(ChapterCountMapCacheKey, ret)
-
-	return
-}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func parseChapterFileName(dirName string) (provider string, mId int, ok bool) {
 	if !strings.HasPrefix(dirName, "manga_") {

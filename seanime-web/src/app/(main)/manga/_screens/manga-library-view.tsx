@@ -1,4 +1,5 @@
 import { Manga_Collection, Manga_CollectionList } from "@/api/generated/types"
+import { useRefetchMangaChapterContainers } from "@/api/hooks/manga.hooks"
 import { MediaCardLazyGrid } from "@/app/(main)/_features/media/_components/media-card-grid"
 import { MediaEntryCard } from "@/app/(main)/_features/media/_components/media-entry-card"
 import { MediaGenreSelector } from "@/app/(main)/_features/media/_components/media-genre-selector"
@@ -18,7 +19,8 @@ import { useSetAtom } from "jotai/index"
 import { useAtom, useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { memo } from "react"
-import { LuListFilter } from "react-icons/lu"
+import { BiDotsVertical } from "react-icons/bi"
+import { toast } from "sonner"
 import { CommandItemMedia } from "../../_features/sea-command/_components/command-utils"
 
 type MangaLibraryViewProps = {
@@ -158,6 +160,8 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
     const [params, setParams] = useAtom(__mangaLibrary_paramsAtom)
     const router = useRouter()
 
+    const { mutate: refetchMangaChapterContainers, isPending: isRefetchingMangaChapterContainers } = useRefetchMangaChapterContainers()
+
     const { inject, remove } = useSeaCommandInject()
 
     React.useEffect(() => {
@@ -203,14 +207,26 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
                 <h2 data-manga-library-view-collection-list-item-header-title>{list.type === "CURRENT" ? "Continue reading" : getMangaCollectionTitle(
                     list.type)}</h2>
                 <div className="flex flex-1" data-manga-library-view-collection-list-item-header-spacer></div>
+
                 {list.type === "CURRENT" && <DropdownMenu
                     trigger={<IconButton
                         intent="white-basic"
                         size="xs"
                         className="mt-1"
-                        icon={<LuListFilter />}
+                        icon={<BiDotsVertical />}
+                        loading={isRefetchingMangaChapterContainers}
                     />}
                 >
+                    <DropdownMenuItem
+                        onClick={() => {
+                            if (isRefetchingMangaChapterContainers) return
+
+                            toast.info("Refetching from sources...")
+                            refetchMangaChapterContainers()
+                        }}
+                    >
+                        {isRefetchingMangaChapterContainers ? "Refetching..." : "Refresh sources"}
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => {
                             setParams(draft => {
@@ -222,6 +238,7 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
                         {params.unreadOnly ? "Show all" : "Show unread only"}
                     </DropdownMenuItem>
                 </DropdownMenu>}
+
             </div>
 
             {(list.type === "CURRENT" && ts.libraryScreenBannerType === ThemeLibraryScreenBannerType.Dynamic && headerManga) &&

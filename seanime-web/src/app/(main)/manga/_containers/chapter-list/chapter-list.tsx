@@ -309,6 +309,8 @@ export function ChapterList(props: ChapterListProps) {
         <div
             className="space-y-4"
             data-chapter-list-container
+            data-selected-filters={JSON.stringify(selectedFilters)}
+            data-selected-provider={JSON.stringify(selectedProvider)}
         >
 
             <div data-chapter-list-header-container className="flex flex-wrap gap-2 items-center">
