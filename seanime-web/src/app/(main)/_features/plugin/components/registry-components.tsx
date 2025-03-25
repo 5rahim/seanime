@@ -22,6 +22,15 @@ import {
 } from "../generated/plugin-events"
 import { usePluginTray } from "../tray/plugin-tray"
 
+type FieldRef<T> = {
+    current: T
+    __ID: string
+}
+
+
+///////////////////
+
+
 interface ButtonProps {
     label?: string
     style?: React.CSSProperties
@@ -62,7 +71,7 @@ interface InputProps {
     style?: React.CSSProperties
     value?: string
     onChange?: string
-    fieldRef?: string
+    fieldRef?: FieldRef<string>
     disabled?: boolean
 }
 
@@ -70,7 +79,7 @@ export function PluginInput(props: InputProps) {
     const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
-    const [value, setValue] = React.useState(props.value)
+    const [value, setValue] = React.useState(props.value || props.fieldRef?.current)
     const debouncedValue = useDebounce(value, 200)
 
     const firstRender = React.useRef(true)
@@ -89,14 +98,14 @@ export function PluginInput(props: InputProps) {
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
-                fieldRef: props.fieldRef,
+                fieldRef: props.fieldRef.__ID,
                 value: debouncedValue,
             }, trayIcon.extensionId)
         }
     }, [debouncedValue])
 
     usePluginListenFieldRefSetValueEvent((data) => {
-        if (data.fieldRef === props.fieldRef) {
+        if (data.fieldRef === props.fieldRef?.__ID) {
             setValue(data.value)
         }
     }, trayIcon.extensionId)
@@ -124,7 +133,7 @@ interface SelectProps {
     id?: string
     label?: string
     onChange?: string
-    fieldRef?: string
+    fieldRef?: FieldRef<string>
     style?: React.CSSProperties
     value?: string
     disabled?: boolean
@@ -134,7 +143,7 @@ export function PluginSelect(props: SelectProps) {
     const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
-    const [value, setValue] = React.useState(props.value)
+    const [value, setValue] = React.useState(props.value || props.fieldRef?.current)
     const debouncedValue = useDebounce(value, 200)
 
     const firstRender = React.useRef(true)
@@ -151,11 +160,17 @@ export function PluginSelect(props: SelectProps) {
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
-                fieldRef: props.fieldRef,
+                fieldRef: props.fieldRef.__ID,
                 value: debouncedValue,
             }, trayIcon.extensionId)
         }
     }, [debouncedValue])
+
+    usePluginListenFieldRefSetValueEvent((data) => {
+        if (data.fieldRef === props.fieldRef?.__ID) {
+            setValue(data.value)
+        }
+    }, trayIcon.extensionId)
 
     return (
         <Select
@@ -178,7 +193,7 @@ interface CheckboxProps {
     style?: React.CSSProperties
     value?: boolean
     onChange?: string
-    fieldRef?: string
+    fieldRef?: FieldRef<boolean>
     disabled?: boolean
 }
 
@@ -186,7 +201,7 @@ export function PluginCheckbox(props: CheckboxProps) {
     const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
-    const [value, setValue] = React.useState(props.value)
+    const [value, setValue] = React.useState(props.value || props.fieldRef?.current)
     const debouncedValue = useDebounce(value, 200)
 
     const firstRender = React.useRef(true)
@@ -203,11 +218,17 @@ export function PluginCheckbox(props: CheckboxProps) {
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
-                fieldRef: props.fieldRef,
+                fieldRef: props.fieldRef.__ID,
                 value: value,
             }, trayIcon.extensionId)
         }
     }, [debouncedValue])
+
+    usePluginListenFieldRefSetValueEvent((data) => {
+        if (data.fieldRef === props.fieldRef?.__ID) {
+            setValue(data.value)
+        }
+    }, trayIcon.extensionId)
 
     return (
         <Checkbox
@@ -229,7 +250,7 @@ interface SwitchProps {
     style?: React.CSSProperties
     value?: boolean
     onChange?: string
-    fieldRef?: string
+    fieldRef?: FieldRef<boolean>
     disabled?: boolean
 }
 
@@ -237,7 +258,7 @@ export function PluginSwitch(props: SwitchProps) {
     const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
-    const [value, setValue] = React.useState(props.value)
+    const [value, setValue] = React.useState(props.value || props.fieldRef?.current)
     const debouncedValue = useDebounce(value, 200)
 
     const firstRender = React.useRef(true)
@@ -254,11 +275,17 @@ export function PluginSwitch(props: SwitchProps) {
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
-                fieldRef: props.fieldRef,
+                fieldRef: props.fieldRef.__ID,
                 value: value,
             }, trayIcon.extensionId)
         }
     }, [debouncedValue])
+
+    usePluginListenFieldRefSetValueEvent((data) => {
+        if (data.fieldRef === props.fieldRef?.__ID) {
+            setValue(data.value)
+        }
+    }, trayIcon.extensionId)
 
     return (
         <Switch
@@ -282,7 +309,7 @@ interface RadioGroupProps {
     id?: string
     label?: string
     onChange?: string
-    fieldRef?: string
+    fieldRef?: FieldRef<string>
     style?: React.CSSProperties
     value?: string
     disabled?: boolean
@@ -292,7 +319,7 @@ export function PluginRadioGroup(props: RadioGroupProps) {
     const { trayIcon } = usePluginTray()
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { sendFieldRefSendValueEvent } = usePluginSendFieldRefSendValueEvent()
-    const [value, setValue] = React.useState(props.value)
+    const [value, setValue] = React.useState(props.value || props.fieldRef?.current)
     const debouncedValue = useDebounce(value, 200)
 
     const firstRender = React.useRef(true)
@@ -309,11 +336,17 @@ export function PluginRadioGroup(props: RadioGroupProps) {
         }
         if (props.fieldRef) {
             sendFieldRefSendValueEvent({
-                fieldRef: props.fieldRef,
+                fieldRef: props.fieldRef.__ID,
                 value: value,
             }, trayIcon.extensionId)
         }
     }, [debouncedValue])
+
+    usePluginListenFieldRefSetValueEvent((data) => {
+        if (data.fieldRef === props.fieldRef?.__ID) {
+            setValue(data.value)
+        }
+    }, trayIcon.extensionId)
 
     return (
         <RadioGroup

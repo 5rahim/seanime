@@ -39,7 +39,7 @@ func ShareBinds(vm *goja.Runtime, logger *zerolog.Logger) {
 
 	fm := goja_bindings.DefaultFieldMapper{}
 	vm.SetFieldNameMapper(fm)
-	goja.TagFieldNameMapper("json", true)
+	// goja.TagFieldNameMapper("json", true)
 
 	bindings := []struct {
 		name string

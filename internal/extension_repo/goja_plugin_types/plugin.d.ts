@@ -93,7 +93,7 @@ declare namespace $ui {
          * @param fieldName - The name of the field
          * @returns A field reference object
          */
-        registerFieldRef<T extends any = string>(fieldName: string): FieldRef<T>
+        fieldRef<T extends any = string>(): FieldRef<T>
 
         /**
          * Creates a new tray icon.
@@ -590,7 +590,7 @@ declare namespace $ui {
         style?: Record<string, string>,
     }
     type FieldComponentProps<V = string> = {
-        fieldRef?: string,
+        fieldRef?: FieldRef<V>,
         value?: V,
         onChange?: string,
     } & ComponentProps
@@ -642,7 +642,7 @@ declare namespace $ui {
         id: string
         tagName: string
         attributes: Record<string, string>
-        children: DOMElement[]
+        // children: DOMElement[]
         textContent?: string
         innerHTML?: string
 
@@ -814,13 +814,13 @@ declare namespace $ui {
          * Gets the parent of the element
          * @returns The parent of the element
          */
-        getParent(): Promise<DOMElement | null>
+        getParent(opts?: DOMQueryElementOptions): Promise<DOMElement | null>
 
         /**
          * Gets the children of the element
          * @returns The children of the element
          */
-        getChildren(): Promise<DOMElement[]>
+        getChildren(opts?: DOMQueryElementOptions): Promise<DOMElement[]>
 
         // Events
         addEventListener(event: string, callback: (event: any) => void): () => void
@@ -840,12 +840,17 @@ declare namespace $ui {
         queryOne(selector: string): Promise<DOMElement | null>
     }
 
-    interface Notification {
+    interface DOMQueryElementOptions {
         /**
-         * Sends a notification
-         * @param message - The message to send
+         * Whether to include the innerHTML of the element
          */
-        send(message: string): void
+        withInnerHTML?: boolean
+        
+        /**
+         * Whether to assign plugin-element IDs to all child elements
+         * This is useful when you need to interact with child elements directly
+         */
+        identifyChildren?: boolean
     }
 
     // DOM interface
@@ -855,14 +860,14 @@ declare namespace $ui {
          * @param selector - The selector to query
          * @returns A promise that resolves to an array of DOM elements
          */
-        query(selector: string): Promise<DOMElement[]>
+        query(selector: string, opts?: DOMQueryElementOptions): Promise<DOMElement[]>
 
         /**
          * Queries the DOM for a single element matching the selector
          * @param selector - The selector to query
          * @returns A promise that resolves to a DOM element or null if no element is found
          */
-        queryOne(selector: string): Promise<DOMElement | null>
+        queryOne(selector: string, opts?: DOMQueryElementOptions): Promise<DOMElement | null>
 
         /**
          * Observes changes to the DOM
@@ -870,7 +875,7 @@ declare namespace $ui {
          * @param callback - The callback to call when the DOM changes
          * @returns A tuple containing a function to stop observing the DOM and a function to refetch observed elements
          */
-        observe(selector: string, callback: (elements: DOMElement[]) => void): [() => void, () => void]
+        observe(selector: string, callback: (elements: DOMElement[]) => void, opts?: DOMQueryElementOptions): [() => void, () => void]
 
         /**
          * Creates a new DOM element
@@ -880,10 +885,26 @@ declare namespace $ui {
         createElement(tagName: string): Promise<DOMElement>
 
         /**
+         * Returns the DOM element from an element ID
+         * Note: No properties are available on this element, only methods, and there is no guarantee that the element exists
+         * @param elementId - The ID of the element
+         * @returns A DOM element
+         */
+        asElement(elementId: string): Omit<DOMElement, "tagName" | "attributes" | "innerHTML">
+
+        /**
          * Called when the DOM is ready
          * @param callback - The callback to call when the DOM is ready
          */
         onReady(callback: () => void): void
+    }
+
+    interface Notification {
+        /**
+         * Sends a notification
+         * @param message - The message to send
+         */
+        send(message: string): void
     }
 
     type Intent =

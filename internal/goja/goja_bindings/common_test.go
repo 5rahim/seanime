@@ -20,6 +20,8 @@ func setupTestVM(t *testing.T) *goja.Runtime {
 	vm.SetParserOptions(parser.WithDisableSourceMaps)
 	// Bind the shared bindings
 	extension_repo.ShareBinds(vm, util.NewLogger())
+	fm := extension_repo.FieldMapper{}
+	vm.SetFieldNameMapper(fm)
 	return vm
 }
 
@@ -167,4 +169,26 @@ func TestGojaDocument(t *testing.T) {
 			fmt.Println(time.Since(now).Seconds())
 		})
 	}
+}
+
+func TestOptionalParams(t *testing.T) {
+	vm := setupTestVM(t)
+	defer vm.ClearInterrupt()
+
+	type Options struct {
+		Add int `json:"add"`
+	}
+
+	vm.Set("test", func(a int, opts Options) int {
+		fmt.Println("opts", opts)
+		return a + opts.Add
+	})
+
+	vm.RunString(`
+		const result = test(1);
+		console.log(result);
+
+		const result2 = test(1, { add: 10 });
+		console.log(result2);
+	`)
 }

@@ -114,7 +114,7 @@ func (c *ComponentManager) jsInput(call goja.FunctionCall) goja.Value {
 		{Name: "placeholder", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "value", Type: "string", Required: false, Default: "", Validate: validateType("string")},
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
-		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
@@ -168,7 +168,7 @@ func (c *ComponentManager) jsSelect(call goja.FunctionCall) goja.Value {
 		},
 		{Name: "value", Type: "string", Required: false, Default: "", Validate: validateType("string")},
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
-		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
@@ -185,7 +185,7 @@ func (c *ComponentManager) jsCheckbox(call goja.FunctionCall) goja.Value {
 		{Name: "label", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
 		{Name: "value", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
-		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
@@ -209,7 +209,7 @@ func (c *ComponentManager) jsRadioGroup(call goja.FunctionCall) goja.Value {
 			Validate: validateOptions,
 		},
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
-		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})
@@ -227,7 +227,7 @@ func (c *ComponentManager) jsSwitch(call goja.FunctionCall) goja.Value {
 		{Name: "label", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
 		{Name: "value", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 		{Name: "onChange", Type: "string", Required: false, Validate: validateType("string")},
-		{Name: "fieldRef", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
 	})

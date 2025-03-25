@@ -432,7 +432,7 @@ export function usePluginSendDOMQueryOneResultEvent() {
 }
 
 export type Plugin_Client_DOMObserveResultEventPayload = {
-    observerID: string
+    observerId: string
     elements: Array<any>
 }
 
@@ -449,7 +449,7 @@ export function usePluginSendDOMObserveResultEvent() {
 }
 
 export type Plugin_Client_DOMStopObserveEventPayload = {
-    observerID: string
+    observerId: string
 }
 
 export function usePluginSendDOMStopObserveEvent() {
@@ -485,6 +485,7 @@ export type Plugin_Client_DOMElementUpdatedEventPayload = {
     elementId: string
     action: string
     result: any
+    requestId: string
 }
 
 export function usePluginSendDOMElementUpdatedEvent() {
@@ -820,6 +821,8 @@ export function usePluginListenScreenGetCurrentEvent(cb: (payload: Plugin_Server
 export type Plugin_Server_DOMQueryEventPayload = {
     selector: string
     requestId: string
+    withInnerHTML: boolean
+    identifyChildren: boolean
 }
 
 export function usePluginListenDOMQueryEvent(cb: (payload: Plugin_Server_DOMQueryEventPayload, extensionId: string) => void, extensionID: string) {
@@ -833,6 +836,8 @@ export function usePluginListenDOMQueryEvent(cb: (payload: Plugin_Server_DOMQuer
 export type Plugin_Server_DOMQueryOneEventPayload = {
     selector: string
     requestId: string
+    withInnerHTML: boolean
+    identifyChildren: boolean
 }
 
 export function usePluginListenDOMQueryOneEvent(cb: (payload: Plugin_Server_DOMQueryOneEventPayload, extensionId: string) => void, extensionID: string) {
@@ -845,7 +850,9 @@ export function usePluginListenDOMQueryOneEvent(cb: (payload: Plugin_Server_DOMQ
 
 export type Plugin_Server_DOMObserveEventPayload = {
     selector: string
-    observerID: string
+    observerId: string
+    withInnerHTML: boolean
+    identifyChildren: boolean
 }
 
 export function usePluginListenDOMObserveEvent(cb: (payload: Plugin_Server_DOMObserveEventPayload, extensionId: string) => void, extensionID: string) {
@@ -857,7 +864,7 @@ export function usePluginListenDOMObserveEvent(cb: (payload: Plugin_Server_DOMOb
 }
 
 export type Plugin_Server_DOMStopObserveEventPayload = {
-    observerID: string
+    observerId: string
 }
 
 export function usePluginListenDOMStopObserveEvent(cb: (payload: Plugin_Server_DOMStopObserveEventPayload, extensionId: string) => void, extensionID: string) {
@@ -885,6 +892,7 @@ export type Plugin_Server_DOMManipulateEventPayload = {
     elementId: string
     action: string
     params: Record<string, any>
+    requestId: string
 }
 
 export function usePluginListenDOMManipulateEvent(cb: (payload: Plugin_Server_DOMManipulateEventPayload, extensionId: string) => void, extensionID: string) {

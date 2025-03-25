@@ -1,14 +1,27 @@
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
 import { logger } from "@/lib/helpers/debug"
 import { useEffect, useRef } from "react"
-import { PluginDOMElement, PluginDOMManipulateOptions } from "./generated/plugin-dom-types"
-import { PluginClientEvents } from "./generated/plugin-events"
+import { PluginDOMElement } from "./generated/plugin-dom-types"
+import {
+    Plugin_Server_DOMCreateEventPayload,
+    Plugin_Server_DOMManipulateEventPayload,
+    Plugin_Server_DOMObserveEventPayload,
+    Plugin_Server_DOMQueryEventPayload,
+    Plugin_Server_DOMQueryOneEventPayload,
+    Plugin_Server_DOMStopObserveEventPayload,
+    PluginClientEvents,
+} from "./generated/plugin-events"
 
 function uuidv4(): string {
     // @ts-ignore
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
         (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
     )
+}
+
+type ElementToDOMElementOptions = {
+    withInnerHTML?: boolean
+    identifyChildren?: boolean
 }
 
 /**
@@ -18,7 +31,12 @@ function uuidv4(): string {
 export function useDOMManager(extensionId: string) {
     const { sendPluginMessage } = useWebsocketSender()
 
-    const elementObserversRef = useRef<Map<string, { selector: string; callback: (elements: Element[]) => void }>>(new Map())
+    const elementObserversRef = useRef<Map<string, {
+        selector: string;
+        withInnerHTML?: boolean;
+        identifyChildren?: boolean;
+        callback: (elements: Element[]) => void
+    }>>(new Map())
     const observedElementsRef = useRef<Map<string, Set<string>>>(new Map()) // Track observed elements by observerId
     const eventListenersRef = useRef<Map<string, { elementId: string; eventType: string; callback: (event: Event) => void }>>(new Map())
     const mutationObserverRef = useRef<MutationObserver | null>(null)
@@ -38,7 +56,7 @@ export function useDOMManager(extensionId: string) {
     }
 
     // Convert a DOM element to a serializable object
-    const elementToDOMElement = (element: Element): PluginDOMElement => {
+    const elementToDOMElement = (element: Element, options?: ElementToDOMElementOptions): PluginDOMElement => {
         const attributes: Record<string, string> = {}
 
         // Get all attributes
@@ -65,12 +83,27 @@ export function useDOMManager(extensionId: string) {
             }
         }
 
+        // If identifyChildren is true, assign IDs to all children recursively
+        if (options?.identifyChildren) {
+            // Process all direct children and ensure they have IDs
+            Array.from(element.children).forEach(child => {
+                if (!child.id) {
+                    const childId = `plugin-element-${uuidv4()}`
+                    child.setAttribute("id", childId)
+                }
+                // Recursively process deeper children
+                if (child.children.length > 0) {
+                    elementToDOMElement(child, { identifyChildren: true })
+                }
+            })
+        }
+
         return {
             id: attributes.id,
             tagName: element.tagName.toLowerCase(),
             attributes,
             // textContent: element.textContent || undefined,
-            // innerHTML: element.innerHTML || undefined,
+            innerHTML: options?.withInnerHTML ? element.innerHTML : undefined,
             children: [],
             // children: Array.from(element.children).map(child => elementToDOMElement(child)),
         }
@@ -184,7 +217,10 @@ export function useDOMManager(extensionId: string) {
                     const domElements = matchedElements.map(e => {
                         // Ensure ID
                         if (!e.id) e.id = `plugin-element-${uuidv4()}`
-                        return elementToDOMElement(e)
+                        return elementToDOMElement(e, {
+                            withInnerHTML: observer.withInnerHTML,
+                            identifyChildren: observer.identifyChildren,
+                        })
                     })
 
                     // Update observed set with any new elements
@@ -213,20 +249,22 @@ export function useDOMManager(extensionId: string) {
     }
 
     // Handler functions
-    const handleDOMQuery = (selector: string, requestId: string) => {
+    const handleDOMQuery = (payload: Plugin_Server_DOMQueryEventPayload) => {
+        const { selector, requestId, withInnerHTML, identifyChildren } = payload
         if (disposedRef.current) return
         const elements = document.querySelectorAll(selector)
-        const domElements = Array.from(elements).map(e => elementToDOMElement(e))
+        const domElements = Array.from(elements).map(e => elementToDOMElement(e, { withInnerHTML, identifyChildren }))
         safeSendPluginMessage(PluginClientEvents.DOMQueryResult, {
             requestId,
             elements: domElements,
         })
     }
 
-    const handleDOMQueryOne = (selector: string, requestId: string) => {
+    const handleDOMQueryOne = (payload: Plugin_Server_DOMQueryOneEventPayload) => {
+        const { selector, requestId, withInnerHTML, identifyChildren } = payload
         if (disposedRef.current) return
         const element = document.querySelector(selector)
-        const domElement = element ? elementToDOMElement(element) : null
+        const domElement = element ? elementToDOMElement(element, { withInnerHTML, identifyChildren }) : null
 
         safeSendPluginMessage(PluginClientEvents.DOMQueryOneResult, {
             requestId,
@@ -234,7 +272,8 @@ export function useDOMManager(extensionId: string) {
         })
     }
 
-    const handleDOMObserve = (selector: string, observerId: string) => {
+    const handleDOMObserve = (payload: Plugin_Server_DOMObserveEventPayload) => {
+        const { selector, observerId, withInnerHTML, identifyChildren } = payload
         if (disposedRef.current) return
 
         console.log(`Registering observer ${observerId} for selector ${selector}`)
@@ -245,6 +284,8 @@ export function useDOMManager(extensionId: string) {
         // Store the observer
         elementObserversRef.current.set(observerId, {
             selector,
+            withInnerHTML,
+            identifyChildren,
             callback: (elements) => {
                 // This callback is called when elements matching the selector are found
                 // console.log(`Observer ${observerId} callback with ${elements.length} elements matching ${selector}`, elements.map(e => e.id))
@@ -263,7 +304,7 @@ export function useDOMManager(extensionId: string) {
             })
 
             // Convert to DOM elements for sending to plugin
-            const domElements = matchedElements.map(e => elementToDOMElement(e))
+            const domElements = matchedElements.map(e => elementToDOMElement(e, { withInnerHTML, identifyChildren }))
 
             // Track these elements as observed
             const observedSet = observedElementsRef.current.get(observerId)!
@@ -280,12 +321,14 @@ export function useDOMManager(extensionId: string) {
         }
     }
 
-    const handleDOMStopObserve = (observerId: string) => {
+    const handleDOMStopObserve = (payload: Plugin_Server_DOMStopObserveEventPayload) => {
+        const { observerId } = payload
         elementObserversRef.current.delete(observerId)
         observedElementsRef.current.delete(observerId)
     }
 
-    const handleDOMCreate = (tagName: string, requestId: string) => {
+    const handleDOMCreate = (payload: Plugin_Server_DOMCreateEventPayload) => {
+        const { tagName, requestId } = payload
         if (disposedRef.current) return
         const element = document.createElement(tagName)
         element.id = `plugin-element-${uuidv4()}`
@@ -307,9 +350,9 @@ export function useDOMManager(extensionId: string) {
         })
     }
 
-    const handleDOMManipulate = (options: PluginDOMManipulateOptions) => {
+    const handleDOMManipulate = (payload: Plugin_Server_DOMManipulateEventPayload) => {
         if (disposedRef.current) return
-        const { elementId, action, params, requestId } = options
+        const { elementId, action, params, requestId } = payload
         const element = document.getElementById(elementId)
 
         if (!element) {
@@ -322,7 +365,6 @@ export function useDOMManager(extensionId: string) {
             })
             return
         }
-
 
         let result: any = null
 
@@ -422,15 +464,24 @@ export function useDOMManager(extensionId: string) {
                 element.remove()
                 break
             case "getParent":
-                result = element.parentElement ? elementToDOMElement(element.parentElement) : null
+                result = element.parentElement ? elementToDOMElement(element.parentElement, {
+                    withInnerHTML: params.withInnerHTML,
+                    identifyChildren: params.identifyChildren,
+                }) : null
                 break
             case "getChildren":
-                result = Array.from(element.children).map(e => elementToDOMElement(e))
+                result = Array.from(element.children).map(e => elementToDOMElement(e, {
+                    withInnerHTML: params.withInnerHTML,
+                    identifyChildren: params.identifyChildren,
+                }))
                 break
             case "query":
                 // Find elements within the current element using the provided selector
                 const queryElements = element.querySelectorAll(params.selector)
-                const queryDomElements = Array.from(queryElements).map(e => elementToDOMElement(e))
+                const queryDomElements = Array.from(queryElements).map(e => elementToDOMElement(e, {
+                    withInnerHTML: params.withInnerHTML,
+                    identifyChildren: params.identifyChildren,
+                }))
 
                 // Send the results back using the DOMQueryResult event
                 safeSendPluginMessage(PluginClientEvents.DOMQueryResult, {
@@ -442,7 +493,10 @@ export function useDOMManager(extensionId: string) {
                 // Find a single element within the current element using the provided selector
                 const queryOneElement = element.querySelector(params.selector)
                 const _queryOneElements = element.querySelectorAll(params.selector)
-                const queryOneDomElement = queryOneElement ? elementToDOMElement(queryOneElement) : null
+                const queryOneDomElement = queryOneElement ? elementToDOMElement(queryOneElement, {
+                    withInnerHTML: params.withInnerHTML,
+                    identifyChildren: params.identifyChildren,
+                }) : null
 
                 // Send the result back using the DOMQueryOneResult event
                 safeSendPluginMessage(PluginClientEvents.DOMQueryOneResult, {

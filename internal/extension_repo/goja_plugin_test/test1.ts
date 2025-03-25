@@ -15,7 +15,7 @@ function init() {
         const currentMediaId = ctx.state(0)
 
         // Create a field ref for the URL input
-        const inputRef = ctx.registerFieldRef("customBannerImageRef")
+        const inputRef = ctx.fieldRef()
 
         // When the plugin loads, fetch the current screen and set the badge to 0
         ctx.screen.loadCurrent() // Triggers onNavigate
@@ -90,7 +90,7 @@ function init() {
                     ? tray.text("Open an anime")
                     : tray.stack([
                         tray.text(`Current media ID: ${currentMediaId.get()}`),
-                        tray.input({ fieldRef: "customBannerImageRef", value: inputRef.current }),
+                        tray.input({ fieldRef: inputRef }),
                         tray.button({ label: "Save", onClick: "save" }),
                     ]),
             ])

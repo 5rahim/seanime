@@ -1,6 +1,14 @@
 import { useWebsocketPluginMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { useDOMManager } from "./dom-manager"
-import { PluginServerEvents } from "./generated/plugin-events"
+import {
+    Plugin_Server_DOMCreateEventPayload,
+    Plugin_Server_DOMManipulateEventPayload,
+    Plugin_Server_DOMObserveEventPayload,
+    Plugin_Server_DOMQueryEventPayload,
+    Plugin_Server_DOMQueryOneEventPayload,
+    Plugin_Server_DOMStopObserveEventPayload,
+    PluginServerEvents,
+} from "./generated/plugin-events"
 
 export function PluginHandler({ extensionId }: { extensionId: string }) {
     // DOM Manager
@@ -18,57 +26,50 @@ export function PluginHandler({ extensionId }: { extensionId: string }) {
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMQuery,
-        onMessage: (payload: any) => {
-            handleDOMQuery(payload.selector, payload.requestId)
+        onMessage: (payload: Plugin_Server_DOMQueryEventPayload) => {
+            handleDOMQuery(payload)
         },
     })
 
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMQueryOne,
-        onMessage: (payload: any) => {
-            handleDOMQueryOne(payload.selector, payload.requestId)
+        onMessage: (payload: Plugin_Server_DOMQueryOneEventPayload) => {
+            handleDOMQueryOne(payload)
         },
     })
 
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMObserve,
-        onMessage: (payload: any) => {
-            handleDOMObserve(payload.selector, payload.observerID)
+        onMessage: (payload: Plugin_Server_DOMObserveEventPayload) => {
+            handleDOMObserve(payload)
         },
     })
 
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMStopObserve,
-        onMessage: (payload: any) => {
-            handleDOMStopObserve(payload.observerID)
+        onMessage: (payload: Plugin_Server_DOMStopObserveEventPayload) => {
+            handleDOMStopObserve(payload)
         },
     })
 
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMCreate,
-        onMessage: (payload: any) => {
-            handleDOMCreate(payload.tagName, payload.requestId)
+        onMessage: (payload: Plugin_Server_DOMCreateEventPayload) => {
+            handleDOMCreate(payload)
         },
     })
 
     useWebsocketPluginMessageListener({
         extensionId,
         type: PluginServerEvents.DOMManipulate,
-        onMessage: (payload: any) => {
-            handleDOMManipulate({
-                elementId: payload.elementId,
-                action: payload.action,
-                params: payload.params,
-                requestId: payload.requestId,
-            })
+        onMessage: (payload: Plugin_Server_DOMManipulateEventPayload) => {
+            handleDOMManipulate(payload)
         },
     })
-
-    // No need for cleanup useEffect anymore as the useDOMManager hook handles its own cleanup
 
     return null
 }

@@ -22,7 +22,7 @@ type ElementObserver struct {
 
 type DOMEventListener struct {
 	ID        string
-	ElementID string
+	ElementId string
 	EventType string
 	Callback  goja.Callable
 }
@@ -43,6 +43,7 @@ func (d *DOMManager) BindToObj(vm *goja.Runtime, obj *goja.Object) {
 	_ = domObj.Set("queryOne", d.jsQueryOne)
 	_ = domObj.Set("observe", d.jsObserve)
 	_ = domObj.Set("createElement", d.jsCreateElement)
+	_ = domObj.Set("asElement", d.jsAsElement)
 	_ = domObj.Set("onReady", d.jsOnReady)
 
 	_ = obj.Set("dom", domObj)
@@ -80,6 +81,8 @@ func (d *DOMManager) jsQuery(call goja.FunctionCall) goja.Value {
 	// Generate a unique request ID
 	requestId := uuid.New().String()
 
+	opts := d.getQueryElementOptions(call.Argument(1))
+
 	// Set up a one-time event listener for the response
 	listener := d.ctx.RegisterEventListener(ClientDOMQueryResultEvent)
 
@@ -102,8 +105,10 @@ func (d *DOMManager) jsQuery(call goja.FunctionCall) goja.Value {
 
 	// Send the query request to the client
 	d.ctx.SendEventToClient(ServerDOMQueryEvent, &ServerDOMQueryEventPayload{
-		Selector:  selector,
-		RequestID: requestId,
+		Selector:         selector,
+		RequestID:        requestId,
+		WithInnerHTML:    opts.WithInnerHTML,
+		IdentifyChildren: opts.IdentifyChildren,
 	})
 
 	return d.ctx.vm.ToValue(promise)
@@ -117,6 +122,8 @@ func (d *DOMManager) jsQueryOne(call goja.FunctionCall) goja.Value {
 
 	// Generate a unique request ID
 	requestId := uuid.New().String()
+
+	opts := d.getQueryElementOptions(call.Argument(1))
 
 	// Set up a one-time event listener for the response
 	listener := d.ctx.RegisterEventListener(ClientDOMQueryOneResultEvent)
@@ -142,11 +149,50 @@ func (d *DOMManager) jsQueryOne(call goja.FunctionCall) goja.Value {
 
 	// Send the query request to the client
 	d.ctx.SendEventToClient(ServerDOMQueryOneEvent, &ServerDOMQueryOneEventPayload{
-		Selector:  selector,
-		RequestID: requestId,
+		Selector:         selector,
+		RequestID:        requestId,
+		WithInnerHTML:    opts.WithInnerHTML,
+		IdentifyChildren: opts.IdentifyChildren,
 	})
 
 	return d.ctx.vm.ToValue(promise)
+}
+
+type QueryElementOptions struct {
+	WithInnerHTML    bool `json:"withInnerHTML"`
+	IdentifyChildren bool `json:"identifyChildren"`
+}
+
+func (d *DOMManager) getQueryElementOptions(argument goja.Value) QueryElementOptions {
+	options := QueryElementOptions{
+		WithInnerHTML:    false,
+		IdentifyChildren: false,
+	}
+
+	if argument != goja.Undefined() && argument != goja.Null() {
+		optsObj, ok := argument.Export().(map[string]interface{})
+		if !ok {
+			d.ctx.handleTypeError("third argument 'opts' must be an object")
+		}
+
+		// Extract 'withInnerHTML' from 'opts' if present
+		if val, exists := optsObj["withInnerHTML"]; exists {
+			options.WithInnerHTML, ok = val.(bool)
+			if !ok {
+				d.ctx.handleTypeError("'withInnerHTML' property must be a boolean")
+			}
+		}
+
+		// Extract 'identifyChildren' from 'opts' if present
+		if val, exists := optsObj["identifyChildren"]; exists {
+			options.IdentifyChildren, ok = val.(bool)
+			if !ok {
+				d.ctx.handleTypeError("'identifyChildren' property must be a boolean")
+			}
+		}
+	}
+
+	return options
 }
 
 // jsObserve starts observing DOM elements matching a selector
@@ -157,22 +203,26 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 		d.ctx.handleTypeError("observe requires a callback function")
 	}
 
+	options := d.getQueryElementOptions(call.Argument(2))
+
 	// Create observer ID
-	observerID := uuid.New().String()
+	observerId := uuid.New().String()
 
 	// Store the observer
 	observer := &ElementObserver{
-		ID:       observerID,
+		ID:       observerId,
 		Selector: selector,
 		Callback: callback,
 	}
 
-	d.elementObservers.Set(observerID, observer)
+	d.elementObservers.Set(observerId, observer)
 
 	// Send observe request to client
 	d.ctx.SendEventToClient(ServerDOMObserveEvent, &ServerDOMObserveEventPayload{
-		Selector:   selector,
-		ObserverID: observerID,
+		Selector:         selector,
+		ObserverId:       observerId,
+		WithInnerHTML:    options.WithInnerHTML,
+		IdentifyChildren: options.IdentifyChildren,
 	})
 
 	// Start a goroutine to handle observer updates
@@ -180,9 +230,9 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMObserveResultEventPayload
-		if event.ParsePayloadAs(ClientDOMObserveResultEvent, &payload) && payload.ObserverID == observerID {
+		if event.ParsePayloadAs(ClientDOMObserveResultEvent, &payload) && payload.ObserverId == observerId {
 			d.ctx.scheduler.ScheduleAsync(func() error {
-				observer, exists := d.elementObservers.Get(observerID)
+				observer, exists := d.elementObservers.Get(observerId)
 
 				if !exists {
 					return nil
@@ -212,8 +262,10 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 	domReadyListener.SetCallback(func(event *ClientPluginEvent) {
 		// Re-send the observe request when the DOM is ready
 		d.ctx.SendEventToClient(ServerDOMObserveEvent, &ServerDOMObserveEventPayload{
-			Selector:   selector,
-			ObserverID: observerID,
+			Selector:         selector,
+			ObserverId:       observerId,
+			WithInnerHTML:    options.WithInnerHTML,
+			IdentifyChildren: options.IdentifyChildren,
 		})
 	})
 
@@ -221,17 +273,19 @@ func (d *DOMManager) jsObserve(call goja.FunctionCall) goja.Value {
 	cancelFn := func() {
 		d.ctx.UnregisterEventListener(listener.ID)
 		d.ctx.UnregisterEventListener(domReadyListener.ID)
-		d.elementObservers.Delete(observerID)
+		d.elementObservers.Delete(observerId)
 
 		d.ctx.SendEventToClient(ServerDOMStopObserveEvent, &ServerDOMStopObserveEventPayload{
-			ObserverID: observerID,
+			ObserverId: observerId,
 		})
 	}
 
 	refetchFn := func() {
 		d.ctx.SendEventToClient(ServerDOMObserveEvent, &ServerDOMObserveEventPayload{
-			Selector:   selector,
-			ObserverID: observerID,
+			Selector:         selector,
+			ObserverId:       observerId,
+			WithInnerHTML:    options.WithInnerHTML,
+			IdentifyChildren: options.IdentifyChildren,
 		})
 	}
 
@@ -277,8 +331,23 @@ func (d *DOMManager) jsCreateElement(call goja.FunctionCall) goja.Value {
 	return d.ctx.vm.ToValue(promise)
 }
 
+// jsAsElement returns a DOM element from an element ID
+// This is useful because we don't need to query the DOM for an element
+// We can just use the element ID that we already have to send events to the element
+func (d *DOMManager) jsAsElement(call goja.FunctionCall) goja.Value {
+	elementId := call.Argument(0).String()
+
+	element := d.ctx.vm.NewObject()
+	_ = element.Set("id", elementId)
+
+	// Assign methods to the element
+	d.assignDOMElementMethods(element, elementId)
+
+	return d.ctx.vm.ToValue(element)
+}
+
 // HandleObserverUpdate processes DOM observer updates from client
-func (d *DOMManager) HandleObserverUpdate(observerID string, elements []interface{}) {
+func (d *DOMManager) HandleObserverUpdate(observerId string, elements []interface{}) {
 
 }
 
@@ -286,7 +355,7 @@ func (d *DOMManager) HandleObserverUpdate(observerID string, elements []interfac
 func (d *DOMManager) HandleDOMEvent(elementId string, eventType string, eventData map[string]interface{}) {
 	// Find all event listeners for this element and event type
 	d.eventListeners.Range(func(key string, listener *DOMEventListener) bool {
-		if listener.ElementID == elementId && listener.EventType == eventType {
+		if listener.ElementId == elementId && listener.EventType == eventType {
 			// Schedule callback execution in the VM
 			d.ctx.scheduler.ScheduleAsync(func() error {
 				_, err := listener.Callback(goja.Undefined(), d.ctx.vm.ToValue(eventData))
@@ -354,6 +423,16 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 		elementObj.Set("parent", d.createDOMElementObject(parent))
 	}
 
+	if innerHTML, ok := elemData["innerHTML"].(string); ok {
+		_ = elementObj.Set("innerHTML", innerHTML)
+	}
+
+	d.assignDOMElementMethods(elementObj, elementId)
+
+	return elementObj
+}
+
+func (d *DOMManager) assignDOMElementMethods(elementObj *goja.Object, elementId string) {
 	// Define methods
 	_ = elementObj.Set("getText", func() goja.Value {
 		return d.getElementText(elementId)
@@ -438,12 +517,12 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 		d.removeElement(elementId)
 	})
 
-	_ = elementObj.Set("getParent", func() goja.Value {
-		return d.getElementParent(elementId)
+	_ = elementObj.Set("getParent", func(opts QueryElementOptions) goja.Value {
+		return d.getElementParent(elementId, opts)
 	})
 
-	_ = elementObj.Set("getChildren", func() goja.Value {
-		return d.getElementChildren(elementId)
+	_ = elementObj.Set("getChildren", func(opts QueryElementOptions) goja.Value {
+		return d.getElementChildren(elementId, opts)
 	})
 
 	_ = elementObj.Set("addEventListener", func(event string, callback goja.Callable) func() {
@@ -479,15 +558,13 @@ func (d *DOMManager) createDOMElementObject(elemData map[string]interface{}) *go
 	})
 
 	// Add element query methods
-	_ = elementObj.Set("query", func(selector string) goja.Value {
-		return d.elementQuery(elementId, selector)
+	_ = elementObj.Set("query", func(selector string, opts QueryElementOptions) goja.Value {
+		return d.elementQuery(elementId, selector, opts)
 	})
 
-	_ = elementObj.Set("queryOne", func(selector string) goja.Value {
-		return d.elementQueryOne(elementId, selector)
+	_ = elementObj.Set("queryOne", func(selector string, opts QueryElementOptions) goja.Value {
+		return d.elementQueryOne(elementId, selector, opts)
 	})
-
-	return elementObj
 }
 
 // Element manipulation methods
@@ -506,7 +583,7 @@ func (d *DOMManager) getElementText(elementId string) goja.Value {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
 			// Only process responses with matching element ID, action, and request ID
-			if payload.Action == "getText" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getText" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if v, ok := payload.Result.(string); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
 						resolve(d.ctx.vm.ToValue(v))
@@ -525,7 +602,7 @@ func (d *DOMManager) getElementText(elementId string) goja.Value {
 
 	// Send the request to the client with the request ID
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getText",
 		Params:    map[string]interface{}{},
 		RequestID: requestId,
@@ -536,7 +613,7 @@ func (d *DOMManager) getElementText(elementId string) goja.Value {
 
 func (d *DOMManager) setElementText(elementId, text string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "setText",
 		Params: map[string]interface{}{
 			"text": text,
@@ -557,7 +634,7 @@ func (d *DOMManager) getElementAttribute(elementId, name string) goja.Value {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
 			// Only process responses with matching element ID, action, and request ID
-			if payload.Action == "getAttribute" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getAttribute" && payload.ElementId == elementId && payload.RequestID == requestId {
 				d.ctx.scheduler.ScheduleAsync(func() error {
 					resolve(d.ctx.vm.ToValue(payload.Result))
 					return nil
@@ -568,7 +645,7 @@ func (d *DOMManager) getElementAttribute(elementId, name string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getAttribute",
 		Params: map[string]interface{}{
 			"name": name,
@@ -581,7 +658,7 @@ func (d *DOMManager) getElementAttribute(elementId, name string) goja.Value {
 
 func (d *DOMManager) setElementAttribute(elementId, name, value string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "setAttribute",
 		Params: map[string]interface{}{
 			"name":  name,
@@ -592,7 +669,7 @@ func (d *DOMManager) setElementAttribute(elementId, name, value string) {
 
 func (d *DOMManager) removeElementAttribute(elementId, name string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "removeAttribute",
 		Params: map[string]interface{}{
 			"name": name,
@@ -602,7 +679,7 @@ func (d *DOMManager) removeElementAttribute(elementId, name string) {
 
 func (d *DOMManager) addElementClass(elementId, className string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "addClass",
 		Params: map[string]interface{}{
 			"className": className,
@@ -612,7 +689,7 @@ func (d *DOMManager) addElementClass(elementId, className string) {
 
 func (d *DOMManager) removeElementClass(elementId, className string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "removeClass",
 		Params: map[string]interface{}{
 			"className": className,
@@ -633,7 +710,7 @@ func (d *DOMManager) hasElementClass(elementId, className string) goja.Value {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
 			// Only process responses with matching element ID, action, and request ID
-			if payload.Action == "hasClass" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "hasClass" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if v, ok := payload.Result.(bool); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
 						resolve(d.ctx.vm.ToValue(v))
@@ -651,7 +728,7 @@ func (d *DOMManager) hasElementClass(elementId, className string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "hasClass",
 		Params: map[string]interface{}{
 			"className": className,
@@ -664,7 +741,7 @@ func (d *DOMManager) hasElementClass(elementId, className string) goja.Value {
 
 func (d *DOMManager) setElementStyle(elementId, property, value string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "setStyle",
 		Params: map[string]interface{}{
 			"property": property,
@@ -684,7 +761,7 @@ func (d *DOMManager) getElementStyle(elementId, property string) goja.Value {
 
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
-		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) && payload.ElementID == elementId {
+		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) && payload.ElementId == elementId {
 			if payload.Action == "getStyle" && payload.RequestID == requestId {
 				if v, ok := payload.Result.(string); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
@@ -703,7 +780,7 @@ func (d *DOMManager) getElementStyle(elementId, property string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getStyle",
 		Params: map[string]interface{}{
 			"property": property,
@@ -725,7 +802,7 @@ func (d *DOMManager) getElementComputedStyle(elementId, property string) goja.Va
 
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
-		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) && payload.ElementID == elementId {
+		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) && payload.ElementId == elementId {
 			if payload.Action == "getComputedStyle" && payload.RequestID == requestId {
 				if v, ok := payload.Result.(string); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
@@ -744,7 +821,7 @@ func (d *DOMManager) getElementComputedStyle(elementId, property string) goja.Va
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getComputedStyle",
 		Params: map[string]interface{}{
 			"property": property,
@@ -757,7 +834,7 @@ func (d *DOMManager) getElementComputedStyle(elementId, property string) goja.Va
 
 func (d *DOMManager) appendElement(parentID, childID string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: parentID,
+		ElementId: parentID,
 		Action:    "append",
 		Params: map[string]interface{}{
 			"childID": childID,
@@ -767,7 +844,7 @@ func (d *DOMManager) appendElement(parentID, childID string) {
 
 func (d *DOMManager) insertElementBefore(elementId, siblingID string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "before",
 		Params: map[string]interface{}{
 			"siblingID": siblingID,
@@ -777,7 +854,7 @@ func (d *DOMManager) insertElementBefore(elementId, siblingID string) {
 
 func (d *DOMManager) insertElementAfter(elementId, siblingID string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "after",
 		Params: map[string]interface{}{
 			"siblingID": siblingID,
@@ -787,13 +864,13 @@ func (d *DOMManager) insertElementAfter(elementId, siblingID string) {
 
 func (d *DOMManager) removeElement(elementId string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "remove",
 		Params:    map[string]interface{}{},
 	})
 }
 
-func (d *DOMManager) getElementParent(elementId string) goja.Value {
+func (d *DOMManager) getElementParent(elementId string, opts QueryElementOptions) goja.Value {
 	promise, resolve, _ := d.ctx.vm.NewPromise()
 
 	// Generate a unique request ID
@@ -805,7 +882,7 @@ func (d *DOMManager) getElementParent(elementId string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "getParent" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getParent" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if payload.Result != nil {
 					if parentData, ok := payload.Result.(map[string]interface{}); ok {
 						d.ctx.scheduler.ScheduleAsync(func() error {
@@ -830,16 +907,16 @@ func (d *DOMManager) getElementParent(elementId string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getParent",
-		Params:    map[string]interface{}{},
+		Params:    map[string]interface{}{"opts": opts},
 		RequestID: requestId,
 	})
 
 	return d.ctx.vm.ToValue(promise)
 }
 
-func (d *DOMManager) getElementChildren(elementId string) goja.Value {
+func (d *DOMManager) getElementChildren(elementId string, opts QueryElementOptions) goja.Value {
 	promise, resolve, _ := d.ctx.vm.NewPromise()
 
 	// Generate a unique request ID
@@ -852,7 +929,7 @@ func (d *DOMManager) getElementChildren(elementId string) goja.Value {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
 
-			if payload.Action == "getChildren" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getChildren" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if payload.Result != nil {
 					if childrenData, ok := payload.Result.([]interface{}); ok {
 						d.ctx.scheduler.ScheduleAsync(func() error {
@@ -883,9 +960,9 @@ func (d *DOMManager) getElementChildren(elementId string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getChildren",
-		Params:    map[string]interface{}{},
+		Params:    map[string]interface{}{"opts": opts},
 		RequestID: requestId,
 	})
 
@@ -899,7 +976,7 @@ func (d *DOMManager) addElementEventListener(elementId, event string, callback g
 	// Store the event listener
 	listener := &DOMEventListener{
 		ID:        listenerID,
-		ElementID: elementId,
+		ElementId: elementId,
 		EventType: event,
 		Callback:  callback,
 	}
@@ -908,7 +985,7 @@ func (d *DOMManager) addElementEventListener(elementId, event string, callback g
 
 	// Send the request to add the event listener to the client
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "addEventListener",
 		Params: map[string]interface{}{
 			"event":      event,
@@ -922,7 +999,7 @@ func (d *DOMManager) addElementEventListener(elementId, event string, callback g
 
 		// Send the request to remove the event listener from the client
 		d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-			ElementID: elementId,
+			ElementId: elementId,
 			Action:    "removeEventListener",
 			Params: map[string]interface{}{
 				"event":      event,
@@ -944,7 +1021,7 @@ func (d *DOMManager) getElementAttributes(elementId string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "getAttributes" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getAttributes" && payload.ElementId == elementId && payload.RequestID == requestId {
 				d.ctx.scheduler.ScheduleAsync(func() error {
 					resolve(d.ctx.vm.ToValue(payload.Result))
 					return nil
@@ -955,7 +1032,7 @@ func (d *DOMManager) getElementAttributes(elementId string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getAttributes",
 		Params:    map[string]interface{}{},
 		RequestID: requestId,
@@ -976,7 +1053,7 @@ func (d *DOMManager) hasElementAttribute(elementId, name string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "hasAttribute" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "hasAttribute" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if v, ok := payload.Result.(bool); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
 						resolve(d.ctx.vm.ToValue(v))
@@ -994,7 +1071,7 @@ func (d *DOMManager) hasElementAttribute(elementId, name string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "hasAttribute",
 		Params: map[string]interface{}{
 			"name": name,
@@ -1017,7 +1094,7 @@ func (d *DOMManager) getElementProperty(elementId, name string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "getProperty" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getProperty" && payload.ElementId == elementId && payload.RequestID == requestId {
 				d.ctx.scheduler.ScheduleAsync(func() error {
 					resolve(d.ctx.vm.ToValue(payload.Result))
 					return nil
@@ -1028,7 +1105,7 @@ func (d *DOMManager) getElementProperty(elementId, name string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getProperty",
 		Params: map[string]interface{}{
 			"name": name,
@@ -1041,7 +1118,7 @@ func (d *DOMManager) getElementProperty(elementId, name string) goja.Value {
 
 func (d *DOMManager) setElementProperty(elementId, name string, value interface{}) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "setProperty",
 		Params: map[string]interface{}{
 			"name":  name,
@@ -1062,7 +1139,7 @@ func (d *DOMManager) getElementStyles(elementId string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "getStyle" && payload.ElementID == elementId && payload.RequestID == requestId && payload.Result != nil {
+			if payload.Action == "getStyle" && payload.ElementId == elementId && payload.RequestID == requestId && payload.Result != nil {
 				d.ctx.scheduler.ScheduleAsync(func() error {
 					resolve(d.ctx.vm.ToValue(payload.Result))
 					return nil
@@ -1073,7 +1150,7 @@ func (d *DOMManager) getElementStyles(elementId string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getStyle",
 		Params:    map[string]interface{}{},
 		RequestID: requestId,
@@ -1094,7 +1171,7 @@ func (d *DOMManager) hasElementStyle(elementId, property string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "hasStyle" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "hasStyle" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if v, ok := payload.Result.(bool); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
 						resolve(d.ctx.vm.ToValue(v))
@@ -1112,7 +1189,7 @@ func (d *DOMManager) hasElementStyle(elementId, property string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "hasStyle",
 		Params: map[string]interface{}{
 			"property": property,
@@ -1135,7 +1212,7 @@ func (d *DOMManager) getElementDataAttribute(elementId, key string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "getDataAttribute" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getDataAttribute" && payload.ElementId == elementId && payload.RequestID == requestId {
 				d.ctx.scheduler.ScheduleAsync(func() error {
 					resolve(d.ctx.vm.ToValue(payload.Result))
 					return nil
@@ -1146,7 +1223,7 @@ func (d *DOMManager) getElementDataAttribute(elementId, key string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getDataAttribute",
 		Params: map[string]interface{}{
 			"key": key,
@@ -1169,7 +1246,7 @@ func (d *DOMManager) getElementDataAttributes(elementId string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "getDataAttributes" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "getDataAttributes" && payload.ElementId == elementId && payload.RequestID == requestId {
 				d.ctx.scheduler.ScheduleAsync(func() error {
 					resolve(d.ctx.vm.ToValue(payload.Result))
 					return nil
@@ -1180,7 +1257,7 @@ func (d *DOMManager) getElementDataAttributes(elementId string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "getDataAttributes",
 		Params:    map[string]interface{}{},
 		RequestID: requestId,
@@ -1191,7 +1268,7 @@ func (d *DOMManager) getElementDataAttributes(elementId string) goja.Value {
 
 func (d *DOMManager) setElementDataAttribute(elementId, key, value string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "setDataAttribute",
 		Params: map[string]interface{}{
 			"key":   key,
@@ -1202,7 +1279,7 @@ func (d *DOMManager) setElementDataAttribute(elementId, key, value string) {
 
 func (d *DOMManager) removeElementDataAttribute(elementId, key string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "removeDataAttribute",
 		Params: map[string]interface{}{
 			"key": key,
@@ -1222,7 +1299,7 @@ func (d *DOMManager) hasElementDataAttribute(elementId, key string) goja.Value {
 	listener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientDOMElementUpdatedEventPayload
 		if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-			if payload.Action == "hasDataAttribute" && payload.ElementID == elementId && payload.RequestID == requestId {
+			if payload.Action == "hasDataAttribute" && payload.ElementId == elementId && payload.RequestID == requestId {
 				if v, ok := payload.Result.(bool); ok {
 					d.ctx.scheduler.ScheduleAsync(func() error {
 						resolve(d.ctx.vm.ToValue(v))
@@ -1240,7 +1317,7 @@ func (d *DOMManager) hasElementDataAttribute(elementId, key string) goja.Value {
 	})
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "hasDataAttribute",
 		Params: map[string]interface{}{
 			"key": key,
@@ -1253,7 +1330,7 @@ func (d *DOMManager) hasElementDataAttribute(elementId, key string) goja.Value {
 
 func (d *DOMManager) removeElementStyle(elementId, property string) {
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "removeStyle",
 		Params: map[string]interface{}{
 			"property": property,
@@ -1262,7 +1339,7 @@ func (d *DOMManager) removeElementStyle(elementId, property string) {
 }
 
 // elementQuery handles querying for multiple DOM elements from a parent element
-func (d *DOMManager) elementQuery(elementId, selector string) goja.Value {
+func (d *DOMManager) elementQuery(elementId, selector string, opts QueryElementOptions) goja.Value {
 	promise, resolve, _ := d.ctx.vm.NewPromise()
 
 	// Generate a unique request ID
@@ -1290,11 +1367,12 @@ func (d *DOMManager) elementQuery(elementId, selector string) goja.Value {
 
 	// Send the query request to the client
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "query",
 		Params: map[string]interface{}{
-			"selector":  selector,
-			"requestId": requestId,
+			"selector":      selector,
+			"requestId":     requestId,
+			"withInnerHTML": opts.WithInnerHTML,
 		},
 	})
 
@@ -1302,7 +1380,7 @@ func (d *DOMManager) elementQuery(elementId, selector string) goja.Value {
 }
 
 // elementQueryOne handles querying for a single DOM element from a parent element
-func (d *DOMManager) elementQueryOne(elementId, selector string) goja.Value {
+func (d *DOMManager) elementQueryOne(elementId, selector string, opts QueryElementOptions) goja.Value {
 	promise, resolve, _ := d.ctx.vm.NewPromise()
 
 	// Generate a unique request ID
@@ -1332,11 +1410,12 @@ func (d *DOMManager) elementQueryOne(elementId, selector string) goja.Value {
 
 	// Send the query request to the client
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementId,
+		ElementId: elementId,
 		Action:    "queryOne",
 		Params: map[string]interface{}{
-			"selector":  selector,
-			"requestId": requestId,
+			"selector":      selector,
+			"requestId":     requestId,
+			"withInnerHTML": opts.WithInnerHTML,
 		},
 	})
 

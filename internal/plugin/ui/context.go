@@ -132,7 +132,7 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	_ = obj.Set("setInterval", c.jsSetInterval)
 	_ = obj.Set("effect", c.jsEffect)
 	_ = obj.Set("registerEventHandler", c.jsRegisterEventHandler)
-	_ = obj.Set("registerFieldRef", c.jsRegisterFieldRef)
+	_ = obj.Set("fieldRef", c.jsfieldRef)
 
 	c.bindFetch(obj)
 	// Bind screen manager
@@ -759,15 +759,15 @@ func (c *Context) jsRegisterEventHandler(call goja.FunctionCall) goja.Value {
 	return goja.Undefined()
 }
 
-// jsRegisterFieldRef allows to dynamically handle the value of a field outside the rendering context
+// jsfieldRef allows to dynamically handle the value of a field outside the rendering context
 //
 //	Example:
-//	const fieldRef = ctx.registerFieldRef("my-field")
+//	const fieldRef = ctx.fieldRef("my-field")
 //	fieldRef.setValue("Hello World!") // Triggers an immediate update on the client
 //	fieldRef.current // "Hello World!"
 //
 //	tray.render(() => tray.input({ fieldRef: "my-field" }))
-func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
+func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 	fieldRefObj := c.vm.NewObject()
 
 	if c.fieldRefCount >= MAX_FIELD_REFS {
@@ -775,14 +775,12 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 		return goja.Undefined()
 	}
 
+	id := uuid.New().String()
+	fieldRefObj.Set("__ID", id)
+
 	c.fieldRefCount++
 
 	var valueRef interface{}
-
-	fieldRefName, ok := call.Argument(0).Export().(string)
-	if !ok {
-		c.handleTypeError("registerFieldRef requires a field name")
-	}
 
 	fieldRefObj.Set("setValue", func(call goja.FunctionCall) goja.Value {
 		value := call.Argument(0).Export()
@@ -791,7 +789,7 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 		}
 
 		c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{
-			FieldRef: fieldRefName,
+			FieldRef: id,
 			Value:    value,
 		})
 
@@ -807,16 +805,13 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 	// Listen for changes from the client
 	eventListener := c.RegisterEventListener(ClientFieldRefSendValueEvent, ClientRenderTrayEvent)
 
-	payload := ClientFieldRefSendValueEventPayload{}
-	renderPayload := ClientRenderTrayEventPayload{}
-
 	eventListener.SetCallback(func(event *ClientPluginEvent) {
-		if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) && payload.FieldRef == fieldRefName {
-			fmt.Printf("Ref before: %s, Value: %v\n", fieldRefName, payload.Value)
+		payload := ClientFieldRefSendValueEventPayload{}
+		renderPayload := ClientRenderTrayEventPayload{}
+		if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) && payload.FieldRef == id {
+			// Schedule the update of the object
 			c.scheduler.ScheduleAsync(func() error {
 				if payload.Value != nil {
-					fmt.Printf("Ref scheduled: %s, Value: %v\n", fieldRefName, payload.Value)
-					// Schedule the update of the object
 					fieldRefObj.Set("current", payload.Value)
 				}
 				return nil
@@ -827,7 +822,7 @@ func (c *Context) jsRegisterFieldRef(call goja.FunctionCall) goja.Value {
 		// If it is, we send the current value to the client
 		if event.ParsePayloadAs(ClientRenderTrayEvent, &renderPayload) {
 			c.SendEventToClient(ServerFieldRefSetValueEvent, ServerFieldRefSetValueEventPayload{
-				FieldRef: fieldRefName,
+				FieldRef: id,
 				Value:    valueRef,
 			})
 		}

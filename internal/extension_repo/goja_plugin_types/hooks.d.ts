@@ -500,13 +500,13 @@ declare namespace $app {
     function onAutoDownloaderBeforeDownloadTorrent(cb: (event: AutoDownloaderBeforeDownloadTorrentEvent) => void);
 
     interface AutoDownloaderBeforeDownloadTorrentEvent {
-        torrent?: AutoDownloader_NormalizedTorrent;
-        rule?: Anime_AutoDownloaderRule;
-        items?: Array<Models_AutoDownloaderItem>;
-
         next();
 
         preventDefault();
+
+        torrent?: AutoDownloader_NormalizedTorrent;
+        rule?: Anime_AutoDownloaderRule;
+        items?: Array<Models_AutoDownloaderItem>;
     }
 
     /**
@@ -518,10 +518,10 @@ declare namespace $app {
     function onAutoDownloaderAfterDownloadTorrent(cb: (event: AutoDownloaderAfterDownloadTorrentEvent) => void);
 
     interface AutoDownloaderAfterDownloadTorrentEvent {
+        next();
+
         torrent?: AutoDownloader_NormalizedTorrent;
         rule?: Anime_AutoDownloaderRule;
-
-        next();
     }
 
 
@@ -797,12 +797,15 @@ declare namespace $app {
      * @event MediaPlayerLocalFileTrackingRequestedEvent
      * @file internal/mediaplayers/mediaplayer/hook_events.go
      * @description
-     * MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file
+     * MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file.
+     * Prevent default to stop tracking.
      */
     function onMediaPlayerLocalFileTrackingRequested(cb: (event: MediaPlayerLocalFileTrackingRequestedEvent) => void);
 
     interface MediaPlayerLocalFileTrackingRequestedEvent {
         next();
+
+        preventDefault();
 
     /**
      * Refresh the status of the player each x seconds
@@ -818,12 +821,15 @@ declare namespace $app {
      * @event MediaPlayerStreamTrackingRequestedEvent
      * @file internal/mediaplayers/mediaplayer/hook_events.go
      * @description
-     * MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream
+     * MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream.
+     * Prevent default to stop tracking.
      */
     function onMediaPlayerStreamTrackingRequested(cb: (event: MediaPlayerStreamTrackingRequestedEvent) => void);
 
     interface MediaPlayerStreamTrackingRequestedEvent {
         next();
+
+        preventDefault();
 
     /**
      * Refresh the status of the player each x seconds

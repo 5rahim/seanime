@@ -16,7 +16,7 @@ func (d *DOMManager) getElementChildren(elementID string) []*goja.Object {
 	go func(eventListener *EventListener) {
 		for event := range eventListener.Channel {
 			if event.ParsePayloadAs(ClientDOMElementUpdatedEvent, &payload) {
-				if payload.Action == "getChildren" && payload.ElementID == elementID {
+				if payload.Action == "getChildren" && payload.ElementId == elementID {
 					if v, ok := payload.Result.([]interface{}); ok {
 						arr := make([]*goja.Object, 0, len(v))
 						for _, elem := range v {
@@ -33,7 +33,7 @@ func (d *DOMManager) getElementChildren(elementID string) []*goja.Object {
 	}(eventListener)
 
 	d.ctx.SendEventToClient(ServerDOMManipulateEvent, &ServerDOMManipulateEventPayload{
-		ElementID: elementID,
+		ElementId: elementID,
 		Action:    "getChildren",
 		Params:    map[string]interface{}{},
 	})

@@ -27331,7 +27331,7 @@
     "fields": [
       {
         "name": "DbId",
-        "jsonName": "DbId",
+        "jsonName": "dbId",
         "goType": "uint",
         "typescriptType": "number",
         "required": true,
@@ -27340,7 +27340,7 @@
       },
       {
         "name": "Provider",
-        "jsonName": "Provider",
+        "jsonName": "provider",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27349,7 +27349,7 @@
       },
       {
         "name": "Slug",
-        "jsonName": "Slug",
+        "jsonName": "slug",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -27358,7 +27358,7 @@
       },
       {
         "name": "MediaId",
-        "jsonName": "MediaId",
+        "jsonName": "mediaId",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -27367,7 +27367,7 @@
       },
       {
         "name": "LastFetchedAt",
-        "jsonName": "LastFetchedAt",
+        "jsonName": "lastFetchedAt",
         "goType": "time.Time",
         "typescriptType": "string",
         "usedStructName": "time.Time",
@@ -27377,10 +27377,10 @@
       },
       {
         "name": "FillerEpisodes",
-        "jsonName": "FillerEpisodes",
-        "goType": "",
-        "typescriptType": "any",
-        "required": true,
+        "jsonName": "fillerEpisodes",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -32563,6 +32563,17 @@
         "comments": []
       },
       {
+        "name": "eventMu",
+        "jsonName": "eventMu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedTypescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "clientEventSubscribers",
         "jsonName": "clientEventSubscribers",
         "goType": "",
@@ -32588,6 +32599,26 @@
         "typescriptType": "any",
         "required": true,
         "public": true,
+        "comments": []
+      },
+      {
+        "name": "mu",
+        "jsonName": "mu",
+        "goType": "sync.RWMutex",
+        "typescriptType": "Sync_RWMutex",
+        "usedTypescriptType": "Sync_RWMutex",
+        "usedStructName": "sync.RWMutex",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "closed",
+        "jsonName": "closed",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": false,
         "comments": []
       }
     ],
@@ -47860,10 +47891,11 @@
       }
     ],
     "comments": [
-      " MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file"
+      " MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file.",
+      " Prevent default to stop tracking."
     ],
     "embeddedStructNames": [
-      "hook_resolver.Resolver"
+      "hook_resolver.Event"
     ]
   },
   {
@@ -47908,10 +47940,11 @@
       }
     ],
     "comments": [
-      " MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream"
+      " MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream.",
+      " Prevent default to stop tracking."
     ],
     "embeddedStructNames": [
-      "hook_resolver.Resolver"
+      "hook_resolver.Event"
     ]
   },
   {
@@ -55112,14 +55145,14 @@
         "comments": []
       },
       {
-        "name": "eventListeners",
-        "jsonName": "eventListeners",
+        "name": "eventBus",
+        "jsonName": "eventBus",
         "goType": "",
         "typescriptType": "any",
         "required": false,
         "public": false,
         "comments": [
-          " Event listeners registered by plugin functions"
+          " map[string]map[string]*EventListener (event -\u003e listenerID -\u003e listener)"
         ]
       },
       {
@@ -55446,14 +55479,27 @@
         ]
       },
       {
-        "name": "Channel",
-        "jsonName": "Channel",
+        "name": "queue",
+        "jsonName": "queue",
+        "goType": "[]ClientPluginEvent",
+        "typescriptType": "Array\u003cClientPluginEvent\u003e",
+        "usedTypescriptType": "ClientPluginEvent",
+        "usedStructName": "plugin_ui.ClientPluginEvent",
+        "required": false,
+        "public": false,
+        "comments": [
+          " Queue for event payloads"
+        ]
+      },
+      {
+        "name": "callback",
+        "jsonName": "callback",
         "goType": "",
         "typescriptType": "any",
         "required": true,
-        "public": true,
+        "public": false,
         "comments": [
-          " Channel for the event payload"
+          " Callback function to process events"
         ]
       },
       {
@@ -55578,8 +55624,8 @@
         "comments": []
       },
       {
-        "name": "ElementID",
-        "jsonName": "ElementID",
+        "name": "ElementId",
+        "jsonName": "ElementId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -55603,6 +55649,34 @@
         "usedTypescriptType": "Callable",
         "usedStructName": "goja.Callable",
         "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/ui/dom.go",
+    "filename": "dom.go",
+    "name": "QueryElementOptions",
+    "formattedName": "QueryElementOptions",
+    "package": "plugin_ui",
+    "fields": [
+      {
+        "name": "WithInnerHTML",
+        "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IdentifyChildren",
+        "jsonName": "identifyChildren",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
         "public": true,
         "comments": []
       }
@@ -56006,8 +56080,8 @@
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ElementID",
-        "jsonName": "elementID",
+        "name": "ElementId",
+        "jsonName": "elementId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -56099,8 +56173,8 @@
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ObserverID",
-        "jsonName": "observerID",
+        "name": "ObserverId",
+        "jsonName": "observerId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -56155,8 +56229,8 @@
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ElementID",
-        "jsonName": "elementID",
+        "name": "ElementId",
+        "jsonName": "elementId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -56180,6 +56254,15 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -56192,8 +56275,8 @@
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ObserverID",
-        "jsonName": "observerID",
+        "name": "ObserverId",
+        "jsonName": "observerId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -56819,6 +56902,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "WithInnerHTML",
+        "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IdentifyChildren",
+        "jsonName": "identifyChildren",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [
@@ -56849,6 +56950,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "WithInnerHTML",
+        "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IdentifyChildren",
+        "jsonName": "identifyChildren",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": []
@@ -56870,10 +56989,28 @@
         "comments": []
       },
       {
-        "name": "ObserverID",
-        "jsonName": "observerID",
+        "name": "ObserverId",
+        "jsonName": "observerId",
         "goType": "string",
         "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "WithInnerHTML",
+        "jsonName": "withInnerHTML",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "IdentifyChildren",
+        "jsonName": "identifyChildren",
+        "goType": "bool",
+        "typescriptType": "boolean",
         "required": true,
         "public": true,
         "comments": []
@@ -56889,8 +57026,8 @@
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ObserverID",
-        "jsonName": "observerID",
+        "name": "ObserverId",
+        "jsonName": "observerId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -56936,8 +57073,8 @@
     "package": "plugin_ui",
     "fields": [
       {
-        "name": "ElementID",
-        "jsonName": "elementID",
+        "name": "ElementId",
+        "jsonName": "elementId",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -56959,6 +57096,15 @@
         "goType": "map[string]",
         "typescriptType": "Record\u003cstring, any\u003e",
         "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RequestID",
+        "jsonName": "requestId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
         "public": true,
         "comments": []
       }

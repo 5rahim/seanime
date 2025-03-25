@@ -3789,13 +3789,41 @@
           "comments": [
             " Maximum number of retries"
           ]
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
         }
       ],
       "comments": [
-        " MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file"
+        " MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file.",
+        " Prevent default to stop tracking."
       ],
       "embeddedStructNames": [
-        "hook_resolver.Resolver"
+        "hook_resolver.Event"
       ]
     }
   },
@@ -3840,13 +3868,41 @@
           "comments": [
             " Maximum number of retries after the player has started"
           ]
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
         }
       ],
       "comments": [
-        " MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream"
+        " MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream.",
+        " Prevent default to stop tracking."
       ],
       "embeddedStructNames": [
-        "hook_resolver.Resolver"
+        "hook_resolver.Event"
       ]
     }
   },

@@ -103,7 +103,7 @@ type ClientCommandPaletteInputEventPayload struct {
 }
 
 type ClientDOMEventTriggeredEventPayload struct {
-	ElementID string                 `json:"elementId"`
+	ElementId string                 `json:"elementId"`
 	EventType string                 `json:"eventType"`
 	Event     map[string]interface{} `json:"event"`
 }
@@ -119,7 +119,7 @@ type ClientDOMQueryOneResultEventPayload struct {
 }
 
 type ClientDOMObserveResultEventPayload struct {
-	ObserverID string        `json:"observerID"`
+	ObserverId string        `json:"observerId"`
 	Elements   []interface{} `json:"elements"`
 }
 
@@ -129,14 +129,14 @@ type ClientDOMCreateResultEventPayload struct {
 }
 
 type ClientDOMElementUpdatedEventPayload struct {
-	ElementID string      `json:"elementId"`
+	ElementId string      `json:"elementId"`
 	Action    string      `json:"action"`
 	Result    interface{} `json:"result"`
 	RequestID string      `json:"requestId"`
 }
 
 type ClientDOMStopObserveEventPayload struct {
-	ObserverID string `json:"observerID"`
+	ObserverId string `json:"observerId"`
 }
 
 type ClientDOMReadyEventPayload struct {
@@ -327,22 +327,28 @@ func (e *ClientPluginEvent) ParsePayloadAs(t ClientEventType, ret interface{}) b
 
 // Add DOM event payloads
 type ServerDOMQueryEventPayload struct {
-	Selector  string `json:"selector"`
-	RequestID string `json:"requestId"`
+	Selector         string `json:"selector"`
+	RequestID        string `json:"requestId"`
+	WithInnerHTML    bool   `json:"withInnerHTML"`
+	IdentifyChildren bool   `json:"identifyChildren"`
 }
 
 type ServerDOMQueryOneEventPayload struct {
-	Selector  string `json:"selector"`
-	RequestID string `json:"requestId"`
+	Selector         string `json:"selector"`
+	RequestID        string `json:"requestId"`
+	WithInnerHTML    bool   `json:"withInnerHTML"`
+	IdentifyChildren bool   `json:"identifyChildren"`
 }
 
 type ServerDOMObserveEventPayload struct {
-	Selector   string `json:"selector"`
-	ObserverID string `json:"observerID"`
+	Selector         string `json:"selector"`
+	ObserverId       string `json:"observerId"`
+	WithInnerHTML    bool   `json:"withInnerHTML"`
+	IdentifyChildren bool   `json:"identifyChildren"`
 }
 
 type ServerDOMStopObserveEventPayload struct {
-	ObserverID string `json:"observerID"`
+	ObserverId string `json:"observerId"`
 }
 
 type ServerDOMCreateEventPayload struct {
@@ -351,7 +357,7 @@ type ServerDOMCreateEventPayload struct {
 }
 
 type ServerDOMManipulateEventPayload struct {
-	ElementID string                 `json:"elementId"`
+	ElementId string                 `json:"elementId"`
 	Action    string                 `json:"action"`
 	Params    map[string]interface{} `json:"params"`
 	RequestID string                 `json:"requestId"`
