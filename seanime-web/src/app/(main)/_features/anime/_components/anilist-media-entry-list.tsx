@@ -21,7 +21,7 @@ export function AnilistAnimeEntryList(props: AnilistAnimeEntryListProps) {
     } = props
 
     return (
-        <MediaCardLazyGrid itemCount={list?.entries?.filter(Boolean)?.length || 0}>
+        <MediaCardLazyGrid itemCount={list?.entries?.filter(Boolean)?.length || 0} data-anilist-anime-entry-list>
             {list?.entries?.filter(Boolean)?.map((entry) => (
                 <MediaEntryCard
                     key={`${entry.media?.id}`}

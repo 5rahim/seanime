@@ -69,7 +69,7 @@ func (m *Manga) getCollection() (*manga.Collection, error) {
 	})
 }
 
-func (m *Manga) refreshChapterContainers() *goja.Promise {
+func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) *goja.Promise {
 	promise, resolve, reject := m.vm.NewPromise()
 
 	mangaRepo, ok := m.ctx.mangaRepository.Get()
@@ -90,7 +90,7 @@ func (m *Manga) refreshChapterContainers() *goja.Promise {
 	}
 
 	go func() {
-		err := mangaRepo.RefreshChapterContainers(mangaCollection)
+		err := mangaRepo.RefreshChapterContainers(mangaCollection, selectedProviderMap)
 		m.scheduler.ScheduleAsync(func() error {
 			if err != nil {
 				reject(err.Error())

@@ -1,4 +1,4 @@
-import { __mangaLibrary_latestChapterNumbersAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
+import { __mangaLibrary_latestChapterNumbersAtom as __mangaLibrary_currentMangaDataAtom } from "@/app/(main)/manga/_lib/handle-manga-collection"
 import { Badge } from "@/components/ui/badge"
 import { useThemeSettings } from "@/lib/theme/hooks"
 import { useAtom } from "jotai"
@@ -22,19 +22,19 @@ export function MangaEntryCardUnreadBadge(props: MangaEntryCardUnreadBadgeProps)
     } = props
 
     const { showMangaUnreadCount } = useThemeSettings()
-    const [chapterCounts] = useAtom(__mangaLibrary_latestChapterNumbersAtom)
+    const [mangaData] = useAtom(__mangaLibrary_currentMangaDataAtom)
 
     const [progressTotal, setProgressTotal] = React.useState(_progressTotal || 0)
 
     React.useEffect(() => {
         const latestChapterNumber = getMangaEntryLatestChapterNumber(mediaId,
-            chapterCounts.latestChapterNumbers,
-            chapterCounts.storedProviders,
-            chapterCounts.storedFilters)
+            mangaData.latestChapterNumbers,
+            mangaData.storedProviders,
+            mangaData.storedFilters)
         if (latestChapterNumber) {
             setProgressTotal(latestChapterNumber)
         }
-    }, [chapterCounts])
+    }, [mangaData])
 
     if (!showMangaUnreadCount) return null
 

@@ -172,12 +172,21 @@ func (h *Handler) HandleGetMangaLatestChapterNumbersMap(c echo.Context) error {
 //	@route /api/v1/manga/refetch-chapter-containers [POST]
 //	@returns bool
 func (h *Handler) HandleRefetchMangaChapterContainers(c echo.Context) error {
+
+	type body struct {
+		SelectedProviderMap map[int]string `json:"selectedProviderMap"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
 	mangaCollection, err := h.App.GetMangaCollection(false)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}
-
-	err = h.App.MangaRepository.RefreshChapterContainers(mangaCollection)
+	err = h.App.MangaRepository.RefreshChapterContainers(mangaCollection, b.SelectedProviderMap)
 	if err != nil {
 		return h.RespondWithError(c, err)
 	}

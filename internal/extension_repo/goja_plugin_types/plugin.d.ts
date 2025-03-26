@@ -850,7 +850,7 @@ declare namespace $ui {
          * Whether to include the innerHTML of the element
          */
         withInnerHTML?: boolean
-        
+
         /**
          * Whether to assign plugin-element IDs to all child elements
          * This is useful when you need to interact with child elements directly
@@ -926,10 +926,13 @@ declare namespace $ui {
         getCollection(): Promise<$app.Manga_Collection>
 
         /**
-         * Refreshes all the previously cached chapter containers
+         * Deletes all cached chapter containers and refetches them based on the selected provider map.
+         *
+         * @param selectedProviderMap - A map of manga IDs to provider IDs. Previously cached chapter containers for providers not in the map will be
+         *     deleted.
          * @returns A promise that resolves to void
          */
-        refreshChapterContainers(): Promise<void>
+        refreshChapterContainers(selectedProviderMap: Record<number, string>): Promise<void>
     }
 
     type Intent =

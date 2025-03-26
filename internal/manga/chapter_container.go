@@ -232,8 +232,8 @@ func (r *Repository) GetMangaChapterContainer(opts *GetMangaChapterContainerOpti
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// RefreshChapterContainers refreshes the chapter containers previously cached for the manga in the collection.
-func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaCollection) (err error) {
+// RefreshChapterContainers deletes all cached chapter containers and refetches them based on the selected provider map.
+func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaCollection, selectedProviderMap map[int]string) (err error) {
 	defer util.HandlePanicInModuleWithError("manga/RefreshChapterContainers", &err)
 
 	// Read the cache directory
@@ -241,6 +241,9 @@ func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaColl
 	if err != nil {
 		return err
 	}
+
+	removedMediaIds := make(map[int]struct{})
+	mu := sync.Mutex{}
 
 	wg := sync.WaitGroup{}
 	wg.Add(len(entries))
@@ -263,11 +266,35 @@ func (r *Repository) RefreshChapterContainers(mangaCollection *anilist.MangaColl
 
 			r.logger.Trace().Str("provider", provider).Int("mediaId", mediaId).Msg("manga: Refetching chapter container")
 
-			// Remove the container from the cache
-			r.EmptyMangaCache(mediaId)
+			mu.Lock()
+			// Remove the container from the cache if it hasn't been removed yet
+			if _, ok := removedMediaIds[mediaId]; !ok {
+				r.EmptyMangaCache(mediaId)
+				removedMediaIds[mediaId] = struct{}{}
+			}
+			mu.Unlock()
+
+			// If a selectedProviderMap is provided, check if the provider is in the map
+			if selectedProviderMap != nil {
+				// If the manga is not in the map, continue
+				if _, ok := selectedProviderMap[mediaId]; !ok {
+					return
+				}
+
+				// If the provider is not the one selected, continue
+				if selectedProviderMap[mediaId] != provider {
+					return
+				}
+			}
+
 			// Get the manga from the collection
 			mangaEntry, found := mangaCollection.GetListEntryFromMangaId(mediaId)
 			if !found {
+				return
+			}
+
+			// If the manga is not currently reading or repeating, continue
+			if *mangaEntry.GetStatus() != anilist.MediaListStatusCurrent && *mangaEntry.GetStatus() != anilist.MediaListStatusRepeating {
 				return
 			}
 

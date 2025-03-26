@@ -27,12 +27,12 @@ export function SettingsNavCard({ title, children }: SettingsCardProps) {
                 onMouseMove={handleMouseMove}
                 className="lg:p-2 lg:border lg:rounded-[--radius] lg:bg-[--paper] contents lg:block relative group/settings-nav overflow-hidden"
             >
-                <div
+                {/* <div
                     className="pointer-events-none absolute -inset-px transition-opacity duration-300 opacity-0 group-hover/settings-nav:opacity-100 hidden lg:block"
                     style={{
                         background: `radial-gradient(250px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
                     }}
-                />
+                 /> */}
                 {children}
             </div>
         </div>
@@ -58,12 +58,12 @@ export function SettingsCard({ title, description, children, className }: Settin
                 className={cn("group/settings-card relative overflow-hidden bg-[--paper]", className)}
                 onMouseMove={handleMouseMove}
             >
-                <div
+                {/* <div
                     className="pointer-events-none absolute -inset-px transition-opacity duration-300 opacity-0 group-hover/settings-card:opacity-100"
                     style={{
                         background: `radial-gradient(700px circle at ${position.x}px ${position.y}px, rgb(255 255 255 / 0.025), transparent 40%)`,
                     }}
-                />
+                 /> */}
                 {title && <CardHeader>
                     <CardTitle className="font-semibold text-xl text-[--muted] transition-colors group-hover/settings-card:text-[--brand]">
                         {title}

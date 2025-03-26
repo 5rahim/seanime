@@ -27,6 +27,7 @@ type MangaLibraryViewProps = {
     collection: Manga_Collection
     filteredCollection: Manga_Collection | undefined
     genres: string[]
+    storedProviders: Record<string, string>
 }
 
 export function MangaLibraryView(props: MangaLibraryViewProps) {
@@ -35,6 +36,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
         collection,
         filteredCollection,
         genres,
+        storedProviders,
         ...rest
     } = props
 
@@ -63,7 +65,7 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
 
                 <AnimatePresence mode="wait" initial={false}>
                     {!params.genre?.length ?
-                        <CollectionLists key="lists" collectionList={collection} genres={genres} />
+                        <CollectionLists key="lists" collectionList={collection} genres={genres} storedProviders={storedProviders} />
                         : <FilteredCollectionLists key="filtered-collection" collectionList={filteredCollection} genres={genres} />
                     }
                 </AnimatePresence>
@@ -72,9 +74,10 @@ export function MangaLibraryView(props: MangaLibraryViewProps) {
     )
 }
 
-export function CollectionLists({ collectionList, genres }: {
+export function CollectionLists({ collectionList, genres, storedProviders }: {
     collectionList: Manga_Collection | undefined
     genres: string[]
+    storedProviders: Record<string, string>
 }) {
 
     return (
@@ -94,7 +97,7 @@ export function CollectionLists({ collectionList, genres }: {
                 if (!collection.entries?.length) return null
                 return (
                     <React.Fragment key={collection.type}>
-                        <CollectionListItem list={collection} />
+                        <CollectionListItem list={collection} storedProviders={storedProviders} />
 
                         {(collection.type === "CURRENT" && !!genres?.length) && <GenreSelector genres={genres} />}
                     </React.Fragment>
@@ -152,7 +155,7 @@ export function FilteredCollectionLists({ collectionList, genres }: {
 
 }
 
-const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
+const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_CollectionList, storedProviders: Record<string, string> }) => {
 
     const ts = useThemeSettings()
     const [currentHeaderImage, setCurrentHeaderImage] = useAtom(__mangaLibraryHeaderImageAtom)
@@ -222,7 +225,9 @@ const CollectionListItem = memo(({ list }: { list: Manga_CollectionList }) => {
                             if (isRefetchingMangaChapterContainers) return
 
                             toast.info("Refetching from sources...")
-                            refetchMangaChapterContainers()
+                            refetchMangaChapterContainers({
+                                selectedProviderMap: storedProviders,
+                            })
                         }}
                     >
                         {isRefetchingMangaChapterContainers ? "Refetching..." : "Refresh sources"}

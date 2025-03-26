@@ -4006,7 +4006,7 @@
     "comments": [
       "HandleRefetchMangaChapterContainers",
       "",
-      "\t@summary refetches the chapter containers for selected manga entries.",
+      "\t@summary refetches the chapter containers for all manga entries previously cached.",
       "\t@route /api/v1/manga/refetch-chapter-containers [POST]",
       "\t@returns bool",
       ""
@@ -4014,14 +4014,24 @@
     "filepath": "internal/handlers/manga.go",
     "filename": "manga.go",
     "api": {
-      "summary": "refetches the chapter containers for selected manga entries.",
+      "summary": "refetches the chapter containers for all manga entries previously cached.",
       "descriptions": [],
       "endpoint": "/api/v1/manga/refetch-chapter-containers",
       "methods": [
         "POST"
       ],
       "params": [],
-      "bodyFields": [],
+      "bodyFields": [
+        {
+          "name": "SelectedProviderMap",
+          "jsonName": "selectedProviderMap",
+          "goType": "map[int]string",
+          "usedStructType": "",
+          "typescriptType": "Record\u003cnumber, string\u003e",
+          "required": true,
+          "descriptions": []
+        }
+      ],
       "returns": "bool",
       "returnGoType": "bool",
       "returnTypescriptType": "boolean"

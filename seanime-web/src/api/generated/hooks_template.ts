@@ -1033,7 +1033,7 @@
 // }
 
 // export function useRefetchMangaChapterContainers() {
-//     return useServerMutation<boolean>({
+//     return useServerMutation<boolean, RefetchMangaChapterContainers_Variables>({
 //         endpoint: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.endpoint,
 //         method: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.methods[0],
 //         mutationKey: [API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.key],

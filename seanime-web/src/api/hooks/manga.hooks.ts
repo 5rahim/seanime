@@ -8,6 +8,7 @@ import {
     GetMangaMapping_Variables,
     MangaManualMapping_Variables,
     MangaManualSearch_Variables,
+    RefetchMangaChapterContainers_Variables,
     RemoveMangaMapping_Variables,
     UpdateMangaProgress_Variables,
 } from "@/api/generated/endpoint.types"
@@ -206,7 +207,7 @@ export function useGetMangaLatestChapterNumbersMap() {
 export function useRefetchMangaChapterContainers() {
     const queryClient = useQueryClient()
 
-    return useServerMutation<boolean>({
+    return useServerMutation<boolean, RefetchMangaChapterContainers_Variables>({
         endpoint: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.endpoint,
         method: API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.methods[0],
         mutationKey: [API_ENDPOINTS.MANGA.RefetchMangaChapterContainers.key],

@@ -79,9 +79,10 @@ export function AnilistCollectionLists() {
     })
 
     return (
-        <AppLayoutStack className="space-y-6">
-            <div className="w-full flex justify-center">
+        <AppLayoutStack className="space-y-6" data-anilist-collection-lists>
+            <div className="w-full flex justify-center" data-anilist-collection-lists-tabs-container>
                 <StaticTabs
+                    data-anilist-collection-lists-tabs
                     className="h-10 w-fit border rounded-full"
                     triggerClass="px-4 py-1"
                     items={[
@@ -97,7 +98,7 @@ export function AnilistCollectionLists() {
             </div>
 
 
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="wait" initial={false} data-anilist-collection-lists-content>
                 {pageType !== "stats" && <PageWrapper
                     key="lists"
                     className="space-y-6"
@@ -112,7 +113,7 @@ export function AnilistCollectionLists() {
                 >
                     <SearchOptions customLists={customLists} />
 
-                    <div className="py-6 space-y-6">
+                    <div className="py-6 space-y-6" data-anilist-collection-lists-stack>
                         {(!!currentList?.entries?.length && ["-", "CURRENT"].includes(selectedIndex)) && <>
                             <h2>Current <span className="text-[--muted] font-medium ml-3">{currentList?.entries?.length}</span></h2>
                             <AnilistAnimeEntryList type={pageType} list={currentList} />
@@ -160,6 +161,7 @@ export function AnilistCollectionLists() {
                             duration: 0.35,
                         },
                     }}
+                    data-anilist-collection-lists-stats-wrapper
                 >
                     <AnilistStats
                         stats={stats}
@@ -212,8 +214,8 @@ export function SearchOptions({
     }, [debouncedParams])
 
     return (
-        <AppLayoutStack className="px-4 xl:px-0">
-            <div className="flex flex-col lg:flex-row gap-4">
+        <AppLayoutStack className="px-4 xl:px-0" data-anilist-collection-lists-search-options-stack>
+            <div className="flex flex-col lg:flex-row gap-4" data-anilist-collection-lists-search-options-container>
                 <Select
                     // label="Sorting"
                     className="w-full"
@@ -232,7 +234,7 @@ export function SearchOptions({
                     onValueChange={v => setSelectedIndex(v as any)}
                     // disabled={!!params.title && params.title.length > 0}
                 />
-                <div className="flex gap-4 items-center w-full">
+                <div className="flex gap-4 items-center w-full" data-anilist-collection-lists-search-options-actions>
                     <SearchInput />
                     <IconButton
                         icon={<BiTrash />} intent="gray-subtle" className="flex-none" onClick={() => {
@@ -255,6 +257,7 @@ export function SearchOptions({
                     "grid grid-cols-2 gap-5",
                     pageType === "anime" ? "xl:grid-cols-6" : "lg:grid-cols-4",
                 )}
+                data-anilist-collection-lists-search-options-grid
             >
                 <Combobox
                     multiple

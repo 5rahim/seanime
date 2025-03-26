@@ -862,6 +862,17 @@ export type GetMangaEntryDetails_Variables = {
 /**
  * - Filepath: internal/handlers/manga.go
  * - Filename: manga.go
+ * - Endpoint: /api/v1/manga/refetch-chapter-containers
+ * @description
+ * Route refetches the chapter containers for all manga entries previously cached.
+ */
+export type RefetchMangaChapterContainers_Variables = {
+    selectedProviderMap: Record<number, string>
+}
+
+/**
+ * - Filepath: internal/handlers/manga.go
+ * - Filename: manga.go
  * - Endpoint: /api/v1/manga/entry/cache
  * @description
  * Route empties the cache for a manga entry.

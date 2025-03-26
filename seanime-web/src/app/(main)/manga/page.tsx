@@ -59,6 +59,7 @@ export default function Page() {
                 genres={genres}
                 collection={mangaCollection}
                 filteredCollection={filteredMangaCollection}
+                storedProviders={storedProviders}
             />
         </div>
     )

@@ -55,6 +55,7 @@ type MediaEntryCardProps<T extends "anime" | "manga"> = {
     showLibraryBadge?: T extends "anime" ? boolean : never
     showTrailer?: T extends "anime" ? boolean : never
     libraryData?: T extends "anime" ? Anime_EntryLibraryData : never
+    hideUnseenCountBadge?: boolean
 } & MediaEntryCardBaseProps
 
 export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCardProps<T>) {
@@ -68,6 +69,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
         showTrailer: _showTrailer,
         type,
         withAudienceScore = true,
+        hideUnseenCountBadge = false,
     } = props
 
     const router = useRouter()
@@ -155,7 +157,14 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
     if (!media) return null
 
     return (
-        <MediaEntryCardContainer data-media-id={media.id} data-media-type={type} mRef={ref} className={props.containerClassName}>
+        <MediaEntryCardContainer
+            data-media-id={media.id}
+            data-media-type={type}
+            mRef={ref}
+            className={props.containerClassName}
+            data-list-data={JSON.stringify(listData)}
+        >
+
 
             <MediaEntryCardOverlay overlay={overlay} />
 
@@ -306,7 +315,8 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         progressTotal={progressTotal}
                         forceShowTotal={type === "manga"}
                         // forceShowProgress={listData?.status === "CURRENT"}
-                        top={<>
+                        top={!hideUnseenCountBadge ? <>
+
                             {(type === "anime" && (listData?.status === "CURRENT" || listData?.status === "REPEATING")) && (
                                 <AnimeEntryCardUnwatchedBadge
                                     progress={listData?.progress || 0}
@@ -316,7 +326,7 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                             )}
                             {type === "manga" &&
                                 <MangaEntryCardUnreadBadge mediaId={media.id} progress={listData?.progress} progressTotal={progressTotal} />}
-                        </>}
+                        </> : null}
                     />
                 </div>
                 <div data-media-entry-card-body-score-badge-container className="absolute z-[10] right-1 bottom-1">
