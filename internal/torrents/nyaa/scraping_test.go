@@ -1,14 +1,16 @@
 package nyaa
 
 import (
+	"seanime/internal/util"
+	"testing"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTorrentFiles(t *testing.T) {
 
-	files, err := TorrentFiles("https://nyaa.si/view/1542057") // durarara complete series
+	files, err := TorrentFiles(util.Decode("aHR0cHM6Ly9ueWFhLnNpL3ZpZXcvMTU0MjA1Nw==")) // durarara complete series
 	assert.NoError(t, err)
 
 	t.Log(spew.Sdump(files))
@@ -18,7 +20,7 @@ func TestTorrentFiles(t *testing.T) {
 
 func TestTorrentMagnet(t *testing.T) {
 
-	magnet, err := TorrentMagnet("https://nyaa.si/view/1886886")
+	magnet, err := TorrentMagnet(util.Decode("aHR0cHM6Ly9ueWFhLnNpL3ZpZXcvMTg4Njg4Ng=="))
 	assert.NoError(t, err)
 
 	t.Log(magnet)
@@ -28,7 +30,7 @@ func TestTorrentMagnet(t *testing.T) {
 
 func TestTorrentInfo(t *testing.T) {
 
-	title, a, b, c, fs, d, e, err := TorrentInfo("https://nyaa.si/view/1727922")
+	title, a, b, c, fs, d, e, err := TorrentInfo(util.Decode("aHR0cHM6Ly9ueWFhLnNpL3ZpZXcvMTcyNzkyMg=="))
 	assert.NoError(t, err)
 
 	t.Logf("Title: %s\n", title)
@@ -43,7 +45,7 @@ func TestTorrentInfo(t *testing.T) {
 
 func TestTorrentHash(t *testing.T) {
 
-	hash, err := TorrentHash("https://nyaa.si/view/1741691")
+	hash, err := TorrentHash(util.Decode("aHR0cHM6Ly9ueWFhLnNpL3ZpZXcvMTc0MTY5MQ=="))
 	assert.NoError(t, err)
 
 	t.Log(hash)

@@ -14,6 +14,14 @@ import (
 	"unicode"
 )
 
+func Decode(s string) string {
+	decoded, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return ""
+	}
+	return string(decoded)
+}
+
 func GenerateCryptoID() string {
 	bytes := make([]byte, 16)
 	if _, err := rand.Read(bytes); err != nil {

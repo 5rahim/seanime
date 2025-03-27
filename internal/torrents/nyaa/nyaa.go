@@ -45,12 +45,14 @@ func (t *Torrent) GetSizeInBytes() int64 {
 	return bytes
 }
 
-const (
-	nyaaBaseURL    = "https://nyaa.si/?page=rss&q=+"
-	sukebeiBaseURL = "https://sukebei.nyaa.si/?page=rss&q=+"
-	nyaaView       = "https://nyaa.si/view/"
-	sukebeiView    = "https://sukebei.nyaa.si/view/"
+var (
+	nyaaBaseURL    = util.Decode("aHR0cHM6Ly9ueWFhLnNpLz9wYWdlPXJzcyZxPSs=")
+	sukebeiBaseURL = util.Decode("aHR0cHM6Ly9zdWtlYmVpLm55YWEuc2kvP3BhZ2U9cnNzJnE9Kw==")
+	nyaaView       = util.Decode("aHR0cHM6Ly9ueWFhLnNpL3ZpZXcv")
+	sukebeiView    = util.Decode("aHR0cHM6Ly9zdWtlYmVpLm55YWEuc2kvdmlldy8=")
+)
 
+const (
 	sortByComments  = "&s=comments&o=desc"
 	sortBySeeders   = "&s=seeders&o=desc"
 	sortByLeechers  = "&s=leechers&o=desc"

@@ -10,6 +10,7 @@ import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websocke
 import { IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { Popover } from "@/components/ui/popover"
+import { Tooltip } from "@/components/ui/tooltip"
 import { WSEvents } from "@/lib/server/ws-events"
 import { useWindowSize } from "@uidotdev/usehooks"
 import { useAtom } from "jotai/react"
@@ -17,7 +18,8 @@ import { atom } from "jotai/vanilla"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuBlocks, LuBug, LuCircleDashed, LuPin, LuPinOff, LuRefreshCw, LuShapes } from "react-icons/lu"
+import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
+import { TbPinned, TbPinnedFilled } from "react-icons/tb"
 import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
 
 export const __plugin_trayIconsAtom = atom<TrayIcon[]>([])
@@ -121,10 +123,12 @@ const ExtensionList = ({
                                         onClick={() => reloadExternalExtension({ id: trayIcon.extensionId })}
                                         loading={isReloadingExtension}
                                     />
-                                    {isPinned(trayIcon.extensionId) ? <IconButton
-                                        intent="gray-basic"
+                                    <Tooltip
+                                        trigger={<div>
+                                            {isPinned(trayIcon.extensionId) ? <IconButton
+                                                intent="primary-basic"
                                         size="sm"
-                                        icon={<LuPinOff className="size-5 text-[--muted]" />}
+                                                icon={<TbPinnedFilled className="size-5" />}
                                         className="rounded-full"
                                         onClick={() => {
                                             setPluginSettingsPinnedTrays({
@@ -133,17 +137,21 @@ const ExtensionList = ({
                                         }}
                                         disabled={isSettingPluginSettingsPinnedTrays}
                                     /> : <IconButton
-                                        intent="primary-basic"
+                                                intent="gray-basic"
                                         size="sm"
-                                        icon={<LuPin className="size-5" />}
+                                                icon={<TbPinned className="size-5 text-[--muted]" />}
                                         className="rounded-full"
                                         onClick={() => {
                                             setPluginSettingsPinnedTrays({
                                                 pinnedTrayPluginIds: [...pinnedTrayPluginIds, trayIcon.extensionId],
                                             })
                                         }}
-                                        disabled={isSettingPluginSettingsPinnedTrays}
-                                    />}
+                                                disabled={isSettingPluginSettingsPinnedTrays}
+                                            />}
+                                        </div>}
+                                    >
+                                        {isPinned(trayIcon.extensionId) ? "Unpin" : "Pin"}
+                                    </Tooltip>
                                 </div>
                             </div>
                         ))}

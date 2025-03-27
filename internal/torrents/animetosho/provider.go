@@ -3,25 +3,25 @@ package animetosho
 import (
 	"bytes"
 	"fmt"
-	"github.com/5rahim/habari"
-	"github.com/dustin/go-humanize"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"io"
 	"net/http"
 	"net/url"
 	"seanime/internal/api/anilist"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
 	"strings"
 	"sync"
 	"time"
 
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"github.com/5rahim/habari"
+	"github.com/dustin/go-humanize"
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
-const (
-	JsonFeedUrl  = "https://feed.animetosho.org/json"
+var (
+	JsonFeedUrl  = util.Decode("aHR0cHM6Ly9mZWVkLmFuaW1ldG9zaG8ub3JnL2pzb24=")
 	ProviderName = "animetosho"
 )
 
@@ -418,14 +418,14 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) (ret [
 // searches for torrents by Anime ID
 func (at *Provider) searchByAID(aid int, quality string) (torrents []*Torrent, err error) {
 	q := url.QueryEscape(formatCommonQuery(quality))
-	query := fmt.Sprintf(`?qx=1&order=size-d&aid=%d&q=%s`, aid, q)
+	query := fmt.Sprintf(`?order=size-d&aid=%d&q=%s`, aid, q)
 	return fetchTorrents(query)
 }
 
 // searches for torrents by Episode ID
 func (at *Provider) searchByEID(eid int, quality string) (torrents []*Torrent, err error) {
 	q := url.QueryEscape(formatCommonQuery(quality))
-	query := fmt.Sprintf(`?qx=1&eid=%d&q=%s`, eid, q)
+	query := fmt.Sprintf(`?eid=%d&q=%s`, eid, q)
 	return fetchTorrents(query)
 }
 
@@ -472,13 +472,7 @@ func formatCommonQuery(quality string) string {
 		return ""
 	}
 	quality = strings.TrimSuffix(quality, "p")
-	others := lo.Filter(hibiketorrent.Resolutions, func(r string, _ int) bool {
-		return r != quality
-	})
-	othersStrs := lo.Map(others, func(r string, _ int) string {
-		return fmt.Sprintf(`!"%s"`, r)
-	})
-	return fmt.Sprintf(`("%s" %s)`, quality, strings.Join(othersStrs, " "))
+	return fmt.Sprintf(`%s`, quality)
 }
 
 // sanitizeTitle removes characters that impact the search query
