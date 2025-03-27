@@ -524,8 +524,6 @@ func (s *Storage) Has(key string) (bool, error) {
 }
 
 func (s *Storage) Get(key string) (interface{}, error) {
-	s.logger.Trace().Msgf("plugin: Getting key %s", key)
-
 	// Check key cache first
 	if cachedValue, ok := s.keyDataCache.Get(key); ok {
 		return cachedValue, nil

@@ -250,6 +250,14 @@ func (e *Entry) hydrateEntryEpisodeData(
 	progressOffset := 0
 	if HasDiscrepancy(e.Media, animeMetadata) {
 		progressOffset = 1
+
+		_, ok := lo.Find(e.LocalFiles, func(lf *LocalFile) bool {
+			return lf.Metadata.Episode == 0
+		})
+		// Remove the offset if episode 0 is not found
+		if !ok {
+			progressOffset = 0
+		}
 	}
 
 	//if hasDiscrepancy {
