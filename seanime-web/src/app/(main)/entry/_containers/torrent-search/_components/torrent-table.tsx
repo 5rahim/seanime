@@ -20,9 +20,6 @@ import { TextInput } from "@/components/ui/text-input"
 import { formatDistanceToNowSafe } from "@/lib/helpers/date"
 import React, { memo, useState } from "react"
 import { BiCalendarAlt } from "react-icons/bi"
-import { HiOutlineVideoCamera } from "react-icons/hi2"
-import { LuFile } from "react-icons/lu"
-import { RiSeedlingLine } from "react-icons/ri"
 import { TorrentPreviewItem } from "./torrent-preview-item"
 
 type TorrentTable = {
@@ -83,7 +80,7 @@ export const TorrentTable = memo((
                                 size="xs"
                                 intent="gray-basic"
                                 leftIcon={<>
-                                    <RiSeedlingLine className="mr-1 text-lg" />
+                                    {/* <RiSeedlingLine className="mr-1 text-lg" /> */}
                                     {getSortIcon(sortField, "seeders", sortDirection)}
                                 </>}
                                 onClick={() => handleSort("seeders", sortField, sortDirection, setSortField, setSortDirection)}
@@ -94,7 +91,7 @@ export const TorrentTable = memo((
                                 size="xs"
                                 intent="gray-basic"
                                 leftIcon={<>
-                                    <LuFile className="mr-1 text-lg" />
+                                    {/* <LuFile className="mr-1 text-lg" /> */}
                                     {getSortIcon(sortField, "size", sortDirection)}
                                 </>}
                                 onClick={() => handleSort("size", sortField, sortDirection, setSortField, setSortDirection)}
@@ -105,7 +102,7 @@ export const TorrentTable = memo((
                                 size="xs"
                                 intent="gray-basic"
                                 leftIcon={<>
-                                    <BiCalendarAlt className="mr-1 text-lg" />
+                                    {/* <BiCalendarAlt className="mr-1 text-lg" /> */}
                                     {getSortIcon(sortField, "date", sortDirection)}
                                 </>}
                                 onClick={() => handleSort("date", sortField, sortDirection, setSortField, setSortDirection)}
@@ -116,7 +113,7 @@ export const TorrentTable = memo((
                                 size="xs"
                                 intent="gray-basic"
                                 leftIcon={<>
-                                    <HiOutlineVideoCamera className="mr-1 text-lg" />
+                                    {/* <HiOutlineVideoCamera className="mr-1 text-lg" /> */}
                                     {getSortIcon(sortField, "resolution", sortDirection)}
                                 </>}
                                 onClick={() => handleSort("resolution", sortField, sortDirection, setSortField, setSortDirection)}

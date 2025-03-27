@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"seanime/internal/util"
@@ -125,7 +124,6 @@ func (f *Fetch) Fetch(call goja.FunctionCall) goja.Value {
 				}
 			}
 			if o := rawOpts.Get("headers"); o != nil && !goja.IsUndefined(o) {
-				fmt.Printf("rawOpts.Headers: %T\n", o.Export())
 				if v, ok := o.Export().(map[string]interface{}); ok {
 					for k, interf := range v {
 						if str, ok := interf.(string); ok {

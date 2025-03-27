@@ -76,6 +76,11 @@ func M3U8Proxy(c echo.Context) (err error) {
 		return c.NoContent(http.StatusOK)
 	}
 
+	// If the URL is not an HLS stream, stream directly without loading into memory
+	if !strings.HasSuffix(url, ".m3u8") {
+		return c.Stream(http.StatusOK, resp.Header.Get("Content-Type"), resp.Body)
+	}
+
 	var ret []byte
 
 	b, err := io.ReadAll(resp.Body)
