@@ -115,7 +115,7 @@ func (r *Repository) HydrateStreamCollection(opts *HydrateStreamCollectionOption
 
 			progressOffset := 0
 			anidbEpisode := strconv.Itoa(nextEpisodeToWatch)
-			if anime.HasDiscrepancy(entry.GetMedia(), animeMetadata) {
+			if anime.FindDiscrepancy(entry.GetMedia(), animeMetadata) == anime.DiscrepancyAniListCountsEpisodeZero {
 				progressOffset = 1
 				if nextEpisodeToWatch == 1 {
 					anidbEpisode = "S1"

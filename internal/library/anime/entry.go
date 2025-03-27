@@ -248,7 +248,7 @@ func (e *Entry) hydrateEntryEpisodeData(
 
 	// We offset the progress number by 1 if there is a discrepancy
 	progressOffset := 0
-	if HasDiscrepancy(e.Media, animeMetadata) {
+	if FindDiscrepancy(e.Media, animeMetadata) == DiscrepancyAniListCountsEpisodeZero {
 		progressOffset = 1
 
 		_, ok := lo.Find(e.LocalFiles, func(lf *LocalFile) bool {
@@ -324,47 +324,45 @@ func (e *Entry) hydrateEntryEpisodeData(
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// detectDiscrepancy detects whether there is a discrepancy between AniList and AniDB.
-//   - AniList includes episode 0 as part of main episodes, but Anizip does not.
-//   - Anizip has "S1"
-func detectDiscrepancy(
-	mediaLfs []*LocalFile, // Media's local files
-	media *anilist.BaseAnime,
-	animeMetadata *metadata.AnimeMetadata,
-) (possibleSpecialInclusion bool, hasDiscrepancy bool) {
+type Discrepancy int
 
-	if animeMetadata.Episodes == nil && len(animeMetadata.Episodes) == 0 {
-		return false, false
-	}
+const (
+	DiscrepancyAniListCountsEpisodeZero Discrepancy = iota
+	DiscrepancyAniListCountsSpecials
+	DiscrepancyAniDBHasMore
+	DiscrepancyNone
+)
 
-	// Whether downloaded episodes include a special episode "0"
-	hasEpisodeZero := lo.SomeBy(mediaLfs, func(lf *LocalFile) bool {
-		return lf.Metadata.Episode == 0
-	})
-
-	// No episode number is equal to the max episode number
-	noEpisodeCeiling := lo.EveryBy(mediaLfs, func(lf *LocalFile) bool {
-		return lf.Metadata.Episode != media.GetCurrentEpisodeCount()
-	})
-
-	// [possibleSpecialInclusion] means that there might be a discrepancy between AniList and Anizip
-	// We should use this to check.
-	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,12] //=> true
-	// e.g, epCeiling = 13 AND downloaded episodes = [0,...,13] //=> false
-	possibleSpecialInclusion = hasEpisodeZero && noEpisodeCeiling
-
-	_, aniDBHasS1 := animeMetadata.Episodes["S1"]
-	// AniList episode count > Anizip episode count
-	// This means that there is a discrepancy and AniList is most likely including episode 0 as part of main episodes
-	hasDiscrepancy = media.GetCurrentEpisodeCount() > animeMetadata.GetMainEpisodeCount() && aniDBHasS1
-
-	return
-}
-
-func HasDiscrepancy(media *anilist.BaseAnime, animeMetadata *metadata.AnimeMetadata) bool {
+// FindDiscrepancy returns the discrepancy between the AniList and AniDB episode counts.
+// It returns DiscrepancyAniListCountsEpisodeZero if AniList most likely has episode 0 as part of the main count.
+// It returns DiscrepancyAniListCountsSpecials if there is a discrepancy between the AniList and AniDB episode counts and specials are included in the AniList count.
+// It returns DiscrepancyAniDBHasMore if the AniDB episode count is greater than the AniList episode count.
+// It returns DiscrepancyNone if there is no discrepancy.
+func FindDiscrepancy(media *anilist.BaseAnime, animeMetadata *metadata.AnimeMetadata) Discrepancy {
 	if media == nil || animeMetadata == nil || animeMetadata.Episodes == nil {
-		return false
+		return DiscrepancyNone
 	}
+
 	_, aniDBHasS1 := animeMetadata.Episodes["S1"]
-	return media.GetCurrentEpisodeCount() > animeMetadata.GetMainEpisodeCount() && aniDBHasS1
+	_, aniDBHasS2 := animeMetadata.Episodes["S2"]
+
+	difference := media.GetCurrentEpisodeCount() - animeMetadata.GetMainEpisodeCount()
+
+	if difference == 0 {
+		return DiscrepancyNone
+	}
+
+	if difference < 0 {
+		return DiscrepancyAniDBHasMore
+	}
+
+	if difference == 1 && aniDBHasS1 {
+		return DiscrepancyAniListCountsEpisodeZero
+	}
+
+	if difference > 1 && aniDBHasS1 && aniDBHasS2 {
+		return DiscrepancyAniListCountsSpecials
+	}
+
+	return DiscrepancyNone
 }
