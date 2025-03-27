@@ -1,31 +1,100 @@
 /// <reference path="../goja_plugin_types/plugin.d.ts" />
-/// <reference path="../goja_plugin_types/hooks.d.ts" />
+/// <reference path="../goja_plugin_types/app.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
 /// <reference path="../../goja/goja_bindings/js/core.d.ts" />
 
+//@ts-ignore
 function init() {
+    $app.onGetAnimeCollection((e) => {
+        const animeDataSet: Record<string, { bannerImage: string, title: string }> = {}
+        for (const list of e.animeCollection?.mediaListCollection?.lists || []) {
+            for (const entry of list.entries || []) {
+                if (!entry?.media) continue
+
+                if (animeDataSet[String(entry.media.id)]) {
+                    continue
+                }
+
+                animeDataSet[String(entry.media.id)] = {
+                    bannerImage: entry.media.bannerImage || entry.media.coverImage?.extraLarge || "",
+                    title: entry.media.title?.userPreferred || "",
+                }
+            }
+        }
+        $storage.set("animeDataSet", animeDataSet)
+
+        e.next()
+    })
+
     $ui.register((ctx) => {
         // Create the tray icon
         const tray = ctx.newTray({
             tooltipText: "Hide spoilers",
-            iconUrl: "https://seanime.rahim.app/logo_2.png",
+            iconUrl: "https://cdn-icons-png.flaticon.com/512/3686/3686669.png",
             withContent: true,
         })
 
+        $anilist.getAnimeCollection(false)
+
         const [, refetchEpisodeCard] = ctx.dom.observe("[data-episode-card]", async (episodeCards) => {
             try {
-                const blurThumbnails = $storage.get("params.blurThumbnails") || false
-                const blurTitles = $storage.get("params.blurTitles") || false
+                const hideThumbnails = $storage.get("params.hideThumbnails") || false
+                const hideTitles = $storage.get("params.hideTitles") || false
+                const skipNextEpisode = $storage.get("params.skipNextEpisode") || false
+                const animeDataSet = $storage.get<Record<string, { bannerImage: string, title: string }>>("animeDataSet") || {}
 
                 const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
                 if (!listDataElement) {
-                    console.error("listDataElement not found")
+                    for (const episodeCard of episodeCards) {
+                        const animeIdStr = episodeCard.attributes["data-media-id"]
+                        const animeId = Number(animeIdStr)
+
+                        if (!isNaN(animeId) && !!animeDataSet[String(animeId)]) {
+
+                            const $ = LoadDoc(episodeCard.innerHTML!)
+                            const imageSelection = $("[data-episode-card-image]")
+                            if (imageSelection.length() === 0 || !imageSelection.attr("id")) {
+                                continue
+                            }
+
+                            const image = ctx.dom.asElement(imageSelection.attr("id")!)
+
+                            const previous = JSON.parse(imageSelection.data("original") || "{}")
+
+                            if (hideThumbnails && !skipNextEpisode) {
+                                image.setProperty("src", animeDataSet[String(animeId)].bannerImage)
+                            } else if (previous.property?.src) {
+                                image.setProperty("src", previous.property.src)
+                            }
+
+                            const titleSelection = $("[data-episode-card-title]")
+                            if (titleSelection.length() === 0 || !titleSelection.attr("id")) {
+                                continue
+                            }
+
+                            const title = ctx.dom.asElement(titleSelection.attr("id")!)
+                            const titlePrevious = JSON.parse(titleSelection.data("original") || "{}")
+
+                            if (hideTitles && !skipNextEpisode) {
+                                title.setText(animeDataSet[String(animeId)].title)
+                            } else if (titlePrevious.text?.textContent) {
+                                title.setText(titlePrevious.text.textContent)
+                            }
+
+                        }
+                    }
+
                     return
                 }
                 const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
                 const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
 
-                const progress = Number(listData?.progress || 0)
+
+                let progress = Number(listData?.progress || 0)
+                if (skipNextEpisode) {
+                    progress = progress + 1
+                }
+
 
                 for (const episodeCard of episodeCards) {
                     const episodeNumberStr = episodeCard.attributes["data-episode-number"]
@@ -39,30 +108,27 @@ function init() {
 
                         const image = ctx.dom.asElement(imageSelection.attr("id")!)
 
-                        if (blurThumbnails) {
-                            if (episodeNumber > progress) {
-                                image.setStyle("filter", "blur(24px)")
-                            } else {
-                                image.removeStyle("filter")
-                            }
-                        } else {
-                            image.removeStyle("filter")
+                        const previous = JSON.parse(imageSelection.data("original") || "{}")
+
+                        if (hideThumbnails && episodeNumber > progress) {
+                            image.setProperty("src", animeDataSet[String(episodeCard.attributes["data-media-id"])].bannerImage)
+                        } else if (previous.property?.src) {
+                            image.setProperty("src", previous.property.src)
                         }
+
+
                         const titleSelection = $("[data-episode-card-title]")
                         if (titleSelection.length() === 0 || !titleSelection.attr("id")) {
                             continue
                         }
 
                         const title = ctx.dom.asElement(titleSelection.attr("id")!)
+                        const titlePrevious = JSON.parse(titleSelection.data("original") || "{}")
 
-                        if (blurTitles) {
-                            if (episodeNumber > progress) {
-                                title.setStyle("filter", "blur(4px)")
-                            } else {
-                                title.removeStyle("filter")
-                            }
-                        } else {
-                            title.removeStyle("filter")
+                        if (hideTitles && episodeNumber > progress) {
+                            title.setText(animeDataSet[String(episodeCard.attributes["data-media-id"])].title)
+                        } else if (titlePrevious.text?.textContent) {
+                            title.setText(titlePrevious.text.textContent)
                         }
                     }
                 }
@@ -75,9 +141,10 @@ function init() {
 
         const [, refetchEpisodeGridItem] = ctx.dom.observe("[data-episode-grid-item]", async (episodeGridItems) => {
             try {
-                const blurThumbnails = $storage.get("params.blurThumbnails") || false
-                const blurTitles = $storage.get("params.blurTitles") || false
-                const blurDescriptions = $storage.get("params.blurDescriptions") || false
+                const hideThumbnails = $storage.get("params.hideThumbnails") || false
+                const hideTitles = $storage.get("params.hideTitles") || false
+                const hideDescriptions = $storage.get("params.hideDescriptions") || false
+                const animeDataSet = $storage.get<Record<string, { bannerImage: string, title: string }>>("animeDataSet") || {}
 
                 const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
                 if (!listDataElement) {
@@ -87,7 +154,13 @@ function init() {
                 const listDataStr = await listDataElement.getAttribute("data-anime-entry-list-data")
                 const listData = JSON.parse(listDataStr || "{}") as Record<string, any>
 
-                const progress = Number(listData?.progress || 0)
+                const skipNextEpisode = $storage.get("params.skipNextEpisode") || false
+
+                let progress = Number(listData?.progress || 0)
+                if (skipNextEpisode) {
+                    progress = progress + 1
+                }
+
 
                 for (const episodeGridItem of episodeGridItems) {
                     const episodeNumberStr = episodeGridItem.attributes["data-episode-number"]
@@ -102,48 +175,47 @@ function init() {
 
                         const image = ctx.dom.asElement(imageSelection.attr("id")!)
 
-                        if (blurThumbnails) {
-                            if (episodeNumber > progress) {
-                                image.setStyle("filter", "blur(24px)")
-                            } else {
-                                image.removeStyle("filter")
-                            }
+                        if (hideThumbnails && episodeNumber > progress) {
+                            image.setStyle("filter", "blur(24px)")
                         } else {
                             image.removeStyle("filter")
                         }
 
-                        const titleSelection = $("[data-episode-grid-item-episode-title]")
-                        if (titleSelection.length() === 0 || !titleSelection.attr("id")) {
-                            continue
-                        }
-
-                        const title = ctx.dom.asElement(titleSelection.attr("id")!)
-
-                        if (blurTitles) {
-                            if (episodeNumber > progress) {
-                                title.setStyle("filter", "blur(4px)")
-                            } else {
-                                title.removeStyle("filter")
+                        try {
+                            const titleSelection = $("[data-episode-grid-item-episode-title]")
+                            if (titleSelection.length() === 0 || !titleSelection.attr("id")) {
+                                continue
                             }
-                        } else {
-                            title.removeStyle("filter")
+
+                            const title = ctx.dom.asElement(titleSelection.attr("id")!)
+                            const titlePrevious = JSON.parse(titleSelection.data("original") || "{}")
+
+                            if (hideTitles && episodeNumber > progress) {
+                                title.setText(animeDataSet[String(episodeGridItem.attributes["data-media-id"])]?.title || "")
+                            } else if (titlePrevious.text?.textContent) {
+                                title.setText(titlePrevious.text.textContent)
+                            }
+                        }
+                        catch (e) {
+                            console.error("Error processing title", e)
                         }
 
-                        const descriptionSelection = $("[data-episode-grid-item-episode-description]")
-                        if (descriptionSelection.length() === 0 || !descriptionSelection.attr("id")) {
-                            continue
-                        }
+                        try {
+                            const descriptionSelection = $("[data-episode-grid-item-episode-description]")
+                            if (descriptionSelection.length() === 0 || !descriptionSelection.attr("id")) {
+                                continue
+                            }
 
                         const description = ctx.dom.asElement(descriptionSelection.attr("id")!)
-
-                        if (blurDescriptions) {
-                            if (episodeNumber > progress) {
-                                description.setStyle("filter", "blur(4px)")
-                            } else {
-                                description.removeStyle("filter")
+                            const descriptionPrevious = JSON.parse(descriptionSelection.data("original") || "{}")
+                            if (hideDescriptions && episodeNumber > progress) {
+                                description.setText("")
+                            } else if (descriptionPrevious.text?.textContent) {
+                                description.setText(descriptionPrevious.text.textContent)
                             }
-                        } else {
-                            description.removeStyle("filter")
+                        }
+                        catch (e) {
+                            console.error("Error processing description", e)
                         }
                     }
                 }
@@ -154,15 +226,16 @@ function init() {
         }, { withInnerHTML: true, identifyChildren: true })
 
 
-        const blurThumbnailsRef = ctx.fieldRef<boolean>()
-        const blurTitlesRef = ctx.fieldRef<boolean>()
-        const blurDescriptionsRef = ctx.fieldRef<boolean>()
-
+        const hideThumbnailsRef = ctx.fieldRef<boolean>()
+        const hideTitlesRef = ctx.fieldRef<boolean>()
+        const hideDescriptionsRef = ctx.fieldRef<boolean>()
+        const skipNextEpisodeRef = ctx.fieldRef<boolean>()
         function updateForm() {
             const params = $storage.get("params") || {}
-            blurThumbnailsRef.setValue(params.blurThumbnails || false)
-            blurTitlesRef.setValue(params.blurTitles || false)
-            blurDescriptionsRef.setValue(params.blurDescriptions || false)
+            hideThumbnailsRef.setValue(params.hideThumbnails || false)
+            hideTitlesRef.setValue(params.hideTitles || false)
+            hideDescriptionsRef.setValue(params.hideDescriptions || false)
+            skipNextEpisodeRef.setValue(params.skipNextEpisode || false)
         }
 
         tray.onOpen(() => {
@@ -171,9 +244,10 @@ function init() {
 
         ctx.registerEventHandler("save", () => {
             $storage.set("params", {
-                blurThumbnails: blurThumbnailsRef.current,
-                blurTitles: blurTitlesRef.current,
-                blurDescriptions: blurDescriptionsRef.current,
+                hideThumbnails: hideThumbnailsRef.current,
+                hideTitles: hideTitlesRef.current,
+                hideDescriptions: hideDescriptionsRef.current,
+                skipNextEpisode: skipNextEpisodeRef.current,
             })
             updateForm()
             refetchEpisodeCard()
@@ -183,14 +257,16 @@ function init() {
 
         tray.render(() => tray.stack([
             tray.text("Hide potential spoilers"),
-            tray.switch("Blur thumbnails", { fieldRef: blurThumbnailsRef }),
-            tray.switch("Blur titles", { fieldRef: blurTitlesRef }),
-            tray.switch("Blur descriptions", { fieldRef: blurDescriptionsRef }),
-            tray.button("Save", { onClick: "save" }),
+            tray.stack([
+                tray.switch("Hide thumbnails", { fieldRef: hideThumbnailsRef }),
+                tray.switch("Hide titles", { fieldRef: hideTitlesRef }),
+                tray.switch("Hide descriptions", { fieldRef: hideDescriptionsRef }),
+            ], { gap: 0 }),
+            tray.checkbox("Skip next episode", { fieldRef: skipNextEpisodeRef }),
+            tray.button("Save", { onClick: "save", intent: "primary" }),
         ]))
 
         ctx.dom.onReady(() => {
-            console.log("ready")
             refetchEpisodeCard()
             refetchEpisodeGridItem()
         })
@@ -208,9 +284,9 @@ function init() {
 
 //         const [, refetchEpisodeCard] = ctx.dom.observe("[data-episode-card]", async (episodeCards) => {
 //             try {
-//                 const blurThumbnails = $storage.get("params.blurThumbnails") || false
-//                 const blurTitles = $storage.get("params.blurTitles") || false
-//                 const blurDescriptions = $storage.get("params.blurDescriptions") || false
+//                 const hideThumbnails = $storage.get("params.hideThumbnails") || false
+//                 const hideTitles = $storage.get("params.hideTitles") || false
+//                 const hideDescriptions = $storage.get("params.hideDescriptions") || false
 
 //                 const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
 //                 if (!listDataElement) {
@@ -229,9 +305,9 @@ function init() {
 //                     if (!isNaN(episodeNumber)) {
 //                         const image = await episodeCard.queryOne("[data-episode-card-image]")
 //                         if (image) {
-//                             if (blurThumbnails) {
+//                             if (hideThumbnails) {
 //                                 if (episodeNumber > progress) {
-//                                     image.setStyle("filter", "blur(24px)")
+//                                     image.setStyle("filter", "hide(24px)")
 //                                 } else {
 //                                     image.removeStyle("filter")
 //                                 }
@@ -241,9 +317,9 @@ function init() {
 //                         }
 //                         const title = await episodeCard.queryOne("[data-episode-card-title]")
 //                         if (title) {
-//                             if (blurTitles) {
+//                             if (hideTitles) {
 //                                 if (episodeNumber > progress) {
-//                                     title.setStyle("filter", "blur(4px)")
+//                                     title.setStyle("filter", "hide(4px)")
 //                                 } else {
 //                                     title.removeStyle("filter")
 //                                 }
@@ -261,9 +337,9 @@ function init() {
 
 //         const [, refetchEpisodeGridItem] = ctx.dom.observe("[data-episode-grid-item]", async (episodeGridItems) => {
 //             try {
-//                 const blurThumbnails = $storage.get("params.blurThumbnails") || false
-//                 const blurTitles = $storage.get("params.blurTitles") || false
-//                 const blurDescriptions = $storage.get("params.blurDescriptions") || false
+//                 const hideThumbnails = $storage.get("params.hideThumbnails") || false
+//                 const hideTitles = $storage.get("params.hideTitles") || false
+//                 const hideDescriptions = $storage.get("params.hideDescriptions") || false
 
 //                 const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
 //                 if (!listDataElement) {
@@ -282,9 +358,9 @@ function init() {
 //                     if (!isNaN(episodeNumber)) {
 //                         const image = await episodeGridItem.queryOne("[data-episode-grid-item-image]")
 //                         if (image) {
-//                             if (blurThumbnails) {
+//                             if (hideThumbnails) {
 //                                 if (episodeNumber > progress) {
-//                                     image.setStyle("filter", "blur(24px)")
+//                                     image.setStyle("filter", "hide(24px)")
 //                                 } else {
 //                                     image.removeStyle("filter")
 //                                 }
@@ -296,9 +372,9 @@ function init() {
 //                         }
 //                         const title = await episodeGridItem.queryOne("[data-episode-grid-item-episode-title]")
 //                         if (title) {
-//                             if (blurTitles) {
+//                             if (hideTitles) {
 //                                 if (episodeNumber > progress) {
-//                                     title.setStyle("filter", "blur(4px)")
+//                                     title.setStyle("filter", "hide(4px)")
 //                                 } else {
 //                                     title.removeStyle("filter")
 //                                 }
@@ -310,9 +386,9 @@ function init() {
 //                         }
 //                         const description = await episodeGridItem.queryOne("[data-episode-grid-item-episode-description]")
 //                         if (description) {
-//                             if (blurDescriptions) {
+//                             if (hideDescriptions) {
 //                                 if (episodeNumber > progress) {
-//                                     description.setStyle("filter", "blur(4px)")
+//                                     description.setStyle("filter", "hide(4px)")
 //                                 } else {
 //                                     description.removeStyle("filter")
 //                                 }
@@ -329,15 +405,15 @@ function init() {
 //         })
 
 
-//         const blurThumbnailsRef = ctx.fieldRef<boolean>("blurThumbnailsRef")
-//         const blurTitlesRef = ctx.fieldRef<boolean>("blurTitlesRef")
-//         const blurDescriptionsRef = ctx.fieldRef<boolean>("blurDescriptionsRef")
+//         const hideThumbnailsRef = ctx.fieldRef<boolean>("hideThumbnailsRef")
+//         const hideTitlesRef = ctx.fieldRef<boolean>("hideTitlesRef")
+//         const hideDescriptionsRef = ctx.fieldRef<boolean>("hideDescriptionsRef")
 
 //         function updateForm() {
 //             const params = $storage.get("params") || {}
-//             blurThumbnailsRef.setValue(params.blurThumbnails || false)
-//             blurTitlesRef.setValue(params.blurTitles || false)
-//             blurDescriptionsRef.setValue(params.blurDescriptions || false)
+//             hideThumbnailsRef.setValue(params.hideThumbnails || false)
+//             hideTitlesRef.setValue(params.hideTitles || false)
+//             hideDescriptionsRef.setValue(params.hideDescriptions || false)
 //             tray.update()
 //         }
 
@@ -347,9 +423,9 @@ function init() {
 
 //         ctx.registerEventHandler("save", () => {
 //             $storage.set("params", {
-//                 blurThumbnails: blurThumbnailsRef.current,
-//                 blurTitles: blurTitlesRef.current,
-//                 blurDescriptions: blurDescriptionsRef.current,
+//                 hideThumbnails: hideThumbnailsRef.current,
+//                 hideTitles: hideTitlesRef.current,
+//                 hideDescriptions: hideDescriptionsRef.current,
 //             })
 //             updateForm()
 //             refetchEpisodeCard()
@@ -359,9 +435,9 @@ function init() {
 
 //         tray.render(() => tray.stack([
 //             tray.text("Hide potential spoilers"),
-//             tray.switch("Blur thumbnails", { fieldRef: "blurThumbnailsRef", value: blurThumbnailsRef.current }),
-//             tray.switch("Blur titles", { fieldRef: "blurTitlesRef", value: blurTitlesRef.current }),
-//             tray.switch("Blur descriptions", { fieldRef: "blurDescriptionsRef", value: blurDescriptionsRef.current }),
+//             tray.switch("Hide thumbnails", { fieldRef: "hideThumbnailsRef", value: hideThumbnailsRef.current }),
+//             tray.switch("Hide titles", { fieldRef: "hideTitlesRef", value: hideTitlesRef.current }),
+//             tray.switch("Hide descriptions", { fieldRef: "hideDescriptionsRef", value: hideDescriptionsRef.current }),
 //             tray.button("Save", { onClick: "save" }),
 //         ]))
 

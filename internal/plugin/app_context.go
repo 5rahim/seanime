@@ -2,6 +2,8 @@ package plugin
 
 import (
 	"seanime/internal/database/db"
+	"seanime/internal/database/models"
+	discordrpc_presence "seanime/internal/discordrpc/presence"
 	"seanime/internal/events"
 	"seanime/internal/extension"
 	"seanime/internal/library/playbackmanager"
@@ -23,6 +25,7 @@ type AppContextModules struct {
 	MediaPlayerRepository           *mediaplayer.Repository
 	MangaRepository                 *manga.Repository
 	WSEventManager                  events.WSEventManagerInterface
+	DiscordPresence                 *discordrpc_presence.Presence
 	OnRefreshAnilistAnimeCollection func()
 	OnRefreshAnilistMangaCollection func()
 }
@@ -63,6 +66,11 @@ type AppContext interface {
 
 	// BindMangaToContextObj binds 'manga' to the UI context object
 	BindMangaToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	// BindDiscordToContextObj binds 'discord' to the UI context object
+	BindDiscordToContextObj(vm *goja.Runtime, obj *goja.Object, logger *zerolog.Logger, ext *extension.Extension, scheduler *goja_util.Scheduler)
+
+	DropPluginData(extId string)
 }
 
 var GlobalAppContext = NewAppContext()
@@ -80,6 +88,7 @@ type AppContextImpl struct {
 	mediaplayerRepo mo.Option[*mediaplayer.Repository]
 	mangaRepository mo.Option[*manga.Repository]
 	anilistPlatform mo.Option[platform.Platform]
+	discordPresence mo.Option[*discordrpc_presence.Presence]
 
 	onRefreshAnilistAnimeCollection mo.Option[func()]
 	onRefreshAnilistMangaCollection mo.Option[func()]
@@ -152,7 +161,23 @@ func (a *AppContextImpl) SetModulesPartial(modules AppContextModules) {
 		a.mangaRepository = mo.Some(modules.MangaRepository)
 	}
 
+	if modules.DiscordPresence != nil {
+		a.discordPresence = mo.Some(modules.DiscordPresence)
+	}
+
 	if modules.WSEventManager != nil {
 		a.wsEventManager = mo.Some(modules.WSEventManager)
+	}
+}
+
+func (a *AppContextImpl) DropPluginData(extId string) {
+	db, ok := a.database.Get()
+	if !ok {
+		return
+	}
+
+	err := db.Gorm().Where("plugin_id = ?", extId).Delete(&models.PluginData{}).Error
+	if err != nil {
+		a.logger.Error().Err(err).Msg("Failed to drop plugin data")
 	}
 }

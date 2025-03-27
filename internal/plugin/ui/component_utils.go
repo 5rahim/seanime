@@ -177,10 +177,14 @@ func validateType(expectedType string) func(interface{}) error {
 		case "number":
 			_, ok := value.(float64)
 			if !ok {
-				if value == nil {
-					return nil
+				_, ok := value.(int64)
+				if !ok {
+					if value == nil {
+						return nil
+					}
+					return fmt.Errorf("expected number, got %T", value)
 				}
-				return fmt.Errorf("expected number, got %T", value)
+				return nil
 			}
 			return nil
 		case "boolean":

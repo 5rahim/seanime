@@ -13,10 +13,8 @@ func (r *Repository) loadExternalMangaExtension(ext *extension.Extension) (err e
 	defer util.HandlePanicInModuleWithError("extension_repo/loadExternalMangaExtension", &err)
 
 	switch ext.Language {
-	case extension.LanguageJavascript:
-		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageJavascript)
-	case extension.LanguageTypescript:
-		err = r.loadExternalMangaExtensionJS(ext, extension.LanguageTypescript)
+	case extension.LanguageJavascript, extension.LanguageTypescript:
+		err = r.loadExternalMangaExtensionJS(ext, ext.Language)
 	}
 
 	if err != nil {

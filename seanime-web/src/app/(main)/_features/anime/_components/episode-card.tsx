@@ -141,7 +141,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                     onClick={onClick}
                     data-episode-card
                     data-episode-number={episodeNumber}
-                    data-anime-id={anime?.id}
+                    data-media-id={anime?.id}
                     data-progress-total={progressTotal}
                     data-progress-number={progressNumber}
                     {...rest}
@@ -171,7 +171,7 @@ export function EpisodeCard(props: EpisodeCardProps) {
                                 data-episode-card-progress-bar-container
                                 className="absolute bottom-0 left-0 w-full z-[3]"
                                 data-episode-number={episodeNumber}
-                                data-anime-id={anime?.id}
+                                data-media-id={anime?.id}
                                 data-progress-total={progressTotal}
                                 data-progress-number={progressNumber}
                             >

@@ -73,6 +73,9 @@ func TestIsAllowedPath(t *testing.T) {
 						Scopes: []extension.PluginPermissionScope{
 							extension.PluginPermissionSystem,
 						},
+						Allow: extension.PluginAllowlist{
+							ReadPaths: []string{"/test/*.txt"},
+						},
 					},
 				},
 			},
@@ -88,6 +91,9 @@ func TestIsAllowedPath(t *testing.T) {
 						Scopes: []extension.PluginPermissionScope{
 							extension.PluginPermissionSystem,
 						},
+						Allow: extension.PluginAllowlist{
+							ReadPaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
+						},
 					},
 				},
 			},
@@ -102,6 +108,9 @@ func TestIsAllowedPath(t *testing.T) {
 					Permissions: extension.PluginPermissions{
 						Scopes: []extension.PluginPermissionScope{
 							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							ReadPaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
 						},
 					},
 				},
@@ -133,6 +142,9 @@ func TestIsAllowedPath(t *testing.T) {
 						Scopes: []extension.PluginPermissionScope{
 							extension.PluginPermissionSystem,
 						},
+						Allow: extension.PluginAllowlist{
+							ReadPaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
+						},
 					},
 				},
 			},
@@ -147,6 +159,9 @@ func TestIsAllowedPath(t *testing.T) {
 					Permissions: extension.PluginPermissions{
 						Scopes: []extension.PluginPermissionScope{
 							extension.PluginPermissionSystem,
+						},
+						Allow: extension.PluginAllowlist{
+							ReadPaths: []string{"$SEANIME_ANIME_LIBRARY/**"},
 						},
 					},
 				},

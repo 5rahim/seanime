@@ -1,6 +1,6 @@
 import { RenderPluginComponents } from "@/app/(main)/_features/plugin/components/registry"
 import { useWebsocketSender } from "@/app/(main)/_hooks/handle-websockets"
-import { Button } from "@/components/ui/button"
+import { Button, ButtonProps } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DatePicker } from "@/components/ui/date-picker"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -31,16 +31,20 @@ type FieldRef<T> = {
 ///////////////////
 
 
-interface ButtonProps {
+interface PluginButtonProps {
     label?: string
     style?: React.CSSProperties
+    intent?: ButtonProps["intent"]
     onClick?: string
+    disabled?: boolean
+    loading?: boolean
+    size?: "xs" | "sm" | "md" | "lg"
 }
 
-export function PluginButton(props: ButtonProps) {
+export function PluginButton(props: PluginButtonProps) {
     const { sendEventHandlerTriggeredEvent } = usePluginSendEventHandlerTriggeredEvent()
     const { trayIcon } = usePluginTray()
-    
+
     function handleClick() {
         if (props.onClick) {
             sendEventHandlerTriggeredEvent({
@@ -49,11 +53,15 @@ export function PluginButton(props: ButtonProps) {
             }, trayIcon.extensionId)
         }
     }
+
     return (
         <Button
-            intent="white-subtle"
+            intent={props.intent || "white-subtle"}
             style={props.style}
             onClick={handleClick}
+            disabled={props.disabled}
+            loading={props.loading}
+            size={props.size || "sm"}
         >
             {props.label || "Button"}
         </Button>
@@ -73,6 +81,7 @@ interface InputProps {
     onChange?: string
     fieldRef?: FieldRef<string>
     disabled?: boolean
+    size?: "sm" | "md" | "lg"
 }
 
 export function PluginInput(props: InputProps) {
@@ -119,6 +128,7 @@ export function PluginInput(props: InputProps) {
             value={value}
             onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
+            size={props.size || "md"}
         />
     )
 }
@@ -137,6 +147,7 @@ interface SelectProps {
     style?: React.CSSProperties
     value?: string
     disabled?: boolean
+    size?: "sm" | "md" | "lg"
 }
 
 export function PluginSelect(props: SelectProps) {
@@ -181,6 +192,7 @@ export function PluginSelect(props: SelectProps) {
             value={value}
             onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
+            size={props.size || "md"}
         />
     )
 }
@@ -195,6 +207,7 @@ interface CheckboxProps {
     onChange?: string
     fieldRef?: FieldRef<boolean>
     disabled?: boolean
+    size?: "sm" | "md" | "lg"
 }
 
 export function PluginCheckbox(props: CheckboxProps) {
@@ -238,6 +251,7 @@ export function PluginCheckbox(props: CheckboxProps) {
             value={value}
             onValueChange={(value) => typeof value === "boolean" && setValue(value)}
             disabled={props.disabled}
+            size={props.size || "md"}
         />
     )
 }
@@ -252,6 +266,8 @@ interface SwitchProps {
     onChange?: string
     fieldRef?: FieldRef<boolean>
     disabled?: boolean
+    size?: "sm" | "md" | "lg"
+    side?: "left" | "right"
 }
 
 export function PluginSwitch(props: SwitchProps) {
@@ -289,12 +305,14 @@ export function PluginSwitch(props: SwitchProps) {
 
     return (
         <Switch
+            side={props.side || "right"}
             id={props.id}
             label={props.label}
             style={props.style}
             value={value}
             onValueChange={(value) => typeof value === "boolean" && setValue(value)}
             disabled={props.disabled}
+            size={props.size || "sm"}
         />
     )
 }
@@ -313,6 +331,7 @@ interface RadioGroupProps {
     style?: React.CSSProperties
     value?: string
     disabled?: boolean
+    size?: "sm" | "md" | "lg"
 }
 
 export function PluginRadioGroup(props: RadioGroupProps) {
@@ -356,6 +375,7 @@ export function PluginRadioGroup(props: RadioGroupProps) {
             value={value}
             onValueChange={(value) => setValue(value)}
             disabled={props.disabled}
+            size={props.size || "md"}
         />
     )
 }
@@ -505,7 +525,6 @@ export function PluginForm({ name, fields: _fields }: FormProps) {
     const { sendFormSubmittedEvent } = usePluginSendFormSubmittedEvent()
 
     const onSubmit = (data: FormData) => {
-        // console.log("submitted", data)
         sendFormSubmittedEvent({
             formName: name,
             data: data,
@@ -527,7 +546,6 @@ export function PluginForm({ name, fields: _fields }: FormProps) {
     }, trayIcon.extensionId)
 
     usePluginListenFormSetValuesEvent((data) => {
-        console.log("set values", data)
         if (data.formName === name) {
             for (const [key, value] of Object.entries(data.data)) {
                 form.setValue(key, value)

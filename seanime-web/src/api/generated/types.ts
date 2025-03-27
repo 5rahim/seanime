@@ -2270,11 +2270,8 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
  * - Filename: repository.go
  * - Package: extension_repo
  */
-export type ExtensionRepo_TrayPluginExtensionItem = {
-    id: string
-    name: string
-    icon: string
-    isPinned: boolean
+export type ExtensionRepo_StoredPluginSettingsData = {
+    pinnedTrayPluginIds?: Array<string>
 }
 
 /**
@@ -3265,6 +3262,71 @@ export type Report_ReactQueryLog = {
 export type Report_UnlockedLocalFile = {
     path: string
     mediaId: number
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Summary
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * - Filepath: internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummary = {
+    id: string
+    groups?: Array<Summary_ScanSummaryGroup>
+    unmatchedFiles?: Array<Summary_ScanSummaryFile>
+}
+
+/**
+ * - Filepath: internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryFile = {
+    id: string
+    localFile?: Anime_LocalFile
+    logs?: Array<Summary_ScanSummaryLog>
+}
+
+/**
+ * - Filepath: internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryGroup = {
+    id: string
+    files?: Array<Summary_ScanSummaryFile>
+    mediaId: number
+    mediaTitle: string
+    mediaImage: string
+    /**
+     * Whether the media is in the user's AniList collection
+     */
+    mediaIsInCollection: boolean
+}
+
+/**
+ * - Filepath: internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryItem = {
+    createdAt?: string
+    scanSummary?: Summary_ScanSummary
+}
+
+/**
+ * - Filepath: internal/library/summary/scan_summary.go
+ * - Filename: scan_summary.go
+ * - Package: summary
+ */
+export type Summary_ScanSummaryLog = {
+    id: string
+    filePath: string
+    level: string
+    message: string
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

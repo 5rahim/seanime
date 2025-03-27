@@ -14,10 +14,8 @@ func (r *Repository) loadExternalOnlinestreamProviderExtension(ext *extension.Ex
 	defer util.HandlePanicInModuleWithError("extension_repo/loadExternalOnlinestreamProviderExtension", &err)
 
 	switch ext.Language {
-	case extension.LanguageJavascript:
-		err = r.loadExternalOnlinestreamExtensionJS(ext, extension.LanguageJavascript)
-	case extension.LanguageTypescript:
-		err = r.loadExternalOnlinestreamExtensionJS(ext, extension.LanguageTypescript)
+	case extension.LanguageJavascript, extension.LanguageTypescript:
+		err = r.loadExternalOnlinestreamExtensionJS(ext, ext.Language)
 	default:
 		err = fmt.Errorf("unsupported language: %v", ext.Language)
 	}

@@ -1,6 +1,7 @@
 package plugin_ui
 
 import (
+	"net/url"
 	"strings"
 	"sync"
 
@@ -36,13 +37,24 @@ func (s *ScreenManager) bind(ctxObj *goja.Object) {
 //
 //	Example:
 //	ctx.screen.navigateTo("/entry?id=21");
-func (s *ScreenManager) jsNavigateTo(path string) {
+func (s *ScreenManager) jsNavigateTo(path string, searchParams map[string]string) {
 	if !strings.HasPrefix(path, "/") {
-		return
+		path = "/" + path
 	}
 
+	queryString := ""
+	if len(searchParams) > 0 {
+		query := url.Values{}
+		for key, value := range searchParams {
+			query.Add(key, value)
+		}
+		queryString = "?" + query.Encode()
+	}
+
+	finalPath := path + queryString
+
 	s.ctx.SendEventToClient(ServerScreenNavigateToEvent, ServerScreenNavigateToEventPayload{
-		Path: path,
+		Path: finalPath,
 	})
 }
 
@@ -63,30 +75,30 @@ func (s *ScreenManager) jsLoadCurrent() {
 //		console.log(event.screen);
 //	};
 //	ctx.screen.onNavigate(onNavigate);
-func (s *ScreenManager) jsOnNavigate(callback goja.Callable) {
+func (s *ScreenManager) jsOnNavigate(callback goja.Callable) goja.Value {
 	eventListener := s.ctx.RegisterEventListener(ClientScreenChangedEvent)
 
 	eventListener.SetCallback(func(event *ClientPluginEvent) {
 		var payload ClientScreenChangedEventPayload
 		if event.ParsePayloadAs(ClientScreenChangedEvent, &payload) {
 			s.ctx.scheduler.ScheduleAsync(func() error {
-				_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
+
+				parsedQuery, _ := url.ParseQuery(strings.TrimPrefix(payload.Query, "?"))
+				queryMap := make(map[string]string)
+				for key, value := range parsedQuery {
+					queryMap[key] = strings.Join(value, ",")
+				}
+
+				ret := map[string]interface{}{
+					"pathname":     payload.Pathname,
+					"searchParams": queryMap,
+				}
+
+				_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(ret))
 				return err
 			})
 		}
 	})
 
-	// go func(payload ClientScreenChangedEventPayload) {
-	// 	for event := range eventListener.Channel {
-	// 		if event.ParsePayloadAs(ClientScreenChangedEvent, &payload) {
-	// 			s.ctx.scheduler.ScheduleAsync(func() error {
-	// 				_, err := callback(goja.Undefined(), s.ctx.vm.ToValue(payload))
-	// 				if err != nil {
-	// 					s.ctx.logger.Error().Err(err).Msg("error running screen navigation callback")
-	// 				}
-	// 				return err
-	// 			})
-	// 		}
-	// 	}
-	// }(payload)
+	return goja.Undefined()
 }

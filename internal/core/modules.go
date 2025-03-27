@@ -57,6 +57,10 @@ func (a *App) initModulesOnce() {
 		a.DiscordPresence.Close()
 	})
 
+	plugin.GlobalAppContext.SetModulesPartial(plugin.AppContextModules{
+		DiscordPresence: a.DiscordPresence,
+	})
+
 	// +---------------------+
 	// |       Filler        |
 	// +---------------------+

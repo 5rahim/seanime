@@ -686,6 +686,17 @@ export type GetAllExtensions_Variables = {
 /**
  * - Filepath: internal/handlers/extensions.go
  * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/plugin-settings/pinned-trays
+ * @description
+ * Route sets the pinned trays in the plugin settings.
+ */
+export type SetPluginSettingsPinnedTrays_Variables = {
+    pinnedTrayPluginIds: Array<string>
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
  * - Endpoint: /api/v1/extensions/playground/run
  * @description
  * Route runs the code in the extension playground.

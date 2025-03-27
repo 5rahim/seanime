@@ -143,6 +143,8 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 	c.toastManager.bind(obj)
 	// Bind DOM manager
 	c.domManager.BindToObj(vm, obj)
+	// Bind manga
+	plugin.GlobalAppContext.BindMangaToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 
 	if c.ext.Plugin != nil {
 		for _, permission := range c.ext.Plugin.Permissions.Scopes {
@@ -159,6 +161,9 @@ func (c *Context) createAndBindContextObject(vm *goja.Runtime) {
 			case extension.PluginPermissionNotification:
 				// Bind notification to the context object
 				c.notificationManager.bind(obj)
+			case extension.PluginPermissionDiscord:
+				// Bind discord to the context object
+				plugin.GlobalAppContext.BindDiscordToContextObj(vm, obj, c.logger, c.ext, c.scheduler)
 			}
 		}
 	}
@@ -782,6 +787,8 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 
 	var valueRef interface{}
 
+	var onChangeCallback func(value interface{})
+
 	fieldRefObj.Set("setValue", func(call goja.FunctionCall) goja.Value {
 		value := call.Argument(0).Export()
 		if value == nil {
@@ -799,7 +806,24 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 		return goja.Undefined()
 	})
 
+	fieldRefObj.Set("onValueChange", func(call goja.FunctionCall) goja.Value {
+		callback, ok := goja.AssertFunction(call.Argument(0))
+		if !ok {
+			c.handleTypeError("onValueChange requires a function")
+		}
+
+		onChangeCallback = func(value interface{}) {
+			_, err := callback(goja.Undefined(), c.vm.ToValue(value))
+			if err != nil {
+				c.handleTypeError(err.Error())
+			}
+		}
+
+		return goja.Undefined()
+	})
+
 	valueRef = nil
+	onChangeCallback = nil
 	fieldRefObj.Set("current", goja.Undefined())
 
 	// Listen for changes from the client
@@ -809,13 +833,20 @@ func (c *Context) jsfieldRef(call goja.FunctionCall) goja.Value {
 		payload := ClientFieldRefSendValueEventPayload{}
 		renderPayload := ClientRenderTrayEventPayload{}
 		if event.ParsePayloadAs(ClientFieldRefSendValueEvent, &payload) && payload.FieldRef == id {
+			valueRef = payload.Value
 			// Schedule the update of the object
-			c.scheduler.ScheduleAsync(func() error {
-				if payload.Value != nil {
+			if payload.Value != nil {
+				c.scheduler.ScheduleAsync(func() error {
 					fieldRefObj.Set("current", payload.Value)
+					return nil
+				})
+				if onChangeCallback != nil {
+					c.scheduler.ScheduleAsync(func() error {
+						onChangeCallback(payload.Value)
+						return nil
+					})
 				}
-				return nil
-			})
+			}
 		}
 
 		// Check if the client is requesting a render
@@ -1012,6 +1043,9 @@ func (c *Context) Stop() {
 		return true
 	})
 	c.onCleanupFns.Clear()
+
+	c.actionManager.UnmountAll()
+	c.actionManager.renderAnimePageButtons()
 
 	c.logger.Debug().Msg("plugin: Stopped context")
 }

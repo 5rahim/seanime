@@ -4,7 +4,6 @@ import (
 	"errors"
 	"seanime/internal/api/anilist"
 	"seanime/internal/extension"
-	"seanime/internal/library/anime"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/mediaplayers/mediaplayer"
 	"seanime/internal/mediaplayers/mpv"
@@ -12,6 +11,7 @@ import (
 	goja_util "seanime/internal/util/goja"
 
 	"github.com/dop251/goja"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 )
 
@@ -111,12 +111,23 @@ func (p *Playback) streamUsingMediaPlayer(windowTitle string, payload string, me
 // MPV
 ////////////////////////////////////
 
-// mpvNewConnection creates a new MPV connection.
-//
-//	Example:
-//	const conn = $mpv.newConnection("/tmp/mpv-socket")
-func (p *PlaybackMPV) openAndPlay(filePath string) error {
-	return p.mpv.OpenAndPlay(filePath)
+func (p *PlaybackMPV) openAndPlay(filePath string) *goja.Promise {
+	promise, resolve, reject := p.playback.vm.NewPromise()
+
+	go func() {
+		err := p.mpv.OpenAndPlay(filePath)
+		p.playback.scheduler.ScheduleAsync(func() error {
+			if err != nil {
+				jsErr := p.playback.vm.NewGoError(err)
+				reject(jsErr)
+			} else {
+				resolve(nil)
+			}
+			return nil
+		})
+	}()
+
+	return promise
 }
 
 func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (func(), error) {
@@ -142,9 +153,18 @@ func (p *PlaybackMPV) onEvent(callback func(event *mpvipc.Event, closed bool)) (
 	return cancelFn, nil
 }
 
-func (p *PlaybackMPV) stop() error {
-	p.mpv.CloseAll()
-	return nil
+func (p *PlaybackMPV) stop() *goja.Promise {
+	promise, resolve, _ := p.playback.vm.NewPromise()
+
+	go func() {
+		p.mpv.CloseAll()
+		p.playback.scheduler.ScheduleAsync(func() error {
+			resolve(nil)
+			return nil
+		})
+	}()
+
+	return promise
 }
 
 func (p *PlaybackMPV) getConnection() goja.Value {
@@ -161,13 +181,13 @@ func (p *PlaybackMPV) getConnection() goja.Value {
 //	$playback.registerEventListener("mySubscriber", (event) => {
 //		console.log(event)
 //	});
-func (p *Playback) registerEventListener(id string, callback func(event *PlaybackEvent)) (func(), error) {
+func (p *Playback) registerEventListener(callback func(event *PlaybackEvent)) (func(), error) {
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
 		return nil, errors.New("playback manager not found")
 	}
 
-	id = p.ext.ID + "_" + id
+	id := uuid.New().String()
 
 	subscriber := playbackManager.SubscribeToPlaybackStatus(id)
 
@@ -328,18 +348,45 @@ func (p *Playback) cancel() error {
 	return playbackManager.Cancel()
 }
 
-func (p *Playback) getNextEpisode() (*anime.LocalFile, error) {
+func (p *Playback) getNextEpisode() *goja.Promise {
+	promise, resolve, reject := p.vm.NewPromise()
+
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
-		return nil, errors.New("playback manager not found")
+		reject(p.vm.NewGoError(errors.New("playback manager not found")))
+		return promise
 	}
-	return playbackManager.GetNextEpisode(), nil
+
+	go func() {
+		nextEpisode := playbackManager.GetNextEpisode()
+		p.scheduler.ScheduleAsync(func() error {
+			resolve(p.vm.ToValue(nextEpisode))
+			return nil
+		})
+	}()
+	return promise
 }
 
-func (p *Playback) playNextEpisode() error {
+func (p *Playback) playNextEpisode() *goja.Promise {
+	promise, resolve, reject := p.vm.NewPromise()
+
 	playbackManager, ok := p.ctx.PlaybackManager().Get()
 	if !ok {
-		return errors.New("playback manager not found")
+		reject(p.vm.NewGoError(errors.New("playback manager not found")))
+		return promise
 	}
-	return playbackManager.PlayNextEpisode()
+
+	go func() {
+		err := playbackManager.PlayNextEpisode()
+		p.scheduler.ScheduleAsync(func() error {
+			if err != nil {
+				reject(p.vm.NewGoError(err))
+			} else {
+				resolve(goja.Undefined())
+			}
+			return nil
+		})
+	}()
+
+	return promise
 }

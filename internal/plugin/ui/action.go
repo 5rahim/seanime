@@ -50,6 +50,22 @@ func (a *BaseAction) SetProps(props BaseActionProps) {
 	a.BaseActionProps = props
 }
 
+// UnmountAll unmounts all actions
+// It should be called
+func (a *ActionManager) UnmountAll() {
+	a.animePageButtons.Clear()
+	a.animePageDropdownItems.Clear()
+	a.animeLibraryDropdownItems.Clear()
+	a.mangaPageButtons.Clear()
+	a.mediaCardContextMenuItems.Clear()
+
+	a.renderAnimePageButtons()
+	a.renderAnimePageDropdownItems()
+	a.renderAnimeLibraryDropdownItems()
+	a.renderMangaPageButtons()
+	a.renderMediaCardContextMenuItems()
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type AnimePageButton struct {
@@ -152,73 +168,63 @@ func NewActionManager(ctx *Context) *ActionManager {
 
 // renderAnimePageButtons is called when the client requests the buttons to display on the anime page.
 func (a *ActionManager) renderAnimePageButtons() {
-	var buttons []*AnimePageButton
+	buttons := make([]*AnimePageButton, 0)
 	a.animePageButtons.Range(func(key string, value *AnimePageButton) bool {
 		buttons = append(buttons, value)
 		return true
 	})
 
-	if len(buttons) > 0 {
-		a.ctx.SendEventToClient(ServerActionRenderAnimePageButtonsEvent, ServerActionRenderAnimePageButtonsEventPayload{
-			Buttons: buttons,
-		})
-	}
+	a.ctx.SendEventToClient(ServerActionRenderAnimePageButtonsEvent, ServerActionRenderAnimePageButtonsEventPayload{
+		Buttons: buttons,
+	})
 }
 
 func (a *ActionManager) renderAnimePageDropdownItems() {
-	var items []*AnimePageDropdownMenuItem
+	items := make([]*AnimePageDropdownMenuItem, 0)
 	a.animePageDropdownItems.Range(func(key string, value *AnimePageDropdownMenuItem) bool {
 		items = append(items, value)
 		return true
 	})
 
-	if len(items) > 0 {
-		a.ctx.SendEventToClient(ServerActionRenderAnimePageDropdownItemsEvent, ServerActionRenderAnimePageDropdownItemsEventPayload{
-			Items: items,
-		})
-	}
+	a.ctx.SendEventToClient(ServerActionRenderAnimePageDropdownItemsEvent, ServerActionRenderAnimePageDropdownItemsEventPayload{
+		Items: items,
+	})
 }
 
 func (a *ActionManager) renderAnimeLibraryDropdownItems() {
-	var items []*AnimeLibraryDropdownMenuItem
+	items := make([]*AnimeLibraryDropdownMenuItem, 0)
 	a.animeLibraryDropdownItems.Range(func(key string, value *AnimeLibraryDropdownMenuItem) bool {
 		items = append(items, value)
 		return true
 	})
 
-	if len(items) > 0 {
-		a.ctx.SendEventToClient(ServerActionRenderAnimeLibraryDropdownItemsEvent, ServerActionRenderAnimeLibraryDropdownItemsEventPayload{
-			Items: items,
-		})
-	}
+	a.ctx.SendEventToClient(ServerActionRenderAnimeLibraryDropdownItemsEvent, ServerActionRenderAnimeLibraryDropdownItemsEventPayload{
+		Items: items,
+	})
 }
 
 func (a *ActionManager) renderMangaPageButtons() {
-	var buttons []*MangaPageButton
+	buttons := make([]*MangaPageButton, 0)
 	a.mangaPageButtons.Range(func(key string, value *MangaPageButton) bool {
 		buttons = append(buttons, value)
 		return true
 	})
 
-	if len(buttons) > 0 {
-		a.ctx.SendEventToClient(ServerActionRenderMangaPageButtonsEvent, ServerActionRenderMangaPageButtonsEventPayload{
-			Buttons: buttons,
-		})
-	}
+	a.ctx.SendEventToClient(ServerActionRenderMangaPageButtonsEvent, ServerActionRenderMangaPageButtonsEventPayload{
+		Buttons: buttons,
+	})
 }
 
 func (a *ActionManager) renderMediaCardContextMenuItems() {
-	var items []*MediaCardContextMenuItem
+	items := make([]*MediaCardContextMenuItem, 0)
 	a.mediaCardContextMenuItems.Range(func(key string, value *MediaCardContextMenuItem) bool {
 		items = append(items, value)
 		return true
 	})
 
-	if len(items) > 0 {
-		a.ctx.SendEventToClient(ServerActionRenderMediaCardContextMenuItemsEvent, ServerActionRenderMediaCardContextMenuItemsEventPayload{
-			Items: items,
-		})
-	}
+	a.ctx.SendEventToClient(ServerActionRenderMediaCardContextMenuItemsEvent, ServerActionRenderMediaCardContextMenuItemsEventPayload{
+		Items: items,
+	})
 }
 
 // bind binds 'action' to the ctx object

@@ -49,6 +49,8 @@ func (c *ComponentManager) jsFlex(call goja.FunctionCall) goja.Value {
 	return defineComponent(c.ctx.vm, call, "flex", []ComponentProp{
 		{Name: "items", Type: "array", Required: false, OptionalFirstArg: true},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "gap", Type: "number", Required: false, Default: 2, Validate: validateType("number")},
+		{Name: "direction", Type: "string", Required: false, Default: "row", Validate: validateType("string")},
 	})
 }
 
@@ -64,6 +66,7 @@ func (c *ComponentManager) jsStack(call goja.FunctionCall) goja.Value {
 	return defineComponent(c.ctx.vm, call, "stack", []ComponentProp{
 		{Name: "items", Type: "array", Required: false, OptionalFirstArg: true},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "gap", Type: "number", Required: false, Default: 2, Validate: validateType("number")},
 	})
 }
 
@@ -91,6 +94,10 @@ func (c *ComponentManager) jsButton(call goja.FunctionCall) goja.Value {
 		{Name: "label", Type: "string", Required: true, OptionalFirstArg: true, Validate: validateType("string")},
 		{Name: "onClick", Type: "string", Required: false, Validate: validateType("string")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
+		{Name: "intent", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "loading", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }
 
@@ -117,6 +124,7 @@ func (c *ComponentManager) jsInput(call goja.FunctionCall) goja.Value {
 		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }
 
@@ -171,6 +179,7 @@ func (c *ComponentManager) jsSelect(call goja.FunctionCall) goja.Value {
 		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }
 
@@ -188,6 +197,7 @@ func (c *ComponentManager) jsCheckbox(call goja.FunctionCall) goja.Value {
 		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }
 
@@ -212,6 +222,7 @@ func (c *ComponentManager) jsRadioGroup(call goja.FunctionCall) goja.Value {
 		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }
 
@@ -230,5 +241,7 @@ func (c *ComponentManager) jsSwitch(call goja.FunctionCall) goja.Value {
 		{Name: "fieldRef", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "style", Type: "object", Required: false, Validate: validateType("object")},
 		{Name: "disabled", Type: "boolean", Required: false, Default: false, Validate: validateType("boolean")},
+		{Name: "size", Type: "string", Required: false, Validate: validateType("string")},
+		{Name: "side", Type: "string", Required: false, Validate: validateType("string")},
 	})
 }

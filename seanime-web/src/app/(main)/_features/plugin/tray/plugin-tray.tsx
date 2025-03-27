@@ -6,7 +6,7 @@ import { PopoverAnatomy } from "@/components/ui/popover"
 import { Tooltip } from "@/components/ui/tooltip"
 import { getPixelsFromLength } from "@/lib/helpers/css"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import Image from "next/image"
 import React from "react"
 import { LuCircleDashed } from "react-icons/lu"
@@ -21,26 +21,27 @@ import {
     usePluginSendTrayClosedEvent,
     usePluginSendTrayOpenedEvent,
 } from "../generated/plugin-events"
-import { __plugin_hasNavigatedAtom } from "./plugin-sidebar-tray"
+import { __plugin_hasNavigatedAtom, __plugin_unpinnedTrayIconClickedAtom } from "./plugin-sidebar-tray"
 
 /**
  * TrayIcon
  */
-export type TrayIcon = {
-    extensionId: string
-} & Plugin_Server_TrayIconEventPayload
+export type TrayIcon = Plugin_Server_TrayIconEventPayload
 
 type TrayPluginProps = {
     trayIcon: TrayIcon
     place: "sidebar" | "top"
     width: number | null
+    isPinned: boolean
 }
 
 export const PluginTrayContext = React.createContext<TrayPluginProps>({
     place: "sidebar",
     width: null,
+    isPinned: false,
     trayIcon: {
         extensionId: "",
+        extensionName: "",
         iconUrl: "",
         withContent: false,
         tooltipText: "",
@@ -79,6 +80,8 @@ export function PluginTray(props: TrayPluginProps) {
 
     const hasNavigated = useAtomValue(__plugin_hasNavigatedAtom)
 
+    const [unpinnedTrayIconClicked, setUnpinnedTrayIconClicked] = useAtom(__plugin_unpinnedTrayIconClickedAtom)
+
     const firstRender = React.useRef(true)
     React.useEffect(() => {
         if (firstRender.current) {
@@ -92,13 +95,33 @@ export function PluginTray(props: TrayPluginProps) {
         }
     }, [open])
 
+    const unpinnedTrayIconClickedOpenedRef = React.useRef(false)
+    React.useEffect(() => {
+        if (unpinnedTrayIconClicked?.extensionId === props.trayIcon.extensionId) {
+            if (!unpinnedTrayIconClickedOpenedRef.current) {
+                const timeout = setTimeout(() => {
+                    unpinnedTrayIconClickedOpenedRef.current = true
+                    setOpen(true)
+                }, 100)
+                return () => clearTimeout(timeout)
+            }
+        }
+    }, [unpinnedTrayIconClicked])
+
+    React.useEffect(() => {
+        if (unpinnedTrayIconClicked?.extensionId === props.trayIcon.extensionId && !open && unpinnedTrayIconClickedOpenedRef.current) {
+            setUnpinnedTrayIconClicked(null)
+            unpinnedTrayIconClickedOpenedRef.current = false
+        }
+    }, [open])
+
     usePluginListenTrayBadgeUpdatedEvent((data) => {
         setBadgeNumber(data.badgeNumber)
         setBadgeIntent(data.badgeIntent)
     }, props.trayIcon.extensionId)
 
     usePluginListenTrayOpenEvent((data) => {
-        if (hasNavigated) {
+        if (hasNavigated && props.isPinned) {
             setOpen(true)
         }
     }, props.trayIcon.extensionId)
@@ -116,7 +139,7 @@ export function PluginTray(props: TrayPluginProps) {
         return (
             <div
                 data-plugin-tray-icon
-                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 cursor-pointer transition-all relative"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 cursor-pointer transition-all relative select-none"
                 onClick={handleClick}
             >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden relative" data-plugin-tray-icon-inner-container>

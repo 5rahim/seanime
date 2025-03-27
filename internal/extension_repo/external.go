@@ -207,6 +207,11 @@ func (r *Repository) UninstallExternalExtension(id string) error {
 
 	go func() {
 		_ = r.deleteExtensionUserConfig(id)
+
+		// Delete the plugin data if it was a plugin
+		if installedExt.GetType() == extension.TypePlugin {
+			r.deletePluginData(id)
+		}
 	}()
 
 	r.reloadExtension(id)

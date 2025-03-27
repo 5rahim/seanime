@@ -1,7 +1,8 @@
 /// <reference path="../goja_plugin_types/plugin.d.ts" />
-/// <reference path="../goja_plugin_types/hooks.d.ts" />
+/// <reference path="../goja_plugin_types/app.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
 
+//@ts-ignore
 function init() {
     $ui.register((ctx) => {
         // Create the tray icon
@@ -52,9 +53,9 @@ function init() {
         ctx.screen.onNavigate((e) => {
             console.log("onNavigate", e)
             // If the user navigates to an anime page
-            if (e.pathname === "/entry" && !!e.query) {
+            if (e.pathname === "/entry" && !!e.searchParams.id) {
                 // Get the ID from the URL
-                const id = parseInt(e.query.replace("?id=", ""))
+                const id = parseInt(e.searchParams.id)
                 currentMediaId.set(id)
             } else {
                 currentMediaId.set(0)
@@ -83,6 +84,10 @@ function init() {
             ctx.notification.send("Background image saved")
         });
 
+        ctx.setTimeout(() => {
+            ctx.screen.reload()
+        }, 1000)
+
         // Tray content
         tray.render(() => {
             return tray.stack([
@@ -91,7 +96,7 @@ function init() {
                     : tray.stack([
                         tray.text(`Current media ID: ${currentMediaId.get()}`),
                         tray.input({ fieldRef: inputRef }),
-                        tray.button({ label: "Save", onClick: "save" }),
+                        tray.button({ label: "Save", onClick: "save", intent: "primary" }),
                     ]),
             ])
         })

@@ -103,11 +103,11 @@ func TestGojaPluginMpv(t *testing.T) {
 	payload := fmt.Sprintf(`
 function init() {
 
-	$ui.register((ctx) => {
+	$ui.register(async (ctx) => {
 
 		console.log("Testing MPV");
 
-		ctx.mpv.openAndPlay("%s")
+		await ctx.mpv.openAndPlay("%s")
 
 		const cancel = ctx.mpv.onEvent((event) => {
 			console.log("Event received", event)
@@ -120,10 +120,10 @@ function init() {
 			}
 		}, 3000)
 
-		ctx.setTimeout(() => {
+		ctx.setTimeout(async () => {
 			console.log("Cancelling event listener")
 			cancel()
-			ctx.mpv.stop()
+			await ctx.mpv.stop()
 		}, 5000)
 	});
 

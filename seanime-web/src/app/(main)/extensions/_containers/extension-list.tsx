@@ -50,7 +50,6 @@ export function ExtensionList(props: ExtensionListProps) {
     }
 
     const pluginExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "plugin")
-    console.log(pluginExtensions)
 
     if (isLoading) return <LoadingSpinner />
 
@@ -106,65 +105,8 @@ export function ExtensionList(props: ExtensionListProps) {
                 </div>
             </div>
 
-            {!!pluginExtensions?.length && (
-                <>
-                    <h3 className="flex gap-3 items-center"><LuBlocks /> Plugins</h3>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                        {pluginExtensions.map(extension => (
-                            <ExtensionCard
-                                key={extension.id}
-                                extension={extension}
-                                hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
-                                isInstalled={isExtensionInstalled(extension.id)}
-                                userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
-                            />
-                        ))}
-                    </div>
-                </>
-            )}
-
-            <h3 className="flex gap-3 items-center"><RiFolderDownloadFill />Torrent</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                {orderExtensions(allExtensions.extensions).filter(n => n.type === "anime-torrent-provider").map(extension => (
-                    <ExtensionCard
-                        key={extension.id}
-                        extension={extension}
-                        hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
-                        isInstalled={isExtensionInstalled(extension.id)}
-                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
-                    />
-                ))}
-            </div>
-            {/*<Separator />*/}
-            <h3 className="flex gap-3 items-center"><PiBookFill />Manga</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                {orderExtensions(allExtensions.extensions).filter(n => n.type === "manga-provider").map(extension => (
-                    <ExtensionCard
-                        key={extension.id}
-                        extension={extension}
-                        hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
-                        isInstalled={isExtensionInstalled(extension.id)}
-                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
-                    />
-                ))}
-            </div>
-            {/*<Separator />*/}
-            <h3 className="flex gap-3 items-center"><CgMediaPodcast /> Online streaming</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                {orderExtensions(allExtensions.extensions).filter(n => n.type === "onlinestream-provider").map(extension => (
-                    <ExtensionCard
-                        key={extension.id}
-                        extension={extension}
-                        hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
-                        isInstalled={isExtensionInstalled(extension.id)}
-                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
-                    />
-                ))}
-            </div>
-
             {!!allExtensions.invalidExtensions?.length && (
                 <>
-                    <Separator />
 
                     <h3 className="flex gap-3 items-center">Invalid extensions</h3>
 
@@ -178,8 +120,67 @@ export function ExtensionList(props: ExtensionListProps) {
                         ))}
                     </div>
 
+                    <Separator />
                 </>
             )}
+
+            {!!pluginExtensions?.length && (
+                <>
+                    <h3 className="flex gap-3 items-center"><LuBlocks /> Plugins</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {pluginExtensions.map(extension => (
+                            <ExtensionCard
+                                key={extension.id}
+                                extension={extension}
+                                hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                                userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                                allowReload={true}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+
+            <h3 className="flex gap-3 items-center"><RiFolderDownloadFill />Torrent</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                {orderExtensions(allExtensions.extensions?.filter(n => n.type === "anime-torrent-provider") ?? []).map(extension => (
+                    <ExtensionCard
+                        key={extension.id}
+                        extension={extension}
+                        hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                        isInstalled={isExtensionInstalled(extension.id)}
+                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                    />
+                ))}
+            </div>
+            {/*<Separator />*/}
+            <h3 className="flex gap-3 items-center"><PiBookFill />Manga</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                {orderExtensions(allExtensions.extensions?.filter(n => n.type === "manga-provider") ?? []).map(extension => (
+                    <ExtensionCard
+                        key={extension.id}
+                        extension={extension}
+                        hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                        isInstalled={isExtensionInstalled(extension.id)}
+                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                    />
+                ))}
+            </div>
+            {/*<Separator />*/}
+            <h3 className="flex gap-3 items-center"><CgMediaPodcast /> Online streaming</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                {orderExtensions(allExtensions.extensions?.filter(n => n.type === "onlinestream-provider") ?? []).map(extension => (
+                    <ExtensionCard
+                        key={extension.id}
+                        extension={extension}
+                        hasUpdate={!!allExtensions?.hasUpdate?.find(n => n.extensionID === extension.id)}
+                        isInstalled={isExtensionInstalled(extension.id)}
+                        userConfigError={allExtensions?.invalidUserConfigExtensions?.find(n => n.id == extension.id)}
+                    />
+                ))}
+            </div>
+
 
         </AppLayoutStack>
     )

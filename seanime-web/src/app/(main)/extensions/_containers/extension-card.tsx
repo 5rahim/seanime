@@ -1,5 +1,10 @@
 import { Extension_Extension, Extension_InvalidExtension } from "@/api/generated/types"
-import { useFetchExternalExtensionData, useInstallExternalExtension, useUninstallExternalExtension } from "@/api/hooks/extensions.hooks"
+import {
+    useFetchExternalExtensionData,
+    useInstallExternalExtension,
+    useReloadExternalExtension,
+    useUninstallExternalExtension,
+} from "@/api/hooks/extensions.hooks"
 import { ExtensionDetails } from "@/app/(main)/extensions/_components/extension-details"
 import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
 import { ExtensionUserConfigModal } from "@/app/(main)/extensions/_containers/extension-user-config"
@@ -13,10 +18,10 @@ import { Modal } from "@/components/ui/modal"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
-import { BiCog } from "react-icons/bi"
 import { FaCode } from "react-icons/fa"
 import { GrUpdate } from "react-icons/gr"
 import { HiOutlineAdjustments } from "react-icons/hi"
+import { LuEllipsisVertical, LuRefreshCcw } from "react-icons/lu"
 import { RiDeleteBinLine } from "react-icons/ri"
 import { TbCloudDownload } from "react-icons/tb"
 import { toast } from "sonner"
@@ -26,6 +31,7 @@ type ExtensionCardProps = {
     hasUpdate: boolean
     isInstalled: boolean
     userConfigError?: Extension_InvalidExtension | undefined
+    allowReload?: boolean
 }
 
 export function ExtensionCard(props: ExtensionCardProps) {
@@ -35,10 +41,13 @@ export function ExtensionCard(props: ExtensionCardProps) {
         hasUpdate,
         isInstalled,
         userConfigError,
+        allowReload,
         ...rest
     } = props
 
     const isBuiltin = extension.manifestURI === "builtin"
+
+    const { mutate: reloadExternalExtension, isPending: isReloadingExtension } = useReloadExternalExtension()
 
     return (
         <div
@@ -58,39 +67,57 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 Built-in
             </p>}
 
-            <div className="absolute top-3 right-3 flex flex-col gap-1 z-[2]">
-                {!isBuiltin && (
-                    <ExtensionSettings extension={extension} isInstalled={isInstalled}>
-                        <IconButton
-                            size="sm"
-                            intent="gray-basic"
-                            icon={<BiCog />}
-                        />
-                    </ExtensionSettings>
-                )}
-                {extension.manifestURI === "" && (
-                    <ExtensionCodeModal extension={extension}>
-                        <IconButton
-                            size="sm"
-                            intent="gray-basic"
-                            icon={<FaCode />}
-                        />
-                    </ExtensionCodeModal>
-                )}
-                {!!extension.userConfig && (
-                    <>
-                        <ExtensionUserConfigModal extension={extension} userConfigError={userConfigError}>
+            <div className="absolute top-3 right-3 z-[2]">
+                <div className=" flex flex-row gap-1 z-[2] flex-wrap gap-1 justify-end">
+                    {!isBuiltin && (
+                        <ExtensionSettings extension={extension} isInstalled={isInstalled}>
                             <IconButton
                                 size="sm"
-                                intent={userConfigError ? "alert" : "gray-basic"}
-                                icon={<HiOutlineAdjustments />}
-                                className={cn(
-                                    userConfigError && "animate-bounce",
-                                )}
+                                intent="gray-basic"
+                                icon={<LuEllipsisVertical />}
                             />
-                        </ExtensionUserConfigModal>
-                    </>
-                )}
+                        </ExtensionSettings>
+                    )}
+                </div>
+                <div className="flex flex-row gap-1 z-[2] flex-wrap gap-1">
+                    {!isBuiltin && (
+                        <ExtensionCodeModal extension={extension}>
+                            <IconButton
+                                size="sm"
+                                intent="gray-basic"
+                                icon={<FaCode />}
+                            />
+                        </ExtensionCodeModal>
+                    )}
+
+                    {!!extension.userConfig && (
+                        <>
+                            <ExtensionUserConfigModal extension={extension} userConfigError={userConfigError}>
+                                <IconButton
+                                    size="sm"
+                                    intent={userConfigError ? "alert" : "gray-basic"}
+                                    icon={<HiOutlineAdjustments />}
+                                    className={cn(
+                                        userConfigError && "animate-bounce",
+                                    )}
+                                />
+                            </ExtensionUserConfigModal>
+                        </>
+                    )}
+
+                    {allowReload && (
+                        <IconButton
+                            size="sm"
+                            intent="gray-basic"
+                            icon={<LuRefreshCcw />}
+                            onClick={() => {
+                                if (!extension.id) return toast.error("Extension has no ID")
+                                reloadExternalExtension({ id: extension.id })
+                            }}
+                            disabled={isReloadingExtension}
+                        />
+                    )}
+                </div>
             </div>
 
             <div className="z-[1] relative space-y-3">
@@ -127,9 +154,9 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     {!!extension.version && <Badge className="rounded-[--radius-md]">
                         {extension.version}
                     </Badge>}
-                    <Badge className="rounded-[--radius-md]" intent="unstyled">
+                    {!isBuiltin && <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {extension.author}
-                    </Badge>
+                    </Badge>}
                     <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {extension.lang.toUpperCase()}
                     </Badge>

@@ -202,13 +202,15 @@ type ServerTrayOpenEventPayload struct{}
 type ServerTrayCloseEventPayload struct{}
 
 type ServerTrayIconEventPayload struct {
-	IconURL     string `json:"iconUrl"`
-	WithContent bool   `json:"withContent"`
-	TooltipText string `json:"tooltipText"`
-	BadgeNumber int    `json:"badgeNumber"`
-	BadgeIntent string `json:"badgeIntent"`
-	Width       string `json:"width,omitempty"`
-	MinHeight   string `json:"minHeight,omitempty"`
+	ExtensionID   string `json:"extensionId"`
+	ExtensionName string `json:"extensionName"`
+	IconURL       string `json:"iconUrl"`
+	WithContent   bool   `json:"withContent"`
+	TooltipText   string `json:"tooltipText"`
+	BadgeNumber   int    `json:"badgeNumber"`
+	BadgeIntent   string `json:"badgeIntent"`
+	Width         string `json:"width,omitempty"`
+	MinHeight     string `json:"minHeight,omitempty"`
 }
 
 type ServerTrayBadgeUpdatedEventPayload struct {

@@ -32366,7 +32366,7 @@
     "fields": [
       {
         "name": "ID",
-        "jsonName": "ID",
+        "jsonName": "id",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -32375,7 +32375,7 @@
       },
       {
         "name": "Title",
-        "jsonName": "Title",
+        "jsonName": "title",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -32384,7 +32384,7 @@
       },
       {
         "name": "Image",
-        "jsonName": "Image",
+        "jsonName": "image",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -32393,7 +32393,7 @@
       },
       {
         "name": "IsMovie",
-        "jsonName": "IsMovie",
+        "jsonName": "isMovie",
         "goType": "bool",
         "typescriptType": "boolean",
         "required": true,
@@ -32402,7 +32402,7 @@
       },
       {
         "name": "EpisodeNumber",
-        "jsonName": "EpisodeNumber",
+        "jsonName": "episodeNumber",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -32421,7 +32421,7 @@
     "fields": [
       {
         "name": "ID",
-        "jsonName": "ID",
+        "jsonName": "id",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
@@ -32430,7 +32430,7 @@
       },
       {
         "name": "Title",
-        "jsonName": "Title",
+        "jsonName": "title",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -32439,7 +32439,7 @@
       },
       {
         "name": "Image",
-        "jsonName": "Image",
+        "jsonName": "image",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -32448,7 +32448,7 @@
       },
       {
         "name": "Chapter",
-        "jsonName": "Chapter",
+        "jsonName": "chapter",
         "goType": "string",
         "typescriptType": "string",
         "required": true,
@@ -35631,43 +35631,16 @@
   {
     "filepath": "../internal/extension_repo/repository.go",
     "filename": "repository.go",
-    "name": "TrayPluginExtensionItem",
-    "formattedName": "ExtensionRepo_TrayPluginExtensionItem",
+    "name": "StoredPluginSettingsData",
+    "formattedName": "ExtensionRepo_StoredPluginSettingsData",
     "package": "extension_repo",
     "fields": [
       {
-        "name": "ID",
-        "jsonName": "id",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Name",
-        "jsonName": "name",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "Icon",
-        "jsonName": "icon",
-        "goType": "string",
-        "typescriptType": "string",
-        "required": true,
-        "public": true,
-        "comments": []
-      },
-      {
-        "name": "IsPinned",
-        "jsonName": "isPinned",
-        "goType": "bool",
-        "typescriptType": "boolean",
-        "required": true,
+        "name": "PinnedTrayPluginIds",
+        "jsonName": "pinnedTrayPluginIds",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -53239,6 +53212,17 @@
         "comments": []
       },
       {
+        "name": "DiscordPresence",
+        "jsonName": "DiscordPresence",
+        "goType": "discordrpc_presence.Presence",
+        "typescriptType": "DiscordRPC_Presence",
+        "usedTypescriptType": "DiscordRPC_Presence",
+        "usedStructName": "discordrpc_presence.Presence",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "OnRefreshAnilistAnimeCollection",
         "jsonName": "OnRefreshAnilistAnimeCollection",
         "goType": "",
@@ -53334,6 +53318,15 @@
       {
         "name": "anilistPlatform",
         "jsonName": "anilistPlatform",
+        "goType": "",
+        "typescriptType": "any",
+        "required": true,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "discordPresence",
+        "jsonName": "discordPresence",
         "goType": "",
         "typescriptType": "any",
         "required": true,
@@ -53881,6 +53874,52 @@
         "usedStructName": "goja_util.Scheduler",
         "required": false,
         "public": false,
+        "comments": []
+      }
+    ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/plugin/manga.go",
+    "filename": "manga.go",
+    "name": "GetChapterContainerOptions",
+    "formattedName": "GetChapterContainerOptions",
+    "package": "plugin",
+    "fields": [
+      {
+        "name": "MediaId",
+        "jsonName": "MediaId",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Provider",
+        "jsonName": "Provider",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Titles",
+        "jsonName": "Titles",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Year",
+        "jsonName": "Year",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
         "comments": []
       }
     ],
@@ -56454,6 +56493,24 @@
     "formattedName": "ServerTrayIconEventPayload",
     "package": "plugin_ui",
     "fields": [
+      {
+        "name": "ExtensionID",
+        "jsonName": "extensionId",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "ExtensionName",
+        "jsonName": "extensionName",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
       {
         "name": "IconURL",
         "jsonName": "iconUrl",

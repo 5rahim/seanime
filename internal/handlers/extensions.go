@@ -139,6 +139,16 @@ func (h *Handler) HandleListExtensionData(c echo.Context) error {
 	return h.RespondWithData(c, extensions)
 }
 
+// HandleGetExtensionPayload
+//
+//	@summary returns the payload of the extension with the given ID.
+//	@route /api/v1/extensions/payload/{id} [GET]
+//	@returns string
+func (h *Handler) HandleGetExtensionPayload(c echo.Context) error {
+	payload := h.App.ExtensionRepository.GetExtensionPayload(c.Param("id"))
+	return h.RespondWithData(c, payload)
+}
+
 // HandleListDevelopmentModeExtensions
 //
 //	@summary returns the development mode extensions
@@ -196,6 +206,35 @@ func (h *Handler) HandleListOnlinestreamProviderExtensions(c echo.Context) error
 func (h *Handler) HandleListAnimeTorrentProviderExtensions(c echo.Context) error {
 	extensions := h.App.ExtensionRepository.ListAnimeTorrentProviderExtensions()
 	return h.RespondWithData(c, extensions)
+}
+
+// HandleGetPluginSettings
+//
+//	@summary returns the plugin settings.
+//	@route /api/v1/extensions/plugin-settings [GET]
+//	@returns extension_repo.StoredPluginSettingsData
+func (h *Handler) HandleGetPluginSettings(c echo.Context) error {
+	settings := h.App.ExtensionRepository.GetPluginSettings()
+	return h.RespondWithData(c, settings)
+}
+
+// HandleSetPluginSettingsPinnedTrays
+//
+//	@summary sets the pinned trays in the plugin settings.
+//	@route /api/v1/extensions/plugin-settings/pinned-trays [POST]
+//	@returns bool
+func (h *Handler) HandleSetPluginSettingsPinnedTrays(c echo.Context) error {
+	type body struct {
+		PinnedTrayPluginIds []string `json:"pinnedTrayPluginIds"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.ExtensionRepository.SetPluginSettingsPinnedTrays(b.PinnedTrayPluginIds)
+	return h.RespondWithData(c, true)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

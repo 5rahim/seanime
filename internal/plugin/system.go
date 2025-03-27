@@ -373,9 +373,16 @@ func (a *AppContextImpl) BindSystem(vm *goja.Runtime, logger *zerolog.Logger, ex
 		if !a.isAllowedPath(ext, root, AllowPathRead) {
 			return fmt.Errorf("$filepath.walkDir: path (%s) not authorized for read", root)
 		}
-		return filepath.WalkDir(root, walkFn)
+		return filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			return walkFn(path, d, err)
+		})
 	})
-	filepathObj.Set("skipDir", filepath.SkipDir)
+
+	skipDir := filepath.SkipDir
+	filepathObj.Set("skipDir", skipDir)
 
 	_ = vm.Set("$filepath", filepathObj)
 

@@ -18,7 +18,8 @@ import (
 
 var (
 	additionalStructNamesForHooks = []string{
-		"manga.MangaLatestChapterNumberItem",
+		"discordrpc_presence.MangaActivity",
+		"discordrpc_presence.AnimeActivity",
 	}
 )
 
@@ -299,7 +300,7 @@ type HookEventDefinition struct {
 
 func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath string, genOutDir string) {
 	// Create output file
-	f, err := os.Create(filepath.Join(outDir, "hooks.d.ts"))
+	f, err := os.Create(filepath.Join(outDir, "app.d.ts"))
 	if err != nil {
 		panic(err)
 	}
@@ -367,7 +368,7 @@ func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath stri
 	}
 
 	////////////////////////////////////////////////////
-	// Write `hooks.d.ts`
+	// Write `app.d.ts`
 	// Write namespace declaration
 	////////////////////////////////////////////////////
 	f.WriteString("declare namespace $app {\n")

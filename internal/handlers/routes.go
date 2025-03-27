@@ -402,12 +402,15 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.POST("/external/reload", h.HandleReloadExternalExtension)
 	v1Extensions.POST("/all", h.HandleGetAllExtensions)
 	v1Extensions.GET("/list", h.HandleListExtensionData)
+	v1Extensions.GET("/payload/:id", h.HandleGetExtensionPayload)
 	v1Extensions.GET("/list/development", h.HandleListDevelopmentModeExtensions)
 	v1Extensions.GET("/list/manga-provider", h.HandleListMangaProviderExtensions)
 	v1Extensions.GET("/list/onlinestream-provider", h.HandleListOnlinestreamProviderExtensions)
 	v1Extensions.GET("/list/anime-torrent-provider", h.HandleListAnimeTorrentProviderExtensions)
 	v1Extensions.GET("/user-config/:id", h.HandleGetExtensionUserConfig)
 	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
+	v1Extensions.GET("/plugin-settings", h.HandleGetPluginSettings)
+	v1Extensions.POST("/plugin-settings/pinned-trays", h.HandleSetPluginSettingsPinnedTrays)
 
 	//
 	// Continuity

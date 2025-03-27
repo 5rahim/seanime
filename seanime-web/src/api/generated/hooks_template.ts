@@ -725,6 +725,15 @@
 //     })
 // }
 
+// export function useGetExtensionPayload() {
+//     return useServerQuery<string>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.key],
+//         enabled: true,
+//     })
+// }
+
 // export function useListDevelopmentModeExtensions() {
 //     return useServerQuery<Array<Extension_Extension>>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.endpoint,
@@ -769,6 +778,26 @@
 //         method: API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.methods[0],
 //         queryKey: [API_ENDPOINTS.EXTENSIONS.ListAnimeTorrentProviderExtensions.key],
 //         enabled: true,
+//     })
+// }
+
+// export function useGetPluginSettings() {
+//     return useServerQuery<ExtensionRepo_StoredPluginSettingsData>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.methods[0],
+//         queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key],
+//         enabled: true,
+//     })
+// }
+
+// export function useSetPluginSettingsPinnedTrays() {
+//     return useServerMutation<boolean, SetPluginSettingsPinnedTrays_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.key],
+//         onSuccess: async () => {
+// 
+//         },
 //     })
 // }
 
@@ -1712,7 +1741,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // export function useGetScanSummaries() {
-//     return useServerQuery<Array<DB_ScanSummaryItem>>({
+//     return useServerQuery<Array<Summary_ScanSummaryItem>>({
 //         endpoint: API_ENDPOINTS.SCAN_SUMMARY.GetScanSummaries.endpoint,
 //         method: API_ENDPOINTS.SCAN_SUMMARY.GetScanSummaries.methods[0],
 //         queryKey: [API_ENDPOINTS.SCAN_SUMMARY.GetScanSummaries.key],

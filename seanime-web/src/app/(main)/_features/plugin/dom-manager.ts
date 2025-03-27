@@ -85,15 +85,11 @@ export function useDOMManager(extensionId: string) {
 
         // If identifyChildren is true, assign IDs to all children recursively
         if (options?.identifyChildren) {
-            // Process all direct children and ensure they have IDs
-            Array.from(element.children).forEach(child => {
+            // Get all descendants (not just direct children)
+            element.querySelectorAll("*").forEach(child => {
                 if (!child.id) {
                     const childId = `plugin-element-${uuidv4()}`
                     child.setAttribute("id", childId)
-                }
-                // Recursively process deeper children
-                if (child.children.length > 0) {
-                    elementToDOMElement(child, { identifyChildren: true })
                 }
             })
         }
@@ -368,15 +364,58 @@ export function useDOMManager(extensionId: string) {
 
         let result: any = null
 
+        // Utility to safely store original value in data-original attribute
+        const storeOriginalValue = (el: Element, type: string, key: string, value: any) => {
+            if (!(el instanceof HTMLElement)) return
+
+            let originalData: Record<string, Record<string, any>> = {}
+            if (el.dataset.original) {
+                try {
+                    originalData = JSON.parse(el.dataset.original) as Record<string, Record<string, any>>
+                }
+                catch {
+                    originalData = {}
+                }
+            }
+
+            // Initialize type record if it doesn't exist
+            if (!originalData[type]) {
+                originalData[type] = {}
+            }
+
+            // Only store the value if it's not already set for this type+key
+            if (originalData[type][key] === undefined) {
+                originalData[type][key] = value
+                el.dataset.original = JSON.stringify(originalData)
+            }
+        }
+
         switch (action) {
             case "setAttribute":
+                // Store previous attribute value
+                if (element instanceof HTMLElement && params.name) {
+                    const prevValue = element.getAttribute(params.name)
+                    storeOriginalValue(element, "attribute", params.name, prevValue)
+                }
+
                 element.setAttribute(params.name, params.value)
                 result = true
                 break
             case "removeAttribute":
+                // Store previous attribute value
+                if (element instanceof HTMLElement && params.name) {
+                    const prevValue = element.getAttribute(params.name)
+                    storeOriginalValue(element, "attribute", params.name, prevValue)
+                }
+
                 element.removeAttribute(params.name)
                 break
             case "setInnerHTML":
+                // Store previous HTML
+                if (element instanceof HTMLElement) {
+                    storeOriginalValue(element, "html", "innerHTML", element.innerHTML)
+                }
+
                 element.innerHTML = params.html
                 break
             case "appendChild":
@@ -395,6 +434,11 @@ export function useDOMManager(extensionId: string) {
                 result = element.textContent
                 break
             case "setText":
+                // Store previous text content
+                if (element instanceof HTMLElement) {
+                    storeOriginalValue(element, "text", "textContent", element.textContent)
+                }
+
                 element.textContent = params.text
                 break
             case "getAttribute":
@@ -414,18 +458,33 @@ export function useDOMManager(extensionId: string) {
                 result = (element as any)[params.name]
                 break
             case "setProperty":
+                // Store previous property value
+                if (element instanceof HTMLElement && params.name) {
+                    storeOriginalValue(element, "property", params.name, (element as any)[params.name])
+                }
+
                 (element as any)[params.name] = params.value
                 break
             case "addClass":
                 element.classList.add(params.className)
                 break
             case "removeClass":
+                // Store previous class presence
+                if (element instanceof HTMLElement && params.className) {
+                    storeOriginalValue(element, "class", params.className, element.classList.contains(params.className))
+                }
+
                 element.classList.remove(params.className)
                 break
             case "hasClass":
                 result = element.classList.contains(params.className)
                 break
             case "setStyle":
+                // Store previous style value
+                if (element instanceof HTMLElement && params.property) {
+                    storeOriginalValue(element, "style", params.property, element.style.getPropertyValue(params.property))
+                }
+
                 element.style.setProperty(params.property, params.value)
                 break
             case "getStyle":
@@ -555,11 +614,21 @@ export function useDOMManager(extensionId: string) {
                 break
             case "setDataAttribute":
                 if (element instanceof HTMLElement) {
+                    // Store previous data attribute value
+                    if (params.key) {
+                        storeOriginalValue(element, "dataset", params.key, element.dataset[params.key])
+                    }
+
                     element.dataset[params.key] = params.value
                 }
                 break
             case "removeDataAttribute":
                 if (element instanceof HTMLElement) {
+                    // Store previous data attribute value
+                    if (params.key) {
+                        storeOriginalValue(element, "dataset", params.key, element.dataset[params.key])
+                    }
+
                     delete element.dataset[params.key]
                 }
                 break
@@ -574,6 +643,11 @@ export function useDOMManager(extensionId: string) {
                 result = element.style.getPropertyValue(params.property) !== ""
                 break
             case "removeStyle":
+                // Store previous style value
+                if (element instanceof HTMLElement && params.property) {
+                    storeOriginalValue(element, "style", params.property, element.style.getPropertyValue(params.property))
+                }
+
                 element.style.removeProperty(params.property)
                 break
             default:

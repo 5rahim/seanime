@@ -1,4 +1,5 @@
 import { Extension_InvalidExtension } from "@/api/generated/types"
+import { useReloadExternalExtension } from "@/api/hooks/extensions.hooks"
 import { ExtensionSettings } from "@/app/(main)/extensions/_containers/extension-card"
 import { ExtensionCodeModal } from "@/app/(main)/extensions/_containers/extension-code"
 import { Badge } from "@/components/ui/badge"
@@ -10,6 +11,8 @@ import Image from "next/image"
 import React from "react"
 import { BiCog, BiInfoCircle } from "react-icons/bi"
 import { FaCode } from "react-icons/fa"
+import { LuRefreshCcw } from "react-icons/lu"
+import { toast } from "sonner"
 
 type InvalidExtensionCardProps = {
     extension: Extension_InvalidExtension
@@ -24,6 +27,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
         ...rest
     } = props
 
+    const { mutate: reloadExternalExtension, isPending: isReloadingExtension } = useReloadExternalExtension()
 
     return (
         <div
@@ -47,6 +51,7 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                         icon={<BiInfoCircle />}
                     />}
                     title="Error details"
+                    contentClass="max-w-2xl"
                 >
                     <p>
                         Seanime failed to load this extension.
@@ -73,27 +78,27 @@ export function InvalidExtensionCard(props: InvalidExtensionCardProps) {
                                 icon={<BiCog />}
                             />
                         </ExtensionSettings>
+                    </>
+                )}
 
-                        <ExtensionCodeModal extension={extension.extension}>
-                            <IconButton
-                                size="sm"
-                                intent="gray-basic"
-                                icon={<FaCode />}
-                            />
-                        </ExtensionCodeModal>
-                    </>
-                )}
-                {(!!extension.extension?.id && !extension.extension?.manifestURI) && (
-                    <>
-                        <ExtensionCodeModal extension={extension.extension}>
-                            <IconButton
-                                size="sm"
-                                intent="gray-basic"
-                                icon={<FaCode />}
-                            />
-                        </ExtensionCodeModal>
-                    </>
-                )}
+                <ExtensionCodeModal extension={extension.extension}>
+                    <IconButton
+                        size="sm"
+                        intent="gray-basic"
+                        icon={<FaCode />}
+                    />
+                </ExtensionCodeModal>
+
+                <IconButton
+                    size="sm"
+                    intent="gray-basic"
+                    icon={<LuRefreshCcw />}
+                    onClick={() => {
+                        if (!extension.extension?.id) return toast.error("Extension has no ID")
+                        reloadExternalExtension({ id: extension.extension?.id ?? "" })
+                    }}
+                    disabled={isReloadingExtension}
+                />
             </div>
 
             <div className="z-[1] relative space-y-3">

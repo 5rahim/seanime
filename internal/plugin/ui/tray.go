@@ -69,13 +69,15 @@ func (t *TrayManager) renderTrayScheduled() {
 func (t *TrayManager) sendIconToClient() {
 	if tray, registered := t.tray.Get(); registered {
 		t.ctx.SendEventToClient(ServerTrayIconEvent, ServerTrayIconEventPayload{
-			IconURL:     tray.IconURL,
-			WithContent: tray.WithContent,
-			TooltipText: tray.TooltipText,
-			BadgeNumber: tray.BadgeNumber,
-			BadgeIntent: tray.BadgeIntent,
-			Width:       tray.Width,
-			MinHeight:   tray.MinHeight,
+			ExtensionID:   t.ctx.ext.ID,
+			ExtensionName: t.ctx.ext.Name,
+			IconURL:       tray.IconURL,
+			WithContent:   tray.WithContent,
+			TooltipText:   tray.TooltipText,
+			BadgeNumber:   tray.BadgeNumber,
+			BadgeIntent:   tray.BadgeIntent,
+			Width:         tray.Width,
+			MinHeight:     tray.MinHeight,
 		})
 	}
 }

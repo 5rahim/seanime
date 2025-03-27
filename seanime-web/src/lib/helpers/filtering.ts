@@ -492,7 +492,6 @@ export function sortContinueWatchingEntries(
     if (sorting === "LAST_WATCHED")
         arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(9999, 1, 1).toISOString())
     if (sorting === "LAST_WATCHED_DESC")
-        console.log(watchHistory)
     arr = sortBy(arr, n => watchHistory?.[n.baseAnime?.id!]?.timeUpdated || new Date(1000, 1, 1).toISOString())
         .reverse()
 

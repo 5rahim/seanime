@@ -177,11 +177,11 @@ var (
 )
 
 type AnimeActivity struct {
-	ID            int
-	Title         string
-	Image         string
-	IsMovie       bool
-	EpisodeNumber int
+	ID            int    `json:"id"`
+	Title         string `json:"title"`
+	Image         string `json:"image"`
+	IsMovie       bool   `json:"isMovie"`
+	EpisodeNumber int    `json:"episodeNumber"`
 }
 
 // SetAnimeActivity sets the presence to watching anime.
@@ -239,10 +239,10 @@ func (p *Presence) SetAnimeActivity(a *AnimeActivity) {
 }
 
 type MangaActivity struct {
-	ID      int
-	Title   string
-	Image   string
-	Chapter string
+	ID      int    `json:"id"`
+	Title   string `json:"title"`
+	Image   string `json:"image"`
+	Chapter string `json:"chapter"`
 }
 
 // SetMangaActivity sets the presence to watching anime.

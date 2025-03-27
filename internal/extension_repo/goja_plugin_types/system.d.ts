@@ -469,7 +469,7 @@ declare namespace $os {
  */
 declare namespace $filepath {
 
-    const skipDir: any
+    const skipDir: GoError
 
     /**
      * Returns the last element of path.
@@ -573,7 +573,7 @@ declare namespace $filepath {
      * @param walkFn The function to call for each file or directory
      * @throws Error if the root path is not authorized for reading
      */
-    function walk(root: string, walkFn: (path: string, info: $os.FileInfo, err: any | null | undefined) => any): void
+    function walk(root: string, walkFn: (path: string, info: $os.FileInfo, err: GoError) => GoError): void
 
     /**
      * Walks the file tree rooted at the specificed path, calling walkDirFn for each file or directory.
@@ -581,8 +581,10 @@ declare namespace $filepath {
      * @param walkDirFn The function to call for each file or directory
      * @throws Error if the root path is not authorized for reading
      */
-    function walkDir(root: string, walkDirFn: (path: string, d: $os.DirEntry, err: any | null | undefined) => any): void
+    function walkDir(root: string, walkDirFn: (path: string, d: $os.DirEntry, err: GoError) => GoError): void
 }
+
+type GoError = string | undefined
 
 /**
  * Extra OS utilities not in the standard library.

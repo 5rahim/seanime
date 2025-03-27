@@ -80,13 +80,14 @@ type (
 		Settings hibiketorrent.AnimeProviderSettings `json:"settings"`
 	}
 
-	TrayPluginExtensionItem struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Icon     string `json:"icon"`
-		IsPinned bool   `json:"isPinned"`
+	StoredPluginSettingsData struct {
+		PinnedTrayPluginIds []string `json:"pinnedTrayPluginIds"`
 	}
 )
+
+var DefaultStoredPluginSettingsData = StoredPluginSettingsData{
+	PinnedTrayPluginIds: []string{},
+}
 
 type NewRepositoryOptions struct {
 	Logger         *zerolog.Logger
@@ -112,17 +113,6 @@ func NewRepository(opts *NewRepositoryOptions) *Repository {
 		fileCacher:         opts.FileCacher,
 		hookManager:        opts.HookManager,
 	}
-
-	clientEventSubscriber := ret.wsEventManager.SubscribeToClientEvents("extension-repository")
-
-	go func() {
-		for event := range clientEventSubscriber.Channel {
-			switch event.Type {
-			case "tray:list":
-				ret.wsEventManager.SendEvent("tray:list", ret.ListTrayPluginExtensions())
-			}
-		}
-	}()
 
 	return ret
 }
@@ -151,7 +141,9 @@ func (r *Repository) GetAllExtensions(withUpdates bool) (ret *AllExtensions) {
 
 func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
-		ret = append(ret, extension.ToExtensionData(ext))
+		retExt := extension.ToExtensionData(ext)
+		retExt.Payload = ""
+		ret = append(ret, retExt)
 		return true
 	})
 
@@ -161,7 +153,9 @@ func (r *Repository) ListExtensionData() (ret []*extension.Extension) {
 func (r *Repository) ListDevelopmentModeExtensions() (ret []*extension.Extension) {
 	r.extensionBank.Range(func(key string, ext extension.BaseExtension) bool {
 		if ext.GetIsDevelopment() {
-			ret = append(ret, extension.ToExtensionData(ext))
+			retExt := extension.ToExtensionData(ext)
+			retExt.Payload = ""
+			ret = append(ret, retExt)
 		}
 		return true
 	})
@@ -171,7 +165,7 @@ func (r *Repository) ListDevelopmentModeExtensions() (ret []*extension.Extension
 
 func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension) {
 	r.invalidExtensions.Range(func(key string, ext *extension.InvalidExtension) bool {
-		//ext.Extension.Payload = "" // Remove the payload so the client knows the extension is installed
+		ext.Extension.Payload = ""
 		ret = append(ret, ext)
 		return true
 	})
@@ -179,27 +173,18 @@ func (r *Repository) ListInvalidExtensions() (ret []*extension.InvalidExtension)
 	return ret
 }
 
+func (r *Repository) GetExtensionPayload(id string) (ret string) {
+	ext, found := r.extensionBank.Get(id)
+	if !found {
+		return ""
+	}
+	return ext.GetPayload()
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lists
 // - Lists are used to display available options to the user based on the extensions installed
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func (r *Repository) ListTrayPluginExtensions() []*TrayPluginExtensionItem {
-	ret := make([]*TrayPluginExtensionItem, 0)
-
-	// TODO: Figure out which plugin is a tray plugin and if it's pinned
-	extension.RangeExtensions(r.extensionBank, func(key string, ext extension.PluginExtension) bool {
-		ret = append(ret, &TrayPluginExtensionItem{
-			ID:       ext.GetID(),
-			Name:     ext.GetName(),
-			Icon:     ext.GetIcon(),
-			IsPinned: true,
-		})
-		return true
-	})
-
-	return ret
-}
 
 func (r *Repository) ListMangaProviderExtensions() []*MangaProviderExtensionItem {
 	ret := make([]*MangaProviderExtensionItem, 0)
@@ -259,6 +244,33 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 	})
 
 	return ret
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const PluginSettingsKey = "1"
+const PluginSettingsBucket = "plugin-settings"
+
+func (r *Repository) GetPluginSettings() *StoredPluginSettingsData {
+	bucket := filecache.NewPermanentBucket(PluginSettingsBucket)
+
+	var settings StoredPluginSettingsData
+	found, _ := r.fileCacher.GetPerm(bucket, PluginSettingsKey, &settings)
+	if !found {
+		r.fileCacher.SetPerm(bucket, PluginSettingsKey, DefaultStoredPluginSettingsData)
+		return &DefaultStoredPluginSettingsData
+	}
+
+	return &settings
+}
+
+func (r *Repository) SetPluginSettingsPinnedTrays(pinnedTrayPluginIds []string) {
+	bucket := filecache.NewPermanentBucket(PluginSettingsBucket)
+
+	settings := r.GetPluginSettings()
+	settings.PinnedTrayPluginIds = pinnedTrayPluginIds
+
+	r.fileCacher.SetPerm(bucket, PluginSettingsKey, settings)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

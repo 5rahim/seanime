@@ -550,6 +550,8 @@ export function usePluginListenTrayUpdatedEvent(cb: (payload: Plugin_Server_Tray
 }
 
 export type Plugin_Server_TrayIconEventPayload = {
+    extensionId: string
+    extensionName: string
     iconUrl: string
     withContent: boolean
     tooltipText: string

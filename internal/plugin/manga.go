@@ -30,10 +30,48 @@ func (a *AppContextImpl) BindMangaToContextObj(vm *goja.Runtime, obj *goja.Objec
 	mangaObj := vm.NewObject()
 
 	// Get downloaded chapter containers
-	_ = mangaObj.Set("getDownloadedChapterContainers", m.getDownloadedChapterContainers)
+	_ = mangaObj.Set("getDownloadedChapters", m.getDownloadedChapterContainers)
 	_ = mangaObj.Set("getCollection", m.getCollection)
-	_ = mangaObj.Set("refreshChapterContainers", m.refreshChapterContainers)
+	_ = mangaObj.Set("refreshChapters", m.refreshChapterContainers)
+	_ = mangaObj.Set("emptyCache", m.emptyCache)
+	_ = mangaObj.Set("getChapterContainer", m.getChapterContainer)
 	_ = obj.Set("manga", mangaObj)
+}
+
+type GetChapterContainerOptions struct {
+	MediaId  int
+	Provider string
+	Titles   []*string
+	Year     int
+}
+
+func (m *Manga) getChapterContainer(opts *GetChapterContainerOptions) *goja.Promise {
+	promise, resolve, reject := m.vm.NewPromise()
+
+	mangaRepo, ok := m.ctx.mangaRepository.Get()
+	if !ok {
+		reject(errors.New("manga repository not found"))
+		return promise
+	}
+
+	go func() {
+		ret, err := mangaRepo.GetMangaChapterContainer(&manga.GetMangaChapterContainerOptions{
+			MediaId:  opts.MediaId,
+			Provider: opts.Provider,
+			Titles:   opts.Titles,
+			Year:     opts.Year,
+		})
+		m.scheduler.ScheduleAsync(func() error {
+			if err != nil {
+				reject(err.Error())
+			} else {
+				resolve(ret)
+			}
+			return nil
+		})
+	}()
+
+	return promise
 }
 
 func (m *Manga) getDownloadedChapterContainers() ([]*manga.ChapterContainer, error) {
@@ -91,6 +129,30 @@ func (m *Manga) refreshChapterContainers(selectedProviderMap map[int]string) *go
 
 	go func() {
 		err := mangaRepo.RefreshChapterContainers(mangaCollection, selectedProviderMap)
+		m.scheduler.ScheduleAsync(func() error {
+			if err != nil {
+				reject(err.Error())
+			} else {
+				resolve(nil)
+			}
+			return nil
+		})
+	}()
+
+	return promise
+}
+
+func (m *Manga) emptyCache(mediaId int) *goja.Promise {
+	promise, resolve, reject := m.vm.NewPromise()
+
+	mangaRepo, ok := m.ctx.mangaRepository.Get()
+	if !ok {
+		reject(errors.New("manga repository not found"))
+		return promise
+	}
+
+	go func() {
+		err := mangaRepo.EmptyMangaCache(mediaId)
 		m.scheduler.ScheduleAsync(func() error {
 			if err != nil {
 				reject(err.Error())

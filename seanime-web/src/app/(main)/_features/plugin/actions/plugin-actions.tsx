@@ -156,7 +156,6 @@ export function PluginMediaCardContextMenuItems(props: PluginMediaCardContextMen
 
     // Listen for the action to render the media card context menu items
     usePluginListenActionRenderMediaCardContextMenuItemsEvent((event, extensionId) => {
-        console.log("event", event)
         setItems(p => {
             const newItems = event.items
                 .filter((i: PluginMediaCardContextMenuItem) => i.for === props.for || i.for === "both")

@@ -1,4 +1,4 @@
-/// <reference path="hooks.d.ts" />
+/// <reference path="app.d.ts" />
 
 declare namespace $ui {
     /**
@@ -45,6 +45,11 @@ declare namespace $ui {
          * Manga
          */
         manga: Manga
+
+        /**
+         * Discord
+         */
+        discord: Discord
 
         /**
          * Creates a new state object with an initial value.
@@ -177,6 +182,9 @@ declare namespace $ui {
 
         /** Sets the value of the field */
         setValue(value: T): void
+
+        /** Sets the callback to be called when the value changes */
+        onValueChange(callback: (value: T) => void): void
     }
 
     interface TrayOptions {
@@ -234,8 +242,9 @@ declare namespace $ui {
         /**
          * Plays a file using the media player
          * @param filePath - The path to the file to play
+         * @returns A promise that resolves when the file has started playing
          */
-        playUsingMediaPlayer(filePath: string): void
+        playUsingMediaPlayer(filePath: string): Promise<void>
 
         /**
          * Streams a file using the media player
@@ -245,15 +254,14 @@ declare namespace $ui {
          * @param aniDbEpisode - The AniDB episode number
          * @throws Error if an error occurs
          */
-        streamUsingMediaPlayer(windowTitle: string, streamUrl: string, anime: $app.AL_BaseAnime, aniDbEpisode: string): void
+        streamUsingMediaPlayer(windowTitle: string, streamUrl: string, anime: $app.AL_BaseAnime, aniDbEpisode: string): Promise<void>
 
         /**
          * Registers an event listener for the playback instance
-         * @param id - The id of the event listener
          * @param callback - The callback to call when the event occurs
          * @returns A function to remove the event listener
          */
-        registerEventListener(id: string, callback: (event: PlaybackEvent) => void): () => void
+        registerEventListener(callback: (event: PlaybackEvent) => void): () => void
 
         /**
          * Cancels the tracking of the current media being played.
@@ -285,13 +293,13 @@ declare namespace $ui {
          * Gets the next episode to play for the current media being played
          * @returns The next episode to play
          */
-        getNextEpisode(): $app.Anime_LocalFile | undefined
+        getNextEpisode(): Promise<$app.Anime_LocalFile | undefined>
 
         /**
          * Plays the next episode for the current media being played
          * @throws Error if an error occurs, or if the playback is not running
          */
-        playNextEpisode(): void
+        playNextEpisode(): Promise<void>
 
     }
 
@@ -364,13 +372,15 @@ declare namespace $ui {
         /**
          * Opens and plays a file
          * @throws Error if an error occurs
+         * @returns A promise that resolves when the file has started playing
          */
-        openAndPlay(filePath: string): void
+        openAndPlay(filePath: string): Promise<void>
 
         /**
          * Stops the playback
+         * @returns A promise that resolves when the playback has stopped
          */
-        stop(): void
+        stop(): Promise<void>
 
         /**
          * Returns the connection object
@@ -475,7 +485,10 @@ declare namespace $ui {
             style?: Record<string, string>
         }): ActionObject<{
             media: F extends "anime" ? $app.AL_BaseAnime : F extends "manga" ? $app.AL_BaseManga : $app.AL_BaseAnime | $app.AL_BaseManga
-        }>
+        }> & {
+            /** Sets the 'for' property of the action */
+            setFor(forMedia: "anime" | "manga" | "both"): void
+        }
 
         /**
          * Creates a new button for the manga page
@@ -499,6 +512,9 @@ declare namespace $ui {
 
         /** Sets the click handler for the action */
         onClick(handler: (event: E) => void): void
+
+        /** Sets the intent of the action */
+        setIntent(intent: Intent): void
     }
 
     interface CommandPaletteOptions {
@@ -564,7 +580,7 @@ declare namespace $ui {
 
     interface Screen {
         /** Navigates to a specific path */
-        navigateTo(path: string): void
+        navigateTo(path: string, searchParams?: Record<string, string>): void
 
         /** Reloads the current screen */
         reload(): void
@@ -573,7 +589,7 @@ declare namespace $ui {
         loadCurrent(): void
 
         /** Called when navigation occurs */
-        onNavigate(cb: (event: { pathname: string, query: string }) => void): void
+        onNavigate(cb: (event: { pathname: string, searchParams: Record<string, string> }) => void): void
     }
 
     interface Toast {
@@ -598,6 +614,9 @@ declare namespace $ui {
         fieldRef?: FieldRef<V>,
         value?: V,
         onChange?: string,
+        disabled?: boolean,
+        size?: "sm" | "md" | "lg",
+
     } & ComponentProps
 
     type DivComponentFunction = {
@@ -605,41 +624,69 @@ declare namespace $ui {
         (items: any[], props?: ComponentProps): void
     }
     type FlexComponentFunction = {
-        (props: { items: any[] } & ComponentProps): void
-        (items: any[], props?: ComponentProps): void
+        (props: { items: any[], gap?: number, direction?: "row" | "column" } & ComponentProps): void
+        (items: any[], props?: { gap?: number, direction?: "row" | "column" } & ComponentProps): void
     }
     type StackComponentFunction = {
-        (props: { items: any[] } & ComponentProps): void
-        (items: any[], props?: ComponentProps): void
+        (props: { items: any[], gap?: number } & ComponentProps): void
+        (items: any[], props?: { gap?: number } & ComponentProps): void
     }
     type TextComponentFunction = {
         (props: { text: string } & ComponentProps): void
         (text: string, props?: ComponentProps): void
     }
 
+    /**
+     * @default size="sm"
+     */
     type ButtonComponentFunction = {
-        (props: { label?: string, onClick?: string } & ComponentProps): void
-        (label: string, props?: { onClick?: string } & ComponentProps): void
+        (props: {
+            label?: string,
+            onClick?: string,
+            intent?: Intent,
+            disabled?: boolean,
+            loading?: boolean,
+            size?: "xs" | "sm" | "md" | "lg"
+        } & ComponentProps): void
+        (label: string,
+            props?: { onClick?: string, intent?: Intent, disabled?: boolean, loading?: boolean, size?: "xs" | "sm" | "md" | "lg" } & ComponentProps,
+        ): void
     }
+    /**
+     * @default size="md"
+     */
     type InputComponentFunction = {
         (props: { label?: string, placeholder?: string } & FieldComponentProps): void
         (label: string, placeholder: string, props?: FieldComponentProps): void
     }
+    /**
+     * @default size="md"
+     */
     type SelectComponentFunction = {
         (props: { label?: string, placeholder?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
         (label: string, options: { placeholder?: string, value?: string }[], props?: FieldComponentProps): void
     }
+    /**
+     * @default size="md"
+     */
     type CheckboxComponentFunction = {
         (props: { label?: string } & FieldComponentProps<boolean>): void
         (label: string, props?: FieldComponentProps<boolean>): void
     }
+    /**
+     * @default size="md"
+     */
     type RadioGroupComponentFunction = {
         (props: { label?: string, options: { label: string, value: string }[] } & FieldComponentProps): void
         (label: string, options: { label: string, value: string }[], props?: FieldComponentProps): void
     }
+    /**
+     * @default side="right"
+     * @default size="sm"
+     */
     type SwitchComponentFunction = {
-        (props: { label?: string } & FieldComponentProps<boolean>): void
-        (label: string, props?: FieldComponentProps<boolean>): void
+        (props: { label?: string, side?: "left" | "right" } & FieldComponentProps<boolean>): void
+        (label: string, props?: { side?: "left" | "right" } & FieldComponentProps<boolean>): void
     }
 
     // DOM Element interface
@@ -914,10 +961,24 @@ declare namespace $ui {
 
     interface Manga {
         /**
-         * Get the downloaded chapter containers
-         * @returns A promise that resolves to an array of chapter containers
+         * Get a chapter container for a manga.
+         * This caches the chapter container if it exists.
+         * @param opts - The options for the chapter container
+         * @returns A promise that resolves to a chapter container
+         * @throws Error if the chapter container is not found or if the manga repository is not found
          */
-        getDownloadedChapterContainers(): Promise<$app.Manga_ChapterContainer[]>
+        getChapterContainer(opts: {
+            mediaId: number;
+            provider: string;
+            titles?: string[];
+            year?: number;
+        }): Promise<$app.Manga_ChapterContainer | null>
+
+        /**
+         * Get the downloaded chapters
+         * @returns A promise that resolves to an array of chapters grouped by provider and manga ID
+         */
+        getDownloadedChapters(): Promise<$app.Manga_ChapterContainer[]>
 
         /**
          * Get the manga collection
@@ -926,13 +987,37 @@ declare namespace $ui {
         getCollection(): Promise<$app.Manga_Collection>
 
         /**
-         * Deletes all cached chapter containers and refetches them based on the selected provider map.
+         * Deletes all cached chapters and refetches them based on the selected provider for that manga.
          *
-         * @param selectedProviderMap - A map of manga IDs to provider IDs. Previously cached chapter containers for providers not in the map will be
+         * @param selectedProviderMap - A map of manga IDs to provider IDs. Previously cached chapters for providers not in the map will be
          *     deleted.
          * @returns A promise that resolves to void
          */
-        refreshChapterContainers(selectedProviderMap: Record<number, string>): Promise<void>
+        refreshChapters(selectedProviderMap: Record<number, string>): Promise<void>
+
+        /**
+         * Empties cached chapters for a manga
+         * @param mediaId - The ID of the manga
+         * @returns A promise that resolves to void
+         */
+        emptyCache(mediaId: number): Promise<void>
+    }
+
+    interface Discord {
+        /**
+         * Set the manga activity
+         */
+        setMangaActivity(opts: $app.DiscordRPC_MangaActivity): void
+
+        /**
+         * Set the anime activity
+         */
+        setAnimeActivity(opts: $app.DiscordRPC_AnimeActivity): void
+
+        /**
+         * Cancels the current activity
+         */
+        cancelActivity(): void
     }
 
     type Intent =

@@ -37,8 +37,6 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		}
 	}
 
-	ext.Payload = source
-
 	// Compile the program once, to be reused by all VMs
 	program, err := goja.Compile("", source, false)
 	if err != nil {
@@ -64,7 +62,7 @@ func initializeProviderBase(ext *extension.Extension, language extension.Languag
 		logger:         logger,
 		pool:           pool,
 		program:        program,
-		source:         ext.Payload,
+		source:         source,
 		runtimeManager: runtimeManager,
 	}, nil
 }

@@ -1,5 +1,5 @@
 /// <reference path="../goja_plugin_types/plugin.d.ts" />
-/// <reference path="../goja_plugin_types/hooks.d.ts" />
+/// <reference path="../goja_plugin_types/app.d.ts" />
 /// <reference path="../goja_plugin_types/system.d.ts" />
 
 //@ts-ignore

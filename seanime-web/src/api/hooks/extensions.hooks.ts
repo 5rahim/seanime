@@ -6,6 +6,7 @@ import {
     ReloadExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
     SaveExtensionUserConfig_Variables,
+    SetPluginSettingsPinnedTrays_Variables,
     UninstallExternalExtension_Variables,
     UpdateExtensionCode_Variables,
 } from "@/api/generated/endpoint.types"
@@ -18,9 +19,11 @@ import {
     ExtensionRepo_ExtensionUserConfig,
     ExtensionRepo_MangaProviderExtensionItem,
     ExtensionRepo_OnlinestreamProviderExtensionItem,
+    ExtensionRepo_StoredPluginSettingsData,
     Nullish,
     RunPlaygroundCodeResponse,
 } from "@/api/generated/types"
+import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 export function useGetAllExtensions(withUpdates: boolean) {
@@ -67,6 +70,15 @@ export function useUninstallExternalExtension() {
             // DEVNOTE: No need to refetch, the websocket listener will do it
             toast.success("Extension uninstalled successfully.")
         },
+    })
+}
+
+export function useGetExtensionPayload(id: string) {
+    return useServerQuery<string>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.endpoint.replace("{id}", id),
+        method: API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetExtensionPayload.key, id],
+        enabled: true,
     })
 }
 
@@ -172,13 +184,37 @@ export function useListDevelopmentModeExtensions() {
 }
 
 export function useReloadExternalExtension() {
+    const queryClient = useQueryClient()
     return useServerMutation<boolean, ReloadExternalExtension_Variables>({
         endpoint: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.endpoint,
         method: API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.ReloadExternalExtension.key],
         onSuccess: async () => {
             toast.success("Extension reloaded successfully.")
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.ListDevelopmentModeExtensions.key] })
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
             // DEVNOTE: No need to refetch, the websocket listener will do it
+        },
+    })
+}
+
+export function useGetPluginSettings() {
+    return useServerQuery<ExtensionRepo_StoredPluginSettingsData>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.GetPluginSettings.methods[0],
+        queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key],
+        enabled: true,
+    })
+}
+
+export function useSetPluginSettingsPinnedTrays() {
+    const queryClient = useQueryClient()
+    return useServerMutation<boolean, SetPluginSettingsPinnedTrays_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.key],
+        onSuccess: async () => {
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
         },
     })
 }

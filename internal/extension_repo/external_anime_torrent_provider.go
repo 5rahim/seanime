@@ -14,10 +14,8 @@ func (r *Repository) loadExternalAnimeTorrentProviderExtension(ext *extension.Ex
 	defer util.HandlePanicInModuleWithError("extension_repo/loadExternalAnimeTorrentProviderExtension", &err)
 
 	switch ext.Language {
-	case extension.LanguageJavascript:
-		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, extension.LanguageJavascript)
-	case extension.LanguageTypescript:
-		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, extension.LanguageTypescript)
+	case extension.LanguageJavascript, extension.LanguageTypescript:
+		err = r.loadExternalAnimeTorrentProviderExtensionJS(ext, ext.Language)
 	default:
 		err = fmt.Errorf("unsupported language: %v", ext.Language)
 	}
