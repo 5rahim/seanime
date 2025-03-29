@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/util"
@@ -60,7 +61,7 @@ func (at *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
 // GetLatest returns all the latest torrents currently visible on the site
 func (at *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	at.logger.Debug().Msg("animetosho: Fetching latest torrents")
-	query := "?qx=1&q="
+	query := "?q="
 	torrents, err := fetchTorrents(query)
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (at *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 
 func (at *Provider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	at.logger.Debug().Str("query", opts.Query).Msg("animetosho: Searching for torrents")
-	query := fmt.Sprintf("?qx=1&q=%s", url.QueryEscape(sanitizeTitle(opts.Query)))
+	query := fmt.Sprintf("?q=%s", url.QueryEscape(sanitizeTitle(opts.Query)))
 	atTorrents, err := fetchTorrents(query)
 	if err != nil {
 		return nil, err
@@ -213,7 +214,7 @@ func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1&order=size-d", url.QueryEscape(query)))
+			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&order=size-d", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -432,6 +433,8 @@ func (at *Provider) searchByEID(eid int, quality string) (torrents []*Torrent, e
 func fetchTorrents(suffix string) (torrents []*Torrent, err error) {
 	furl := JsonFeedUrl + suffix
 
+	fmt.Println(furl)
+
 	resp, err := http.Get(furl)
 	if err != nil {
 		return nil, err
@@ -477,7 +480,18 @@ func formatCommonQuery(quality string) string {
 
 // sanitizeTitle removes characters that impact the search query
 func sanitizeTitle(t string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(t, "!", ""), ":", ""), "[", ""), "]", "")
+	// Replace hyphens with spaces
+	t = strings.ReplaceAll(t, "-", " ")
+	// Remove everything except alphanumeric characters, spaces.
+	re := regexp.MustCompile(`[^a-zA-Z0-9\s]`)
+	t = re.ReplaceAllString(t, "")
+
+	// Trim large spaces
+	re2 := regexp.MustCompile(`\s+`)
+	t = re2.ReplaceAllString(t, " ")
+
+	// return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(t, "!", ""), ":", ""), "[", ""), "]", "")
+	return t
 }
 
 func getAllTitles(media *hibiketorrent.Media) []string {

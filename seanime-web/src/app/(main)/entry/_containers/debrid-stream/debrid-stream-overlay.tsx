@@ -1,5 +1,6 @@
 import { DebridClient_StreamState } from "@/api/generated/types"
 import { useDebridCancelStream } from "@/api/hooks/debrid.hooks"
+import { PlaybackManager_PlaybackState } from "@/app/(main)/_features/progress-tracking/_lib/playback-manager.types"
 import { useWebsocketMessageListener } from "@/app/(main)/_hooks/handle-websockets"
 import { ConfirmationDialog, useConfirmationDialog } from "@/components/shared/confirmation-dialog"
 import { AppLayoutStack } from "@/components/ui/app-layout"
@@ -30,24 +31,38 @@ export function DebridStreamOverlay() {
 
     const [minimized, setMinimized] = React.useState(true)
 
+    const [showMediaPlayerLoading, setShowMediaPlayerLoading] = React.useState(false)
+
     useWebsocketMessageListener<DebridClient_StreamState>({
         type: WSEvents.DEBRID_STREAM_STATE,
         onMessage: data => {
             if (data) {
                 if (data.status === "downloading" || data.status === "started") {
                     setState(data)
+                    setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "failed") {
                     setState(null)
                     toast.error(data.message)
+                    setShowMediaPlayerLoading(false)
                     return
                 }
                 if (data.status === "ready") {
                     setState(null)
-                    toast.info("Sending stream to player...", { duration: 5000 })
+                    toast.info("Sending stream to player...", { duration: 1 })
+                    setShowMediaPlayerLoading(true)
                     return
                 }
+            }
+        },
+    })
+
+    useWebsocketMessageListener<PlaybackManager_PlaybackState | null>({
+        type: WSEvents.PLAYBACK_MANAGER_PROGRESS_TRACKING_STARTED,
+        onMessage: data => {
+            if (data) {
+                setShowMediaPlayerLoading(false)
             }
         },
     })
@@ -84,11 +99,18 @@ export function DebridStreamOverlay() {
         },
     })
 
-    if (!state) return null
+    if (!state) return (
+        <>
+            {(showMediaPlayerLoading) && <div className="w-full bg-gray-950 fixed top-0 left-0 z-[100]">
+                <ProgressBar size="xs" isIndeterminate />
+            </div>}
+        </>
+    )
 
     return (
         <>
-            {minimized && (
+
+        {minimized && (
                 <div className="fixed z-[100] bottom-8 w-full h-fit flex justify-center">
                     <div
                         className="shadow-2xl p-4 bg-gray-900 border text-white rounded-3xl cursor-pointer hover:border-gray-600"

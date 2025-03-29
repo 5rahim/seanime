@@ -60,8 +60,7 @@ const (
 	SyncAnilistFinished = "sync-anilist-finished"
 
 	DebridDownloadProgress = "debrid-download-progress"
-
-	DebridStreamState = "debrid-stream-state"
+	DebridStreamState      = "debrid-stream-state"
 
 	InvalidateQueries = "invalidate-queries"
 	ConsoleLog        = "console-log"

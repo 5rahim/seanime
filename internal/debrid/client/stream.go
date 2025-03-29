@@ -7,13 +7,12 @@ import (
 	"seanime/internal/database/db_bridge"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/events"
+	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/hook"
 	"seanime/internal/library/playbackmanager"
 	"seanime/internal/util"
 	"strconv"
 	"time"
-
-	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )
 
 type (
@@ -250,47 +249,49 @@ func (s *StreamManager) startStream(opts *StartStreamOptions) (err error) {
 			return
 		}
 
-		s.repository.logger.Debug().Msg("debridstream: Stream URL received, checking stream file")
-		s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-			Status:      StreamStatusDownloading,
-			TorrentName: selectedTorrent.Name,
-			Message:     "Checking stream file...",
-		})
+		// Do not check the stream file
 
-		retries := 0
+		// s.repository.logger.Debug().Msg("debridstream: Stream URL received, checking stream file")
+		// s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+		// 	Status:      StreamStatusDownloading,
+		// 	TorrentName: selectedTorrent.Name,
+		// 	Message:     "Checking stream file...",
+		// })
 
-	streamUrlCheckLoop:
-		for { // Retry loop for a total of 4 times (32 seconds)
-			select {
-			case <-ctx.Done():
-				s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
-				return
-			default:
-				// Check if we can stream the URL
-				if canStream, reason := CanStream(streamUrl); !canStream {
-					if retries >= 4 {
-						s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
+		// 	retries := 0
 
-						s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-							Status:      StreamStatusFailed,
-							TorrentName: selectedTorrent.Name,
-							Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
-						})
-						return
-					}
-					s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
-					s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
-						Status:      StreamStatusDownloading,
-						TorrentName: selectedTorrent.Name,
-						Message:     "Checking stream file...",
-					})
-					retries++
-					time.Sleep(8 * time.Second)
-					continue
-				}
-				break streamUrlCheckLoop
-			}
-		}
+		// streamUrlCheckLoop:
+		// 	for { // Retry loop for a total of 4 times (32 seconds)
+		// 		select {
+		// 		case <-ctx.Done():
+		// 			s.repository.logger.Debug().Msg("debridstream: Context cancelled, stopping stream")
+		// 			return
+		// 		default:
+		// 			// Check if we can stream the URL
+		// 			if canStream, reason := CanStream(streamUrl); !canStream {
+		// 				if retries >= 4 {
+		// 					s.repository.logger.Error().Msg("debridstream: Cannot stream the file")
+
+		// 					s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+		// 						Status:      StreamStatusFailed,
+		// 						TorrentName: selectedTorrent.Name,
+		// 						Message:     fmt.Sprintf("Cannot stream this file: %s", reason),
+		// 					})
+		// 					return
+		// 				}
+		// 				s.repository.logger.Warn().Msg("debridstream: Rechecking stream file in 8 seconds")
+		// 				s.repository.wsEventManager.SendEvent(events.DebridStreamState, StreamState{
+		// 					Status:      StreamStatusDownloading,
+		// 					TorrentName: selectedTorrent.Name,
+		// 					Message:     "Checking stream file...",
+		// 				})
+		// 				retries++
+		// 				time.Sleep(8 * time.Second)
+		// 				continue
+		// 			}
+		// 			break streamUrlCheckLoop
+		// 		}
+		// 	}
 
 		s.repository.logger.Debug().Msg("debridstream: Stream is ready")
 
