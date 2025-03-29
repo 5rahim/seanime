@@ -41,7 +41,8 @@ type (
 	}
 )
 
-// NewEntryDownloadInfo creates a new EntryDownloadInfo
+// NewEntryDownloadInfo returns a list of episodes to download or episodes for the torrent/debrid streaming views
+// based on the options provided.
 func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo, error) {
 
 	if *opts.Media.Status == anilist.MediaStatusNotYetReleased {
@@ -171,6 +172,8 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 			str := new(EntryDownloadEpisode)
 			str.EpisodeNumber = ep.episodeNumber
 			str.AniDBEpisode = ep.aniDBEpisode
+			// Create a new episode with a placeholder local file
+			// We pass that placeholder local file so that all episodes are hydrated as main episodes for consistency
 			str.Episode = NewEpisode(&NewEpisodeOptions{
 				LocalFile: &LocalFile{
 					ParsedData:       &LocalFileParsedData{},
@@ -188,6 +191,9 @@ func NewEntryDownloadInfo(opts *NewEntryDownloadInfoOptions) (*EntryDownloadInfo
 				IsDownloaded:         false,
 				MetadataProvider:     opts.MetadataProvider,
 			})
+			str.Episode.AniDBEpisode = ep.aniDBEpisode
+			// Reset the local file to nil, since it's a placeholder
+			str.Episode.LocalFile = nil
 			return str
 		})
 	}

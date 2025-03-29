@@ -327,7 +327,7 @@ func (m *Repository) Stream(streamUrl string, episode int, mediaId int, windowTi
 		}
 
 	case "mpv":
-		args := []string{"--force-window"}
+		args := []string{}
 		if windowTitle != "" {
 			args = append(args, fmt.Sprintf("--title=%q", windowTitle))
 		}
@@ -401,11 +401,11 @@ func (m *Repository) StartTrackingTorrentStream() {
 	var retries int
 
 	hookEvent := &MediaPlayerStreamTrackingRequestedEvent{
-		RefreshDelay:         3,
+		RefreshDelay:         1,
 		MaxRetries:           5,
 		MaxRetriesAfterStart: 5,
 	}
-	hook.GlobalHookManager.OnMediaPlayerStreamTrackingRequested().Trigger(hookEvent)
+	_ = hook.GlobalHookManager.OnMediaPlayerStreamTrackingRequested().Trigger(hookEvent)
 	maxTries := hookEvent.MaxRetries
 	refreshDelay := hookEvent.RefreshDelay
 	maxRetriesAfterStart := hookEvent.MaxRetriesAfterStart
@@ -542,10 +542,10 @@ func (m *Repository) StartTracking() {
 	var retries int
 
 	hookEvent := &MediaPlayerLocalFileTrackingRequestedEvent{
-		RefreshDelay: 3,
+		RefreshDelay: 1,
 		MaxRetries:   5,
 	}
-	hook.GlobalHookManager.OnMediaPlayerLocalFileTrackingRequested().Trigger(hookEvent)
+	_ = hook.GlobalHookManager.OnMediaPlayerLocalFileTrackingRequested().Trigger(hookEvent)
 	maxTries := hookEvent.MaxRetries
 	refreshDelay := hookEvent.RefreshDelay
 

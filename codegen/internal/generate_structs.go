@@ -484,7 +484,7 @@ func fieldTypeString(fieldType ast.Expr) string {
 	case *ast.SelectorExpr:
 		return fieldTypeString(t.X) + "." + t.Sel.Name
 	case *ast.StructType:
-		return "__STRUCT__" // FIXME
+		return "__STRUCT__"
 	default:
 		return ""
 	}

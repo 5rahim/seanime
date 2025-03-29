@@ -35,7 +35,7 @@ const __pt_showAutoPlayCountdownModalAtom = atom(false)
 const __pt_isTrackingAtom = atom(false)
 const __pt_isCompletedAtom = atom(false)
 
-const AUTOPLAY_COUNTDOWN = 6
+const AUTOPLAY_COUNTDOWN = 5
 
 type Props = {
     asSidebarButton?: boolean
@@ -110,6 +110,7 @@ export function PlaybackManagerProgressTracking() {
 
 
     const [willAutoPlay, setWillAutoPlay] = React.useState(false)
+    const willAutoPlayRef = React.useRef(false)
     const [autoPlayInXSeconds, setAutoPlayInXSeconds] = React.useState(AUTOPLAY_COUNTDOWN)
     const {
         data: nextEpisodeForAutoplay,
@@ -183,66 +184,78 @@ export function PlaybackManagerProgressTracking() {
             qc.invalidateQueries({ queryKey: [API_ENDPOINTS.CONTINUITY.GetContinuityWatchHistory.key] }).then()
 
             if (!playlistState && state?.completionPercentage && state?.completionPercentage > 0.7) {
-                if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlay) {
+                if (serverStatus?.settings?.library?.autoPlayNextEpisode && !willAutoPlayRef.current) {
                     if (!isFetchingNextEpisode) {
                         resetGetNextEp()
                         React.startTransition(() => {
                             setWillAutoPlay(true)
+                            willAutoPlayRef.current = true
                             getNextEpisode()
                             setAutoPlayInXSeconds(AUTOPLAY_COUNTDOWN)
                         })
                     }
                 }
             }
+            setState(null)
         },
     })
 
-    const timerRef = React.useRef<NodeJS.Timeout | null>(null)
-    const countdownRef = React.useRef<NodeJS.Timeout | null>(null)
+    const autoplayRef = React.useRef({
+        isActive: false,
+        timerRef: null as NodeJS.Timeout | null,
+        countdownRef: null as NodeJS.Timeout | null,
+    })
 
     function clearTimers() {
         try {
-            if (countdownRef.current) {
-                clearInterval(countdownRef.current)
+            if (autoplayRef.current.countdownRef) {
+                clearInterval(autoplayRef.current.countdownRef)
             }
-            if (timerRef.current) {
-                clearTimeout(timerRef.current)
+            if (autoplayRef.current.timerRef) {
+                clearTimeout(autoplayRef.current.timerRef)
             }
         }
         catch (e) {
         }
     }
 
-    // LOCAL MEDIA Autoplay
+    /**
+     * Auto play
+     */
     React.useEffect(() => {
         // If the next episode is available and autoplay is enabled
-        if (willAutoPlay && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode || hasNextDebridstreamEpisode)) {
+        if (willAutoPlayRef.current && !isFetchingNextEpisode && (nextEpisodeForAutoplay || hasNextTorrentstreamEpisode || hasNextDebridstreamEpisode)) {
+
+            clearTimers()
 
             // Start the countdown
             setShowAutoPlayCountdownModal(true)
-            countdownRef.current = setInterval(() => {
+            autoplayRef.current.countdownRef = setInterval(() => {
                 setAutoPlayInXSeconds(prev => prev - 1)
             }, 1000)
 
-            timerRef.current = setTimeout(() => {
-                setShowAutoPlayCountdownModal(false)
+            autoplayRef.current.timerRef = setTimeout(() => {
+                if (willAutoPlayRef.current) {
+                    setShowAutoPlayCountdownModal(false)
 
-                if (!!nextEpisodeForAutoplay) {
-                    autoPlayNextEpisode()
-                } else if (hasNextTorrentstreamEpisode) {
-                    autoplayNextTorrentstreamEpisode()
-                } else if (hasNextDebridstreamEpisode) {
-                    autoplayNextDebridstreamEpisode()
+                    if (!!nextEpisodeForAutoplay) {
+                        autoPlayNextEpisode()
+                    } else if (hasNextTorrentstreamEpisode) {
+                        autoplayNextTorrentstreamEpisode()
+                    } else if (hasNextDebridstreamEpisode) {
+                        autoplayNextDebridstreamEpisode()
+                    }
+
+                    setWillAutoPlay(false)
+                    willAutoPlayRef.current = false
+
                 }
-
-                setWillAutoPlay(false)
-
                 clearTimers()
             }, AUTOPLAY_COUNTDOWN * 1000)
 
-            return () => {
-                clearTimers()
-            }
+        }
+        return () => {
+            clearTimers()
         }
     }, [nextEpisodeForAutoplay, hasNextTorrentstreamEpisode, hasNextDebridstreamEpisode, willAutoPlay, isFetchingNextEpisode])
 
@@ -304,6 +317,7 @@ export function PlaybackManagerProgressTracking() {
         mousetrap.bind("space", () => {
             if (!isPending && state?.completionPercentage && state?.completionPercentage > 0.7) {
                 setWillAutoPlay(false)
+                willAutoPlayRef.current = false
                 if (state?.canPlayNext && !playlistState) {
                     nextEpisode()
                 }
@@ -345,6 +359,7 @@ export function PlaybackManagerProgressTracking() {
     function cancelAutoPlay() {
         setShowAutoPlayCountdownModal(false)
         setWillAutoPlay(false)
+        willAutoPlayRef.current = false
         resetTorrentstreamAutoplayInfo()
         resetDebridstreamAutoplayInfo()
         clearTimers()
@@ -456,7 +471,7 @@ export function PlaybackManagerProgressTracking() {
                                         data-progress-tracking-playlist-remaining
                                         className="text-[--muted]"
                                     >{playlistState.remaining} episode{playlistState.remaining > 1 ? "s" : ""} after this
-                                                                                            one</p>}
+                                                               one</p>}
                                 <p
                                     data-progress-tracking-playlist-next
                                     className="text-center truncate line-clamp-1"

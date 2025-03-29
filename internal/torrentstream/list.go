@@ -23,6 +23,7 @@ type (
 func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err error) {
 
 	// Get the media info, this is cached
+	// Note: animeMetadata is always defined, even if it's not found on AniDB
 	completeAnime, animeMetadata, err := r.getMediaInfo(mId)
 	if err != nil {
 		return nil, err
@@ -50,6 +51,8 @@ func (r *Repository) NewEpisodeCollection(mId int) (ec *EpisodeCollection, err e
 		return nil, err
 	}
 
+	// As of v2.8.0, this should never happen, getMediaInfo always returns an anime metadata struct, even if it's not found
+	// causing NewEntryDownloadInfo to return a valid list of episodes to download
 	if info == nil || info.EpisodesToDownload == nil {
 		r.logger.Debug().Msg("torrentstream: no episodes found from AniDB, using AniList")
 		baseAnime := completeAnime.ToBaseAnime()

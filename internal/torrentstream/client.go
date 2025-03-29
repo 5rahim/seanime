@@ -96,6 +96,9 @@ func (c *Client) initializeClient() error {
 	cfg.DisableIPv6 = settings.DisableIPV6
 	cfg.Logger = alog.Logger{}
 
+	// TEST ONLY: Limit download speed to 1mb/s
+	// cfg.DownloadRateLimiter = rate.NewLimiter(rate.Limit(1<<20), 1<<20)
+
 	if settings.SlowSeeding {
 		cfg.DialRateLimiter = rate.NewLimiter(rate.Limit(1), 1)
 		cfg.UploadRateLimiter = rate.NewLimiter(rate.Limit(1<<20), 2<<20)
@@ -488,6 +491,34 @@ func (c *Client) getTorrentPercentage(t mo.Option[*torrent.Torrent], f mo.Option
 	return float64(f.MustGet().BytesCompleted()) / float64(f.MustGet().Length()) * 100
 }
 
+// readyToStream determines if enough of the file has been downloaded to begin streaming
+// Uses both absolute size (minimum buffer) and a percentage-based approach
 func (c *Client) readyToStream() bool {
-	return c.getTorrentPercentage(c.currentTorrent, c.currentFile) > 5.
+	if c.currentTorrent.IsAbsent() || c.currentFile.IsAbsent() {
+		return false
+	}
+
+	file := c.currentFile.MustGet()
+
+	// Always need at least 1MB to start playback (typical header size for many formats)
+	const minimumBufferBytes int64 = 1 * 1024 * 1024 // 1MB
+
+	// For large files, use a smaller percentage
+	var percentThreshold float64
+	fileSize := file.Length()
+
+	switch {
+	case fileSize > 5*1024*1024*1024: // > 5GB
+		percentThreshold = 0.1 // 0.1% for very large files
+	case fileSize > 1024*1024*1024: // > 1GB
+		percentThreshold = 0.5 // 0.5% for large files
+	default:
+		percentThreshold = 0.5 // 0.5% for smaller files
+	}
+
+	bytesCompleted := file.BytesCompleted()
+	percentCompleted := float64(bytesCompleted) / float64(fileSize) * 100
+
+	// Ready when both minimum buffer is met AND percentage threshold is reached
+	return bytesCompleted >= minimumBufferBytes && percentCompleted >= percentThreshold
 }

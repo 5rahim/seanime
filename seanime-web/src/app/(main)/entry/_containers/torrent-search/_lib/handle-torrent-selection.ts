@@ -25,6 +25,7 @@ export function useHandleTorrentSelection({ type = "download", entry }: { type: 
     const { setTorrentstreamAutoplaySelectedTorrent } = useTorrentStreamAutoplay()
 
     const onTorrentValidated = () => {
+        console.log("onTorrentValidated", torrentStreamingSelectedEpisode)
         if (type === "select") {
             if (selectedTorrents.length && !!torrentStreamingSelectedEpisode?.aniDBEpisode) {
                 setTorrentstreamAutoplaySelectedTorrent(selectedTorrents[0])

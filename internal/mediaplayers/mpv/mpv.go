@@ -2,6 +2,7 @@ package mpv
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"errors"
 	"os/exec"
@@ -132,6 +133,10 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 	go func() {
 		scanner := bufio.NewScanner(stdoutPipe)
 		for scanner.Scan() {
+			// Skip AV messages
+			if bytes.Contains(scanner.Bytes(), []byte("AV:")) {
+				// continue
+			}
 			line := strings.TrimSpace(scanner.Text())
 			if line != "" {
 				if !receivedLog {
@@ -536,6 +541,7 @@ func (m *Mpv) createCmd(filePath string, args ...string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
 
 	if filePath != "" {
+		// escapedFilePath := url.PathEscape(filePath)
 		args = append(args, filePath)
 	}
 
