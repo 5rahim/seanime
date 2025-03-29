@@ -40,7 +40,7 @@ func manifestSanityCheck(ext *extension.Extension) error {
 	}
 
 	if ext.Payload == "" && ext.PayloadURI == "" {
-		return fmt.Errorf("extension is missing payload or payload URI")
+		return fmt.Errorf("extension is missing payload and payload URI")
 	}
 
 	// Check the ID
@@ -75,6 +75,12 @@ func manifestSanityCheck(ext *extension.Extension) error {
 		ext.Type != extension.TypeAnimeTorrentProvider &&
 		ext.Type != extension.TypePlugin {
 		return fmt.Errorf("unsupported extension type: %v", ext.Type)
+	}
+
+	if ext.Type == extension.TypePlugin {
+		if err := pluginManifestSanityCheck(ext); err != nil {
+			return err
+		}
 	}
 
 	return nil

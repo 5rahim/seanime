@@ -2,7 +2,7 @@ import { Extension_Extension } from "@/api/generated/types"
 import { useGetAllExtensions } from "@/api/hooks/extensions.hooks"
 import { AddExtensionModal } from "@/app/(main)/extensions/_containers/add-extension-modal"
 import { ExtensionCard } from "@/app/(main)/extensions/_containers/extension-card"
-import { InvalidExtensionCard } from "@/app/(main)/extensions/_containers/invalid-extension-card"
+import { InvalidExtensionCard, UnauthorizedExtensionPluginCard } from "@/app/(main)/extensions/_containers/invalid-extension-card"
 import { LuffyError } from "@/components/shared/luffy-error"
 import { AppLayoutStack } from "@/components/ui/app-layout"
 import { Button, IconButton } from "@/components/ui/button"
@@ -50,6 +50,11 @@ export function ExtensionList(props: ExtensionListProps) {
     }
 
     const pluginExtensions = orderExtensions(allExtensions?.extensions ?? []).filter(n => n.type === "plugin")
+
+    const nonvalidExtensions = (allExtensions?.invalidExtensions ?? []).filter(n => n.code !== "plugin_permissions_not_granted")
+        .sort((a, b) => a.id.localeCompare(b.id))
+    const pluginPermissionsNotGrantedExtensions = (allExtensions?.invalidExtensions ?? []).filter(n => n.code === "plugin_permissions_not_granted")
+        .sort((a, b) => a.id.localeCompare(b.id))
 
     if (isLoading) return <LoadingSpinner />
 
@@ -105,13 +110,32 @@ export function ExtensionList(props: ExtensionListProps) {
                 </div>
             </div>
 
-            {!!allExtensions.invalidExtensions?.length && (
+            {!!pluginPermissionsNotGrantedExtensions?.length && (
+                <>
+
+                    <h3 className="flex gap-3 items-center">Unauthorized</h3>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {pluginPermissionsNotGrantedExtensions.map(extension => (
+                            <UnauthorizedExtensionPluginCard
+                                key={extension.id}
+                                extension={extension}
+                                isInstalled={isExtensionInstalled(extension.id)}
+                            />
+                        ))}
+                    </div>
+
+                    <Separator />
+                </>
+            )}
+
+            {!!nonvalidExtensions?.length && (
                 <>
 
                     <h3 className="flex gap-3 items-center">Invalid extensions</h3>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                        {allExtensions.invalidExtensions.map(extension => (
+                        {nonvalidExtensions.map(extension => (
                             <InvalidExtensionCard
                                 key={extension.id}
                                 extension={extension}

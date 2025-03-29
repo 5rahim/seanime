@@ -138,15 +138,18 @@ const (
 	InvalidExtensionUserConfigError InvalidExtensionErrorCode = "user_config_error"
 	// InvalidExtensionAuthorizationError is returned when some authorization scopes have not been granted
 	InvalidExtensionAuthorizationError InvalidExtensionErrorCode = "invalid_authorization"
+	// InvalidExtensionPluginPermissionsNotGranted is returned when the plugin permissions have not been granted
+	InvalidExtensionPluginPermissionsNotGranted InvalidExtensionErrorCode = "plugin_permissions_not_granted"
 )
 
 type InvalidExtension struct {
 	// Auto-generated ID
-	ID        string                    `json:"id"`
-	Path      string                    `json:"path"`
-	Extension Extension                 `json:"extension"`
-	Reason    string                    `json:"reason"`
-	Code      InvalidExtensionErrorCode `json:"code"`
+	ID                          string                    `json:"id"`
+	Path                        string                    `json:"path"`
+	Extension                   Extension                 `json:"extension"`
+	Reason                      string                    `json:"reason"`
+	Code                        InvalidExtensionErrorCode `json:"code"`
+	PluginPermissionDescription string                    `json:"pluginPermissionDescription,omitempty"`
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

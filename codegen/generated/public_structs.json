@@ -33099,7 +33099,8 @@
         "\"invalid_manifest\"",
         "\"invalid_payload\"",
         "\"user_config_error\"",
-        "\"invalid_authorization\""
+        "\"invalid_authorization\"",
+        "\"plugin_permissions_not_granted\""
       ]
     },
     "comments": []
@@ -33157,6 +33158,15 @@
         "usedTypescriptType": "Extension_InvalidExtensionErrorCode",
         "usedStructName": "extension.InvalidExtensionErrorCode",
         "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PluginPermissionDescription",
+        "jsonName": "pluginPermissionDescription",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": false,
         "public": true,
         "comments": []
       }
@@ -35011,6 +35021,36 @@
     "comments": []
   },
   {
+    "filepath": "../internal/extension_repo/external_plugin.go",
+    "filename": "external_plugin.go",
+    "name": "StoredPluginSettingsData",
+    "formattedName": "ExtensionRepo_StoredPluginSettingsData",
+    "package": "extension_repo",
+    "fields": [
+      {
+        "name": "PinnedTrayPluginIds",
+        "jsonName": "pinnedTrayPluginIds",
+        "goType": "[]string",
+        "typescriptType": "Array\u003cstring\u003e",
+        "required": false,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "PluginGrantedPermissions",
+        "jsonName": "pluginGrantedPermissions",
+        "goType": "map[string]string",
+        "typescriptType": "Record\u003cstring, string\u003e",
+        "required": false,
+        "public": true,
+        "comments": [
+          " Extension ID -\u003e Permission Hash"
+        ]
+      }
+    ],
+    "comments": []
+  },
+  {
     "filepath": "../internal/extension_repo/goja_anime_torrent_provider.go",
     "filename": "goja_anime_torrent_provider.go",
     "name": "GojaAnimeTorrentProvider",
@@ -35365,17 +35405,6 @@
         "required": false,
         "public": false,
         "comments": []
-      },
-      {
-        "name": "appContext",
-        "jsonName": "appContext",
-        "goType": "plugin.AppContext",
-        "typescriptType": "AppContext",
-        "usedTypescriptType": "AppContext",
-        "usedStructName": "plugin.AppContext",
-        "required": false,
-        "public": false,
-        "comments": []
       }
     ],
     "comments": []
@@ -35621,25 +35650,6 @@
         "typescriptType": "HibikeTorrent_AnimeProviderSettings",
         "usedTypescriptType": "HibikeTorrent_AnimeProviderSettings",
         "usedStructName": "hibiketorrent.AnimeProviderSettings",
-        "required": false,
-        "public": true,
-        "comments": []
-      }
-    ],
-    "comments": []
-  },
-  {
-    "filepath": "../internal/extension_repo/repository.go",
-    "filename": "repository.go",
-    "name": "StoredPluginSettingsData",
-    "formattedName": "ExtensionRepo_StoredPluginSettingsData",
-    "package": "extension_repo",
-    "fields": [
-      {
-        "name": "PinnedTrayPluginIds",
-        "jsonName": "pinnedTrayPluginIds",
-        "goType": "[]string",
-        "typescriptType": "Array\u003cstring\u003e",
         "required": false,
         "public": true,
         "comments": []
@@ -38576,6 +38586,20 @@
         "comments": []
       }
     ],
+    "comments": []
+  },
+  {
+    "filepath": "../internal/library/anime/entry.go",
+    "filename": "entry.go",
+    "name": "Discrepancy",
+    "formattedName": "Anime_Discrepancy",
+    "package": "anime",
+    "fields": [],
+    "aliasOf": {
+      "goType": "int",
+      "typescriptType": "number",
+      "declaredValues": []
+    },
     "comments": []
   },
   {

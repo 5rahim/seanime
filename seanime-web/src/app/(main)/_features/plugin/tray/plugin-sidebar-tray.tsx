@@ -115,14 +115,14 @@ const ExtensionList = ({
                                     <p className="text-sm font-medium truncate tracking-wide">{trayIcon.extensionName}</p>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <IconButton
+                                    {/* <IconButton
                                         intent="gray-basic"
                                         size="sm"
                                         icon={<LuRefreshCw className="size-4" />}
                                         className="rounded-full"
                                         onClick={() => reloadExternalExtension({ id: trayIcon.extensionId })}
                                         loading={isReloadingExtension}
-                                    />
+                                     /> */}
                                     <Tooltip
                                         trigger={<div>
                                             {isPinned(trayIcon.extensionId) ? <IconButton

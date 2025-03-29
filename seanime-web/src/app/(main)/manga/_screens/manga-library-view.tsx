@@ -20,6 +20,7 @@ import { useAtom, useAtomValue } from "jotai/react"
 import { useRouter } from "next/navigation"
 import React, { memo } from "react"
 import { BiDotsVertical } from "react-icons/bi"
+import { LuBookOpenCheck, LuRefreshCcw } from "react-icons/lu"
 import { toast } from "sonner"
 import { CommandItemMedia } from "../../_features/sea-command/_components/command-utils"
 
@@ -212,13 +213,18 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                 <div className="flex flex-1" data-manga-library-view-collection-list-item-header-spacer></div>
 
                 {list.type === "CURRENT" && <DropdownMenu
-                    trigger={<IconButton
-                        intent="white-basic"
-                        size="xs"
-                        className="mt-1"
-                        icon={<BiDotsVertical />}
-                        loading={isRefetchingMangaChapterContainers}
-                    />}
+                    trigger={<div className="relative">
+                        <IconButton
+                            intent="white-basic"
+                            size="xs"
+                            className="mt-1"
+                            icon={<BiDotsVertical />}
+                            // loading={isRefetchingMangaChapterContainers}
+                        />
+                        {params.unreadOnly && <div className="absolute -top-1 -right-1 bg-[--blue] size-2 rounded-full"></div>}
+                        {isRefetchingMangaChapterContainers &&
+                            <div className="absolute -top-1 -right-1 bg-[--orange] size-3 rounded-full animate-ping"></div>}
+                    </div>}
                 >
                     <DropdownMenuItem
                         onClick={() => {
@@ -230,7 +236,7 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                             })
                         }}
                     >
-                        {isRefetchingMangaChapterContainers ? "Refetching..." : "Refresh sources"}
+                        <LuRefreshCcw /> {isRefetchingMangaChapterContainers ? "Refetching..." : "Refresh sources"}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => {
@@ -240,7 +246,7 @@ const CollectionListItem = memo(({ list, storedProviders }: { list: Manga_Collec
                             })
                         }}
                     >
-                        {params.unreadOnly ? "Show all" : "Show unread only"}
+                        <LuBookOpenCheck /> {params.unreadOnly ? "Show all" : "Unread chapters only"}
                     </DropdownMenuItem>
                 </DropdownMenu>}
 

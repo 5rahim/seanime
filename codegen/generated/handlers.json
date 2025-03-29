@@ -3169,6 +3169,43 @@
     }
   },
   {
+    "name": "HandleGrantPluginPermissions",
+    "trimmedName": "GrantPluginPermissions",
+    "comments": [
+      "HandleGrantPluginPermissions",
+      "",
+      "\t@summary grants the plugin permissions to the extension with the given ID.",
+      "\t@route /api/v1/extensions/plugin-permissions/grant [POST]",
+      "\t@returns bool",
+      ""
+    ],
+    "filepath": "internal/handlers/extensions.go",
+    "filename": "extensions.go",
+    "api": {
+      "summary": "grants the plugin permissions to the extension with the given ID.",
+      "descriptions": [],
+      "endpoint": "/api/v1/extensions/plugin-permissions/grant",
+      "methods": [
+        "POST"
+      ],
+      "params": [],
+      "bodyFields": [
+        {
+          "name": "ID",
+          "jsonName": "id",
+          "goType": "string",
+          "usedStructType": "",
+          "typescriptType": "string",
+          "required": true,
+          "descriptions": []
+        }
+      ],
+      "returns": "bool",
+      "returnGoType": "bool",
+      "returnTypescriptType": "boolean"
+    }
+  },
+  {
     "name": "HandleRunExtensionPlaygroundCode",
     "trimmedName": "RunExtensionPlaygroundCode",
     "comments": [

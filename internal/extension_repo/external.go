@@ -74,12 +74,6 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 		return nil, fmt.Errorf("failed sanity check, %w", err)
 	}
 
-	// Check plugin manifest
-	if err = pluginManifestSanityCheck(&ext); err != nil {
-		r.logger.Error().Err(err).Str("uri", manifestURI).Msg("extensions: Failed plugin manifest sanity check")
-		return nil, fmt.Errorf("failed plugin manifest sanity check, %w", err)
-	}
-
 	return &ext, nil
 }
 
@@ -183,20 +177,15 @@ func (r *Repository) InstallExternalExtension(manifestURI string) (*ExtensionIns
 func (r *Repository) UninstallExternalExtension(id string) error {
 
 	// Check if the extension exists
-	installedExt, found := r.GetLoadedExtension(id)
-	if !found {
-		r.logger.Error().Str("id", id).Msg("extensions: Extension not found")
-		return fmt.Errorf("extension not found")
-	}
-
-	// Check if the extension is external
-	if installedExt.GetManifestURI() == "builtin" {
-		r.logger.Error().Str("id", id).Msg("extensions: Extension is built-in")
-		return fmt.Errorf("extension is built-in")
+	// Parse the ext
+	ext, err := extractExtensionFromFile(filepath.Join(r.extensionDir, id+".json"))
+	if err != nil {
+		r.logger.Error().Err(err).Str("filepath", filepath.Join(r.extensionDir, id+".json")).Msg("extensions: Failed to read extension file")
+		return fmt.Errorf("failed to read extension file, %w", err)
 	}
 
 	// Uninstall the extension
-	err := os.Remove(filepath.Join(r.extensionDir, id+".json"))
+	err = os.Remove(filepath.Join(r.extensionDir, id+".json"))
 	if err != nil {
 		r.logger.Error().Err(err).Str("id", id).Msg("extensions: Failed to uninstall extension")
 		return fmt.Errorf("failed to uninstall extension, %w", err)
@@ -209,8 +198,9 @@ func (r *Repository) UninstallExternalExtension(id string) error {
 		_ = r.deleteExtensionUserConfig(id)
 
 		// Delete the plugin data if it was a plugin
-		if installedExt.GetType() == extension.TypePlugin {
+		if ext.Type == extension.TypePlugin {
 			r.deletePluginData(id)
+			r.removePluginFromStoredSettings(id)
 		}
 	}()
 
@@ -329,9 +319,7 @@ func (r *Repository) UpdateExtensionCode(id string, payload string) error {
 		return fmt.Errorf("failed to write extension to file, %w", err)
 	}
 
-	// Reload the extensions
-	//r.loadExternalExtensions()
-
+	// Call reload extension to unload it
 	r.reloadExtension(id)
 
 	return nil
@@ -439,6 +427,10 @@ func (r *Repository) loadExternalExtension(filePath string) {
 
 	var manifestError error
 
+	// +
+	// | Manifest sanity check
+	// +
+
 	// Sanity check
 	if err = r.extensionSanityCheck(ext); err != nil {
 		r.logger.Error().Err(err).Str("filepath", filePath).Msg("extensions: Failed sanity check")
@@ -467,6 +459,54 @@ func (r *Repository) loadExternalExtension(filePath string) {
 
 	var loadingErr error
 
+	// +
+	// | Load payload
+	// +
+
+	// Load the payload URI if the extension is development mode.
+	// The payload URI is a path to the payload file.
+	if ext.IsDevelopment && ext.PayloadURI != "" {
+		if _, err := os.Stat(ext.PayloadURI); errors.Is(err, os.ErrNotExist) {
+			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to read payload file")
+			return
+		}
+		payload, err := os.ReadFile(ext.PayloadURI)
+		if err != nil {
+			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to read payload file")
+			return
+		}
+		ext.Payload = string(payload)
+		r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded payload from file")
+	}
+
+	// +
+	// | Check plugin permissions
+	// +
+
+	if ext.Type == extension.TypePlugin {
+		if ext.Plugin == nil { // Shouldn't happen because of sanity check, but just in case
+			r.logger.Error().Str("id", ext.ID).Msg("extensions: Plugin manifest is missing plugin object")
+			return
+		}
+		permissionErr := r.checkPluginPermissions(ext)
+		if permissionErr != nil {
+			r.invalidExtensions.Set(invalidExtensionID, &extension.InvalidExtension{
+				ID:                          invalidExtensionID,
+				Reason:                      permissionErr.Error(),
+				Path:                        filePath,
+				Code:                        extension.InvalidExtensionPluginPermissionsNotGranted,
+				Extension:                   *ext,
+				PluginPermissionDescription: ext.Plugin.Permissions.GetDescription(),
+			})
+			r.logger.Warn().Err(permissionErr).Str("id", ext.ID).Msg("extensions: Plugin permissions not granted")
+			return
+		}
+	}
+
+	// +
+	// | Load user config
+	// +
+
 	// Load user config
 	configErr := r.loadUserConfig(ext)
 
@@ -484,21 +524,9 @@ func (r *Repository) loadExternalExtension(filePath string) {
 		r.logger.Warn().Err(configErr).Str("id", invalidExtensionID).Msg("extensions: Failed to load user config")
 	}
 
-	// Load the payload URI if the extension is development mode.
-	// The payload URI is a path to the payload file.
-	if ext.IsDevelopment && ext.PayloadURI != "" {
-		if _, err := os.Stat(ext.PayloadURI); errors.Is(err, os.ErrNotExist) {
-			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to read payload file")
-			return
-		}
-		payload, err := os.ReadFile(ext.PayloadURI)
-		if err != nil {
-			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to read payload file")
-			return
-		}
-		ext.Payload = string(payload)
-		r.logger.Debug().Str("id", ext.ID).Msg("extensions: Loaded payload from file")
-	}
+	// +
+	// | Load extension
+	// +
 
 	// Load extension
 	switch ext.Type {
@@ -569,7 +597,6 @@ func (r *Repository) reloadExtension(id string) {
 	// Check if the extension still exists
 	if _, err := os.Stat(extensionFilepath); err != nil {
 		// If the extension doesn't exist anymore, return silently - it was uninstalled
-
 		r.wsEventManager.SendEvent(events.ExtensionsReloaded, nil)
 		r.logger.Debug().Str("id", id).Msg("extensions: Extension removed")
 		return

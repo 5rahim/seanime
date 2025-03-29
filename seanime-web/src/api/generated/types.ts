@@ -2071,6 +2071,7 @@ export type Extension_InvalidExtension = {
     extension: Extension_Extension
     reason: string
     code: Extension_InvalidExtensionErrorCode
+    pluginPermissionDescription?: string
 }
 
 /**
@@ -2078,7 +2079,12 @@ export type Extension_InvalidExtension = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "user_config_error" | "invalid_authorization"
+export type Extension_InvalidExtensionErrorCode =
+    "invalid_manifest"
+    | "invalid_payload"
+    | "user_config_error"
+    | "invalid_authorization"
+    | "plugin_permissions_not_granted"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2093,7 +2099,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Package: extension
  * @description
  *  PluginAllowlist is a list of system permissions that the plugin is asking for.
- *  
+ *
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {
@@ -2266,12 +2272,16 @@ export type ExtensionRepo_OnlinestreamProviderExtensionItem = {
 }
 
 /**
- * - Filepath: internal/extension_repo/repository.go
- * - Filename: repository.go
+ * - Filepath: internal/extension_repo/external_plugin.go
+ * - Filename: external_plugin.go
  * - Package: extension_repo
  */
 export type ExtensionRepo_StoredPluginSettingsData = {
     pinnedTrayPluginIds?: Array<string>
+    /**
+     * Extension ID -> Permission Hash
+     */
+    pluginGrantedPermissions?: Record<string, string>
 }
 
 /**

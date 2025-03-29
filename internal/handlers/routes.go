@@ -411,6 +411,7 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	v1Extensions.POST("/user-config", h.HandleSaveExtensionUserConfig)
 	v1Extensions.GET("/plugin-settings", h.HandleGetPluginSettings)
 	v1Extensions.POST("/plugin-settings/pinned-trays", h.HandleSetPluginSettingsPinnedTrays)
+	v1Extensions.POST("/plugin-permissions/grant", h.HandleGrantPluginPermissions)
 
 	//
 	// Continuity

@@ -801,6 +801,17 @@
 //     })
 // }
 
+// export function useGrantPluginPermissions() {
+//     return useServerMutation<boolean, GrantPluginPermissions_Variables>({
+//         endpoint: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.endpoint,
+//         method: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.methods[0],
+//         mutationKey: [API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.key],
+//         onSuccess: async () => {
+// 
+//         },
+//     })
+// }
+
 // export function useRunExtensionPlaygroundCode() {
 //     return useServerMutation<RunPlaygroundCodeResponse, RunExtensionPlaygroundCode_Variables>({
 //         endpoint: API_ENDPOINTS.EXTENSIONS.RunExtensionPlaygroundCode.endpoint,

@@ -1,5 +1,11 @@
 package extension
 
+import (
+	"crypto/sha256"
+	"fmt"
+	"strings"
+)
+
 const (
 	PluginManifestVersion = "1"
 )
@@ -39,9 +45,6 @@ type PluginAllowlist struct {
 	// CommandScopes defines the commands that the plugin is allowed to execute.
 	// Each command scope has a unique identifier and configuration.
 	CommandScopes []CommandScope `json:"commandScopes,omitempty"`
-	// AllowCommands is a list of commands that the plugin is allowed to execute.
-	// This field is deprecated and kept for backward compatibility.
-	// Use CommandScopes instead.
 }
 
 // CommandScope defines a specific command or set of commands that can be executed
@@ -117,11 +120,189 @@ func (p *PluginAllowlist) ReadAllowCommands() []string {
 	return result
 }
 
+func (p *PluginPermissions) GetHash() string {
+	if p == nil {
+		return ""
+	}
+
+	if len(p.Scopes) == 0 &&
+		len(p.Allow.ReadPaths) == 0 &&
+		len(p.Allow.WritePaths) == 0 &&
+		len(p.Allow.CommandScopes) == 0 {
+		return ""
+	}
+
+	h := sha256.New()
+
+	// Hash scopes
+	for _, scope := range p.Scopes {
+		h.Write([]byte(scope))
+	}
+
+	// Hash allowlist read paths
+	for _, path := range p.Allow.ReadPaths {
+		h.Write([]byte("read:" + path))
+	}
+
+	// Hash allowlist write paths
+	for _, path := range p.Allow.WritePaths {
+		h.Write([]byte("write:" + path))
+	}
+
+	// Hash command scopes
+	for _, cmd := range p.Allow.CommandScopes {
+		h.Write([]byte("cmd:" + cmd.Command + ":" + cmd.Description))
+		for _, arg := range cmd.Args {
+			h.Write([]byte("arg:" + arg.Value + ":" + arg.Validator))
+		}
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func (p *PluginPermissions) GetDescription() string {
+	if p == nil {
+		return ""
+	}
+
+	// Check if any permissions exist
+	if len(p.Scopes) == 0 &&
+		len(p.Allow.ReadPaths) == 0 &&
+		len(p.Allow.WritePaths) == 0 &&
+		len(p.Allow.CommandScopes) == 0 {
+		return "No permissions requested."
+	}
+
+	var desc strings.Builder
+
+	// Add scopes section if any exist
+	if len(p.Scopes) > 0 {
+		desc.WriteString("Application:\n")
+		for _, scope := range p.Scopes {
+			desc.WriteString("• ")
+			switch scope {
+			case PluginPermissionStorage:
+				desc.WriteString("Storage: Store plugin data\n")
+			case PluginPermissionDatabase:
+				desc.WriteString("Database: Read and write non-auth data\n")
+			case PluginPermissionPlayback:
+				desc.WriteString("Playback: Control media playback and media players\n")
+			case PluginPermissionAnilist:
+				desc.WriteString("Anilist: View and edit your Anilist lists\n")
+			case PluginPermissionAnilistToken:
+				desc.WriteString("Anilist Token: View and use your Anilist token\n")
+			case PluginPermissionSystem:
+				desc.WriteString("System: Access OS functions (accessing files, running commands, etc.)\n")
+			case PluginPermissionCron:
+				desc.WriteString("Cron: Schedule automated tasks\n")
+			case PluginPermissionNotification:
+				desc.WriteString("Notification: Send system notifications\n")
+			case PluginPermissionDiscord:
+				desc.WriteString("Discord: Set Discord Rich Presence\n")
+			default:
+				desc.WriteString(string(scope) + "\n")
+			}
+		}
+		desc.WriteString("\n")
+	}
+
+	// Add file permissions if any exist
+	hasFilePaths := len(p.Allow.ReadPaths) > 0 || len(p.Allow.WritePaths) > 0
+	if hasFilePaths {
+		desc.WriteString("File System:\n")
+
+		if len(p.Allow.ReadPaths) > 0 {
+			desc.WriteString("• Read from:\n")
+			for _, path := range p.Allow.ReadPaths {
+				desc.WriteString("\t  - " + explainPath(path) + "\n")
+			}
+		}
+
+		if len(p.Allow.WritePaths) > 0 {
+			desc.WriteString("• Write to:\n")
+			for _, path := range p.Allow.WritePaths {
+				desc.WriteString("\t  - " + explainPath(path) + "\n")
+			}
+		}
+		desc.WriteString("\n")
+	}
+
+	// Add command permissions if any exist
+	if len(p.Allow.CommandScopes) > 0 {
+		desc.WriteString("Commands:\n")
+		for _, cmd := range p.Allow.CommandScopes {
+			cmdDesc := "• " + cmd.Command
+
+			// Format arguments
+			if len(cmd.Args) > 0 {
+				argsDesc := ""
+				for _, arg := range cmd.Args {
+					if arg.Value != "" {
+						argsDesc += " " + arg.Value
+					} else if arg.Validator == "$ARGS" {
+						argsDesc += " [any arguments]"
+					} else if arg.Validator == "$PATH" {
+						argsDesc += " [any file path]"
+					} else if arg.Validator != "" {
+						argsDesc += " [pattern: " + arg.Validator + "]"
+					}
+				}
+				cmdDesc += argsDesc
+			}
+
+			// Add command description if available
+			if cmd.Description != "" {
+				cmdDesc += "\n\t  Purpose: " + cmd.Description
+			}
+
+			desc.WriteString(cmdDesc + "\n")
+		}
+	}
+
+	return strings.TrimSpace(desc.String())
+}
+
+// explainPath adds human-readable descriptions to paths containing environment variables
+func explainPath(path string) string {
+	environmentVars := map[string]string{
+		"$SEANIME_ANIME_LIBRARY": "Your anime library directories",
+		"$HOME":                  "Your system's Home directory",
+		"$CACHE":                 "Your system's Cache directory",
+		"$TEMP":                  "Your system's Temporary directory",
+		"$CONFIG":                "Your system's Config directory",
+		"$DOWNLOAD":              "Your system's Downloads directory",
+		"$DESKTOP":               "Your system's Desktop directory",
+		"$DOCUMENT":              "Your system's Documents directory",
+	}
+
+	result := path
+
+	// Check if we need to add an explanation
+	needsExplanation := false
+	explanation := ""
+
+	for envVar, description := range environmentVars {
+		if strings.Contains(path, envVar) {
+			if explanation != "" {
+				explanation += ", "
+			}
+			explanation += fmt.Sprintf("%s = %s", envVar, description)
+			needsExplanation = true
+		}
+	}
+
+	if needsExplanation {
+		result += " (" + explanation + ")"
+	}
+
+	return result
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 type PluginExtension interface {
 	BaseExtension
-	IsPlugin() bool
+	GetPermissionHash() string
 }
 
 type PluginExtensionImpl struct {
@@ -134,8 +315,12 @@ func NewPluginExtension(ext *Extension) PluginExtension {
 	}
 }
 
-func (m *PluginExtensionImpl) IsPlugin() bool {
-	return true
+func (m *PluginExtensionImpl) GetPermissionHash() string {
+	if m.ext.Plugin == nil {
+		return ""
+	}
+
+	return m.ext.Plugin.Permissions.GetHash()
 }
 
 func (m *PluginExtensionImpl) GetExtension() *Extension {

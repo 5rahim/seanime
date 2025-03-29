@@ -347,11 +347,47 @@ func getAllKeys(data map[string]interface{}, prefix string) []string {
 	return keys
 }
 
+// notifyKeyAndParents sends notifications to subscribers of the given key and its parent keys
+// If the value is nil, it indicates the key was deleted
+func (s *Storage) notifyKeyAndParents(key string, value interface{}, data map[string]interface{}) {
+	// Notify direct subscribers of this key
+	if subscribers, ok := s.keySubscribers.Get(key); ok {
+		for _, ch := range subscribers {
+			// Non-blocking send to avoid deadlocks
+			select {
+			case ch <- value:
+			default:
+				// Channel is full or closed, skip
+			}
+		}
+	}
+
+	// Also notify parent key subscribers if this is a nested key
+	if strings.Contains(key, ".") {
+		parts := strings.Split(key, ".")
+		for i := 1; i < len(parts); i++ {
+			parentKey := strings.Join(parts[:i], ".")
+			if subscribers, ok := s.keySubscribers.Get(parentKey); ok {
+				// Get the current parent value
+				parentValue := getNestedValue(data, parentKey)
+				for _, ch := range subscribers {
+					// Non-blocking send to avoid deadlocks
+					select {
+					case ch <- parentValue:
+					default:
+						// Channel is full or closed, skip
+					}
+				}
+			}
+		}
+	}
+}
+
 func (s *Storage) Watch(key string, callback goja.Callable) goja.Value {
 	s.logger.Trace().Msgf("plugin: Watching key %s", key)
 
 	// Create a channel to receive updates
-	updateCh := make(chan interface{})
+	updateCh := make(chan interface{}, 100)
 
 	// Add this channel to the subscribers for this key
 	subscribers := []chan interface{}{}
@@ -375,10 +411,36 @@ func (s *Storage) Watch(key string, callback goja.Callable) goja.Value {
 		}
 	}()
 
+	// Check if the key currently exists and immediately send its value
+	// This allows watchers to get the current value right away
+	currentValue, _ := s.Get(key)
+	if currentValue != nil {
+		// Use non-blocking send
+		select {
+		case updateCh <- currentValue:
+		default:
+			// Channel is full, skip
+		}
+	}
+
 	// Return a function that can be used to cancel the watch
 	cancelFn := func() {
 		close(updateCh)
-		s.keySubscribers.Delete(key)
+		// Remove this specific channel from subscribers
+		if existingSubscribers, ok := s.keySubscribers.Get(key); ok {
+			newSubscribers := make([]chan interface{}, 0, len(existingSubscribers)-1)
+			for _, ch := range existingSubscribers {
+				if ch != updateCh {
+					newSubscribers = append(newSubscribers, ch)
+				}
+			}
+
+			if len(newSubscribers) > 0 {
+				s.keySubscribers.Set(key, newSubscribers)
+			} else {
+				s.keySubscribers.Delete(key)
+			}
+		}
 	}
 
 	return s.runtime.ToValue(cancelFn)
@@ -403,17 +465,8 @@ func (s *Storage) Delete(key string) error {
 		return err
 	}
 
-	// Notify subscribers that the key was deleted by sending nil
-	if subscribers, ok := s.keySubscribers.Get(key); ok {
-		for _, ch := range subscribers {
-			// Non-blocking send to avoid deadlocks
-			select {
-			case ch <- nil:
-			default:
-				// Channel is full or closed, skip
-			}
-		}
-	}
+	// Notify subscribers that the key was deleted
+	s.notifyKeyAndParents(key, nil, data)
 
 	if deleteNestedValue(data, key) {
 		return s.saveDataMap(pluginData, data)
@@ -449,19 +502,6 @@ func (s *Storage) Drop() error {
 func (s *Storage) Clear() error {
 	s.logger.Trace().Msg("plugin: Clearing storage")
 
-	// Notify all subscribers that their keys were cleared by sending nil
-	s.keySubscribers.Range(func(key string, subscribers []chan interface{}) bool {
-		for _, ch := range subscribers {
-			// Non-blocking send to avoid deadlocks
-			select {
-			case ch <- nil:
-			default:
-				// Channel is full or closed, skip
-			}
-		}
-		return true
-	})
-
 	// Clear key cache
 	s.keyDataCache.Clear()
 
@@ -470,8 +510,29 @@ func (s *Storage) Clear() error {
 		return err
 	}
 
+	// Get all keys before clearing
+	data, err := s.getDataMap(pluginData)
+	if err != nil {
+		return err
+	}
+
+	// Get all keys to notify subscribers
+	keys := getAllKeys(data, "")
+
+	// Create empty data map
 	cleanData := make(map[string]interface{})
-	return s.saveDataMap(pluginData, cleanData)
+
+	// Save the empty data first
+	if err := s.saveDataMap(pluginData, cleanData); err != nil {
+		return err
+	}
+
+	// Notify all subscribers that their keys were cleared
+	for _, key := range keys {
+		s.notifyKeyAndParents(key, nil, cleanData)
+	}
+
+	return nil
 }
 
 func (s *Storage) Keys() ([]string, error) {
@@ -566,17 +627,8 @@ func (s *Storage) Set(key string, value interface{}) error {
 	// Update key cache
 	s.keyDataCache.Set(key, value)
 
-	// Notify subscribers if any
-	if subscribers, ok := s.keySubscribers.Get(key); ok {
-		for _, ch := range subscribers {
-			// Non-blocking send to avoid deadlocks
-			select {
-			case ch <- value:
-			default:
-				// Channel is full or closed, skip
-			}
-		}
-	}
+	// Notify subscribers
+	s.notifyKeyAndParents(key, value, data)
 
 	return s.saveDataMap(pluginData, data)
 }

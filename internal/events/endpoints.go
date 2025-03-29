@@ -97,6 +97,7 @@ const (
 	GetTorrentstreamSettingsEndpoint                   = "TORRENTSTREAM-get-torrentstream-settings"
 	GetTorrentstreamTorrentFilePreviewsEndpoint        = "TORRENTSTREAM-get-torrentstream-torrent-file-previews"
 	GettingStartedEndpoint                             = "SETTINGS-getting-started"
+	GrantPluginPermissionsEndpoint                     = "EXTENSIONS-grant-plugin-permissions"
 	ImportLocalFilesEndpoint                           = "LOCALFILES-import-local-files"
 	InstallExternalExtensionEndpoint                   = "EXTENSIONS-install-external-extension"
 	InstallLatestUpdateEndpoint                        = "RELEASES-install-latest-update"

@@ -652,6 +652,11 @@ export const API_ENDPOINTS = {
             methods: ["POST"],
             endpoint: "/api/v1/extensions/plugin-settings/pinned-trays",
         },
+        GrantPluginPermissions: {
+            key: "EXTENSIONS-grant-plugin-permissions",
+            methods: ["POST"],
+            endpoint: "/api/v1/extensions/plugin-permissions/grant",
+        },
         /**
          *  @description
          *  Route runs the code in the extension playground.

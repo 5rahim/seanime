@@ -2,6 +2,7 @@ import { useServerMutation, useServerQuery } from "@/api/client/requests"
 import {
     FetchExternalExtensionData_Variables,
     GetAllExtensions_Variables,
+    GrantPluginPermissions_Variables,
     InstallExternalExtension_Variables,
     ReloadExternalExtension_Variables,
     RunExtensionPlaygroundCode_Variables,
@@ -214,6 +215,19 @@ export function useSetPluginSettingsPinnedTrays() {
         method: API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.methods[0],
         mutationKey: [API_ENDPOINTS.EXTENSIONS.SetPluginSettingsPinnedTrays.key],
         onSuccess: async () => {
+            queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
+        },
+    })
+}
+
+export function useGrantPluginPermissions() {
+    const queryClient = useQueryClient()
+    return useServerMutation<boolean, GrantPluginPermissions_Variables>({
+        endpoint: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.endpoint,
+        method: API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.methods[0],
+        mutationKey: [API_ENDPOINTS.EXTENSIONS.GrantPluginPermissions.key],
+        onSuccess: async () => {
+            toast.success("Plugin permissions granted successfully.")
             queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.EXTENSIONS.GetPluginSettings.key] })
         },
     })

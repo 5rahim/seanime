@@ -697,6 +697,17 @@ export type SetPluginSettingsPinnedTrays_Variables = {
 /**
  * - Filepath: internal/handlers/extensions.go
  * - Filename: extensions.go
+ * - Endpoint: /api/v1/extensions/plugin-permissions/grant
+ * @description
+ * Route grants the plugin permissions to the extension with the given ID.
+ */
+export type GrantPluginPermissions_Variables = {
+    id: string
+}
+
+/**
+ * - Filepath: internal/handlers/extensions.go
+ * - Filename: extensions.go
  * - Endpoint: /api/v1/extensions/playground/run
  * @description
  * Route runs the code in the extension playground.

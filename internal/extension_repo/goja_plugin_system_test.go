@@ -1472,39 +1472,39 @@ function init() {
 		//	$store.set("asyncCommandError", e.message);
 		//}
 
-		// Try unsafe goroutine
-		try {
-			// Create a command to list files
-			const cmd = $os.cmd("ls", "-la", "${TEMP_DIR}");
+		// // Try unsafe goroutine
+		// try {
+		// 	// Create a command to list files
+		// 	const cmd = $os.cmd("ls", "-la", "${TEMP_DIR}");
 			
-			$store.watch("unsafeGoroutineOutput", (output) => {
-				console.log("Unsafe goroutine output:", output);
-			});
+		// 	$store.watch("unsafeGoroutineOutput", (output) => {
+		// 		console.log("Unsafe goroutine output:", output);
+		// 	});
 
-			// Read the output using scanner
-			$unsafeGoroutine(function() {
-				// Set up stdout capture
-				const stdoutPipe = cmd.stdoutPipe();
+		// 	// Read the output using scanner
+		// 	$unsafeGoroutine(function() {
+		// 		// Set up stdout capture
+		// 		const stdoutPipe = cmd.stdoutPipe();
 
-				console.log("Starting unsafe goroutine");
-				const output = $io.readAll(stdoutPipe);
-				$store.set("unsafeGoroutineOutput", $toString(output));
-				console.log("Unsafe goroutine output set", $toString(output));
+		// 		console.log("Starting unsafe goroutine");
+		// 		const output = $io.readAll(stdoutPipe);
+		// 		$store.set("unsafeGoroutineOutput", $toString(output));
+		// 		console.log("Unsafe goroutine output set", $toString(output));
 
-				cmd.wait();
-			});
+		// 		cmd.wait();
+		// 	});
 			
-			// Start the command
-			cmd.start();
+		// 	// Start the command
+		// 	cmd.start();
 			
-			// Check exit code
-			const exitCode = cmd.processState.exitCode();
-			console.log("Command exit code:", exitCode);
+		// 	// Check exit code
+		// 	const exitCode = cmd.processState.exitCode();
+		// 	console.log("Command exit code:", exitCode);
 
-		} catch (e) {
-			console.log("Command execution error:", e.message);
-			$store.set("unsafeGoroutineError", e.message);
-		}
+		// } catch (e) {
+		// 	console.log("Command execution error:", e.message);
+		// 	$store.set("unsafeGoroutineError", e.message);
+		// }
 		
 		// Test executing a command with combined output
 		try {
@@ -1603,6 +1603,8 @@ function init() {
 			},
 		},
 	}
+
+	fmt.Println(opts.Permissions.GetDescription())
 
 	plugin, _, manager, _, _, err := InitTestPlugin(t, opts)
 	require.NoError(t, err)

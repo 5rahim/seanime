@@ -53,17 +53,22 @@ func (a *BaseAction) SetProps(props BaseActionProps) {
 // UnmountAll unmounts all actions
 // It should be called
 func (a *ActionManager) UnmountAll() {
-	a.animePageButtons.Clear()
-	a.animePageDropdownItems.Clear()
-	a.animeLibraryDropdownItems.Clear()
-	a.mangaPageButtons.Clear()
-	a.mediaCardContextMenuItems.Clear()
 
-	a.renderAnimePageButtons()
-	a.renderAnimePageDropdownItems()
-	a.renderAnimeLibraryDropdownItems()
-	a.renderMangaPageButtons()
-	a.renderMediaCardContextMenuItems()
+	if a.animePageButtons.ClearN() > 0 {
+		a.renderAnimePageButtons()
+	}
+	if a.animePageDropdownItems.ClearN() > 0 {
+		a.renderAnimePageDropdownItems()
+	}
+	if a.animeLibraryDropdownItems.ClearN() > 0 {
+		a.renderAnimeLibraryDropdownItems()
+	}
+	if a.mangaPageButtons.ClearN() > 0 {
+		a.renderMangaPageButtons()
+	}
+	if a.mediaCardContextMenuItems.ClearN() > 0 {
+		a.renderMediaCardContextMenuItems()
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

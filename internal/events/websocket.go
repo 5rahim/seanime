@@ -165,6 +165,17 @@ func (m *WSEventManager) SendEventTo(clientId string, t string, payload interfac
 	}
 }
 
+func (m *WSEventManager) SendStringTo(clientId string, s string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, conn := range m.Conns {
+		if conn.ID == clientId {
+			_ = conn.Conn.WriteMessage(websocket.TextMessage, []byte(s))
+		}
+	}
+}
+
 func (m *WSEventManager) OnClientEvent(event *WebsocketClientEvent) {
 	m.eventMu.RLock()
 	defer m.eventMu.RUnlock()

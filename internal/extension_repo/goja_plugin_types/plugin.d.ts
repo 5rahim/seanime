@@ -1454,14 +1454,14 @@ declare namespace $database {
          * Inserts an auto downloader rule
          * @param rule - The auto downloader rule to insert
          */
-        function insert(rule: $app.Anime_AutoDownloaderRule): void
+        function insert(rule: Omit<$app.Anime_AutoDownloaderRule, "dbId">): void
 
         /**
          * Updates an auto downloader rule
          * @param id - The id of the auto downloader rule in the database
          * @param rule - The auto downloader rule to update
          */
-        function update(id: number, rule: $app.Anime_AutoDownloaderRule): void
+        function update(id: number, rule: Omit<$app.Anime_AutoDownloaderRule, "dbId">): void
 
         /**
          * Deletes an auto downloader rule

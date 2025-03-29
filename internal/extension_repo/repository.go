@@ -9,7 +9,6 @@ import (
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 	"seanime/internal/goja/goja_runtime"
 	"seanime/internal/hook"
-	"seanime/internal/plugin"
 	"seanime/internal/util"
 	"seanime/internal/util/filecache"
 	"seanime/internal/util/result"
@@ -38,8 +37,6 @@ type (
 		invalidExtensions *result.Map[string, *extension.InvalidExtension]
 
 		hookManager hook.Manager
-
-		appContext *plugin.AppContext
 	}
 
 	AllExtensions struct {
@@ -79,15 +76,7 @@ type (
 		Lang     string                              `json:"lang"` // ISO 639-1 language code
 		Settings hibiketorrent.AnimeProviderSettings `json:"settings"`
 	}
-
-	StoredPluginSettingsData struct {
-		PinnedTrayPluginIds []string `json:"pinnedTrayPluginIds"`
-	}
 )
-
-var DefaultStoredPluginSettingsData = StoredPluginSettingsData{
-	PinnedTrayPluginIds: []string{},
-}
 
 type NewRepositoryOptions struct {
 	Logger         *zerolog.Logger
@@ -244,33 +233,6 @@ func (r *Repository) ListAnimeTorrentProviderExtensions() []*AnimeTorrentProvide
 	})
 
 	return ret
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const PluginSettingsKey = "1"
-const PluginSettingsBucket = "plugin-settings"
-
-func (r *Repository) GetPluginSettings() *StoredPluginSettingsData {
-	bucket := filecache.NewPermanentBucket(PluginSettingsBucket)
-
-	var settings StoredPluginSettingsData
-	found, _ := r.fileCacher.GetPerm(bucket, PluginSettingsKey, &settings)
-	if !found {
-		r.fileCacher.SetPerm(bucket, PluginSettingsKey, DefaultStoredPluginSettingsData)
-		return &DefaultStoredPluginSettingsData
-	}
-
-	return &settings
-}
-
-func (r *Repository) SetPluginSettingsPinnedTrays(pinnedTrayPluginIds []string) {
-	bucket := filecache.NewPermanentBucket(PluginSettingsBucket)
-
-	settings := r.GetPluginSettings()
-	settings.PinnedTrayPluginIds = pinnedTrayPluginIds
-
-	r.fileCacher.SetPerm(bucket, PluginSettingsKey, settings)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

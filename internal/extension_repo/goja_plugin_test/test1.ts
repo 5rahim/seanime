@@ -154,4 +154,77 @@ function init() {
         e.next()
     })
 
+    $app.onAnimeEntryRequested((e) => {
+        let lfs = $clone(e.localFiles)!
+
+        const toInsert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+        toInsert.forEach(nb => {
+            let metadataAniDbEp = nb.toString()
+            if (nb > 12) {
+                metadataAniDbEp = "S" + (nb - 12)
+            }
+            lfs.push({
+                path: `/Volumes/Seagate Portable Drive/ANIME/Bakemonogatari/Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
+                name: `Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
+                locked: true,
+                ignored: false,
+                mediaId: 5081,
+                metadata: {
+                    episode: nb,
+                    aniDBEpisode: metadataAniDbEp,
+                    type: "main",
+                },
+            })
+        })
+
+        $replace(e.localFiles, lfs)
+
+        e.next()
+    })
+
+    $app.onAnimeEntryRequested((e) => {
+        let lfs = $clone(e.localFiles)!
+
+        // const toInsert = [1,2,3,4,5,6,7,8,9,10,11,12,13]
+        // const toInsert = [{ ep: 1, aniDbEp: "S1" }, { ep: 2, aniDbEp: "1" }, { ep: 3, aniDbEp: "2" }, { ep: 4, aniDbEp: "3" }, { ep: 5, aniDbEp:
+        // "4" }, { ep: 6, aniDbEp: "5" }, { ep: 7, aniDbEp: "6" }, { ep: 8, aniDbEp: "7" }, { ep: 9, aniDbEp: "8" }, { ep: 10, aniDbEp: "9" },  {
+        // ep: 11, aniDbEp: "10" }, { ep: 12, aniDbEp: "11" }, { ep: 13, aniDbEp: "12" }]
+
+
+        // const toInsert = [0,1,2,3,4,5,6,7,8,9,10,11,12]
+        const toInsert = [{ ep: 0, aniDbEp: "S1" }, { ep: 1, aniDbEp: "1" }, { ep: 2, aniDbEp: "2" }, { ep: 3, aniDbEp: "3" },
+            { ep: 4, aniDbEp: "4" }, { ep: 5, aniDbEp: "5" }, { ep: 6, aniDbEp: "6" }, { ep: 7, aniDbEp: "7" }, { ep: 8, aniDbEp: "8" },
+            { ep: 9, aniDbEp: "9" }, { ep: 10, aniDbEp: "10" },
+            { ep: 11, aniDbEp: "11" }, { ep: 12, aniDbEp: "12" }]
+
+
+        // const toInsert = [{ ep: 1, aniDbEp: "1" }, { ep: 2, aniDbEp: "2" }, { ep: 3, aniDbEp: "3" }, { ep: 4, aniDbEp: "4" }, { ep: 5, aniDbEp:
+        // "5" }, { ep: 6, aniDbEp: "6" }, { ep: 7, aniDbEp: "7" }, { ep: 8, aniDbEp: "8" }, { ep: 9, aniDbEp: "9" }, { ep: 10, aniDbEp: "10" },  {
+        // ep: 11, aniDbEp: "11" }, { ep: 12, aniDbEp: "12" }]
+
+        toInsert.forEach(n => {
+            const nb = n.ep
+            lfs.push({
+                path: `/Volumes/Seagate Portable Drive/ANIME/Mushoku Tensei II: Isekai Ittara Honki Dasu/Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
+                name: `Episode ${nb < 10 ? "0" + nb : nb}.mkv`,
+                locked: true,
+                ignored: false,
+                mediaId: 146065,
+                parsedInfo: {
+                    original: "",
+                },
+                parsedFolderInfo: [],
+                metadata: {
+                    episode: nb,
+                    aniDBEpisode: n.aniDbEp,
+                    type: "main",
+                },
+            })
+        })
+
+        $replace(e.localFiles, lfs)
+
+        e.next()
+    })
 }

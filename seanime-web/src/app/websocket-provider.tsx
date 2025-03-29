@@ -144,22 +144,29 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                     }, 15000) // check every 15 seconds
 
                     // Implement a ping mechanism to keep the connection alive
-                    pingIntervalRef.current = setInterval(() => {
-                        if (newSocket.readyState === WebSocket.OPEN) {
-                            try {
-                                // Send a ping message to keep the connection alive
-                                newSocket.send(JSON.stringify({
-                                    type: "ping",
-                                    payload: { timestamp: Date.now() },
-                                    clientId: clientId,
-                                }))
-                            }
-                            catch (e) {
-                                logger("WebsocketProvider").error("Failed to send ping", e)
+                    // Start the ping interval slightly offset from the heartbeat to avoid race conditions
+                    setTimeout(() => {
+                        pingIntervalRef.current = setInterval(() => {
+                            if (newSocket.readyState === WebSocket.OPEN) {
+                                try {
+                                    const timestamp = Date.now()
+                                    // Send a ping message to keep the connection alive
+                                    newSocket.send(JSON.stringify({
+                                        type: "ping",
+                                        payload: { timestamp },
+                                        clientId: clientId,
+                                    }))
+                                }
+                                catch (e) {
+                                    logger("WebsocketProvider").error("Failed to send ping", e)
+                                    reconnectSocket()
+                                }
+                            } else {
+                                logger("WebsocketProvider").error("WebSocket not open, reconnecting")
                                 reconnectSocket()
                             }
-                        }
-                    }, 15000) // ping every 15 seconds
+                        }, 15000) // ping every 15 seconds
+                    }, 5000) // Start ping interval 5 seconds after heartbeat to offset them
                 })
 
                 // Add message handler for pong responses
@@ -167,11 +174,13 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                     try {
                         const data = JSON.parse(event.data) as { type: string; payload?: any }
                         if (data.type === "pong") {
+                            // Update the last pong timestamp
                             lastPongRef.current = Date.now()
+                            // For debugging purposes
+                            // logger("WebsocketProvider").info("Pong received, timestamp updated", lastPongRef.current)
                         }
                     }
                     catch (e) {
-                        // Ignore parsing errors for non-JSON messages
                     }
                 })
 
@@ -266,3 +275,4 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         </>
     )
 }
+

@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	ErrNoTorrentsFound = fmt.Errorf("no torrents found")
-	ErrNoEpisodeFound  = fmt.Errorf("could not select episode from torrents")
+	ErrNoTorrentsFound = fmt.Errorf("no torrents found, please select manually")
+	ErrNoEpisodeFound  = fmt.Errorf("could not select episode from torrents, please select manually")
 )
 
 type (

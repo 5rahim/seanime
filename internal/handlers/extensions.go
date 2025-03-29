@@ -237,6 +237,25 @@ func (h *Handler) HandleSetPluginSettingsPinnedTrays(c echo.Context) error {
 	return h.RespondWithData(c, true)
 }
 
+// HandleGrantPluginPermissions
+//
+//	@summary grants the plugin permissions to the extension with the given ID.
+//	@route /api/v1/extensions/plugin-permissions/grant [POST]
+//	@returns bool
+func (h *Handler) HandleGrantPluginPermissions(c echo.Context) error {
+	type body struct {
+		ID string `json:"id"`
+	}
+
+	var b body
+	if err := c.Bind(&b); err != nil {
+		return h.RespondWithError(c, err)
+	}
+
+	h.App.ExtensionRepository.GrantPluginPermissions(b.ID)
+	return h.RespondWithData(c, true)
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // HandleRunExtensionPlaygroundCode
