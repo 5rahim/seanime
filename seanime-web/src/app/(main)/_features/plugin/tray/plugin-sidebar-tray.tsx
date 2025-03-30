@@ -18,7 +18,7 @@ import { atom } from "jotai/vanilla"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
+import { LuBlocks, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
 import { TbPinned, TbPinnedFilled } from "react-icons/tb"
 import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
 
@@ -158,10 +158,26 @@ const ExtensionList = ({
                         {!trayIcons.length && <p className="text-sm text-[--muted]">
                             No tray plugins found
                         </p>}
+
+                        {developmentModeExtensions?.map(extension => (
+                            <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
+                                <p className="text-sm font-medium">{extension.id}</p>
+                                <div>
+                                    <IconButton
+                                        intent="warning-basic"
+                                        size="sm"
+                                        icon={<LuRefreshCw className="size-5" />}
+                                        className="rounded-full"
+                                        onClick={() => reloadExternalExtension({ id: extension.id })}
+                                        loading={isReloadingExtension}
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </Popover>
 
-                <Popover
+                {/* <Popover
                     side={place === "top" ? "bottom" : "right"}
                     trigger={<div>
                         <IconButton
@@ -200,7 +216,7 @@ const ExtensionList = ({
                             </div>
                         ))}
                     </div>
-                </Popover>
+                 </Popover> */}
 
                 {trayIcons.filter(trayIcon => isPinned(trayIcon.extensionId) || trayIcon.extensionId === unpinnedTrayIconClicked?.extensionId)
                     .map((trayIcon, index) => (

@@ -107,13 +107,10 @@ function init() {
                         }
 
                         const image = ctx.dom.asElement(imageSelection.attr("id")!)
-
-                        const previous = JSON.parse(imageSelection.data("original") || "{}")
-
                         if (hideThumbnails && episodeNumber > progress) {
-                            image.setProperty("src", animeDataSet[String(episodeCard.attributes["data-media-id"])].bannerImage)
-                        } else if (previous.property?.src) {
-                            image.setProperty("src", previous.property.src)
+                            image.setStyle("filter", "blur(24px)")
+                        } else {
+                            image.removeStyle("filter")
                         }
 
 
@@ -123,12 +120,10 @@ function init() {
                         }
 
                         const title = ctx.dom.asElement(titleSelection.attr("id")!)
-                        const titlePrevious = JSON.parse(titleSelection.data("original") || "{}")
-
                         if (hideTitles && episodeNumber > progress) {
-                            title.setText(animeDataSet[String(episodeCard.attributes["data-media-id"])].title)
-                        } else if (titlePrevious.text?.textContent) {
-                            title.setText(titlePrevious.text.textContent)
+                            title.setStyle("filter", "blur(4px)")
+                        } else {
+                            title.removeStyle("filter")
                         }
                     }
                 }
@@ -144,7 +139,6 @@ function init() {
                 const hideThumbnails = $storage.get("params.hideThumbnails") || false
                 const hideTitles = $storage.get("params.hideTitles") || false
                 const hideDescriptions = $storage.get("params.hideDescriptions") || false
-                const animeDataSet = $storage.get<Record<string, { bannerImage: string, title: string }>>("animeDataSet") || {}
 
                 const listDataElement = await ctx.dom.queryOne("[data-anime-entry-list-data]")
                 if (!listDataElement) {
@@ -188,12 +182,11 @@ function init() {
                             }
 
                             const title = ctx.dom.asElement(titleSelection.attr("id")!)
-                            const titlePrevious = JSON.parse(titleSelection.data("original") || "{}")
 
                             if (hideTitles && episodeNumber > progress) {
-                                title.setText(animeDataSet[String(episodeGridItem.attributes["data-media-id"])]?.title || "")
-                            } else if (titlePrevious.text?.textContent) {
-                                title.setText(titlePrevious.text.textContent)
+                                title.setStyle("filter", "blur(4px)")
+                            } else {
+                                title.removeStyle("filter")
                             }
                         }
                         catch (e) {
@@ -206,12 +199,11 @@ function init() {
                                 continue
                             }
 
-                        const description = ctx.dom.asElement(descriptionSelection.attr("id")!)
-                            const descriptionPrevious = JSON.parse(descriptionSelection.data("original") || "{}")
+                            const description = ctx.dom.asElement(descriptionSelection.attr("id")!)
                             if (hideDescriptions && episodeNumber > progress) {
-                                description.setText("")
-                            } else if (descriptionPrevious.text?.textContent) {
-                                description.setText(descriptionPrevious.text.textContent)
+                                description.setStyle("filter", "blur(4px)")
+                            } else {
+                                description.removeStyle("filter")
                             }
                         }
                         catch (e) {

@@ -506,6 +506,139 @@
     "goStruct": {
       "filepath": "../internal/debrid/client/hook_events.go",
       "filename": "hook_events.go",
+      "name": "DebridAutoSelectTorrentsFetchedEvent",
+      "formattedName": "DebridClient_DebridAutoSelectTorrentsFetchedEvent",
+      "package": "debrid_client",
+      "fields": [
+        {
+          "name": "Torrents",
+          "jsonName": "Torrents",
+          "goType": "[]hibiketorrent.AnimeTorrent",
+          "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+          "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+          "usedStructName": "hibiketorrent.AnimeTorrent",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " DebridAutoSelectTorrentsFetchedEvent is triggered when the torrents are fetched for auto select.",
+        " The torrents are sorted by seeders from highest to lowest.",
+        " This event is triggered before the top 3 torrents are analyzed."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "debrid_client",
+    "goStruct": {
+      "filepath": "../internal/debrid/client/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "DebridSkipStreamCheckEvent",
+      "formattedName": "DebridClient_DebridSkipStreamCheckEvent",
+      "package": "debrid_client",
+      "fields": [
+        {
+          "name": "StreamURL",
+          "jsonName": "streamURL",
+          "goType": "string",
+          "typescriptType": "string",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "Retries",
+          "jsonName": "retries",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": true,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "RetryDelay",
+          "jsonName": "retryDelay",
+          "goType": "int",
+          "typescriptType": "number",
+          "required": true,
+          "public": true,
+          "comments": [
+            " in seconds"
+          ]
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " DebridSkipStreamCheckEvent is triggered when the debrid client is about to skip the stream check.",
+        " Prevent default to enable the stream check."
+      ],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "debrid_client",
+    "goStruct": {
+      "filepath": "../internal/debrid/client/hook_events.go",
+      "filename": "hook_events.go",
       "name": "DebridSendStreamToMediaPlayerEvent",
       "formattedName": "DebridClient_DebridSendStreamToMediaPlayerEvent",
       "package": "debrid_client",
@@ -4797,6 +4930,64 @@
         }
       ],
       "comments": [],
+      "embeddedStructNames": [
+        "hook_resolver.Event"
+      ]
+    }
+  },
+  {
+    "package": "torrentstream",
+    "goStruct": {
+      "filepath": "../internal/torrentstream/hook_events.go",
+      "filename": "hook_events.go",
+      "name": "TorrentStreamAutoSelectTorrentsFetchedEvent",
+      "formattedName": "Torrentstream_TorrentStreamAutoSelectTorrentsFetchedEvent",
+      "package": "torrentstream",
+      "fields": [
+        {
+          "name": "Torrents",
+          "jsonName": "Torrents",
+          "goType": "[]hibiketorrent.AnimeTorrent",
+          "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+          "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+          "usedStructName": "hibiketorrent.AnimeTorrent",
+          "required": false,
+          "public": true,
+          "comments": []
+        },
+        {
+          "name": "next",
+          "jsonName": "next",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "preventDefault",
+          "jsonName": "preventDefault",
+          "goType": "",
+          "typescriptType": "any",
+          "required": true,
+          "public": false,
+          "comments": []
+        },
+        {
+          "name": "DefaultPrevented",
+          "jsonName": "defaultPrevented",
+          "goType": "bool",
+          "typescriptType": "boolean",
+          "required": true,
+          "public": true,
+          "comments": []
+        }
+      ],
+      "comments": [
+        " TorrentStreamAutoSelectTorrentsFetchedEvent is triggered when the torrents are fetched for auto select.",
+        " The torrents are sorted by seeders from highest to lowest.",
+        " This event is triggered before the top 3 torrents are analyzed."
+      ],
       "embeddedStructNames": [
         "hook_resolver.Event"
       ]

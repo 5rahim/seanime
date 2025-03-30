@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
+	"seanime/internal/hook"
 	torrentanalyzer "seanime/internal/torrents/analyzer"
 	itorrent "seanime/internal/torrents/torrent"
 	"seanime/internal/util"
@@ -196,6 +197,13 @@ searchLoop:
 	slices.SortStableFunc(data.Torrents, func(a, b *hibiketorrent.AnimeTorrent) int {
 		return cmp.Compare(b.Seeders, a.Seeders)
 	})
+
+	// Trigger hook
+	fetchedEvent := &TorrentStreamAutoSelectTorrentsFetchedEvent{
+		Torrents: data.Torrents,
+	}
+	_ = hook.GlobalHookManager.OnTorrentStreamAutoSelectTorrentsFetched().Trigger(fetchedEvent)
+	data.Torrents = fetchedEvent.Torrents
 
 	r.logger.Debug().Msgf("torrentstream: Found %d torrents", len(data.Torrents))
 

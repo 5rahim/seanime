@@ -88,6 +88,7 @@ func TestSelectFilesFromSeason(t *testing.T) {
 				Media:            media,
 				Platform:         anilistPlatform,
 				MetadataProvider: metadataProvider,
+				ForceMatch:       false,
 			})
 
 			// AnalyzeTorrentFiles

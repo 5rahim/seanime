@@ -48,7 +48,7 @@ func (fh *FileHydrator) HydrateMetadata() {
 		LocalFiles: fh.LocalFiles,
 		AllMedia:   fh.AllMedia,
 	}
-	hook.GlobalHookManager.OnScanHydrationStarted().Trigger(event)
+	_ = hook.GlobalHookManager.OnScanHydrationStarted().Trigger(event)
 	fh.LocalFiles = event.LocalFiles
 	fh.AllMedia = event.AllMedia
 
@@ -135,7 +135,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 			LocalFile: lf,
 			Media:     media,
 		}
-		hook.GlobalHookManager.OnScanLocalFileHydrationStarted().Trigger(event)
+		_ = hook.GlobalHookManager.OnScanLocalFileHydrationStarted().Trigger(event)
 		lf = event.LocalFile
 		media = event.Media
 
@@ -146,7 +146,7 @@ func (fh *FileHydrator) hydrateGroupMetadata(
 				MediaId:   mId,
 				Episode:   episode,
 			}
-			hook.GlobalHookManager.OnScanLocalFileHydrated().Trigger(event)
+			_ = hook.GlobalHookManager.OnScanLocalFileHydrated().Trigger(event)
 			lf = event.LocalFile
 			mId = event.MediaId
 			episode = event.Episode

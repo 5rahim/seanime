@@ -29519,6 +29519,79 @@
   {
     "filepath": "../internal/debrid/client/hook_events.go",
     "filename": "hook_events.go",
+    "name": "DebridAutoSelectTorrentsFetchedEvent",
+    "formattedName": "DebridClient_DebridAutoSelectTorrentsFetchedEvent",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "Torrents",
+        "jsonName": "Torrents",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " DebridAutoSelectTorrentsFetchedEvent is triggered when the torrents are fetched for auto select.",
+      " The torrents are sorted by seeders from highest to lowest.",
+      " This event is triggered before the top 3 torrents are analyzed."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/debrid/client/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "DebridSkipStreamCheckEvent",
+    "formattedName": "DebridClient_DebridSkipStreamCheckEvent",
+    "package": "debrid_client",
+    "fields": [
+      {
+        "name": "StreamURL",
+        "jsonName": "streamURL",
+        "goType": "string",
+        "typescriptType": "string",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "Retries",
+        "jsonName": "retries",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "RetryDelay",
+        "jsonName": "retryDelay",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": [
+          " in seconds"
+        ]
+      }
+    ],
+    "comments": [
+      " DebridSkipStreamCheckEvent is triggered when the debrid client is about to skip the stream check.",
+      " Prevent default to enable the stream check."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
+  },
+  {
+    "filepath": "../internal/debrid/client/hook_events.go",
+    "filename": "hook_events.go",
     "name": "DebridSendStreamToMediaPlayerEvent",
     "formattedName": "DebridClient_DebridSendStreamToMediaPlayerEvent",
     "package": "debrid_client",
@@ -37624,6 +37697,15 @@
         "comments": []
       },
       {
+        "name": "onDebridAutoSelectTorrentsFetched",
+        "jsonName": "onDebridAutoSelectTorrentsFetched",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
         "name": "onDebridSendStreamToMediaPlayer",
         "jsonName": "onDebridSendStreamToMediaPlayer",
         "goType": "",
@@ -37635,6 +37717,24 @@
       {
         "name": "onDebridLocalDownloadRequested",
         "jsonName": "onDebridLocalDownloadRequested",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onDebridSkipStreamCheck",
+        "jsonName": "onDebridSkipStreamCheck",
+        "goType": "",
+        "typescriptType": "any",
+        "required": false,
+        "public": false,
+        "comments": []
+      },
+      {
+        "name": "onTorrentStreamAutoSelectTorrentsFetched",
+        "jsonName": "onTorrentStreamAutoSelectTorrentsFetched",
         "goType": "",
         "typescriptType": "any",
         "required": false,
@@ -66441,6 +66541,34 @@
       }
     ],
     "comments": []
+  },
+  {
+    "filepath": "../internal/torrentstream/hook_events.go",
+    "filename": "hook_events.go",
+    "name": "TorrentStreamAutoSelectTorrentsFetchedEvent",
+    "formattedName": "Torrentstream_TorrentStreamAutoSelectTorrentsFetchedEvent",
+    "package": "torrentstream",
+    "fields": [
+      {
+        "name": "Torrents",
+        "jsonName": "Torrents",
+        "goType": "[]hibiketorrent.AnimeTorrent",
+        "typescriptType": "Array\u003cHibikeTorrent_AnimeTorrent\u003e",
+        "usedTypescriptType": "HibikeTorrent_AnimeTorrent",
+        "usedStructName": "hibiketorrent.AnimeTorrent",
+        "required": false,
+        "public": true,
+        "comments": []
+      }
+    ],
+    "comments": [
+      " TorrentStreamAutoSelectTorrentsFetchedEvent is triggered when the torrents are fetched for auto select.",
+      " The torrents are sorted by seeders from highest to lowest.",
+      " This event is triggered before the top 3 torrents are analyzed."
+    ],
+    "embeddedStructNames": [
+      "hook_resolver.Event"
+    ]
   },
   {
     "filepath": "../internal/torrentstream/hook_events.go",

@@ -65,7 +65,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 		Algorithm:       m.Algorithm,
 		Threshold:       m.Threshold,
 	}
-	hook.GlobalHookManager.OnScanMatchingStarted().Trigger(event)
+	_ = hook.GlobalHookManager.OnScanMatchingStarted().Trigger(event)
 	m.LocalFiles = event.LocalFiles
 	m.MediaContainer.NormalizedMedia = event.NormalizedMedia
 	m.Algorithm = event.Algorithm
@@ -87,7 +87,7 @@ func (m *Matcher) MatchLocalFilesWithMedia() error {
 	completedEvent := &ScanMatchingCompletedEvent{
 		LocalFiles: m.LocalFiles,
 	}
-	hook.GlobalHookManager.OnScanMatchingCompleted().Trigger(completedEvent)
+	_ = hook.GlobalHookManager.OnScanMatchingCompleted().Trigger(completedEvent)
 	m.LocalFiles = completedEvent.LocalFiles
 
 	if m.ScanLogger != nil {
@@ -347,6 +347,7 @@ func (m *Matcher) matchLocalFileWithMedia(lf *anime.LocalFile) {
 	} else {
 		dice := metrics.NewSorensenDice()
 		dice.CaseSensitive = false
+		dice.NgramSize = 1
 		finalRating = dice.Compare(*levMatch.OriginalValue, *levMatch.Value)
 		m.ScanSummaryLogger.LogComparison(lf, "Sorensen-Dice", *levMatch.Value, "Final rating", util.InlineSpewT(finalRating))
 		mediaMatch, found = m.MediaContainer.GetMediaFromTitleOrSynonym(levMatch.Value)

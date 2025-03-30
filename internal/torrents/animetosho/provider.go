@@ -62,7 +62,7 @@ func (at *Provider) GetSettings() hibiketorrent.AnimeProviderSettings {
 func (at *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 	at.logger.Debug().Msg("animetosho: Fetching latest torrents")
 	query := "?q="
-	torrents, err := fetchTorrents(query)
+	torrents, err := at.fetchTorrents(query)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (at *Provider) GetLatest() (ret []*hibiketorrent.AnimeTorrent, err error) {
 func (at *Provider) Search(opts hibiketorrent.AnimeSearchOptions) (ret []*hibiketorrent.AnimeTorrent, err error) {
 	at.logger.Debug().Str("query", opts.Query).Msg("animetosho: Searching for torrents")
 	query := fmt.Sprintf("?q=%s", url.QueryEscape(sanitizeTitle(opts.Query)))
-	atTorrents, err := fetchTorrents(query)
+	atTorrents, err := at.fetchTorrents(query)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (at *Provider) smartSearchSingleEpisode(opts *hibiketorrent.AnimeSmartSearc
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1", url.QueryEscape(query)))
+			torrents, err := at.fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&qx=1", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -214,7 +214,7 @@ func (at *Provider) smartSearchBatch(opts *hibiketorrent.AnimeSmartSearchOptions
 			defer wg.Done()
 
 			at.logger.Trace().Str("query", query).Msg("animetosho: Searching by query")
-			torrents, err := fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&order=size-d", url.QueryEscape(query)))
+			torrents, err := at.fetchTorrents(fmt.Sprintf("?only_tor=1&q=%s&order=size-d", url.QueryEscape(query)))
 			if err != nil {
 				return
 			}
@@ -418,22 +418,22 @@ func buildSmartSearchQueries(opts *hibiketorrent.AnimeSmartSearchOptions) (ret [
 
 // searches for torrents by Anime ID
 func (at *Provider) searchByAID(aid int, quality string) (torrents []*Torrent, err error) {
-	q := url.QueryEscape(formatCommonQuery(quality))
+	q := url.QueryEscape(formatQuality(quality))
 	query := fmt.Sprintf(`?order=size-d&aid=%d&q=%s`, aid, q)
-	return fetchTorrents(query)
+	return at.fetchTorrents(query)
 }
 
 // searches for torrents by Episode ID
 func (at *Provider) searchByEID(eid int, quality string) (torrents []*Torrent, err error) {
-	q := url.QueryEscape(formatCommonQuery(quality))
+	q := url.QueryEscape(formatQuality(quality))
 	query := fmt.Sprintf(`?eid=%d&q=%s`, eid, q)
-	return fetchTorrents(query)
+	return at.fetchTorrents(query)
 }
 
-func fetchTorrents(suffix string) (torrents []*Torrent, err error) {
+func (at *Provider) fetchTorrents(suffix string) (torrents []*Torrent, err error) {
 	furl := JsonFeedUrl + suffix
 
-	fmt.Println(furl)
+	at.logger.Debug().Str("url", furl).Msg("animetosho: Fetching torrents")
 
 	resp, err := http.Get(furl)
 	if err != nil {
@@ -469,8 +469,7 @@ func fetchTorrents(suffix string) (torrents []*Torrent, err error) {
 	return ret, nil
 }
 
-// formatCommonQuery adds special query filters
-func formatCommonQuery(quality string) string {
+func formatQuality(quality string) string {
 	if quality == "" {
 		return ""
 	}

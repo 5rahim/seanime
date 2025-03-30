@@ -27,6 +27,9 @@ func SeparateFilePath(path string, prefixPath string) *SeparatedFilePath {
 	}
 	fp := filepath.Base(filepath.ToSlash(path))
 	parentsPath := filepath.Dir(filepath.ToSlash(cleaned))
+	if parentsPath == "." || parentsPath == "/" || parentsPath == ".." {
+		parentsPath = ""
+	}
 
 	return &SeparatedFilePath{
 		Filename:   fp,
