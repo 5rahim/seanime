@@ -135,7 +135,7 @@ func (m *Mpv) launchPlayer(idle bool, filePath string, args ...string) error {
 		for scanner.Scan() {
 			// Skip AV messages
 			if bytes.Contains(scanner.Bytes(), []byte("AV:")) {
-				// continue
+				continue
 			}
 			line := strings.TrimSpace(scanner.Text())
 			if line != "" {

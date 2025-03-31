@@ -581,6 +581,44 @@ declare namespace $app {
      */
 
     /**
+     * @event DebridAutoSelectTorrentsFetchedEvent
+     * @file internal/debrid/client/hook_events.go
+     * @description
+     * DebridAutoSelectTorrentsFetchedEvent is triggered when the torrents are fetched for auto select.
+     * The torrents are sorted by seeders from highest to lowest.
+     * This event is triggered before the top 3 torrents are analyzed.
+     */
+    function onDebridAutoSelectTorrentsFetched(cb: (event: DebridAutoSelectTorrentsFetchedEvent) => void);
+
+    interface DebridAutoSelectTorrentsFetchedEvent {
+        Torrents?: Array<HibikeTorrent_AnimeTorrent>;
+
+        next();
+    }
+
+    /**
+     * @event DebridSkipStreamCheckEvent
+     * @file internal/debrid/client/hook_events.go
+     * @description
+     * DebridSkipStreamCheckEvent is triggered when the debrid client is about to skip the stream check.
+     * Prevent default to enable the stream check.
+     */
+    function onDebridSkipStreamCheck(cb: (event: DebridSkipStreamCheckEvent) => void);
+
+    interface DebridSkipStreamCheckEvent {
+        streamURL: string;
+        retries: number;
+        /**
+         * in seconds
+         */
+        retryDelay: number;
+
+        next();
+
+        preventDefault();
+    }
+
+    /**
      * @event DebridSendStreamToMediaPlayerEvent
      * @file internal/debrid/client/hook_events.go
      * @description
@@ -1250,6 +1288,22 @@ declare namespace $app {
     /**
      * @package torrentstream
      */
+
+    /**
+     * @event TorrentStreamAutoSelectTorrentsFetchedEvent
+     * @file internal/torrentstream/hook_events.go
+     * @description
+     * TorrentStreamAutoSelectTorrentsFetchedEvent is triggered when the torrents are fetched for auto select.
+     * The torrents are sorted by seeders from highest to lowest.
+     * This event is triggered before the top 3 torrents are analyzed.
+     */
+    function onTorrentStreamAutoSelectTorrentsFetched(cb: (event: TorrentStreamAutoSelectTorrentsFetchedEvent) => void);
+
+    interface TorrentStreamAutoSelectTorrentsFetchedEvent {
+        Torrents?: Array<HibikeTorrent_AnimeTorrent>;
+
+        next();
+    }
 
     /**
      * @event TorrentStreamSendStreamToMediaPlayerEvent
@@ -2571,6 +2625,30 @@ declare namespace $app {
         language?: string;
         rating?: number;
         updatedAt?: string;
+    }
+
+    /**
+     * - Filepath: internal/extension/hibike/torrent/types.go
+     */
+    interface HibikeTorrent_AnimeTorrent {
+        provider?: string;
+        name: string;
+        date: string;
+        size: number;
+        formattedSize: string;
+        seeders: number;
+        leechers: number;
+        downloadCount: number;
+        link: string;
+        downloadUrl: string;
+        magnetLink?: string;
+        infoHash?: string;
+        resolution?: string;
+        isBatch?: boolean;
+        episodeNumber?: number;
+        releaseGroup?: string;
+        isBestRelease: boolean;
+        confirmed: boolean;
     }
 
     /**
