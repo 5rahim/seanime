@@ -288,6 +288,7 @@ export function TorrentSearchContainer({ type, entry }: { type: TorrentSelection
                                             { value: "720", label: "720p" },
                                             { value: "540", label: "540p" },
                                             { value: "480", label: "480p" },
+                                            { value: "2160", label: "2160p" },
                                         ]}
                                         disabled={smartSearchBest || searchType != Torrent_SearchType.SMART}
                                         size="sm"

@@ -83,7 +83,7 @@ const ExtensionList = ({
                     data-plugin-sidebar-debug-popover
                     modal={false}
                 >
-                    <div className="space-y-1" data-plugin-sidebar-debug-popover-content>
+                    <div className="space-y-1 max-h-[300px] overflow-y-auto" data-plugin-sidebar-debug-popover-content>
                         <div className="text-sm">
                             <p className="font-bold">
                                 Plugins

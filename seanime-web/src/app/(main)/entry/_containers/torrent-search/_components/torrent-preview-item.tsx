@@ -65,6 +65,7 @@ export const TorrentPreviewItem = memo((props: TorrentPreviewItemProps) => {
             data-confirmed={confirmed}
             data-is-invalid={isInvalid}
             data-is-selected={isSelected}
+            data-link={link}
             className={cn(
                 "border p-3 pr-12 rounded-lg relative transition lg:hover:scale-[1.01] group/torrent-preview-item overflow-hidden",
                 "max-w-full bg-[--background]",

@@ -19,11 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	_ "golang.org/x/image/bmp"  // Register BMP format
-	_ "golang.org/x/image/bmp"  // Register BMP format
-	_ "golang.org/x/image/tiff" // Register Tiff format
 	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog"
 )
 

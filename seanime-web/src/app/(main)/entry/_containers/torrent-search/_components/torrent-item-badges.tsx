@@ -15,7 +15,9 @@ export function TorrentResolutionBadge({ resolution }: { resolution?: string }) 
             ? "warning"
             : (resolution?.includes("2160") || resolution?.toLowerCase().includes("4k"))
                 ? "success"
-                    : "blue"}
+                    : (resolution?.includes("720")
+                        ? "blue"
+                        : "gray")}
         >
             {resolution}
         </Badge>
