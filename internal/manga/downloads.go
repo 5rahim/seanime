@@ -144,8 +144,19 @@ func (r *Repository) GetDownloadedChapterContainers(mangaCollection *anilist.Man
 					r.logger.Error().Err(err).Int("mediaId", mediaId).Msg("manga: [GetDownloadedChapterContainers] Failed to retrieve cached list of manga chapters")
 					continue
 				}
-
+				// Cache the chapter container in the permanent bucket
+				go func() {
+					chapterContainerKey := getMangaChapterContainerCacheKey(provider, mediaId)
+					chapterContainer, found := r.getChapterContainerFromFilecache(provider, mediaId)
+					if found {
+						// Store the chapter container in the permanent bucket
+						permBucket := getPermanentChapterContainerCacheBucket(provider, mediaId)
+						_ = r.fileCacher.SetPerm(permBucket, chapterContainerKey, chapterContainer)
+					}
+				}()
 			}
+		} else {
+			r.logger.Trace().Int("mediaId", mediaId).Msg("manga: Found chapter container in permanent bucket")
 		}
 
 		downloadedContainer := &ChapterContainer{

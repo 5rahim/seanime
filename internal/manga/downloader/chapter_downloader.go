@@ -3,11 +3,6 @@ package chapter_downloader
 import (
 	"bytes"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/rs/zerolog"
-	_ "golang.org/x/image/bmp"  // Register BMP format
-	_ "golang.org/x/image/tiff" // Register Tiff format
-	_ "golang.org/x/image/webp" // Register WebP format
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -23,6 +18,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	_ "golang.org/x/image/bmp"  // Register BMP format
+	_ "golang.org/x/image/bmp"  // Register BMP format
+	_ "golang.org/x/image/tiff" // Register Tiff format
+	"github.com/goccy/go-json"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog"
 )
 
 // 📁 cache/manga
@@ -99,7 +101,7 @@ func NewDownloader(opts *NewDownloaderOptions) *Downloader {
 		cancelChannels:      make(map[DownloadID]chan struct{}),
 		runCh:               runCh,
 		queue:               NewQueue(opts.Database, opts.Logger, opts.WSEventManager, runCh),
-		chapterDownloadedCh: make(chan DownloadID, 1),
+		chapterDownloadedCh: make(chan DownloadID, 100),
 	}
 
 	return d
