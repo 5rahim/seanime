@@ -3,10 +3,6 @@ package nyaa
 import (
 	"bytes"
 	"fmt"
-	"github.com/5rahim/habari"
-	"github.com/mmcdole/gofeed"
-	"github.com/rs/zerolog"
-	"github.com/samber/lo"
 	"seanime/internal/api/anilist"
 	"seanime/internal/util"
 	"seanime/internal/util/comparison"
@@ -14,6 +10,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/5rahim/habari"
+	"github.com/mmcdole/gofeed"
+	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
 )

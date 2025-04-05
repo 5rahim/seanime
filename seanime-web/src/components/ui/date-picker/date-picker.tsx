@@ -204,6 +204,17 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>((
                 tableClass="w-auto mx-auto"
                 weekStartsOn={weekStartOn as Day}
             />
+            <div className="flex justify-center p-1 border-t">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        handleOnSelect(undefined)
+                    }}
+                    className="px-4 py-2 text-sm text-[--muted] hover:text-[--text] transition-colors"
+                >
+                    Clear
+                </button>
+            </div>
         </div>
     )
 

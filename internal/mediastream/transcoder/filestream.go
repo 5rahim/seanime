@@ -3,7 +3,6 @@ package transcoder
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog"
 	"math"
 	"os"
 	"path/filepath"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 // FileStream represents a stream of file data.

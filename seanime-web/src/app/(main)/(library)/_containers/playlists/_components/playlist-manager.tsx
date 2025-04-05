@@ -288,14 +288,14 @@ function SortableItem({ localFile, id, media, setPaths }: {
                     />
                 </div>
                 <div>
-                    <p className="text-lg text-white font-semibold">
-                        {localFile.metadata && <span>
+                    <div className="text-lg text-white font-semibold flex gap-1">
+                        {localFile.metadata && <p>
                             {media?.format !== "MOVIE" ? `Episode ${localFile.metadata?.episode}` : "Movie"}
-                        </span>}
-                        <span className="text-gray-400 font-medium max-w-lg truncate">
+                        </p>}
+                        <p className="max-w-full truncate text-gray-400 font-medium max-w-lg truncate">
                             {" - "}{media?.title?.userPreferred || media?.title?.romaji}
-                        </span>
-                    </p>
+                        </p>
+                    </div>
                     <p className="text-sm text-[--muted] font-normal italic line-clamp-1">{localFile.name}</p>
                 </div>
             </div>

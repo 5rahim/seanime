@@ -28,6 +28,8 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	// Normalize path
 	path = util.NormalizePath(path)
 
+	pm.Logger.Debug().Str("path", path).Msg("playback manager: Getting local file playback details")
+
 	// Find the local file from the path
 	lfs, _, err := db_bridge.GetLocalFiles(pm.Database)
 	if err != nil {
@@ -61,13 +63,16 @@ func (pm *PlaybackManager) getLocalFilePlaybackDetails(path string) (*anilist.An
 	for _, l := range lfs {
 		if l.GetNormalizedPath() == path {
 			lf = l
+			pm.Logger.Debug().Msg("playback manager: Local file found by path")
 			break
 		}
 	}
+
 	// If the local file is not found, the path might be a filename (in the case of VLC)
 	if lf == nil {
 		for _, l := range lfs {
 			if strings.ToLower(l.Name) == path {
+				pm.Logger.Debug().Msg("playback manager: Local file found by name")
 				lf = l
 				break
 			}

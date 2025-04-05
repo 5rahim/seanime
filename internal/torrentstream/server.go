@@ -85,16 +85,9 @@ func (s *serverManager) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		_ = tr.Close()
 	}(tr)
 
-	// Make the reader more responsive with SetResponsive
-	s.repository.logger.Trace().Msg("torrentstream: Setting responsive")
 	tr.SetResponsive()
-
-	// Set a readahead value to improve performance
-	// For range requests, we want to read ahead a good chunk of data
-	// This helps especially when the media player is seeking
-	s.repository.logger.Trace().Msg("torrentstream: Setting readahead")
-
 	// Read ahead 5MB for better streaming performance
+	// DEVNOTE: Not sure if dynamic prioritization overwrites this but whatever
 	tr.SetReadahead(5 * 1024 * 1024)
 
 	// If this is a range request for a later part of the file, prioritize those pieces

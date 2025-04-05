@@ -2,6 +2,7 @@ package debrid_client
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"seanime/internal/api/anilist"
 	"seanime/internal/debrid/debrid"
@@ -44,7 +45,7 @@ func (r *Repository) findBestTorrent(provider debrid.Provider, media *anilist.Co
 	var data *itorrent.SearchData
 searchLoop:
 	for {
-		data, err = r.torrentRepository.SearchAnime(itorrent.AnimeSearchOptions{
+		data, err = r.torrentRepository.SearchAnime(context.Background(), itorrent.AnimeSearchOptions{
 			Provider:      currentProvider,
 			Type:          itorrent.AnimeSearchTypeSmart,
 			Media:         media.ToBaseAnime(),

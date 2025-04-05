@@ -134,6 +134,7 @@ export function PluginTray(props: TrayPluginProps) {
         sendTrayClickedEvent({}, props.trayIcon.extensionId)
     }
 
+    const tooltipText = props.trayIcon.extensionName
 
     const TrayIcon = () => {
         return (
@@ -165,24 +166,25 @@ export function PluginTray(props: TrayPluginProps) {
         )
     }
 
+    const designatedWidthPx = getPixelsFromLength(props.trayIcon.width || "30rem")
+    const popoverWidth = (props.width && props.width < 1024)
+        ? (designatedWidthPx >= props.width ? `calc(100vw - 30px)` : designatedWidthPx)
+        : props.trayIcon.width || "30rem"
+
     if (!props.trayIcon.withContent) {
         return <div className="cursor-pointer">
-            {!!props.trayIcon.tooltipText ? <Tooltip
+            {!!tooltipText ? <Tooltip
                 side="right"
                 trigger={<div data-plugin-tray-icon-tooltip-trigger>
                     <TrayIcon />
                 </div>}
                 data-plugin-tray-icon-tooltip
             >
-                {props.trayIcon.tooltipText}
+                {tooltipText}
             </Tooltip> : <TrayIcon />}
         </div>
     }
 
-    const designatedWidthPx = getPixelsFromLength(props.trayIcon.width || "30rem")
-    const popoverWidth = (props.width && props.width < 1024)
-        ? (designatedWidthPx >= props.width ? `calc(100vw - 30px)` : designatedWidthPx)
-        : props.trayIcon.width || "30rem"
 
     // console.log("popoverWidth", popoverWidth)
     // console.log("designatedWidthPx", designatedWidthPx)
@@ -199,14 +201,14 @@ export function PluginTray(props: TrayPluginProps) {
                     asChild
                 >
                     <div data-plugin-tray-icon-trigger>
-                        {!!props.trayIcon.tooltipText ? <Tooltip
+                        {!!tooltipText ? <Tooltip
                             side={props.place === "sidebar" ? "right" : "bottom"}
                             trigger={<div data-plugin-tray-icon-tooltip-trigger>
                                 <TrayIcon />
                             </div>}
                             data-plugin-tray-icon-tooltip
                         >
-                            {props.trayIcon.tooltipText}
+                            {tooltipText}
                         </Tooltip> : <TrayIcon />}
                     </div>
                 </PopoverPrimitive.Trigger>

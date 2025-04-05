@@ -378,16 +378,19 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 				listEntry = event.ListEntry
 				localEntry = event.LocalEntry
 				episode = event.Episode
+				ok = event.MatchFound
 
 				// Default prevented, skip the torrent
 				if event.DefaultPrevented {
 					continue outer // Skip the torrent
 				}
 
-				torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
-					torrent: t,
-					episode: episode,
-				})
+				if ok {
+					torrentsToDownload = append(torrentsToDownload, &tmpTorrentToDownload{
+						torrent: t,
+						episode: episode,
+					})
+				}
 			}
 
 			// Download the torrent if there's only one

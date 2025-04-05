@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
 	"seanime/internal/api/anilist"
 	"seanime/internal/debrid/debrid"
 	"seanime/internal/torrents/torrent"
 	"seanime/internal/util/result"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 var debridInstantAvailabilityCache = result.NewCache[string, map[string]debrid.TorrentItemInstantAvailability]()
@@ -38,7 +39,7 @@ func (h *Handler) HandleSearchTorrent(c echo.Context) error {
 		return h.RespondWithError(c, err)
 	}
 
-	data, err := h.App.TorrentRepository.SearchAnime(torrent.AnimeSearchOptions{
+	data, err := h.App.TorrentRepository.SearchAnime(c.Request().Context(), torrent.AnimeSearchOptions{
 		Provider:      b.Provider,
 		Type:          torrent.AnimeSearchType(b.Type),
 		Media:         &b.Media,
@@ -77,5 +78,4 @@ func (h *Handler) HandleSearchTorrent(c echo.Context) error {
 	}
 
 	return h.RespondWithData(c, data)
-
 }

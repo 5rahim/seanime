@@ -14,16 +14,9 @@ export function useDebounce<T>(value: T, delay?: number): T {
     return debouncedValue
 }
 
-export function useDebounceWithSet<T>(value: T, delay?: number): [T, React.Dispatch<React.SetStateAction<T>>] {
-    const [debouncedValue, setDebouncedValue] = useState<T>(value)
+export function useDebounceWithSet<T>(value: T, delay?: number): [T, T, React.Dispatch<React.SetStateAction<T>>] {
+    const [actualValue, setActualValue] = useState<T>(value)
+    const debouncedValue = useDebounce(actualValue, delay)
 
-    useEffect(() => {
-        const timer = setTimeout(() => setDebouncedValue(value), delay || 500)
-
-        return () => {
-            clearTimeout(timer)
-        }
-    }, [value, delay])
-
-    return [debouncedValue, setDebouncedValue]
+    return [actualValue, debouncedValue, setActualValue]
 }

@@ -7,7 +7,6 @@ function init() {
     $ui.register((ctx) => {
         // Create the tray icon
         const tray = ctx.newTray({
-            tooltipText: "Anime banner image",
             iconUrl: "https://seanime.rahim.app/logo_2.png",
             withContent: true,
         })

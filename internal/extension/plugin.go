@@ -182,15 +182,15 @@ func (p *PluginPermissions) GetDescription() string {
 			desc.WriteString("• ")
 			switch scope {
 			case PluginPermissionStorage:
-				desc.WriteString("Storage: Store plugin data\n")
+				desc.WriteString("Storage: Store plugin data locally\n")
 			case PluginPermissionDatabase:
 				desc.WriteString("Database: Read and write non-auth data\n")
 			case PluginPermissionPlayback:
 				desc.WriteString("Playback: Control media playback and media players\n")
 			case PluginPermissionAnilist:
-				desc.WriteString("Anilist: View and edit your Anilist lists\n")
+				desc.WriteString("AniList: View and edit your AniList lists\n")
 			case PluginPermissionAnilistToken:
-				desc.WriteString("Anilist Token: View and use your Anilist token\n")
+				desc.WriteString("AniList Token: View and use your AniList token\n")
 			case PluginPermissionSystem:
 				desc.WriteString("System: Access OS functions (accessing files, running commands, etc.)\n")
 			case PluginPermissionCron:

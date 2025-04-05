@@ -60,13 +60,15 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
     // Smart search is not enabled for adult content
     const [searchType, setSearchType] = React.useState(!isAdult ? Torrent_SearchType.SMART : Torrent_SearchType.SIMPLE)
 
-    const [globalFilter, setGlobalFilter] = React.useState<string>(hasEpisodesToDownload ? "" : (entry?.media?.title?.romaji || ""))
+    const [globalFilter, debouncedGlobalFilter, setGlobalFilter] = useDebounceWithSet(hasEpisodesToDownload
+        ? ""
+        : (entry?.media?.title?.romaji || ""), 1000)
     const [selectedTorrents, setSelectedTorrents] = useAtom(__torrentSearch_selectedTorrentsAtom)
     const [smartSearchBatch, setSmartSearchBatch] = React.useState<boolean>(shouldLookForBatches || false)
     const [smartSearchEpisode, setSmartSearchEpisode] = React.useState<number>(downloadInfo?.episodesToDownload?.[0]?.episode?.episodeNumber || 1)
     const [smartSearchResolution, setSmartSearchResolution] = React.useState("1080")
     const [smartSearchBest, setSmartSearchBest] = React.useState(false)
-    const [dSmartSearchEpisode, setDSmartSearchEpisode] = useDebounceWithSet(smartSearchEpisode, 500)
+    const [dSmartSearchEpisode, debouncedSmartSearchEpisode, setDSmartSearchEpisode] = useDebounceWithSet(smartSearchEpisode, 1000)
 
     const warnings = {
         noProvider: !selectedProviderExtension,
@@ -104,12 +106,16 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
         }
     }, [warnings.extensionDoesNotSupportBatchSearch, selectedProviderExtensionId, smartSearchBatch])
 
+    React.useEffect(() => {
+        console.log("globalFilter", globalFilter)
+    }, [globalFilter])
+
     /**
      * Fetch torrent search data
      */
     const { data: _data, isLoading: _isLoading, isFetching: _isFetching } = useSearchTorrent({
-        query: globalFilter.trim().toLowerCase(),
-            episodeNumber: dSmartSearchEpisode,
+        query: debouncedGlobalFilter.trim().toLowerCase(),
+        episodeNumber: debouncedSmartSearchEpisode,
             batch: smartSearchBatch,
             media: entry?.media,
             absoluteOffset: downloadInfo?.absoluteOffset || 0,
@@ -118,7 +124,7 @@ export function useHandleTorrentSearch(props: TorrentSearchHookProps) {
             provider: selectedProviderExtension?.id!,
             bestRelease: searchType === Torrent_SearchType.SMART && smartSearchBest,
         },
-        !(searchType === Torrent_SearchType.SIMPLE && globalFilter.length === 0) // If simple search, user input must not be empty
+        !(searchType === Torrent_SearchType.SIMPLE && debouncedGlobalFilter.length === 0) // If simple search, user input must not be empty
         && !warnings.noProvider
         && !warnings.extensionDoesNotSupportAdult
         && !warnings.extensionDoesNotSupportSmartSearch

@@ -83,10 +83,10 @@ const ExtensionList = ({
                     data-plugin-sidebar-debug-popover
                     modal={false}
                 >
-                    <div className="space-y-2" data-plugin-sidebar-debug-popover-content>
-                        <div className="text-sm space-y-1">
+                    <div className="space-y-1" data-plugin-sidebar-debug-popover-content>
+                        <div className="text-sm">
                             <p className="font-bold">
-                                Tray Plugins
+                                Plugins
                             </p>
                         </div>
                         {trayIcons?.map(trayIcon => (
@@ -156,7 +156,7 @@ const ExtensionList = ({
                             </div>
                         ))}
                         {!trayIcons.length && <p className="text-sm text-[--muted]">
-                            No tray plugins found
+                            No tray plugins installed
                         </p>}
 
                         {developmentModeExtensions?.map(extension => (

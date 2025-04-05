@@ -192,8 +192,6 @@ declare namespace $ui {
         iconUrl: string
         /** Whether the tray has content */
         withContent: boolean
-        /** Tooltip text for the tray icon */
-        tooltipText?: string
         /** Width of the tray */
         width?: string
         /** Minimum height of the tray */

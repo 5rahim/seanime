@@ -1,8 +1,9 @@
 package transcoder
 
 import (
-	"github.com/rs/zerolog"
 	"time"
+
+	"github.com/rs/zerolog"
 )
 
 type ClientInfo struct {

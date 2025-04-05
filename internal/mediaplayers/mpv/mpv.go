@@ -230,6 +230,8 @@ func (m *Mpv) OpenAndPlay(filePath string, args ...string) error {
 	// 	return true
 	// })
 
+	m.Playback.IsRunning = false
+
 	// Listen for events in a goroutine
 	go m.listenForEvents(ctx)
 
@@ -410,6 +412,7 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 		// When the context is cancelled, close the connection
 		<-ctx.Done()
 		m.Logger.Debug().Msg("mpv: Context cancelled")
+		m.Playback.IsRunning = false
 		err := m.conn.Close()
 		if err != nil {
 			m.Logger.Error().Err(err).Msg("mpv: Failed to close connection")
@@ -420,8 +423,8 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 
 	// Listen for events
 	for event := range events {
-		m.Playback.IsRunning = true
 		if event.Data != nil {
+			m.Playback.IsRunning = true
 			//m.Logger.Trace().Msgf("received event: %s, %v, %+v", event.Name, event.ID, event.Data)
 			switch event.ID {
 			case 43:
@@ -448,7 +451,7 @@ func (m *Mpv) listenForEvents(ctx context.Context) {
 func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 	m.playbackMu.RLock()
 	defer m.playbackMu.RUnlock()
-	if m.Playback.IsRunning == false {
+	if !m.Playback.IsRunning {
 		return nil, errors.New("mpv is not running")
 	}
 	if m.Playback == nil {
@@ -456,6 +459,9 @@ func (m *Mpv) GetPlaybackStatus() (*Playback, error) {
 	}
 	if m.Playback.Filename == "" {
 		return nil, errors.New("no media found")
+	}
+	if m.Playback.Duration == 0 {
+		return nil, errors.New("no duration found")
 	}
 	return m.Playback, nil
 }
@@ -491,7 +497,7 @@ func (m *Mpv) terminate() {
 
 func (m *Mpv) Subscribe(id string) *Subscriber {
 	sub := &Subscriber{
-		eventCh:  make(chan *mpvipc.Event),
+		eventCh:  make(chan *mpvipc.Event, 100),
 		closedCh: make(chan struct{}),
 	}
 	m.subscribers.Set(id, sub)
@@ -567,6 +573,7 @@ func (m *Mpv) resetPlaybackStatus() {
 	m.Playback.Paused = false
 	m.Playback.Position = 0
 	m.Playback.Duration = 0
+	m.Playback.IsRunning = false
 	m.playbackMu.Unlock()
 	return
 }

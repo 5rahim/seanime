@@ -2,6 +2,7 @@ package torrentstream
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"seanime/internal/api/anilist"
 	hibiketorrent "seanime/internal/extension/hibike/torrent"
@@ -111,7 +112,7 @@ func (r *Repository) findBestTorrent(media *anilist.CompleteAnime, aniDbEpisode 
 searchLoop:
 	for {
 		var err error
-		data, err = r.torrentRepository.SearchAnime(itorrent.AnimeSearchOptions{
+		data, err = r.torrentRepository.SearchAnime(context.Background(), itorrent.AnimeSearchOptions{
 			Provider:      currentProvider,
 			Type:          itorrent.AnimeSearchTypeSmart,
 			Media:         media.ToBaseAnime(),

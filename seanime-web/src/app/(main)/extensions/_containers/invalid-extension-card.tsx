@@ -199,7 +199,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                     contentClass="max-w-2xl"
                 >
                     <p>
-                        Here are the permissions this extension is requesting:
+                        The plugin <span className="font-bold">{extension.extension?.name}</span> is requesting the following permissions:
                     </p>
 
                     <p className="whitespace-pre-wrap w-full max-w-full overflow-x-auto text-md leading-relaxed text-left bg-[--subtle] p-2 rounded-md">
