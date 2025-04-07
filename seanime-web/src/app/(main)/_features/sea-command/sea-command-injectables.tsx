@@ -21,11 +21,12 @@ export function SeaCommandInjectables() {
             //     item.value.toLowerCase().includes(input.toLowerCase()),
             // ).filter(item => // If the item should be rendered based on the input
 
+
             const items = injectable.items
                 .filter(item =>
-                    injectable.filter?.({ item, input }) ?? true, // Apply custom filter if provided, otherwise don't filter
-                ).filter(item =>
                     item.shouldShow?.({ ctx }) ?? true, // Apply custom filter if provided, otherwise don't filter
+                ).filter(item =>
+                    injectable.filter?.({ item, input }) ?? true, // Apply custom filter if provided, otherwise don't filter
                 ).filter(item => // If the item should be rendered based on the input
                     item.showBasedOnInput === "includes" ?
                         item.value.toLowerCase().includes(input.toLowerCase()) :

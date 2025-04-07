@@ -80,6 +80,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
             data-filename={fileName}
             data-episode-number={episodeNumber}
             data-progress-number={progressNumber}
+            data-is-watched={isWatched}
             className={cn(
                 "max-w-full",
                 "rounded-lg relative transition group/episode-list-item select-none",

@@ -13,7 +13,7 @@ import (
 	"seanime/internal/database/db"
 	"seanime/internal/events"
 	hibikemanga "seanime/internal/extension/hibike/manga"
-	"seanime/internal/manga/providers"
+	manga_providers "seanime/internal/manga/providers"
 	"seanime/internal/util"
 	"strconv"
 	"strings"
@@ -21,6 +21,8 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/rs/zerolog"
+	_ "golang.org/x/image/bmp"  // Register BMP format
+	_ "golang.org/x/image/tiff" // Register Tiff format
 )
 
 // 📁 cache/manga

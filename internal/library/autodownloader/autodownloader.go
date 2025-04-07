@@ -310,13 +310,13 @@ func (ad *AutoDownloader) checkForNewEpisodes() {
 	_ = hook.GlobalHookManager.OnAutoDownloaderTorrentsFetched().Trigger(fetchedEvent)
 	torrents = fetchedEvent.Torrents
 
-	// Try to start the torrent client if it's not running
-	if ad.torrentClientRepository != nil {
-		started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
-		if !started {
-			ad.logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running.")
-		}
-	}
+	// // Try to start the torrent client if it's not running
+	// if ad.torrentClientRepository != nil {
+	// 	started := ad.torrentClientRepository.Start() // Start torrent client if it's not running
+	// 	if !started {
+	// 		ad.logger.Warn().Msg("autodownloader: Failed to start torrent client. Make sure it's running.")
+	// 	}
+	// }
 
 	// Get existing torrents
 	existingTorrents := make([]*torrent_client.Torrent, 0)
