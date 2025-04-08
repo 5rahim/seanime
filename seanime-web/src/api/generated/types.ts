@@ -2079,12 +2079,7 @@ export type Extension_InvalidExtension = {
  * - Filename: extension.go
  * - Package: extension
  */
-export type Extension_InvalidExtensionErrorCode =
-    "invalid_manifest"
-    | "invalid_payload"
-    | "user_config_error"
-    | "invalid_authorization"
-    | "plugin_permissions_not_granted"
+export type Extension_InvalidExtensionErrorCode = "invalid_manifest" | "invalid_payload" | "user_config_error" | "invalid_authorization" | "plugin_permissions_not_granted"
 
 /**
  * - Filepath: internal/extension/extension.go
@@ -2099,7 +2094,7 @@ export type Extension_Language = "javascript" | "typescript" | "go"
  * - Package: extension
  * @description
  *  PluginAllowlist is a list of system permissions that the plugin is asking for.
- *
+ *  
  *  The user must acknowledge these permissions before the plugin can be loaded.
  */
 export type Extension_PluginAllowlist = {

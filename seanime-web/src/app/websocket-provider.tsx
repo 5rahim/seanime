@@ -105,13 +105,12 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
             const clientId = cookies["Seanime-Client-Id"] || uuidv4()
 
             try {
-                const newSocket = new WebSocket(`${wsUrl}?id=${clientId}`)
-                socketRef.current = newSocket
+                socketRef.current = new WebSocket(`${wsUrl}?id=${clientId}`)
 
                 // Reset the last pong timestamp whenever we connect
                 lastPongRef.current = Date.now()
 
-                newSocket.addEventListener("open", () => {
+                socketRef.current.addEventListener("open", () => {
                     logger("WebsocketProvider").info("WebSocket connection opened")
                     setIsConnected(true)
                     setConnectionErrorCount(0)
@@ -137,7 +136,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                             return
                         }
 
-                        if (newSocket.readyState !== WebSocket.OPEN) {
+                        if (socketRef.current?.readyState !== WebSocket.OPEN) {
                             logger("WebsocketProvider").error("Heartbeat check failed, reconnecting")
                             reconnectSocket()
                         }
@@ -147,11 +146,11 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                     // Start the ping interval slightly offset from the heartbeat to avoid race conditions
                     setTimeout(() => {
                         pingIntervalRef.current = setInterval(() => {
-                            if (newSocket.readyState === WebSocket.OPEN) {
+                            if (socketRef.current?.readyState === WebSocket.OPEN) {
                                 try {
                                     const timestamp = Date.now()
                                     // Send a ping message to keep the connection alive
-                                    newSocket.send(JSON.stringify({
+                                    socketRef.current?.send(JSON.stringify({
                                         type: "ping",
                                         payload: { timestamp },
                                         clientId: clientId,
@@ -162,15 +161,15 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                                     reconnectSocket()
                                 }
                             } else {
-                                logger("WebsocketProvider").error("WebSocket not open, reconnecting")
-                                reconnectSocket()
+                                logger("WebsocketProvider").error("Failed to send ping, WebSocket not open", socketRef.current?.readyState)
+                                // reconnectSocket()
                             }
                         }, 15000) // ping every 15 seconds
                     }, 5000) // Start ping interval 5 seconds after heartbeat to offset them
                 })
 
                 // Add message handler for pong responses
-                newSocket.addEventListener("message", (event) => {
+                socketRef.current?.addEventListener("message", (event) => {
                     try {
                         const data = JSON.parse(event.data) as { type: string; payload?: any }
                         if (data.type === "pong") {
@@ -184,17 +183,17 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
                     }
                 })
 
-                newSocket.addEventListener("close", (event) => {
+                socketRef.current?.addEventListener("close", (event) => {
                     logger("WebsocketProvider").info(`WebSocket connection closed: ${event.code} ${event.reason}`)
                     handleDisconnection()
                 })
 
-                newSocket.addEventListener("error", (event) => {
+                socketRef.current?.addEventListener("error", (event) => {
                     logger("WebsocketProvider").error("WebSocket encountered an error:", event)
                     reconnectSocket()
                 })
 
-                setSocket(newSocket)
+                setSocket(socketRef.current)
             }
             catch (e) {
                 logger("WebsocketProvider").error("Failed to create WebSocket connection:", e)

@@ -20,6 +20,11 @@ var (
 	additionalStructNamesForHooks = []string{
 		"discordrpc_presence.MangaActivity",
 		"discordrpc_presence.AnimeActivity",
+		"anilist.ListAnime",
+		"anilist.ListManga",
+		"anilist.MediaSort",
+		"anilist.ListRecentAnime",
+		"anilist.AnimeCollectionWithRelations",
 	}
 )
 
@@ -407,6 +412,7 @@ func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath stri
 	}
 
 	for _, goStruct := range sharedStructsMap {
+		//fmt.Println(goStruct.FormattedName)
 		if goStruct.Package != "" {
 			sharedStructs = append(sharedStructs, goStruct)
 		}
@@ -427,6 +433,7 @@ func GeneratePluginHooksDefinitionFile(outDir string, publicStructsFilePath stri
 
 	referencedStructs := make([]*GoStruct, 0)
 	for _, goStruct := range referencedStructsMap {
+		//fmt.Println(goStruct.FormattedName)
 		referencedStructs = append(referencedStructs, goStruct)
 	}
 	slices.SortFunc(referencedStructs, func(a, b *GoStruct) int {
@@ -472,13 +479,13 @@ func writePackageEventGoStructs(f *os.File, packageName string, goStructs []*GoS
 		f.WriteString(fmt.Sprintf("    /**%s     */\n", comments))
 
 		//////// Write hook function
-		f.WriteString(fmt.Sprintf("    function on%s(cb: (event: %s) => void);\n\n", strings.TrimSuffix(goStruct.Name, "Event"), goStruct.Name))
+		f.WriteString(fmt.Sprintf("    function on%s(cb: (event: %s) => void): void;\n\n", strings.TrimSuffix(goStruct.Name, "Event"), goStruct.Name))
 
 		/////// Write event interface
 		f.WriteString(fmt.Sprintf("    interface %s {\n", goStruct.Name))
-		f.WriteString(fmt.Sprintf("        next();\n\n"))
+		f.WriteString(fmt.Sprintf("        next(): void;\n\n"))
 		if shouldAddPreventDefault {
-			f.WriteString(fmt.Sprintf("        preventDefault();\n\n"))
+			f.WriteString(fmt.Sprintf("        preventDefault(): void;\n\n"))
 		}
 		// Write the fields
 		for _, field := range goStruct.Fields {
@@ -536,6 +543,9 @@ func writeEventTypescriptType(f *os.File, goStruct *GoStruct, writtenTypes map[s
 			}
 
 			typeText := field.TypescriptType
+			if typeText == "Metadata" {
+				typeText = "$habari.Metadata"
+			}
 
 			f.WriteString(fmt.Sprintf("        %s%s: %s;\n", convertGoToJSName(field.JsonName), fieldNameSuffix, typeText))
 		}

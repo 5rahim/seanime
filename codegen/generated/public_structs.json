@@ -47965,15 +47965,22 @@
     "package": "mediaplayer",
     "fields": [
       {
+        "name": "StartRefreshDelay",
+        "jsonName": "startRefreshDelay",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "RefreshDelay",
         "jsonName": "refreshDelay",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Refresh the status of the player each x seconds"
-        ]
+        "comments": []
       },
       {
         "name": "MaxRetries",
@@ -47982,9 +47989,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Maximum number of retries"
-        ]
+        "comments": []
       }
     ],
     "comments": [
@@ -48003,15 +48008,22 @@
     "package": "mediaplayer",
     "fields": [
       {
+        "name": "StartRefreshDelay",
+        "jsonName": "startRefreshDelay",
+        "goType": "int",
+        "typescriptType": "number",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
         "name": "RefreshDelay",
         "jsonName": "refreshDelay",
         "goType": "int",
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Refresh the status of the player each x seconds"
-        ]
+        "comments": []
       },
       {
         "name": "MaxRetries",
@@ -48020,9 +48032,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Maximum number of retries"
-        ]
+        "comments": []
       },
       {
         "name": "MaxRetriesAfterStart",
@@ -48031,9 +48041,7 @@
         "typescriptType": "number",
         "required": true,
         "public": true,
-        "comments": [
-          " Maximum number of retries after the player has started"
-        ]
+        "comments": []
       }
     ],
     "comments": [

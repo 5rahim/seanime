@@ -1385,7 +1385,7 @@ declare namespace $cron {
 
 declare namespace $database {
 
-    declare namespace localFiles {
+    namespace localFiles {
         /**
          * Gets the local files
          * @returns The local files
@@ -1412,7 +1412,7 @@ declare namespace $database {
         function insert(files: $app.Anime_LocalFile[]): $app.Anime_LocalFile[]
     }
 
-    declare namespace anilist {
+    namespace anilist {
         /**
          * Get the Anilist token
          *
@@ -1428,7 +1428,7 @@ declare namespace $database {
         function getUsername(): string
     }
 
-    declare namespace autoDownloaderRules {
+    namespace autoDownloaderRules {
         /**
          * Gets all auto downloader rules
          */
@@ -1468,7 +1468,7 @@ declare namespace $database {
         function remove(id: number): void
     }
 
-    declare namespace autoDownloaderItems {
+    namespace autoDownloaderItems {
         /**
          * Gets all auto downloader items
          */
@@ -1499,7 +1499,7 @@ declare namespace $database {
         function remove(id: number): void
     }
 
-    declare namespace silencedMediaEntries {
+    namespace silencedMediaEntries {
         /**
          * Gets all silenced media entry ids
          */
@@ -1519,7 +1519,7 @@ declare namespace $database {
         function setSilenced(mediaId: number, silenced: boolean): void
     }
 
-    declare namespace mediaFillers {
+    namespace mediaFillers {
         /**
          * Gets all media fillers
          */
@@ -1547,7 +1547,7 @@ declare namespace $database {
         function remove(mediaId: number): void
     }
 
-    declare interface MediaFillerItem {
+    interface MediaFillerItem {
         /**
          * The id of the media filler in the database
          */
@@ -1597,7 +1597,7 @@ declare namespace $app {
 
 declare namespace $habari {
 
-    declare interface Metadata {
+    interface Metadata {
         season_number?: string[];
         part_number?: string[];
         title?: string;

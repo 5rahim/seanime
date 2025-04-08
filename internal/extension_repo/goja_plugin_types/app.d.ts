@@ -8,10 +8,10 @@ declare namespace $app {
      * @event GetAnimeEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetAnime(cb: (event: GetAnimeEvent) => void);
+    function onGetAnime(cb: (event: GetAnimeEvent) => void): void;
 
     interface GetAnimeEvent {
-        next();
+        next(): void;
 
         anime?: AL_BaseAnime;
     }
@@ -20,10 +20,10 @@ declare namespace $app {
      * @event GetAnimeDetailsEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetAnimeDetails(cb: (event: GetAnimeDetailsEvent) => void);
+    function onGetAnimeDetails(cb: (event: GetAnimeDetailsEvent) => void): void;
 
     interface GetAnimeDetailsEvent {
-        next();
+        next(): void;
 
         anime?: AL_AnimeDetailsById_Media;
     }
@@ -32,10 +32,10 @@ declare namespace $app {
      * @event GetMangaEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetManga(cb: (event: GetMangaEvent) => void);
+    function onGetManga(cb: (event: GetMangaEvent) => void): void;
 
     interface GetMangaEvent {
-        next();
+        next(): void;
 
         manga?: AL_BaseManga;
     }
@@ -44,10 +44,10 @@ declare namespace $app {
      * @event GetMangaDetailsEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetMangaDetails(cb: (event: GetMangaDetailsEvent) => void);
+    function onGetMangaDetails(cb: (event: GetMangaDetailsEvent) => void): void;
 
     interface GetMangaDetailsEvent {
-        next();
+        next(): void;
 
         manga?: AL_MangaDetailsById_Media;
     }
@@ -56,10 +56,10 @@ declare namespace $app {
      * @event GetAnimeCollectionEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetAnimeCollection(cb: (event: GetAnimeCollectionEvent) => void);
+    function onGetAnimeCollection(cb: (event: GetAnimeCollectionEvent) => void): void;
 
     interface GetAnimeCollectionEvent {
-        next();
+        next(): void;
 
         animeCollection?: AL_AnimeCollection;
     }
@@ -68,10 +68,10 @@ declare namespace $app {
      * @event GetMangaCollectionEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetMangaCollection(cb: (event: GetMangaCollectionEvent) => void);
+    function onGetMangaCollection(cb: (event: GetMangaCollectionEvent) => void): void;
 
     interface GetMangaCollectionEvent {
-        next();
+        next(): void;
 
         mangaCollection?: AL_MangaCollection;
     }
@@ -80,10 +80,10 @@ declare namespace $app {
      * @event GetRawAnimeCollectionEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetRawAnimeCollection(cb: (event: GetRawAnimeCollectionEvent) => void);
+    function onGetRawAnimeCollection(cb: (event: GetRawAnimeCollectionEvent) => void): void;
 
     interface GetRawAnimeCollectionEvent {
-        next();
+        next(): void;
 
         animeCollection?: AL_AnimeCollection;
     }
@@ -92,10 +92,10 @@ declare namespace $app {
      * @event GetRawMangaCollectionEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetRawMangaCollection(cb: (event: GetRawMangaCollectionEvent) => void);
+    function onGetRawMangaCollection(cb: (event: GetRawMangaCollectionEvent) => void): void;
 
     interface GetRawMangaCollectionEvent {
-        next();
+        next(): void;
 
         mangaCollection?: AL_MangaCollection;
     }
@@ -104,10 +104,10 @@ declare namespace $app {
      * @event GetStudioDetailsEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onGetStudioDetails(cb: (event: GetStudioDetailsEvent) => void);
+    function onGetStudioDetails(cb: (event: GetStudioDetailsEvent) => void): void;
 
     interface GetStudioDetailsEvent {
-        next();
+        next(): void;
 
         studio?: AL_StudioDetails;
     }
@@ -119,12 +119,12 @@ declare namespace $app {
      * PreUpdateEntryEvent is triggered when an entry is about to be updated.
      * Prevent default to skip the default update and override the update.
      */
-    function onPreUpdateEntry(cb: (event: PreUpdateEntryEvent) => void);
+    function onPreUpdateEntry(cb: (event: PreUpdateEntryEvent) => void): void;
 
     interface PreUpdateEntryEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId?: number;
         status?: AL_MediaListStatus;
@@ -138,10 +138,10 @@ declare namespace $app {
      * @event PostUpdateEntryEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onPostUpdateEntry(cb: (event: PostUpdateEntryEvent) => void);
+    function onPostUpdateEntry(cb: (event: PostUpdateEntryEvent) => void): void;
 
     interface PostUpdateEntryEvent {
-        next();
+        next(): void;
 
         mediaId?: number;
     }
@@ -153,12 +153,12 @@ declare namespace $app {
      * PreUpdateEntryProgressEvent is triggered when an entry's progress is about to be updated.
      * Prevent default to skip the default update and override the update.
      */
-    function onPreUpdateEntryProgress(cb: (event: PreUpdateEntryProgressEvent) => void);
+    function onPreUpdateEntryProgress(cb: (event: PreUpdateEntryProgressEvent) => void): void;
 
     interface PreUpdateEntryProgressEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId?: number;
         progress?: number;
@@ -170,10 +170,10 @@ declare namespace $app {
      * @event PostUpdateEntryProgressEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onPostUpdateEntryProgress(cb: (event: PostUpdateEntryProgressEvent) => void);
+    function onPostUpdateEntryProgress(cb: (event: PostUpdateEntryProgressEvent) => void): void;
 
     interface PostUpdateEntryProgressEvent {
-        next();
+        next(): void;
 
         mediaId?: number;
     }
@@ -185,12 +185,12 @@ declare namespace $app {
      * PreUpdateEntryRepeatEvent is triggered when an entry's repeat is about to be updated.
      * Prevent default to skip the default update and override the update.
      */
-    function onPreUpdateEntryRepeat(cb: (event: PreUpdateEntryRepeatEvent) => void);
+    function onPreUpdateEntryRepeat(cb: (event: PreUpdateEntryRepeatEvent) => void): void;
 
     interface PreUpdateEntryRepeatEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId?: number;
         repeat?: number;
@@ -200,10 +200,10 @@ declare namespace $app {
      * @event PostUpdateEntryRepeatEvent
      * @file internal/platforms/anilist_platform/hook_events.go
      */
-    function onPostUpdateEntryRepeat(cb: (event: PostUpdateEntryRepeatEvent) => void);
+    function onPostUpdateEntryRepeat(cb: (event: PostUpdateEntryRepeatEvent) => void): void;
 
     interface PostUpdateEntryRepeatEvent {
-        next();
+        next(): void;
 
         mediaId?: number;
     }
@@ -222,12 +222,12 @@ declare namespace $app {
      * This event is triggered before [AnimeEntryEvent].
      * If the modified entry is nil, an error will be returned.
      */
-    function onAnimeEntryRequested(cb: (event: AnimeEntryRequestedEvent) => void);
+    function onAnimeEntryRequested(cb: (event: AnimeEntryRequestedEvent) => void): void;
 
     interface AnimeEntryRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId: number;
         localFiles?: Array<Anime_LocalFile>;
@@ -242,10 +242,10 @@ declare namespace $app {
      * AnimeEntryEvent is triggered when the media entry is being returned.
      * This event is triggered after [AnimeEntryRequestedEvent].
      */
-    function onAnimeEntry(cb: (event: AnimeEntryEvent) => void);
+    function onAnimeEntry(cb: (event: AnimeEntryEvent) => void): void;
 
     interface AnimeEntryEvent {
-        next();
+        next(): void;
 
         entry?: Anime_Entry;
     }
@@ -258,12 +258,12 @@ declare namespace $app {
      * This event is triggered after [AnimeEntryEvent].
      * Prevent default to skip the filler data.
      */
-    function onAnimeEntryFillerHydration(cb: (event: AnimeEntryFillerHydrationEvent) => void);
+    function onAnimeEntryFillerHydration(cb: (event: AnimeEntryFillerHydrationEvent) => void): void;
 
     interface AnimeEntryFillerHydrationEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         entry?: Anime_Entry;
     }
@@ -275,10 +275,10 @@ declare namespace $app {
      * AnimeEntryLibraryDataRequestedEvent is triggered when the app requests the library data for a media entry.
      * This is triggered before [AnimeEntryLibraryDataEvent].
      */
-    function onAnimeEntryLibraryDataRequested(cb: (event: AnimeEntryLibraryDataRequestedEvent) => void);
+    function onAnimeEntryLibraryDataRequested(cb: (event: AnimeEntryLibraryDataRequestedEvent) => void): void;
 
     interface AnimeEntryLibraryDataRequestedEvent {
-        next();
+        next(): void;
 
         entryLocalFiles?: Array<Anime_LocalFile>;
         mediaId: number;
@@ -292,10 +292,10 @@ declare namespace $app {
      * AnimeEntryLibraryDataEvent is triggered when the library data is being added to the media entry.
      * This is triggered after [AnimeEntryLibraryDataRequestedEvent].
      */
-    function onAnimeEntryLibraryData(cb: (event: AnimeEntryLibraryDataEvent) => void);
+    function onAnimeEntryLibraryData(cb: (event: AnimeEntryLibraryDataEvent) => void): void;
 
     interface AnimeEntryLibraryDataEvent {
-        next();
+        next(): void;
 
         entryLibraryData?: Anime_EntryLibraryData;
     }
@@ -307,12 +307,12 @@ declare namespace $app {
      * AnimeEntryManualMatchBeforeSaveEvent is triggered when the user manually matches local files to a media entry.
      * Prevent default to skip saving the local files.
      */
-    function onAnimeEntryManualMatchBeforeSave(cb: (event: AnimeEntryManualMatchBeforeSaveEvent) => void);
+    function onAnimeEntryManualMatchBeforeSave(cb: (event: AnimeEntryManualMatchBeforeSaveEvent) => void): void;
 
     interface AnimeEntryManualMatchBeforeSaveEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId: number;
         paths?: Array<string>;
@@ -326,12 +326,12 @@ declare namespace $app {
      * MissingEpisodesRequestedEvent is triggered when the user requests the missing episodes for the entire library.
      * Prevent default to skip the default process and return the modified missing episodes.
      */
-    function onMissingEpisodesRequested(cb: (event: MissingEpisodesRequestedEvent) => void);
+    function onMissingEpisodesRequested(cb: (event: MissingEpisodesRequestedEvent) => void): void;
 
     interface MissingEpisodesRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         animeCollection?: AL_AnimeCollection;
         localFiles?: Array<Anime_LocalFile>;
@@ -345,10 +345,10 @@ declare namespace $app {
      * @description
      * MissingEpisodesEvent is triggered when the missing episodes are being returned.
      */
-    function onMissingEpisodes(cb: (event: MissingEpisodesEvent) => void);
+    function onMissingEpisodes(cb: (event: MissingEpisodesEvent) => void): void;
 
     interface MissingEpisodesEvent {
-        next();
+        next(): void;
 
         missingEpisodes?: Anime_MissingEpisodes;
     }
@@ -361,12 +361,12 @@ declare namespace $app {
      * Prevent default to skip the default process and return the modified library collection.
      * If the modified library collection is nil, an error will be returned.
      */
-    function onAnimeLibraryCollectionRequested(cb: (event: AnimeLibraryCollectionRequestedEvent) => void);
+    function onAnimeLibraryCollectionRequested(cb: (event: AnimeLibraryCollectionRequestedEvent) => void): void;
 
     interface AnimeLibraryCollectionRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         animeCollection?: AL_AnimeCollection;
         localFiles?: Array<Anime_LocalFile>;
@@ -379,10 +379,10 @@ declare namespace $app {
      * @description
      * AnimeLibraryCollectionRequestedEvent is triggered when the user requests the library collection.
      */
-    function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void);
+    function onAnimeLibraryCollection(cb: (event: AnimeLibraryCollectionEvent) => void): void;
 
     interface AnimeLibraryCollectionEvent {
-        next();
+        next(): void;
 
         libraryCollection?: Anime_LibraryCollection;
     }
@@ -394,10 +394,10 @@ declare namespace $app {
      * AnimeLibraryStreamCollectionRequestedEvent is triggered when the user requests the library stream collection.
      * This is called when the user enables "Include in library" for either debrid/online/torrent streamings.
      */
-    function onAnimeLibraryStreamCollectionRequested(cb: (event: AnimeLibraryStreamCollectionRequestedEvent) => void);
+    function onAnimeLibraryStreamCollectionRequested(cb: (event: AnimeLibraryStreamCollectionRequestedEvent) => void): void;
 
     interface AnimeLibraryStreamCollectionRequestedEvent {
-        next();
+        next(): void;
 
         animeCollection?: AL_AnimeCollection;
         libraryCollection?: Anime_LibraryCollection;
@@ -409,10 +409,10 @@ declare namespace $app {
      * @description
      * AnimeLibraryStreamCollectionEvent is triggered when the library stream collection is being returned.
      */
-    function onAnimeLibraryStreamCollection(cb: (event: AnimeLibraryStreamCollectionEvent) => void);
+    function onAnimeLibraryStreamCollection(cb: (event: AnimeLibraryStreamCollectionEvent) => void): void;
 
     interface AnimeLibraryStreamCollectionEvent {
-        next();
+        next(): void;
 
         streamCollection?: Anime_StreamCollection;
     }
@@ -429,12 +429,12 @@ declare namespace $app {
      * AutoDownloaderRunStartedEvent is triggered when the autodownloader starts checking for new episodes.
      * Prevent default to abort the run.
      */
-    function onAutoDownloaderRunStarted(cb: (event: AutoDownloaderRunStartedEvent) => void);
+    function onAutoDownloaderRunStarted(cb: (event: AutoDownloaderRunStartedEvent) => void): void;
 
     interface AutoDownloaderRunStartedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         rules?: Array<Anime_AutoDownloaderRule>;
     }
@@ -445,10 +445,10 @@ declare namespace $app {
      * @description
      * AutoDownloaderTorrentsFetchedEvent is triggered at the beginning of a run, when the autodownloader fetches torrents from the provider.
      */
-    function onAutoDownloaderTorrentsFetched(cb: (event: AutoDownloaderTorrentsFetchedEvent) => void);
+    function onAutoDownloaderTorrentsFetched(cb: (event: AutoDownloaderTorrentsFetchedEvent) => void): void;
 
     interface AutoDownloaderTorrentsFetchedEvent {
-        next();
+        next(): void;
 
         torrents?: Array<AutoDownloader_NormalizedTorrent>;
     }
@@ -460,12 +460,12 @@ declare namespace $app {
      * AutoDownloaderMatchVerifiedEvent is triggered when a torrent is verified to follow a rule.
      * Prevent default to abort the download if the match is found.
      */
-    function onAutoDownloaderMatchVerified(cb: (event: AutoDownloaderMatchVerifiedEvent) => void);
+    function onAutoDownloaderMatchVerified(cb: (event: AutoDownloaderMatchVerifiedEvent) => void): void;
 
     interface AutoDownloaderMatchVerifiedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         torrent?: AutoDownloader_NormalizedTorrent;
         rule?: Anime_AutoDownloaderRule;
@@ -481,10 +481,10 @@ declare namespace $app {
      * @description
      * AutoDownloaderSettingsUpdatedEvent is triggered when the autodownloader settings are updated
      */
-    function onAutoDownloaderSettingsUpdated(cb: (event: AutoDownloaderSettingsUpdatedEvent) => void);
+    function onAutoDownloaderSettingsUpdated(cb: (event: AutoDownloaderSettingsUpdatedEvent) => void): void;
 
     interface AutoDownloaderSettingsUpdatedEvent {
-        next();
+        next(): void;
 
         settings?: Models_AutoDownloaderSettings;
     }
@@ -496,12 +496,12 @@ declare namespace $app {
      * AutoDownloaderBeforeDownloadTorrentEvent is triggered when the autodownloader is about to download a torrent.
      * Prevent default to abort the download.
      */
-    function onAutoDownloaderBeforeDownloadTorrent(cb: (event: AutoDownloaderBeforeDownloadTorrentEvent) => void);
+    function onAutoDownloaderBeforeDownloadTorrent(cb: (event: AutoDownloaderBeforeDownloadTorrentEvent) => void): void;
 
     interface AutoDownloaderBeforeDownloadTorrentEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         torrent?: AutoDownloader_NormalizedTorrent;
         rule?: Anime_AutoDownloaderRule;
@@ -514,10 +514,10 @@ declare namespace $app {
      * @description
      * AutoDownloaderAfterDownloadTorrentEvent is triggered when the autodownloader has downloaded a torrent.
      */
-    function onAutoDownloaderAfterDownloadTorrent(cb: (event: AutoDownloaderAfterDownloadTorrentEvent) => void);
+    function onAutoDownloaderAfterDownloadTorrent(cb: (event: AutoDownloaderAfterDownloadTorrentEvent) => void): void;
 
     interface AutoDownloaderAfterDownloadTorrentEvent {
-        next();
+        next(): void;
 
         torrent?: AutoDownloader_NormalizedTorrent;
         rule?: Anime_AutoDownloaderRule;
@@ -533,15 +533,14 @@ declare namespace $app {
      * @file internal/continuity/hook_events.go
      * @description
      * WatchHistoryItemRequestedEvent is triggered when a watch history item is requested.
-     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object
-     *     or set it to nil to indicate that the watch history item was not found.
+     * Prevent default to skip getting the watch history item from the file cache, in this case the event should have a valid WatchHistoryItem object or set it to nil to indicate that the watch history item was not found.
      */
-    function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void);
+    function onWatchHistoryItemRequested(cb: (event: WatchHistoryItemRequestedEvent) => void): void;
 
     interface WatchHistoryItemRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId: number;
         watchHistoryItem?: Continuity_WatchHistoryItem;
@@ -551,10 +550,10 @@ declare namespace $app {
      * @event WatchHistoryLocalFileEpisodeItemRequestedEvent
      * @file internal/continuity/hook_events.go
      */
-    function onWatchHistoryLocalFileEpisodeItemRequested(cb: (event: WatchHistoryLocalFileEpisodeItemRequestedEvent) => void);
+    function onWatchHistoryLocalFileEpisodeItemRequested(cb: (event: WatchHistoryLocalFileEpisodeItemRequestedEvent) => void): void;
 
     interface WatchHistoryLocalFileEpisodeItemRequestedEvent {
-        next();
+        next(): void;
 
         Path: string;
         LocalFiles?: Array<Anime_LocalFile>;
@@ -565,10 +564,10 @@ declare namespace $app {
      * @event WatchHistoryStreamEpisodeItemRequestedEvent
      * @file internal/continuity/hook_events.go
      */
-    function onWatchHistoryStreamEpisodeItemRequested(cb: (event: WatchHistoryStreamEpisodeItemRequestedEvent) => void);
+    function onWatchHistoryStreamEpisodeItemRequested(cb: (event: WatchHistoryStreamEpisodeItemRequestedEvent) => void): void;
 
     interface WatchHistoryStreamEpisodeItemRequestedEvent {
-        next();
+        next(): void;
 
         Episode: number;
         MediaId: number;
@@ -588,12 +587,12 @@ declare namespace $app {
      * The torrents are sorted by seeders from highest to lowest.
      * This event is triggered before the top 3 torrents are analyzed.
      */
-    function onDebridAutoSelectTorrentsFetched(cb: (event: DebridAutoSelectTorrentsFetchedEvent) => void);
+    function onDebridAutoSelectTorrentsFetched(cb: (event: DebridAutoSelectTorrentsFetchedEvent) => void): void;
 
     interface DebridAutoSelectTorrentsFetchedEvent {
-        Torrents?: Array<HibikeTorrent_AnimeTorrent>;
+        next(): void;
 
-        next();
+        Torrents?: Array<HibikeTorrent_AnimeTorrent>;
     }
 
     /**
@@ -603,19 +602,19 @@ declare namespace $app {
      * DebridSkipStreamCheckEvent is triggered when the debrid client is about to skip the stream check.
      * Prevent default to enable the stream check.
      */
-    function onDebridSkipStreamCheck(cb: (event: DebridSkipStreamCheckEvent) => void);
+    function onDebridSkipStreamCheck(cb: (event: DebridSkipStreamCheckEvent) => void): void;
 
     interface DebridSkipStreamCheckEvent {
+        next(): void;
+
+        preventDefault(): void;
+
         streamURL: string;
         retries: number;
-        /**
-         * in seconds
-         */
+    /**
+     * in seconds
+     */
         retryDelay: number;
-
-        next();
-
-        preventDefault();
     }
 
     /**
@@ -625,12 +624,12 @@ declare namespace $app {
      * DebridSendStreamToMediaPlayerEvent is triggered when the debrid client is about to send a stream to the media player.
      * Prevent default to skip the playback.
      */
-    function onDebridSendStreamToMediaPlayer(cb: (event: DebridSendStreamToMediaPlayerEvent) => void);
+    function onDebridSendStreamToMediaPlayer(cb: (event: DebridSendStreamToMediaPlayerEvent) => void): void;
 
     interface DebridSendStreamToMediaPlayerEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         windowTitle: string;
         streamURL: string;
@@ -646,12 +645,12 @@ declare namespace $app {
      * DebridLocalDownloadRequestedEvent is triggered when Seanime is about to download a debrid torrent locally.
      * Prevent default to skip the default download and override the download.
      */
-    function onDebridLocalDownloadRequested(cb: (event: DebridLocalDownloadRequestedEvent) => void);
+    function onDebridLocalDownloadRequested(cb: (event: DebridLocalDownloadRequestedEvent) => void): void;
 
     interface DebridLocalDownloadRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         torrentName: string;
         destination: string;
@@ -671,12 +670,12 @@ declare namespace $app {
      * Prevent default to skip the default behavior and return the modified entry.
      * If the modified entry is nil, an error will be returned.
      */
-    function onMangaEntryRequested(cb: (event: MangaEntryRequestedEvent) => void);
+    function onMangaEntryRequested(cb: (event: MangaEntryRequestedEvent) => void): void;
 
     interface MangaEntryRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId: number;
         mangaCollection?: AL_MangaCollection;
@@ -689,10 +688,10 @@ declare namespace $app {
      * @description
      * MangaEntryEvent is triggered when the manga entry is being returned.
      */
-    function onMangaEntry(cb: (event: MangaEntryEvent) => void);
+    function onMangaEntry(cb: (event: MangaEntryEvent) => void): void;
 
     interface MangaEntryEvent {
-        next();
+        next(): void;
 
         entry?: Manga_Entry;
     }
@@ -703,10 +702,10 @@ declare namespace $app {
      * @description
      * MangaLibraryCollectionRequestedEvent is triggered when the manga library collection is being requested.
      */
-    function onMangaLibraryCollectionRequested(cb: (event: MangaLibraryCollectionRequestedEvent) => void);
+    function onMangaLibraryCollectionRequested(cb: (event: MangaLibraryCollectionRequestedEvent) => void): void;
 
     interface MangaLibraryCollectionRequestedEvent {
-        next();
+        next(): void;
 
         mangaCollection?: AL_MangaCollection;
     }
@@ -717,10 +716,10 @@ declare namespace $app {
      * @description
      * MangaLibraryCollectionEvent is triggered when the manga library collection is being returned.
      */
-    function onMangaLibraryCollection(cb: (event: MangaLibraryCollectionEvent) => void);
+    function onMangaLibraryCollection(cb: (event: MangaLibraryCollectionEvent) => void): void;
 
     interface MangaLibraryCollectionEvent {
-        next();
+        next(): void;
 
         libraryCollection?: Manga_Collection;
     }
@@ -733,12 +732,12 @@ declare namespace $app {
      * Prevent default to skip the default behavior and return the modified chapter containers.
      * If the modified chapter containers are nil, an error will be returned.
      */
-    function onMangaDownloadedChapterContainersRequested(cb: (event: MangaDownloadedChapterContainersRequestedEvent) => void);
+    function onMangaDownloadedChapterContainersRequested(cb: (event: MangaDownloadedChapterContainersRequestedEvent) => void): void;
 
     interface MangaDownloadedChapterContainersRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mangaCollection?: AL_MangaCollection;
         chapterContainers?: Array<Manga_ChapterContainer>;
@@ -750,10 +749,10 @@ declare namespace $app {
      * @description
      * MangaDownloadedChapterContainersEvent is triggered when the manga downloaded chapter containers are being returned.
      */
-    function onMangaDownloadedChapterContainers(cb: (event: MangaDownloadedChapterContainersEvent) => void);
+    function onMangaDownloadedChapterContainers(cb: (event: MangaDownloadedChapterContainersEvent) => void): void;
 
     interface MangaDownloadedChapterContainersEvent {
-        next();
+        next(): void;
 
         chapterContainers?: Array<Manga_ChapterContainer>;
     }
@@ -764,10 +763,10 @@ declare namespace $app {
      * @description
      * MangaLatestChapterNumbersMapEvent is triggered when the manga latest chapter numbers map is being returned.
      */
-    function onMangaLatestChapterNumbersMap(cb: (event: MangaLatestChapterNumbersMapEvent) => void);
+    function onMangaLatestChapterNumbersMap(cb: (event: MangaLatestChapterNumbersMapEvent) => void): void;
 
     interface MangaLatestChapterNumbersMapEvent {
-        next();
+        next(): void;
 
         latestChapterNumbersMap?: Record<number, Array<Manga_MangaLatestChapterNumberItem>>;
     }
@@ -779,10 +778,10 @@ declare namespace $app {
      * MangaDownloadMapEvent is triggered when the manga download map has been updated.
      * This map is used to tell the client which chapters have been downloaded.
      */
-    function onMangaDownloadMap(cb: (event: MangaDownloadMapEvent) => void);
+    function onMangaDownloadMap(cb: (event: MangaDownloadMapEvent) => void): void;
 
     interface MangaDownloadMapEvent {
-        next();
+        next(): void;
 
         mediaMap?: Manga_MediaMap;
     }
@@ -796,12 +795,12 @@ declare namespace $app {
      * Prevent default to skip the default behavior and return the modified chapter container.
      * If the modified chapter container is nil, an error will be returned.
      */
-    function onMangaChapterContainerRequested(cb: (event: MangaChapterContainerRequestedEvent) => void);
+    function onMangaChapterContainerRequested(cb: (event: MangaChapterContainerRequestedEvent) => void): void;
 
     interface MangaChapterContainerRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         provider: string;
         mediaId: number;
@@ -817,10 +816,10 @@ declare namespace $app {
      * MangaChapterContainerEvent is triggered when the manga chapter container is being returned.
      * This event happens after the chapter container is fetched from the cache or provider.
      */
-    function onMangaChapterContainer(cb: (event: MangaChapterContainerEvent) => void);
+    function onMangaChapterContainer(cb: (event: MangaChapterContainerEvent) => void): void;
 
     interface MangaChapterContainerEvent {
-        next();
+        next(): void;
 
         chapterContainer?: Manga_ChapterContainer;
     }
@@ -837,20 +836,15 @@ declare namespace $app {
      * MediaPlayerLocalFileTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a local file.
      * Prevent default to stop tracking.
      */
-    function onMediaPlayerLocalFileTrackingRequested(cb: (event: MediaPlayerLocalFileTrackingRequestedEvent) => void);
+    function onMediaPlayerLocalFileTrackingRequested(cb: (event: MediaPlayerLocalFileTrackingRequestedEvent) => void): void;
 
     interface MediaPlayerLocalFileTrackingRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
-        /**
-         * Refresh the status of the player each x seconds
-         */
+        startRefreshDelay: number;
         refreshDelay: number;
-        /**
-         * Maximum number of retries
-         */
         maxRetries: number;
     }
 
@@ -861,24 +855,16 @@ declare namespace $app {
      * MediaPlayerStreamTrackingRequestedEvent is triggered when the playback manager wants to track the progress of a stream.
      * Prevent default to stop tracking.
      */
-    function onMediaPlayerStreamTrackingRequested(cb: (event: MediaPlayerStreamTrackingRequestedEvent) => void);
+    function onMediaPlayerStreamTrackingRequested(cb: (event: MediaPlayerStreamTrackingRequestedEvent) => void): void;
 
     interface MediaPlayerStreamTrackingRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
-        /**
-         * Refresh the status of the player each x seconds
-         */
+        startRefreshDelay: number;
         refreshDelay: number;
-        /**
-         * Maximum number of retries
-         */
         maxRetries: number;
-        /**
-         * Maximum number of retries after the player has started
-         */
         maxRetriesAfterStart: number;
     }
 
@@ -896,12 +882,12 @@ declare namespace $app {
      * Prevent default to skip the default behavior and return the modified metadata.
      * If the modified metadata is nil, an error will be returned.
      */
-    function onAnimeMetadataRequested(cb: (event: AnimeMetadataRequestedEvent) => void);
+    function onAnimeMetadataRequested(cb: (event: AnimeMetadataRequestedEvent) => void): void;
 
     interface AnimeMetadataRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         mediaId: number;
         animeMetadata?: Metadata_AnimeMetadata;
@@ -916,10 +902,10 @@ declare namespace $app {
      * This event is triggered after [AnimeMetadataRequestedEvent].
      * If the modified metadata is nil, an error will be returned.
      */
-    function onAnimeMetadata(cb: (event: AnimeMetadataEvent) => void);
+    function onAnimeMetadata(cb: (event: AnimeMetadataEvent) => void): void;
 
     interface AnimeMetadataEvent {
-        next();
+        next(): void;
 
         mediaId: number;
         animeMetadata?: Metadata_AnimeMetadata;
@@ -934,12 +920,12 @@ declare namespace $app {
      * This event is triggered before [AnimeEpisodeMetadataEvent].
      * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
      */
-    function onAnimeEpisodeMetadataRequested(cb: (event: AnimeEpisodeMetadataRequestedEvent) => void);
+    function onAnimeEpisodeMetadataRequested(cb: (event: AnimeEpisodeMetadataRequestedEvent) => void): void;
 
     interface AnimeEpisodeMetadataRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         animeEpisodeMetadata?: Metadata_EpisodeMetadata;
         episodeNumber: number;
@@ -951,14 +937,14 @@ declare namespace $app {
      * @file internal/api/metadata/hook_events.go
      * @description
      * AnimeEpisodeMetadataEvent is triggered when anime episode metadata is available and is about to be returned.
-     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the
-     *     original AnimeMetadata object is not complete. This event is triggered after [AnimeEpisodeMetadataRequestedEvent]. If the modified episode
-     *     metadata is nil, an empty EpisodeMetadata object will be returned.
+     * In the current implementation, episode metadata is requested for display purposes. It is used to get a more complete metadata object since the original AnimeMetadata object is not complete.
+     * This event is triggered after [AnimeEpisodeMetadataRequestedEvent].
+     * If the modified episode metadata is nil, an empty EpisodeMetadata object will be returned.
      */
-    function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void);
+    function onAnimeEpisodeMetadata(cb: (event: AnimeEpisodeMetadataEvent) => void): void;
 
     interface AnimeEpisodeMetadataEvent {
-        next();
+        next(): void;
 
         animeEpisodeMetadata?: Metadata_EpisodeMetadata;
         episodeNumber: number;
@@ -977,12 +963,12 @@ declare namespace $app {
      * LocalFilePlaybackRequestedEvent is triggered when a local file is requested to be played.
      * Prevent default to skip the default playback and override the playback.
      */
-    function onLocalFilePlaybackRequested(cb: (event: LocalFilePlaybackRequestedEvent) => void);
+    function onLocalFilePlaybackRequested(cb: (event: LocalFilePlaybackRequestedEvent) => void): void;
 
     interface LocalFilePlaybackRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         path: string;
     }
@@ -994,12 +980,12 @@ declare namespace $app {
      * StreamPlaybackRequestedEvent is triggered when a stream is requested to be played.
      * Prevent default to skip the default playback and override the playback.
      */
-    function onStreamPlaybackRequested(cb: (event: StreamPlaybackRequestedEvent) => void);
+    function onStreamPlaybackRequested(cb: (event: StreamPlaybackRequestedEvent) => void): void;
 
     interface StreamPlaybackRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         windowTitle: string;
         payload: string;
@@ -1014,12 +1000,12 @@ declare namespace $app {
      * PlaybackBeforeTrackingEvent is triggered just before the playback tracking starts.
      * Prevent default to skip playback tracking.
      */
-    function onPlaybackBeforeTracking(cb: (event: PlaybackBeforeTrackingEvent) => void);
+    function onPlaybackBeforeTracking(cb: (event: PlaybackBeforeTrackingEvent) => void): void;
 
     interface PlaybackBeforeTrackingEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         isStream: boolean;
     }
@@ -1031,15 +1017,15 @@ declare namespace $app {
      * PlaybackLocalFileDetailsRequestedEvent is triggered when the local files details for a specific path are requested.
      * This event is triggered right after the media player loads an episode.
      * The playback manager uses the local files details to track the progress, propose next episodes, etc.
-     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media
-     *     and anime list entry. Prevent default to skip the default fetching and override the details.
+     * In the current implementation, the details are fetched by selecting the local file from the database and making requests to retrieve the media and anime list entry.
+     * Prevent default to skip the default fetching and override the details.
      */
-    function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void);
+    function onPlaybackLocalFileDetailsRequested(cb: (event: PlaybackLocalFileDetailsRequestedEvent) => void): void;
 
     interface PlaybackLocalFileDetailsRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         path: string;
         localFiles?: Array<Anime_LocalFile>;
@@ -1054,15 +1040,14 @@ declare namespace $app {
      * @description
      * PlaybackStreamDetailsRequestedEvent is triggered when the stream details are requested.
      * Prevent default to skip the default fetching and override the details.
-     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is
-     *     still tracked.
+     * In the current implementation, the details are fetched by selecting the anime from the anime collection. If nothing is found, the stream is still tracked.
      */
-    function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void);
+    function onPlaybackStreamDetailsRequested(cb: (event: PlaybackStreamDetailsRequestedEvent) => void): void;
 
     interface PlaybackStreamDetailsRequestedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         animeCollection?: AL_AnimeCollection;
         mediaId: number;
@@ -1081,12 +1066,12 @@ declare namespace $app {
      * ScanStartedEvent is triggered when the scanning process begins.
      * Prevent default to skip the rest of the scanning process and return the local files.
      */
-    function onScanStarted(cb: (event: ScanStartedEvent) => void);
+    function onScanStarted(cb: (event: ScanStartedEvent) => void): void;
 
     interface ScanStartedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         libraryPath: string;
         otherLibraryPaths?: Array<string>;
@@ -1104,10 +1089,10 @@ declare namespace $app {
      * The event includes file paths from all directories to scan.
      * The event includes file paths of local files that will be skipped.
      */
-    function onScanFilePathsRetrieved(cb: (event: ScanFilePathsRetrievedEvent) => void);
+    function onScanFilePathsRetrieved(cb: (event: ScanFilePathsRetrievedEvent) => void): void;
 
     interface ScanFilePathsRetrievedEvent {
-        next();
+        next(): void;
 
         filePaths?: Array<string>;
     }
@@ -1119,10 +1104,10 @@ declare namespace $app {
      * ScanLocalFilesParsedEvent is triggered right after the file paths are parsed into local file objects.
      * The event does not include local files that are skipped.
      */
-    function onScanLocalFilesParsed(cb: (event: ScanLocalFilesParsedEvent) => void);
+    function onScanLocalFilesParsed(cb: (event: ScanLocalFilesParsedEvent) => void): void;
 
     interface ScanLocalFilesParsedEvent {
-        next();
+        next(): void;
 
         localFiles?: Array<Anime_LocalFile>;
     }
@@ -1135,15 +1120,15 @@ declare namespace $app {
      * The event includes all the local files (skipped and scanned) to be inserted as a new entry.
      * Right after this event, the local files will be inserted as a new entry.
      */
-    function onScanCompleted(cb: (event: ScanCompletedEvent) => void);
+    function onScanCompleted(cb: (event: ScanCompletedEvent) => void): void;
 
     interface ScanCompletedEvent {
-        next();
+        next(): void;
 
         localFiles?: Array<Anime_LocalFile>;
-        /**
-         * in milliseconds
-         */
+    /**
+     * in milliseconds
+     */
         duration: number;
     }
 
@@ -1153,10 +1138,10 @@ declare namespace $app {
      * @description
      * ScanMediaFetcherStartedEvent is triggered right before Seanime starts fetching media to be matched against the local files.
      */
-    function onScanMediaFetcherStarted(cb: (event: ScanMediaFetcherStartedEvent) => void);
+    function onScanMediaFetcherStarted(cb: (event: ScanMediaFetcherStartedEvent) => void): void;
 
     interface ScanMediaFetcherStartedEvent {
-        next();
+        next(): void;
 
         enhanced: boolean;
     }
@@ -1169,10 +1154,10 @@ declare namespace $app {
      * The event includes all the media fetched from AniList.
      * The event includes the media IDs that are not in the user's collection.
      */
-    function onScanMediaFetcherCompleted(cb: (event: ScanMediaFetcherCompletedEvent) => void);
+    function onScanMediaFetcherCompleted(cb: (event: ScanMediaFetcherCompletedEvent) => void): void;
 
     interface ScanMediaFetcherCompletedEvent {
-        next();
+        next(): void;
 
         allMedia?: Array<AL_CompleteAnime>;
         unknownMediaIds?: Array<number>;
@@ -1185,12 +1170,12 @@ declare namespace $app {
      * ScanMatchingStartedEvent is triggered when the matching process begins.
      * Prevent default to skip the default matching, in which case modified local files will be used.
      */
-    function onScanMatchingStarted(cb: (event: ScanMatchingStartedEvent) => void);
+    function onScanMatchingStarted(cb: (event: ScanMatchingStartedEvent) => void): void;
 
     interface ScanMatchingStartedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         localFiles?: Array<Anime_LocalFile>;
         normalizedMedia?: Array<Anime_NormalizedMedia>;
@@ -1205,12 +1190,12 @@ declare namespace $app {
      * ScanLocalFileMatchedEvent is triggered when a local file is matched with media and before the match is analyzed.
      * Prevent default to skip the default analysis and override the match.
      */
-    function onScanLocalFileMatched(cb: (event: ScanLocalFileMatchedEvent) => void);
+    function onScanLocalFileMatched(cb: (event: ScanLocalFileMatchedEvent) => void): void;
 
     interface ScanLocalFileMatchedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         match?: Anime_NormalizedMedia;
         found: boolean;
@@ -1224,10 +1209,10 @@ declare namespace $app {
      * @description
      * ScanMatchingCompletedEvent is triggered when the matching process completes.
      */
-    function onScanMatchingCompleted(cb: (event: ScanMatchingCompletedEvent) => void);
+    function onScanMatchingCompleted(cb: (event: ScanMatchingCompletedEvent) => void): void;
 
     interface ScanMatchingCompletedEvent {
-        next();
+        next(): void;
 
         localFiles?: Array<Anime_LocalFile>;
     }
@@ -1239,12 +1224,12 @@ declare namespace $app {
      * ScanHydrationStartedEvent is triggered when the file hydration process begins.
      * Prevent default to skip the rest of the hydration process, in which case the event's local files will be used.
      */
-    function onScanHydrationStarted(cb: (event: ScanHydrationStartedEvent) => void);
+    function onScanHydrationStarted(cb: (event: ScanHydrationStartedEvent) => void): void;
 
     interface ScanHydrationStartedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         localFiles?: Array<Anime_LocalFile>;
         allMedia?: Array<Anime_NormalizedMedia>;
@@ -1257,12 +1242,12 @@ declare namespace $app {
      * ScanLocalFileHydrationStartedEvent is triggered when a local file's metadata is about to be hydrated.
      * Prevent default to skip the default hydration and override the hydration.
      */
-    function onScanLocalFileHydrationStarted(cb: (event: ScanLocalFileHydrationStartedEvent) => void);
+    function onScanLocalFileHydrationStarted(cb: (event: ScanLocalFileHydrationStartedEvent) => void): void;
 
     interface ScanLocalFileHydrationStartedEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         localFile?: Anime_LocalFile;
         media?: Anime_NormalizedMedia;
@@ -1274,10 +1259,10 @@ declare namespace $app {
      * @description
      * ScanLocalFileHydratedEvent is triggered when a local file's metadata is hydrated
      */
-    function onScanLocalFileHydrated(cb: (event: ScanLocalFileHydratedEvent) => void);
+    function onScanLocalFileHydrated(cb: (event: ScanLocalFileHydratedEvent) => void): void;
 
     interface ScanLocalFileHydratedEvent {
-        next();
+        next(): void;
 
         localFile?: Anime_LocalFile;
         mediaId: number;
@@ -1297,12 +1282,12 @@ declare namespace $app {
      * The torrents are sorted by seeders from highest to lowest.
      * This event is triggered before the top 3 torrents are analyzed.
      */
-    function onTorrentStreamAutoSelectTorrentsFetched(cb: (event: TorrentStreamAutoSelectTorrentsFetchedEvent) => void);
+    function onTorrentStreamAutoSelectTorrentsFetched(cb: (event: TorrentStreamAutoSelectTorrentsFetchedEvent) => void): void;
 
     interface TorrentStreamAutoSelectTorrentsFetchedEvent {
-        Torrents?: Array<HibikeTorrent_AnimeTorrent>;
+        next(): void;
 
-        next();
+        Torrents?: Array<HibikeTorrent_AnimeTorrent>;
     }
 
     /**
@@ -1312,12 +1297,12 @@ declare namespace $app {
      * TorrentStreamSendStreamToMediaPlayerEvent is triggered when the torrent stream is about to send a stream to the media player.
      * Prevent default to skip the default playback and override the playback.
      */
-    function onTorrentStreamSendStreamToMediaPlayer(cb: (event: TorrentStreamSendStreamToMediaPlayerEvent) => void);
+    function onTorrentStreamSendStreamToMediaPlayer(cb: (event: TorrentStreamSendStreamToMediaPlayerEvent) => void): void;
 
     interface TorrentStreamSendStreamToMediaPlayerEvent {
-        next();
+        next(): void;
 
-        preventDefault();
+        preventDefault(): void;
 
         windowTitle: string;
         streamURL: string;
@@ -1335,6 +1320,64 @@ declare namespace $app {
      */
     interface AL_AnimeCollection {
         mediaListCollection?: AL_AnimeCollection_MediaListCollection;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_AnimeCollectionWithRelations {
+        mediaListCollection?: AL_AnimeCollectionWithRelations_MediaListCollection;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_AnimeCollectionWithRelations_MediaListCollection {
+        lists?: Array<AL_AnimeCollectionWithRelations_MediaListCollection_Lists>;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_AnimeCollectionWithRelations_MediaListCollection_Lists {
+        status?: AL_MediaListStatus;
+        name?: string;
+        isCustomList?: boolean;
+        entries?: Array<AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries>;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries {
+        id: number;
+        score?: number;
+        progress?: number;
+        status?: AL_MediaListStatus;
+        notes?: string;
+        repeat?: number;
+        private?: boolean;
+        startedAt?: AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt;
+        completedAt?: AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt;
+        media?: AL_CompleteAnime;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_CompletedAt {
+        year?: number;
+        month?: number;
+        day?: number;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_AnimeCollectionWithRelations_MediaListCollection_Lists_Entries_StartedAt {
+        year?: number;
+        month?: number;
+        day?: number;
     }
 
     /**
@@ -1925,6 +1968,95 @@ declare namespace $app {
     /**
      * - Filepath: internal/api/anilist/client_gen.go
      */
+    interface AL_ListAnime {
+        page?: AL_ListAnime_Page;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListAnime_Page {
+        pageInfo?: AL_ListAnime_Page_PageInfo;
+        media?: Array<AL_BaseAnime>;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListAnime_Page_PageInfo {
+        hasNextPage?: boolean;
+        total?: number;
+        perPage?: number;
+        currentPage?: number;
+        lastPage?: number;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListManga {
+        page?: AL_ListManga_Page;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListManga_Page {
+        pageInfo?: AL_ListManga_Page_PageInfo;
+        media?: Array<AL_BaseManga>;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListManga_Page_PageInfo {
+        hasNextPage?: boolean;
+        total?: number;
+        perPage?: number;
+        currentPage?: number;
+        lastPage?: number;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListRecentAnime {
+        page?: AL_ListRecentAnime_Page;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListRecentAnime_Page {
+        pageInfo?: AL_ListRecentAnime_Page_PageInfo;
+        airingSchedules?: Array<AL_ListRecentAnime_Page_AiringSchedules>;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListRecentAnime_Page_AiringSchedules {
+        id: number;
+        airingAt: number;
+        episode: number;
+        timeUntilAiring: number;
+        media?: AL_BaseAnime;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
+    interface AL_ListRecentAnime_Page_PageInfo {
+        hasNextPage?: boolean;
+        total?: number;
+        perPage?: number;
+        currentPage?: number;
+        lastPage?: number;
+    }
+
+    /**
+     * - Filepath: internal/api/anilist/client_gen.go
+     */
     interface AL_MangaCollection {
         mediaListCollection?: AL_MangaCollection_MediaListCollection;
     }
@@ -2129,15 +2261,15 @@ declare namespace $app {
      *  The format the media was released in
      */
     export type AL_MediaFormat = "TV" |
-        "TV_SHORT" |
-        "MOVIE" |
-        "SPECIAL" |
-        "OVA" |
-        "ONA" |
-        "MUSIC" |
-        "MANGA" |
-        "NOVEL" |
-        "ONE_SHOT";
+    "TV_SHORT" |
+    "MOVIE" |
+    "SPECIAL" |
+    "OVA" |
+    "ONA" |
+    "MUSIC" |
+    "MANGA" |
+    "NOVEL" |
+    "ONE_SHOT";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -2145,11 +2277,11 @@ declare namespace $app {
      *  Media list watching/reading status enum.
      */
     export type AL_MediaListStatus = "CURRENT" |
-        "PLANNING" |
-        "COMPLETED" |
-        "DROPPED" |
-        "PAUSED" |
-        "REPEATING";
+    "PLANNING" |
+    "COMPLETED" |
+    "DROPPED" |
+    "PAUSED" |
+    "REPEATING";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -2164,23 +2296,66 @@ declare namespace $app {
      *  Type of relation media has to its parent.
      */
     export type AL_MediaRelation = "ADAPTATION" |
-        "PREQUEL" |
-        "SEQUEL" |
-        "PARENT" |
-        "SIDE_STORY" |
-        "CHARACTER" |
-        "SUMMARY" |
-        "ALTERNATIVE" |
-        "SPIN_OFF" |
-        "OTHER" |
-        "SOURCE" |
-        "COMPILATION" |
-        "CONTAINS";
+    "PREQUEL" |
+    "SEQUEL" |
+    "PARENT" |
+    "SIDE_STORY" |
+    "CHARACTER" |
+    "SUMMARY" |
+    "ALTERNATIVE" |
+    "SPIN_OFF" |
+    "OTHER" |
+    "SOURCE" |
+    "COMPILATION" |
+    "CONTAINS";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
      */
     export type AL_MediaSeason = "WINTER" | "SPRING" | "SUMMER" | "FALL";
+
+    /**
+     * - Filepath: internal/api/anilist/models_gen.go
+     * @description
+     *  Media sort enums
+     */
+    export type AL_MediaSort = "ID" |
+    "ID_DESC" |
+    "TITLE_ROMAJI" |
+    "TITLE_ROMAJI_DESC" |
+    "TITLE_ENGLISH" |
+    "TITLE_ENGLISH_DESC" |
+    "TITLE_NATIVE" |
+    "TITLE_NATIVE_DESC" |
+    "TYPE" |
+    "TYPE_DESC" |
+    "FORMAT" |
+    "FORMAT_DESC" |
+    "START_DATE" |
+    "START_DATE_DESC" |
+    "END_DATE" |
+    "END_DATE_DESC" |
+    "SCORE" |
+    "SCORE_DESC" |
+    "POPULARITY" |
+    "POPULARITY_DESC" |
+    "TRENDING" |
+    "TRENDING_DESC" |
+    "EPISODES" |
+    "EPISODES_DESC" |
+    "DURATION" |
+    "DURATION_DESC" |
+    "STATUS" |
+    "STATUS_DESC" |
+    "CHAPTERS" |
+    "CHAPTERS_DESC" |
+    "VOLUMES" |
+    "VOLUMES_DESC" |
+    "UPDATED_AT" |
+    "UPDATED_AT_DESC" |
+    "SEARCH_MATCH" |
+    "FAVOURITES" |
+    "FAVOURITES_DESC";
 
     /**
      * - Filepath: internal/api/anilist/models_gen.go
@@ -2546,7 +2721,7 @@ declare namespace $app {
      * - Filepath: internal/library/autodownloader/autodownloader_torrent.go
      */
     interface AutoDownloader_NormalizedTorrent {
-        parsedData?: Metadata;
+        parsedData?: $habari.Metadata;
         /**
          * Access using GetMagnet()
          */
