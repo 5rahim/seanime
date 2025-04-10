@@ -2,7 +2,6 @@ import { getServerBaseUrl } from "@/api/client/server-url"
 import { ExtensionRepo_OnlinestreamProviderExtensionItem, Onlinestream_EpisodeSource } from "@/api/generated/types"
 import { useHandleCurrentMediaContinuity } from "@/api/hooks/continuity.hooks"
 import { useGetOnlineStreamEpisodeList, useGetOnlineStreamEpisodeSource } from "@/api/hooks/onlinestream.hooks"
-import { useServerStatus } from "@/app/(main)/_hooks/use-server-status"
 import { useHandleOnlinestreamProviderExtensions } from "@/app/(main)/onlinestream/_lib/handle-onlinestream-providers"
 import {
     __onlinestream_qualityAtom,
@@ -136,9 +135,6 @@ type HandleOnlinestreamProps = {
 }
 
 export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
-
-    const serverStatus = useServerStatus()
-
     const { mediaId, ref: playerRef } = props
 
     const { providerExtensions, providerExtensionOptions } = useHandleOnlinestreamProviderExtensions()
@@ -273,7 +269,7 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         if (provider == currentProviderRef.current) {
             setUrl(undefined)
             logger("ONLINESTREAM").error("Setting stream URL to undefined")
-            toast.info("Playback error, changing server")
+            toast.warning("Playback error, trying another server...")
             logger("ONLINESTREAM").error("Player encountered a fatal error")
             setTimeout(() => {
                 logger("ONLINESTREAM").error("erroredServers", erroredServers)
@@ -312,7 +308,11 @@ export function useHandleOnlinestream(props: HandleOnlinestreamProps) {
         // If the player was playing before the onCanPlay event, resume playing
         setTimeout(() => {
             if (previousIsPlayingRef.current) {
-                playerRef.current?.play()
+                try {
+                    playerRef.current?.play()
+                }
+                catch {
+                }
                 logger("ONLINESTREAM").info("Resuming playback since past video was playing before the onCanPlay event")
             }
         }, 500)
