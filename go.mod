@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	fyne.io/systray v1.11.0
-	github.com/5rahim/habari v0.1.3
+	github.com/5rahim/habari v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/Microsoft/go-winio v0.6.2
 	github.com/PuerkitoBio/goquery v1.10.0
