@@ -188,8 +188,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         rightAddon: props1.rightAddon,
         rightIcon: props1.rightIcon,
     })
-
-    const [state, send] = useMachine(numberInput.machine({
+    const service = useMachine(numberInput.machine, {
         id: basicFieldProps.id,
         name: basicFieldProps.name,
         disabled: basicFieldProps.disabled,
@@ -204,10 +203,12 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         translations,
         locale,
         dir,
-        onValueChange: (details) => {
+        onValueChange: (details: { valueAsNumber: number; value: string }) => {
             onValueChange?.(details.valueAsNumber, details.value)
         },
-    }))
+    })
+
+    const api = numberInput.connect(service, normalizeProps)
 
     const isFirst = React.useRef(true)
 
@@ -224,12 +225,10 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         isFirst.current = false
     }, [controlledValue])
 
-    const api = numberInput.connect(state, send, normalizeProps)
-
     return (
         <BasicField
             {...basicFieldProps}
-            id={api.inputProps.id}
+            id={api.getInputProps().id}
         >
             <InputContainer {...inputContainerProps}>
                 <InputAddon {...leftAddonProps} />
@@ -259,7 +258,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
                     data-readonly={basicFieldProps.readonly}
                     aria-readonly={basicFieldProps.readonly}
                     required={basicFieldProps.required}
-                    {...api.inputProps}
+                    {...api.getInputProps()}
                     {...rest}
                 />
 
@@ -289,10 +288,10 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
                             NumberInputAnatomy.control(),
                             controlClass,
                         )}
-                        {...api.incrementTriggerProps}
+                        {...api.getIncrementTriggerProps()}
                         data-readonly={basicFieldProps.readonly}
-                        data-disabled={basicFieldProps.disabled || api.incrementTriggerProps.disabled}
-                        disabled={basicFieldProps.disabled || basicFieldProps.readonly || api.incrementTriggerProps.disabled}
+                        data-disabled={basicFieldProps.disabled || api.getIncrementTriggerProps().disabled}
+                        disabled={basicFieldProps.disabled || basicFieldProps.readonly || api.getIncrementTriggerProps().disabled}
                         tabIndex={0}
                         icon={<svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -314,10 +313,10 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
                             NumberInputAnatomy.control(),
                             controlClass,
                         )}
-                        {...api.decrementTriggerProps}
+                        {...api.getDecrementTriggerProps()}
                         data-readonly={basicFieldProps.readonly}
-                        data-disabled={basicFieldProps.disabled || api.decrementTriggerProps.disabled}
-                        disabled={basicFieldProps.disabled || basicFieldProps.readonly || api.decrementTriggerProps.disabled}
+                        data-disabled={basicFieldProps.disabled || api.getDecrementTriggerProps().disabled}
+                        disabled={basicFieldProps.disabled || basicFieldProps.readonly || api.getDecrementTriggerProps().disabled}
                         tabIndex={0}
                         icon={<svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -338,7 +337,7 @@ export const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
                 <InputIcon
                     {...rightIconProps}
                     className={cn(
-                        "z-[3]",
+                        "z-3",
                         rightIconProps.className,
                         !rightAddon ? "mr-6" : null,
                     )}
