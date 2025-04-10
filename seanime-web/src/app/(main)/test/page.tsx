@@ -4,13 +4,21 @@ import { MediaPlayerInstance } from "@vidstack/react"
 import { useRef } from "react"
 import { SeaMediaPlayer } from "../_features/sea-media-player/sea-media-player"
 import { SeaMediaPlayerLayout } from "../_features/sea-media-player/sea-media-player-layout"
+import { AppLayoutStack } from "@/components/ui/app-layout"
+import { DirectorySelector } from "@/components/shared/directory-selector"
 
 export default function TestPage() {
 
     const playerRef = useRef<MediaPlayerInstance>(null)
 
-    return <div>
-        <SeaMediaPlayerLayout
+    return <AppLayoutStack>
+
+        <DirectorySelector
+            onSelect={() => { }}
+            value={""}
+        />
+
+        {/* <SeaMediaPlayerLayout
             mediaId={130003}
             title={"test"}
             episodes={[]}
@@ -38,7 +46,7 @@ export default function TestPage() {
                 />
             }
             episodeList={[]}
-        />
-    </div>
+        /> */}
+    </AppLayoutStack>
 }
 

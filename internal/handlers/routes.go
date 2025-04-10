@@ -113,8 +113,8 @@ func InitRoutes(app *core.App, e *echo.Echo) {
 	imageProxy := &util.ImageProxy{}
 	v1.GET("/image-proxy", imageProxy.ProxyImage)
 
-	v1.GET("/proxy", util.M3U8Proxy)
-	v1.HEAD("/proxy", util.M3U8Proxy)
+	v1.GET("/proxy", util.VideoProxy)
+	v1.HEAD("/proxy", util.VideoProxy)
 
 	v1.GET("/status", h.HandleGetStatus)
 	v1.GET("/log/*", h.HandleGetLogContent)

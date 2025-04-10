@@ -65,6 +65,10 @@ func (r *Repository) fetchExternalExtensionData(manifestURI string) (*extension.
 			r.logger.Error().Err(err).Str("id", ext.ID).Msg("extensions: Failed to download payload")
 			return nil, fmt.Errorf("failed to download payload, %w", err)
 		}
+		if payloadFromURI == "" {
+			r.logger.Error().Str("id", ext.ID).Msg("extensions: Downloaded payload is empty")
+			return nil, fmt.Errorf("downloaded payload is empty")
+		}
 		ext.Payload = payloadFromURI
 	}
 
