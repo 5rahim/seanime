@@ -38,6 +38,7 @@ import { usePathname } from "next/navigation"
 import React from "react"
 import { BiX } from "react-icons/bi"
 import { GoArrowLeft } from "react-icons/go"
+import { SiAnilist } from "react-icons/si"
 
 
 // unused
@@ -269,6 +270,10 @@ function Content({ entry, entryLoading, detailsLoading, details, type }: {
                                 Trailer
                             </Button>}
                         />}
+
+                        <SeaLink href={`https://anilist.co/${type}/${entry.mediaId}`} target="_blank">
+                            <IconButton intent="gray-link" className="px-0" icon={<SiAnilist className="text-lg" />} />
+                        </SeaLink>
 
                         {(
                             type === "anime" &&
