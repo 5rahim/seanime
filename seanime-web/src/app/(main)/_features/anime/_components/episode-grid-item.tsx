@@ -118,9 +118,11 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                 <div
                     data-episode-grid-item-image-container
                     className={cn(
-                        "w-36 lg:w-40 h-28 flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden cursor-pointer",
+                        "w-36 h-28 lg:w-44 lg:h-32",
+                        !description && "w-36 h-28 lg:w-40 lg:h-28",
+                        "flex-none rounded-[--radius-md] object-cover object-center relative overflow-hidden",
                         "group/ep-item-img-container",
-
+                        onClick && "cursor-pointer",
                         {
                             "border-2 border-red-700": isInvalid,
                             "border-2 border-yellow-900": isFiller,
@@ -154,7 +156,7 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                         placeholder={imageShimmer(700, 475)}
                         sizes="10rem"
                         className={cn("object-cover object-center transition select-none", {
-                            "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched,
+                            "opacity-25 lg:group-hover/episode-list-item:opacity-100": isWatched && !isSelected,
                         }, imageClassName)}
                         data-src={image}
                     />}

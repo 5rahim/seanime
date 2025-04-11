@@ -329,8 +329,9 @@ export function MediaEntryCard<T extends "anime" | "manga">(props: MediaEntryCar
                         </> : null}
                     />
                 </div>
-                <div data-media-entry-card-body-score-badge-container className="absolute z-[10] right-1 bottom-1">
+                <div data-media-entry-card-body-score-badge-container className="absolute z-[10] right-0 bottom-0">
                     <MediaEntryScoreBadge
+                        isMediaCard
                         score={listData?.score}
                     />
                 </div>
