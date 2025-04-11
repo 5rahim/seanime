@@ -328,6 +328,15 @@ func (c *Context) SendEventToClient(eventType ServerEventType, payload interface
 	})
 }
 
+// SendEventToClientWithClientID sends an event to the client with a specific client ID
+func (c *Context) SendEventToClientWithClientID(clientID string, eventType ServerEventType, payload interface{}) {
+	c.wsEventManager.SendEventTo(clientID, string(events.PluginEvent), &ServerPluginEvent{
+		ExtensionID: c.ext.ID,
+		Type:        eventType,
+		Payload:     payload,
+	})
+}
+
 // PrintState prints all states to the logger
 func (c *Context) PrintState() {
 	c.states.Range(func(key string, state *State) bool {
