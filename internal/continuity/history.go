@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	MaxWatchHistoryItems   = 50
+	MaxWatchHistoryItems   = 100
 	IgnoreRatioThreshold   = 0.9
 	WatchHistoryBucketName = "watch_history"
 )

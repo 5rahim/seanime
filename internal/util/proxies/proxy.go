@@ -11,10 +11,9 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/rs/zerolog/log"
-
 	"github.com/grafov/m3u8"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 )
 
 var proxyUA = util.GetRandomUserAgent()
@@ -34,8 +33,6 @@ func VideoProxy(c echo.Context) (err error) {
 
 	url := c.QueryParam("url")
 	headers := c.QueryParam("headers")
-
-	log.Debug().Str("url", url).Msg("proxy: Proxying request")
 
 	// Always use GET request internally, even for HEAD requests
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -95,7 +92,7 @@ func VideoProxy(c echo.Context) (err error) {
 	}
 
 	// HLS Playlist
-	log.Debug().Str("url", url).Msg("proxy: Processing HLS playlist")
+	//log.Debug().Str("url", url).Msg("proxy: Processing HLS playlist")
 
 	bodyBytes, readErr := io.ReadAll(resp.Body)
 	if readErr != nil {

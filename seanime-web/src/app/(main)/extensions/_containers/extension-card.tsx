@@ -15,6 +15,7 @@ import { Button, IconButton } from "@/components/ui/button"
 import { cn } from "@/components/ui/core/styling"
 import { LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Modal } from "@/components/ui/modal"
+import { Tooltip } from "@/components/ui/tooltip"
 import capitalize from "lodash/capitalize"
 import Image from "next/image"
 import React from "react"
@@ -71,51 +72,67 @@ export function ExtensionCard(props: ExtensionCardProps) {
                 <div className=" flex flex-row gap-1 z-[2] flex-wrap gap-1 justify-end">
                     {!isBuiltin && (
                         <ExtensionSettings extension={extension} isInstalled={isInstalled} updateData={updateData}>
-                            <IconButton
-                                size="sm"
-                                intent="gray-basic"
-                                icon={<LuEllipsisVertical />}
-                            />
+                            <div>
+                                <Tooltip
+                                    trigger={<IconButton
+                                        size="sm"
+                                        intent="gray-basic"
+                                        icon={<LuEllipsisVertical />}
+                                    />}
+                                >Settings</Tooltip>
+                            </div>
                         </ExtensionSettings>
                     )}
                 </div>
                 <div className="flex flex-row gap-1 z-[2] flex-wrap gap-1">
                     {!isBuiltin && (
                         <ExtensionCodeModal extension={extension}>
-                            <IconButton
-                                size="sm"
-                                intent="gray-basic"
-                                icon={<FaCode />}
-                            />
+                            <div>
+                                <Tooltip
+                                    trigger={<IconButton
+                                        size="sm"
+                                        intent="gray-basic"
+                                        icon={<FaCode />}
+                                    />}
+                                >Code</Tooltip>
+                            </div>
                         </ExtensionCodeModal>
                     )}
 
                     {!!extension.userConfig && (
                         <>
                             <ExtensionUserConfigModal extension={extension} userConfigError={userConfigError}>
-                                <IconButton
-                                    size="sm"
-                                    intent={userConfigError ? "alert" : "gray-basic"}
-                                    icon={<HiOutlineAdjustments />}
+                                <div>
+                                    <Tooltip
+                                        side="right" trigger={<IconButton
+                                        size="sm"
+                                        intent={userConfigError ? "alert" : "gray-basic"}
+                                        icon={<HiOutlineAdjustments />}
                                     className={cn(
                                         userConfigError && "animate-bounce",
                                     )}
-                                />
+                                    />}
+                                    >Preferences</Tooltip>
+                                </div>
                             </ExtensionUserConfigModal>
                         </>
                     )}
 
                     {allowReload && (
-                        <IconButton
-                            size="sm"
-                            intent="gray-basic"
-                            icon={<LuRefreshCcw />}
-                            onClick={() => {
+                        <div>
+                            <Tooltip
+                                side="right" trigger={<IconButton
+                                size="sm"
+                                intent="gray-basic"
+                                icon={<LuRefreshCcw />}
+                                onClick={() => {
                                 if (!extension.id) return toast.error("Extension has no ID")
                                 reloadExternalExtension({ id: extension.id })
                             }}
-                            disabled={isReloadingExtension}
-                        />
+                                disabled={isReloadingExtension}
+                            />}
+                            >Reload</Tooltip>
+                        </div>
                     )}
                 </div>
             </div>

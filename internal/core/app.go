@@ -12,6 +12,7 @@ import (
 	"seanime/internal/database/models"
 	debrid_client "seanime/internal/debrid/client"
 	discordrpc_presence "seanime/internal/discordrpc/presence"
+	"seanime/internal/doh"
 	"seanime/internal/events"
 	"seanime/internal/extension_playground"
 	"seanime/internal/extension_repo"
@@ -186,6 +187,9 @@ func NewApp(configOpts *ConfigOptions, selfupdater *updater.SelfUpdater) *App {
 	if configOpts.IsDesktopSidecar {
 		wsEventManager.ExitIfNoConnsAsDesktopSidecar()
 	}
+
+	// DoH
+	go doh.HandleDoH(cfg.Server.DoHUrl, logger)
 
 	// File Cacher
 	fileCacher, err := filecache.NewCacher(cfg.Cache.Dir)

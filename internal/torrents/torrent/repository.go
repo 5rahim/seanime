@@ -1,11 +1,12 @@
 package torrent
 
 import (
-	"github.com/rs/zerolog"
 	"seanime/internal/api/metadata"
 	"seanime/internal/extension"
 	"seanime/internal/util/result"
 	"sync"
+
+	"github.com/rs/zerolog"
 )
 
 type (
@@ -52,8 +53,8 @@ func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 		for {
 			select {
 			case <-bank.OnExtensionAdded():
-				r.logger.Debug().Msg("torrent repo: Anime provider extension added")
-				r.ReloadExtensions()
+				//r.logger.Debug().Msg("torrent repo: Anime provider extension added")
+				r.OnExtensionReloaded()
 			}
 		}
 	}()
@@ -62,7 +63,7 @@ func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 		for {
 			select {
 			case <-bank.OnExtensionRemoved():
-				r.ReloadExtensions()
+				r.OnExtensionReloaded()
 			}
 		}
 	}()
@@ -70,7 +71,7 @@ func (r *Repository) InitExtensionBank(bank *extension.UnifiedBank) {
 	r.logger.Debug().Msg("torrent repo: Initialized anime provider extension bank")
 }
 
-func (r *Repository) ReloadExtensions() {
+func (r *Repository) OnExtensionReloaded() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.reloadExtensions()

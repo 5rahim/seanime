@@ -56,14 +56,17 @@ const ExtensionList = ({
 
     const [trayIconListOpen, setTrayIconListOpen] = React.useState(false)
 
+    const pinnedTrayIcons = trayIcons.filter(trayIcon => isPinned(trayIcon.extensionId) || trayIcon.extensionId === unpinnedTrayIconClicked?.extensionId)
+
     return (
         <>
             <div
                 data-plugin-sidebar-tray
                 className={cn(
                     "w-10 mx-auto p-1 my-2",
-                    "flex flex-col gap-1 items-center justify-center rounded-full border hover:border-[--border] transition-all duration-300 select-none",
+                    "flex flex-col gap-1 items-center border border-transparent justify-center rounded-full transition-all duration-300 select-none",
                     place === "top" && "flex-row w-auto my-0 justify-start px-2 py-2 border-none",
+                    pinnedTrayIcons.length > 0 && "border-[--border]",
                 )}
             >
 
@@ -221,10 +224,9 @@ const ExtensionList = ({
                     </div>
                 </Popover>}
 
-                {trayIcons.filter(trayIcon => isPinned(trayIcon.extensionId) || trayIcon.extensionId === unpinnedTrayIconClicked?.extensionId)
-                    .map((trayIcon, index) => (
-                        <PluginTray
-                            trayIcon={trayIcon}
+                {pinnedTrayIcons.map((trayIcon, index) => (
+                    <PluginTray
+                        trayIcon={trayIcon}
                             isPinned={isPinned(trayIcon.extensionId)}
                             key={index}
                             place={place}

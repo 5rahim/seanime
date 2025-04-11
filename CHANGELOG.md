@@ -97,6 +97,7 @@ All notable changes to this project will be documented in this file.
 - 🏗️ Server: Migrated API from Fiber (FastHTTP) to Echo (HTTP)
 - 🏗 External media players: Increased retries when streaming
 - 🏗 Torrent streaming: Serve stream from main server
+- 🏗 Watch history: Bumped limit from 50 to 100 
 - 🏗 Integrated player: Merged both online & media streaming players
   - BREAKING: Auto play, Auto next, Auto skip player settings have been reset to 'off'
 - 🏗 Renaming and Removals
