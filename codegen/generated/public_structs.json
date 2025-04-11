@@ -28797,6 +28797,24 @@
         "required": true,
         "public": true,
         "comments": []
+      },
+      {
+        "name": "HideEpisodeCardDescription",
+        "jsonName": "hideEpisodeCardDescription",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
+      },
+      {
+        "name": "HideDownloadedEpisodeCardFilename",
+        "jsonName": "hideDownloadedEpisodeCardFilename",
+        "goType": "bool",
+        "typescriptType": "boolean",
+        "required": true,
+        "public": true,
+        "comments": []
       }
     ],
     "comments": [],
