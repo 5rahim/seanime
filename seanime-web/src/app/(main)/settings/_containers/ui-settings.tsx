@@ -61,6 +61,8 @@ const themeSchema = defineSchema(({ z }) => z.object({
     mangaLibraryCollectionDefaultSorting: z.string().default(THEME_DEFAULT_VALUES.mangaLibraryCollectionDefaultSorting),
     showAnimeUnwatchedCount: z.boolean().default(THEME_DEFAULT_VALUES.showAnimeUnwatchedCount),
     showMangaUnreadCount: z.boolean().default(THEME_DEFAULT_VALUES.showMangaUnreadCount),
+    hideEpisodeCardDescription: z.boolean().default(THEME_DEFAULT_VALUES.hideEpisodeCardDescription),
+    hideDownloadedEpisodeCardFilename: z.boolean().default(THEME_DEFAULT_VALUES.hideDownloadedEpisodeCardFilename),
 }))
 
 export const __ui_fixBorderRenderingArtifacts = atomWithStorage("sea-ui-settings-fix-border-rendering-artifacts", false)
@@ -150,6 +152,8 @@ export function UISettings() {
                 mangaLibraryCollectionDefaultSorting: themeSettings?.mangaLibraryCollectionDefaultSorting,
                 showAnimeUnwatchedCount: themeSettings?.showAnimeUnwatchedCount,
                 showMangaUnreadCount: themeSettings?.showMangaUnreadCount,
+                hideEpisodeCardDescription: themeSettings?.hideEpisodeCardDescription,
+                hideDownloadedEpisodeCardFilename: themeSettings?.hideDownloadedEpisodeCardFilename,
             }}
             stackClass="space-y-4 relative"
         >
@@ -464,6 +468,18 @@ export function UISettings() {
                                     side="right"
                                     label="Show anime info"
                                     name="showEpisodeCardAnimeInfo"
+                                />
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Hide episode summary"
+                                    name="hideEpisodeCardDescription"
+                                />
+
+                                <Field.Switch
+                                    side="right"
+                                    label="Hide downloaded episode filename"
+                                    name="hideDownloadedEpisodeCardFilename"
                                 />
 
 

@@ -9,6 +9,7 @@ import {
 import { useSetAtom } from "jotai"
 import React, { startTransition } from "react"
 import { BiCalendarAlt, BiDownload } from "react-icons/bi"
+import { EpisodeItemInfoModalButton } from "./episode-item"
 
 export function UndownloadedEpisodeList({ downloadInfo, media }: {
     downloadInfo: Anime_EntryDownloadInfo | undefined,
@@ -48,7 +49,8 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                             episodeTitle={episode.episodeTitle}
                             episodeNumber={episode.episodeNumber}
                             progressNumber={episode.progressNumber}
-                            action={<div data-undownloaded-episode-list-action>
+                            description={episode.episodeMetadata?.summary || episode.episodeMetadata?.overview}
+                            action={<>
                                 {hasTorrentProvider && <div
                                     data-undownloaded-episode-list-action-download-button
                                     onClick={() => {
@@ -57,11 +59,13 @@ export function UndownloadedEpisodeList({ downloadInfo, media }: {
                                             setTorrentSearchIsOpen("download")
                                         })
                                     }}
-                                    className="inline-block text-orange-200 absolute top-1 right-1 text-3xl animate-pulse cursor-pointer"
+                                    className="inline-block text-orange-200 text-2xl animate-pulse cursor-pointer py-2"
                                 >
                                     <BiDownload />
                                 </div>}
-                            </div>}
+
+                                <EpisodeItemInfoModalButton episode={episode} />
+                            </>}
                         >
                             <div data-undownloaded-episode-list-episode-metadata-container className="mt-1">
                                 <p data-undownloaded-episode-list-episode-metadata-text className="flex gap-1 items-center text-sm text-[--muted]">

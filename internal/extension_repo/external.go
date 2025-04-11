@@ -232,10 +232,12 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 		go func(ext extension.BaseExtension) {
 			defer wg.Done()
 
+			// Skip built-in extensions
 			if ext.GetManifestURI() == "builtin" || ext.GetManifestURI() == "" {
 				return
 			}
-			// Check for updates
+
+			// Get the extension data from the repository
 			extFromRepo, err := r.fetchExternalExtensionData(ext.GetManifestURI())
 			if err != nil {
 				r.logger.Error().Err(err).Str("id", ext.GetID()).Str("url", ext.GetManifestURI()).Msg("extensions: Failed to fetch extension data while checking for update")
@@ -248,15 +250,19 @@ func (r *Repository) checkForUpdates() (ret []UpdateData) {
 				return
 			}
 
+			if extFromRepo.ID != ext.GetID() {
+				r.logger.Warn().Str("id", ext.GetID()).Str("newID", extFromRepo.ID).Str("url", ext.GetManifestURI()).Msg("extensions: Extension ID changed while checking for update")
+				return
+			}
+
 			// If there's an update, send the update data to the channel
 			if extFromRepo.Version != ext.GetVersion() {
-				updateData := UpdateData{
+				mu.Lock()
+				ret = append(ret, UpdateData{
 					ExtensionID: extFromRepo.ID,
 					Version:     extFromRepo.Version,
 					ManifestURI: extFromRepo.ManifestURI,
-				}
-				mu.Lock()
-				ret = append(ret, updateData)
+				})
 				mu.Unlock()
 			}
 		}(ext)

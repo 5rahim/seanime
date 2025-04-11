@@ -1,4 +1,4 @@
-import { Extension_Extension, Extension_InvalidExtension } from "@/api/generated/types"
+import { Extension_Extension, Extension_InvalidExtension, ExtensionRepo_UpdateData } from "@/api/generated/types"
 import {
     useFetchExternalExtensionData,
     useInstallExternalExtension,
@@ -28,7 +28,7 @@ import { toast } from "sonner"
 
 type ExtensionCardProps = {
     extension: Extension_Extension
-    hasUpdate: boolean
+    updateData?: ExtensionRepo_UpdateData | undefined
     isInstalled: boolean
     userConfigError?: Extension_InvalidExtension | undefined
     allowReload?: boolean
@@ -38,7 +38,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
 
     const {
         extension,
-        hasUpdate,
+        updateData,
         isInstalled,
         userConfigError,
         allowReload,
@@ -70,7 +70,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
             <div className="absolute top-3 right-3 z-[2]">
                 <div className=" flex flex-row gap-1 z-[2] flex-wrap gap-1 justify-end">
                     {!isBuiltin && (
-                        <ExtensionSettings extension={extension} isInstalled={isInstalled}>
+                        <ExtensionSettings extension={extension} isInstalled={isInstalled} updateData={updateData}>
                             <IconButton
                                 size="sm"
                                 intent="gray-basic"
@@ -163,7 +163,7 @@ export function ExtensionCard(props: ExtensionCardProps) {
                     <Badge className="rounded-[--radius-md]" intent="unstyled">
                         {capitalize(extension.language)}
                     </Badge>
-                    {hasUpdate && <Badge className="rounded-[--radius-md]" intent="success">
+                    {!!updateData && <Badge className="rounded-[--radius-md]" intent="success">
                         Update available
                     </Badge>}
                 </div>
@@ -177,6 +177,7 @@ type ExtensionSettingsProps = {
     extension: Extension_Extension
     children?: React.ReactElement
     isInstalled: boolean
+    updateData?: ExtensionRepo_UpdateData | undefined
 }
 
 export function ExtensionSettings(props: ExtensionSettingsProps) {
@@ -185,6 +186,7 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
         extension,
         children,
         isInstalled,
+        updateData,
         ...rest
     } = props
 
@@ -274,10 +276,10 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
             )}
 
 
-            {(!!fetchedExtensionData && fetchedExtensionData?.version !== extension.version) && (
+            {((!!fetchedExtensionData && fetchedExtensionData?.version !== extension.version) || !!updateData) && (
                 <AppLayoutStack>
                     <p className="">
-                        Update available: <span className="font-bold text-white">{fetchedExtensionData.version}</span>
+                        Update available: <span className="font-bold text-white">{fetchedExtensionData?.version || updateData?.version}</span>
                     </p>
                     <Button
                         intent="white"
@@ -285,7 +287,7 @@ export function ExtensionSettings(props: ExtensionSettingsProps) {
                         loading={isInstalling}
                         onClick={() => {
                             installExtension({
-                                manifestUri: fetchedExtensionData.manifestURI,
+                                manifestUri: fetchedExtensionData?.manifestURI || updateData?.manifestURI || "",
                             })
                         }}
                     >

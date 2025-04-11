@@ -3056,6 +3056,8 @@ export type Models_Theme = {
     mangaLibraryCollectionDefaultSorting: string
     showAnimeUnwatchedCount: boolean
     showMangaUnreadCount: boolean
+    hideEpisodeCardDescription: boolean
+    hideDownloadedEpisodeCardFilename: boolean
     id: number
     createdAt?: string
     updatedAt?: string

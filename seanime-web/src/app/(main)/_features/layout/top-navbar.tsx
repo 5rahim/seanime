@@ -47,11 +47,11 @@ export function TopNavbar(props: TopNavbarProps) {
                 <div data-top-navbar-content-container className="relative z-10 px-4 w-full flex flex-row md:items-center overflow-x-auto">
                     <div data-top-navbar-content className="flex items-center w-full gap-3">
                         <AppSidebarTrigger />
-                        <PluginSidebarTray place="top" />
                         {!isOffline ? <TopMenu /> : <OfflineTopMenu />}
                         <PlaybackManagerProgressTrackingButton />
                         <ManualProgressTrackingButton />
                         <div data-top-navbar-content-separator className="flex flex-1"></div>
+                        <PluginSidebarTray place="top" />
                         {!isOffline && <ChapterDownloadsButton />}
                         {!isOffline && <RefreshAnilistButton />}
                     </div>

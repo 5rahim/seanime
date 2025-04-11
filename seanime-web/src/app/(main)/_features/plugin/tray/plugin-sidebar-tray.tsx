@@ -18,7 +18,7 @@ import { atom } from "jotai/vanilla"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import React from "react"
-import { LuBlocks, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
+import { LuBlocks, LuBug, LuCircleDashed, LuRefreshCw, LuShapes } from "react-icons/lu"
 import { TbPinned, TbPinnedFilled } from "react-icons/tb"
 import { usePluginListenTrayIconEvent, usePluginSendListTrayIconsEvent } from "../generated/plugin-events"
 
@@ -72,23 +72,26 @@ const ExtensionList = ({
                     onOpenChange={setTrayIconListOpen}
                     side={place === "top" ? "bottom" : "right"}
                     trigger={<div>
-                        <IconButton
-                            intent="gray-basic"
-                            size="sm"
-                            icon={<LuShapes className="size-4 text-[--muted]" />}
-                            className="rounded-full"
-                        />
+                        <Tooltip
+                            side="right"
+                            trigger={<IconButton
+                                intent="gray-basic"
+                                size="sm"
+                                icon={<LuShapes className="size-4 text-[--muted]" />}
+                                className="rounded-full hover:rotate-360 transition-all duration-300"
+                            />}
+                        >Tray plugins</Tooltip>
                     </div>}
                     className="p-2 w-[350px]"
                     data-plugin-sidebar-debug-popover
                     modal={false}
                 >
-                    <div className="space-y-1 max-h-[300px] overflow-y-auto" data-plugin-sidebar-debug-popover-content>
-                        <div className="text-sm">
+                    <div className="space-y-1 max-h-[310px] overflow-y-auto" data-plugin-sidebar-debug-popover-content>
+                        {/* <div className="text-sm">
                             <p className="font-bold">
                                 Plugins
                             </p>
-                        </div>
+                        </div> */}
                         {trayIcons?.map(trayIcon => (
                             <div key={trayIcon.extensionId} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md px-2 py-1">
                                 <div
@@ -127,25 +130,25 @@ const ExtensionList = ({
                                         trigger={<div>
                                             {isPinned(trayIcon.extensionId) ? <IconButton
                                                 intent="primary-basic"
-                                        size="sm"
+                                                size="sm"
                                                 icon={<TbPinnedFilled className="size-5" />}
-                                        className="rounded-full"
-                                        onClick={() => {
-                                            setPluginSettingsPinnedTrays({
-                                                pinnedTrayPluginIds: pinnedTrayPluginIds.filter(id => id !== trayIcon.extensionId),
-                                            })
-                                        }}
-                                        disabled={isSettingPluginSettingsPinnedTrays}
-                                    /> : <IconButton
+                                                className="rounded-full"
+                                                onClick={() => {
+                                                    setPluginSettingsPinnedTrays({
+                                                        pinnedTrayPluginIds: pinnedTrayPluginIds.filter(id => id !== trayIcon.extensionId),
+                                                    })
+                                                }}
+                                                disabled={isSettingPluginSettingsPinnedTrays}
+                                            /> : <IconButton
                                                 intent="gray-basic"
-                                        size="sm"
+                                                size="sm"
                                                 icon={<TbPinned className="size-5 text-[--muted]" />}
-                                        className="rounded-full"
-                                        onClick={() => {
-                                            setPluginSettingsPinnedTrays({
-                                                pinnedTrayPluginIds: [...pinnedTrayPluginIds, trayIcon.extensionId],
-                                            })
-                                        }}
+                                                className="rounded-full"
+                                                onClick={() => {
+                                                    setPluginSettingsPinnedTrays({
+                                                        pinnedTrayPluginIds: [...pinnedTrayPluginIds, trayIcon.extensionId],
+                                                    })
+                                                }}
                                                 disabled={isSettingPluginSettingsPinnedTrays}
                                             />}
                                         </div>}
@@ -156,10 +159,10 @@ const ExtensionList = ({
                             </div>
                         ))}
                         {!trayIcons.length && <p className="text-sm text-[--muted]">
-                            No tray plugins installed
+                            No tray plugins
                         </p>}
 
-                        {developmentModeExtensions?.map(extension => (
+                        {/* {developmentModeExtensions?.map(extension => (
                             <div key={extension.id} className="flex items-center gap-2 justify-between bg-[--subtle] rounded-md p-2">
                                 <p className="text-sm font-medium">{extension.id}</p>
                                 <div>
@@ -173,11 +176,11 @@ const ExtensionList = ({
                                     />
                                 </div>
                             </div>
-                        ))}
+                        ))} */}
                     </div>
                 </Popover>
 
-                {/* <Popover
+                {!!developmentModeExtensions.length && <Popover
                     side={place === "top" ? "bottom" : "right"}
                     trigger={<div>
                         <IconButton
@@ -216,7 +219,7 @@ const ExtensionList = ({
                             </div>
                         ))}
                     </div>
-                 </Popover> */}
+                </Popover>}
 
                 {trayIcons.filter(trayIcon => isPinned(trayIcon.extensionId) || trayIcon.extensionId === unpinnedTrayIconClicked?.extensionId)
                     .map((trayIcon, index) => (
@@ -227,7 +230,7 @@ const ExtensionList = ({
                             place={place}
                             width={width}
                         />
-                ))}
+                    ))}
             </div>
         </>
     )
@@ -321,7 +324,7 @@ export function PluginSidebarTray({ place }: { place: "sidebar" | "top" }) {
                             icon={<LuBlocks />}
                         />
                     </div>}
-                    className="rounded-full p-0 overflow-y-auto bg-black/80 mx-4"
+                    className="rounded-full p-0 overflow-y-auto bg-[--background] mx-4"
                     style={{
                         width: width ? width - 50 : "100%",
                         // transform: "translateX(10px)",

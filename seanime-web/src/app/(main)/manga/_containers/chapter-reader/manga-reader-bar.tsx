@@ -279,6 +279,7 @@ export function MangaReaderBar(props: MangaReaderBarProps) {
 
                     <div data-manga-reader-bar-info-container className="hidden lg:flex">
                         <Popover
+                            modal={true}
                             trigger={
                                 <IconButton
                                     icon={<LuInfo />}

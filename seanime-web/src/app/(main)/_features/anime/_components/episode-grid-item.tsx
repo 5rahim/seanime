@@ -81,6 +81,12 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
             data-episode-number={episodeNumber}
             data-progress-number={progressNumber}
             data-is-watched={isWatched}
+            data-description={description}
+            data-episode-title={episodeTitle}
+            data-title={title}
+            data-file-name={fileName}
+            data-is-invalid={isInvalid}
+            data-is-filler={isFiller}
             className={cn(
                 "max-w-full",
                 "rounded-lg relative transition group/episode-list-item select-none",
@@ -181,21 +187,21 @@ export const EpisodeGridItem: React.FC<EpisodeGridItemProps & React.ComponentPro
                             )}
                         >
                             {title?.replaceAll("`", "'")}</span>{(!!episodeTitle && !!length) &&
-                        <span className="ml-4">{length}m</span>}
+                                <span className="ml-4">{length}m</span>}
                     </p>
 
                     {!!episodeTitle &&
                         <p
                             data-episode-grid-item-episode-title
-                            className={cn("text-md font-semibold lg:text-lg text-gray-300 line-clamp-2",
+                            className={cn("text-md font-medium lg:text-lg text-gray-300 line-clamp-2 lg:!leading-6",
                                 episodeTitleClassName)}
                         >{episodeTitle?.replaceAll("`", "'")}</p>}
 
 
-                    {!!fileName && <p data-episode-grid-item-filename className="text-sm tracking-wide text-[--muted] line-clamp-1">{fileName}</p>}
-                    {!!description &&
+                    {!!description && !ts.hideEpisodeCardDescription &&
                         <p data-episode-grid-item-episode-description className="text-sm text-[--muted] line-clamp-2">{description.replaceAll("`",
                             "'")}</p>}
+                    {!!fileName && !ts.hideDownloadedEpisodeCardFilename && <p data-episode-grid-item-filename className="text-xs tracking-wider opacity-75 line-clamp-1 mt-1">{fileName}</p>}
                     {children && children}
                 </div>
             </div>

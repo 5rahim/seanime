@@ -194,8 +194,9 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         size="sm"
                         intent="warning-basic"
                         icon={<LuShieldCheck />}
+                        className="animate-bounce"
                     />}
-                    title="Authorization required"
+                    title="Permissions required"
                     contentClass="max-w-2xl"
                 >
                     <p>
@@ -220,7 +221,7 @@ export function UnauthorizedExtensionPluginCard(props: UnauthorizedExtensionPlug
                         }}
                         loading={isGrantingPluginPermissions}
                     >
-                        Authorize
+                        Grant permissions
                     </Button>
                 </Modal>
                 {/*Show settings if extension has an ID and manifest URI*/}
